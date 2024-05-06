@@ -32,6 +32,8 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.E
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ParsedHeader;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.PathSegment;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsInput;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructureSegment;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredDataTerminal;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionConfig;
@@ -336,6 +338,36 @@ public class ToNative {
       software.amazon.cryptography.materialproviders.ToNative.EncryptionContext(
         dafnyValue.dtor_encryptionContext()
       )
+    );
+    return nativeBuilder.build();
+  }
+
+  public static ResolveAuthActionsInput ResolveAuthActionsInput(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsInput dafnyValue
+  ) {
+    ResolveAuthActionsInput.Builder nativeBuilder =
+      ResolveAuthActionsInput.builder();
+    nativeBuilder.tableName(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_tableName()
+      )
+    );
+    nativeBuilder.authActions(ToNative.AuthList(dafnyValue.dtor_authActions()));
+    nativeBuilder.headerBytes(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.ByteBuffer(
+        dafnyValue.dtor_headerBytes()
+      )
+    );
+    return nativeBuilder.build();
+  }
+
+  public static ResolveAuthActionsOutput ResolveAuthActionsOutput(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsOutput dafnyValue
+  ) {
+    ResolveAuthActionsOutput.Builder nativeBuilder =
+      ResolveAuthActionsOutput.builder();
+    nativeBuilder.cryptoActions(
+      ToNative.CryptoList(dafnyValue.dtor_cryptoActions())
     );
     return nativeBuilder.build();
   }

@@ -93,6 +93,14 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
   type Path = seq<PathSegment>
   datatype PathSegment =
     | member(member: StructureSegment)
+  datatype ResolveAuthActionsInput = | ResolveAuthActionsInput (
+    nameonly tableName: string ,
+    nameonly authActions: AuthList ,
+    nameonly headerBytes: seq<uint8>
+  )
+  datatype ResolveAuthActionsOutput = | ResolveAuthActionsOutput (
+    nameonly cryptoActions: CryptoList
+  )
   type StructuredDataMap = map<string, StructuredDataTerminal>
   datatype StructuredDataTerminal = | StructuredDataTerminal (
     nameonly value: TerminalValue ,
@@ -104,11 +112,13 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
       DecryptStructure := [];
       EncryptPathStructure := [];
       DecryptPathStructure := [];
+      ResolveAuthActions := [];
     }
     ghost var EncryptStructure: seq<DafnyCallEvent<EncryptStructureInput, Result<EncryptStructureOutput, Error>>>
     ghost var DecryptStructure: seq<DafnyCallEvent<DecryptStructureInput, Result<DecryptStructureOutput, Error>>>
     ghost var EncryptPathStructure: seq<DafnyCallEvent<EncryptPathStructureInput, Result<EncryptPathStructureOutput, Error>>>
     ghost var DecryptPathStructure: seq<DafnyCallEvent<DecryptPathStructureInput, Result<DecryptPathStructureOutput, Error>>>
+    ghost var ResolveAuthActions: seq<DafnyCallEvent<ResolveAuthActionsInput, Result<ResolveAuthActionsOutput, Error>>>
   }
   trait {:termination false} IStructuredEncryptionClient
   {
@@ -212,6 +222,21 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
         && ValidState()
       ensures DecryptPathStructureEnsuresPublicly(input, output)
       ensures History.DecryptPathStructure == old(History.DecryptPathStructure) + [DafnyCallEvent(input, output)]
+
+    predicate ResolveAuthActionsEnsuresPublicly(input: ResolveAuthActionsInput , output: Result<ResolveAuthActionsOutput, Error>)
+    // The public method to be called by library consumers
+    method ResolveAuthActions ( input: ResolveAuthActionsInput )
+      returns (output: Result<ResolveAuthActionsOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`ResolveAuthActions
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures ResolveAuthActionsEnsuresPublicly(input, output)
+      ensures History.ResolveAuthActions == old(History.ResolveAuthActions) + [DafnyCallEvent(input, output)]
 
   }
   datatype StructuredEncryptionConfig = | StructuredEncryptionConfig (
@@ -394,6 +419,26 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionServic
       History.DecryptPathStructure := History.DecryptPathStructure + [DafnyCallEvent(input, output)];
     }
 
+    predicate ResolveAuthActionsEnsuresPublicly(input: ResolveAuthActionsInput , output: Result<ResolveAuthActionsOutput, Error>)
+    {Operations.ResolveAuthActionsEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method ResolveAuthActions ( input: ResolveAuthActionsInput )
+      returns (output: Result<ResolveAuthActionsOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`ResolveAuthActions
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures ResolveAuthActionsEnsuresPublicly(input, output)
+      ensures History.ResolveAuthActions == old(History.ResolveAuthActions) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.ResolveAuthActions(config, input);
+      History.ResolveAuthActions := History.ResolveAuthActions + [DafnyCallEvent(input, output)];
+    }
+
   }
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations {
@@ -478,4 +523,20 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperat
     ensures
       && ValidInternalConfig?(config)
     ensures DecryptPathStructureEnsuresPublicly(input, output)
+
+
+  predicate ResolveAuthActionsEnsuresPublicly(input: ResolveAuthActionsInput , output: Result<ResolveAuthActionsOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method ResolveAuthActions ( config: InternalConfig , input: ResolveAuthActionsInput )
+    returns (output: Result<ResolveAuthActionsOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+    modifies ModifiesInternalConfig(config)
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config)
+    ensures
+      && ValidInternalConfig?(config)
+    ensures ResolveAuthActionsEnsuresPublicly(input, output)
 }

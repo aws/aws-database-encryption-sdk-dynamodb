@@ -157,6 +157,28 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
       }
       throw new System.ArgumentException("Invalid AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.PathSegment state");
     }
+    public static AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsInput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IResolveAuthActionsInput value)
+    {
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsInput concrete = (software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsInput)value; AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsInput converted = new AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsInput(); converted.TableName = (string)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M9_tableName(concrete._tableName);
+      converted.AuthActions = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthItem>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_authActions(concrete._authActions);
+      converted.HeaderBytes = (System.IO.MemoryStream)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_headerBytes(concrete._headerBytes); return converted;
+    }
+    public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IResolveAuthActionsInput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsInput value)
+    {
+      value.Validate();
+
+      return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsInput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M9_tableName(value.TableName), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_authActions(value.AuthActions), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_headerBytes(value.HeaderBytes));
+    }
+    public static AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsOutput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IResolveAuthActionsOutput value)
+    {
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsOutput concrete = (software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsOutput)value; AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsOutput converted = new AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsOutput(); converted.CryptoActions = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoItem>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput__M13_cryptoActions(concrete._cryptoActions); return converted;
+    }
+    public static software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IResolveAuthActionsOutput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsOutput value)
+    {
+      value.Validate();
+
+      return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsOutput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput__M13_cryptoActions(value.CryptoActions));
+    }
     public static AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredEncryptionConfig FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S26_StructuredEncryptionConfig(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IStructuredEncryptionConfig value)
     {
       software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig concrete = (software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig)value; AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredEncryptionConfig converted = new AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredEncryptionConfig(); return converted;
@@ -428,6 +450,38 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       return ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S16_StructureSegment(value);
     }
+    public static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M9_tableName(Dafny.ISequence<char> value)
+    {
+      return FromDafny_N6_smithy__N3_api__S6_String(value);
+    }
+    public static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M9_tableName(string value)
+    {
+      return ToDafny_N6_smithy__N3_api__S6_String(value);
+    }
+    public static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthItem> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_authActions(Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthItem> value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S8_AuthList(value);
+    }
+    public static Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthItem> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_authActions(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthItem> value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S8_AuthList(value);
+    }
+    public static System.IO.MemoryStream FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_headerBytes(Dafny.ISequence<byte> value)
+    {
+      return FromDafny_N6_smithy__N3_api__S4_Blob(value);
+    }
+    public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput__M11_headerBytes(System.IO.MemoryStream value)
+    {
+      return ToDafny_N6_smithy__N3_api__S4_Blob(value);
+    }
+    public static System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoItem> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput__M13_cryptoActions(Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._ICryptoItem> value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S10_CryptoList(value);
+    }
+    public static Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._ICryptoItem> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput__M13_cryptoActions(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoItem> value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S10_CryptoList(value);
+    }
     public static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S29_StructuredEncryptionException__M7_message(Dafny.ISequence<char> value)
     {
       return FromDafny_N6_smithy__N3_api__S6_String(value);
@@ -546,6 +600,19 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
       value.Validate();
 
       return new software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructureSegment(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S16_StructureSegment__M3_key(value.Key));
+    }
+    public static System.IO.MemoryStream FromDafny_N6_smithy__N3_api__S4_Blob(Dafny.ISequence<byte> value)
+    {
+      return new System.IO.MemoryStream(value.Elements);
+    }
+    public static Dafny.ISequence<byte> ToDafny_N6_smithy__N3_api__S4_Blob(System.IO.MemoryStream value)
+    {
+      if (value.ToArray().Length == 0 && value.Length > 0)
+      {
+        throw new System.ArgumentException("Fatal Error: MemoryStream instance not backed by an array!");
+      }
+      return Dafny.Sequence<byte>.FromArray(value.ToArray());
+
     }
     public static AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthItem FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S8_AuthList__M6_member(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthItem value)
     {
@@ -869,19 +936,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     public static Dafny.ISequence<byte> ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S16_EncryptedDataKey__M10_ciphertext(System.IO.MemoryStream value)
     {
       return ToDafny_N6_smithy__N3_api__S4_Blob(value);
-    }
-    public static System.IO.MemoryStream FromDafny_N6_smithy__N3_api__S4_Blob(Dafny.ISequence<byte> value)
-    {
-      return new System.IO.MemoryStream(value.Elements);
-    }
-    public static Dafny.ISequence<byte> ToDafny_N6_smithy__N3_api__S4_Blob(System.IO.MemoryStream value)
-    {
-      if (value.ToArray().Length == 0 && value.Length > 0)
-      {
-        throw new System.ArgumentException("Fatal Error: MemoryStream instance not backed by an array!");
-      }
-      return Dafny.Sequence<byte>.FromArray(value.ToArray());
-
     }
     public static System.Exception FromDafny_CommonError(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IError value)
     {

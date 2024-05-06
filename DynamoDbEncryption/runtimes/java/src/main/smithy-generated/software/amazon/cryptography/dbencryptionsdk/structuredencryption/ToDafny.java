@@ -31,6 +31,8 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.interna
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.IStructuredEncryptionClient;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ParsedHeader;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.PathSegment;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsInput;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructureSegment;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredDataTerminal;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig;
@@ -392,6 +394,32 @@ public class ToDafny {
       storedEncryptionContext,
       encryptionContext
     );
+  }
+
+  public static ResolveAuthActionsInput ResolveAuthActionsInput(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsInput nativeValue
+  ) {
+    DafnySequence<? extends Character> tableName;
+    tableName =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+        nativeValue.tableName()
+      );
+    DafnySequence<? extends AuthItem> authActions;
+    authActions = ToDafny.AuthList(nativeValue.authActions());
+    DafnySequence<? extends Byte> headerBytes;
+    headerBytes =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.ByteSequence(
+        nativeValue.headerBytes()
+      );
+    return new ResolveAuthActionsInput(tableName, authActions, headerBytes);
+  }
+
+  public static ResolveAuthActionsOutput ResolveAuthActionsOutput(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsOutput nativeValue
+  ) {
+    DafnySequence<? extends CryptoItem> cryptoActions;
+    cryptoActions = ToDafny.CryptoList(nativeValue.cryptoActions());
+    return new ResolveAuthActionsOutput(cryptoActions);
   }
 
   public static StructuredDataTerminal StructuredDataTerminal(

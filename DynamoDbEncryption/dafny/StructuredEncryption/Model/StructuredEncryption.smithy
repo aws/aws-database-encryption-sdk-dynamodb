@@ -22,7 +22,7 @@ use aws.polymorph#localService
 )
 service StructuredEncryption {
     version: "2022-07-08",
-    operations: [EncryptStructure, DecryptStructure, EncryptPathStructure, DecryptPathStructure],
+    operations: [EncryptStructure, DecryptStructure, EncryptPathStructure, DecryptPathStructure, ResolveAuthActions],
     errors: [StructuredEncryptionException]
 }
 
@@ -47,6 +47,11 @@ operation EncryptPathStructure {
 operation DecryptPathStructure {
     input: DecryptPathStructureInput,
     output: DecryptPathStructureOutput,
+}
+
+operation ResolveAuthActions {
+    input: ResolveAuthActionsInput,
+    output: ResolveAuthActionsOutput,
 }
 
 //= specification/structured-encryption/decrypt-path-structure.md#parsed-header
@@ -224,6 +229,20 @@ structure DecryptPathStructureOutput {
     plaintextStructure: CryptoList,
     @required
     parsedHeader: ParsedHeader,
+}
+
+structure ResolveAuthActionsInput {
+    @required
+    tableName: String,
+    @required
+    authActions: AuthList,
+    @required
+    headerBytes: Blob
+}
+
+structure ResolveAuthActionsOutput {
+    @required
+    cryptoActions: CryptoList,
 }
 
 // Only handles bytes.

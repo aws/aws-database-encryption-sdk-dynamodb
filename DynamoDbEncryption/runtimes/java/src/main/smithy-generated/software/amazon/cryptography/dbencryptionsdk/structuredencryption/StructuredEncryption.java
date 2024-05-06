@@ -18,6 +18,8 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.E
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.EncryptPathStructureOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.EncryptStructureInput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.EncryptStructureOutput;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsInput;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionConfig;
 
 public class StructuredEncryption {
@@ -98,6 +100,21 @@ public class StructuredEncryption {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.EncryptStructureOutput(result.dtor_value());
+  }
+
+  public ResolveAuthActionsOutput ResolveAuthActions(
+    ResolveAuthActionsInput input
+  ) {
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsInput dafnyValue =
+      ToDafny.ResolveAuthActionsInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.ResolveAuthActionsOutput,
+      Error
+    > result = this._impl.ResolveAuthActions(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.ResolveAuthActionsOutput(result.dtor_value());
   }
 
   protected IStructuredEncryptionClient impl() {

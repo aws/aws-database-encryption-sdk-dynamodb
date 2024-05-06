@@ -85,6 +85,21 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     true
   }
 
+  predicate ResolveAuthActionsEnsuresPublicly(
+    input: ResolveAuthActionsInput,
+    output: Result<ResolveAuthActionsOutput, Error>) {
+    true
+  }
+
+  method ResolveAuthActions (config: InternalConfig, input: ResolveAuthActionsInput)
+    returns (output: Result<ResolveAuthActionsOutput, Error>)
+  {
+    var head :- Header.PartialDeserialize(input.headerBytes);
+    :- Need(ValidString(input.tableName), E("Bad Table Name"));
+    var canonData :- CanonizeForDecrypt(input.tableName, input.authActions, head.legend);
+    return Success(ResolveAuthActionsOutput(cryptoActions := UnCanon(canonData)));
+  }
+
   predicate method SameUnCanon(x : CanonCryptoItem, y : CryptoItem)
   {
     && x.origKey == y.key

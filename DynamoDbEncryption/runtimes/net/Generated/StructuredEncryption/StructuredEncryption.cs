@@ -54,5 +54,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
       if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
       return TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S26_DecryptPathStructureOutput(result.dtor_value);
     }
+    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsOutput ResolveAuthActions(AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ResolveAuthActionsInput input)
+    {
+      software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IResolveAuthActionsInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S23_ResolveAuthActionsInput(input);
+      Wrappers_Compile._IResult<software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IResolveAuthActionsOutput, software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IError> result = _impl.ResolveAuthActions(internalInput);
+      if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+      return TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S24_ResolveAuthActionsOutput(result.dtor_value);
+    }
   }
 }
