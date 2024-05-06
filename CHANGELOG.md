@@ -1,5 +1,43 @@
 # Changelog
 
+## [3.4.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.3.0...v3.4.0) (2024-04-30)
+
+### Notes
+#### .NET
+- [#797](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/797) ([785481c](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/785481c73b385918c5b60301b336ac90f451d307)) Enforces User input Constraints at Type Conversion.
+
+Prior to this fix, unset Integers defaulted to `0`, and unset Booleans defaulted to `false`.
+
+Now, all required fields MUST be set or a Runtime Exception will be thrown.
+
+This particularly effects Searchable Encryption's 
+`ConstructorPart`, who's required field previously
+would have defaulted to false.
+Any configuration ever created for Searchable Encryption can be re-created with the fix, but they may look different.
+
+### Features
+
+*  **feat(.NET):** Validate user input #797 (785481c)
+
+
+### Maintenance
+
+* **format:** enforce Dafny formatting ([#865](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/865)) ([dfc0dbd](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/dfc0dbd84f3ab23bd12be6abf8600f472576173e))
+* **test:** more test vectors ([#959](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/959)) ([3ca15af](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3ca15afac59bee530dfffe832af64f5922c73e9a))
+* **CI** add verify test for test vectors ([#897](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/897)) ([6c980e7](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6c980e7f867952442fc686dfa7ef4c82f04362f3))
+* **CI/CD:** add semantic release automation ([#949](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/949)) ([3f22abc](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3f22abcc4c325a7a8df22e5e72cd859905fbd1e9))
+* **deps:** bump actions/setup-dotnet from 3 to 4 in /.github/workflows ([#943](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/943)) ([f5d9748](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/f5d974833bf22fe2fcef0ce97da12a92ae9a7ec9))
+* **deps:** bump aws-actions/configure-aws-credentials ([#954](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/954)) ([90d7d78](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/90d7d786e17b31ed337334a1e311babc3b63b3de))
+* **deps(Java):** bump io.github.gradle-nexus.publish-plugin ([#903](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/903)) ([04c6cc4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/04c6cc4c3db59f38ab49046abbf6c161cac5ade9))
+* **deps(Java):** bump org.projectlombok:lombok ([#838](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/838)) ([56f1cd1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/56f1cd14d84dd660a62eff7b3e346a621b731de4))
+* **deps:** bump rrainn/dynamodb-action in /.github/workflows ([#932](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/932)) ([16e4d7b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/16e4d7b8c95d0e778c2b552d63be04c1b2b066cb))
+* **docs:** mention sign_and_include in javadoc for keyid supplier ([#966](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/966)) ([2796693](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/27966933f280f48ef4d4c96d0e1db065473ae34f))
+* **docs:** point to the correct readme ([#845](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/845)) ([b950b4a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b950b4a8d1b47d7016b90525849bee77426ffa60))
+* **fix:** repair json file names ([#846](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/846)) ([3ca955a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3ca955a088db58d336dd779927e7d622e0a4610d))
+* **test(.NET):** "dotnet pack" in CI ([#851](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/851)) ([75e44d0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/75e44d00bf73c1dfdd25f942eed57eddfeba8d65))
+* **test:** add tests for attribute names that seem structured ([#964](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/964)) ([c4c0886](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/c4c088661adef70e4e87246a8592f5f49211e0bc))
+* **deps(Java & .NET):** Update MPL to 1.3.0 ([#972](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/972)) ([3d8acae](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3d8acae26c4d6af333b6e654f99baa2de47be9c7))
+
 ## 3.2.0 2024-03-20
 
 ### Features
