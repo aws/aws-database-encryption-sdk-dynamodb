@@ -33,7 +33,6 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      - git checkout main
       # Since no CA creds were exported the jar will not be pulled down from CA.
       # In order, gradle will look for the defined dependencies in:
       #   - Maven Central
@@ -42,7 +41,8 @@ phases:
       # Run transpile by itself. We don't want to locally build the MPL because
       # we want to verify that the version pulled down from maven works correctly
       - cd submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders
-      - make build_java
+      - make transpile_implementation_java
+      - make transpile_test_java
       - make mvn_local_deploy
 
       # Run test Vectors
@@ -61,4 +61,3 @@ phases:
       # Run Migration Examples
       - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
       - gradle -p runtimes/java/Migration/DDBECToAWSDBE test 
-      
