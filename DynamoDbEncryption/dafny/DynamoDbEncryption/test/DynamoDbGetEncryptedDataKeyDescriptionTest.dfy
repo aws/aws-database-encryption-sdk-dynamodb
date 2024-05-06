@@ -100,11 +100,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.value == "keyproviderInfo";
 
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyId.Some?;
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
-
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyId.value == "keyproviderInfo";
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.value == "155b7a3d-7625-4826-4302-113d1179075a";
+    assertBranchKey(actualDataKeyDescription);
   }
 
   method {:test} TestHeaderInputRawRsaDataKeyDataKeyCase()
@@ -177,11 +173,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.Some?;
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.value == "keyproviderInfo";
 
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyId.Some?;
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
-
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyId.value == "keyproviderInfo";
-    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.value == "155b7a3d-7625-4826-4302-113d1179075a";
+    assertBranchKey(actualDataKeyDescription);
   }
 
   method {:test} TestDDBItemInputRawRsaDataKeyCase()
@@ -268,7 +260,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
 
   method {:test} TestNoHeaderFailureCase()
   {
-    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey, testAwsKmsRsaDataKey]);
+    var expectedHead := CreatePartialHeader(testVersion, testFlavor1, testMsgID, testLegend, testEncContext, [testAwsKmsDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;
     var attr := map["wrong_header_attribute" := ComAmazonawsDynamodbTypes.AttributeValue.B(serializedHeader)];
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -281,5 +273,15 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect actualDataKeyDescription.IsFailure();
     expect actualDataKeyDescription.error.DynamoDbEncryptionException?;
     expect actualDataKeyDescription.error.message == "Header not found in the DynamoDB item.";
+  }
+
+  method assertBranchKey(actualDataKeyDescription : Types.GetEncryptedDataKeyDescriptionOutput)
+  {
+    expect |actualDataKeyDescription.EncryptedDataKeyDescriptionOutput| == 1;
+    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyId.Some?;
+    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.Some?;
+
+    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyId.value == "keyproviderInfo";
+    expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].branchKeyVersion.value == "155b7a3d-7625-4826-4302-113d1179075a";
   }
 }
