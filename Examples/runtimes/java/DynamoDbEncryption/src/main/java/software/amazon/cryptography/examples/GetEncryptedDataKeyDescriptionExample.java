@@ -49,7 +49,7 @@ public class GetEncryptedDataKeyDescriptionExample{
                 .DynamoDbEncryptionConfig(DynamoDbEncryptionConfig.builder().build())
                 .build();
         GetEncryptedDataKeyDescriptionUnion InputUnion = GetEncryptedDataKeyDescriptionUnion.builder()
-        .plaintextItem(returnedItem)
+        .item(returnedItem)
         .build();
         software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput input = GetEncryptedDataKeyDescriptionInput.builder()
         .input(InputUnion)
