@@ -231,6 +231,12 @@ structure DecryptPathStructureOutput {
     parsedHeader: ParsedHeader,
 }
 
+//= specification/structured-encryption/resolve-auth-actions.md#input
+//= type=implication
+//# The following inputs to this behavior are REQUIRED:
+//# - [Table Name](#table-name)
+//# - [Auth List](#auth-list)
+//# - [Header Bytes](#header-bytes)
 structure ResolveAuthActionsInput {
     @required
     tableName: String,
@@ -240,6 +246,11 @@ structure ResolveAuthActionsInput {
     headerBytes: Blob
 }
 
+//= specification/structured-encryption/resolve-auth-actions.md#output
+//= type=implication
+//# This operation MUST output the following:
+//# [Crypto List](./structures.md#crypto-list): Input terminal data and the Crypto Schema for each Terminal,
+//#   calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
 structure ResolveAuthActionsOutput {
     @required
     cryptoActions: CryptoList,
@@ -333,6 +344,10 @@ structure StructureSegment {@required key : String}
 // integer Position
 // structure ListSegment {@required key : Position}
 // structure AttributeSegment {@required key : String}
+
+//= specification/structured-encryption/structures.md#path-segment
+//= type=implication
+//# A path segment MUST be a string, designating the name of a member of a structure.
 union PathSegment {
     member: StructureSegment,
     // Not needed now, but easy to add later
@@ -343,6 +358,12 @@ list Path {
     member: PathSegment
 }
 
+//= specification/structured-encryption/structures.md#crypto-item
+//= type=implication
+//# A crypto item MUST consist of
+//# - a [Path](#path)
+//# - a [Crypto Action](#crypto-action)
+//# - a [Terminal Data](#terminal-data)
 structure CryptoItem {
     @required
     key : Path,
@@ -352,10 +373,19 @@ structure CryptoItem {
     action: CryptoAction,
 }
 
+//= specification/structured-encryption/structures.md#crypto-list
+//= type=implication
+//# A crypto list MUST be a sequence of [crypto item](#crypto-item)
 list CryptoList {
     member: CryptoItem,
 }
 
+//= specification/structured-encryption/structures.md#auth-item
+//= type=implication
+//# An auth item MUST consist of
+//# - a [Path](#path)
+//# - an [Authenticate Action](#authenticate-action)
+//# - a [Terminal Data](#terminal-data)
 structure AuthItem {
     @required
     key : Path,
@@ -365,6 +395,9 @@ structure AuthItem {
     action: AuthenticateAction,
 }
 
+//= specification/structured-encryption/structures.md#auth-list
+//= type=implication
+//# An auth list MUST be a sequence of [auth item](#auth-item)
 list AuthList {
     member: AuthItem,
 }
