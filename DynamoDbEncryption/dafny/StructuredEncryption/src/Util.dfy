@@ -105,15 +105,6 @@ module StructuredEncryptionUtil {
     && UTF8.Encode(x).Success?
   }
 
-  // type StructuredDataPlain = map<GoodPath, StructuredDataTerminal>
-  // type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminal>
-  // type CryptoSchemaPlain = map<GoodPath, CSE.CryptoAction>
-  // type CryptoSchemaCanon = map<CanonicalPath, CSE.CryptoAction>
-  // type AuthSchemaPlain = map<GoodPath, AuthenticateAction>
-  // type AuthSchemaCanon = map<CanonicalPath, AuthenticateAction>
-  // type CanonMap = map<CanonicalPath, GoodPath>
-
-
   // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {

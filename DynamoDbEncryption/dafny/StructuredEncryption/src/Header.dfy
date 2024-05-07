@@ -419,15 +419,15 @@ module StructuredEncryptionHeader {
     //   as well as being included in the encryption context.
     //   This indicates that this field MUST NOT be attempted to be decrypted during decryption.    // - no entry if the attribute is not signed
     ensures match (x) {
-              case ENCRYPT_AND_SIGN => ret == ENCRYPT_AND_SIGN_LEGEND
-              case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => ret == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND
-              case SIGN_ONLY => ret == SIGN_ONLY_LEGEND
+              case ENCRYPT_AND_SIGN() => ret == ENCRYPT_AND_SIGN_LEGEND
+              case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT() => ret == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND
+              case SIGN_ONLY() => ret == SIGN_ONLY_LEGEND
             }
   {
     match (x) {
-      case ENCRYPT_AND_SIGN => ENCRYPT_AND_SIGN_LEGEND
-      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT => SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND
-      case SIGN_ONLY => SIGN_ONLY_LEGEND
+      case ENCRYPT_AND_SIGN() => ENCRYPT_AND_SIGN_LEGEND
+      case SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT() => SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND
+      case SIGN_ONLY() => SIGN_ONLY_LEGEND
     }
   }
 
@@ -435,20 +435,12 @@ module StructuredEncryptionHeader {
   function method CountAuthAttrs(data : CanonCryptoList)
     : nat
   {
-    |RestrictAuthAttrs(data)|
-  }
-
-  /*
-   * Restrict `data` to just the authenticated attributes.
-   */
-  function method RestrictAuthAttrs(data: CanonCryptoList)
-    : (authData: CanonCryptoList)
-    // ensures authData.Keys <= data.Keys
-    // ensures forall k <- data :: IsAuthAttr(data[k]) <==> k in authData
-    // ensures forall k <- authData :: authData[k] == data[k]
-    // ensures forall k <- authData :: IsAuthAttr(authData[k])
-  {
-    Seq.Filter((s : CanonCryptoItem) => IsAuthAttr(s.action), data)
+    if |data| == 0 then
+      0
+    else if IsAuthAttr(data[0].action) then
+      1 + CountAuthAttrs(data[1..])
+    else
+      CountAuthAttrs(data[1..])
   }
 
   // Legend to Bytes

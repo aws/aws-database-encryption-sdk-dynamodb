@@ -127,6 +127,8 @@ module StructuredEncryptionCrypt {
 
   datatype EncryptionSelector = DoEncrypt | DoDecrypt
 
+  // Updated return true if the given item has been updated properly for the given operation.
+  // Updated2..Update5 do exactly the same thing, but with different data types.
   predicate Updated(oldVal : CanonCryptoItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
   {
     && oldVal.key == newVal.key

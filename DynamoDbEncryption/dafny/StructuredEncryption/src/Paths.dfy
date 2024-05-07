@@ -253,25 +253,6 @@ module StructuredEncryptionPaths {
     }
   }
 
-  // lemma SelectorNeverPrefixList(x : Selector, y : Selector)
-  //   requires x != y
-  //   requires x.List?
-  //   requires y.List?
-  //   ensures !(CanonicalPart(x) <= CanonicalPart(y))
-  //   ensures !(CanonicalPart(y) <= CanonicalPart(x))
-  // {
-  //   assert x.pos != y.pos;
-  //   var cpX := CanonicalPart(x);
-  //   var cpY := CanonicalPart(y);
-  //   assert cpX == [ARRAY_TAG] + UInt64ToSeq(x.pos as uint64);
-  //   assert cpY == [ARRAY_TAG] + UInt64ToSeq(y.pos as uint64);
-  //   assert UInt64ToSeq(x.pos as uint64) != UInt64ToSeq(y.pos as uint64);
-  //   OnePlusOne([ARRAY_TAG], UInt64ToSeq(x.pos as uint64), UInt64ToSeq(y.pos as uint64));
-  //   assert cpX != cpY;
-  //   assert !(cpY <= cpX);
-  //   assert !(cpX <= cpY);
-  // }
-
   lemma SelectorNeverPrefix(x : PathSegment, y : PathSegment)
     requires x != y
     requires ValidString(x.member.key) && ValidString(y.member.key)

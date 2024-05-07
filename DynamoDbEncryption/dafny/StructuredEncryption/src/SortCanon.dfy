@@ -40,16 +40,12 @@ module SortCanon {
     BelowIsReflexive(x.key);
   }
 
+  // not actually required for sorting. Standard library being updated.
   lemma {:axiom} AuthBelowIsAntiSymmetric(x: CanonAuthItem, y: CanonAuthItem)
     requires AuthBelow(x, y) && AuthBelow(y, x)
     ensures x == y
-  // {
-  //   assert Below(x.key, y.key);
-  //   assert Below(y.key, x.key);
-  //   BelowIsAntiSymmetric(x.key, y.key);
-  //   BelowIsAntiSymmetric(y.key, x.key);
-  // }
 
+  // not actually required for sorting. Standard library being updated.
   lemma {:axiom} CryptoBelowIsAntiSymmetric(x: CanonCryptoItem, y: CanonCryptoItem)
     requires CryptoBelow(x, y) && CryptoBelow(y, x)
     ensures x == y

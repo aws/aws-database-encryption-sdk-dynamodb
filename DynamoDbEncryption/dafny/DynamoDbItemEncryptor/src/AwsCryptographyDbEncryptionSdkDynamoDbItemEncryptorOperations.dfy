@@ -641,15 +641,13 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   function method ConvertCryptoSchemaToAttributeActions(config: ValidConfig, schema: CSE.CryptoSchemaMap)
     : (ret: Result<map<ComAmazonawsDynamodbTypes.AttributeName, CSE.CryptoAction>, Error>)
     requires forall k <- schema :: SE.IsAuthAttr(schema[k])
-    // ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
-    // ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
+    ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
+    ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
-    // We can formally verify these properties, but it is too resource intensive
-    // :- Need(forall k <- schema :: InSignatureScope(config, k),
-    //         DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
+    :- Need(forall k <- schema :: InSignatureScope(config, k),
+            DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
             DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: Invalid attribute names"));
-    // Success(map k <- schema :: k := schema[k])
     Success(schema)
   }
 

@@ -78,7 +78,7 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 format_net:
 	pushd runtimes/net && dotnet format DynamoDbEncryption.csproj && popd
 
-# First, export DAFNY_VERSION=4.2
 polymorph:
+	export DAFNY_VERSION=4.2
 	npm i --no-save prettier@3 prettier-plugin-java@2.5
 	make polymorph_code_gen PROJECT_DEPENDENCIES=
