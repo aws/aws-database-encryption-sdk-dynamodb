@@ -840,6 +840,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN ==> encryptedItems[x].data.typeId == BYTES_TYPE_ID);
     assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN || encryptedItems[x].data == canonData[x].data);
 
+    // verifies, but it takes too long
     assume {:axiom} forall k <- input.plaintextStructure ::
         (exists x ::
            && x in encryptedItems
@@ -1236,6 +1237,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     reveal Seq.Filter();
     assert !exists x :: x in smallResult && x.key == HeaderPath;
     assert !exists x :: x in smallResult && x.key == FooterPath;
+    // verifies, but it takes too long
     assume {:axiom} forall k <- largeResult | k.key !in HeaderPaths :: (exists x :: x in smallResult && x == k);
     :- Need(|smallResult| == |input.encryptedStructure| - 2, E("Internal Error."));
     assert |smallResult| == |input.encryptedStructure| - 2;
