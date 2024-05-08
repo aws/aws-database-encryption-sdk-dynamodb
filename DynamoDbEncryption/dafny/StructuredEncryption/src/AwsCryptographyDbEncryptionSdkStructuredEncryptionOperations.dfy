@@ -565,10 +565,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     plaintextStructure: StructuredDataMap,
     authSchema: AuthenticateSchemaMap,
     acc : AuthList := []
-  ) :
-    Result<AuthList, Error>
+  )
+    : (ret : Result<AuthList, Error>)
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in authSchema
+    requires forall k <- acc :: |k.key| == 1
+    ensures ret.Success? ==>
+              forall k <- ret.value :: |k.key| == 1
   {
     if |keys| == 0 then
       Success(acc)
@@ -579,9 +582,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       BuildAuthMap2(keys[1..], plaintextStructure, authSchema, acc + [item])
   }
 
-  function method BuildAuthMap(plaintextStructure: StructuredDataMap, authSchema: AuthenticateSchemaMap) :
-    Result<AuthList, Error>
+  function method BuildAuthMap(plaintextStructure: StructuredDataMap, authSchema: AuthenticateSchemaMap)
+    : (ret : Result<AuthList, Error>)
     requires plaintextStructure.Keys == authSchema.Keys
+    ensures ret.Success? ==>
+              forall k <- ret.value :: |k.key| == 1
   {
     var keys := SortedSets.ComputeSetToOrderedSequence2(plaintextStructure.Keys, CharLess);
     BuildAuthMap2(keys, plaintextStructure, authSchema)
