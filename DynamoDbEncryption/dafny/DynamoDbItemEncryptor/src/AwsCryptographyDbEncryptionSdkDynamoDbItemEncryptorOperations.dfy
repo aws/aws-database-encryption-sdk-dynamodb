@@ -623,10 +623,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     ensures forall k <-item.Keys :: InSignatureScope(config, k) ==> ret[k] == CSE.SIGN
   {
     map k <- item | true :: k := GetAuthenticateSchemaAction(config, k)
-                         // var authMap := map k <- item | true :: k := GetAuthenticateSchemaAction(config, k);
-                         // var schemaContent := CSE.AuthenticateSchemaContent.SchemaMap(authMap);
-                         // var finalSchema := CSE.AuthenticateSchema(content := schemaContent, attributes := None);
-                         // finalSchema
   }
 
   //= specification/dynamodb-encryption-client/decrypt-item.md#determining-plaintext-items

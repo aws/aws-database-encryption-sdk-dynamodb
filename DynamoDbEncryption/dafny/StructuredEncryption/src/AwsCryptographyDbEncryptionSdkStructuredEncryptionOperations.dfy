@@ -533,10 +533,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     plaintextStructure: StructuredDataMap,
     cryptoSchema: CryptoSchemaMap,
     acc : CryptoList := []
-  ) :
-    Result<CryptoList, Error>
+  )
+    : (ret : Result<CryptoList, Error>)
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in cryptoSchema
+    requires forall k <- acc :: |k.key| == 1
+    ensures ret.Success? ==>
+              forall k <- ret.value :: |k.key| == 1
   {
     if |keys| == 0 then
       Success(acc)
@@ -548,8 +551,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   }
 
   function method BuildCryptoMap(plaintextStructure: StructuredDataMap, cryptoSchema: CryptoSchemaMap) :
-    Result<CryptoList, Error>
+    (ret : Result<CryptoList, Error>)
     requires plaintextStructure.Keys == cryptoSchema.Keys
+    ensures ret.Success? ==>
+              forall k <- ret.value :: |k.key| == 1
   {
     var keys := SortedSets.ComputeSetToOrderedSequence2(plaintextStructure.Keys, CharLess);
     BuildCryptoMap2(keys, plaintextStructure, cryptoSchema)
@@ -586,6 +591,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     (res : Result<(StructuredDataMap, CryptoSchemaMap), Error>)
     requires forall k <- actionsSoFar :: k in dataSoFar
     requires (forall v :: v in actionsSoFar.Values ==> IsAuthAttr(v))
+    requires forall k <- list :: |k.key| == 1
     ensures res.Success? ==>
               && (forall k <- res.value.1 :: k in res.value.0)
               && (forall v :: v in res.value.1.Values ==> IsAuthAttr(v))
@@ -634,6 +640,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= type=implication
     //# Encrypt Structure MUST then behave as [Encrypt Path Structure](encrypt-path-structure.md)
     var pathOutput :- EncryptPathStructure(config, pathInput);
+
+    // This should be provable, but I'm not smart enough
+    assert forall k <- pathInput.plaintextStructure :: |k.key| == 1;
+    :- Need(forall k <- pathOutput.encryptedStructure :: |k.key| == 1, E("Internal Error"));
 
     //= specification/structured-encryption/encrypt-structure.md#behavior
     //= type=implication
@@ -980,6 +990,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= type=implication
     //# Decrypt Structure MUST then behave as [Decrypt Path Structure](decrypt-path-structure.md)
     var pathOutput :- DecryptPathStructure(config, pathInput);
+
+    // This should be provable, but I'm not smart enough
+    assert forall k <- pathInput.encryptedStructure :: |k.key| == 1;
+    :- Need(forall k <- pathOutput.plaintextStructure :: |k.key| == 1, E("Internal Error"));
 
     //= specification/structured-encryption/decrypt-structure.md#behavior
     //= type=implication

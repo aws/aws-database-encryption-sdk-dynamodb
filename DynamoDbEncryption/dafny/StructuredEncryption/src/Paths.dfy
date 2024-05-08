@@ -28,14 +28,15 @@ module StructuredEncryptionPaths {
     && s[0].Map?
   }
 
-  function method StringToUniPath(x : string) : Path
+  function method StringToUniPath(x : string) : (ret : Path)
+    ensures |ret| == 1
   {
     [member(StructureSegment(key := x))]
   }
 
   function method UniPathToString(x : Path) : Result<string, Error>
+    requires |x| == 1
   {
-    :- Need(|x| == 1, E("Path not a single part."));
     Success(x[0].member.key)
   }
 
@@ -98,17 +99,8 @@ module StructuredEncryptionPaths {
     //# followed by the length of the key, followed by the key as a UTF8 string.
     ensures ret == [MAP_TAG] + UInt64ToSeq(|s.member.key| as uint64) + UTF8.Encode(s.member.key).value
     ensures |ret| == 9 + |UTF8.Encode(s.member.key).value|
-    //= specification/structured-encryption/header.md#canonical-path
-    //= type=implication
-    //# For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
-    // ensures s.List? ==> ret == [ARRAY_TAG] + UInt64ToSeq(s.pos as uint64)
-    // ensures s.List? ==> |ret| == 9
   {
     [MAP_TAG] + UInt64ToSeq(|s.member.key| as uint64) + UTF8.Encode(s.member.key).value
-    // match s {
-    //   case Map(key) => [MAP_TAG] + UInt64ToSeq(|key| as uint64) + UTF8.Encode(key).value
-    //   case List(pos) => [ARRAY_TAG] + UInt64ToSeq(pos)
-    // }
   }
 
   // get the Canonical Path for these Selectors

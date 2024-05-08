@@ -59,9 +59,9 @@ which gives us all the flexibility we actually use.
 
 ## Add Structure
 
-You might ask "my not use the structure you just removed?".
+You might ask "why not use the structure you just removed?".
 
-The old way to sat that A.B is SIGN_ONLY and A.C is ENCRYPT_AND_SIGN is a much more complicated version of this:
+The old way to say that A.B is SIGN_ONLY and A.C is ENCRYPT_AND_SIGN is a much more complicated version of this:
 
 ```dafny
 SchemaMap("A" := SchemaMap("B" := SIGN_ONLY, "C" := ENCRYPT_AND_SIGN)));

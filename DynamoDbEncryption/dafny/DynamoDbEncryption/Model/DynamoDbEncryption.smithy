@@ -561,7 +561,7 @@ structure SignedPart {
 //= specification/searchable-encryption/beacons.md#constructor-initialization
 //= type=implication
 //# On initialization of a constructor, the caller MUST provide:
-//#- A non-empty list of [Constructor parts](#constructor-part-initialization)
+//# - A non-empty list of [Constructor parts](#constructor-part-initialization)
 
 @javadoc("The configuration for a particular Compound Beacon construction.")
 structure Constructor {
@@ -573,8 +573,8 @@ structure Constructor {
 //= specification/searchable-encryption/beacons.md#constructor-part-initialization
 //= type=implication
 //# On initialization of a constructor part, the caller MUST provide:
-//#- A name -- a string
-//#- A required flag -- a boolean
+//# - A name -- a string
+//# - A required flag -- a boolean
 
 @javadoc("A part of a Compound Becaon Construction.")
 structure ConstructorPart {
@@ -589,13 +589,13 @@ structure ConstructorPart {
 //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
 //= type=implication
 //# On initialization of a Standard Beacon, the caller MUST provide:
-//#- A name -- a string
-//#- A `length` -- a [beacon length](#beacon-length)
+//# - A name -- a string
+//# - A `length` -- a [beacon length](#beacon-length)
 
 //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
 //= type=implication
 //# On initialization of a Standard Beacon, the caller MAY provide:
-//#- a [terminal location](virtual.md#terminal-location) -- a string
+//# - a [terminal location](virtual.md#terminal-location) -- a string
 
 @javadoc("The configuration for a Standard Beacon.")
 structure StandardBeacon {
@@ -614,15 +614,15 @@ structure StandardBeacon {
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization
 //= type=implication
 //# On initialization of a Compound Beacon, the caller MUST provide:
-//#- A name -- a string
-//#- A split character -- a character
+//# - A name -- a string
+//# - A split character -- a character
 
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization
 //= type=implication
 //# On initialization of a Compound Beacon, the caller MAY provide:
-//#- A list of [encrypted parts](#encrypted-part-initialization)
-//#- A list of [signed parts](#signed-part-initialization)
-//#- A list of constructors
+//# - A list of [encrypted parts](#encrypted-part-initialization)
+//# - A list of [signed parts](#signed-part-initialization)
+//# - A list of constructors
 
 @javadoc("The configuration for a Compound Beacon.")
 structure CompoundBeacon {
@@ -681,8 +681,8 @@ structure MultiKeyStore {
 //= specification/searchable-encryption/search-config.md#beacon-key-source
 //= type=implication
 //# On initialization of a Beacon Key Source, the caller MUST provide exactly one of
-//#- a [Single Key Store](#single-key-store-initialization)
-//#- a [Multi Key Store](#multi-key-store-initialization)
+//# - a [Single Key Store](#single-key-store-initialization)
+//# - a [Multi Key Store](#multi-key-store-initialization)
 
 union BeaconKeySource {
   single : SingleKeyStore,
@@ -732,8 +732,8 @@ structure BeaconVersion {
 //= specification/searchable-encryption/search-config.md#initialization
 //= type=implication
 //# On initialization of the Search Config, the caller MUST provide:
-//#- A list of [beacon versions](#beacon-version-initialization)
-//#- The [version number](#version-number) of the [beacon versions](#beacon-version-initialization) to be used for writing.
+//# - A list of [beacon versions](#beacon-version-initialization)
+//# - The [version number](#version-number) of the [beacon versions](#beacon-version-initialization) to be used for writing.
 
 @javadoc("The configuration for searchable encryption.")
 structure SearchConfig {
