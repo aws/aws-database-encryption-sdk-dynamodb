@@ -59,4 +59,4 @@ phases:
       - gradle -p runtimes/java clean
       - gradle -p runtimes/java test
       # Deploy to CA
-      - make mvn_staging_deploy
+      - gradle -p runtimes/java publishMavenPublicationToStagingCodeArtifactRepository
