@@ -20,6 +20,7 @@ use aws.cryptography.keyStore#KeyStore
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
+use com.amazonaws.dynamodb#AttributeMap
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#Key
@@ -42,11 +43,69 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
   ]
 )
 service DynamoDbEncryption {
-    version: "2022-11-21",
-    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier ],
+    version: "2024-04-02",
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
     errors: [ DynamoDbEncryptionException ]
 }
 
+@javadoc("Returns encrypted data key description.")
+operation GetEncryptedDataKeyDescription {
+    input: GetEncryptedDataKeyDescriptionInput,
+    output: GetEncryptedDataKeyDescriptionOutput,
+}
+
+@javadoc("Input for getting encrypted data key description.")
+structure GetEncryptedDataKeyDescriptionInput {
+    @required
+    input: GetEncryptedDataKeyDescriptionUnion
+}
+
+//= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#input
+//= type=implication
+//# This operation MUST take in either of the following:
+//# - A binary [header](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md)
+//# - A [encrypted DynamoDB item](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/ff9f08a355a20c81540e4ca652e09aaeffe90c4b/specification/dynamodb-encryption-client/encrypt-item.md#encrypted-dynamodb-item)
+
+union GetEncryptedDataKeyDescriptionUnion {
+  @javadoc("A binary header value.")
+  header: Blob,
+  @javadoc("A DynamoDB item.")
+  item: AttributeMap,
+}
+
+@javadoc("Output for getting encrypted data key description.")
+structure GetEncryptedDataKeyDescriptionOutput {
+    @required
+    @javadoc("A list of encrypted data key description.")
+    EncryptedDataKeyDescriptionOutput: EncryptedDataKeyDescriptionList
+}
+
+list EncryptedDataKeyDescriptionList {
+  member: EncryptedDataKeyDescription
+}
+
+//= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#output
+//= type=implication
+//# This operation MUST return the following:
+//# - [keyProviderId](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-id)
+//#- [keyProviderInfo](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for AWS Cryptographic Materials Provider Keyring)
+//#- [branchKeyId](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for hierarchy keyring)
+//#- [branchKeyVersion](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/structured-encryption/header.md#key-provider-information) (only for hierarchy keyring)
+
+structure EncryptedDataKeyDescription {
+  @required
+  @javadoc("Key provider id of the encrypted data key.")
+  keyProviderId: String,
+
+  @javadoc("Key provider information of the encrypted data key.")
+  keyProviderInfo: String,
+
+  @javadoc("Branch key id of the encrypted data key.")
+  branchKeyId: String,
+
+  @javadoc("Branch key version of the encrypted data key.")
+  branchKeyVersion: String
+}
 // The top level DynamoDbEncryption local service takes in no config
 structure DynamoDbEncryptionConfig {
 }
