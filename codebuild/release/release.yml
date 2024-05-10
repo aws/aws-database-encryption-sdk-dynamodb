@@ -63,7 +63,7 @@ batch:
   ## available. For more information, consult the MCM used for this release.
   - identifier: validate_release_corretto8
     depend-on:
-        - upload_to_sonatype
+      - upload_to_sonatype
     buildspec: codebuild/release/validate-release.yml
     env:
       variables:

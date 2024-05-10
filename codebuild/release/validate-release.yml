@@ -61,4 +61,3 @@ phases:
       # Run Migration Examples
       - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
       - gradle -p runtimes/java/Migration/DDBECToAWSDBE test 
-      
