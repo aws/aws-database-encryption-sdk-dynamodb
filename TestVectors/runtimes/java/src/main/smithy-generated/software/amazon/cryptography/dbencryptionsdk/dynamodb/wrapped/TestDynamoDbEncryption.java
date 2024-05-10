@@ -13,6 +13,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
 
 public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
@@ -40,6 +42,25 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
         this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(nativeInput);
       CreateDynamoDbEncryptionBranchKeyIdSupplierOutput dafnyOutput =
         ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(nativeOutput);
+      return Result.create_Success(dafnyOutput);
+    } catch (RuntimeException ex) {
+      return Result.create_Failure(ToDafny.Error(ex));
+    }
+  }
+
+  public Result<
+    GetEncryptedDataKeyDescriptionOutput,
+    Error
+  > GetEncryptedDataKeyDescription(
+    GetEncryptedDataKeyDescriptionInput dafnyInput
+  ) {
+    try {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput nativeInput =
+        ToNative.GetEncryptedDataKeyDescriptionInput(dafnyInput);
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput nativeOutput =
+        this._impl.GetEncryptedDataKeyDescription(nativeInput);
+      GetEncryptedDataKeyDescriptionOutput dafnyOutput =
+        ToDafny.GetEncryptedDataKeyDescriptionOutput(nativeOutput);
       return Result.create_Success(dafnyOutput);
     } catch (RuntimeException ex) {
       return Result.create_Failure(ToDafny.Error(ex));
