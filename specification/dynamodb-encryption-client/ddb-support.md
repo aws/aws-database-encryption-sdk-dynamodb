@@ -15,26 +15,26 @@ There are two categories of support functions.
 
 The first category is for general support, used across multiple DynamoDB API transformations.
 
- * [Writable](#writable) - are the attributes in this item ok to write
- * [TestConditionExpression](#testconditionexpression) - Is this condition expression suitable for use
- * [TestUpdateExpression](#testupdateexpression) - Is this update expression suitable for use
- * [AddSignedBeacons](#addsignedbeacons) - Add non encrypted attributes to an item to enable searchable encryption
- * [GetEncryptedBeacons](#getencryptedbeacons) - Get new attributes for an item to enable searchable encryption
- * [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
+- [Writable](#writable) - are the attributes in this item ok to write
+- [TestConditionExpression](#testconditionexpression) - Is this condition expression suitable for use
+- [TestUpdateExpression](#testupdateexpression) - Is this update expression suitable for use
+- [AddSignedBeacons](#addsignedbeacons) - Add non encrypted attributes to an item to enable searchable encryption
+- [GetEncryptedBeacons](#getencryptedbeacons) - Get new attributes for an item to enable searchable encryption
+- [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
  e.g. the ones added in [AddSignedBeacons](#addsignedbeacons) and [GetEncryptedBeacons](#getencryptedbeacons)
- * [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - Handle the beacon key field name for Multi Key Store configurations
+- [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - Handle the beacon key field name for Multi Key Store configurations
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
- * [QueryInputForBeacons](#queryinputforbeacons)
- * [QueryOutputForBeacons](#queryoutputforbeacons)
- * [ScanInputForBeacons](#scaninputforbeacons)
- * [ScanOutputForBeacons](#scanoutputforbeacons)
+- [QueryInputForBeacons](#queryinputforbeacons)
+- [QueryOutputForBeacons](#queryoutputforbeacons)
+- [ScanInputForBeacons](#scaninputforbeacons)
+- [ScanOutputForBeacons](#scanoutputforbeacons)
 
 ## Writable
 
 Writeable MUST reject any item containing an attribute which begins with `aws_dbe_`.
 
-One needn't worry about attributes with the same names as beacons or virtual fields, 
+One needn't worry about attributes with the same names as beacons or virtual fields,
 because elsewhere we make sure that the beacons do not overlap with configured fields,
 and so trying to write those fields will result in "writing unconfigured field" errors already.
 
@@ -242,7 +242,7 @@ with the value map containing (:fruit = banana).
 The actual query resolved by the server will be "aws_dbe_b_Fruit = :fruit"
 with the value map containing (:fruit = 12345).
 
-Further imagine that two records were returned, one with fruit = banana, 
+Further imagine that two records were returned, one with fruit = banana,
 and one with fruit = orange (but both with aws_dbe_b_Fruit = 12345).
 
 This operation must look at the field "fruit" and keep only the record

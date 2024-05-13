@@ -8,8 +8,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
   public class EncryptStructureInput
   {
     private string _tableName;
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData _plaintextStructure;
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoSchema _cryptoSchema;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> _plaintextStructure;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _cryptoSchema;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
     private AWS.Cryptography.MaterialProviders.DBEAlgorithmSuiteId _algorithmSuiteId;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
@@ -22,7 +22,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       return this._tableName != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData PlaintextStructure
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> PlaintextStructure
     {
       get { return this._plaintextStructure; }
       set { this._plaintextStructure = value; }
@@ -31,7 +31,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       return this._plaintextStructure != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoSchema CryptoSchema
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> CryptoSchema
     {
       get { return this._cryptoSchema; }
       set { this._cryptoSchema = value; }

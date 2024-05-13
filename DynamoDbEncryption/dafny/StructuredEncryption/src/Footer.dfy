@@ -58,16 +58,15 @@ module StructuredEncryptionFooter {
     }
 
     function method makeTerminal()
-      : (ret : StructuredData)
-      ensures ret.content.Terminal?
-      //= specification/structured-encryption/encrypt-structure.md#footer-field
+      : (ret : StructuredDataTerminal)
+      //= specification/structured-encryption/encrypt-path-structure.md#footer-field
       //= type=implication
       //# The Footer Field TypeID MUST be 0xFFFF
-      ensures ret.content.Terminal.typeId == BYTES_TYPE_ID
-      //= specification/structured-encryption/encrypt-structure.md#footer-field
+      ensures ret.typeId == BYTES_TYPE_ID
+      //= specification/structured-encryption/encrypt-path-structure.md#footer-field
       //= type=implication
       //# The Footer Field Value MUST be the serialized [footer](footer.md).
-      ensures ret.content.Terminal.value == serialize()
+      ensures ret.value == serialize()
     {
       ValueToData(serialize(), BYTES_TYPE_ID)
     }
@@ -76,20 +75,13 @@ module StructuredEncryptionFooter {
       client: Primitives.AtomicPrimitivesClient,
       mat : CMP.DecryptionMaterials,
       edks : CMP.EncryptedDataKeyList,
-      signedFields : seq<CanonicalPath>,
-      encFields : seq<CanonicalPath>,
-      encData : StructuredDataCanon,
-      allData : StructuredDataCanon,
+      data : CanonCryptoList,
       header : Bytes)
       returns (ret : Result<bool, Error>)
       requires Materials.DecryptionMaterialsWithPlaintextDataKey(mat)
       requires ValidSuite(mat.algorithmSuite)
       requires Header.ValidEncryptionContext(mat.encryptionContext)
-      requires forall k <- signedFields :: k in allData
-      requires forall k <- encFields :: k in allData
-      requires forall k <- encData :: encData[k].content.Terminal?
-      requires forall k <- allData :: allData[k].content.Terminal?
-      //= specification/structured-encryption/decrypt-structure.md#verify-signatures
+      //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
       //= type=implication
       //# The number of [HMACs in the footer](./footer.md#hmacs)
       //# MUST be the number of [Encrypted Data Keys in the header](./header.md#encrypted-data-keys).
@@ -101,7 +93,7 @@ module StructuredEncryptionFooter {
       ensures client.ValidState()
     {
       :- Need(|edks| == |tags|, E("There are a different number of recipient tags in the stored header than there are in the decryption materials."));
-      var canonicalHash :- CanonHash(signedFields, encFields, encData, allData, header, mat.encryptionContext);
+      var canonicalHash :- CanonHash(data, header, mat.encryptionContext);
 
       var input := Prim.HMacInput (
         digestAlgorithm := mat.algorithmSuite.symmetricSignature.HMAC,
@@ -221,48 +213,34 @@ module StructuredEncryptionFooter {
   }
 
   // Given a key value pair, return the canonical value for use in the footer checksum calculations
-  function method GetCanonicalItem(fieldName : CanonicalPath, value : StructuredData, isEncrypted : bool)
+  function method GetCanonicalItem(data : CanonCryptoItem)
     : (ret : Result<Bytes, Error>)
-    requires value.content.Terminal?
   {
-    if isEncrypted then
-      GetCanonicalEncryptedField(fieldName, value.content.Terminal)
+    if data.action == ENCRYPT_AND_SIGN then
+      GetCanonicalEncryptedField(data.key, data.data)
     else
-      GetCanonicalPlaintextField(fieldName, value.content.Terminal)
+      GetCanonicalPlaintextField(data.key, data.data)
   }
 
   function method CanonContent (
-    fields : seq<CanonicalPath>,      // remaining fields to be canonized
-    encFields : seq<CanonicalPath>,   // fields that are encrypted
-    encData : StructuredDataCanon,
-    allData : StructuredDataCanon,
+    data : CanonCryptoList,      // remaining fields to be canonized
     canonized : Bytes := []   // output
   ) : Result<Bytes, Error>
-    requires forall k <- fields :: k in allData
-    requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
   {
-    if |fields| == 0 then
+    if |data| == 0 then
       Success(canonized)
+    else if data[0].action == DO_NOTHING then
+      CanonContent(data[1..], canonized)
     else
-      var data := if fields[0] in encData then encData[fields[0]] else allData[fields[0]];
-      var newPart :- GetCanonicalItem(fields[0], data, fields[0] in encFields);
-      CanonContent(fields[1..], encFields, encData, allData, canonized + newPart)
+      var newPart :- GetCanonicalItem(data[0]);
+      CanonContent(data[1..], canonized + newPart)
   }
 
   function method CanonRecord (
-    signedFields : seq<CanonicalPath>,
-    encFields : seq<CanonicalPath>,
-    encData : StructuredDataCanon,
-    allData : StructuredDataCanon,
+    data : CanonCryptoList,
     header : Bytes,
     enc : Header.CMPEncryptionContext
   ) : (ret : Result<Bytes, Error>)
-    requires forall k <- signedFields :: k in allData
-    requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
 
     ensures ret.Success? ==>
               //= specification/structured-encryption/footer.md#canonical-record
@@ -274,8 +252,8 @@ module StructuredEncryptionFooter {
               //# | AAD Length | 8 | 64-bit integer, the length of the following AAD data |
               //# | AAD | Variable | The serialization of the Encryption Context from the Encryption Materials |
               //# | Field Data | Variable | For each [signed field](#signed-fields), ordered lexicographically by [canonical path](./header.md#canonical-path), the [canonical field](#canonical-field).
-              && CanonContent(signedFields, encFields, encData, allData).Success?
-              && var canon := CanonContent(signedFields, encFields, encData, allData).value;
+              && CanonContent(data).Success?
+              && var canon := CanonContent(data).value;
               && var AAD := Header.SerializeContext(enc);
               && |AAD| < UINT64_LIMIT
               && var len := UInt64ToSeq(|AAD| as uint64);
@@ -285,7 +263,7 @@ module StructuredEncryptionFooter {
                  + AAD
                  + canon
   {
-    var canon :- CanonContent(signedFields, encFields, encData, allData);
+    var canon :- CanonContent(data);
     var AAD := Header.SerializeContext(enc);
     :- Need(|AAD| < UINT64_LIMIT, E("AAD too long."));
     var len := UInt64ToSeq(|AAD| as uint64);
@@ -293,24 +271,17 @@ module StructuredEncryptionFooter {
   }
 
   method CanonHash (
-    signedFields : seq<CanonicalPath>,
-    encFields : seq<CanonicalPath>,
-    encData : StructuredDataCanon,
-    allData : StructuredDataCanon,
+    data : CanonCryptoList,
     header : Bytes,
     enc : Header.CMPEncryptionContext
   ) returns (ret : Result<Bytes, Error>)
-    requires forall k <- signedFields :: k in allData
-    requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
     ensures ret.Success? ==>
               |ret.value| == 48
     //= specification/structured-encryption/footer.md#hash-calculation
     //= type=implication
     //# The canonical hash of a record MUST be the SHA384 of the canonical form of the record.
   {
-    var data :- CanonRecord(signedFields, encFields, encData, allData, header, enc);
+    var data :- CanonRecord(data, header, enc);
     var resultR := Digest.Digest(Prim.DigestInput(digestAlgorithm := Prim.SHA_384, message := data));
     return resultR.MapFailure(e => AwsCryptographyPrimitives(e));
   }
@@ -319,19 +290,12 @@ module StructuredEncryptionFooter {
   method CreateFooter(
     client: Primitives.AtomicPrimitivesClient,
     mat : CMP.EncryptionMaterials,
-    signedFields : seq<CanonicalPath>,
-    encFields : seq<CanonicalPath>,
-    encData : StructuredDataCanon,
-    allData : StructuredDataCanon,
+    data : CanonCryptoList,
     header : Bytes)
     returns (ret : Result<Footer, Error>)
     requires ValidSuite(mat.algorithmSuite)
     requires Materials.EncryptionMaterialsHasPlaintextDataKey(mat)
     requires Header.ValidEncryptionContext(mat.encryptionContext)
-    requires forall k <- signedFields :: k in allData
-    requires forall k <- encFields :: k in allData
-    requires forall k <- encData :: encData[k].content.Terminal?
-    requires forall k <- allData :: allData[k].content.Terminal?
 
     ensures (ret.Success? && mat.algorithmSuite.signature.ECDSA?) ==>
               //= specification/structured-encryption/footer.md#signature
@@ -349,7 +313,7 @@ module StructuredEncryptionFooter {
     requires client.ValidState()
     ensures client.ValidState()
   {
-    var canonicalHash :- CanonHash(signedFields, encFields, encData, allData, header, mat.encryptionContext);
+    var canonicalHash :- CanonHash(data, header, mat.encryptionContext);
     var tags : seq<RecipientTag> := [];
     for i := 0 to |mat.encryptedDataKeys|
       invariant |tags| == i

@@ -13,9 +13,9 @@ public class EncryptStructureInput {
 
   private final String tableName;
 
-  private final StructuredData plaintextStructure;
+  private final Map<String, StructuredDataTerminal> plaintextStructure;
 
-  private final CryptoSchema cryptoSchema;
+  private final Map<String, CryptoAction> cryptoSchema;
 
   private final ICryptographicMaterialsManager cmm;
 
@@ -36,11 +36,11 @@ public class EncryptStructureInput {
     return this.tableName;
   }
 
-  public StructuredData plaintextStructure() {
+  public Map<String, StructuredDataTerminal> plaintextStructure() {
     return this.plaintextStructure;
   }
 
-  public CryptoSchema cryptoSchema() {
+  public Map<String, CryptoAction> cryptoSchema() {
     return this.cryptoSchema;
   }
 
@@ -69,13 +69,15 @@ public class EncryptStructureInput {
 
     String tableName();
 
-    Builder plaintextStructure(StructuredData plaintextStructure);
+    Builder plaintextStructure(
+      Map<String, StructuredDataTerminal> plaintextStructure
+    );
 
-    StructuredData plaintextStructure();
+    Map<String, StructuredDataTerminal> plaintextStructure();
 
-    Builder cryptoSchema(CryptoSchema cryptoSchema);
+    Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema);
 
-    CryptoSchema cryptoSchema();
+    Map<String, CryptoAction> cryptoSchema();
 
     Builder cmm(ICryptographicMaterialsManager cmm);
 
@@ -96,9 +98,9 @@ public class EncryptStructureInput {
 
     protected String tableName;
 
-    protected StructuredData plaintextStructure;
+    protected Map<String, StructuredDataTerminal> plaintextStructure;
 
-    protected CryptoSchema cryptoSchema;
+    protected Map<String, CryptoAction> cryptoSchema;
 
     protected ICryptographicMaterialsManager cmm;
 
@@ -126,21 +128,23 @@ public class EncryptStructureInput {
       return this.tableName;
     }
 
-    public Builder plaintextStructure(StructuredData plaintextStructure) {
+    public Builder plaintextStructure(
+      Map<String, StructuredDataTerminal> plaintextStructure
+    ) {
       this.plaintextStructure = plaintextStructure;
       return this;
     }
 
-    public StructuredData plaintextStructure() {
+    public Map<String, StructuredDataTerminal> plaintextStructure() {
       return this.plaintextStructure;
     }
 
-    public Builder cryptoSchema(CryptoSchema cryptoSchema) {
+    public Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema) {
       this.cryptoSchema = cryptoSchema;
       return this;
     }
 
-    public CryptoSchema cryptoSchema() {
+    public Map<String, CryptoAction> cryptoSchema() {
       return this.cryptoSchema;
     }
 

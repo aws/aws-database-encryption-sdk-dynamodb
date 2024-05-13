@@ -17,8 +17,7 @@ module DynamoToStructTest {
   method DoFail(data : seq<uint8>, typeId : TerminalTypeId)
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
-    var sdata := StructuredData(content := Terminal(data), attributes := None);
-    var result := StructuredToAttr(sdata);
+    var result := StructuredToAttr(data);
     if !result.Failure? {
       print "\nStructuredToAttr should have failed with this data : ", data, "\n";
     }
@@ -27,8 +26,7 @@ module DynamoToStructTest {
   method DoSucceed(data : seq<uint8>, typeId : TerminalTypeId, pos : nat)
   {
     var data := StructuredDataTerminal(value := data, typeId := typeId);
-    var sdata := StructuredData(content := Terminal(data), attributes := None);
-    var result := StructuredToAttr(sdata);
+    var result := StructuredToAttr(data);
     if !result.Success? {
       print "\nUnexpected failure of StructuredToAttr : (", pos, ") : ", result, "\n";
     }
@@ -98,56 +96,51 @@ module DynamoToStructTest {
   method {:test} {:vcs_split_on_every_assert} TestEncode2() {
     var stringValue := AttributeValue.S("abc");
     var encodedStringData := StructuredDataTerminal(value := [97,98,99], typeId := [0,1]);
-    var encodedStringValue := StructuredData(content := Terminal(encodedStringData), attributes := None);
     var stringStruct := AttrToStructured(stringValue);
     expect stringStruct.Success?;
-    expect stringStruct.value == encodedStringValue;
+    expect stringStruct.value == encodedStringData;
 
-    var newStringValue := StructuredToAttr(encodedStringValue);
+    var newStringValue := StructuredToAttr(encodedStringData);
     expect newStringValue.Success?;
     expect newStringValue.value == stringValue;
 
     var numberValue := AttributeValue.N("123");
     var encodedNumberData := StructuredDataTerminal(value := [49,50,51], typeId := [0,2]);
-    var encodedNumberValue := StructuredData(content := Terminal(encodedNumberData), attributes := None);
     var numberStruct := AttrToStructured(numberValue);
     expect numberStruct.Success?;
-    expect numberStruct.value == encodedNumberValue;
+    expect numberStruct.value == encodedNumberData;
 
-    var newNumberValue := StructuredToAttr(encodedNumberValue);
+    var newNumberValue := StructuredToAttr(encodedNumberData);
     expect newNumberValue.Success?;
     expect newNumberValue.value == numberValue;
 
     var numberSetValue := AttributeValue.NS(["123","45"]);
     var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 49,50,51, 0,0,0,2, 52,53], typeId := [1,2]);
-    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
     var numberSetStruct := AttrToStructured(numberSetValue);
     expect numberSetStruct.Success?;
-    expect numberSetStruct.value == encodedNumberSetValue;
+    expect numberSetStruct.value == encodedNumberSetData;
 
-    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetData);
     expect newNumberSetValue.Success?;
     expect newNumberSetValue.value == numberSetValue;
 
     var stringSetValue := AttributeValue.SS(["abc","de"]);
     var encodedStringSetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 97,98,99, 0,0,0,2, 100,101], typeId := [1,1]);
-    var encodedStringSetValue := StructuredData(content := Terminal(encodedStringSetData), attributes := None);
     var stringSetStruct := AttrToStructured(stringSetValue);
     expect stringSetStruct.Success?;
-    expect stringSetStruct.value == encodedStringSetValue;
+    expect stringSetStruct.value == encodedStringSetData;
 
-    var newStringSetValue := StructuredToAttr(encodedStringSetValue);
+    var newStringSetValue := StructuredToAttr(encodedStringSetData);
     expect newStringSetValue.Success?;
     expect newStringSetValue.value == stringSetValue;
 
     var binarySetValue := AttributeValue.BS([[1,2,3],[4,5]]);
     var encodedBinarySetData := StructuredDataTerminal(value := [0,0,0,2, 0,0,0,3, 1,2,3, 0,0,0,2, 4,5], typeId := [1,0xff]);
-    var encodedBinarySetValue := StructuredData(content := Terminal(encodedBinarySetData), attributes := None);
     var binarySetStruct := AttrToStructured(binarySetValue);
     expect binarySetStruct.Success?;
-    expect binarySetStruct.value == encodedBinarySetValue;
+    expect binarySetStruct.value == encodedBinarySetData;
 
-    var newBinarySetValue := StructuredToAttr(encodedBinarySetValue);
+    var newBinarySetValue := StructuredToAttr(encodedBinarySetData);
     expect newBinarySetValue.Success?;
     expect newBinarySetValue.value == binarySetValue;
   }
@@ -155,21 +148,19 @@ module DynamoToStructTest {
   method {:test} TestEncode() {
     var binaryValue := AttributeValue.B([1,2,3,4,5]);
     var encodedBinaryData := StructuredDataTerminal(value := [1,2,3,4,5], typeId := [0xff,0xff]);
-    var encodedBinaryValue := StructuredData(content := Terminal(encodedBinaryData), attributes := None);
     var binaryStruct := AttrToStructured(binaryValue);
     expect binaryStruct.Success?;
-    expect binaryStruct.value == encodedBinaryValue;
+    expect binaryStruct.value == encodedBinaryData;
 
-    var newBinaryValue := StructuredToAttr(encodedBinaryValue);
+    var newBinaryValue := StructuredToAttr(encodedBinaryData);
     expect newBinaryValue.Success?;
     expect newBinaryValue.value == binaryValue;
 
     var nullValue := AttributeValue.NULL(true);
     var encodedNullData := StructuredDataTerminal(value := [], typeId := [0,0]);
-    var encodedNullValue := StructuredData(content := Terminal(encodedNullData), attributes := None);
     var nullStruct := AttrToStructured(nullValue);
     expect nullStruct.Success?;
-    expect nullStruct.value == encodedNullValue;
+    expect nullStruct.value == encodedNullData;
 
     var newNullValue := StructuredToAttr(nullStruct.value);
     expect newNullValue.Success?;
@@ -177,10 +168,9 @@ module DynamoToStructTest {
 
     var boolValue := AttributeValue.BOOL(false);
     var encodedBoolData := StructuredDataTerminal(value := [0], typeId := [0,4]);
-    var encodedBoolValue := StructuredData(content := Terminal(encodedBoolData), attributes := None);
     var boolStruct := AttrToStructured(boolValue);
     expect boolStruct.Success?;
-    expect boolStruct.value == encodedBoolValue;
+    expect boolStruct.value == encodedBoolData;
 
     var newBoolValue := StructuredToAttr(boolStruct.value);
     expect newBoolValue.Success?;
@@ -216,10 +206,9 @@ module DynamoToStructTest {
     //# and MAY hold values of different types.
     var listValue := AttributeValue.L([binaryValue, nullValue, boolValue]);
     var encodedListData := StructuredDataTerminal(value := [0,0,0,3, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0], typeId := [3,0]);
-    var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
     var listStruct := AttrToStructured(listValue);
     expect listStruct.Success?;
-    expect listStruct.value == encodedListValue;
+    expect listStruct.value == encodedListData;
 
     var newListValue := StructuredToAttr(listStruct.value);
     expect newListValue.Success?;
@@ -273,10 +262,9 @@ module DynamoToStructTest {
         0,1, 0,0,0,4, k,e,y,D, 3,0, 0,0,0,28, 0,0,0,3, 0xff,0xff, 0,0,0,5, 1,2,3,4,5, 0,0, 0,0,0,0, 0,4, 0,0,0,1, 0
       ],
       typeId := [2,0]);
-    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
     var mapStruct := AttrToStructured(mapValue);
     expect mapStruct.Success?;
-    expect mapStruct.value == encodedMapValue;
+    expect mapStruct.value == encodedMapData;
 
     var newMapValue := StructuredToAttr(mapStruct.value);
     expect newMapValue.Success?;
@@ -286,12 +274,11 @@ module DynamoToStructTest {
   method {:test} TestNormalizeNAttr() {
     var numberValue := AttributeValue.N("000123.000");
     var encodedNumberData := StructuredDataTerminal(value := [49,50,51], typeId := [0,2]);
-    var encodedNumberValue := StructuredData(content := Terminal(encodedNumberData), attributes := None);
     var numberStruct := AttrToStructured(numberValue);
     expect numberStruct.Success?;
-    expect numberStruct.value == encodedNumberValue;
+    expect numberStruct.value == encodedNumberData;
 
-    var newNumberValue := StructuredToAttr(encodedNumberValue);
+    var newNumberValue := StructuredToAttr(encodedNumberData);
     expect newNumberValue.Success?;
     expect newNumberValue.value == AttributeValue.N("123");
   }
@@ -299,12 +286,11 @@ module DynamoToStructTest {
   method {:test} TestNormalizeNInSet() {
     var numberSetValue := AttributeValue.NS(["001.00"]);
     var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,1, 0,0,0,1, 49], typeId := [1,2]);
-    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
     var numberSetStruct := AttrToStructured(numberSetValue);
     expect numberSetStruct.Success?;
-    expect numberSetStruct.value == encodedNumberSetValue;
+    expect numberSetStruct.value == encodedNumberSetData;
 
-    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetData);
     expect newNumberSetValue.Success?;
     expect newNumberSetValue.value == AttributeValue.NS(["1"]);
   }
@@ -319,10 +305,9 @@ module DynamoToStructTest {
                                                     0,2, 0,0,0,1, 49 // 1st member is N("1")
                                                   ],
                                                   typeId := [3,0]);
-    var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
     var listStruct := AttrToStructured(listValue);
     expect listStruct.Success?;
-    expect listStruct.value == encodedListValue;
+    expect listStruct.value == encodedListData;
 
     var newListValue := StructuredToAttr(listStruct.value);
     expect newListValue.Success?;
@@ -348,10 +333,9 @@ module DynamoToStructTest {
       ],
       typeId := [2,0]);
 
-    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
     var mapStruct := AttrToStructured(mapValue);
     expect mapStruct.Success?;
-    expect mapStruct.value == encodedMapValue;
+    expect mapStruct.value == encodedMapData;
 
     var newMapValue := StructuredToAttr(mapStruct.value);
     expect newMapValue.Success?;
@@ -364,12 +348,11 @@ module DynamoToStructTest {
   method {:test} TestSortNSAttr() {
     var numberSetValue := AttributeValue.NS(["1","2","10"]);
     var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50], typeId := [1,2]);
-    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
     var numberSetStruct := AttrToStructured(numberSetValue);
     expect numberSetStruct.Success?;
-    expect numberSetStruct.value == encodedNumberSetValue;
+    expect numberSetStruct.value == encodedNumberSetData;
 
-    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetData);
     expect newNumberSetValue.Success?;
     expect newNumberSetValue.value == AttributeValue.NS(["1","10","2"]);
   }
@@ -380,12 +363,11 @@ module DynamoToStructTest {
   method {:test} TestSortNSAfterNormalize() {
     var numberSetValue := AttributeValue.NS(["1","02","10"]);
     var encodedNumberSetData := StructuredDataTerminal(value := [0,0,0,3, 0,0,0,1, 49, 0,0,0,2, 49,48, 0,0,0,1, 50], typeId := [1,2]);
-    var encodedNumberSetValue := StructuredData(content := Terminal(encodedNumberSetData), attributes := None);
     var numberSetStruct := AttrToStructured(numberSetValue);
     expect numberSetStruct.Success?;
-    expect numberSetStruct.value == encodedNumberSetValue;
+    expect numberSetStruct.value == encodedNumberSetData;
 
-    var newNumberSetValue := StructuredToAttr(encodedNumberSetValue);
+    var newNumberSetValue := StructuredToAttr(encodedNumberSetData);
     expect newNumberSetValue.Success?;
     expect newNumberSetValue.value == AttributeValue.NS(["1","10","2"]);
   }
@@ -407,12 +389,11 @@ module DynamoToStructTest {
                                                        ],
                                                        typeId := [1,1]
     );
-    var encodedStringSetValue := StructuredData(content := Terminal(encodedStringSetData), attributes := None);
     var stringSetStruct := AttrToStructured(stringSetValue);
     expect stringSetStruct.Success?;
-    expect stringSetStruct.value == encodedStringSetValue;
+    expect stringSetStruct.value == encodedStringSetData;
 
-    var newStringSetValue := StructuredToAttr(encodedStringSetValue);
+    var newStringSetValue := StructuredToAttr(encodedStringSetData);
     expect newStringSetValue.Success?;
     expect newStringSetValue.value == AttributeValue.SS(["&","𐀂","｡"]);
   }
@@ -423,12 +404,11 @@ module DynamoToStructTest {
   method {:test} TestSortBSAttr() {
     var binarySetValue := AttributeValue.BS([[1],[2],[1,0]]);
     var encodedBinarySetData := StructuredDataTerminal(value := [0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2], typeId := [1,0xff]);
-    var encodedBinarySetValue := StructuredData(content := Terminal(encodedBinarySetData), attributes := None);
     var binarySetStruct := AttrToStructured(binarySetValue);
     expect binarySetStruct.Success?;
-    expect binarySetStruct.value == encodedBinarySetValue;
+    expect binarySetStruct.value == encodedBinarySetData;
 
-    var newBinarySetValue := StructuredToAttr(encodedBinarySetValue);
+    var newBinarySetValue := StructuredToAttr(encodedBinarySetData);
     expect newBinarySetValue.Success?;
     expect newBinarySetValue.value == AttributeValue.BS([[1],[1,0],[2]]);
   }
@@ -453,10 +433,9 @@ module DynamoToStructTest {
                                                     0,0,0,3, 0,0,0,1, 1, 0,0,0,2, 1,0, 0,0,0,1, 2 // BS
                                                   ],
                                                   typeId := [3,0]);
-    var encodedListValue := StructuredData(content := Terminal(encodedListData), attributes := None);
     var listStruct := AttrToStructured(listValue);
     expect listStruct.Success?;
-    expect listStruct.value == encodedListValue;
+    expect listStruct.value == encodedListData;
 
     var newListValue := StructuredToAttr(listStruct.value);
     expect newListValue.Success?;
@@ -495,10 +474,9 @@ module DynamoToStructTest {
       ],
       typeId := [2,0]);
 
-    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
     var mapStruct := AttrToStructured(mapValue);
     expect mapStruct.Success?;
-    expect mapStruct.value == encodedMapValue;
+    expect mapStruct.value == encodedMapData;
 
     var newMapValue := StructuredToAttr(mapStruct.value);
     expect newMapValue.Success?;
@@ -529,10 +507,9 @@ module DynamoToStructTest {
         0,0, 0,0,0,0 // null value
       ],
       typeId := [2,0]);
-    var encodedMapValue := StructuredData(content := Terminal(encodedMapData), attributes := None);
     var mapStruct := AttrToStructured(mapValue);
     expect mapStruct.Success?;
-    expect mapStruct.value == encodedMapValue;
+    expect mapStruct.value == encodedMapData;
 
     var newMapValue := StructuredToAttr(mapStruct.value);
     expect newMapValue.Success?;

@@ -8,6 +8,7 @@ module StructuredEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
@@ -20,6 +21,8 @@ module StructuredEncryptionUtil {
 
   const HeaderField := ReservedPrefix + "head"
   const FooterField := ReservedPrefix + "foot"
+  const HeaderPath : Path := [member(StructureSegment(key := HeaderField))]
+  const FooterPath : Path := [member(StructureSegment(key := FooterField))]
   const ReservedCryptoContextPrefixString := "aws-crypto-"
   const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
 
@@ -39,11 +42,26 @@ module StructuredEncryptionUtil {
   const FALSE_STR : string := "false"
   const FALSE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(FALSE_STR)
 
-  //= specification/structured-encryption/encrypt-structure.md#header-field
+  datatype CanonCryptoItem = CanonCryptoItem (
+    key : CanonicalPath,
+    origKey : Path,
+    data : StructuredDataTerminal,
+    action : CryptoAction
+  )
+  datatype CanonAuthItem = CanonAuthItem (
+    key : CanonicalPath,
+    origKey : Path,
+    data : StructuredDataTerminal,
+    action : AuthenticateAction
+  )
+  type CanonCryptoList = seq<CanonCryptoItem>
+  type CanonAuthList = seq<CanonAuthItem>
+
+  //= specification/structured-encryption/encrypt-path-structure.md#header-field
   //= type=implication
   //# The Header Field name MUST be `aws_dbe_head`
 
-  //= specification/structured-encryption/encrypt-structure.md#footer-field
+  //= specification/structured-encryption/encrypt-path-structure.md#footer-field
   //= type=implication
   //# The Footer Field name MUST be `aws_dbe_foot`
   lemma CheckNames()
@@ -72,19 +90,6 @@ module StructuredEncryptionUtil {
     ensures alg.encrypt.AES_GCM.ivLength as int == NonceSize
   {}
 
-  const DoNotSign :=
-    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.DO_NOT_SIGN), attributes := None)
-  const DoSign :=
-    CSE.AuthenticateSchema(content := CSE.AuthenticateSchemaContent.Action(CSE.AuthenticateAction.SIGN), attributes := None)
-  const EncryptAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.ENCRYPT_AND_SIGN), attributes := None)
-  const ContextAndSign :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT), attributes := None)
-  const SignOnly :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.SIGN_ONLY), attributes := None)
-  const DoNothing :=
-    CSE.CryptoSchema(content := CSE.CryptoSchemaContent.Action(CSE.CryptoAction.DO_NOTHING), attributes := None)
-
   type Key = x : seq<uint8> | |x| == KeySize witness *
   type Nonce = x : seq<uint8> | |x| == NonceSize witness *
   type AuthTag = x : seq<uint8> | |x| == AuthTagSize witness *
@@ -92,31 +97,18 @@ module StructuredEncryptionUtil {
 
   type Bytes = seq<uint8>
   type CanonicalPath = seq<uint8>
+
   type GoodString = x : string | ValidString(x)
-
-  type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
-  type CryptoSchemaActionType = x : CryptoSchema | x.content.Action? witness *
-  type AuthSchemaActionType = x : AuthenticateSchema | x.content.Action? witness *
-
-  type StructuredDataXXX = x : map<GoodString, StructuredData> | forall k <- x :: x[k].content.Terminal?
-  type StructuredDataPlain = map<GoodString, StructuredDataTerminalType>
-  type StructuredDataCanon = map<CanonicalPath, StructuredDataTerminalType>
-  type CryptoSchemaPlain = map<GoodString, CryptoSchemaActionType>
-  type CryptoSchemaCanon = map<CanonicalPath, CryptoSchemaActionType>
-  type AuthSchemaPlain = map<GoodString, AuthSchemaActionType>
-  type AuthSchemaCanon = map<CanonicalPath, AuthSchemaActionType>
-  type CanonMap = map<CanonicalPath, GoodString>
+  predicate method ValidString(x : string)
+  {
+    && |x| <  UINT64_LIMIT
+    && UTF8.Encode(x).Success?
+  }
 
   // Within the context of the StructuredEncryptionClient, certain things must be true of any Algorithm Suite
   predicate method ValidSuite(alg : CMP.AlgorithmSuiteInfo)
   {
     alg.id.DBE? && AlgorithmSuites.DBEAlgorithmSuite?(alg)
-  }
-
-  predicate method ValidString(x : string)
-  {
-    && |x| <  UINT64_LIMIT
-    && UTF8.Encode(x).Success?
   }
 
   // string to Error
@@ -142,29 +134,6 @@ module StructuredEncryptionUtil {
     ConstantTimeCompare(a, b) == 0
   }
 
-  // Is the CryptoSchemaMap flat, i.e., does it contain only Actions?
-  function method CryptoSchemaMapIsFlat(data : CryptoSchemaMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Action?)
-  {
-    forall k <- data :: data[k].content.Action?
-  }
-  type FlatSchemaMap = x : CryptoSchemaMap | CryptoSchemaMapIsFlat(x)
-
-  // Schema must contain only Actions
-  function method AuthSchemaIsFlat(data : AuthenticateSchemaMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Action?)
-  {
-    forall k <- data :: data[k].content.Action?
-  }
-
-  // Map must contain only Terminals
-  function method DataMapIsFlat(data : StructuredDataMap) : (ret : bool)
-    ensures ret ==> (forall v <- data.Values :: v.content.Terminal?)
-  {
-    forall k <- data :: data[k].content.Terminal?
-  }
-  type FlatDataMap = x : StructuredDataMap | DataMapIsFlat(x)
-
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
@@ -173,25 +142,16 @@ module StructuredEncryptionUtil {
 
   // wrap a value in a StructuredData
   function method ValueToData(value : Bytes, typeId : Bytes)
-    : StructuredData
+    : StructuredDataTerminal
     requires IsValid_TerminalTypeId(typeId)
   {
-    StructuredData(
-      content := StructuredDataContent.Terminal(
-        Terminal := StructuredDataTerminal(
-          typeId := typeId,
-          value := value
-        )
-      ),
-      attributes := None
-    )
+    StructuredDataTerminal(typeId := typeId, value := value)
   }
 
   // extract a value from a StructuredData
-  function method GetValue(data : StructuredData) : Bytes
-    requires data.content.Terminal?
+  function method GetValue(data : StructuredDataTerminal) : Bytes
   {
-    data.content.Terminal.value
+    data.value
   }
 
   predicate method ByteLess(x : uint8, y : uint8)

@@ -29,9 +29,9 @@ decrypts a DynamoDB Item originally encrypted via the [Encrypt Item](./encrypt-i
 
 The following inputs to this behavior are REQUIRED:
 
-- DynamoDB Item
+- [DynamoDb Item](#input-dynamodb-item)
 
-### DynamoDB Item
+### Input DynamoDB Item
 
 The DynamoDB Item is the item to be decrypted by this behavior.
 
@@ -49,7 +49,7 @@ Otherwise this operation MUST yield an error.
 
 This operation MUST output the following:
 
-- [DynamoDb Item](#dynamodb-item-1)
+- [DynamoDb Item](#output-dynamodb-item)
 
 This operation MUST also output a [Parsed Header](#parsed-header) if the following is true:
 - The operation is not using a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) that allows legacy decrypts,
@@ -57,9 +57,9 @@ This operation MUST also output a [Parsed Header](#parsed-header) if the followi
 - The operation is not using a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) that allows plaintext reads,
   and the input item is a [plaintext item](#determining-plaintext-items).
 
-### DynamoDB Item
+### Output DynamoDB Item
 
-The DynamoDB Item is the decryption of the [input DynamoBD Item](#dynamodb-item).
+The DynamoDB Item is the decryption of the [input DynamoBD Item](#input dynamodb-item).
 
 ### Parsed Header
 
@@ -99,7 +99,7 @@ this operation MUST NOT decrypt the input item,
 and MUST passthrough that item as the output.
 
 This behavior REQUIRES a [Structured Data](../structured-encryption/structures.md#structured-data)
-which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#dynamodb-item).
+which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#input-dynamodb-item).
 
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
@@ -114,24 +114,24 @@ with the following inputs:
 - Encrypted Structured Data MUST be the Structured Data converted above.
 - Authenticate Schema MUST be a [Authenticate Schema](../structured-encryption/structures.md#crypto-schema)
   built with the following requirements:
-  - For every Attribute in the [input DynamoDB Item](#dynamodb-item)
+  - For every Attribute in the [input DynamoDB Item](#input-dynamodb-item)
     that is in the [signature scope](#signature-scope),
     there MUST exist a [SIGN Authenticate Action](../structured-encryption/structures.md#sign)
     in the Authenticate Schema,
     string indexed at the top level by that attribute name.
-  - For every Attribute in the [input DynamoDB Item](#dynamodb-item)
+  - For every Attribute in the [input DynamoDB Item](#input-dynamodb-item)
     that is not in the [signature scope](#signature-scope),
     there MUST exist a [DO_NOT_SIGN Authenticate Action](../structured-encryption/structures.md#do_not_sign)
     in the Authenticate Schema,
     string indexed at the top level by that attribute name.
   - The number of Authenticate Actions in the Authenticate Schema
-    MUST EQUAL the number of Attributes on the [input DynamoDB Item](#dynamodb-item).
+    MUST EQUAL the number of Attributes on the [input DynamoDB Item](#input-dynamodb-item).
 - Encryption Context MUST be the input Item's [DynamoDB Item Base Context](./encrypt-item.md#dynamodb-item-base-context).
 - CMM MUST be the CMM constructed above.
 
 The output to this behavior is the [conversion](./ddb-item-conversion.md)
 of the decrypted Structured Data determined above
-into the [output DynamoDB Item](#encrypted-dynamodb-item).
+into the [output DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item).
 
 The output MUST also include a [Parsed Header](#parsed-header) that contains
 data that was serialized into the header included in the output DynamoDb Item.

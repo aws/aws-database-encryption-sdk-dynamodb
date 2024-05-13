@@ -104,13 +104,13 @@ Any Condition Expression must be checked for [validity](ddb-support.md#testcondi
 Any Update Expression must be checked for [validity](ddb-support.md#testupdateexpression)
 
 If data is to be written
- - the input data must validated
- - beacons must be added
- - the input data must be encrypted
+- the input data must validated
+- beacons must be added
+- the input data must be encrypted
 
 If data is being read
- - the output data must be decrypted
- - beacons must be removed
+- the output data must be decrypted
+- beacons must be removed
 
 For Query and Scan, more complex processing must be invoked for both input (before encryption),
 and output (after decryption).
@@ -130,7 +130,7 @@ MUST have the following modified behavior:
 - [Decrypt after BatchGetItem](#decrypt-after-batchgetitem)
 - [Decrypt after Scan](#decrypt-after-scan)
 - [Decrypt after Query](#decrypt-after-query)
-- [Decrypt after TransactGetItem](#decrypt-after-transactgetitem)
+- [Decrypt after TransactGetItem](#decrypt-after-transactgetitems)
 - [Validate before UpdateItem](#validate-before-updateitem)
 - [Validate before DeleteItem](#validate-before-deleteitem)
 - [Validate before ExecuteStatement](#validate-before-executestatement)
@@ -139,7 +139,7 @@ MUST have the following modified behavior:
 - [Modify before Scan](#modify-before-scan)
 - [Modify before Query](#modify-before-query)
 
-The [Allowed Passthrough DynmanoDB APIs](#allowed-passthrough-dynamodb-apis)
+The [Allowed Passthrough DynamoDB APIs](#allowed-passthrough-dynamodb-apis)
 MUST NOT be modified.
 
 Any DynamoDB API not specified is this document either
@@ -271,22 +271,22 @@ MUST be unchanged.
 
 If there is an `Update` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
 
- - The UpdateExpression of the `Update` MUST be [valid](ddb-support.md#testupdateexpression).
- - The ConditionExpression of the `Update` MUST be [valid](ddb-support.md#testconditionexpression).
+- The UpdateExpression of the `Update` MUST be [valid](ddb-support.md#testupdateexpression).
+- The ConditionExpression of the `Update` MUST be [valid](ddb-support.md#testconditionexpression).
 
 If there is a `ConditionCheck` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
 
- - The ConditionExpression of the `ConditionCheck` MUST be [valid](ddb-support.md#testconditionexpression).
+- The ConditionExpression of the `ConditionCheck` MUST be [valid](ddb-support.md#testconditionexpression).
 
 If there is a `Delete` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
 
- - The ConditionExpression of the `Delete` MUST be [valid](ddb-support.md#testconditionexpression).
+- The ConditionExpression of the `Delete` MUST be [valid](ddb-support.md#testconditionexpression).
 
 If there is a `Put` that refers to a `TableName` that refers to an [encrypted-table](#encrypted-table)
 
- - The Item MUST be [writable](ddb-support.md#writable).
- - The ConditionExpression `Put` MUST be [valid](ddb-support.md#testconditionexpression).
- - Signed Beacons MUST be [added](ddb-support.md#addsignedbeacons).
+- The Item MUST be [writable](ddb-support.md#writable).
+- The ConditionExpression `Put` MUST be [valid](ddb-support.md#testconditionexpression).
+- Signed Beacons MUST be [added](ddb-support.md#addsignedbeacons).
 - If the [Beacon Key Source](../searchable-encryption/search-config.md#beacon-key-source)
 is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store-initialization)
 the [Beacon Key Field Name](../searchable-encryption/search-config.md#beacon-key-field-name)
@@ -308,11 +308,11 @@ is a [Multi Key Store](../searchable-encryption/search-config.md#multi-key-store
 and a `branch key id` was returned from [handling the beacon key field name](ddb-support.md#handlebeaconkeyfieldname)
 this `branch key id` MUST match the value
 returned from [Get beacon key id from Parsed Header](../searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header).
- - Encrypted Beacons MUST be [added](ddb-support.md#addencryptedbeacons).
- - If any of the above fails,
+- Encrypted Beacons MUST be [added](ddb-support.md#addencryptedbeacons).
+- If any of the above fails,
 the client MUST NOT make a network call to DynamoDB,
 and PutItem MUST yield an error.
- - The PutItem request's `Item` field MUST be replaced
+- The PutItem request's `Item` field MUST be replaced
 with a value that is equivalent to
 the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
 calculated above.
@@ -398,7 +398,7 @@ being returned to the caller if:
   with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
   equal to the `TableName` on the UpdateItem request.
 - the response contains [Attributes](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html#DDB-UpdateItem-response-Attributes).
-- the original UpdateItem request had a 
+- the original UpdateItem request had a
   [ReturnValues](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html#DDB-UpdateItem-request-ReturnValues)
   with a value of `ALL_OLD` or `ALL_NEW`.
 
@@ -449,7 +449,7 @@ After a [Scan](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/AP
 call is made to DynamoDB :
 
 For each list entry in `Items` in the response,
-if there exists an Item Encryptor specified within the 
+if there exists an Item Encryptor specified within the
 [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
 with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
 equal to the `TableName` on the request,
@@ -472,7 +472,7 @@ After a [Query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/A
 call is made to DynamoDB :
 
 For each list entry in `Items` in the response,
-if there exists an Item Encryptor specified within the 
+if there exists an Item Encryptor specified within the
 [DynamoDB Encryption Client Config](#dynamodb-encryption-client-configuration)
 with a [DynamoDB Table Name](./ddb-item-encryptor.md#dynamodb-table-name)
 equal to the `TableName` on the request,
@@ -559,7 +559,6 @@ If no such Item Encryptor exists,
 there MUST NOT be any modification
 to the ExecuteStatement request.
 
-
 ### Validate Before BatchExecuteStatement
 
 Before an [BatchExecuteStatement](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/BatchExecuteStatement.html)
@@ -621,7 +620,6 @@ specifically AttributesToGet, KeyConditions, QueryFilter and ConditionalOperator
 
 The request MUST be [altered](./ddb-support.md#queryinputforbeacons)
 to transform any references to encrypted attributes into references to beacons.
-
 
 ## Allowed Passthrough DynamoDB APIs
 

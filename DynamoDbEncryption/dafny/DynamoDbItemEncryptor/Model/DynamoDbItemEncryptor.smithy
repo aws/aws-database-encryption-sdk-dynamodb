@@ -47,23 +47,24 @@ service DynamoDbItemEncryptor {
 
 @javadoc("The configuration for the client-side encryption of DynamoDB items.")
 structure DynamoDbItemEncryptorConfig {
-    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
     //= type=implication
-    //# The following are REQUIRED for DynamoDb Table Encryption Configuration:
-    //# - [Logical Table Name](#logical-table-name)
-    //# - [DynamoDB Partition Key Name](#dynamodb-partition-key-name)
-    //# - [Attribute Actions](#attribute-actions)
-    //# - A [CMM](#cmm) or [Keyring](#keyring)
+    //# On initialization of the DynamoDB Item Encryptor
+    //# the caller MUST provide:
+    //# - [DynamoDB Table Name](./ddb-table-encryption-config.md#dynamodb-table-name)
+    //# - [DynamoDB Partition Key Name](./ddb-table-encryption-config.md#dynamodb-partition-key-name)
+    //# - [Attribute Actions](./ddb-table-encryption-config.md#attribute-actions)
+    //# - A [CMM](./ddb-table-encryption-config.md#cmm) or [Keyring](./ddb-table-encryption-config.md#keyring)
 
-    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#structure
+    //= specification/dynamodb-encryption-client/ddb-item-encryptor.md#initialization
     //= type=implication
-    //# The following are OPTIONAL for DynamoDb Table Encryption Configuration:
-    //# - [DynamoDB Sort Key Name](#dynamodb-sort-key-name)
-    //# - [Unauthenticated Attributes](#unauthenticated-attributes)
-    //# - [Unauthenticated Attribute Name Prefix](#unauthenticated-attribute-prefix)
-    //# - [Algorithm Suite](#algorithm-suite)
-    //# - [Legacy Config](#legacy-config)
-    //# - [Plaintext Policy](#plaintext-policy)
+    //# The following are OPTIONAL for the DynamoDB Item Encryptor:
+    //# - [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name)
+    //# - [Unauthenticated Attributes](./ddb-table-encryption-config.md#unauthenticated-attributes)
+    //# - [Unauthenticated Attribute Name Prefix](./ddb-table-encryption-config.md#unauthenticated-attribute-prefix)
+    //# - [Algorithm Suite](./ddb-table-encryption-config.md#algorithm-suite)
+    //# - [Legacy Config](./ddb-table-encryption-config.md#legacy-config)
+    //# - [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy)
 
     @required
     @javadoc("The logical table name for this table. This is the name that is cryptographically bound with your data. This can be the same as the actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB table name so that the data may still be authenticated if being read from different (but logically similar) tables, such as a backup table.")
@@ -194,7 +195,7 @@ structure EncryptItemOutput {
 //= specification/dynamodb-encryption-client/decrypt-item.md#input
 //= type=implication
 //# The following inputs to this behavior are REQUIRED:
-//# - DynamoDB Item
+//# - [DynamoDb Item](#input-dynamodb-item)
 @javadoc("Inputs for decrypting a DynamoDB Item.")
 structure DecryptItemInput {
     @required
@@ -207,7 +208,7 @@ structure DecryptItemOutput {
     //= specification/dynamodb-encryption-client/decrypt-item.md#output
     //= type=implication
     //# This operation MUST output the following:
-    //#   - [DynamoDb Item](#dynamodb-item-1)
+    //#   - [DynamoDb Item](#output-dynamodb-item)
     @required
     @javadoc("The decrypted DynamoDB item.")
     plaintextItem: AttributeMap,

@@ -3,21 +3,29 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 package software.amazon.cryptography.dbencryptionsdk.structuredencryption.model;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class DecryptStructureOutput {
 
-  private final StructuredData plaintextStructure;
+  private final Map<String, StructuredDataTerminal> plaintextStructure;
+
+  private final Map<String, CryptoAction> cryptoSchema;
 
   private final ParsedHeader parsedHeader;
 
   protected DecryptStructureOutput(BuilderImpl builder) {
     this.plaintextStructure = builder.plaintextStructure();
+    this.cryptoSchema = builder.cryptoSchema();
     this.parsedHeader = builder.parsedHeader();
   }
 
-  public StructuredData plaintextStructure() {
+  public Map<String, StructuredDataTerminal> plaintextStructure() {
     return this.plaintextStructure;
+  }
+
+  public Map<String, CryptoAction> cryptoSchema() {
+    return this.cryptoSchema;
   }
 
   public ParsedHeader parsedHeader() {
@@ -33,9 +41,15 @@ public class DecryptStructureOutput {
   }
 
   public interface Builder {
-    Builder plaintextStructure(StructuredData plaintextStructure);
+    Builder plaintextStructure(
+      Map<String, StructuredDataTerminal> plaintextStructure
+    );
 
-    StructuredData plaintextStructure();
+    Map<String, StructuredDataTerminal> plaintextStructure();
+
+    Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema);
+
+    Map<String, CryptoAction> cryptoSchema();
 
     Builder parsedHeader(ParsedHeader parsedHeader);
 
@@ -46,7 +60,9 @@ public class DecryptStructureOutput {
 
   static class BuilderImpl implements Builder {
 
-    protected StructuredData plaintextStructure;
+    protected Map<String, StructuredDataTerminal> plaintextStructure;
+
+    protected Map<String, CryptoAction> cryptoSchema;
 
     protected ParsedHeader parsedHeader;
 
@@ -54,16 +70,28 @@ public class DecryptStructureOutput {
 
     protected BuilderImpl(DecryptStructureOutput model) {
       this.plaintextStructure = model.plaintextStructure();
+      this.cryptoSchema = model.cryptoSchema();
       this.parsedHeader = model.parsedHeader();
     }
 
-    public Builder plaintextStructure(StructuredData plaintextStructure) {
+    public Builder plaintextStructure(
+      Map<String, StructuredDataTerminal> plaintextStructure
+    ) {
       this.plaintextStructure = plaintextStructure;
       return this;
     }
 
-    public StructuredData plaintextStructure() {
+    public Map<String, StructuredDataTerminal> plaintextStructure() {
       return this.plaintextStructure;
+    }
+
+    public Builder cryptoSchema(Map<String, CryptoAction> cryptoSchema) {
+      this.cryptoSchema = cryptoSchema;
+      return this;
+    }
+
+    public Map<String, CryptoAction> cryptoSchema() {
+      return this.cryptoSchema;
     }
 
     public Builder parsedHeader(ParsedHeader parsedHeader) {
@@ -79,6 +107,11 @@ public class DecryptStructureOutput {
       if (Objects.isNull(this.plaintextStructure())) {
         throw new IllegalArgumentException(
           "Missing value for required field `plaintextStructure`"
+        );
+      }
+      if (Objects.isNull(this.cryptoSchema())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `cryptoSchema`"
         );
       }
       if (Objects.isNull(this.parsedHeader())) {

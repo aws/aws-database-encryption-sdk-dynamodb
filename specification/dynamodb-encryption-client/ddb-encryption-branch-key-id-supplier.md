@@ -24,7 +24,7 @@ The `CreateDynamoDbEncryptionBranchKeyIdSupplier` is an operation that MUST be v
 
 ### Input
 
-This operation MUST take in a [DynamoDbKeyBranchKeyIdSupplier](#dynamodb-key-branch-key-id-supplier) as input.
+This operation MUST take in a [DynamoDbKeyBranchKeyIdSupplier](#dynamodbkeybranchkeyidsupplier) as input.
 
 ### Output
 

@@ -8,8 +8,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
   public class DecryptStructureInput
   {
     private string _tableName;
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData _encryptedStructure;
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateSchema _authenticateSchema;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> _encryptedStructure;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction> _authenticateSchema;
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
     private System.Collections.Generic.Dictionary<string, string> _encryptionContext;
     public string TableName
@@ -21,7 +21,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       return this._tableName != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData EncryptedStructure
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> EncryptedStructure
     {
       get { return this._encryptedStructure; }
       set { this._encryptedStructure = value; }
@@ -30,7 +30,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     {
       return this._encryptedStructure != null;
     }
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateSchema AuthenticateSchema
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction> AuthenticateSchema
     {
       get { return this._authenticateSchema; }
       set { this._authenticateSchema = value; }

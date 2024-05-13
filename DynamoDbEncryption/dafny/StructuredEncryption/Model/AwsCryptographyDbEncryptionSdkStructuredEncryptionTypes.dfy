@@ -19,74 +19,89 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
   datatype AuthenticateAction =
     | SIGN
     | DO_NOT_SIGN
-  datatype AuthenticateSchema = | AuthenticateSchema (
-    nameonly content: AuthenticateSchemaContent ,
-    nameonly attributes: Option<AuthenticateSchemaAttributes> := Option.None
+  type AuthenticateSchemaMap = map<string, AuthenticateAction>
+  datatype AuthItem = | AuthItem (
+    nameonly key: Path ,
+    nameonly data: StructuredDataTerminal ,
+    nameonly action: AuthenticateAction
   )
-  type AuthenticateSchemaAttributes = map<string, AuthenticateAction>
-  datatype AuthenticateSchemaContent =
-    | Action(Action: AuthenticateAction)
-    | SchemaMap(SchemaMap: AuthenticateSchemaMap)
-    | SchemaList(SchemaList: AuthenticateSchemaList)
-  type AuthenticateSchemaList = seq<AuthenticateSchema>
-  type AuthenticateSchemaMap = map<string, AuthenticateSchema>
+  type AuthList = seq<AuthItem>
   datatype CryptoAction =
     | ENCRYPT_AND_SIGN
     | SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
     | SIGN_ONLY
     | DO_NOTHING
-  datatype CryptoSchema = | CryptoSchema (
-    nameonly content: CryptoSchemaContent ,
-    nameonly attributes: Option<CryptoSchemaAttributes> := Option.None
+  datatype CryptoItem = | CryptoItem (
+    nameonly key: Path ,
+    nameonly data: StructuredDataTerminal ,
+    nameonly action: CryptoAction
   )
-  type CryptoSchemaAttributes = map<string, AuthenticateAction>
-  datatype CryptoSchemaContent =
-    | Action(Action: CryptoAction)
-    | SchemaMap(SchemaMap: CryptoSchemaMap)
-    | SchemaList(SchemaList: CryptoSchemaList)
-  type CryptoSchemaList = seq<CryptoSchema>
-  type CryptoSchemaMap = map<string, CryptoSchema>
+  type CryptoList = seq<CryptoItem>
+  type CryptoSchemaMap = map<string, CryptoAction>
+  datatype DecryptPathStructureInput = | DecryptPathStructureInput (
+    nameonly tableName: string ,
+    nameonly encryptedStructure: AuthList ,
+    nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
+    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
+  )
+  datatype DecryptPathStructureOutput = | DecryptPathStructureOutput (
+    nameonly plaintextStructure: CryptoList ,
+    nameonly parsedHeader: ParsedHeader
+  )
   datatype DecryptStructureInput = | DecryptStructureInput (
     nameonly tableName: string ,
-    nameonly encryptedStructure: StructuredData ,
-    nameonly authenticateSchema: AuthenticateSchema ,
+    nameonly encryptedStructure: StructuredDataMap ,
+    nameonly authenticateSchema: AuthenticateSchemaMap ,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
   datatype DecryptStructureOutput = | DecryptStructureOutput (
-    nameonly plaintextStructure: StructuredData ,
+    nameonly plaintextStructure: StructuredDataMap ,
+    nameonly cryptoSchema: CryptoSchemaMap ,
+    nameonly parsedHeader: ParsedHeader
+  )
+  datatype EncryptPathStructureInput = | EncryptPathStructureInput (
+    nameonly tableName: string ,
+    nameonly plaintextStructure: CryptoList ,
+    nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
+    nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
+    nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
+  )
+  datatype EncryptPathStructureOutput = | EncryptPathStructureOutput (
+    nameonly encryptedStructure: CryptoList ,
     nameonly parsedHeader: ParsedHeader
   )
   datatype EncryptStructureInput = | EncryptStructureInput (
     nameonly tableName: string ,
-    nameonly plaintextStructure: StructuredData ,
-    nameonly cryptoSchema: CryptoSchema ,
+    nameonly plaintextStructure: StructuredDataMap ,
+    nameonly cryptoSchema: CryptoSchemaMap ,
     nameonly cmm: AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager ,
     nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
     nameonly encryptionContext: Option<AwsCryptographyMaterialProvidersTypes.EncryptionContext> := Option.None
   )
   datatype EncryptStructureOutput = | EncryptStructureOutput (
-    nameonly encryptedStructure: StructuredData ,
+    nameonly encryptedStructure: StructuredDataMap ,
+    nameonly cryptoSchema: CryptoSchemaMap ,
     nameonly parsedHeader: ParsedHeader
   )
   datatype ParsedHeader = | ParsedHeader (
-    nameonly cryptoSchema: CryptoSchema ,
     nameonly algorithmSuiteId: AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId ,
     nameonly encryptedDataKeys: AwsCryptographyMaterialProvidersTypes.EncryptedDataKeyList ,
     nameonly storedEncryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext ,
     nameonly encryptionContext: AwsCryptographyMaterialProvidersTypes.EncryptionContext
   )
-  datatype StructuredData = | StructuredData (
-    nameonly content: StructuredDataContent ,
-    nameonly attributes: Option<StructuredDataAttributes> := Option.None
+  type Path = seq<PathSegment>
+  datatype PathSegment =
+    | member(member: StructureSegment)
+  datatype ResolveAuthActionsInput = | ResolveAuthActionsInput (
+    nameonly tableName: string ,
+    nameonly authActions: AuthList ,
+    nameonly headerBytes: seq<uint8>
   )
-  type StructuredDataAttributes = map<string, StructuredDataTerminal>
-  datatype StructuredDataContent =
-    | Terminal(Terminal: StructuredDataTerminal)
-    | DataList(DataList: StructuredDataList)
-    | DataMap(DataMap: StructuredDataMap)
-  type StructuredDataList = seq<StructuredData>
-  type StructuredDataMap = map<string, StructuredData>
+  datatype ResolveAuthActionsOutput = | ResolveAuthActionsOutput (
+    nameonly cryptoActions: CryptoList
+  )
+  type StructuredDataMap = map<string, StructuredDataTerminal>
   datatype StructuredDataTerminal = | StructuredDataTerminal (
     nameonly value: TerminalValue ,
     nameonly typeId: TerminalTypeId
@@ -95,9 +110,15 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
     ghost constructor() {
       EncryptStructure := [];
       DecryptStructure := [];
+      EncryptPathStructure := [];
+      DecryptPathStructure := [];
+      ResolveAuthActions := [];
     }
     ghost var EncryptStructure: seq<DafnyCallEvent<EncryptStructureInput, Result<EncryptStructureOutput, Error>>>
     ghost var DecryptStructure: seq<DafnyCallEvent<DecryptStructureInput, Result<DecryptStructureOutput, Error>>>
+    ghost var EncryptPathStructure: seq<DafnyCallEvent<EncryptPathStructureInput, Result<EncryptPathStructureOutput, Error>>>
+    ghost var DecryptPathStructure: seq<DafnyCallEvent<DecryptPathStructureInput, Result<DecryptPathStructureOutput, Error>>>
+    ghost var ResolveAuthActions: seq<DafnyCallEvent<ResolveAuthActionsInput, Result<ResolveAuthActionsOutput, Error>>>
   }
   trait {:termination false} IStructuredEncryptionClient
   {
@@ -164,19 +185,71 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencrypti
       ensures DecryptStructureEnsuresPublicly(input, output)
       ensures History.DecryptStructure == old(History.DecryptStructure) + [DafnyCallEvent(input, output)]
 
+    predicate EncryptPathStructureEnsuresPublicly(input: EncryptPathStructureInput , output: Result<EncryptPathStructureOutput, Error>)
+    // The public method to be called by library consumers
+    method EncryptPathStructure ( input: EncryptPathStructureInput )
+      returns (output: Result<EncryptPathStructureOutput, Error>)
+      requires
+        && ValidState()
+        && input.cmm.ValidState()
+        && input.cmm.Modifies !! {History}
+      modifies Modifies - {History} ,
+               input.cmm.Modifies ,
+               History`EncryptPathStructure
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History} ,
+                input.cmm.Modifies
+      ensures
+        && ValidState()
+      ensures EncryptPathStructureEnsuresPublicly(input, output)
+      ensures History.EncryptPathStructure == old(History.EncryptPathStructure) + [DafnyCallEvent(input, output)]
+
+    predicate DecryptPathStructureEnsuresPublicly(input: DecryptPathStructureInput , output: Result<DecryptPathStructureOutput, Error>)
+    // The public method to be called by library consumers
+    method DecryptPathStructure ( input: DecryptPathStructureInput )
+      returns (output: Result<DecryptPathStructureOutput, Error>)
+      requires
+        && ValidState()
+        && input.cmm.ValidState()
+        && input.cmm.Modifies !! {History}
+      modifies Modifies - {History} ,
+               input.cmm.Modifies ,
+               History`DecryptPathStructure
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History} ,
+                input.cmm.Modifies
+      ensures
+        && ValidState()
+      ensures DecryptPathStructureEnsuresPublicly(input, output)
+      ensures History.DecryptPathStructure == old(History.DecryptPathStructure) + [DafnyCallEvent(input, output)]
+
+    predicate ResolveAuthActionsEnsuresPublicly(input: ResolveAuthActionsInput , output: Result<ResolveAuthActionsOutput, Error>)
+    // The public method to be called by library consumers
+    method ResolveAuthActions ( input: ResolveAuthActionsInput )
+      returns (output: Result<ResolveAuthActionsOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`ResolveAuthActions
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures ResolveAuthActionsEnsuresPublicly(input, output)
+      ensures History.ResolveAuthActions == old(History.ResolveAuthActions) + [DafnyCallEvent(input, output)]
+
   }
   datatype StructuredEncryptionConfig = | StructuredEncryptionConfig (
 
                                         )
+  datatype StructureSegment = | StructureSegment (
+    nameonly key: string
+  )
   type TerminalTypeId = x: seq<uint8> | IsValid_TerminalTypeId(x) witness *
   predicate method IsValid_TerminalTypeId(x: seq<uint8>) {
     ( 2 <= |x| <= 2 )
   }
   type TerminalValue = seq<uint8>
-  type Version = x: int32 | IsValid_Version(x) witness *
-  predicate method IsValid_Version(x: int32) {
-    ( 1 <= x <= 1 )
-  }
   datatype Error =
       // Local Error structures are listed here
     | StructuredEncryptionException (
@@ -298,6 +371,74 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionServic
       History.DecryptStructure := History.DecryptStructure + [DafnyCallEvent(input, output)];
     }
 
+    predicate EncryptPathStructureEnsuresPublicly(input: EncryptPathStructureInput , output: Result<EncryptPathStructureOutput, Error>)
+    {Operations.EncryptPathStructureEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method EncryptPathStructure ( input: EncryptPathStructureInput )
+      returns (output: Result<EncryptPathStructureOutput, Error>)
+      requires
+        && ValidState()
+        && input.cmm.ValidState()
+        && input.cmm.Modifies !! {History}
+      modifies Modifies - {History} ,
+               input.cmm.Modifies ,
+               History`EncryptPathStructure
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History} ,
+                input.cmm.Modifies
+      ensures
+        && ValidState()
+      ensures EncryptPathStructureEnsuresPublicly(input, output)
+      ensures History.EncryptPathStructure == old(History.EncryptPathStructure) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.EncryptPathStructure(config, input);
+      History.EncryptPathStructure := History.EncryptPathStructure + [DafnyCallEvent(input, output)];
+    }
+
+    predicate DecryptPathStructureEnsuresPublicly(input: DecryptPathStructureInput , output: Result<DecryptPathStructureOutput, Error>)
+    {Operations.DecryptPathStructureEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method DecryptPathStructure ( input: DecryptPathStructureInput )
+      returns (output: Result<DecryptPathStructureOutput, Error>)
+      requires
+        && ValidState()
+        && input.cmm.ValidState()
+        && input.cmm.Modifies !! {History}
+      modifies Modifies - {History} ,
+               input.cmm.Modifies ,
+               History`DecryptPathStructure
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History} ,
+                input.cmm.Modifies
+      ensures
+        && ValidState()
+      ensures DecryptPathStructureEnsuresPublicly(input, output)
+      ensures History.DecryptPathStructure == old(History.DecryptPathStructure) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.DecryptPathStructure(config, input);
+      History.DecryptPathStructure := History.DecryptPathStructure + [DafnyCallEvent(input, output)];
+    }
+
+    predicate ResolveAuthActionsEnsuresPublicly(input: ResolveAuthActionsInput , output: Result<ResolveAuthActionsOutput, Error>)
+    {Operations.ResolveAuthActionsEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method ResolveAuthActions ( input: ResolveAuthActionsInput )
+      returns (output: Result<ResolveAuthActionsOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`ResolveAuthActions
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures ResolveAuthActionsEnsuresPublicly(input, output)
+      ensures History.ResolveAuthActions == old(History.ResolveAuthActions) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.ResolveAuthActions(config, input);
+      History.ResolveAuthActions := History.ResolveAuthActions + [DafnyCallEvent(input, output)];
+    }
+
   }
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations {
@@ -344,4 +485,58 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperat
     ensures
       && ValidInternalConfig?(config)
     ensures DecryptStructureEnsuresPublicly(input, output)
+
+
+  predicate EncryptPathStructureEnsuresPublicly(input: EncryptPathStructureInput , output: Result<EncryptPathStructureOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method EncryptPathStructure ( config: InternalConfig , input: EncryptPathStructureInput )
+    returns (output: Result<EncryptPathStructureOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+      && input.cmm.ValidState()
+    modifies ModifiesInternalConfig(config) ,
+             input.cmm.Modifies
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config) ,
+              input.cmm.Modifies
+    ensures
+      && ValidInternalConfig?(config)
+    ensures EncryptPathStructureEnsuresPublicly(input, output)
+
+
+  predicate DecryptPathStructureEnsuresPublicly(input: DecryptPathStructureInput , output: Result<DecryptPathStructureOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method DecryptPathStructure ( config: InternalConfig , input: DecryptPathStructureInput )
+    returns (output: Result<DecryptPathStructureOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+      && input.cmm.ValidState()
+    modifies ModifiesInternalConfig(config) ,
+             input.cmm.Modifies
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config) ,
+              input.cmm.Modifies
+    ensures
+      && ValidInternalConfig?(config)
+    ensures DecryptPathStructureEnsuresPublicly(input, output)
+
+
+  predicate ResolveAuthActionsEnsuresPublicly(input: ResolveAuthActionsInput , output: Result<ResolveAuthActionsOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method ResolveAuthActions ( config: InternalConfig , input: ResolveAuthActionsInput )
+    returns (output: Result<ResolveAuthActionsOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+    modifies ModifiesInternalConfig(config)
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config)
+    ensures
+      && ValidInternalConfig?(config)
+    ensures ResolveAuthActionsEnsuresPublicly(input, output)
 }

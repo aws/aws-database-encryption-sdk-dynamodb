@@ -39,14 +39,12 @@ module HappyCaseTests {
       print encryptRes;
     }
     expect encryptRes.Success?;
-    var newData := encryptRes.value.encryptedStructure.content;
-    var testData := StructuredDataTestFixtures.TEST_STRUCTURED_DATA.content;
-    expect newData.DataMap?;
-    expect testData.DataMap?;
-    expect newData.DataMap.Keys == testData.DataMap.Keys + {HeaderField, FooterField};
-    expect newData.DataMap["foo"] != testData.DataMap["foo"];
-    expect newData.DataMap["bar"] == testData.DataMap["bar"];
-    expect newData.DataMap["fizzbuzz"] == testData.DataMap["fizzbuzz"];
+    var newData := encryptRes.value.encryptedStructure;
+    var testData := StructuredDataTestFixtures.TEST_STRUCTURED_DATA;
+    expect newData.Keys == testData.Keys + {HeaderField, FooterField};
+    expect newData["foo"] != testData["foo"];
+    expect newData["bar"] == testData["bar"];
+    expect newData["fizzbuzz"] == testData["fizzbuzz"];
 
     var decryptRes := structuredEncryption.DecryptStructure(
       DecryptStructureInput(
@@ -62,27 +60,17 @@ module HappyCaseTests {
       print "\n\n",decryptRes,"\n\n";
     }
     expect decryptRes.Success?;
-    var newResult := decryptRes.value.plaintextStructure.content;
-    var testResult := StructuredDataTestFixtures.TEST_STRUCTURED_DATA.content;
-    expect newResult.DataMap?;
-    expect newResult.DataMap == testResult.DataMap;
+    var newResult := decryptRes.value.plaintextStructure;
+    var testResult := StructuredDataTestFixtures.TEST_STRUCTURED_DATA;
+    expect newResult == testResult;
 
-    //= specification/structured-encryption/decrypt-structure.md#construct-decrypted-structured-data
+    //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //= type=test
     //# The output MUST also include a [Parsed Header](#parsed-header) that contains
     //# data that was serialized into the header included in the output Structured Data.
 
-    //= specification/structured-encryption/decrypt-structure.md#parsed-header
-    //= type=test
-    //# This structure MUST contain the following values,
-    //# representing the deserialized form of the header of the input encrypted structure:
-    //#   - [Algorithm Suite ID](./header.md#format-flavor): The Algorithm Suite ID associated with the Format Flavor on the header.
-    //#   - [Crypto Schema](./header.md#encrypt-legend): The Crypto Schema for each signed Terminal,
-    //#     calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
-    //#   - [Stored Encryption Context](./header.md#encryption-context): The Encryption Context stored in the header.
-    //#   - [Encrypted Data Keys](./header.md#encrypted-data-keys): The Encrypted Data Keys stored in the header.
     var parsedHeader := decryptRes.value.parsedHeader;
-    expect parsedHeader.cryptoSchema == StructuredDataTestFixtures.TEST_CRYPTO_SCHEMA_AUTH_ONLY;
+    expect decryptRes.value.cryptoSchema == StructuredDataTestFixtures.TEST_CRYPTO_SCHEMA_AUTH_ONLY;
     expect parsedHeader.algorithmSuiteId == algSuiteId;
     expect encContext.Keys <= parsedHeader.storedEncryptionContext.Keys;
     expect forall k <- encContext.Keys :: parsedHeader.storedEncryptionContext[k] == encContext[k];

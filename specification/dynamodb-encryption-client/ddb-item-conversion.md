@@ -37,8 +37,6 @@ and the numeric value might be formatted differently.
 
 A [Structured Data](../structured-encryption/structures.md#structured-data)
 converted from a DynamoDB Item has the following requirements:
-- MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
-- MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
 - MUST contain a [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
   for each attribute on the DynamoDB Item, and no others.
 
@@ -54,11 +52,8 @@ converted from a DynamoDB Item has the following requirements:
 In order to convert to a DynamoDB Item,
 [Structured Data](../structured-encryption/structures.md#structured-data)
 adheres to the following:
-- MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
 - This [Structured Data Map](../structured-encryption/structures.md#structured-data-map),
   if not empty,
-  MUST only contain [Structured Data Terminals](../structured-encryption/structures.md#structured-data-terminal).
-- MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
 - MUST NOT have any `Key` strings that are invalid DynamoDB AttributeNames, that is, with more than 65535 characters.
 
 A DynamoDB Item converted from a

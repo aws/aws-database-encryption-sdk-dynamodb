@@ -3,3 +3,5 @@ ImplementationFromDafny.cs
 TestsFromDafny.cs
 **/bin
 **/obj
+node_modules
+project.properties

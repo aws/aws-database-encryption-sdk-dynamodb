@@ -13,6 +13,7 @@ module StructuredEncryptionPaths {
   import opened StandardLibrary.UInt
   import opened StructuredEncryptionUtil
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import opened DafnyLibraries
 
   datatype Selector =
     | List(pos : uint64)
@@ -27,123 +28,243 @@ module StructuredEncryptionPaths {
     && s[0].Map?
   }
 
-  // a specific part of a structure
-  datatype TerminalLocation = TerminalLocation (
-    parts : TerminalSelector
-  )
+  function method StringToUniPath(x : string) : (ret : Path)
+    ensures |ret| == 1
   {
-    // Return the Canonical Path for this part of an item in this table
-    function method canonicalPath(table : GoodString)
-      : (ret : CanonicalPath)
-      ensures ret ==
-              //= specification/structured-encryption/header.md#canonical-path
-              //= type=implication
-              //# The canonical path MUST start with the UTF8 encoded table name.
-              UTF8.Encode(table).value
-              //= specification/structured-encryption/header.md#canonical-path
-              //= type=implication
-              //# This MUST be followed by the depth of the Terminal within Structured Data.
-              + UInt64ToSeq(|parts| as uint64)
-              //= specification/structured-encryption/header.md#canonical-path
-              //= type=implication
-              //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
-              + MakeCanonicalPath(parts)
-    {
-      var tableName := UTF8.Encode(table).value;
-      var depth := UInt64ToSeq(|parts| as uint64);
-      var path := MakeCanonicalPath(parts);
-      tableName + depth + path
-    }
-
-    predicate method isRoot()
-    {
-      |parts| == 1
-    }
-    function method getRoot() : GoodString
-    {
-      assert ValidTerminalSelector(parts);
-      parts[0].key
-    }
+    [member(StructureSegment(key := x))]
   }
 
-  function method TermLocMap?(attr : string) : Result<TerminalLocation, Error>
+  function method UniPathToString(x : Path) : Result<string, Error>
+    requires |x| == 1
+  {
+    Success(x[0].member.key)
+  }
+
+  predicate method ValidPath(path : Path)
+  {
+    && |path| < UINT64_LIMIT
+    && forall x <- path :: ValidString(x.member.key)
+  }
+
+  function method CanonPath(table : GoodString, path : Path)
+    : (ret : CanonicalPath)
+    requires ValidPath(path)
+    ensures ret ==
+            //= specification/structured-encryption/header.md#canonical-path
+            //= type=implication
+            //# The canonical path MUST start with the UTF8 encoded table name.
+            UTF8.Encode(table).value
+            //= specification/structured-encryption/header.md#canonical-path
+            //= type=implication
+            //# This MUST be followed by the depth of the Terminal within Structured Data.
+            + UInt64ToSeq(|path| as uint64)
+            //= specification/structured-encryption/header.md#canonical-path
+            //= type=implication
+            //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
+            + MakeCanonicalPath(path)
+  {
+    var tableName := UTF8.Encode(table).value;
+    var depth := UInt64ToSeq(|path| as uint64);
+    var path := MakeCanonicalPath(path);
+    tableName + depth + path
+  }
+
+  function method TermLocMap?(attr : string) : Result<Path, Error>
   {
     :- Need(ValidString(attr), E("invalid string : " + attr));
-    Success(TermLocMap(attr))
+    Success([member(StructureSegment(key := attr))])
   }
 
-  function method TermLocMap(attr : GoodString) : TerminalLocation
+  function method TermLocMap(attr : GoodString) : Path
   {
-    TerminalLocation([Map(attr)])
+    [member(StructureSegment(key := attr))]
   }
 
   function method {:opaque} SimpleCanon(table : GoodString, attr : GoodString)
     : CanonicalPath
   {
-    TermLocMap(attr).canonicalPath(table)
+    CanonPath(table, TermLocMap(attr))
   }
 
   const ARRAY_TAG : uint8 := '#' as uint8
   const MAP_TAG   : uint8 := '$' as uint8
 
   // get the Canonical Path fragment for this Selector
-  function method CanonicalPart(s : Selector)
+  function method CanonicalPart(s : PathSegment)
     : (ret : Bytes)
+    requires ValidString(s.member.key)
     //= specification/structured-encryption/header.md#canonical-path
     //= type=implication
     //# For Structured Data in Structured Data Maps, this MUST be a 0x24 byte ($ in UTF-8),
     //# followed by the length of the key, followed by the key as a UTF8 string.
-    ensures s.Map? ==> ret == [MAP_TAG] + UInt64ToSeq(|s.key| as uint64) + UTF8.Encode(s.key).value
-    //= specification/structured-encryption/header.md#canonical-path
-    //= type=implication
-    //# For Structured Data in Structured Data Lists, this MUST be a 0x23 byte (# in UTF-8), followed by the numerical index.
-    ensures s.List? ==> ret == [ARRAY_TAG] + UInt64ToSeq(s.pos as uint64)
+    ensures ret == [MAP_TAG] + UInt64ToSeq(|s.member.key| as uint64) + UTF8.Encode(s.member.key).value
+    ensures |ret| == 9 + |UTF8.Encode(s.member.key).value|
   {
-    match s {
-      case Map(key) => [MAP_TAG] + UInt64ToSeq(|key| as uint64) + UTF8.Encode(key).value
-      case List(pos) => [ARRAY_TAG] + UInt64ToSeq(pos)
-    }
+    [MAP_TAG] + UInt64ToSeq(|s.member.key| as uint64) + UTF8.Encode(s.member.key).value
   }
 
   // get the Canonical Path for these Selectors
-  function method {:tailrecursion} MakeCanonicalPath(src : SelectorList)
-    : CanonicalPath
+  function method {:tailrecursion} MakeCanonicalPath(path : Path)
+    : (ret : CanonicalPath)
+    requires ValidPath(path)
+    ensures |path| == 0 ==> ret == []
+    ensures |path| == 1 ==> ret == CanonicalPart(path[0])
   {
-    if |src| == 0 then
+    if |path| == 0 then
       []
     else
-      CanonicalPart(src[0]) + MakeCanonicalPath(src[1..])
+      CanonicalPart(path[0]) + MakeCanonicalPath(path[1..])
+  }
+
+  // Does NOT guarantee a unique output for every unique input
+  // e.g. ['a.b'] and ['a','b'] both return 'a.b'.
+  function method PathToString(path : Path) : string
+  {
+    if |path| == 0 then
+      ""
+    else if |path| == 1 then
+      path[0].member.key
+    else
+      path[0].member.key + "." + PathToString(path[1..])
   }
 
   // End code, begin lemmas.
-  // The only useful one is SimpleCanonUnique
-  // The others are here to prove that
+  // The only useful ones are SimpleCanonUnique and FullPathUnique
+  // The others are here to prove those
+  // SimpleCanon and SimpleCanonUnique should be retired
 
-  lemma CanonicalPartMapUnique(x : Selector, y : Selector)
-    requires x.Map?
-    requires y.Map?
-    requires x != y
-    ensures CanonicalPart(x) != CanonicalPart(y)
+
+  // x != y ==> x.canonicalPath != y.canonicalPath, so we can map with it
+  lemma CanonPathUnique(table : GoodString)
+    ensures forall x : Path, y : Path | ValidPath(x) && ValidPath(y)
+              :: x != y ==> CanonPath(table, x) != CanonPath(table, y)
   {
-    assert x.key != y.key;
-    assert CanonicalPart(x) == [MAP_TAG] + UInt64ToSeq(|x.key| as uint64) + UTF8.Encode(x.key).value;
-    assert CanonicalPart(y) == [MAP_TAG] + UInt64ToSeq(|y.key| as uint64) + UTF8.Encode(y.key).value;
-    assert UTF8.Encode(x.key).value != UTF8.Encode(y.key).value;
-    if |x.key| == |y.key| {
-      var prefix := [MAP_TAG] + UInt64ToSeq(|y.key| as uint64);
-      assert CanonicalPart(x) == prefix + UTF8.Encode(x.key).value;
-      assert CanonicalPart(y) == prefix + UTF8.Encode(y.key).value;
-      OnePlusOne(prefix, UTF8.Encode(x.key).value, UTF8.Encode(y.key).value);
-      assert CanonicalPart(x) != CanonicalPart(y);
-    } else {
-      assert UInt64ToSeq(|x.key| as uint64) != UInt64ToSeq(|y.key| as uint64);
-      assert CanonicalPart(x)[1..9] == UInt64ToSeq(|x.key| as uint64);
-      assert CanonicalPart(y)[1..9] == UInt64ToSeq(|y.key| as uint64);
+    forall x : Path, y : Path | ValidPath(x) && ValidPath(y)
+      ensures x != y ==> CanonPath(table, x) != CanonPath(table, y) {
+      if x != y {
+        CanonPathUnique2(table, x, y);
+      }
     }
   }
 
-  lemma OnePart(src : SelectorList)
+  lemma CanonPathUnique2(table : GoodString, x : Path, y : Path)
+    requires x != y
+    requires ValidPath(x) && ValidPath(y)
+    ensures CanonPath(table, x) != CanonPath(table, y)
+  {
+    PathUnique2(x, y);
+    var cpX := CanonPath(table, x);
+    var cpY := CanonPath(table, y);
+    var tableName := UTF8.Encode(table).value;
+    assert tableName < cpX;
+    assert tableName < cpY;
+    if |x| == |y| {
+      var prefix := tableName + UInt64ToSeq(|x| as uint64);
+      assert cpX == prefix + MakeCanonicalPath(x);
+      assert cpY == prefix + MakeCanonicalPath(y);
+      PathUnique2(x, y);
+      OnePlusOne(prefix, MakeCanonicalPath(x), MakeCanonicalPath(y));
+      assert cpX != cpY;
+    } else {
+      assert UInt64ToSeq(|x| as uint64) != UInt64ToSeq(|y| as uint64);
+      assert (tableName + UInt64ToSeq(|x| as uint64)) <= cpX;
+      assert (tableName + UInt64ToSeq(|y| as uint64)) <= cpY;
+      OnePlusOne(tableName, UInt64ToSeq(|x| as uint64), UInt64ToSeq(|y| as uint64));
+      assert (tableName + UInt64ToSeq(|x| as uint64)) != (tableName + UInt64ToSeq(|y| as uint64));
+      assert cpX != cpY;
+    }
+  }
+
+  // x != y ==> MakeCanonicalPath(x) != MakeCanonicalPath(y), so we can map with it
+  lemma PathUnique()
+    ensures forall x : Path, y : Path | ValidPath(x) && ValidPath(y)
+              :: x != y ==> MakeCanonicalPath(x) != MakeCanonicalPath(y)
+  {
+    forall x : Path, y : Path | ValidPath(x) && ValidPath(y)
+      ensures x != y ==> MakeCanonicalPath(x) != MakeCanonicalPath(y) {
+      if x != y {
+        PathUnique2(x, y);
+      }
+    }
+  }
+
+  lemma PathUnique2(x : Path, y : Path)
+    requires ValidPath(x) && ValidPath(y)
+    requires x != y
+    ensures MakeCanonicalPath(x) != MakeCanonicalPath(y)
+  {
+    if |x| == 0 || |y| == 0 {
+
+    } else if x[0] != y[0] {
+      CanonicalPartMapUnique(x[0], y[0]);
+      assert CanonicalPart(x[0]) != CanonicalPart(y[0]);
+      SelectorNeverPrefix(x[0], y[0]);
+      assert CanonicalPart(x[0]) <= MakeCanonicalPath(x);
+      assert CanonicalPart(y[0]) <= MakeCanonicalPath(y);
+      assert MakeCanonicalPath(x) == CanonicalPart(x[0]) + MakeCanonicalPath(x[1..]);
+      assert MakeCanonicalPath(y) == CanonicalPart(y[0]) + MakeCanonicalPath(y[1..]);
+      assert MakeCanonicalPath(x) != MakeCanonicalPath(y);
+    } else {
+      assert(x[1..] != y[1..]);
+      PathUnique2(x[1..], y[1..]);
+      assert CanonicalPart(x[0]) == CanonicalPart(y[0]);
+      assert MakeCanonicalPath(x[1..]) != MakeCanonicalPath(y[1..]);
+      OnePlusOne(CanonicalPart(x[0]), MakeCanonicalPath(x[1..]), MakeCanonicalPath(y[1..]));
+      assert CanonicalPart(x[0]) + MakeCanonicalPath(x[1..]) != CanonicalPart(x[0]) + MakeCanonicalPath(y[1..]);
+      assert CanonicalPart(x[0]) + MakeCanonicalPath(x[1..]) != CanonicalPart(y[0]) + MakeCanonicalPath(y[1..]);
+      assert MakeCanonicalPath(x) != MakeCanonicalPath(y);
+    }
+  }
+
+  // must be true for any correct UTF8 implementation
+  lemma {:axiom} Utf8EncodeUnique(x : string, y : string)
+    requires UTF8.Encode(x).Success?
+    requires UTF8.Encode(y).Success?
+    ensures !(x <= y) ==> !(UTF8.Encode(x).value <= UTF8.Encode(y).value)
+
+  lemma SelectorNeverPrefixMap(x : PathSegment, y : PathSegment)
+    requires x != y
+    requires ValidString(x.member.key) && ValidString(y.member.key)
+    ensures !(CanonicalPart(x) <= CanonicalPart(y))
+    ensures !(CanonicalPart(y) <= CanonicalPart(x))
+  {
+    if |x.member.key| != |y.member.key| {
+      assert CanonicalPart(x)[1..9] != CanonicalPart(y)[1..9];
+    } else {
+      assert |x.member.key| == |y.member.key|;
+      assert x.member.key != y.member.key;
+      assert !(x.member.key <= y.member.key);
+      assert !(y.member.key <= x.member.key);
+      Utf8EncodeUnique(x.member.key, y.member.key);
+      Utf8EncodeUnique(y.member.key, x.member.key);
+      assert !(UTF8.Encode(x.member.key).value <= UTF8.Encode(y.member.key).value);
+      assert !(UTF8.Encode(y.member.key).value <= UTF8.Encode(x.member.key).value);
+      assert CanonicalPart(x) == [MAP_TAG] + UInt64ToSeq(|x.member.key| as uint64) + UTF8.Encode(x.member.key).value;
+      assert CanonicalPart(y) == [MAP_TAG] + UInt64ToSeq(|y.member.key| as uint64) + UTF8.Encode(y.member.key).value;
+      assert CanonicalPart(x)[0..9] == CanonicalPart(y)[0..9];
+    }
+  }
+
+  lemma SelectorNeverPrefix(x : PathSegment, y : PathSegment)
+    requires x != y
+    requires ValidString(x.member.key) && ValidString(y.member.key)
+    ensures !(CanonicalPart(x) <= CanonicalPart(y))
+    ensures !(CanonicalPart(y) <= CanonicalPart(x))
+  {
+    SelectorNeverPrefixMap(x, y);
+  }
+
+  lemma CanonicalPartMapUnique(x : PathSegment, y : PathSegment)
+    requires x != y
+    requires ValidString(x.member.key) && ValidString(y.member.key)
+    ensures CanonicalPart(x) != CanonicalPart(y)
+  {
+    SelectorNeverPrefix(x, y);
+  }
+
+  lemma OnePart(src : Path)
     requires |src| == 1
+    requires ValidPath(src)
     ensures MakeCanonicalPath(src) == CanonicalPart(src[0])
   {}
 
@@ -168,20 +289,8 @@ module StructuredEncryptionPaths {
     requires x != y
     ensures SimpleCanon(table, x) != SimpleCanon(table, y)
   {
-    assert SimpleCanon(table, x) != SimpleCanon(table, y) by {
-      reveal SimpleCanon();
-      assert TerminalLocation([Map(x)]).canonicalPath(table) != TerminalLocation([Map(y)]).canonicalPath(table) by {
-        OnePart([Map(x)]);
-        OnePart([Map(y)]);
-        CanonicalPartMapUnique(Map(x), Map(y));
-        var prefix := UTF8.Encode(table).value + UInt64ToSeq(1 as uint64);
-        assert TerminalLocation([Map(x)]).canonicalPath(table) == prefix + CanonicalPart(Map(x));
-        assert TerminalLocation([Map(y)]).canonicalPath(table) == prefix + CanonicalPart(Map(y));
-        assert CanonicalPart(Map(x)) != CanonicalPart(Map(y));
-        OnePlusOne(prefix, CanonicalPart(Map(x)), CanonicalPart(Map(y)));
-        assert TerminalLocation([Map(x)]).canonicalPath(table) != TerminalLocation([Map(y)]).canonicalPath(table);
-      }
-    }
+    reveal SimpleCanon();
+    CanonPathUnique(table);
   }
 
   // x != y ==> SimpleCanon(x) != SimpleCanon(y), so we can map with it

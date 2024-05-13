@@ -27,18 +27,19 @@ module StructuredEncryptionCrypt {
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
-    requires offset as nat * 3 < UINT32_LIMIT
     ensures ret.Success? ==>
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
               //# of the aes256ctr_stream
               //# of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
+              && offset as nat * 3 < UINT32_LIMIT
               && |ret.value| == KeySize+NonceSize
               && |ret.value| == 44
               && AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).Success?
               && ret.value == AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).value
   {
+    :- Need(offset as nat * 3 < UINT32_LIMIT, E("Too many encrypted fields."));
     var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32);
     keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
@@ -46,7 +47,7 @@ module StructuredEncryptionCrypt {
   function method FieldKeyNonce(offset : uint32)
     : (ret : Bytes)
     ensures |ret| == 16 // NOT NonceSize
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //= type=implication
     //# The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
     //# | Field         | Length   | Interpretation |
@@ -126,24 +127,75 @@ module StructuredEncryptionCrypt {
 
   datatype EncryptionSelector = DoEncrypt | DoDecrypt
 
+  // Updated return true if the given item has been updated properly for the given operation.
+  // Updated2..Update5 do exactly the same thing, but with different data types.
+  predicate Updated(oldVal : CanonCryptoItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  {
+    && oldVal.key == newVal.key
+    && oldVal.origKey == newVal.origKey
+    && oldVal.action == newVal.action
+    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
+    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+  }
+
+  predicate Updated2(oldVal : AuthItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  {
+    && oldVal.key == newVal.origKey
+    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
+    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+  }
+
+  predicate Updated3(oldVal : AuthItem, newVal : CryptoItem, mode : EncryptionSelector)
+  {
+    && oldVal.key == newVal.key
+    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
+    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+  }
+
+  predicate Updated4(oldVal : CryptoItem, newVal : CryptoItem, mode : EncryptionSelector)
+  {
+    && oldVal.key == newVal.key
+    && oldVal.action == newVal.action
+    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
+    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+  }
+
+  predicate Updated5(oldVal : CryptoItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  {
+    && oldVal.key == newVal.origKey
+    && oldVal.action == newVal.action
+    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
+    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
+    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
+    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+  }
+
   // Encrypt a StructuredDataMap
   method Encrypt(
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    fieldNames : seq<CanonicalPath>,
-    data : StructuredDataCanon)
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in data
-    requires |fieldNames| < (UINT32_LIMIT / 3)
+    data : CanonCryptoList)
+    returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+              && |ret.value| == |data|
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], DoEncrypt))
   {
-    ret := Crypt(DoEncrypt, client, alg, key, head, fieldNames, data);
+    ret := Crypt(DoEncrypt, client, alg, key, head, data);
   }
 
   // Decrypt a StructuredDataMap
@@ -152,18 +204,18 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    fieldNames : seq<CanonicalPath>,
-    data : StructuredDataCanon)
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in data
-    requires |fieldNames| < (UINT32_LIMIT / 3)
+    data : CanonCryptoList)
+    returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+              && |ret.value| == |data|
+              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], DoDecrypt)
   {
-    ret := Crypt(DoDecrypt, client, alg, key, head, fieldNames, data);
+    ret := Crypt(DoDecrypt, client, alg, key, head, data);
   }
 
   // Encrypt or Decrypt a StructuredDataMap
@@ -173,27 +225,24 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    fieldNames : seq<CanonicalPath>,
-    data : StructuredDataCanon)
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in data
-    requires |fieldNames| < (UINT32_LIMIT / 3)
+    data : CanonCryptoList)
+    returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
 
     ensures ret.Success? ==>
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The HKDF algorithm used to calculate the Field Root Key MUST be the
               //# [Encryption Key KDF](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-key-derivation-settings)
               //# indicated by the algorithm suite, using a provided plaintext data key, no salt,
               //# and an info as calculated [above](#calculate-info)
 
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
               //# and the Message ID generated for this Encrypted Structured Data.
 
-              //= specification/structured-encryption/encrypt-structure.md#calculate-info
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-info
               //= type=implication
               //# The `info` used for the HKDF function MUST be
               //# | Field                | Length   |
@@ -211,8 +260,11 @@ module StructuredEncryptionCrypt {
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+              && |ret.value| == |data|
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], mode))
   {
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
     //# and the Message ID generated for this Encrypted Structured Data.
     var fieldRootKeyR := client.Hkdf(
@@ -226,12 +278,12 @@ module StructuredEncryptionCrypt {
     );
 
     var fieldRootKey :- fieldRootKeyR.MapFailure(e => AwsCryptographyPrimitives(e));
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //= type=implication
     //# The calculated Field Root MUST have length equal to the
     //# [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
     assert |fieldRootKey| == AlgorithmSuites.GetEncryptKeyLength(alg) as int;
-    var result := CryptList(mode, client, alg, fieldRootKey, fieldNames, data);
+    var result := CryptList(mode, client, alg, fieldRootKey, data);
     return result;
   }
 
@@ -241,34 +293,44 @@ module StructuredEncryptionCrypt {
     client: Primitives.AtomicPrimitivesClient,
     alg : CMP.AlgorithmSuiteInfo,
     fieldRootKey : Key,
-    fieldNames : seq<CanonicalPath>,
-    input : StructuredDataCanon
+    data : CanonCryptoList
   )
-    returns (ret : Result<StructuredDataCanon, Error>)
-    requires forall k <- fieldNames :: k in input
-    requires (|fieldNames| as nat) * 3 < UINT32_LIMIT
-    decreases |fieldNames|
+    returns (ret : Result<CanonCryptoList, Error>)
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
     ensures client.ValidState()
+    ensures ret.Success? ==>
+              && |ret.value| == |data|
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], mode))
   {
-    // It is very inefficient to manually build Dafny maps in methods, so use
-    // a MutableMap to build the key value pairs then convert back to a Dafny map.
-    var mutMap : MutableMap<CanonicalPath, StructuredDataTerminalType> := new MutableMap();
-    for i := 0 to |fieldNames| {
-      var data;
-      var fieldName := fieldNames[i];
-      if mode == DoEncrypt {
-        data :- EncryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+    var result : CanonCryptoList := [];
+    var pos : uint32 := 0;
+    :- Need(|data| < UINT32_LIMIT, E("Too many fields."));
+    for i := 0 to |data|
+      invariant pos <= (i as uint32)
+      invariant |result| == i
+      invariant forall x | 0 <= x < |result| :: Updated(data[x], result[x], mode)
+    {
+      if data[i].action == ENCRYPT_AND_SIGN {
+        var newTerminal;
+        if mode == DoEncrypt {
+          newTerminal :- EncryptTerminal(client, alg, fieldRootKey, pos, data[i].key, data[i].data);
+          assert newTerminal.typeId == BYTES_TYPE_ID;
+        } else {
+          newTerminal :- DecryptTerminal(client, alg, fieldRootKey, pos, data[i].key, data[i].data);
+        }
+        pos := pos + 1;
+        var newItem := data[i].(data := newTerminal);
+        result := result + [newItem];
+        assert Updated(data[i], result[i], mode);
       } else {
-        data :- DecryptTerminal(client, alg, fieldRootKey, i as uint32, fieldName, input[fieldName].content.Terminal);
+        result := result + [data[i]];
+        assert Updated(data[i], result[i], mode);
       }
-      mutMap.Put(fieldName, data);
+      assert Updated(data[i], result[i], mode);
     }
-    var mutMapItems := mutMap.content(); // Have to initialize this separately, otherwise the map comprehension will do something very inefficient
-    var output : StructuredDataCanon := map k <- mutMapItems :: k := mutMap.Select(k);
-    return Success(output);
+    return Success(result);
   }
 
   // Encrypt a single Terminal
@@ -280,18 +342,18 @@ module StructuredEncryptionCrypt {
     path : CanonicalPath,
     data : StructuredDataTerminal
   )
-    returns (ret : Result<StructuredData, Error>)
-    requires offset as nat * 3 < UINT32_LIMIT
+    returns (ret : Result<StructuredDataTerminal, Error>)
 
     ensures ret.Success? ==>
-              //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
+              ret.value != data
+    ensures ret.Success? ==>
+              //= specification/structured-encryption/encrypt-path-structure.md#terminal-data-encryption
               //= type=implication
               //# The output encrypted Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
               //# equal `0xFFFF`.
-              && ret.value.content.Terminal?
-              && ret.value.content.Terminal.typeId == BYTES_TYPE_ID
+              && ret.value.typeId == BYTES_TYPE_ID
 
-              //= specification/structured-encryption/encrypt-structure.md#terminal-data-encryption
+              //= specification/structured-encryption/encrypt-path-structure.md#terminal-data-encryption
               //= type=implication
               //# The output encrypted Terminal Data MUST have a [Terminal Value](./structures.md#terminal-value)
               //# with the following serialization:
@@ -300,23 +362,23 @@ module StructuredEncryptionCrypt {
                  // | Terminal Type Id           | 2        |
                  // | Encrypted Terminal Value   | Variable |
 
-                 //= specification/structured-encryption/encrypt-structure.md#terminal-type-id
+                 //= specification/structured-encryption/encrypt-path-structure.md#terminal-type-id
                  //= type=implication
                  //# Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
-              && |ret.value.content.Terminal.value| >= 2
-              && ret.value.content.Terminal.value[..2] == data.typeId
+              && |ret.value.value| >= 2
+              && ret.value.value[..2] == data.typeId
               && var history := client.History.AESEncrypt;
               && 0 < |history|
               && var encryptInput := Seq.Last(history).input;
               && encryptInput.encAlg == alg.encrypt.AES_GCM
               && FieldKey(fieldRootKey, offset).Success?
               && var fieldKey := FieldKey(fieldRootKey, offset).value;
-              //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
               //= type=implication
               //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
               && KeySize == 32
               && encryptInput.key == fieldKey[0..KeySize]
-                 //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+                 //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
                  //= type=implication
                  //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
               && NonceSize == 12
@@ -328,15 +390,15 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
   {
     var fieldKey :- FieldKey(fieldRootKey, offset);
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
     var cipherkey : Key := fieldKey[0..KeySize];
-    //= specification/structured-encryption/encrypt-structure.md#calculate-cipherkey-and-nonce
+    //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
     var nonce : Nonce := fieldKey[KeySize..];
     var value := data.value;
 
-    //= specification/structured-encryption/encrypt-structure.md#encrypted-terminal-value
+    //= specification/structured-encryption/encrypt-path-structure.md#encrypted-terminal-value
     //# The Encrypted Terminal Value MUST be derived according to the following encryption:
     // - The encryption algorithm used is the
     //   [encryption algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
@@ -368,16 +430,15 @@ module StructuredEncryptionCrypt {
     path : CanonicalPath,
     data : StructuredDataTerminal
   )
-    returns (ret : Result<StructuredData, Error>)
-    requires offset as nat * 3 < UINT32_LIMIT
+    returns (ret : Result<StructuredDataTerminal, Error>)
     ensures ret.Success? ==>
-              && ret.value.content.Terminal?
               && |data.value| >= (AuthTagSize+2)
-                 //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
+                 //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
                  //= type=implication
                  //# The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
                  //# equal to the deserialized Terminal Type Id.
-              && ret.value.content.Terminal.typeId == data.value[0..TYPEID_LEN]
+              && ret.value.typeId == data.value[0..TYPEID_LEN]
+              && ret.value != data
 
     modifies client.Modifies - {client.History} , client.History`AESEncrypt, client.History`AESDecrypt
     requires client.ValidState()
@@ -390,14 +451,14 @@ module StructuredEncryptionCrypt {
 
     :- Need((AuthTagSize+2) <= |value|, E("cipherTxt too short."));
 
-    //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
+    //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
     //# The input [Terminal Value](./structures.md#terminal-value) MUST be deserialized as follows:
     // | Field                      | Length   |
     // | -------------------------- | -------- |
     // | Terminal Type Id           | 2        |
     // | Encrypted Terminal Value   | Variable |
 
-    //= specification/structured-encryption/decrypt-structure.md#terminal-data-decryption
+    //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
     //# The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
     //# equal to the following decryption:
     // - The decryption algorithm used is the

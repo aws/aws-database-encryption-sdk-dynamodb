@@ -21,10 +21,10 @@ Although [versioning](#versioning) is not yet supported, it exists in the config
 
 On initialization of the Search Config, the caller MUST provide:
 
- - A list of [beacon versions](#beacon-version-initialization)
- - The [version number](#version-number) of the [beacon versions](#beacon-version) to be used for writing.
+- A list of [beacon versions](#beacon-version-initialization)
+- The [version number](#version-number) of the [beacon versions](#beacon-version-initialization) to be used for writing.
 
-Initialization MUST fail if the length of the list of [beacon versions](#beacon-version) is not 1.
+Initialization MUST fail if the length of the list of [beacon versions](#beacon-version-initialization) is not 1.
 
 Initialization MUST fail if the [version number](#version-number) is not `1`.
 
@@ -37,22 +37,21 @@ configuration as one of the
 [unauthenticated attributes](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attributes),
 or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-client/ddb-item-encryptor.md#unauthenticated-attribute-prefix).
 
-
 ### Beacon Version Initialization
 
 On initialization of a Beacon Version, the caller MUST provide:
 
- - A [version number](#version number)
- - A [Beacon Key Source](#beacon-key-source)
- - A [Keystore](#keystore)
- - A list of [standard beacons](beacons.md#standard-beacon-initialization)
+- A [version number](#version number)
+- A [Beacon Key Source](#beacon-key-source)
+- A [Keystore](#keystore)
+- A list of [standard beacons](beacons.md#standard-beacon-initialization)
 
 On initialization of the Beacon Version, the caller MAY provide:
 
- - A list of [compound beacons](beacons.md#compound-beacon-initialization)
- - A list of [virtual fields](virtual.md#virtual-field-initialization)
- - A list of [signed parts](beacons.md#signed-part-initialization)
- - A list of [encrypted parts](beacons.md#encrypted-part-initialization)
+- A list of [compound beacons](beacons.md#compound-beacon-initialization)
+- A list of [virtual fields](virtual.md#virtual-field-initialization)
+- A list of [signed parts](beacons.md#signed-part-initialization)
+- A list of [encrypted parts](beacons.md#encrypted-part-initialization)
 
 Initialization MUST fail if the [version number](#version number) is not `1`.
 
@@ -70,7 +69,7 @@ and the name of any of the following match the [beacon key field name](#beacon-k
 
 Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
 and the [beacon key field name](#beacon-key-field-name)
-is a [configured field](#configured-field) 
+is a [configured field](#configured-field)
 with [ENCRYPT_AND_SIGN](../structured-encryption/structures.md#encrypt_and_sign).
 
 Initialization MUST fail if the name of any [standard beacon](beacons.md#standard-beacon)
@@ -120,8 +119,6 @@ Global Parts List.
 Parts specified in a [compound beacon's](beacons.md#compound-beacon-initialization) constructor,
 may come from any combination of their local definitions or the Global Parts List.
 
-
-
 ### Version Number
 
 A version number MUST be `1`.
@@ -154,8 +151,8 @@ For version `N`, the name of the version tag is `aws_dbe_vN` and the value of th
 ## Beacon Key Source
 
 On initialization of a Beacon Key Source, the caller MUST provide exactly one of
- * a [Single Key Store](#single-key-store-initialization)
- * a [Multi Key Store](#multi-key-store-initialization)
+- a [Single Key Store](#single-key-store-initialization)
+- a [Multi Key Store](#multi-key-store-initialization)
 
 ### Single Key Store Initialization
 
@@ -165,8 +162,8 @@ This can also be described as single tenant.
 
 On initialization of a Single Key Store, the caller MUST provide:
 
- - [Beacon Key Id](#beacon-key-id)
- - [cacheTTL](#cachettl)
+- [Beacon Key Id](#beacon-key-id)
+- [cacheTTL](#cachettl)
 
 ### Multi Key Store Initialization
 
@@ -176,9 +173,9 @@ This can also be described as multi tenant.
 
 On initialization of a Multi Key Store, the caller MUST provide:
 
- - [Beacon Key Field Name](#beacon-key-field-name)
- - [cacheTTL](#cachettl)
- - [max cache size](#max-cache-size)
+- [Beacon Key Field Name](#beacon-key-field-name)
+- [cacheTTL](#cachettl)
+- [max cache size](#max-cache-size)
 
 ### Field descriptions
 
@@ -192,7 +189,7 @@ this SHOULD be the same Keystore as configured to that Keyring.
 #### Beacon Key Id
 
 A single [Beacon Key Id](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/branch-key-store.md)
-that exists in the [keystore](####keystore).
+that exists in the [keystore](#keystore).
 
 #### Beacon Key Field Name
 
@@ -205,10 +202,12 @@ It can be referenced in [compound beacons](./beacons.md#compound-beacon)
 and used to extract a beacon key id from a query.
 
 #### cacheTTL
+
 The [cacheTTL](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#time-to-live-ttl)
 for how long a beacon key should exist locally before reauthorization.
 
 #### max cache size
+
 The [max cache size](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
 that the [Key Store Cache](#key-store-cache) will be configured to.
 
@@ -309,9 +308,10 @@ If `GetBeaconKey` fails get beacon key MUST fail.
 
 For every [standard beacons](beacons.md#standard-beacon-initialization) an HMAC key
 MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
+
 [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
 with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
-and the [HMAC Keys](#hmac-keys) equal to a map
+and the [HMAC Keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#hmac-keys) equal to a map
 of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
 
 These materials MUST be put into the associated [Key Store Cache](#key-store-cache)

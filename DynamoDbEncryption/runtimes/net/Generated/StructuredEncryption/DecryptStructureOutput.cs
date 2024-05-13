@@ -7,9 +7,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
 {
   public class DecryptStructureOutput
   {
-    private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData _plaintextStructure;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> _plaintextStructure;
+    private System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> _cryptoSchema;
     private AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ParsedHeader _parsedHeader;
-    public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredData PlaintextStructure
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.StructuredDataTerminal> PlaintextStructure
     {
       get { return this._plaintextStructure; }
       set { this._plaintextStructure = value; }
@@ -17,6 +18,15 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     public bool IsSetPlaintextStructure()
     {
       return this._plaintextStructure != null;
+    }
+    public System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> CryptoSchema
+    {
+      get { return this._cryptoSchema; }
+      set { this._cryptoSchema = value; }
+    }
+    public bool IsSetCryptoSchema()
+    {
+      return this._cryptoSchema != null;
     }
     public AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.ParsedHeader ParsedHeader
     {
@@ -30,6 +40,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
     public void Validate()
     {
       if (!IsSetPlaintextStructure()) throw new System.ArgumentException("Missing value for required property 'PlaintextStructure'");
+      if (!IsSetCryptoSchema()) throw new System.ArgumentException("Missing value for required property 'CryptoSchema'");
       if (!IsSetParsedHeader()) throw new System.ArgumentException("Missing value for required property 'ParsedHeader'");
 
     }

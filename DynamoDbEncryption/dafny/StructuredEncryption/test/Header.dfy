@@ -9,6 +9,7 @@ module TestHeader {
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
 
+  import OPS = AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations
   import StructuredEncryption
   import AwsCryptographyMaterialProvidersTypes
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -67,12 +68,12 @@ module TestHeader {
     expect badResult.error == E("Key commitment mismatch.");
   }
 
-  const a : uint8 := 'a' as uint8;
-  const b : uint8 := 'b' as uint8;
-  const c : uint8 := 'c' as uint8;
-  const d : uint8 := 'd' as uint8;
-  const e : uint8 := 'e' as uint8;
-  const f : uint8 := 'f' as uint8;
+  const a : uint8 := 'a' as uint8
+  const b : uint8 := 'b' as uint8
+  const c : uint8 := 'c' as uint8
+  const d : uint8 := 'd' as uint8
+  const e : uint8 := 'e' as uint8
+  const f : uint8 := 'f' as uint8
   method {:test} TestDuplicateContext() {
     var cont : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def"), EncodeAscii("cba") := EncodeAscii("fed")];
     var serCont := SerializeContext(cont);
@@ -120,26 +121,23 @@ module TestHeader {
     expect newBadCont == Failure(E("Context keys out of order."));
   }
 
-  function method MakeSchema(action: CryptoAction) : CryptoSchema
+  function method MakeCrypto(s : string, a : CryptoAction) : CryptoItem
   {
-    CryptoSchema (
-      content := CryptoSchemaContent.Action(action),
-      attributes := None
-    )
+    CryptoItem(key := StringToUniPath(s), data := StructuredDataTerminal(value := [], typeId := [1,2]), action := a)
   }
 
   method {:test} TestSchemaOrderAlpha() {
-    var schemaMap : CryptoSchemaMap := map[
-      "abc" := MakeSchema(ENCRYPT_AND_SIGN),
-      "def" := MakeSchema(SIGN_ONLY),
-      "ghi" := MakeSchema(DO_NOTHING),
-      "jkl" := MakeSchema(ENCRYPT_AND_SIGN),
-      "mno" := MakeSchema(SIGN_ONLY),
-      "pqr" := MakeSchema(DO_NOTHING)
+    var schemaMap : CryptoList := [
+      MakeCrypto("abc", ENCRYPT_AND_SIGN),
+      MakeCrypto("def", SIGN_ONLY),
+      MakeCrypto("ghi", DO_NOTHING),
+      MakeCrypto("jkl", ENCRYPT_AND_SIGN),
+      MakeCrypto("mno", SIGN_ONLY),
+      MakeCrypto("pqr", DO_NOTHING)
     ];
-    var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
     var tableName : GoodString := "name";
-    var legend :- expect MakeLegend(tableName, schema);
+    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
@@ -151,17 +149,17 @@ module TestHeader {
   }
 
   method {:test} {:vcs_split_on_every_assert} TestSchemaOrderLength() {
-    var schemaMap : CryptoSchemaMap := map[
-      "aa" := MakeSchema(ENCRYPT_AND_SIGN),
-      "zz" := MakeSchema(SIGN_ONLY),
-      "aaa" := MakeSchema(DO_NOTHING),
-      "zzz" := MakeSchema(ENCRYPT_AND_SIGN),
-      "aaaa" := MakeSchema(SIGN_ONLY),
-      "zzzz" := MakeSchema(DO_NOTHING)
+    var schemaMap : CryptoList := [
+      MakeCrypto("aa", ENCRYPT_AND_SIGN),
+      MakeCrypto("zz", SIGN_ONLY),
+      MakeCrypto("aaa", DO_NOTHING),
+      MakeCrypto("zzz", ENCRYPT_AND_SIGN),
+      MakeCrypto("aaaa", SIGN_ONLY),
+      MakeCrypto("zzzz", DO_NOTHING)
     ];
-    var schema := CryptoSchema(content := CryptoSchemaContent.SchemaMap(schemaMap), attributes := None);
     var tableName : GoodString := "name";
-    var legend :- expect MakeLegend(tableName, schema);
+    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
     //# The Encrypt Legend Bytes MUST be serialized as follows:
@@ -171,5 +169,28 @@ module TestHeader {
     // that field should be encrypted.
     expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
   }
+
+  method {:test} {:vcs_split_on_every_assert} TestSchemaOrderLength2() {
+    var schemaMap : CryptoList := [
+      MakeCrypto("aa", ENCRYPT_AND_SIGN),
+      MakeCrypto("zzz", ENCRYPT_AND_SIGN),
+      MakeCrypto("zzzz", DO_NOTHING),
+      MakeCrypto("aaa", DO_NOTHING),
+      MakeCrypto("zz", SIGN_ONLY),
+      MakeCrypto("aaaa", SIGN_ONLY)
+    ];
+    var tableName : GoodString := "name";
+    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var legend :- expect MakeLegend(canonSchema);
+    //= specification/structured-encryption/header.md#encrypt-legend-bytes
+    //= type=test
+    //# The Encrypt Legend Bytes MUST be serialized as follows:
+    // 1. Order every authenticated attribute in the item by the [Canonical Path](#canonical-path)
+    // 2. For each authenticated terminal, in order,
+    // append one of the byte values specified above to indicate whether
+    // that field should be encrypted.
+    expect legend == [ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND, ENCRYPT_AND_SIGN_LEGEND, SIGN_ONLY_LEGEND];
+  }
+
 
 }

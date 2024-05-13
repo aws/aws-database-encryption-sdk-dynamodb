@@ -5,12 +5,14 @@
 
 ## Version
 
-1.0.0
+1.1.0
 
 ### Changelog
 
-- 1.0.0
+- 1.1.0
+  - Update for simplified structured encryption
 
+- 1.0.0
   - Initial record
 
 ## Definitions
@@ -42,8 +44,13 @@ Structures defined in this document:
 - [Encrypt Action](#encrypt-action)
 - [Encryption Context](#encryption-context)
 - [Structured Data](#structured-data)
-- [Structured Data Attributes](#structured-data-attributes)
 - [Terminal Data](#terminal-data)
+- [Path Segment](#path-segment)
+- [Path](#path)
+- [Crypto Item](#crypto-item)
+- [Crypto List](#crypto-list)
+- [Auth Item](#auth-item)
+- [Auth List](#auth-list)
 
 ### Authenticate Action
 
@@ -93,13 +100,13 @@ ENCRYPT_AND_SIGN indicates that the following actions apply to a [Terminal Data]
 ##### SIGN_ONLY
 
 SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#terminal-data):
-- [DO_NOT_ENCRYPT](#donotencrypt)
+- [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [SIGN](#sign)
 
 ##### SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
 
 SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT indicates that the following actions apply to a [Terminal Data](#terminal-data):
-- [DO_NOT_ENCRYPT](#donotencrypt)
+- [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [SIGN](#sign)
 
 and further that the [Terminal Data](#terminal-data) MUST be included in the encryption context.
@@ -107,8 +114,8 @@ and further that the [Terminal Data](#terminal-data) MUST be included in the enc
 ##### DO_NOTHING
 
 DO_NOTHING indicates that the following actions apply to a [Terminal Data](#terminal-data):
-- [DO_NOT_ENCRYPT](#donotencrypt)
-- [DO_NOT_SIGN](#donotsign)
+- [DO_NOT_ENCRYPT](#do_not_encrypt)
+- [DO_NOT_SIGN](#do_not_sign)
 
 ### Crypto Schema
 
@@ -147,40 +154,18 @@ No encryption or decryption is performed on the Terminal Data.
 
 [The Encryption Context as defined by the Material Providers Library specification.](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/master/framework/structures.md#encryption-context)
 
-### Structured Data Content
+### Structured Data
 
-Structured Data Content is a recursively defined structure that is intended to support
+Structured Data is intended to support
 the expression of most [JSON](https://datatracker.ietf.org/doc/html/rfc7159) and [XML](https://www.w3.org/TR/xml/) data.
 
-Structured Data Content is a union of one of three separate structures;
-Structured Data Content MUST be one of:
-- [Terminal Data](#terminal-data)
-- [Structured Data Map](#structured-data-map)
-- [Structured Data List](#structured-data-list)
-
-#### Structured Data
-
-A Structured Data MUST consist of:
-- a [Structured Data Content](#structured-data-content)
-- an OPTIONAL map of [Attributes](#structured-data-attributes)
+Structured Data is expressed as a [Structured Data Map](#structured-data-map)
 
 #### Structured Data Map
 
 A Structured Data Map MUST consist of:
-- A map strings to [Structured Data](#structured-data)
-  - This map MUST NOT allow duplicate key values 
-
-#### Structured Data List
-
-A Structured Data List MUST consist of:
-
-- A numerical-indexed array of [Structured Data](#structured-data).
-  - The max length of this list MUST be 2^64 - 1
-
-### Structured Data Attributes
-
-Structured Data Attributes MUST be map of strings to [Terminal Data](#terminal-data).
-This data is intended to be an equivalent to XML-like attributes.
+- A map strings to [Terminal Data](#terminal-data)
+  - This map MUST NOT allow duplicate key values
 
 ### Terminal Data
 
@@ -205,3 +190,39 @@ and how those types should be serialized and deserialized.
 Terminal Value MUST be a sequence of bytes, and MAY be empty (zero-length).
 
 If these bytes are to be deserialized, these bytes MUST be interpreted as the type indicated in this Terminal Data's [Terminal Type ID](#terminal-type-id).D
+
+### Path Segment
+
+A path segment MUST be a string, designating the name of a member of a structure.
+
+In the future, a path segment might also refer to an index into a list, or to an attribute name.
+
+### Path
+
+A path is a sequence of [path segments](#path-segment) that refer to a location within a structure.
+
+### Crypto Item
+
+A crypto item MUST consist of
+- a [Path](#path)
+- a [Crypto Action](#crypto-action)
+- a [Terminal Data](#terminal-data)
+
+and indicates that this data exists at this location, and should be handled with this action.
+
+### Crypto List
+
+A crypto list MUST be a sequence of [crypto item](#crypto-item)
+
+### Auth Item
+
+An auth item MUST consist of
+- a [Path](#path)
+- an [Authenticate Action](#authenticate-action)
+- a [Terminal Data](#terminal-data)
+
+and indicates that this data exists at this location, and should be handled with this action.
+
+### Auth List
+
+An auth list MUST be a sequence of [auth item](#auth-item)

@@ -21,16 +21,12 @@ module DynamoToStruct {
 
   type Error = AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error
 
-  type StructuredDataTerminalType = x : StructuredData | x.content.Terminal? witness *
-  type TerminalDataMap = map<AttributeName, StructuredDataTerminalType>
+  type TerminalDataMap = map<AttributeName, StructuredDataTerminal>
 
   // This file exists for these two functions : ItemToStructured and StructuredToItem
   // which provide conversion between an AttributeMap and a StructuredDataMap
 
   // Convert AttributeMap to StructuredDataMap
-  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
-  //= type=implication
-  //# - MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
   function method {:opaque} ItemToStructured(item : AttributeMap) : (ret : Result<TerminalDataMap, Error>)
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
@@ -41,20 +37,9 @@ module DynamoToStruct {
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
-    //# - MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
-    ensures ret.Success? ==> forall v <- ret.value.Values :: v.content.Terminal?
-
-    //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
-    //= type=implication
     //# - The [Terminal Type ID](../structured-encryption/structures.md#terminal-type-id) for each attribute MUST
     //# be the [Type ID](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
-    ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.1.content.Terminal.typeId == AttrToTypeId(item[kv.0])
-
-    //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
-    //= type=implication
-    //# - The Structured Data Terminal MUST be located at the top level of the Structured Data,
-    //# string indexed by the Attribute Name.
-    ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.0 in ret.value.Keys && ret.value[kv.0].content.Terminal?
+    ensures ret.Success? ==> forall kv <- ret.value.Items :: kv.1.typeId == AttrToTypeId(item[kv.0])
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-ddb-item-to-structured-data
     //= type=implication
@@ -62,7 +47,7 @@ module DynamoToStruct {
     //# be the [Value](./ddb-attribute-serialization.md#type-id) of the [serialization](./ddb-attribute-serialization.md) of this Attribute Value.
     ensures ret.Success? ==> forall kv <- ret.value.Items ::
                 && TopLevelAttributeToBytes(item[kv.0]).Success?
-                && kv.1.content.Terminal.value == TopLevelAttributeToBytes(item[kv.0]).value
+                && kv.1.value == TopLevelAttributeToBytes(item[kv.0]).value
 
   {
     var structuredMap := map k <- item :: k := AttrToStructured(item[k]);
@@ -71,10 +56,7 @@ module DynamoToStruct {
   }
 
   // Convert StructuredDataMap to AttributeMap
-  //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
-  //= type=implication
-  //# - MUST be a [Structured Data Map](../structured-encryption/structures.md#structured-data-map).
-  function method {:opaque} StructuredToItem(s : StructuredDataMap) : (ret : Result<AttributeMap, Error>)
+  function method {:opaque} StructuredToItem(s : TerminalDataMap) : (ret : Result<AttributeMap, Error>)
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
     //= type=implication
     //# - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
@@ -125,12 +107,12 @@ module DynamoToStruct {
   }
 
   // Prove round trip. A work in progress
-  lemma RoundTripFromStructured(s : StructuredData)
-    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == SE.BINARY ==>
+  lemma RoundTripFromStructured(s : StructuredDataTerminal)
+    ensures  StructuredToAttr(s).Success? && s.typeId == SE.BINARY ==>
                && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == SE.BOOLEAN ==>
+    ensures  StructuredToAttr(s).Success? && s.typeId == SE.BOOLEAN ==>
                && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.content.Terminal.typeId == SE.NULL ==>
+    ensures  StructuredToAttr(s).Success? && s.typeId == SE.NULL ==>
                && AttrToStructured(StructuredToAttr(s).value).Success?
   {
     reveal AttrToStructured();
@@ -161,34 +143,18 @@ module DynamoToStruct {
     AttrToBytes(a, false)
   }
 
-  function method  {:opaque} AttrToStructured(item : AttributeValue) : (ret : Result<StructuredData, string>)
-    ensures ret.Success? ==> ret.value.content.Terminal?
-    ensures ret.Success? ==> ret.value.content.Terminal.typeId == AttrToTypeId(item)
+  function method  {:opaque} AttrToStructured(item : AttributeValue) : (ret : Result<StructuredDataTerminal, string>)
+    ensures ret.Success? ==> ret.value.typeId == AttrToTypeId(item)
     ensures ret.Success? ==>
               && TopLevelAttributeToBytes(item).Success?
-              && ret.value.content.Terminal.value == TopLevelAttributeToBytes(item).value
+              && ret.value.value == TopLevelAttributeToBytes(item).value
   {
     var body :- TopLevelAttributeToBytes(item);
-    Success(StructuredData(content := Terminal(StructuredDataTerminal(value := body, typeId := AttrToTypeId(item))), attributes := None))
+    Success(StructuredDataTerminal(value := body, typeId := AttrToTypeId(item)))
   }
 
-  function method  {:opaque} StructuredToAttr(s : StructuredData) : (ret : Result<AttributeValue, string>)
-    //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
-    //= type=implication
-    //# - This [Structured Data Map](../structured-encryption/structures.md#structured-data-map),
-    //# if not empty,
-    //# MUST only contain [Structured Data Terminals](../structured-encryption/structures.md#structured-data-terminal).
-    ensures ret.Success? ==> s.content.Terminal?
-
-    //= specification/dynamodb-encryption-client/ddb-item-conversion.md#convert-structured-data-to-ddb-item
-    //= type=implication
-    //# - MUST NOT have [Structured Data Attributes](../structured-encryption/structures.md#structured-data-attributes).
-    ensures ret.Success? ==> s.attributes.None?
+  function method  {:opaque} StructuredToAttr(s : StructuredDataTerminal) : (ret : Result<AttributeValue, string>)
   {
-    :- Need(s.attributes.None?, "attributes must be None");
-    :- Need(s.content.Terminal?, "StructuredData to AttributeValue only works on Terminal data");
-
-    var Terminal(s) := s.content;
     :- Need(|s.typeId| == 2, "Type ID must be two bytes");
     var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
     :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
