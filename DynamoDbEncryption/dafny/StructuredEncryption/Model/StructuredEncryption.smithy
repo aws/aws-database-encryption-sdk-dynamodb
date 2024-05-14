@@ -181,6 +181,20 @@ union StructuredDataContent {
     DataMap: StructuredDataMap
 }
 
+union StructuredKey {
+    key: String,
+    attribute: String,
+    KeyList: StructuredKeyList,
+    KeyMap: StructuredKeyMap
+}
+map StructuredKeyMap {
+    key: String,
+    value: StructuredKey
+}
+list StructuredKeyList {
+    member: StructuredKey
+}
+
 // Only handles bytes.
 // It is the responsibility of the caller to
 // serialize and deserialize the data they

@@ -17,7 +17,7 @@ module AwsCryptographyDbEncryptionSdkJsonEncryptorOperations refines AbstractAws
   import Maps
   import opened JSON.Values
 
-  import JsonToStruct`Fun
+  import JsonToStruct
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import CSE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes

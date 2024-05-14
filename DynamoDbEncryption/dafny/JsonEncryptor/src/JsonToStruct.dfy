@@ -5,7 +5,7 @@ include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbJsonTypes.dfy"
 include "Util.dfy"
 
 module JsonToStruct {
-  export Fun
+  export
   provides
     ObjectToStructured,
     StructuredToObject,

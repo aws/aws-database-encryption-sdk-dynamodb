@@ -9,7 +9,7 @@ module JsonEncryptorTest {
   import opened StandardLibrary.UInt
   import MaterialProviders
   import JsonEncryptor
-  import JsonToStruct`Fun
+  import JsonToStruct
   import UTF8
   import JSON.Spec
   import JSON.API
