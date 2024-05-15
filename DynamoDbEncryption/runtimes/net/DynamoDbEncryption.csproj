@@ -31,11 +31,35 @@
     <NoWarn>CS0105,CS0618</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- This is somewhat brittle,
+         but having the value in a properties file
+         that can be shared is worth it.
+         See: https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions?view=vs-2022
+         for more details on property functions
+         
+         This takes a properties file (a=b)
+         1. Loads the file
+         2. Splits on `dafnyVersion=` and takes everything to the right of that
+           e.g. the version + any trailing data
+         3. Splits on newline and takes the second element.
+           This SHOULD be the value of `dafnyVersion` and not contain any trailing data
+     -->
+    <projectProperties>
+      $([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../../../project.properties'))
+    </projectProperties>
+    <dropBeforeDafnyVersionProperty>
+      $([System.Text.RegularExpressions.Regex]::Split("$(projectProperties)", "dafnyVersion=")[1])
+    </dropBeforeDafnyVersionProperty>
+    <DafnyVersion>
+      $([System.Text.RegularExpressions.Regex]::Split("$(dropBeforeDafnyVersionProperty)", "\n")[1])
+    </DafnyVersion>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.300.2"/>
     <PackageReference Include="AWSSDK.Core" Version="3.7.300.2"/>
-    <PackageReference Include="DafnyRuntime" Version="4.2.0" />
+    <PackageReference Include="DafnyRuntime" Version="$(DafnyVersion)" />
     <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
     <!--
               System.Collections.Immutable can be removed once dafny.msbuild is updated with
