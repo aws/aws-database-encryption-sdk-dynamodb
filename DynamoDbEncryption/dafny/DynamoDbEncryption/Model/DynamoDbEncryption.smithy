@@ -44,8 +44,27 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 )
 service DynamoDbEncryption {
     version: "2024-04-02",
-    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription, TestOneToFive],
     errors: [ DynamoDbEncryptionException ]
+}
+
+@range(min: 1, max: 5)
+integer oneToFiveIp
+
+@range(min: 1, max: 5)
+integer oneToFiveOp
+
+operation TestOneToFive {
+    input: oneToFiveInput,
+    output: oneToFiveOutput,
+}
+
+structure oneToFiveInput {
+  inputOne : oneToFiveIp
+}
+
+structure oneToFiveOutput {
+  outputOne : oneToFiveOp
 }
 
 @javadoc("Returns encrypted data key description.")

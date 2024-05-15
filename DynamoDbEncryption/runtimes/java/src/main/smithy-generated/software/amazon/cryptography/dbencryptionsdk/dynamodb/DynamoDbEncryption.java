@@ -10,11 +10,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.Dynam
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.__default;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.OneToFiveInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.OneToFiveOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.oneToFiveInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.oneToFiveOutput;
 
 public class DynamoDbEncryption {
 
@@ -83,6 +87,20 @@ public class DynamoDbEncryption {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.GetEncryptedDataKeyDescriptionOutput(result.dtor_value());
+  }
+
+  /**
+   * Returns encrypted data key description.
+   *
+   */
+  public oneToFiveOutput TestOneToFive(oneToFiveInput input) {
+    OneToFiveInput dafnyValue = ToDafny.OneToFiveInput(input);
+    Result<OneToFiveOutput, Error> result =
+      this._impl.TestOneToFive(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.OneToFiveOutput(result.dtor_value());
   }
 
   protected IDynamoDbEncryptionClient impl() {

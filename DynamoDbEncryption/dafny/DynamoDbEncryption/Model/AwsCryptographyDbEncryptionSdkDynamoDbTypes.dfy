@@ -92,9 +92,11 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     ghost constructor() {
       CreateDynamoDbEncryptionBranchKeyIdSupplier := [];
       GetEncryptedDataKeyDescription := [];
+      TestOneToFive := [];
     }
     ghost var CreateDynamoDbEncryptionBranchKeyIdSupplier: seq<DafnyCallEvent<CreateDynamoDbEncryptionBranchKeyIdSupplierInput, Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>>>
     ghost var GetEncryptedDataKeyDescription: seq<DafnyCallEvent<GetEncryptedDataKeyDescriptionInput, Result<GetEncryptedDataKeyDescriptionOutput, Error>>>
+    ghost var TestOneToFive: seq<DafnyCallEvent<oneToFiveInput, Result<oneToFiveOutput, Error>>>
   }
   trait {:termination false} IDynamoDbEncryptionClient
   {
@@ -161,6 +163,21 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
         && ValidState()
       ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
       ensures History.GetEncryptedDataKeyDescription == old(History.GetEncryptedDataKeyDescription) + [DafnyCallEvent(input, output)]
+
+    predicate TestOneToFiveEnsuresPublicly(input: oneToFiveInput , output: Result<oneToFiveOutput, Error>)
+    // The public method to be called by library consumers
+    method TestOneToFive ( input: oneToFiveInput )
+      returns (output: Result<oneToFiveOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`TestOneToFive
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures TestOneToFiveEnsuresPublicly(input, output)
+      ensures History.TestOneToFive == old(History.TestOneToFive) + [DafnyCallEvent(input, output)]
 
   }
   datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
@@ -353,6 +370,20 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly keyFieldName: string ,
     nameonly cacheTTL: int32 ,
     nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None
+  )
+  datatype oneToFiveInput = | oneToFiveInput (
+    nameonly inputOne: Option<oneToFiveIp> := Option.None
+  )
+  type OneToFiveIp = x: int32 | IsValid_oneToFiveIp(x) witness *
+  predicate method IsValid_oneToFiveIp(x: int32) {
+    ( 1 <= x <= 5 )
+  }
+  type OneToFiveOp = x: int32 | IsValid_oneToFiveOp(x) witness *
+  predicate method IsValid_oneToFiveOp(x: int32) {
+    ( 1 <= x <= 5 )
+  }
+  datatype oneToFiveOutput = | oneToFiveOutput (
+    nameonly outputOne: Option<oneToFiveOp> := Option.None
   )
   datatype PartOnly = | PartOnly (
 
@@ -563,6 +594,26 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
       History.GetEncryptedDataKeyDescription := History.GetEncryptedDataKeyDescription + [DafnyCallEvent(input, output)];
     }
 
+    predicate TestOneToFiveEnsuresPublicly(input: oneToFiveInput , output: Result<oneToFiveOutput, Error>)
+    {Operations.TestOneToFiveEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method TestOneToFive ( input: oneToFiveInput )
+      returns (output: Result<oneToFiveOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`TestOneToFive
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures TestOneToFiveEnsuresPublicly(input, output)
+      ensures History.TestOneToFive == old(History.TestOneToFive) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.TestOneToFive(config, input);
+      History.TestOneToFive := History.TestOneToFive + [DafnyCallEvent(input, output)];
+    }
+
   }
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
@@ -610,4 +661,20 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
     ensures
       && ValidInternalConfig?(config)
     ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
+
+
+  predicate TestOneToFiveEnsuresPublicly(input: oneToFiveInput , output: Result<oneToFiveOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method TestOneToFive ( config: InternalConfig , input: oneToFiveInput )
+    returns (output: Result<oneToFiveOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+    modifies ModifiesInternalConfig(config)
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config)
+    ensures
+      && ValidInternalConfig?(config)
+    ensures TestOneToFiveEnsuresPublicly(input, output)
 }

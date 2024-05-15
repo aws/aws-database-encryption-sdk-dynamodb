@@ -16,6 +16,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_Opaque;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.OneToFiveInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.OneToFiveOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.AsSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySource;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconStyle;
@@ -60,6 +62,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Upper;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualTransform;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.oneToFiveInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.oneToFiveOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
 public class ToNative {
@@ -573,6 +577,22 @@ public class ToNative {
           dafnyValue.dtor_cache().dtor_value()
         )
       );
+    }
+    return nativeBuilder.build();
+  }
+
+  public static oneToFiveInput OneToFiveInput(OneToFiveInput dafnyValue) {
+    oneToFiveInput.Builder nativeBuilder = oneToFiveInput.builder();
+    if (dafnyValue.dtor_inputOne().is_Some()) {
+      nativeBuilder.inputOne((dafnyValue.dtor_inputOne().dtor_value()));
+    }
+    return nativeBuilder.build();
+  }
+
+  public static oneToFiveOutput OneToFiveOutput(OneToFiveOutput dafnyValue) {
+    oneToFiveOutput.Builder nativeBuilder = oneToFiveOutput.builder();
+    if (dafnyValue.dtor_outputOne().is_Some()) {
+      nativeBuilder.outputOne((dafnyValue.dtor_outputOne().dtor_value()));
     }
     return nativeBuilder.build();
   }

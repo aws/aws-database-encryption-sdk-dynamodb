@@ -47,6 +47,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Lower;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.MultiKeyStore;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.OneToFiveInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.OneToFiveOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.SearchConfig;
@@ -62,6 +64,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.oneToFiveInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.oneToFiveOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient;
 import software.amazon.cryptography.materialproviders.internaldafny.types.CacheType;
@@ -609,6 +613,24 @@ public class ToDafny {
         )
         : Option.create_None();
     return new MultiKeyStore(keyFieldName, cacheTTL, cache);
+  }
+
+  public static OneToFiveInput OneToFiveInput(oneToFiveInput nativeValue) {
+    Option<Integer> inputOne;
+    inputOne =
+      Objects.nonNull(nativeValue.inputOne())
+        ? Option.create_Some((nativeValue.inputOne()))
+        : Option.create_None();
+    return new OneToFiveInput(inputOne);
+  }
+
+  public static OneToFiveOutput OneToFiveOutput(oneToFiveOutput nativeValue) {
+    Option<Integer> outputOne;
+    outputOne =
+      Objects.nonNull(nativeValue.outputOne())
+        ? Option.create_Some((nativeValue.outputOne()))
+        : Option.create_None();
+    return new OneToFiveOutput(outputOne);
   }
 
   public static PartOnly PartOnly(
