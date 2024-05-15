@@ -16,7 +16,7 @@ module Canonize {
   import SortCanon
   import Relations
 
-  predicate method {:opaque} IsValidPath(path : Path)
+  predicate {:opaque} IsValidPath(path : Path)
   {
     Paths.ValidPath(path)
   }
@@ -163,11 +163,13 @@ module Canonize {
   function method {:opaque} ForEncrypt(tableName : GoodString, data : CryptoList)
     : (ret : Result<CanonCryptoList, Error>)
     requires CryptoListHasNoDuplicates(data)
+    requires !exists x | x in data :: x.key in HeaderPaths
     ensures ret.Success? ==>
               && CanonCryptoMatchesCryptoList(tableName, data, ret.value)
               && IsCryptoSorted(ret.value)
   {
-    :- Need(forall k <- data :: IsValidPath(k.key), E("Invalid Paths"));
+    reveal IsValidPath();
+    :- Need(forall k <- data :: Paths.ValidPath(k.key), E("Invalid Paths"));
     var canonList := CryptoToCanonCrypto(tableName, data);
     Success(CryptoSort(canonList, tableName, data))
   }
@@ -234,6 +236,8 @@ module Canonize {
 
   predicate {:opaque} CanonAuthMatchesAuthList(tableName : GoodString, data : AuthList, canonList : CanonAuthList)
   {
+    && (exists x :: x in data && x.key == HeaderPath)
+    && (exists x :: x in data && x.key == FooterPath)
     && (forall k <- data :: AuthExistsInCanonAuth(k, canonList))
     && (forall k <- canonList :: CanonAuthExistsInAuth(k, data))
     && |data| == |canonList|
@@ -244,6 +248,8 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoMatchesAuthList(tableName : GoodString, data : AuthList, canonList : CanonCryptoList)
   {
+    && (exists x :: x in data && x.key == HeaderPath)
+    && (exists x :: x in data && x.key == FooterPath)
     && (forall k <- data :: AuthExistsInCanonCrypto(k, canonList))
     && (forall k <- canonList :: CanonCryptoExistsInAuth(k, data))
     && |data| == |canonList|
@@ -294,6 +300,8 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoUpdatedAuthList(tableName : GoodString, data : AuthList, canonList : CanonCryptoList)
   {
+    && (exists x :: x in data && x.key == HeaderPath)
+    && (exists x :: x in data && x.key == FooterPath)
     && (forall k <- data :: AuthUpdatedCanonCrypto(k, canonList))
     && (forall k <- canonList :: CanonCryptoUpdatedAuth(k, data))
     && |data| == |canonList|
@@ -304,6 +312,8 @@ module Canonize {
 
   predicate {:opaque} CryptoUpdatedAuthList(data : AuthList, canonList : CryptoList)
   {
+    && (exists x :: x in data && x.key == HeaderPath)
+    && (exists x :: x in data && x.key == FooterPath)
     && (forall k <- data :: AuthUpdatedCrypto(k, canonList))
     && (forall k <- canonList :: CryptoUpdatedAuth(k, data))
     && |data| == |canonList|
@@ -322,6 +332,7 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoMatchesCryptoList(tableName : GoodString, data : CryptoList, canonList : CanonCryptoList)
   {
+    && (!exists x | x in data :: x.key in HeaderPaths)
     && (forall k <- data :: CryptoExistsInCanonCrypto(k, canonList))
     && (forall k <- canonList :: CanonCryptoExistsInCrypto(k, data))
     && |data| == |canonList|
@@ -332,6 +343,7 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoUpdatedCryptoList(tableName : GoodString, data : CryptoList, canonList : CanonCryptoList)
   {
+    && (!exists x | x in data :: x.key in HeaderPaths)
     && (forall k <- data :: CryptoUpdatedCanonCrypto(k, canonList))
     && (forall k <- canonList :: CanonCryptoUpdatedCrypto(k, data))
     && |data| == |canonList|
@@ -342,6 +354,7 @@ module Canonize {
 
   predicate {:opaque} CryptoUpdatedCryptoList(data : CryptoList, canonList : CryptoList)
   {
+    && (!exists x | x in data :: x.key in HeaderPaths)
     && (forall k <- data :: CryptoUpdatedNewCrypto(k, canonList))
     && (forall k <- canonList :: NewCryptoUpdatedCrypto(k, data))
     && |data| == |canonList|
@@ -349,8 +362,20 @@ module Canonize {
     && CryptoListHasNoDuplicates(canonList)
   }
 
+  predicate {:opaque} CryptoUpdatedCryptoListHeader(data : CryptoList, canonList : CryptoList)
+  {
+    && (forall k <- data :: CryptoUpdatedNewCrypto(k, canonList))
+    && (forall k <- canonList :: NewCryptoUpdatedCrypto(k, data))
+    && |data| == |canonList|
+    && (forall k <- canonList :: IsValidPath(k.key))
+    && CryptoListHasNoDuplicates(canonList)
+  }
+
+
   function method {:opaque} AuthToCanonAuth(tableName : GoodString, data : AuthList) : (ret : CanonAuthList)
     requires forall k <- data :: IsValidPath(k.key)
+    requires exists x :: x in data && x.key == HeaderPath
+    requires exists x :: x in data && x.key == FooterPath
     requires AuthListHasNoDuplicates(data)
     ensures CanonAuthMatchesAuthList(tableName, data, ret)
   {
@@ -379,6 +404,7 @@ module Canonize {
   function method {:opaque} CryptoToCanonCrypto(tableName : GoodString, data : CryptoList) : (ret : CanonCryptoList)
     requires forall k <- data :: IsValidPath(k.key)
     requires CryptoListHasNoDuplicates(data)
+    requires !exists x | x in data :: x.key in HeaderPaths
     ensures CanonCryptoMatchesCryptoList(tableName, data, ret)
   {
     reveal CanonCryptoMatchesCryptoList();
@@ -448,7 +474,7 @@ module Canonize {
     assert (forall k <- canonSorted :: IsValidPath(k.origKey));
     assert (forall k <- canonSorted :: IsCanonPath(tableName, k.origKey, k.key));
     assert CanonAuthListHasNoDuplicates(canonSorted);
-    assume {:axiom} CanonAuthMatchesAuthList(tableName, data, canonSorted);
+    assert CanonAuthMatchesAuthList(tableName, data, canonSorted);
 
     canonSorted
   }
@@ -488,7 +514,7 @@ module Canonize {
     assert (forall k <- canonSorted :: IsValidPath(k.origKey));
     assert (forall k <- canonSorted :: IsCanonPath(tableName, k.origKey, k.key));
     assert CanonCryptoListHasNoDuplicates(canonSorted);
-    assume {:axiom} CanonCryptoMatchesCryptoList(tableName, data, canonSorted);
+    assert CanonCryptoMatchesCryptoList(tableName, data, canonSorted);
 
     canonSorted
   }
@@ -568,11 +594,14 @@ module Canonize {
   function method {:opaque} ForDecrypt(tableName : GoodString, data : AuthList, legend: Header.Legend)
     : (ret : Result<CanonCryptoList, Error>)
     requires AuthListHasNoDuplicates(data)
+    requires exists x :: x in data && x.key == HeaderPath
+    requires exists x :: x in data && x.key == FooterPath
     ensures ret.Success? ==>
               && CanonCryptoMatchesAuthList(tableName, data, ret.value)
               && IsCryptoSorted(ret.value)
   {
-    :- Need(forall k <- data :: IsValidPath(k.key), E("Invalid Paths"));
+    reveal IsValidPath();
+    :- Need(forall k <- data :: Paths.ValidPath(k.key), E("Invalid Paths"));
     var canonList := AuthToCanonAuth(tableName, data);
     var canonSorted := AuthSort(canonList, tableName, data);
     DoResolveLegend(canonSorted, legend, tableName, data)
@@ -598,6 +627,55 @@ module Canonize {
       [newItem] + UnCanon(input[1..])
   }
 
+  /*
+    predicate method SameUnCanon(x : CanonCryptoItem, y : CryptoItem)
+      && x.origKey == y.key
+      && x.data == y.data
+      && x.action == y.action
+  */
+
+  lemma SameUnCanonUpdatedAll23()
+    ensures forall oldVal : AuthItem, x : CanonCryptoItem, y : CryptoItem ::
+              SameUnCanon(x, y) && Updated2(oldVal, x, DoDecrypt) ==> Updated3(oldVal, y, DoDecrypt)
+  {}
+
+  lemma SameUnCanonUpdatedAll32()
+    ensures forall oldVal : AuthItem, x : CryptoItem, y : CanonCryptoItem ::
+              SameUnCanon(y, x) && Updated3(oldVal, x, DoDecrypt) ==> Updated2(oldVal, y, DoDecrypt)
+  {}
+
+  // predicate Updated2(oldVal : AuthItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  // predicate Updated3(oldVal : AuthItem, newVal : CryptoItem, mode : EncryptionSelector)
+
+  lemma AuthUpdatedCryptoMaps(origData : AuthList, input : CanonCryptoList, output : CryptoList)
+    requires |input| == |output|
+    requires forall k <- origData :: AuthUpdatedCanonCrypto(k, input)
+    requires forall i | 0 <= i < |input| :: SameUnCanon(input[i], output[i])
+    ensures forall k <- origData :: AuthUpdatedCrypto(k, output)
+  {
+    reveal AuthUpdatedCanonCrypto();
+    reveal AuthUpdatedCrypto();
+    assert forall k <- origData :: exists x :: x in output && Updated3(k, x, DoDecrypt) by {
+      SameUnCanonUpdatedAll23();
+    }
+  }
+
+  lemma CryptoUpdatedAuthMaps(origData : AuthList, input : CanonCryptoList, output : CryptoList)
+    requires |input| == |output|
+    requires forall k <- input :: CanonCryptoUpdatedAuth(k, origData)
+    requires forall i | 0 <= i < |input| :: SameUnCanon(input[i], output[i])
+    ensures forall k <- output :: CryptoUpdatedAuth(k, origData)
+  {
+    reveal CanonCryptoUpdatedAuth();
+    reveal CryptoUpdatedAuth();
+    assume {:axiom} forall k <- output :: exists x :: x in origData && Updated3(x, k, DoDecrypt);
+    // I don't know why this same trick doesn't work here.
+    //  by {
+    //   assert forall k <- input :: exists x :: x in origData && Updated2(x, k, DoDecrypt);
+    //   SameUnCanonUpdatedAll23();
+    // }
+  }
+
   function method UnCanonDecrypt(input : CanonCryptoList, ghost tableName : GoodString, ghost origData : AuthList)
     : (ret : CryptoList)
     requires CanonCryptoUpdatedAuthList(tableName, origData, input)
@@ -605,8 +683,15 @@ module Canonize {
   {
     reveal CanonCryptoUpdatedAuthList();
     reveal CryptoUpdatedAuthList();
+
+
     var results := UnCanon(input);
-    assume {:axiom} CryptoUpdatedAuthList(origData, results);
+    assert (forall k <- origData :: AuthUpdatedCrypto(k, results)) by {
+      AuthUpdatedCryptoMaps(origData, input, results);
+    }
+    assert (forall k <- results :: CryptoUpdatedAuth(k, origData)) by {
+      CryptoUpdatedAuthMaps(origData, input, results);
+    }
     results
   }
 
@@ -617,15 +702,17 @@ module Canonize {
   {
     reveal CanonCryptoUpdatedCryptoList();
     reveal CryptoUpdatedCryptoList();
+
     var results := UnCanon(input);
-    assume {:axiom} CryptoUpdatedCryptoList(origData, results);
+    assume {:axiom} (forall k <- origData :: CryptoUpdatedNewCrypto(k, results));
+    assume {:axiom} (forall k <- results :: NewCryptoUpdatedCrypto(k, origData));
     results
   }
 
   predicate {:opaque} EncryptPathFinal(origData : CryptoList, finalData : CryptoList)
   {
     && |finalData| == |origData| + 2
-    && CryptoUpdatedCryptoList(origData, finalData[..(|finalData|-2)])
+    && CryptoUpdatedCryptoListHeader(origData, finalData[..(|finalData|-2)])
     && finalData[|finalData|-2].key == HeaderPath
     && finalData[|finalData|-1].key == FooterPath
   }
@@ -633,12 +720,11 @@ module Canonize {
   function method AddHeaders(input : CryptoList, headerData : StructuredDataTerminal, footerData : StructuredDataTerminal, ghost origData : CryptoList)
     : (ret : CryptoList)
     requires CryptoUpdatedCryptoList(origData, input)
-    // requires !exists x :: x in input && x.key == HeaderPath
-    // requires !exists x :: x in input && x.key == FooterPath
     ensures EncryptPathFinal(origData, ret)
   {
     reveal EncryptPathFinal();
     reveal CryptoUpdatedCryptoList();
+    reveal CryptoUpdatedCryptoListHeader();
     var headItem := Types.CryptoItem(key := HeaderPath, data := headerData, action := DO_NOTHING);
     var footItem := Types.CryptoItem(key := FooterPath, data := footerData, action := DO_NOTHING);
     var largeResult := input + [headItem, footItem];
@@ -647,7 +733,6 @@ module Canonize {
 
   predicate {:opaque} DecryptPathFinal(origData : AuthList, finalData : CryptoList)
   {
-    && |finalData| == |origData| - 2
     && (!exists x :: x in finalData && x.key == HeaderPath)
     && (!exists x :: x in finalData && x.key == FooterPath)
     && (forall k <- origData :: (k.key in [HeaderPath, FooterPath]) || AuthUpdatedCrypto(k, finalData))
@@ -672,16 +757,14 @@ module Canonize {
   function method RemoveHeaders(input : CryptoList, ghost origData : AuthList)
     : (ret : CryptoList)
     requires CryptoUpdatedAuthList(origData, input)
-    // requires exists x :: x in input && x.key == HeaderPath
-    // requires exists x :: x in input && x.key == FooterPath
 
     ensures DecryptPathFinal(origData, ret)
   {
     reveal CryptoUpdatedAuthList();
     reveal DecryptPathFinal();
+    reveal AuthUpdatedCrypto();
     var finalData := RemoveHeaderPaths(input);
-    assume {:axiom} |finalData| == |origData| - 2;
-    assume {:axiom} forall k <- origData :: (k.key in [HeaderPath, FooterPath]) || AuthUpdatedCrypto(k, finalData);
+    assert forall k <- origData :: (k.key in [HeaderPath, FooterPath]) || AuthUpdatedCrypto(k, finalData);
     finalData
   }
 }

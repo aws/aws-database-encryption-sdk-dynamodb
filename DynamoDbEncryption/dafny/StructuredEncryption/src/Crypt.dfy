@@ -130,6 +130,19 @@ module StructuredEncryptionCrypt {
     return commitKey.MapFailure(e => AwsCryptographyPrimitives(e));
   }
 
+  lemma EncryptMaintains(tableName : GoodString, origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires CanonCryptoMatchesCryptoList(tableName, origData, data)
+    requires |finalData| == |data|
+    requires (forall i | 0 <= i < |data| :: Updated(data[i], finalData[i], DoEncrypt))
+    ensures CanonCryptoUpdatedCryptoList(tableName, origData, finalData)
+  {
+    reveal CanonCryptoMatchesCryptoList();
+    reveal CanonCryptoUpdatedCryptoList();
+
+    assume {:axiom} (forall k <- origData :: CryptoUpdatedCanonCrypto(k, finalData));
+    assume {:axiom} (forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData));
+  }
+
   // Encrypt a StructuredDataMap
   method Encrypt(
     client: Primitives.AtomicPrimitivesClient,
@@ -156,8 +169,23 @@ module StructuredEncryptionCrypt {
   {
     reveal CanonCryptoMatchesCryptoList();
     var result :- Crypt(DoEncrypt, client, alg, key, head, data);
-    assume {:axiom} CanonCryptoUpdatedCryptoList(tableName, origData, result);
+    assert CanonCryptoUpdatedCryptoList(tableName, origData, result) by {
+      EncryptMaintains(tableName, origData, data, result);
+    }
     return Success(result);
+  }
+
+  lemma DecryptMaintains(tableName : GoodString, origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires CanonCryptoMatchesAuthList(tableName, origData, data)
+    requires |finalData| == |data|
+    requires (forall i | 0 <= i < |data| :: Updated(data[i], finalData[i], DoDecrypt))
+    ensures CanonCryptoUpdatedAuthList(tableName, origData, finalData)
+  {
+    reveal CanonCryptoMatchesAuthList();
+    reveal CanonCryptoUpdatedAuthList();
+
+    assume {:axiom} (forall k <- origData :: AuthUpdatedCanonCrypto(k, finalData));
+    assume {:axiom} (forall k <- finalData :: CanonCryptoUpdatedAuth(k, origData));
   }
 
   // Decrypt a StructuredDataMap
@@ -185,7 +213,9 @@ module StructuredEncryptionCrypt {
   {
     reveal CanonCryptoMatchesAuthList();
     var result :- Crypt(DoDecrypt, client, alg, key, head, data);
-    assume {:axiom} CanonCryptoUpdatedAuthList(tableName, origData, result);
+    assert CanonCryptoUpdatedAuthList(tableName, origData, result) by {
+      DecryptMaintains(tableName, origData, data, result);
+    }
     return Success(result);
   }
 

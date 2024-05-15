@@ -244,59 +244,67 @@ module SortCanon {
     ret
   }
 
-  lemma {:axiom} CanonCryptoListMultiNoDup(a: CanonCryptoList, b: CanonCryptoList)
-    requires CanonCryptoListHasNoDuplicates(a) && multiset(a) == multiset(b)
-    ensures CanonCryptoListHasNoDuplicates(b)
-
-  lemma {:axiom} CanonAuthListMultiNoDup(a: CanonAuthList, b: CanonAuthList)
-    requires CanonAuthListHasNoDuplicates(a) && multiset(a) == multiset(b)
-    ensures CanonAuthListHasNoDuplicates(b)
-
-  /*
-  lemma Foo(a : CanonCryptoList)
-  ensures CanonCryptoListHasNoDuplicates(a) 
-  <==> 
-  (forall t:CanonCryptoItem :: multiset(a)[t] <= 1)
-  && (forall t0 : CanonCryptoItem, t1 : CanonCryptoItem <- multiset(a) | t0.origKey == t1.origKey :: t0==t1)
-  
-  
-  lemma AndyNeed2(a: CanonCryptoList, b: CanonCryptoList)
-    requires CanonCryptoListHasNoDuplicates(a) && multiset(a) == multiset(b)
-    ensures CanonCryptoListHasNoDuplicates(b)
+  lemma MultisetHasNoDuplicates(xs: CanonCryptoList)
+    requires CanonCryptoListHasNoDuplicates(xs)
+    ensures forall x | x in multiset(xs) :: multiset(xs)[x] == 1
   {
-      Foo(a);
-      Foo(b);
-  }
-  
-  lemma {:vcs_split_on_every_assert} AndyNeed(a: CanonCryptoList, b: CanonCryptoList)
-    requires CanonCryptoListHasNoDuplicates(a) && multiset(a) == multiset(b)
-    ensures CanonCryptoListHasNoDuplicates(b)
-  {
-    if a == [] {
-      assert multiset(b) == multiset{};
-      assert b == [] by {
-        if b != [] {
-          var bElem := b[0];
-          assert bElem in multiset(b);
-        }
-      }
-      assert CanonCryptoListHasNoDuplicates(b);
+    if |xs| == 0 {
     } else {
-      var ap := a[1..];
-      assert exists i | 0 <= i < |b| :: b[i] == a[0] by { // TODO
-        assume {:axiom} exists i | 0 <= i < |b| :: b[i] == a[0];
-      }
-      var i :| 0 <= i < |b| && b[i] == a[0];
-      var bp := b[0..i] + b[i+1..];
-      assert multiset(ap) == multiset(bp) by {
-         assume {:axiom} multiset(ap) == multiset(bp);
-      }
-      AndyNeed(ap, bp);
-      assert CanonCryptoListHasNoDuplicates(bp);
-      assert CanonCryptoListHasNoDuplicates(b) by {
-        assume {:axiom} CanonCryptoListHasNoDuplicates(b);
+      assert xs == Seq.DropLast(xs) + [Seq.Last(xs)];
+      assert Seq.Last(xs) !in Seq.DropLast(xs);
+      assert CanonCryptoListHasNoDuplicates(Seq.DropLast(xs));
+      MultisetHasNoDuplicates(Seq.DropLast(xs));
+    }
+  }
+  lemma MultisetHasNoDuplicates2(xs: CanonAuthList)
+    requires CanonAuthListHasNoDuplicates(xs)
+    ensures forall x | x in multiset(xs) :: multiset(xs)[x] == 1
+  {
+    if |xs| == 0 {
+    } else {
+      assert xs == Seq.DropLast(xs) + [Seq.Last(xs)];
+      assert Seq.Last(xs) !in Seq.DropLast(xs);
+      assert CanonAuthListHasNoDuplicates(Seq.DropLast(xs));
+      MultisetHasNoDuplicates2(Seq.DropLast(xs));
+    }
+  }
+  lemma CanonCryptoListMultiNoDup(a: CanonCryptoList, b: CanonCryptoList)
+    requires CanonCryptoListHasNoDuplicates(a) && multiset(a) == multiset(b)
+    ensures CanonCryptoListHasNoDuplicates(b)
+  {
+    forall i,j | 0 <= i < j < |b|
+      ensures b[i].origKey != b[j].origKey
+    {
+      assert b[i] in multiset(a);
+      assert b[j] in multiset(a);
+      if b[i] == b[j] {
+        assert b[i].origKey == b[j].origKey;
+        MultisetHasNoDuplicates(a);
+        assert multiset(b)[b[i]] == 1;
+        assert b == b[..i] + [b[i]] + b[i+1..j] + [b[j]] + b[j+1..];
+      } else {
+        assert b[i].origKey != b[j].origKey;
       }
     }
   }
-  */
+  lemma CanonAuthListMultiNoDup(a: CanonAuthList, b: CanonAuthList)
+    requires CanonAuthListHasNoDuplicates(a) && multiset(a) == multiset(b)
+    ensures CanonAuthListHasNoDuplicates(b)
+  {
+    forall i,j | 0 <= i < j < |b|
+      ensures b[i].origKey != b[j].origKey
+    {
+      assert b[i] in multiset(a);
+      assert b[j] in multiset(a);
+      if b[i] == b[j] {
+        assert b[i].origKey == b[j].origKey;
+        MultisetHasNoDuplicates2(a);
+        assert multiset(b)[b[i]] == 1;
+        assert b == b[..i] + [b[i]] + b[i+1..j] + [b[j]] + b[j+1..];
+      } else {
+        assert b[i].origKey != b[j].origKey;
+      }
+    }
+  }
+
 }

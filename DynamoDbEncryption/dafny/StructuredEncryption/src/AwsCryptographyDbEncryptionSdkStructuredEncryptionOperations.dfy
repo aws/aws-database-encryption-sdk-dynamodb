@@ -101,6 +101,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert AuthListHasNoDuplicates(input.authActions);
     var head :- Header.PartialDeserialize(input.headerBytes);
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
+    :- Need(exists x :: x in input.authActions && x.key == HeaderPath, E("Header Required"));
+    :- Need(exists x :: x in input.authActions && x.key == FooterPath, E("Footer Required"));
     var canonData :- ForDecrypt(input.tableName, input.authActions, head.legend);
     reveal CanonCryptoMatchesAuthList();
     return Success(ResolveAuthActionsOutput(cryptoActions := UnCanon(canonData)));
@@ -493,7 +495,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures forall k <- finalData :: |k.key| == 1
   {
     reveal EncryptPathFinal();
-    reveal CryptoUpdatedCryptoList();
+    reveal CryptoUpdatedCryptoListHeader();
     reveal NewCryptoUpdatedCrypto();
   }
 
@@ -560,8 +562,6 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return Success(plainOutput);
   }
 
-  const HeaderPaths : seq<Path> := [HeaderPath, FooterPath]
-
   //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
   //= type=implication
   //# - for every entry in the input [Crypto List](#crypto-list)
@@ -572,7 +572,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures forall k <- origData :: (exists x :: x in finalData && x.key == k.key)
   {
     reveal EncryptPathFinal();
-    reveal CryptoUpdatedCryptoList();
+    reveal CryptoUpdatedCryptoListHeader();
     reveal CryptoUpdatedNewCrypto();
   }
 
@@ -596,7 +596,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures forall k <- origData :: (exists x :: x in finalData && Updated4(k, x, DoDecrypt))
   {
     reveal EncryptPathFinal();
-    reveal CryptoUpdatedCryptoList();
+    reveal CryptoUpdatedCryptoListHeader();
     reveal CryptoUpdatedNewCrypto();
   }
 
@@ -609,7 +609,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     ensures forall k <- finalData[..(|finalData|-2)] :: (exists x :: x in origData && x.key == k.key)
   {
     reveal EncryptPathFinal();
-    reveal CryptoUpdatedCryptoList();
+    reveal CryptoUpdatedCryptoListHeader();
     reveal NewCryptoUpdatedCrypto();
   }
 

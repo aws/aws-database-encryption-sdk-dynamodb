@@ -24,6 +24,7 @@ module StructuredEncryptionUtil {
   const FooterField := ReservedPrefix + "foot"
   const HeaderPath : Path := [member(StructureSegment(key := HeaderField))]
   const FooterPath : Path := [member(StructureSegment(key := FooterField))]
+  const HeaderPaths : seq<Path> := [HeaderPath, FooterPath]
   const ReservedCryptoContextPrefixString := "aws-crypto-"
   const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
 
