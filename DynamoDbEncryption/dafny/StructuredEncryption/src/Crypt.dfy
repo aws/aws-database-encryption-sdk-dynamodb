@@ -130,6 +130,29 @@ module StructuredEncryptionCrypt {
     return commitKey.MapFailure(e => AwsCryptographyPrimitives(e));
   }
 
+  lemma EncryptDataUpdated(origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- origData :: CryptoExistsInCanonCrypto(k, data)
+    requires |finalData| == |origData| == |data|
+    requires (forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoEncrypt))
+    ensures forall k <- origData :: CryptoUpdatedCanonCrypto(k, finalData)
+  {
+    reveal CryptoExistsInCanonCrypto();
+    reveal CryptoUpdatedCanonCrypto();
+    assert forall oldVal <- origData :: exists i :: 0 <= i < |finalData| && Updated5(oldVal, finalData[i], DoEncrypt);
+    assert forall oldVal <- origData :: exists x :: x in finalData && Updated5(oldVal, x, DoEncrypt);
+  }
+
+  lemma EncryptFinalUpdated(origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- data :: CanonCryptoExistsInCrypto(k, origData)
+    requires |finalData| == |origData| == |data|
+    requires forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoEncrypt)
+    ensures forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData)
+  {
+    reveal CanonCryptoExistsInCrypto();
+    reveal CanonCryptoUpdatedCrypto();
+    assume {:axiom} forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData);
+  }
+
   lemma EncryptMaintains(tableName : GoodString, origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
     requires CanonCryptoMatchesCryptoList(tableName, origData, data)
     requires |finalData| == |data|
@@ -139,8 +162,12 @@ module StructuredEncryptionCrypt {
     reveal CanonCryptoMatchesCryptoList();
     reveal CanonCryptoUpdatedCryptoList();
 
-    assume {:axiom} (forall k <- origData :: CryptoUpdatedCanonCrypto(k, finalData));
-    assume {:axiom} (forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData));
+    assert forall k <- origData :: CryptoUpdatedCanonCrypto(k, finalData) by {
+      EncryptDataUpdated(origData, data, finalData);
+    }
+    assert forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData) by {
+      EncryptFinalUpdated(origData, data, finalData);
+    }
   }
 
   // Encrypt a StructuredDataMap

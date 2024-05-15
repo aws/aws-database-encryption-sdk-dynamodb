@@ -176,7 +176,7 @@ module Canonize {
 
   predicate {:opaque} AuthExistsInCanonAuth(k : AuthItem, list : CanonAuthList)
   {
-    exists x :: x in list && k.key == x.origKey && k.data == x.data
+    exists x :: x in list && k.key == x.origKey && k.data == x.data && k.action == x.action
   }
 
   predicate {:opaque} AuthExistsInCrypto(k : AuthItem, list : CryptoList)
@@ -194,14 +194,19 @@ module Canonize {
     exists x :: x in list && k.key == x.origKey && k.data == x.data
   }
 
+  predicate SameStuff1(k : CryptoItem, x : CanonCryptoItem)
+  {
+    k.key == x.origKey && k.data == x.data && k.action == x.action
+  }
+
   predicate {:opaque} CryptoExistsInCanonCrypto(k : CryptoItem, list : CanonCryptoList)
   {
-    exists x :: x in list && k.key == x.origKey && k.data == x.data
+    exists x :: x in list && SameStuff1(k, x)
   }
 
   predicate {:opaque} CanonAuthExistsInAuth(k : CanonAuthItem, list : AuthList)
   {
-    exists x :: x in list && k.origKey == x.key && k.data == x.data
+    exists x :: x in list && k.origKey == x.key && k.data == x.data && k.action == x.action
   }
 
   predicate {:opaque} CanonCryptoExistsInAuth(k : CanonCryptoItem, list : AuthList)
@@ -211,12 +216,12 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoExistsInCrypto(k : CanonCryptoItem, list : CryptoList)
   {
-    exists x :: x in list && k.origKey == x.key && k.data == x.data
+    exists x :: x in list && k.origKey == x.key && k.data == x.data && k.action == x.action
   }
 
   predicate {:opaque} CanonAuthExistsInCanonAuth(k : CanonAuthItem, list : CanonAuthList)
   {
-    exists x :: x in list && k.origKey == x.origKey && k.data == x.data
+    exists x :: x in list && k.origKey == x.origKey && k.data == x.data && k.action == x.action
   }
 
   predicate {:opaque} CanonAuthExistsInCanonCrypto(k : CanonAuthItem, list : CanonCryptoList)
@@ -231,7 +236,7 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoExistsInCanonCrypto(k : CanonCryptoItem, list : CanonCryptoList)
   {
-    exists x :: x in list && k.origKey == x.origKey && k.data == x.data
+    exists x :: x in list && k.origKey == x.origKey && k.data == x.data && k.action == x.action
   }
 
   predicate {:opaque} CanonAuthMatchesAuthList(tableName : GoodString, data : AuthList, canonList : CanonAuthList)
@@ -280,22 +285,22 @@ module Canonize {
 
   predicate {:opaque} CanonCryptoUpdatedCrypto(k : CanonCryptoItem, list : CryptoList)
   {
-    exists x :: x in list && Updated5(x, k, DoDecrypt)
+    exists x :: x in list && Updated5(x, k, DoEncrypt)
   }
 
   predicate {:opaque} CryptoUpdatedCanonCrypto(k : CryptoItem, list : CanonCryptoList)
   {
-    exists x :: x in list && Updated5(k, x, DoDecrypt)
+    exists x :: x in list && Updated5(k, x, DoEncrypt)
   }
 
   predicate {:opaque} NewCryptoUpdatedCrypto(k : CryptoItem, list : CryptoList)
   {
-    exists x :: x in list && Updated4(x, k, DoDecrypt)
+    exists x :: x in list && Updated4(x, k, DoEncrypt)
   }
 
   predicate {:opaque} CryptoUpdatedNewCrypto(k : CryptoItem, list : CryptoList)
   {
-    exists x :: x in list && Updated4(k, x, DoDecrypt)
+    exists x :: x in list && Updated4(k, x, DoEncrypt)
   }
 
   predicate {:opaque} CanonCryptoUpdatedAuthList(tableName : GoodString, data : AuthList, canonList : CanonCryptoList)
@@ -416,6 +421,8 @@ module Canonize {
     assert forall i | 0 <= i < |data| :: canonList[i] == MakeCanon(tableName, data[i]);
     assert (forall k <- data :: CryptoExistsInCanonCrypto(k, canonList)) by {
       reveal CryptoExistsInCanonCrypto();
+      assert forall k <- data :: exists x :: x in canonList && k.key == x.origKey && k.data == x.data && k.action == x.action;
+      assert forall k <- data :: exists x :: x in canonList && SameStuff1(k, x);
     }
     assert (forall k <- canonList :: CanonCryptoExistsInCrypto(k, data)) by {
       reveal CanonCryptoExistsInCrypto();
