@@ -593,7 +593,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   lemma AllEncryptPathInputUpdatedInOutput(origData : CryptoList, finalData : CryptoList)
     requires EncryptPathFinal(origData, finalData)
-    ensures forall k <- origData :: (exists x :: x in finalData && Updated4(k, x, DoDecrypt))
+    ensures forall k <- origData :: (exists x :: x in finalData && Updated4(k, x, DoEncrypt))
   {
     reveal EncryptPathFinal();
     reveal CryptoUpdatedCryptoListHeader();
