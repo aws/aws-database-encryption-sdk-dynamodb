@@ -13,6 +13,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
  * IDEs tend to fight this so I'm sorry.
  */
 
+import Dafny.Aws.Cryptography.Primitives.Types.InternalResult;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
@@ -26,13 +27,12 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags
 import dafny.TypeDescriptor;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class InternalLegacyOverride {
+public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   private DynamoDBEncryptor encryptor;
   private Map<String, Set<EncryptionFlags>> actions;
   private EncryptionContext encryptionContext;
@@ -74,7 +74,7 @@ public class InternalLegacyOverride {
     return TypeDescriptor.referenceWithInitializer(InternalLegacyOverride.class, () -> null);
   }
 
-  public Boolean IsLegacyInput(
+  public boolean IsLegacyInput(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput input
   ) {
     //= specification/dynamodb-encryption-client/decrypt-item.md#determining-legacy-items
@@ -95,7 +95,7 @@ public class InternalLegacyOverride {
 
     // Precondition: Policy MUST allow the caller to encrypt.
     if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
-      return createFailure("Legacy Policy does not support encrypt.");
+      return CreateEncryptItemFailure(createError("Legacy Policy does not support encrypt."));
     }
 
     try {
@@ -135,9 +135,9 @@ public class InternalLegacyOverride {
         .itemencryptor
         .ToDafny
         .EncryptItemOutput(nativeOutput);
-      return Result.create_Success(dafnyOutput);
+      return CreateEncryptItemSuccess(dafnyOutput);
     } catch (Exception ex) {
-      return Result.create_Failure(Error.create_Opaque(ex));
+      return CreateEncryptItemFailure(Error.create_Opaque(ex));
     }
   }
 
@@ -152,7 +152,7 @@ public class InternalLegacyOverride {
     //# and the input item [is an item written in the legacy format](#determining-legacy-items),
     //# this operation MUST fail.
     if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT() && !_policy.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
-      return createFailure("Legacy Policy does not support decrypt.");
+      return CreateDecryptItemFailure(createError("Legacy Policy does not support decrypt."));
     }
     try {
       Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> encryptedItem = software
@@ -191,9 +191,9 @@ public class InternalLegacyOverride {
         .itemencryptor
         .ToDafny
         .DecryptItemOutput(nativeOutput);
-      return Result.create_Success(dafnyOutput);
+      return CreateDecryptItemSuccess(dafnyOutput);
     } catch (Exception ex) {
-      return Result.create_Failure(Error.create_Opaque(ex));
+      return CreateDecryptItemFailure(Error.create_Opaque(ex));
     }
   }
 
@@ -203,7 +203,7 @@ public class InternalLegacyOverride {
 
     // Check for early return (Postcondition): If there is no legacyOverride there is nothing to do.
     if (encryptorConfig.dtor_legacyOverride().is_None()) {
-      return Result.create_Success(Option.create_None());
+      return CreateBuildSuccess(CreateInternalLegacyOverrideNone());
     }
     final software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride legacyOverride = encryptorConfig
       .dtor_legacyOverride()
@@ -214,35 +214,34 @@ public class InternalLegacyOverride {
 
     // Precondition: The encryptor MUST be a DynamoDBEncryptor
     if (!isDynamoDBEncryptor(maybeEncryptor)) {
-      return createFailure("Legacy encryptor is not supported");
+      return CreateBuildFailure(createError("Legacy encryptor is not supported"));
     }
     // Preconditions: MUST be able to create valid encryption context
     final Result<EncryptionContext, Error> maybeEncryptionContext = legacyEncryptionContext(encryptorConfig);
     if (maybeEncryptionContext.is_Failure()) {
-      return Result.create_Failure(maybeEncryptionContext.dtor_error());
+      return CreateBuildFailure(maybeEncryptionContext.dtor_error());
     }
     // Precondition: All actions MUST be supported types
-    final Result<Map<String, Set<EncryptionFlags>>, Error> maybeActions = legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
-    if (maybeActions.is_Failure()) {
-      return Result.create_Failure(maybeEncryptionContext.dtor_error());
+    final InternalResult<Map<String, Set<EncryptionFlags>>, Error> maybeActions = legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
+    if (maybeActions.isFailure()) {
+      return CreateBuildFailure(maybeEncryptionContext.dtor_error());
     }
 
     final InternalLegacyOverride internalLegacyOverride = new InternalLegacyOverride(
       (DynamoDBEncryptor) maybeEncryptor,
-      maybeActions.dtor_value(),
+      maybeActions.value(),
       maybeEncryptionContext.dtor_value(),
       legacyOverride.dtor_policy()
     );
 
-    return Result.create_Success(Option.create_Some(internalLegacyOverride));
+    return CreateBuildSuccess(CreateInternalLegacyOverrideSome(internalLegacyOverride));
   }
 
   //  Everything below this point is an implementation detail
 
-  public static <T> Result<T, Error>createFailure(String message) {
+  public static Error createError(String message) {
     final DafnySequence<Character> dafnyMessage = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(message);
-    final Error dafnyEx = Error.create_DynamoDbItemEncryptorException(dafnyMessage);
-    return Result.create_Failure(dafnyEx);
+    return Error.create_DynamoDbItemEncryptorException(dafnyMessage);
   }
 
   public static boolean isDynamoDBEncryptor(
@@ -262,7 +261,7 @@ public class InternalLegacyOverride {
     return software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(s);
   }
 
-  public static Result<EncryptionContext, Error> legacyEncryptionContext(
+  public static InternalResult<EncryptionContext, Error> legacyEncryptionContext(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig config
   ) {
     try {
@@ -275,13 +274,13 @@ public class InternalLegacyOverride {
         ? encryptionContextBuilder.withRangeKeyName(ToNativeString(config.dtor_sortKeyName().dtor_value())).build()
         : encryptionContextBuilder.build();
 
-      return Result.create_Success(encryptionContext);
+      return InternalResult.success(encryptionContext);
     } catch (Exception ex) {
-      return Result.create_Failure(Error.create_Opaque(ex));
+      return InternalResult.failure(Error.create_Opaque(ex));
     }
   }
 
-  public static Result<Map<String, Set<EncryptionFlags>>, Error> legacyActions(
+  public static InternalResult<Map<String, Set<EncryptionFlags>>, Error> legacyActions(
     DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActionsOnEncrypt
   ) {
     try {
@@ -303,12 +302,12 @@ public class InternalLegacyOverride {
         }
       };
       attributeActionsOnEncrypt.forEach(buildLegacyActions);
-      return Result.create_Success(legacyActions);
+      return InternalResult.success(legacyActions);
     } catch (IllegalArgumentException ex) {
       final Error dafnyEx = Error.create_DynamoDbItemEncryptorException(ToDafnyString(ex.getMessage()));
-      return Result.create_Failure(dafnyEx);
+      return InternalResult.failure(dafnyEx);
     } catch (Exception ex) {
-      return Result.create_Failure(Error.create_Opaque(ex));
+      return InternalResult.failure(Error.create_Opaque(ex));
     }
   }
 

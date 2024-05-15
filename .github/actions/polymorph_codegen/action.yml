@@ -116,6 +116,7 @@ runs:
         make -C submodules/MaterialProviders/AwsCryptographicMaterialProviders setup_prettier
         make -C submodules/MaterialProviders/ComAmazonawsKms setup_prettier
         make -C submodules/MaterialProviders/ComAmazonawsDynamodb setup_prettier
+        make -C submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders setup_prettier
 
     - name: Regenerate Java code using smithy-dafny
       # npx seems to be unavailable on Windows GHA runners,
