@@ -217,20 +217,20 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       return CreateBuildFailure(createError("Legacy encryptor is not supported"));
     }
     // Preconditions: MUST be able to create valid encryption context
-    final Result<EncryptionContext, Error> maybeEncryptionContext = legacyEncryptionContext(encryptorConfig);
-    if (maybeEncryptionContext.is_Failure()) {
-      return CreateBuildFailure(maybeEncryptionContext.dtor_error());
+    final InternalResult<EncryptionContext, Error> maybeEncryptionContext = legacyEncryptionContext(encryptorConfig);
+    if (maybeEncryptionContext.isFailure()) {
+      return CreateBuildFailure(maybeEncryptionContext.error());
     }
     // Precondition: All actions MUST be supported types
     final InternalResult<Map<String, Set<EncryptionFlags>>, Error> maybeActions = legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
     if (maybeActions.isFailure()) {
-      return CreateBuildFailure(maybeEncryptionContext.dtor_error());
+      return CreateBuildFailure(maybeEncryptionContext.error());
     }
 
     final InternalLegacyOverride internalLegacyOverride = new InternalLegacyOverride(
       (DynamoDBEncryptor) maybeEncryptor,
       maybeActions.value(),
-      maybeEncryptionContext.dtor_value(),
+      maybeEncryptionContext.value(),
       legacyOverride.dtor_policy()
     );
 
