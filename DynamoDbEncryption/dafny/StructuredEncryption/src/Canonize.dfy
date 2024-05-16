@@ -634,25 +634,15 @@ module Canonize {
       [newItem] + UnCanon(input[1..])
   }
 
-  /*
-    predicate method SameUnCanon(x : CanonCryptoItem, y : CryptoItem)
-      && x.origKey == y.key
-      && x.data == y.data
-      && x.action == y.action
-  */
-
   lemma SameUnCanonUpdatedAll23()
     ensures forall oldVal : AuthItem, x : CanonCryptoItem, y : CryptoItem ::
               SameUnCanon(x, y) && Updated2(oldVal, x, DoDecrypt) ==> Updated3(oldVal, y, DoDecrypt)
   {}
 
-  lemma SameUnCanonUpdatedAll32()
-    ensures forall oldVal : AuthItem, x : CryptoItem, y : CanonCryptoItem ::
-              SameUnCanon(y, x) && Updated3(oldVal, x, DoDecrypt) ==> Updated2(oldVal, y, DoDecrypt)
+  lemma SameUnCanonUpdatedAll54()
+    ensures forall oldVal : CryptoItem, x : CanonCryptoItem, y : CryptoItem ::
+              SameUnCanon(x, y) && Updated5(oldVal, x, DoEncrypt) ==> Updated4(oldVal, y, DoEncrypt)
   {}
-
-  // predicate Updated2(oldVal : AuthItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
-  // predicate Updated3(oldVal : AuthItem, newVal : CryptoItem, mode : EncryptionSelector)
 
   lemma AuthUpdatedCryptoMaps(origData : AuthList, input : CanonCryptoList, output : CryptoList)
     requires |input| == |output|
@@ -667,6 +657,22 @@ module Canonize {
     }
   }
 
+  lemma InputIsInput(origData : AuthList, input : CanonCryptoList)
+    requires forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt)
+    ensures forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt)
+  {
+    assert forall i | 0 <= i < |input| :: input[i] in input;
+    assert forall i :: 0 <= i < |input| ==> input[i] in input;
+  }
+
+  lemma InputIsInput2(origData : CryptoList, input : CanonCryptoList)
+    requires forall val <- input :: exists x :: x in origData && Updated5(x, val, DoEncrypt)
+    ensures forall i | 0 <= i < |input| :: exists x :: x in origData && Updated5(x, input[i], DoEncrypt)
+  {
+    assert forall i | 0 <= i < |input| :: input[i] in input;
+    assert forall i :: 0 <= i < |input| ==> input[i] in input;
+  }
+
   lemma CryptoUpdatedAuthMaps(origData : AuthList, input : CanonCryptoList, output : CryptoList)
     requires |input| == |output|
     requires forall k <- input :: CanonCryptoUpdatedAuth(k, origData)
@@ -675,12 +681,14 @@ module Canonize {
   {
     reveal CanonCryptoUpdatedAuth();
     reveal CryptoUpdatedAuth();
-    assume {:axiom} forall k <- output :: exists x :: x in origData && Updated3(x, k, DoDecrypt);
-    // I don't know why this same trick doesn't work here.
-    //  by {
-    //   assert forall k <- input :: exists x :: x in origData && Updated2(x, k, DoDecrypt);
-    //   SameUnCanonUpdatedAll23();
-    // }
+    assert forall k <- output :: exists x :: x in origData && Updated3(x, k, DoDecrypt) by {
+      SameUnCanonUpdatedAll23();
+      assert forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt);
+      assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt) by {
+        InputIsInput(origData, input);
+      }
+      assert forall newVal <- output :: exists x :: x in origData && Updated3(x, newVal, DoDecrypt);
+    }
   }
 
   function method UnCanonDecrypt(input : CanonCryptoList, ghost tableName : GoodString, ghost origData : AuthList)
@@ -690,7 +698,6 @@ module Canonize {
   {
     reveal CanonCryptoUpdatedAuthList();
     reveal CryptoUpdatedAuthList();
-
 
     var results := UnCanon(input);
     assert (forall k <- origData :: AuthUpdatedCrypto(k, results)) by {
@@ -702,6 +709,37 @@ module Canonize {
     results
   }
 
+  lemma CryptoUpdatedCryptoMaps(origData : CryptoList, input : CanonCryptoList, output : CryptoList)
+    requires |input| == |output|
+    requires forall k <- origData :: CryptoUpdatedCanonCrypto(k, input)
+    requires forall i | 0 <= i < |input| :: SameUnCanon(input[i], output[i])
+    ensures forall k <- origData :: CryptoUpdatedNewCrypto(k, output)
+  {
+    reveal CryptoUpdatedCanonCrypto();
+    reveal CryptoUpdatedNewCrypto();
+    assert forall k <- origData :: exists x :: x in output && Updated4(k, x, DoEncrypt) by {
+      SameUnCanonUpdatedAll54();
+    }
+  }
+
+  lemma CryptoUpdatedCryptoMaps2(origData : CryptoList, input : CanonCryptoList, output : CryptoList)
+    requires |input| == |output|
+    requires forall k <- input :: CanonCryptoUpdatedCrypto(k, origData)
+    requires forall i | 0 <= i < |input| :: SameUnCanon(input[i], output[i])
+    ensures forall k <- output :: NewCryptoUpdatedCrypto(k, origData)
+  {
+    reveal CanonCryptoUpdatedCrypto();
+    reveal NewCryptoUpdatedCrypto();
+    assert forall k <- output :: exists x :: x in origData && Updated4(x, k, DoEncrypt) by {
+      SameUnCanonUpdatedAll54();
+      assert forall val <- input :: exists x :: x in origData && Updated5(x, val, DoEncrypt);
+      assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated5(x, input[i], DoEncrypt) by {
+        InputIsInput2(origData, input);
+      }
+      assert forall newVal <- output :: exists x :: x in origData && Updated4(x, newVal, DoEncrypt);
+    }
+  }
+
   function method UnCanonEncrypt(input : CanonCryptoList, ghost tableName : GoodString, ghost origData : CryptoList)
     : (ret : CryptoList)
     requires CanonCryptoUpdatedCryptoList(tableName, origData, input)
@@ -711,8 +749,12 @@ module Canonize {
     reveal CryptoUpdatedCryptoList();
 
     var results := UnCanon(input);
-    assume {:axiom} (forall k <- origData :: CryptoUpdatedNewCrypto(k, results));
-    assume {:axiom} (forall k <- results :: NewCryptoUpdatedCrypto(k, origData));
+    assert forall k <- origData :: CryptoUpdatedNewCrypto(k, results) by {
+      CryptoUpdatedCryptoMaps(origData, input, results);
+    }
+    assert forall k <- results :: NewCryptoUpdatedCrypto(k, origData) by {
+      CryptoUpdatedCryptoMaps2(origData, input, results);
+    }
     results
   }
 

@@ -150,7 +150,8 @@ module StructuredEncryptionCrypt {
   {
     reveal CanonCryptoExistsInCrypto();
     reveal CanonCryptoUpdatedCrypto();
-    assume {:axiom} forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData);
+    assert forall val <- data :: exists x :: x in origData && x.key == val.origKey && x.data == val.data && x.action == val.action;
+    assert forall newVal <- finalData :: exists x :: x in origData && Updated5(x, newVal, DoEncrypt);
   }
 
   lemma EncryptMaintains(tableName : GoodString, origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
@@ -202,6 +203,30 @@ module StructuredEncryptionCrypt {
     return Success(result);
   }
 
+  lemma DecryptDataUpdated(origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- origData :: AuthExistsInCanonCrypto(k, data)
+    requires |finalData| == |origData| == |data|
+    requires (forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoDecrypt))
+    ensures forall k <- origData :: AuthUpdatedCanonCrypto(k, finalData)
+  {
+    reveal AuthExistsInCanonCrypto();
+    reveal AuthUpdatedCanonCrypto();
+    assert forall oldVal <- origData :: exists i :: 0 <= i < |finalData| && Updated2(oldVal, finalData[i], DoDecrypt);
+    assert forall oldVal <- origData :: exists x :: x in finalData && Updated2(oldVal, x, DoDecrypt);
+  }
+
+  lemma DecryptFinalUpdated(origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- data :: CanonCryptoExistsInAuth(k, origData)
+    requires |finalData| == |origData| == |data|
+    requires (forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoDecrypt))
+    ensures forall k <- finalData :: CanonCryptoUpdatedAuth(k, origData)
+  {
+    reveal CanonCryptoExistsInAuth();
+    reveal CanonCryptoUpdatedAuth();
+    assert forall val <- data :: exists x :: x in origData && x.key == val.origKey && x.data == val.data;
+    assert forall newVal <- finalData :: exists x :: x in origData && Updated2(x, newVal, DoDecrypt);
+  }
+
   lemma DecryptMaintains(tableName : GoodString, origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
     requires CanonCryptoMatchesAuthList(tableName, origData, data)
     requires |finalData| == |data|
@@ -211,8 +236,12 @@ module StructuredEncryptionCrypt {
     reveal CanonCryptoMatchesAuthList();
     reveal CanonCryptoUpdatedAuthList();
 
-    assume {:axiom} (forall k <- origData :: AuthUpdatedCanonCrypto(k, finalData));
-    assume {:axiom} (forall k <- finalData :: CanonCryptoUpdatedAuth(k, origData));
+    assert forall k <- origData :: AuthUpdatedCanonCrypto(k, finalData) by {
+      DecryptDataUpdated(origData, data, finalData);
+    }
+    assert forall k <- finalData :: CanonCryptoUpdatedAuth(k, origData) by {
+      DecryptFinalUpdated(origData, data, finalData);
+    }
   }
 
   // Decrypt a StructuredDataMap
