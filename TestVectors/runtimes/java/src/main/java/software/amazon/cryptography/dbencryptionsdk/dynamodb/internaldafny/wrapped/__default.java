@@ -14,6 +14,6 @@ public class __default extends _ExternBase___default {
         software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionConfig wrappedConfig = ToNative.DynamoDbEncryptionConfig(config);
         software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryption impl = DynamoDbEncryption.builder().DynamoDbEncryptionConfig(wrappedConfig).build();
         TestDynamoDbEncryption wrappedClient = TestDynamoDbEncryption.builder().impl(impl).build();
-        return CreateSuccessOfClient(wrappedClient);
+        return Result.create_Success(wrappedClient);
     }
 }
