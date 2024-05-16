@@ -602,7 +602,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
   //= type=implication
-  //# - There MUST be no other entries in the final Encrypted Structured Data.
+  //# - For every entry in the final Encrypted Structured Data, other than the header and footer,
+  //# an entry MUST exist with the same [path](./structures.md#path) int the input [Crypto List](#crypto-list).
   lemma AllEncryptPathOutputInInput(origData : CryptoList, finalData : CryptoList)
     requires EncryptPathFinal(origData, finalData)
     ensures |finalData| == |origData| + 2
@@ -658,6 +659,13 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         //= type=implication
         //# The [paths](./structures.md#path) in the input [Crypto List](./structures.md#crypto-list) MUST be unique.
         && CryptoListHasNoDuplicatesFromSet(input.plaintextStructure)
+
+        //= specification/structured-encryption/encrypt-path-structure.md#encryption-context
+        //= type=implication
+        //# The operation MUST fail if an encryption context is provided which contains a key with the prefix `aws-crypto-`.
+        && (
+             || input.encryptionContext.None?
+             || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k])
   {
     :- Need(
       || input.encryptionContext.None?
@@ -929,7 +937,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
   //= type=implication
-  //# - The output Crypto List MUST NOT have any additional entries.
+  //# - For every entry in the output Crypto List
+  //# an entry MUST exist with the same key in the [input Auth List](#auth-list).
   lemma AllDecryptPathOutputInInput(origData : AuthList, finalData : CryptoList)
     requires DecryptPathFinal(origData, finalData)
     ensures forall k <- finalData :: exists x :: x in origData
@@ -1013,6 +1022,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
               && (!exists x :: x in output.value.plaintextStructure && x.key == HeaderPath)
               && (!exists x :: x in output.value.plaintextStructure && x.key == FooterPath)
+
+              //= specification/structured-encryption/decrypt-path-structure.md#auth-list
+              //= type=implication
+              //# The Auth List MUST NOT contain duplicate Paths.
+              && AuthListHasNoDuplicatesFromSet(input.encryptedStructure)
+
   {
     :- Need(exists x :: (x in input.encryptedStructure && x.action == SIGN), E("At least one Authenticate Action must be SIGN"));
 

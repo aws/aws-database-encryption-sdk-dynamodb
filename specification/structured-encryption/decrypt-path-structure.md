@@ -58,6 +58,8 @@ The Auth List describes how each [Terminal Data](./structures.md#terminal-data) 
 The Auth List MUST include at least one [SIGN Authenticate Action](./structures.md#sign);
 otherwise, this operation MUST yield an error.
 
+The Auth List MUST NOT contain duplicate Paths.
+
 ### CMM
 
 A CMM that implements the [CMM interface](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cmm-interface.md).
@@ -207,11 +209,12 @@ The Cipherkey and Nonce must be calculated as for [encryption](encrypt-structure
 
 ### Construct Decrypted Structured Data
 
-In the output a [Crypto List](./structures.md#crypto-list):
+In the output [Crypto List](./structures.md#crypto-list):
 - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
 - For every entry in the [input Auth List](#auth-list), other than the header and footer,
   an entry MUST exist with the same key in the output Crypto List.
-- The output Crypto List MUST NOT have any additional entries.
+- For every entry in the output Crypto List
+  an entry MUST exist with the same key in the [input Auth List](#auth-list).
   Put plainly, the output does not add or drop any entries during decryption, other than the header and footer.
 
 For each entry in the output Crypto List:
