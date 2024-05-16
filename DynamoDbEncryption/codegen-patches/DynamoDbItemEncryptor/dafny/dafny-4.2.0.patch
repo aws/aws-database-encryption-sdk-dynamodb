@@ -1,0 +1,13 @@
+diff --git b/DynamoDbEncryption/dafny/DynamoDbItemEncryptor/Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy a/DynamoDbEncryption/dafny/DynamoDbItemEncryptor/Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy
+index 8ce36d14..0cc3d24e 100644
+--- b/DynamoDbEncryption/dafny/DynamoDbItemEncryptor/Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy
++++ a/DynamoDbEncryption/dafny/DynamoDbItemEncryptor/Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy
+@@ -170,7 +170,7 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorServi
+   import opened Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+   import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
+   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
+-  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
++  method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
+     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
+     requires config.keyring.Some? ==>
+                config.keyring.value.ValidState()
