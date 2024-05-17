@@ -20,16 +20,26 @@ import org.testng.annotations.Test;
 
 public class TTLCacheTest {
 
-  private static final long TTL_GRACE_IN_NANO = TimeUnit.MILLISECONDS.toNanos(500);
+  private static final long TTL_GRACE_IN_NANO = TimeUnit.MILLISECONDS.toNanos(
+    500
+  );
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidSize() {
-    final TTLCache<String> cache = new TTLCache<String>(0, 1000, mock(TTLCache.EntryLoader.class));
+    final TTLCache<String> cache = new TTLCache<String>(
+      0,
+      1000,
+      mock(TTLCache.EntryLoader.class)
+    );
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidTTL() {
-    final TTLCache<String> cache = new TTLCache<String>(3, 0, mock(TTLCache.EntryLoader.class));
+    final TTLCache<String> cache = new TTLCache<String>(
+      3,
+      0,
+      mock(TTLCache.EntryLoader.class)
+    );
   }
 
   @Test(expectedExceptions = NullPointerException.class)
@@ -39,8 +49,11 @@ public class TTLCacheTest {
 
   @Test
   public void testConstructor() {
-    final TTLCache<String> cache =
-        new TTLCache<String>(1000, 1000, mock(TTLCache.EntryLoader.class));
+    final TTLCache<String> cache = new TTLCache<String>(
+      1000,
+      1000,
+      mock(TTLCache.EntryLoader.class)
+    );
     assertEquals(0, cache.size());
     assertEquals(1000, cache.getMaxSize());
   }
@@ -55,7 +68,11 @@ public class TTLCacheTest {
     MsClock clock = mock(MsClock.class);
     when(clock.timestampNano()).thenReturn((long) 0);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -88,7 +105,11 @@ public class TTLCacheTest {
     MsClock clock = mock(MsClock.class);
     when(clock.timestampNano()).thenReturn((long) 0);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -116,7 +137,11 @@ public class TTLCacheTest {
     when(loader.load(any())).thenReturn(loadedValue);
     MsClock clock = mock(MsClock.class);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -129,7 +154,8 @@ public class TTLCacheTest {
     verify(loader, times(1)).load("k1");
 
     // on load, time is within TTL
-    when(clock.timestampNano()).thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis));
+    when(clock.timestampNano())
+      .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis));
     String result = cache.load("k1");
 
     verifyNoMoreInteractions(loader);
@@ -146,7 +172,11 @@ public class TTLCacheTest {
     when(loader.load(any())).thenReturn(loadedValue);
     MsClock clock = mock(MsClock.class);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -159,7 +189,8 @@ public class TTLCacheTest {
     verify(loader, times(1)).load("k1");
 
     // on load, time is past TTL but within the grace period
-    when(clock.timestampNano()).thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + 1);
+    when(clock.timestampNano())
+      .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + 1);
     String result = cache.load("k1");
 
     // Because this is tested in a single thread,
@@ -179,7 +210,11 @@ public class TTLCacheTest {
     when(loader.load(any())).thenReturn(loadedValue);
     MsClock clock = mock(MsClock.class);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -193,7 +228,9 @@ public class TTLCacheTest {
 
     // on load, time is past TTL and grace period
     when(clock.timestampNano())
-        .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1);
+      .thenReturn(
+        TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1
+      );
     String result = cache.load("k1");
 
     verify(loader, times(2)).load("k1");
@@ -209,11 +246,17 @@ public class TTLCacheTest {
     final int maxSize = 3;
     TTLCache.EntryLoader loader = spy(TTLCache.EntryLoader.class);
     when(loader.load(any()))
-        .thenReturn(loadedValue)
-        .thenThrow(new IllegalStateException("This loader is mocked to throw a failure."));
+      .thenReturn(loadedValue)
+      .thenThrow(
+        new IllegalStateException("This loader is mocked to throw a failure.")
+      );
     MsClock clock = mock(MsClock.class);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -227,7 +270,9 @@ public class TTLCacheTest {
 
     // on load, time is past TTL and grace period
     when(clock.timestampNano())
-        .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1);
+      .thenReturn(
+        TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1
+      );
     assertThrows(IllegalStateException.class, () -> cache.load("k1"));
 
     verify(loader, times(2)).load("k1");
@@ -245,12 +290,18 @@ public class TTLCacheTest {
     when(function.apply(any())).thenReturn(functionValue);
     TTLCache.EntryLoader loader = spy(TTLCache.EntryLoader.class);
     when(loader.load(any()))
-        .thenReturn(loadedValue)
-        .thenThrow(new IllegalStateException("This loader is mocked to throw a failure."));
+      .thenReturn(loadedValue)
+      .thenThrow(
+        new IllegalStateException("This loader is mocked to throw a failure.")
+      );
     MsClock clock = mock(MsClock.class);
     when(clock.timestampNano()).thenReturn((long) 0);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -278,7 +329,11 @@ public class TTLCacheTest {
     TTLCache.EntryLoader loader = spy(TTLCache.EntryLoader.class);
     when(loader.load(any())).thenReturn(loadedValue);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
 
     assertTrue(cache.size() == 0);
     cache.load("k1");
@@ -297,7 +352,11 @@ public class TTLCacheTest {
     MsClock clock = mock(MsClock.class);
     when(clock.timestampNano()).thenReturn((long) 0);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -320,7 +379,11 @@ public class TTLCacheTest {
     MsClock clock = mock(MsClock.class);
     when(clock.timestampNano()).thenReturn((long) 0);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());
@@ -333,7 +396,9 @@ public class TTLCacheTest {
 
     // Second put is at time past TTL and grace period
     when(clock.timestampNano())
-        .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1);
+      .thenReturn(
+        TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1
+      );
     String oldValue2 = cache.put("k1", "v11");
     assertNull(oldValue2);
     assertTrue(cache.size() == 1);
@@ -349,7 +414,11 @@ public class TTLCacheTest {
     MsClock clock = mock(MsClock.class);
     when(clock.timestampNano()).thenReturn((long) 0);
 
-    final TTLCache<String> cache = new TTLCache<String>(maxSize, ttlInMillis, loader);
+    final TTLCache<String> cache = new TTLCache<String>(
+      maxSize,
+      ttlInMillis,
+      loader
+    );
     cache.clock = clock;
 
     assertEquals(0, cache.size());

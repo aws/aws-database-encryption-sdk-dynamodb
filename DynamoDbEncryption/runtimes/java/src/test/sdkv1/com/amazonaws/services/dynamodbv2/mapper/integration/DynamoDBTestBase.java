@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DynamoDBTestBase {
+
   protected static AmazonDynamoDB dynamo;
 
   public static void setUpTestBase() {
@@ -45,7 +46,9 @@ public class DynamoDBTestBase {
   }
 
   protected static <T extends Object> void assertSetsEqual(
-      Collection<T> expected, Collection<T> given) {
+    Collection<T> expected,
+    Collection<T> given
+  ) {
     Set<T> givenCopy = new HashSet<T>();
     givenCopy.addAll(given);
     for (T e : expected) {
@@ -58,7 +61,9 @@ public class DynamoDBTestBase {
   }
 
   protected static void assertNumericSetsEquals(
-      Set<? extends Number> expected, Collection<String> given) {
+    Set<? extends Number> expected,
+    Collection<String> given
+  ) {
     Set<BigDecimal> givenCopy = new HashSet<BigDecimal>();
     for (String s : given) {
       BigDecimal bd = new BigDecimal(s);

@@ -21,7 +21,7 @@ public class GetEncryptedDataKeyDescriptionExample
             ["partition_key"] = new AttributeValue("BasicPutGetExample"),
             ["sort_key"] = new AttributeValue { N = "0" },
         };
-        
+
         // 2. Create a Amazon DynamoDB Client and retrieve item from DynamoDB table
         var ddb = new AmazonDynamoDBClient();
         GetItemRequest getRequest = new GetItemRequest
@@ -54,7 +54,7 @@ public class GetEncryptedDataKeyDescriptionExample
         // 4. Get encrypted DataKey Descriptions from GetEncryptedDataKeyDescription method output and assert if its true.
         var encryptedDataKeyDescriptions = output.EncryptedDataKeyDescriptionOutput;
         Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderId == "aws-kms");
-        Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderInfo == kmsKeyId);        
+        Debug.Assert(encryptedDataKeyDescriptions[0].KeyProviderInfo == kmsKeyId);
     }
 }
 

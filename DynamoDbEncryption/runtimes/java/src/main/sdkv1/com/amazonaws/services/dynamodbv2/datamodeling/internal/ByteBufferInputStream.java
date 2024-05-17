@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 
 /** @author Greg Rubin */
 public class ByteBufferInputStream extends InputStream {
+
   private final ByteBuffer buffer;
 
   public ByteBufferInputStream(ByteBuffer buffer) {

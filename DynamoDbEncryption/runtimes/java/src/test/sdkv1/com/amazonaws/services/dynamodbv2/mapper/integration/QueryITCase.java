@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 
 /** Integration tests for the query operation on DynamoDBMapper. */
 public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+
   private static final boolean DEBUG = true;
   private static final long HASH_KEY = System.currentTimeMillis();
   private static RangeKeyTestClass hashKeyObject;
@@ -47,8 +48,11 @@ public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   public static void setUp() throws Exception {
     setUpTableWithRangeAttribute();
 
-    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(ConsistentReads.CONSISTENT);
-    mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo, mapperConfig);
+    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(
+      ConsistentReads.CONSISTENT
+    );
+    mapper =
+      TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo, mapperConfig);
 
     putTestData(mapper, TEST_ITEM_NUMBER);
 
@@ -59,15 +63,19 @@ public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   @Test
   public void testQueryWithPrimaryRangeKey() throws Exception {
     DynamoDBQueryExpression<RangeKeyTestClass> queryExpression =
-        new DynamoDBQueryExpression<RangeKeyTestClass>()
-            .withHashKeyValues(hashKeyObject)
-            .withRangeKeyCondition(
-                "rangeKey",
-                new Condition()
-                    .withComparisonOperator(ComparisonOperator.GT)
-                    .withAttributeValueList(new AttributeValue().withN("1.0")))
-            .withLimit(11);
-    List<RangeKeyTestClass> list = mapper.query(RangeKeyTestClass.class, queryExpression);
+      new DynamoDBQueryExpression<RangeKeyTestClass>()
+        .withHashKeyValues(hashKeyObject)
+        .withRangeKeyCondition(
+          "rangeKey",
+          new Condition()
+            .withComparisonOperator(ComparisonOperator.GT)
+            .withAttributeValueList(new AttributeValue().withN("1.0"))
+        )
+        .withLimit(11);
+    List<RangeKeyTestClass> list = mapper.query(
+      RangeKeyTestClass.class,
+      queryExpression
+    );
 
     int count = 0;
     Iterator<RangeKeyTestClass> iterator = list.iterator();
@@ -78,7 +86,9 @@ public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     }
 
     int numMatchingObjects = TEST_ITEM_NUMBER - 2;
-    if (DEBUG) System.err.println("count=" + count + ", numMatchingObjects=" + numMatchingObjects);
+    if (DEBUG) System.err.println(
+      "count=" + count + ", numMatchingObjects=" + numMatchingObjects
+    );
     assertTrue(count == numMatchingObjects);
     assertTrue(numMatchingObjects == list.size());
 
@@ -92,7 +102,8 @@ public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
     /** Tests query with only hash key */
     queryExpression =
-        new DynamoDBQueryExpression<RangeKeyTestClass>().withHashKeyValues(hashKeyObject);
+      new DynamoDBQueryExpression<RangeKeyTestClass>()
+        .withHashKeyValues(hashKeyObject);
     list = mapper.query(RangeKeyTestClass.class, queryExpression);
     assertTrue(TEST_ITEM_NUMBER == list.size());
   }
@@ -103,38 +114,45 @@ public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     // A random filter condition to be applied to the query.
     Random random = new Random();
     int randomFilterValue = random.nextInt(TEST_ITEM_NUMBER);
-    Condition filterCondition =
-        new Condition()
-            .withComparisonOperator(ComparisonOperator.LT)
-            .withAttributeValueList(
-                new AttributeValue().withN(Integer.toString(randomFilterValue)));
+    Condition filterCondition = new Condition()
+      .withComparisonOperator(ComparisonOperator.LT)
+      .withAttributeValueList(
+        new AttributeValue().withN(Integer.toString(randomFilterValue))
+      );
 
     /*
      * (1) Apply the filter on the range key, in form of key condition
      */
     DynamoDBQueryExpression<RangeKeyTestClass> queryWithRangeKeyCondition =
-        new DynamoDBQueryExpression<RangeKeyTestClass>()
-            .withHashKeyValues(hashKeyObject)
-            .withRangeKeyCondition("rangeKey", filterCondition);
-    List<RangeKeyTestClass> rangeKeyConditionResult =
-        mapper.query(RangeKeyTestClass.class, queryWithRangeKeyCondition);
+      new DynamoDBQueryExpression<RangeKeyTestClass>()
+        .withHashKeyValues(hashKeyObject)
+        .withRangeKeyCondition("rangeKey", filterCondition);
+    List<RangeKeyTestClass> rangeKeyConditionResult = mapper.query(
+      RangeKeyTestClass.class,
+      queryWithRangeKeyCondition
+    );
 
     /*
      * (2) Apply the filter on the bigDecimalAttribute, in form of query
      * filter
      */
     DynamoDBQueryExpression<RangeKeyTestClass> queryWithQueryFilterCondition =
-        new DynamoDBQueryExpression<RangeKeyTestClass>()
-            .withHashKeyValues(hashKeyObject)
-            .withQueryFilter(Collections.singletonMap("bigDecimalAttribute", filterCondition));
-    List<RangeKeyTestClass> queryFilterResult =
-        mapper.query(RangeKeyTestClass.class, queryWithQueryFilterCondition);
+      new DynamoDBQueryExpression<RangeKeyTestClass>()
+        .withHashKeyValues(hashKeyObject)
+        .withQueryFilter(
+          Collections.singletonMap("bigDecimalAttribute", filterCondition)
+        );
+    List<RangeKeyTestClass> queryFilterResult = mapper.query(
+      RangeKeyTestClass.class,
+      queryWithQueryFilterCondition
+    );
     if (DEBUG) {
       System.err.println(
-          "rangeKeyConditionResult.size()="
-              + rangeKeyConditionResult.size()
-              + ", queryFilterResult.size()="
-              + queryFilterResult.size());
+        "rangeKeyConditionResult.size()=" +
+        rangeKeyConditionResult.size() +
+        ", queryFilterResult.size()=" +
+        queryFilterResult.size()
+      );
     }
     assertTrue(rangeKeyConditionResult.size() == queryFilterResult.size());
     for (int i = 0; i < rangeKeyConditionResult.size(); i++) {
@@ -149,22 +167,28 @@ public class QueryITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   @Test
   public void testUnnecessaryIndexNameException() {
     try {
-      DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+      DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+        dynamo
+      );
       long hashKey = System.currentTimeMillis();
       RangeKeyTestClass keyObject = new RangeKeyTestClass();
       keyObject.setKey(hashKey);
       DynamoDBQueryExpression<RangeKeyTestClass> queryExpression =
-          new DynamoDBQueryExpression<RangeKeyTestClass>().withHashKeyValues(keyObject);
+        new DynamoDBQueryExpression<RangeKeyTestClass>()
+          .withHashKeyValues(keyObject);
       queryExpression
-          .withRangeKeyCondition(
-              "rangeKey",
-              new Condition()
-                  .withComparisonOperator(ComparisonOperator.GT.toString())
-                  .withAttributeValueList(new AttributeValue().withN("1.0")))
-          .withLimit(11)
-          .withIndexName("some_index");
+        .withRangeKeyCondition(
+          "rangeKey",
+          new Condition()
+            .withComparisonOperator(ComparisonOperator.GT.toString())
+            .withAttributeValueList(new AttributeValue().withN("1.0"))
+        )
+        .withLimit(11)
+        .withIndexName("some_index");
       mapper.query(RangeKeyTestClass.class, queryExpression);
-      fail("User should not provide index name when making query with the primary range key");
+      fail(
+        "User should not provide index name when making query with the primary range key"
+      );
     } catch (IllegalArgumentException expected) {
       System.out.println(expected.getMessage());
     } catch (Exception e) {

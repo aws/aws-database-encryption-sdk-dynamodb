@@ -10,6 +10,7 @@
 ### Changelog
 
 - 1.1.0
+
   - Update for simplified structured encryption
 
 - 1.0.0
@@ -46,6 +47,7 @@ The following inputs to this behavior MUST be OPTIONAL:
 ## Output
 
 This operation MUST output the following:
+
 - [Encrypted Structured Data](encrypt-path-structure.md#encrypted-structured-data)
 - [Crypto Schema](./structures.md#crypto-schema): The Crypto Schema for each signed Terminal
 - [Parsed Header](./decrypt-structure.md#parsed-header)

@@ -45,7 +45,7 @@ On initialization of a Virtual Part, the caller MUST provide:
 
 - A location -- a [Terminal Location](#terminal-location)
 
- On initialization of a Virtual Part, the caller MAY provide:
+On initialization of a Virtual Part, the caller MAY provide:
 
 - A list of [Virtual Transforms](#virtual-transform-initialization)
 
@@ -190,4 +190,4 @@ A Segment MUST be one of
 
 - A literal "." followed by a field name, indicating a lookup into a Structured Data Map.
 - A literal "[" followed by a decimal integer followed by a literal "]",
-indicating an index into a  Structured Data List.
+  indicating an index into a Structured Data List.

@@ -15,6 +15,7 @@ import java.util.Map.Entry;
  */
 @ThreadSafe
 public final class LRUCache<T> {
+
   /** Used for the internal cache. */
   private final Map<String, T> map;
 
@@ -24,7 +25,9 @@ public final class LRUCache<T> {
   /** @param maxSize the maximum number of entries of the cache */
   public LRUCache(final int maxSize) {
     if (maxSize < 1) {
-      throw new IllegalArgumentException("maxSize " + maxSize + " must be at least 1");
+      throw new IllegalArgumentException(
+        "maxSize " + maxSize + " must be at least 1"
+      );
     }
     this.maxSize = maxSize;
     map = Collections.synchronizedMap(new LRUHashMap<>(maxSize));
@@ -65,6 +68,7 @@ public final class LRUCache<T> {
 
   @SuppressWarnings("serial")
   private static class LRUHashMap<T> extends LinkedHashMap<String, T> {
+
     private final int maxSize;
 
     private LRUHashMap(final int maxSize) {

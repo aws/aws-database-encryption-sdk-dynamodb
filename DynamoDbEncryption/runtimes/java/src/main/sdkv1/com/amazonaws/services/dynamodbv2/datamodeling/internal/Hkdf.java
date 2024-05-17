@@ -32,6 +32,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @see <a href="http://tools.ietf.org/html/rfc5869">RFC 5869</a>
  */
 public final class Hkdf {
+
   private static final byte[] EMPTY_ARRAY = new byte[0];
   private final String algorithm;
   private final Provider provider;
@@ -50,7 +51,8 @@ public final class Hkdf {
    * @throws NoSuchAlgorithmException if no Provider supports a MacSpi implementation for the
    *     specified algorithm.
    */
-  public static Hkdf getInstance(final String algorithm) throws NoSuchAlgorithmException {
+  public static Hkdf getInstance(final String algorithm)
+    throws NoSuchAlgorithmException {
     // Constructed specifically to sanity-test arguments.
     Mac mac = Mac.getInstance(algorithm);
     return new Hkdf(algorithm, mac.getProvider());
@@ -72,7 +74,7 @@ public final class Hkdf {
    *     provider list.
    */
   public static Hkdf getInstance(final String algorithm, final String provider)
-      throws NoSuchAlgorithmException, NoSuchProviderException {
+    throws NoSuchAlgorithmException, NoSuchProviderException {
     // Constructed specifically to sanity-test arguments.
     Mac mac = Mac.getInstance(algorithm, provider);
     return new Hkdf(algorithm, mac.getProvider());
@@ -91,8 +93,10 @@ public final class Hkdf {
    * @throws NoSuchAlgorithmException if a MacSpi implementation for the specified algorithm is not
    *     available from the specified provider.
    */
-  public static Hkdf getInstance(final String algorithm, final Provider provider)
-      throws NoSuchAlgorithmException {
+  public static Hkdf getInstance(
+    final String algorithm,
+    final Provider provider
+  ) throws NoSuchAlgorithmException {
     // Constructed specifically to sanity-test arguments.
     Mac mac = Mac.getInstance(algorithm, provider);
     return new Hkdf(algorithm, mac.getProvider());
@@ -149,13 +153,15 @@ public final class Hkdf {
    * @throws InvalidKeyException if the algorithm for <code>rawKey</code> does not match the
    *     algorithm this Hkdf was created with
    */
-  public void unsafeInitWithoutKeyExtraction(final SecretKey rawKey) throws InvalidKeyException {
+  public void unsafeInitWithoutKeyExtraction(final SecretKey rawKey)
+    throws InvalidKeyException {
     if (!rawKey.getAlgorithm().equals(algorithm)) {
       throw new InvalidKeyException(
-          "Algorithm for the provided key must match the algorithm for this Hkdf. Expected "
-              + algorithm
-              + " but found "
-              + rawKey.getAlgorithm());
+        "Algorithm for the provided key must match the algorithm for this Hkdf. Expected " +
+        algorithm +
+        " but found " +
+        rawKey.getAlgorithm()
+      );
     }
 
     this.prk = rawKey;
@@ -164,7 +170,10 @@ public final class Hkdf {
   private Hkdf(final String algorithm, final Provider provider) {
     if (!algorithm.startsWith("Hmac")) {
       throw new IllegalArgumentException(
-          "Invalid algorithm " + algorithm + ". Hkdf may only be used with Hmac algorithms.");
+        "Invalid algorithm " +
+        algorithm +
+        ". Hkdf may only be used with Hmac algorithms."
+      );
     }
     this.algorithm = algorithm;
     this.provider = provider;
@@ -179,8 +188,12 @@ public final class Hkdf {
    * @return a pseudorandom key of <code>length</code> bytes.
    * @throws IllegalStateException if this object has not been initialized
    */
-  public byte[] deriveKey(final String info, final int length) throws IllegalStateException {
-    return deriveKey((info != null ? info.getBytes(StringUtils.UTF8) : null), length);
+  public byte[] deriveKey(final String info, final int length)
+    throws IllegalStateException {
+    return deriveKey(
+      (info != null ? info.getBytes(StringUtils.UTF8) : null),
+      length
+    );
   }
 
   /**
@@ -191,7 +204,8 @@ public final class Hkdf {
    * @return a pseudorandom key of <code>length</code> bytes.
    * @throws IllegalStateException if this object has not been initialized
    */
-  public byte[] deriveKey(final byte[] info, final int length) throws IllegalStateException {
+  public byte[] deriveKey(final byte[] info, final int length)
+    throws IllegalStateException {
     byte[] result = new byte[length];
     try {
       deriveKey(info, length, result, 0);
@@ -214,11 +228,17 @@ public final class Hkdf {
    * @throws ShortBufferException if the given output buffer is too small to hold the result
    * @throws IllegalStateException if this object has not been initialized
    */
-  public void deriveKey(final byte[] info, final int length, final byte[] output, final int offset)
-      throws ShortBufferException, IllegalStateException {
+  public void deriveKey(
+    final byte[] info,
+    final int length,
+    final byte[] output,
+    final int offset
+  ) throws ShortBufferException, IllegalStateException {
     assertInitialized();
     if (length < 0) {
-      throw new IllegalArgumentException("Length must be a non-negative value.");
+      throw new IllegalArgumentException(
+        "Length must be a non-negative value."
+      );
     }
     if (output.length < offset + length) {
       throw new ShortBufferException();
@@ -227,7 +247,8 @@ public final class Hkdf {
 
     if (length > 255 * mac.getMacLength()) {
       throw new IllegalArgumentException(
-          "Requested keys may not be longer than 255 times the underlying HMAC length.");
+        "Requested keys may not be longer than 255 times the underlying HMAC length."
+      );
     }
 
     byte[] t = EMPTY_ARRAY;

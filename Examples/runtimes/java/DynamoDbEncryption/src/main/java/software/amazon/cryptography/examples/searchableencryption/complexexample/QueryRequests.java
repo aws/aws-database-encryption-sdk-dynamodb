@@ -60,19 +60,29 @@ public class QueryRequests {
     query1AttributeNames.put("#duration", "Duration");
 
     final Map<String, AttributeValue> query1AttributeValues = new HashMap<>();
-    query1AttributeValues.put(":e", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query1AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
-    query1AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
+    query1AttributeValues.put(
+      ":e",
+      AttributeValue.builder().s("EE-able@gmail.com").build()
+    );
+    query1AttributeValues.put(
+      ":date1",
+      AttributeValue.builder().s("MS-2022-07-02").build()
+    );
+    query1AttributeValues.put(
+      ":date2",
+      AttributeValue.builder().s("MS-2022-07-08").build()
+    );
     query1AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
 
-    final QueryRequest query1Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :e AND #sk1 BETWEEN :date1 AND :date2")
-        .filterExpression("#duration > :zero")
-        .expressionAttributeNames(query1AttributeNames)
-        .expressionAttributeValues(query1AttributeValues)
-        .build();
+    final QueryRequest query1Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression("#pk1 = :e AND #sk1 BETWEEN :date1 AND :date2")
+      .filterExpression("#duration > :zero")
+      .expressionAttributeNames(query1AttributeNames)
+      .expressionAttributeValues(query1AttributeValues)
+      .build();
 
     final QueryResponse query1Response = ddb.query(query1Request);
     // Validate query was returned successfully
@@ -87,8 +97,10 @@ public class QueryRequests {
         foundKnownValueItemQuery1 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
-        assert item.get("Attendees").l()
-            .contains(AttributeValue.builder().s("zorro@gmail.com").build());
+        assert item
+          .get("Attendees")
+          .l()
+          .contains(AttributeValue.builder().s("zorro@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery1;
@@ -104,19 +116,31 @@ public class QueryRequests {
     query2AttributeNames.put("#duration", "Duration");
 
     Map<String, AttributeValue> query2AttributeValues = new HashMap<>();
-    query2AttributeValues.put(":employee", AttributeValue.builder().s("E-emp_001").build());
-    query2AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
-    query2AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
+    query2AttributeValues.put(
+      ":employee",
+      AttributeValue.builder().s("E-emp_001").build()
+    );
+    query2AttributeValues.put(
+      ":date1",
+      AttributeValue.builder().s("MS-2022-07-02").build()
+    );
+    query2AttributeValues.put(
+      ":date2",
+      AttributeValue.builder().s("MS-2022-07-08").build()
+    );
     query2AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
 
-    QueryRequest query2Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :employee AND #sk BETWEEN :date1 AND :date2")
-        .filterExpression("#duration > :zero")
-        .expressionAttributeNames(query2AttributeNames)
-        .expressionAttributeValues(query2AttributeValues)
-        .build();
+    QueryRequest query2Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression(
+        "#pk = :employee AND #sk BETWEEN :date1 AND :date2"
+      )
+      .filterExpression("#duration > :zero")
+      .expressionAttributeNames(query2AttributeNames)
+      .expressionAttributeValues(query2AttributeValues)
+      .build();
 
     QueryResponse query2Response = ddb.query(query2Request);
     // Validate query was returned successfully
@@ -131,8 +155,10 @@ public class QueryRequests {
         foundKnownValueItemQuery2 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
-        assert item.get("Attendees").l()
-            .contains(AttributeValue.builder().s("zorro@gmail.com").build());
+        assert item
+          .get("Attendees")
+          .l()
+          .contains(AttributeValue.builder().s("zorro@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery2;
@@ -146,29 +172,52 @@ public class QueryRequests {
     //       Demo.md calls for a filter condition "SK contains building.floor.room"
     //       However, one cannot use primary keys (partition nor sort) in a filter expression.
     //       Instead, this query filters on the individual beacon attributes: building, floor, and room.
-    Map<String,String> query3AttributeNames = new HashMap<>();
+    Map<String, String> query3AttributeNames = new HashMap<>();
     query3AttributeNames.put("#pk", "PK");
     query3AttributeNames.put("#sk", "SK");
     query3AttributeNames.put("#building", "Building");
     query3AttributeNames.put("#floor", "Floor");
     query3AttributeNames.put("#room", "Room");
 
-    Map<String,AttributeValue> query3AttributeValues = new HashMap<>();
-    query3AttributeValues.put(":buildingbeacon", AttributeValue.builder().s("B-SEA33").build());
-    query3AttributeValues.put(":building", AttributeValue.builder().s("SEA33").build());
-    query3AttributeValues.put(":floor", AttributeValue.builder().s("12").build());
-    query3AttributeValues.put(":room", AttributeValue.builder().s("403").build());
-    query3AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-02").build());
-    query3AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
+    Map<String, AttributeValue> query3AttributeValues = new HashMap<>();
+    query3AttributeValues.put(
+      ":buildingbeacon",
+      AttributeValue.builder().s("B-SEA33").build()
+    );
+    query3AttributeValues.put(
+      ":building",
+      AttributeValue.builder().s("SEA33").build()
+    );
+    query3AttributeValues.put(
+      ":floor",
+      AttributeValue.builder().s("12").build()
+    );
+    query3AttributeValues.put(
+      ":room",
+      AttributeValue.builder().s("403").build()
+    );
+    query3AttributeValues.put(
+      ":date1",
+      AttributeValue.builder().s("MS-2022-07-02").build()
+    );
+    query3AttributeValues.put(
+      ":date2",
+      AttributeValue.builder().s("MS-2022-07-08").build()
+    );
 
-    QueryRequest query3Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :buildingbeacon AND #sk BETWEEN :date1 AND :date2")
-        .filterExpression("#building = :building AND #floor = :floor AND #room = :room")
-        .expressionAttributeNames(query3AttributeNames)
-        .expressionAttributeValues(query3AttributeValues)
-        .build();
+    QueryRequest query3Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression(
+        "#pk = :buildingbeacon AND #sk BETWEEN :date1 AND :date2"
+      )
+      .filterExpression(
+        "#building = :building AND #floor = :floor AND #room = :room"
+      )
+      .expressionAttributeNames(query3AttributeNames)
+      .expressionAttributeValues(query3AttributeValues)
+      .build();
 
     QueryResponse query3Response = ddb.query(query3Request);
     // Validate query was returned successfully
@@ -183,7 +232,10 @@ public class QueryRequests {
         foundKnownValueItemQuery3 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Building").s().equals("SEA33");
-        assert item.get("Attendees").l().contains(AttributeValue.builder().s("barney@gmail.com").build());
+        assert item
+          .get("Attendees")
+          .l()
+          .contains(AttributeValue.builder().s("barney@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery3;
@@ -197,16 +249,23 @@ public class QueryRequests {
     query4AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query4AttributeValues = new HashMap<>();
-    query4AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query4AttributeValues.put(":employee", AttributeValue.builder().s("E-emp_001").build());
+    query4AttributeValues.put(
+      ":email",
+      AttributeValue.builder().s("EE-able@gmail.com").build()
+    );
+    query4AttributeValues.put(
+      ":employee",
+      AttributeValue.builder().s("E-emp_001").build()
+    );
 
-    QueryRequest query4Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :email AND #sk1 = :employee")
-        .expressionAttributeNames(query4AttributeNames)
-        .expressionAttributeValues(query4AttributeValues)
-        .build();
+    QueryRequest query4Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression("#pk1 = :email AND #sk1 = :employee")
+      .expressionAttributeNames(query4AttributeNames)
+      .expressionAttributeValues(query4AttributeValues)
+      .build();
 
     QueryResponse query4Response = ddb.query(query4Request);
     // Validate query was returned successfully
@@ -234,17 +293,29 @@ public class QueryRequests {
     query5AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query5AttributeValues = new HashMap<>();
-    query5AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query5AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("MS-2023-03-20").build());
-    query5AttributeValues.put(":prefix", AttributeValue.builder().s("MS-").build());
+    query5AttributeValues.put(
+      ":email",
+      AttributeValue.builder().s("EE-able@gmail.com").build()
+    );
+    query5AttributeValues.put(
+      ":thirtydaysago",
+      AttributeValue.builder().s("MS-2023-03-20").build()
+    );
+    query5AttributeValues.put(
+      ":prefix",
+      AttributeValue.builder().s("MS-").build()
+    );
 
-    QueryRequest query5Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago")
-        .expressionAttributeNames(query5AttributeNames)
-        .expressionAttributeValues(query5AttributeValues)
-        .build();
+    QueryRequest query5Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression(
+        "#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago"
+      )
+      .expressionAttributeNames(query5AttributeNames)
+      .expressionAttributeValues(query5AttributeValues)
+      .build();
 
     QueryResponse query5Response = ddb.query(query5Request);
     // Validate query was returned successfully
@@ -259,8 +330,10 @@ public class QueryRequests {
         foundKnownValueItemQuery5 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
-        assert item.get("Attendees").l()
-            .contains(AttributeValue.builder().s("zorro@gmail.com").build());
+        assert item
+          .get("Attendees")
+          .l()
+          .contains(AttributeValue.builder().s("zorro@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery5;
@@ -274,16 +347,23 @@ public class QueryRequests {
     query6AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query6AttributeValues = new HashMap<>();
-    query6AttributeValues.put(":creatoremail", AttributeValue.builder().s("CE-zorro@gmail.com").build());
-    query6AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("MS-2023-03-20").build());
+    query6AttributeValues.put(
+      ":creatoremail",
+      AttributeValue.builder().s("CE-zorro@gmail.com").build()
+    );
+    query6AttributeValues.put(
+      ":thirtydaysago",
+      AttributeValue.builder().s("MS-2023-03-20").build()
+    );
 
-    QueryRequest query6Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :creatoremail AND #sk1 < :thirtydaysago")
-        .expressionAttributeNames(query6AttributeNames)
-        .expressionAttributeValues(query6AttributeValues)
-        .build();
+    QueryRequest query6Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression("#pk1 = :creatoremail AND #sk1 < :thirtydaysago")
+      .expressionAttributeNames(query6AttributeNames)
+      .expressionAttributeValues(query6AttributeValues)
+      .build();
 
     QueryResponse query6Response = ddb.query(query6Request);
     // Validate query was returned successfully
@@ -311,16 +391,25 @@ public class QueryRequests {
     query7AttributeNames.put("#sk1", "SK1");
 
     Map<String, AttributeValue> query7AttributeValues = new HashMap<>();
-    query7AttributeValues.put(":organizeremail", AttributeValue.builder().s("OE-able@gmail.com").build());
-    query7AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("MS-2023-03-20").build());
+    query7AttributeValues.put(
+      ":organizeremail",
+      AttributeValue.builder().s("OE-able@gmail.com").build()
+    );
+    query7AttributeValues.put(
+      ":thirtydaysago",
+      AttributeValue.builder().s("MS-2023-03-20").build()
+    );
 
-    QueryRequest query7Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :organizeremail AND #sk1 < :thirtydaysago")
-        .expressionAttributeNames(query7AttributeNames)
-        .expressionAttributeValues(query7AttributeValues)
-        .build();
+    QueryRequest query7Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression(
+        "#pk1 = :organizeremail AND #sk1 < :thirtydaysago"
+      )
+      .expressionAttributeNames(query7AttributeNames)
+      .expressionAttributeValues(query7AttributeValues)
+      .build();
 
     QueryResponse query7Response = ddb.query(query7Request);
     // Validate query was returned successfully
@@ -335,8 +424,10 @@ public class QueryRequests {
         foundKnownValueItemQuery7 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
-        assert item.get("Attendees").l()
-            .contains(AttributeValue.builder().s("barney@gmail.com").build());
+        assert item
+          .get("Attendees")
+          .l()
+          .contains(AttributeValue.builder().s("barney@gmail.com").build());
       }
     }
     assert foundKnownValueItemQuery7;
@@ -345,22 +436,34 @@ public class QueryRequests {
   public static void runQuery8(String ddbTableName, DynamoDbClient ddb) {
     // Query 8: Get time cards by email
     // Key condition: PK1=employeeemail SK1 > 30 days ago
-    Map<String,String> query8AttributeNames = new HashMap<>();
+    Map<String, String> query8AttributeNames = new HashMap<>();
     query8AttributeNames.put("#pk1", "PK1");
     query8AttributeNames.put("#sk1", "SK1");
 
-    Map<String,AttributeValue> query8AttributeValues = new HashMap<>();
-    query8AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query8AttributeValues.put(":prefix", AttributeValue.builder().s("TC-").build());
-    query8AttributeValues.put(":thirtydaysago", AttributeValue.builder().s("TC-2023-03-20").build());
+    Map<String, AttributeValue> query8AttributeValues = new HashMap<>();
+    query8AttributeValues.put(
+      ":email",
+      AttributeValue.builder().s("EE-able@gmail.com").build()
+    );
+    query8AttributeValues.put(
+      ":prefix",
+      AttributeValue.builder().s("TC-").build()
+    );
+    query8AttributeValues.put(
+      ":thirtydaysago",
+      AttributeValue.builder().s("TC-2023-03-20").build()
+    );
 
-    QueryRequest query8Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago")
-        .expressionAttributeNames(query8AttributeNames)
-        .expressionAttributeValues(query8AttributeValues)
-        .build();
+    QueryRequest query8Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression(
+        "#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago"
+      )
+      .expressionAttributeNames(query8AttributeNames)
+      .expressionAttributeValues(query8AttributeValues)
+      .build();
 
     QueryResponse query8Response = ddb.query(query8Request);
     // Validate query was returned successfully
@@ -382,21 +485,28 @@ public class QueryRequests {
   public static void runQuery9(String ddbTableName, DynamoDbClient ddb) {
     // Query 9: Get employee info by employee ID
     // Key condition: PK1=employeeID SK starts with "E-"
-    Map<String,String> query9AttributeNames = new HashMap<>();
+    Map<String, String> query9AttributeNames = new HashMap<>();
     query9AttributeNames.put("#pk", "PK");
     query9AttributeNames.put("#sk", "SK");
 
-    Map<String,AttributeValue> query9AttributeValues = new HashMap<>();
-    query9AttributeValues.put(":employee", AttributeValue.builder().s("E-emp_001").build());
-    query9AttributeValues.put(":prefix", AttributeValue.builder().s("E-").build());
+    Map<String, AttributeValue> query9AttributeValues = new HashMap<>();
+    query9AttributeValues.put(
+      ":employee",
+      AttributeValue.builder().s("E-emp_001").build()
+    );
+    query9AttributeValues.put(
+      ":prefix",
+      AttributeValue.builder().s("E-").build()
+    );
 
-    QueryRequest query9Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :employee AND begins_with(#sk, :prefix)")
-        .expressionAttributeNames(query9AttributeNames)
-        .expressionAttributeValues(query9AttributeValues)
-        .build();
+    QueryRequest query9Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression("#pk = :employee AND begins_with(#sk, :prefix)")
+      .expressionAttributeNames(query9AttributeNames)
+      .expressionAttributeValues(query9AttributeValues)
+      .build();
 
     QueryResponse query9Response = ddb.query(query9Request);
     // Validate query was returned successfully
@@ -419,21 +529,28 @@ public class QueryRequests {
     // Query 10: Get employee info by email
     // Key condition: PK1=email
     // Filter condition: SK starts with "E-"
-    Map<String,String> query10AttributeNames = new HashMap<>();
+    Map<String, String> query10AttributeNames = new HashMap<>();
     query10AttributeNames.put("#pk1", "PK1");
     query10AttributeNames.put("#sk1", "SK1");
 
-    Map<String,AttributeValue> query10AttributeValues = new HashMap<>();
-    query10AttributeValues.put(":email", AttributeValue.builder().s("EE-able@gmail.com").build());
-    query10AttributeValues.put(":prefix", AttributeValue.builder().s("E-").build());
+    Map<String, AttributeValue> query10AttributeValues = new HashMap<>();
+    query10AttributeValues.put(
+      ":email",
+      AttributeValue.builder().s("EE-able@gmail.com").build()
+    );
+    query10AttributeValues.put(
+      ":prefix",
+      AttributeValue.builder().s("E-").build()
+    );
 
-    QueryRequest query10Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :email AND begins_with(#sk1, :prefix)")
-        .expressionAttributeNames(query10AttributeNames)
-        .expressionAttributeValues(query10AttributeValues)
-        .build();
+    QueryRequest query10Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression("#pk1 = :email AND begins_with(#sk1, :prefix)")
+      .expressionAttributeNames(query10AttributeNames)
+      .expressionAttributeValues(query10AttributeValues)
+      .build();
 
     QueryResponse query10Response = ddb.query(query10Request);
     // Validate query was returned successfully
@@ -455,19 +572,23 @@ public class QueryRequests {
   public static void runQuery11(String ddbTableName, DynamoDbClient ddb) {
     // Query 11: Get ticket history by ticket number
     // Key condition: PK=TicketNumber
-    Map<String,String> query11AttributeNames = new HashMap<>();
+    Map<String, String> query11AttributeNames = new HashMap<>();
     query11AttributeNames.put("#pk", "PK");
 
-    Map<String,AttributeValue> query11AttributeValues = new HashMap<>();
-    query11AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
+    Map<String, AttributeValue> query11AttributeValues = new HashMap<>();
+    query11AttributeValues.put(
+      ":ticket",
+      AttributeValue.builder().s("T-ticket_001").build()
+    );
 
-    QueryRequest query11Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :ticket")
-        .expressionAttributeNames(query11AttributeNames)
-        .expressionAttributeValues(query11AttributeValues)
-        .build();
+    QueryRequest query11Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression("#pk = :ticket")
+      .expressionAttributeNames(query11AttributeNames)
+      .expressionAttributeValues(query11AttributeValues)
+      .build();
 
     QueryResponse query11Response = ddb.query(query11Request);
     // Validate query was returned successfully
@@ -491,22 +612,29 @@ public class QueryRequests {
     // Query 12: Get Ticket History by employee email
     // Key condition: PK1=CreatorEmail
     // Filter condition: PK=TicketNumber
-    Map<String,String> query12AttributeNames = new HashMap<>();
+    Map<String, String> query12AttributeNames = new HashMap<>();
     query12AttributeNames.put("#pk1", "PK1");
     query12AttributeNames.put("#pk", "PK");
 
-    Map<String,AttributeValue> query12AttributeValues = new HashMap<>();
-    query12AttributeValues.put(":email", AttributeValue.builder().s("CE-zorro@gmail.com").build());
-    query12AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
+    Map<String, AttributeValue> query12AttributeValues = new HashMap<>();
+    query12AttributeValues.put(
+      ":email",
+      AttributeValue.builder().s("CE-zorro@gmail.com").build()
+    );
+    query12AttributeValues.put(
+      ":ticket",
+      AttributeValue.builder().s("T-ticket_001").build()
+    );
 
-    QueryRequest query12Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :email")
-        .filterExpression("#pk = :ticket")
-        .expressionAttributeNames(query12AttributeNames)
-        .expressionAttributeValues(query12AttributeValues)
-        .build();
+    QueryRequest query12Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression("#pk1 = :email")
+      .filterExpression("#pk = :ticket")
+      .expressionAttributeNames(query12AttributeNames)
+      .expressionAttributeValues(query12AttributeValues)
+      .build();
 
     QueryResponse query12Response = ddb.query(query12Request);
     // Validate query was returned successfully
@@ -529,22 +657,29 @@ public class QueryRequests {
     // Query 13: Get ticket history by assignee email
     // Key condition: PK=AssigneeEmail
     // Filter condition: PK=ticketNumber
-    Map<String,String> query13AttributeNames = new HashMap<>();
+    Map<String, String> query13AttributeNames = new HashMap<>();
     query13AttributeNames.put("#pk2", "PK2");
     query13AttributeNames.put("#pk", "PK");
 
-    Map<String,AttributeValue> query13AttributeValues = new HashMap<>();
-    query13AttributeValues.put(":assigneeemail", AttributeValue.builder().s("AE-able@gmail.com").build());
-    query13AttributeValues.put(":ticket", AttributeValue.builder().s("T-ticket_001").build());
+    Map<String, AttributeValue> query13AttributeValues = new HashMap<>();
+    query13AttributeValues.put(
+      ":assigneeemail",
+      AttributeValue.builder().s("AE-able@gmail.com").build()
+    );
+    query13AttributeValues.put(
+      ":ticket",
+      AttributeValue.builder().s("T-ticket_001").build()
+    );
 
-    QueryRequest query13Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-2")
-        .keyConditionExpression("#pk2 = :assigneeemail")
-        .filterExpression("#pk = :ticket")
-        .expressionAttributeNames(query13AttributeNames)
-        .expressionAttributeValues(query13AttributeValues)
-        .build();
+    QueryRequest query13Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-2")
+      .keyConditionExpression("#pk2 = :assigneeemail")
+      .filterExpression("#pk = :ticket")
+      .expressionAttributeNames(query13AttributeNames)
+      .expressionAttributeValues(query13AttributeValues)
+      .build();
 
     QueryResponse query13Response = ddb.query(query13Request);
     // Validate query was returned successfully
@@ -566,68 +701,81 @@ public class QueryRequests {
   public static void runQuery14(String ddbTableName, DynamoDbClient ddb) {
     // Query 14: Get employees by city.building.floor.desk
     // Key condition: PK3=city SK3 begins_with(building.floor.desk)
-    Map<String,String> query14AttributeNames = new HashMap<>();
+    Map<String, String> query14AttributeNames = new HashMap<>();
     query14AttributeNames.put("#pk3", "PK3");
     query14AttributeNames.put("#sk3", "SK3");
 
-    Map<String,AttributeValue> query14AttributeValues = new HashMap<>();
-    query14AttributeValues.put(":city", AttributeValue.builder().s("C-Seattle").build());
-    query14AttributeValues.put(":location", AttributeValue.builder().s("B-44~F-12~D-3").build());
+    Map<String, AttributeValue> query14AttributeValues = new HashMap<>();
+    query14AttributeValues.put(
+      ":city",
+      AttributeValue.builder().s("C-Seattle").build()
+    );
+    query14AttributeValues.put(
+      ":location",
+      AttributeValue.builder().s("B-44~F-12~D-3").build()
+    );
 
-    QueryRequest query14Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-3")
-        .keyConditionExpression("#pk3 = :city AND begins_with(#sk3, :location)")
-        .expressionAttributeNames(query14AttributeNames)
-        .expressionAttributeValues(query14AttributeValues)
-        .build();
+    QueryRequest query14Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-3")
+      .keyConditionExpression("#pk3 = :city AND begins_with(#sk3, :location)")
+      .expressionAttributeNames(query14AttributeNames)
+      .expressionAttributeValues(query14AttributeValues)
+      .build();
 
     // GSIs do not update instantly
     // so if the results come back empty
     // we retry after a short sleep
-    for (int i=0; i<10; ++i) {
-	QueryResponse query14Response = ddb.query(query14Request);
-	// Validate query was returned successfully
-	assert 200 == query14Response.sdkHttpResponse().statusCode();
+    for (int i = 0; i < 10; ++i) {
+      QueryResponse query14Response = ddb.query(query14Request);
+      // Validate query was returned successfully
+      assert 200 == query14Response.sdkHttpResponse().statusCode();
 
-	// if no results, sleep and try again
-        if (query14Response.items().size() == 0) {
-            try {Thread.sleep(20);} catch (Exception e) {}
-            continue;
+      // if no results, sleep and try again
+      if (query14Response.items().size() == 0) {
+        try {
+          Thread.sleep(20);
+        } catch (Exception e) {}
+        continue;
+      }
+
+      // Assert 1 item was returned: `employee1`
+      assert query14Response.items().size() == 1;
+      // Known value test: Assert some properties on one of the items
+      boolean foundKnownValueItemQuery14 = false;
+      for (Map<String, AttributeValue> item : query14Response.items()) {
+        if (item.get("partition_key").s().equals("employee1")) {
+          foundKnownValueItemQuery14 = true;
+          assert item.get("EmployeeID").s().equals("emp_001");
+          assert item.get("Location").m().get("Desk").s().equals("3");
         }
-
-	// Assert 1 item was returned: `employee1`
-	assert query14Response.items().size() == 1;
-	// Known value test: Assert some properties on one of the items
-	boolean foundKnownValueItemQuery14 = false;
-	for (Map<String, AttributeValue> item : query14Response.items()) {
-	    if (item.get("partition_key").s().equals("employee1")) {
-		foundKnownValueItemQuery14 = true;
-		assert item.get("EmployeeID").s().equals("emp_001");
-		assert item.get("Location").m().get("Desk").s().equals("3");
-	    }
-	}
-	assert foundKnownValueItemQuery14;
-	break;
+      }
+      assert foundKnownValueItemQuery14;
+      break;
     }
   }
 
   public static void runQuery15(String ddbTableName, DynamoDbClient ddb) {
     // Query 15: Get employees by manager email
     // Key condition: PK2 = ManagerEmail
-    Map<String,String> query15AttributeNames = new HashMap<>();
+    Map<String, String> query15AttributeNames = new HashMap<>();
     query15AttributeNames.put("#pk2", "PK2");
 
-    Map<String,AttributeValue> query15AttributeValues = new HashMap<>();
-    query15AttributeValues.put(":manageremail", AttributeValue.builder().s("ME-zorro@gmail.com").build());
+    Map<String, AttributeValue> query15AttributeValues = new HashMap<>();
+    query15AttributeValues.put(
+      ":manageremail",
+      AttributeValue.builder().s("ME-zorro@gmail.com").build()
+    );
 
-    QueryRequest query15Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-2")
-        .keyConditionExpression("#pk2 = :manageremail")
-        .expressionAttributeNames(query15AttributeNames)
-        .expressionAttributeValues(query15AttributeValues)
-        .build();
+    QueryRequest query15Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-2")
+      .keyConditionExpression("#pk2 = :manageremail")
+      .expressionAttributeNames(query15AttributeNames)
+      .expressionAttributeValues(query15AttributeValues)
+      .build();
 
     QueryResponse query15Response = ddb.query(query15Request);
     // Validate query was returned successfully
@@ -651,19 +799,23 @@ public class QueryRequests {
   public static void runQuery16(String ddbTableName, DynamoDbClient ddb) {
     // Query 16: Get assigned tickets by assignee email
     // Key condition: PK2 = AssigneeEmail
-    Map<String,String> query16AttributeNames = new HashMap<>();
+    Map<String, String> query16AttributeNames = new HashMap<>();
     query16AttributeNames.put("#pk2", "PK2");
 
-    Map<String,AttributeValue> query16AttributeValues = new HashMap<>();
-    query16AttributeValues.put(":assigneeemail", AttributeValue.builder().s("AE-able@gmail.com").build());
+    Map<String, AttributeValue> query16AttributeValues = new HashMap<>();
+    query16AttributeValues.put(
+      ":assigneeemail",
+      AttributeValue.builder().s("AE-able@gmail.com").build()
+    );
 
-    QueryRequest query16Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-2")
-        .keyConditionExpression("#pk2 = :assigneeemail")
-        .expressionAttributeNames(query16AttributeNames)
-        .expressionAttributeValues(query16AttributeValues)
-        .build();
+    QueryRequest query16Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-2")
+      .keyConditionExpression("#pk2 = :assigneeemail")
+      .expressionAttributeNames(query16AttributeNames)
+      .expressionAttributeValues(query16AttributeValues)
+      .build();
 
     QueryResponse query16Response = ddb.query(query16Request);
     // Validate query was returned successfully
@@ -690,21 +842,28 @@ public class QueryRequests {
     //  the date is 2022-10-08T09:30:00, such that "24 hours ago"
     //  is 2022-10-07T09:30:00, and that our sample ticket record
     //  with TicketModTime=2022-10-07T14:32:25 will be returned.)
-    Map<String,String> query17AttributeNames = new HashMap<>();
+    Map<String, String> query17AttributeNames = new HashMap<>();
     query17AttributeNames.put("#pk3", "PK3");
     query17AttributeNames.put("#sk3", "SK3");
 
-    Map<String,AttributeValue> query17AttributeValues = new HashMap<>();
-    query17AttributeValues.put(":severity", AttributeValue.builder().s("S-3").build());
-    query17AttributeValues.put(":yesterday", AttributeValue.builder().s("M-2022-10-07T09:30:00").build());
+    Map<String, AttributeValue> query17AttributeValues = new HashMap<>();
+    query17AttributeValues.put(
+      ":severity",
+      AttributeValue.builder().s("S-3").build()
+    );
+    query17AttributeValues.put(
+      ":yesterday",
+      AttributeValue.builder().s("M-2022-10-07T09:30:00").build()
+    );
 
-    QueryRequest query17Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-3")
-        .keyConditionExpression("#pk3 = :severity AND #sk3 > :yesterday")
-        .expressionAttributeNames(query17AttributeNames)
-        .expressionAttributeValues(query17AttributeValues)
-        .build();
+    QueryRequest query17Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-3")
+      .keyConditionExpression("#pk3 = :severity AND #sk3 > :yesterday")
+      .expressionAttributeNames(query17AttributeNames)
+      .expressionAttributeValues(query17AttributeValues)
+      .build();
 
     QueryResponse query17Response = ddb.query(query17Request);
     // Validate query was returned successfully
@@ -728,24 +887,34 @@ public class QueryRequests {
     // Query 18: Get projects by status, start and target date
     // Key condition: PK1 = Status, SK1 > StartDate
     // Filter condition: TargetDelivery < TargetDate
-    Map<String,String> query18AttributeNames = new HashMap<>();
+    Map<String, String> query18AttributeNames = new HashMap<>();
     query18AttributeNames.put("#pk1", "PK1");
     query18AttributeNames.put("#sk1", "SK1");
     query18AttributeNames.put("#target", "ProjectTarget");
 
-    Map<String,AttributeValue> query18AttributeValues = new HashMap<>();
-    query18AttributeValues.put(":status", AttributeValue.builder().s("PSts-Pending").build());
-    query18AttributeValues.put(":startdate", AttributeValue.builder().s("PS-2022-01-01").build());
-    query18AttributeValues.put(":target", AttributeValue.builder().s("2025-01-01").build());
+    Map<String, AttributeValue> query18AttributeValues = new HashMap<>();
+    query18AttributeValues.put(
+      ":status",
+      AttributeValue.builder().s("PSts-Pending").build()
+    );
+    query18AttributeValues.put(
+      ":startdate",
+      AttributeValue.builder().s("PS-2022-01-01").build()
+    );
+    query18AttributeValues.put(
+      ":target",
+      AttributeValue.builder().s("2025-01-01").build()
+    );
 
-    QueryRequest query18Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-1")
-        .keyConditionExpression("#pk1 = :status AND #sk1 > :startdate")
-        .filterExpression("#target < :target")
-        .expressionAttributeNames(query18AttributeNames)
-        .expressionAttributeValues(query18AttributeValues)
-        .build();
+    QueryRequest query18Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-1")
+      .keyConditionExpression("#pk1 = :status AND #sk1 > :startdate")
+      .filterExpression("#target < :target")
+      .expressionAttributeNames(query18AttributeNames)
+      .expressionAttributeValues(query18AttributeValues)
+      .build();
 
     QueryResponse query18Response = ddb.query(query18Request);
     // Validate query was returned successfully
@@ -767,20 +936,24 @@ public class QueryRequests {
   public static void runQuery19(String ddbTableName, DynamoDbClient ddb) {
     // Query 19: Get projects by name
     // Key condition: PK = ProjectName, SK = ProjectName
-    Map<String,String> query19AttributeNames = new HashMap<>();
+    Map<String, String> query19AttributeNames = new HashMap<>();
     query19AttributeNames.put("#pk", "PK");
     query19AttributeNames.put("#sk", "SK");
 
-    Map<String,AttributeValue> query19AttributeValues = new HashMap<>();
-    query19AttributeValues.put(":projectname", AttributeValue.builder().s("P-project_001").build());
+    Map<String, AttributeValue> query19AttributeValues = new HashMap<>();
+    query19AttributeValues.put(
+      ":projectname",
+      AttributeValue.builder().s("P-project_001").build()
+    );
 
-    QueryRequest query19Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :projectname AND #sk = :projectname")
-        .expressionAttributeNames(query19AttributeNames)
-        .expressionAttributeValues(query19AttributeValues)
-        .build();
+    QueryRequest query19Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression("#pk = :projectname AND #sk = :projectname")
+      .expressionAttributeNames(query19AttributeNames)
+      .expressionAttributeValues(query19AttributeValues)
+      .build();
 
     QueryResponse query19Response = ddb.query(query19Request);
     // Validate query was returned successfully
@@ -802,22 +975,34 @@ public class QueryRequests {
   public static void runQuery20(String ddbTableName, DynamoDbClient ddb) {
     // Query 20: Get Project History by date range (against timecard record)
     // Key condition: PK = ProjectName, SK between(date1, date2)
-    Map<String,String> query20AttributeNames = new HashMap<>();
+    Map<String, String> query20AttributeNames = new HashMap<>();
     query20AttributeNames.put("#pk", "PK");
     query20AttributeNames.put("#sk", "SK");
 
-    Map<String,AttributeValue> query20AttributeValues = new HashMap<>();
-    query20AttributeValues.put(":projectname", AttributeValue.builder().s("P-project_002").build());
-    query20AttributeValues.put(":date1", AttributeValue.builder().s("TC-2022-01-01").build());
-    query20AttributeValues.put(":date2", AttributeValue.builder().s("TC-2023-01-01").build());
+    Map<String, AttributeValue> query20AttributeValues = new HashMap<>();
+    query20AttributeValues.put(
+      ":projectname",
+      AttributeValue.builder().s("P-project_002").build()
+    );
+    query20AttributeValues.put(
+      ":date1",
+      AttributeValue.builder().s("TC-2022-01-01").build()
+    );
+    query20AttributeValues.put(
+      ":date2",
+      AttributeValue.builder().s("TC-2023-01-01").build()
+    );
 
-    QueryRequest query20Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :projectname AND #sk BETWEEN :date1 AND :date2")
-        .expressionAttributeNames(query20AttributeNames)
-        .expressionAttributeValues(query20AttributeValues)
-        .build();
+    QueryRequest query20Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression(
+        "#pk = :projectname AND #sk BETWEEN :date1 AND :date2"
+      )
+      .expressionAttributeNames(query20AttributeNames)
+      .expressionAttributeValues(query20AttributeValues)
+      .build();
 
     QueryResponse query20Response = ddb.query(query20Request);
     // Validate query was returned successfully
@@ -841,22 +1026,29 @@ public class QueryRequests {
     // Query 21: Get Project History by role
     // Key condition: PK = ProjectName
     // Filter condition: role=rolename
-    Map<String,String> query21AttributeNames = new HashMap<>();
+    Map<String, String> query21AttributeNames = new HashMap<>();
     query21AttributeNames.put("#pk", "PK");
     query21AttributeNames.put("#role", "Role");
 
-    Map<String,AttributeValue> query21AttributeValues = new HashMap<>();
-    query21AttributeValues.put(":projectname", AttributeValue.builder().s("P-project_002").build());
-    query21AttributeValues.put(":role", AttributeValue.builder().s("SDE3").build());
+    Map<String, AttributeValue> query21AttributeValues = new HashMap<>();
+    query21AttributeValues.put(
+      ":projectname",
+      AttributeValue.builder().s("P-project_002").build()
+    );
+    query21AttributeValues.put(
+      ":role",
+      AttributeValue.builder().s("SDE3").build()
+    );
 
-    QueryRequest query21Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :projectname")
-        .filterExpression("#role = :role")
-        .expressionAttributeNames(query21AttributeNames)
-        .expressionAttributeValues(query21AttributeValues)
-        .build();
+    QueryRequest query21Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression("#pk = :projectname")
+      .filterExpression("#role = :role")
+      .expressionAttributeNames(query21AttributeNames)
+      .expressionAttributeValues(query21AttributeValues)
+      .build();
 
     QueryResponse query21Response = ddb.query(query21Request);
     // Validate query was returned successfully
@@ -878,19 +1070,23 @@ public class QueryRequests {
   public static void runQuery22(String ddbTableName, DynamoDbClient ddb) {
     // Query 22: Get reservations by building ID
     // Key condition: PK = Building ID
-    Map<String,String> query22AttributeNames = new HashMap<>();
+    Map<String, String> query22AttributeNames = new HashMap<>();
     query22AttributeNames.put("#pk", "PK");
 
-    Map<String,AttributeValue> query22AttributeValues = new HashMap<>();
-    query22AttributeValues.put(":building", AttributeValue.builder().s("B-SEA33").build());
+    Map<String, AttributeValue> query22AttributeValues = new HashMap<>();
+    query22AttributeValues.put(
+      ":building",
+      AttributeValue.builder().s("B-SEA33").build()
+    );
 
-    QueryRequest query22Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :building")
-        .expressionAttributeNames(query22AttributeNames)
-        .expressionAttributeValues(query22AttributeValues)
-        .build();
+    QueryRequest query22Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression("#pk = :building")
+      .expressionAttributeNames(query22AttributeNames)
+      .expressionAttributeValues(query22AttributeValues)
+      .build();
 
     QueryResponse query22Response = ddb.query(query22Request);
     // Validate query was returned successfully
@@ -914,25 +1110,40 @@ public class QueryRequests {
     // Query 23: Get reservations by building ID and time range
     // Key condition: PK = Building ID, SK between(date1, date2)
     // Filter condition: Duration > 0
-    Map<String,String> query23AttributeNames = new HashMap<>();
+    Map<String, String> query23AttributeNames = new HashMap<>();
     query23AttributeNames.put("#pk", "PK");
     query23AttributeNames.put("#sk", "SK");
     query23AttributeNames.put("#duration", "Duration");
 
-    Map<String,AttributeValue> query23AttributeValues = new HashMap<>();
-    query23AttributeValues.put(":building", AttributeValue.builder().s("B-SEA33").build());
-    query23AttributeValues.put(":date1", AttributeValue.builder().s("MS-2022-07-01").build());
-    query23AttributeValues.put(":date2", AttributeValue.builder().s("MS-2022-07-08").build());
-    query23AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
+    Map<String, AttributeValue> query23AttributeValues = new HashMap<>();
+    query23AttributeValues.put(
+      ":building",
+      AttributeValue.builder().s("B-SEA33").build()
+    );
+    query23AttributeValues.put(
+      ":date1",
+      AttributeValue.builder().s("MS-2022-07-01").build()
+    );
+    query23AttributeValues.put(
+      ":date2",
+      AttributeValue.builder().s("MS-2022-07-08").build()
+    );
+    query23AttributeValues.put(
+      ":zero",
+      AttributeValue.builder().s("0").build()
+    );
 
-    QueryRequest query23Request = QueryRequest.builder()
-        .tableName(ddbTableName)
-        .indexName("GSI-0")
-        .keyConditionExpression("#pk = :building AND #sk BETWEEN :date1 AND :date2")
-        .filterExpression("#duration > :zero")
-        .expressionAttributeNames(query23AttributeNames)
-        .expressionAttributeValues(query23AttributeValues)
-        .build();
+    QueryRequest query23Request = QueryRequest
+      .builder()
+      .tableName(ddbTableName)
+      .indexName("GSI-0")
+      .keyConditionExpression(
+        "#pk = :building AND #sk BETWEEN :date1 AND :date2"
+      )
+      .filterExpression("#duration > :zero")
+      .expressionAttributeNames(query23AttributeNames)
+      .expressionAttributeValues(query23AttributeValues)
+      .build();
 
     QueryResponse query23Response = ddb.query(query23Request);
     // Validate query was returned successfully
@@ -951,5 +1162,4 @@ public class QueryRequests {
     }
     assert foundKnownValueItemQuery23;
   }
-
 }

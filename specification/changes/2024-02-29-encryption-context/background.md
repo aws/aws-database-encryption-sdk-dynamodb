@@ -21,19 +21,22 @@ Designate some sign-only attributes to be available to customers for branch key 
 #### Option Taken : Add attributes to the encryption context
 
 Advantages include :
-* Simple user story
-* Tiny change to API
+
+- Simple user story
+- Tiny change to API
 
 #### Option Not Taken : Pass attributes to the keyring
 
 We could have extended the keyring interface to receive a set of key-value pairs, and then passed all signed attributes to the keyring, which would use that to choose the branch key.
 
- Advantages include :
-* This feature is now available to all MPL-based products, not just the DBESDK.
+Advantages include :
+
+- This feature is now available to all MPL-based products, not just the DBESDK.
 
 Drawbacks include :
-* Versioning the keyring might be costly, especially for customers that already have a custom keyring.
-* There is no way to enforce that the values passed in are in some way authenticated.
+
+- Versioning the keyring might be costly, especially for customers that already have a custom keyring.
+- There is no way to enforce that the values passed in are in some way authenticated.
 
 ### Which Attributes to Include
 
@@ -59,7 +62,7 @@ If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes are configured, then a 
 
 On decrypt, the version number and legend are examined to determine which fields are ENCRYPT_AND_SIGN, SIGN_ONLY OR SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT. As with version 1, the encrypt configuration and decrypt configuration must agree on which fields in the record are DO_NOTHING; otherwise the record will fail to decrypt.
 
-#### Option Not Taken  : Always write new version
+#### Option Not Taken : Always write new version
 
 Once we support version 2, we always write version 2. The downside to this is the usual two-phase update problem; that is, if one part of a customers system is updated, and starts writing version 2 records, then other parts of their system, not yet updated, will be unable to read them.
 
@@ -104,8 +107,8 @@ Thus the string “key” is in the encryption context as “AAFrZXk=”.
 
 This is problematic in a number of ways
 
-* A customer looking around trying to figure out what is going on does not see anything helpful. Further, since we don’t surface the deserialization logic, there is no way for them to turn “AAFrZXk=” back into “key”.
-* There is no straightforward way to use these values as part of a KMS key policy, which would be a valuable tool for customers.
+- A customer looking around trying to figure out what is going on does not see anything helpful. Further, since we don’t surface the deserialization logic, there is no way for them to turn “AAFrZXk=” back into “key”.
+- There is no straightforward way to use these values as part of a KMS key policy, which would be a valuable tool for customers.
 
 It would be nice to simply store “key”, but that has issues.
 
@@ -119,10 +122,10 @@ In the version 2 records, add a new entry to the encryption context : aws-crypto
 
 The value in the legend tells us how to interpret the string values in the EC.
 
-* S - a string
-* N - a number
-* L - a literal : true, false or null
-* B - everything else. All Map, List, Set and Binary types will continue to be encoded exactly as they are now. Thus they will still be ugly to look at, and difficult to use in KMS policies.
+- S - a string
+- N - a number
+- L - a literal : true, false or null
+- B - everything else. All Map, List, Set and Binary types will continue to be encoded exactly as they are now. Thus they will still be ugly to look at, and difficult to use in KMS policies.
 
 The addition of the legend adds a few bytes (17 + 1 per attribute), but strings and numbers stored this way take up less space as they don’t have to pay the overhead of our serialization format and base64 encoding (e.g. “key” which will drop from 8 characters to 3).
 
@@ -136,9 +139,9 @@ We could do without the legend if we used the DynamoDB JSON syntax for values. T
 
 This has the advantage of simplicity, and is more user friendly then the current AAFrZXk= situation, but it has drawbacks.
 
-* Whitespace is meaningless in JSON, but would be significant to a key policy, leading to confusion.
-* A key policy referring directly to {”S“ : ”key“} is still a suboptimal user experience
-* This would increase the size of the encryption context. Eventually somebody’s going to bump up against the 4K barrier for encryption contexts in KMS.
+- Whitespace is meaningless in JSON, but would be significant to a key policy, leading to confusion.
+- A key policy referring directly to {”S“ : ”key“} is still a suboptimal user experience
+- This would increase the size of the encryption context. Eventually somebody’s going to bump up against the 4K barrier for encryption contexts in KMS.
 
 ### Option Not Taken - Change interface to branch key selector
 

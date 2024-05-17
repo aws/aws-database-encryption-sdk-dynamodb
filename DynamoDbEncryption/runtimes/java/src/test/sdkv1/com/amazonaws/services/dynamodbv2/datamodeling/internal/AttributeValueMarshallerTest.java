@@ -34,6 +34,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 public class AttributeValueMarshallerTest {
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty() {
     AttributeValue av = new AttributeValue();
@@ -54,7 +55,8 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testByteBuffer() {
-    AttributeValue av = new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5}));
+    AttributeValue av = new AttributeValue()
+      .withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5 }));
     assertEquals(av, unmarshall(marshall(av)));
   }
 
@@ -63,17 +65,17 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testNumberS() {
-    AttributeValue av =
-        new AttributeValue().withNS(Collections.unmodifiableList(Arrays.asList("1337", "1", "5")));
+    AttributeValue av = new AttributeValue()
+      .withNS(Collections.unmodifiableList(Arrays.asList("1337", "1", "5")));
     assertEquals(av, unmarshall(marshall(av)));
   }
 
   @Test
   public void testNumberSOrdering() {
-    AttributeValue av1 =
-        new AttributeValue().withNS(Collections.unmodifiableList(Arrays.asList("1337", "1", "5")));
-    AttributeValue av2 =
-        new AttributeValue().withNS(Collections.unmodifiableList(Arrays.asList("1", "5", "1337")));
+    AttributeValue av1 = new AttributeValue()
+      .withNS(Collections.unmodifiableList(Arrays.asList("1337", "1", "5")));
+    AttributeValue av2 = new AttributeValue()
+      .withNS(Collections.unmodifiableList(Arrays.asList("1", "5", "1337")));
     assertEquals(av1, av2);
     ByteBuffer buff1 = marshall(av1);
     ByteBuffer buff2 = marshall(av2);
@@ -82,17 +84,17 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testStringS() {
-    AttributeValue av =
-        new AttributeValue().withSS(Collections.unmodifiableList(Arrays.asList("Bob", "Ann", "5")));
+    AttributeValue av = new AttributeValue()
+      .withSS(Collections.unmodifiableList(Arrays.asList("Bob", "Ann", "5")));
     assertEquals(av, unmarshall(marshall(av)));
   }
 
   @Test
   public void testStringSOrdering() {
-    AttributeValue av1 =
-        new AttributeValue().withSS(Collections.unmodifiableList(Arrays.asList("Bob", "Ann", "5")));
-    AttributeValue av2 =
-        new AttributeValue().withSS(Collections.unmodifiableList(Arrays.asList("Ann", "Bob", "5")));
+    AttributeValue av1 = new AttributeValue()
+      .withSS(Collections.unmodifiableList(Arrays.asList("Bob", "Ann", "5")));
+    AttributeValue av2 = new AttributeValue()
+      .withSS(Collections.unmodifiableList(Arrays.asList("Ann", "Bob", "5")));
     assertEquals(av1, av2);
     ByteBuffer buff1 = marshall(av1);
     ByteBuffer buff2 = marshall(av2);
@@ -101,32 +103,38 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testByteBufferS() {
-    AttributeValue av =
-        new AttributeValue()
-            .withBS(
-                Collections.unmodifiableList(
-                    Arrays.asList(
-                        ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5}),
-                        ByteBuffer.wrap(new byte[] {5, 4, 3, 2, 1, 0, 0, 0, 5, 6, 7}))));
+    AttributeValue av = new AttributeValue()
+      .withBS(
+        Collections.unmodifiableList(
+          Arrays.asList(
+            ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5 }),
+            ByteBuffer.wrap(new byte[] { 5, 4, 3, 2, 1, 0, 0, 0, 5, 6, 7 })
+          )
+        )
+      );
     assertEquals(av, unmarshall(marshall(av)));
   }
 
   @Test
   public void testByteBufferSOrdering() {
-    AttributeValue av1 =
-        new AttributeValue()
-            .withBS(
-                Collections.unmodifiableList(
-                    Arrays.asList(
-                        ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5}),
-                        ByteBuffer.wrap(new byte[] {5, 4, 3, 2, 1, 0, 0, 0, 5, 6, 7}))));
-    AttributeValue av2 =
-        new AttributeValue()
-            .withBS(
-                Collections.unmodifiableList(
-                    Arrays.asList(
-                        ByteBuffer.wrap(new byte[] {5, 4, 3, 2, 1, 0, 0, 0, 5, 6, 7}),
-                        ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5}))));
+    AttributeValue av1 = new AttributeValue()
+      .withBS(
+        Collections.unmodifiableList(
+          Arrays.asList(
+            ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5 }),
+            ByteBuffer.wrap(new byte[] { 5, 4, 3, 2, 1, 0, 0, 0, 5, 6, 7 })
+          )
+        )
+      );
+    AttributeValue av2 = new AttributeValue()
+      .withBS(
+        Collections.unmodifiableList(
+          Arrays.asList(
+            ByteBuffer.wrap(new byte[] { 5, 4, 3, 2, 1, 0, 0, 0, 5, 6, 7 }),
+            ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5 })
+          )
+        )
+      );
 
     assertEquals(av1, av2);
     ByteBuffer buff1 = marshall(av1);
@@ -165,50 +173,52 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testListOfString() {
-    AttributeValue av = new AttributeValue().withL(new AttributeValue().withS("StringValue"));
+    AttributeValue av = new AttributeValue()
+      .withL(new AttributeValue().withS("StringValue"));
     assertEquals(av, unmarshall(marshall(av)));
   }
 
   @Test
   public void testList() {
-    AttributeValue av =
-        new AttributeValue()
-            .withL(
-                new AttributeValue().withS("StringValue"),
-                new AttributeValue().withN("1000"),
-                new AttributeValue().withBOOL(Boolean.TRUE));
+    AttributeValue av = new AttributeValue()
+      .withL(
+        new AttributeValue().withS("StringValue"),
+        new AttributeValue().withN("1000"),
+        new AttributeValue().withBOOL(Boolean.TRUE)
+      );
     assertEquals(av, unmarshall(marshall(av)));
   }
 
   @Test
   public void testListWithNull() {
-    final AttributeValue av =
-        new AttributeValue()
-            .withL(
-                new AttributeValue().withS("StringValue"),
-                new AttributeValue().withN("1000"),
-                new AttributeValue().withBOOL(Boolean.TRUE),
-                null);
+    final AttributeValue av = new AttributeValue()
+      .withL(
+        new AttributeValue().withS("StringValue"),
+        new AttributeValue().withN("1000"),
+        new AttributeValue().withBOOL(Boolean.TRUE),
+        null
+      );
 
     try {
       marshall(av);
       Assert.fail("Unexpected success");
     } catch (final NullPointerException npe) {
       Assert.assertEquals(
-          "Encountered null list entry value while marshalling attribute value {L: [{S: StringValue,}, {N: 1000,}, {BOOL: true}, null],}",
-          npe.getMessage());
+        "Encountered null list entry value while marshalling attribute value {L: [{S: StringValue,}, {N: 1000,}, {BOOL: true}, null],}",
+        npe.getMessage()
+      );
     }
   }
 
   @Test
   public void testListDuplicates() {
-    AttributeValue av =
-        new AttributeValue()
-            .withL(
-                new AttributeValue().withN("1000"),
-                new AttributeValue().withN("1000"),
-                new AttributeValue().withN("1000"),
-                new AttributeValue().withN("1000"));
+    AttributeValue av = new AttributeValue()
+      .withL(
+        new AttributeValue().withN("1000"),
+        new AttributeValue().withN("1000"),
+        new AttributeValue().withN("1000"),
+        new AttributeValue().withN("1000")
+      );
     AttributeValue result = unmarshall(marshall(av));
     assertEquals(av, result);
     Assert.assertEquals(4, result.getL().size());
@@ -216,26 +226,27 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testComplexList() {
-    final List<AttributeValue> list1 =
-        Arrays.asList(
-            new AttributeValue().withS("StringValue"),
-            new AttributeValue().withN("1000"),
-            new AttributeValue().withBOOL(Boolean.TRUE));
-    final List<AttributeValue> list22 =
-        Arrays.asList(
-            new AttributeValue().withS("AWS"),
-            new AttributeValue().withN("-3700"),
-            new AttributeValue().withBOOL(Boolean.FALSE));
-    final List<AttributeValue> list2 =
-        Arrays.asList(
-            new AttributeValue().withL(list22), new AttributeValue().withNULL(Boolean.TRUE));
-    AttributeValue av =
-        new AttributeValue()
-            .withL(
-                new AttributeValue().withS("StringValue1"),
-                new AttributeValue().withL(list1),
-                new AttributeValue().withN("50"),
-                new AttributeValue().withL(list2));
+    final List<AttributeValue> list1 = Arrays.asList(
+      new AttributeValue().withS("StringValue"),
+      new AttributeValue().withN("1000"),
+      new AttributeValue().withBOOL(Boolean.TRUE)
+    );
+    final List<AttributeValue> list22 = Arrays.asList(
+      new AttributeValue().withS("AWS"),
+      new AttributeValue().withN("-3700"),
+      new AttributeValue().withBOOL(Boolean.FALSE)
+    );
+    final List<AttributeValue> list2 = Arrays.asList(
+      new AttributeValue().withL(list22),
+      new AttributeValue().withNULL(Boolean.TRUE)
+    );
+    AttributeValue av = new AttributeValue()
+      .withL(
+        new AttributeValue().withS("StringValue1"),
+        new AttributeValue().withL(list1),
+        new AttributeValue().withN("50"),
+        new AttributeValue().withL(list2)
+      );
     assertEquals(av, unmarshall(marshall(av)));
   }
 
@@ -256,7 +267,10 @@ public class AttributeValueMarshallerTest {
 
   @Test
   public void testSimpleMapWithNull() {
-    final Map<String, AttributeValue> map = new HashMap<String, AttributeValue>();
+    final Map<String, AttributeValue> map = new HashMap<
+      String,
+      AttributeValue
+    >();
     map.put("KeyValue", new AttributeValue().withS("ValueValue"));
     map.put("NullKeyValue", null);
 
@@ -269,17 +283,25 @@ public class AttributeValueMarshallerTest {
       // Map entries may permute under nondeterministic Java API
       String npeMessage = npe.getMessage();
       String common =
-          "Encountered null map value for key NullKeyValue while marshalling attribute value ";
-      String case1 = common + "{M: {KeyValue={S: ValueValue,}, NullKeyValue=null},}";
-      String case2 = common + "{M: {NullKeyValue=null, KeyValue={S: ValueValue,}},}";
+        "Encountered null map value for key NullKeyValue while marshalling attribute value ";
+      String case1 =
+        common + "{M: {KeyValue={S: ValueValue,}, NullKeyValue=null},}";
+      String case2 =
+        common + "{M: {NullKeyValue=null, KeyValue={S: ValueValue,}},}";
       Assert.assertTrue(case1.equals(npeMessage) || case2.equals(npeMessage));
     }
   }
 
   @Test
   public void testMapOrdering() {
-    LinkedHashMap<String, AttributeValue> m1 = new LinkedHashMap<String, AttributeValue>();
-    LinkedHashMap<String, AttributeValue> m2 = new LinkedHashMap<String, AttributeValue>();
+    LinkedHashMap<String, AttributeValue> m1 = new LinkedHashMap<
+      String,
+      AttributeValue
+    >();
+    LinkedHashMap<String, AttributeValue> m2 = new LinkedHashMap<
+      String,
+      AttributeValue
+    >();
 
     m1.put("Value1", new AttributeValue().withN("1"));
     m1.put("Value2", new AttributeValue().withBOOL(Boolean.TRUE));
@@ -320,58 +342,73 @@ public class AttributeValueMarshallerTest {
   }
 
   private static final String COMPLEX_ATTRIBUTE_MARSHALLED =
-      "AE0AAAADAHM"
-          + "AAAAJSW5uZXJMaXN0AEwAAAAGAHMAAAALQ29tcGxleExpc3QAbgAAAAE1AGIAA"
-          + "AAGAAECAwQFAEwAAAAFAD8BAAAAAABMAAAAAQA/AABNAAAAAwBzAAAABFBpbms"
-          + "AcwAAAAVGbG95ZABzAAAABFRlc3QAPwEAcwAAAAdWZXJzaW9uAG4AAAABMQAAA"
-          + "E0AAAADAHMAAAAETGlzdABMAAAABQBuAAAAATUAbgAAAAE0AG4AAAABMwBuAAA"
-          + "AATIAbgAAAAExAHMAAAADTWFwAE0AAAABAHMAAAAGTmVzdGVkAD8BAHMAAAAEV"
-          + "HJ1ZQA/AQBzAAAACVNpbmdsZU1hcABNAAAAAQBzAAAAA0ZPTwBzAAAAA0JBUgB"
-          + "zAAAACVN0cmluZ1NldABTAAAAAwAAAANiYXIAAAADYmF6AAAAA2Zvbw==";
+    "AE0AAAADAHM" +
+    "AAAAJSW5uZXJMaXN0AEwAAAAGAHMAAAALQ29tcGxleExpc3QAbgAAAAE1AGIAA" +
+    "AAGAAECAwQFAEwAAAAFAD8BAAAAAABMAAAAAQA/AABNAAAAAwBzAAAABFBpbms" +
+    "AcwAAAAVGbG95ZABzAAAABFRlc3QAPwEAcwAAAAdWZXJzaW9uAG4AAAABMQAAA" +
+    "E0AAAADAHMAAAAETGlzdABMAAAABQBuAAAAATUAbgAAAAE0AG4AAAABMwBuAAA" +
+    "AATIAbgAAAAExAHMAAAADTWFwAE0AAAABAHMAAAAGTmVzdGVkAD8BAHMAAAAEV" +
+    "HJ1ZQA/AQBzAAAACVNpbmdsZU1hcABNAAAAAQBzAAAAA0ZPTwBzAAAAA0JBUgB" +
+    "zAAAACVN0cmluZ1NldABTAAAAAwAAAANiYXIAAAADYmF6AAAAA2Zvbw==";
 
   private static AttributeValue buildComplexAttributeValue() {
-    Map<String, AttributeValue> floydMap = new HashMap<String, AttributeValue>();
+    Map<String, AttributeValue> floydMap = new HashMap<
+      String,
+      AttributeValue
+    >();
     floydMap.put("Pink", new AttributeValue().withS("Floyd"));
     floydMap.put("Version", new AttributeValue().withN("1"));
     floydMap.put("Test", new AttributeValue().withBOOL(Boolean.TRUE));
-    List<AttributeValue> floydList =
-        Arrays.asList(
-            new AttributeValue().withBOOL(Boolean.TRUE),
-            new AttributeValue().withNULL(Boolean.TRUE),
-            new AttributeValue().withNULL(Boolean.TRUE),
-            new AttributeValue().withL(new AttributeValue().withBOOL(Boolean.FALSE)),
-            new AttributeValue().withM(floydMap));
+    List<AttributeValue> floydList = Arrays.asList(
+      new AttributeValue().withBOOL(Boolean.TRUE),
+      new AttributeValue().withNULL(Boolean.TRUE),
+      new AttributeValue().withNULL(Boolean.TRUE),
+      new AttributeValue().withL(new AttributeValue().withBOOL(Boolean.FALSE)),
+      new AttributeValue().withM(floydMap)
+    );
 
-    List<AttributeValue> nestedList =
-        Arrays.asList(
-            new AttributeValue().withN("5"),
-            new AttributeValue().withN("4"),
-            new AttributeValue().withN("3"),
-            new AttributeValue().withN("2"),
-            new AttributeValue().withN("1"));
-    Map<String, AttributeValue> nestedMap = new HashMap<String, AttributeValue>();
+    List<AttributeValue> nestedList = Arrays.asList(
+      new AttributeValue().withN("5"),
+      new AttributeValue().withN("4"),
+      new AttributeValue().withN("3"),
+      new AttributeValue().withN("2"),
+      new AttributeValue().withN("1")
+    );
+    Map<String, AttributeValue> nestedMap = new HashMap<
+      String,
+      AttributeValue
+    >();
     nestedMap.put("True", new AttributeValue().withBOOL(Boolean.TRUE));
     nestedMap.put("List", new AttributeValue().withL(nestedList));
     nestedMap.put(
-        "Map",
-        new AttributeValue()
-            .withM(
-                Collections.singletonMap("Nested", new AttributeValue().withBOOL(Boolean.TRUE))));
+      "Map",
+      new AttributeValue()
+        .withM(
+          Collections.singletonMap(
+            "Nested",
+            new AttributeValue().withBOOL(Boolean.TRUE)
+          )
+        )
+    );
 
-    List<AttributeValue> innerList =
-        Arrays.asList(
-            new AttributeValue().withS("ComplexList"),
-            new AttributeValue().withN("5"),
-            new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5})),
-            new AttributeValue().withL(floydList),
-            new AttributeValue().withNULL(Boolean.TRUE),
-            new AttributeValue().withM(nestedMap));
+    List<AttributeValue> innerList = Arrays.asList(
+      new AttributeValue().withS("ComplexList"),
+      new AttributeValue().withN("5"),
+      new AttributeValue()
+        .withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5 })),
+      new AttributeValue().withL(floydList),
+      new AttributeValue().withNULL(Boolean.TRUE),
+      new AttributeValue().withM(nestedMap)
+    );
 
     AttributeValue av = new AttributeValue();
     av.addMEntry(
-        "SingleMap",
-        new AttributeValue()
-            .withM(Collections.singletonMap("FOO", new AttributeValue().withS("BAR"))));
+      "SingleMap",
+      new AttributeValue()
+        .withM(
+          Collections.singletonMap("FOO", new AttributeValue().withS("BAR"))
+        )
+    );
     av.addMEntry("InnerList", new AttributeValue().withL(innerList));
     av.addMEntry("StringSet", new AttributeValue().withSS("foo", "bar", "baz"));
     return av;
@@ -409,7 +446,7 @@ public class AttributeValueMarshallerTest {
   }
 
   private <T> void assertSetsEqual(Collection<T> c1, Collection<T> c2) {
-    Assert.assertFalse(c1 == null ^ c2 == null);
+    Assert.assertFalse((c1 == null) ^ (c2 == null));
     if (c1 != null) {
       Set<T> s1 = new HashSet<T>(c1);
       Set<T> s2 = new HashSet<T>(c2);

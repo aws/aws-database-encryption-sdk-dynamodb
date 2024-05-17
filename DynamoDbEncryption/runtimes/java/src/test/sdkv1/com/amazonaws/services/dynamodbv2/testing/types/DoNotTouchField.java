@@ -20,7 +20,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
 @DynamoDBTable(tableName = "TableName")
 public class DoNotTouchField extends Mixed {
 
-  @DoNotTouch int value;
+  @DoNotTouch
+  int value;
 
   public int getValue() {
     return value;

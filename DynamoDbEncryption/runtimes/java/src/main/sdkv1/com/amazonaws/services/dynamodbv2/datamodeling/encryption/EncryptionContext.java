@@ -41,6 +41,7 @@ import java.util.Map;
  * @author Greg Rubin
  */
 public final class EncryptionContext {
+
   private final String tableName;
   private final Map<String, AttributeValue> attributeValues;
   private final Class<?> modeledClass;
@@ -107,6 +108,7 @@ public final class EncryptionContext {
    * <p>This class is <em>not</em> thread-safe.
    */
   public static final class Builder {
+
     private String tableName = null;
     private Map<String, AttributeValue> attributeValues = null;
     private Class<?> modeledClass = null;
@@ -138,9 +140,13 @@ public final class EncryptionContext {
       return this;
     }
 
-    public Builder withAttributeValues(Map<String, AttributeValue> attributeValues) {
+    public Builder withAttributeValues(
+      Map<String, AttributeValue> attributeValues
+    ) {
       this.attributeValues =
-          Collections.unmodifiableMap(new HashMap<String, AttributeValue>(attributeValues));
+        Collections.unmodifiableMap(
+          new HashMap<String, AttributeValue>(attributeValues)
+        );
       return this;
     }
 
@@ -164,9 +170,13 @@ public final class EncryptionContext {
       return this;
     }
 
-    public Builder withMaterialDescription(Map<String, String> materialDescription) {
+    public Builder withMaterialDescription(
+      Map<String, String> materialDescription
+    ) {
       this.materialDescription =
-          Collections.unmodifiableMap(new HashMap<String, String>(materialDescription));
+        Collections.unmodifiableMap(
+          new HashMap<String, String>(materialDescription)
+        );
       return this;
     }
 
@@ -201,20 +211,22 @@ public final class EncryptionContext {
 
   @Override
   public String toString() {
-    return "EncryptionContext [tableName="
-        + tableName
-        + ", attributeValues="
-        + attributeValues
-        + ", modeledClass="
-        + modeledClass
-        + ", developerContext="
-        + developerContext
-        + ", hashKeyName="
-        + hashKeyName
-        + ", rangeKeyName="
-        + rangeKeyName
-        + ", materialDescription="
-        + materialDescription
-        + "]";
+    return (
+      "EncryptionContext [tableName=" +
+      tableName +
+      ", attributeValues=" +
+      attributeValues +
+      ", modeledClass=" +
+      modeledClass +
+      ", developerContext=" +
+      developerContext +
+      ", hashKeyName=" +
+      hashKeyName +
+      ", rangeKeyName=" +
+      rangeKeyName +
+      ", materialDescription=" +
+      materialDescription +
+      "]"
+    );
   }
 }

@@ -21,6 +21,7 @@ import java.util.function.Function;
  */
 @ThreadSafe
 public final class TTLCache<T> {
+
   /** Used for the internal cache. */
   private final LRUCache<LockedState<T>> cache;
 
@@ -34,18 +35,28 @@ public final class TTLCache<T> {
   // package access for tests
   MsClock clock = MsClock.WALLCLOCK;
 
-  private static final long TTL_GRACE_IN_NANO = TimeUnit.MILLISECONDS.toNanos(500);
+  private static final long TTL_GRACE_IN_NANO = TimeUnit.MILLISECONDS.toNanos(
+    500
+  );
 
   /**
    * @param maxSize the maximum number of entries of the cache
    * @param ttlInMillis the time to live value for entries of the cache, in milliseconds
    */
-  public TTLCache(final int maxSize, final long ttlInMillis, final EntryLoader<T> loader) {
+  public TTLCache(
+    final int maxSize,
+    final long ttlInMillis,
+    final EntryLoader<T> loader
+  ) {
     if (maxSize < 1) {
-      throw new IllegalArgumentException("maxSize " + maxSize + " must be at least 1");
+      throw new IllegalArgumentException(
+        "maxSize " + maxSize + " must be at least 1"
+      );
     }
     if (ttlInMillis < 1) {
-      throw new IllegalArgumentException("ttlInMillis " + maxSize + " must be at least 1");
+      throw new IllegalArgumentException(
+        "ttlInMillis " + maxSize + " must be at least 1"
+      );
     }
     this.ttlInNanos = TimeUnit.MILLISECONDS.toNanos(ttlInMillis);
     this.cache = new LRUCache<>(maxSize);
@@ -101,13 +112,17 @@ public final class TTLCache<T> {
     if (ls == null) {
       // The entry doesn't exist yet, so load a new one.
       return loadNewEntryIfAbsent(key, f);
-    } else if (clock.timestampNano() - ls.getState().lastUpdatedNano
-        > ttlInNanos + TTL_GRACE_IN_NANO) {
+    } else if (
+      clock.timestampNano() - ls.getState().lastUpdatedNano >
+      ttlInNanos + TTL_GRACE_IN_NANO
+    ) {
       // The data has expired past the grace period.
       // Evict the old entry and load a new entry.
       cache.remove(key);
       return loadNewEntryIfAbsent(key, f);
-    } else if (clock.timestampNano() - ls.getState().lastUpdatedNano <= ttlInNanos) {
+    } else if (
+      clock.timestampNano() - ls.getState().lastUpdatedNano <= ttlInNanos
+    ) {
       // The data hasn't expired. Return as-is from the cache.
       return ls.getState().data;
     } else if (!ls.tryLock()) {
@@ -134,7 +149,10 @@ public final class TTLCache<T> {
   // given that we don't have the entry yet to lock on.
   // This ensures that the loading function is only called once if multiple threads
   // attempt to add a new entry for the same key at the same time.
-  private synchronized T loadNewEntryIfAbsent(final String key, Function<String, T> f) {
+  private synchronized T loadNewEntryIfAbsent(
+    final String key,
+    Function<String, T> f
+  ) {
     // If the entry already exists in the cache, return it
     final LockedState<T> cachedState = cache.get(key);
     if (cachedState != null) {
@@ -155,9 +173,11 @@ public final class TTLCache<T> {
   public synchronized T put(final String key, final T value) {
     LockedState<T> ls = new LockedState<>(value, clock.timestampNano());
     LockedState<T> oldLockedState = cache.add(key, ls);
-    if (oldLockedState == null
-        || clock.timestampNano() - oldLockedState.getState().lastUpdatedNano
-            > ttlInNanos + TTL_GRACE_IN_NANO) {
+    if (
+      oldLockedState == null ||
+      clock.timestampNano() - oldLockedState.getState().lastUpdatedNano >
+        ttlInNanos + TTL_GRACE_IN_NANO
+    ) {
       return null;
     }
     return oldLockedState.getState().data;
@@ -202,6 +222,7 @@ public final class TTLCache<T> {
   // and performs updates to that state atomically.
   // The state may only be updated if the lock is acquired by the current thread.
   private static class LockedState<T> {
+
     private final ReentrantLock lock = new ReentrantLock(true);
     private final AtomicReference<State<T>> state;
 
@@ -231,6 +252,7 @@ public final class TTLCache<T> {
 
   // An object that holds some data and the time at which this object was created
   private static class State<T> {
+
     public final T data;
     public final long lastUpdatedNano;
 

@@ -35,7 +35,8 @@ import java.util.UUID;
 import org.testng.annotations.Test;
 
 /** Tests of the configuration object */
-public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class ConfigurationITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   // We don't start with the current system millis like other tests because
   // it's out of the range of some data types
@@ -44,8 +45,10 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
 
   @Test
   public void testClobber() throws Exception {
-    DynamoDBMapper util =
-        new DynamoDBMapper(dynamo, new DynamoDBMapperConfig(SaveBehavior.CLOBBER));
+    DynamoDBMapper util = new DynamoDBMapper(
+      dynamo,
+      new DynamoDBMapperConfig(SaveBehavior.CLOBBER)
+    );
 
     NumberAttributeTestClassExtended obj = getUniqueObject();
     util.save(obj);
@@ -56,7 +59,11 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
     assertEquals(copy, util.load(copy.getClass(), obj.getKey()));
 
     // We should have lost the extra field because of the clobber behavior
-    assertNull(util.load(NumberAttributeTestClassExtended.class, obj.getKey()).getExtraField());
+    assertNull(
+      util
+        .load(NumberAttributeTestClassExtended.class, obj.getKey())
+        .getExtraField()
+    );
 
     // Now test overriding the clobber behavior on a per-save basis
     obj = getUniqueObject();
@@ -68,12 +75,18 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
     assertEquals(copy, util.load(copy.getClass(), obj.getKey()));
 
     // We shouldn't have lost any extra info
-    assertNotNull(util.load(NumberAttributeTestClassExtended.class, obj.getKey()).getExtraField());
+    assertNotNull(
+      util
+        .load(NumberAttributeTestClassExtended.class, obj.getKey())
+        .getExtraField()
+    );
   }
 
   @Test
   public void testTableOverride() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     TableOverrideTestClass obj = new TableOverrideTestClass();
     obj.setOtherField(UUID.randomUUID().toString());
@@ -81,35 +94,41 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
     try {
       util.save(obj);
       fail("Expected an exception");
-    } catch (Exception e) {
-    }
+    } catch (Exception e) {}
 
-    util.save(obj, new DynamoDBMapperConfig(new TableNameOverride("aws-java-sdk-util-crypto")));
+    util.save(
+      obj,
+      new DynamoDBMapperConfig(
+        new TableNameOverride("aws-java-sdk-util-crypto")
+      )
+    );
 
     try {
       util.load(TableOverrideTestClass.class, obj.getKey());
       fail("Expected an exception");
-    } catch (Exception e) {
-    }
+    } catch (Exception e) {}
 
-    Object loaded =
-        util.load(
-            TableOverrideTestClass.class,
-            obj.getKey(),
-            new DynamoDBMapperConfig(TableNameOverride.withTableNamePrefix("aws-")));
+    Object loaded = util.load(
+      TableOverrideTestClass.class,
+      obj.getKey(),
+      new DynamoDBMapperConfig(TableNameOverride.withTableNamePrefix("aws-"))
+    );
     assertEquals(loaded, obj);
 
     try {
       util.delete(obj);
       fail("Expected an exception");
-    } catch (Exception e) {
-    }
+    } catch (Exception e) {}
 
-    util.delete(obj, new DynamoDBMapperConfig(TableNameOverride.withTableNamePrefix("aws-")));
+    util.delete(
+      obj,
+      new DynamoDBMapperConfig(TableNameOverride.withTableNamePrefix("aws-"))
+    );
   }
 
   private NumberAttributeTestClassExtended getUniqueObject() {
-    NumberAttributeTestClassExtended obj = new NumberAttributeTestClassExtended();
+    NumberAttributeTestClassExtended obj =
+      new NumberAttributeTestClassExtended();
     obj.setKey(String.valueOf(startKey++));
     obj.setBigDecimalAttribute(new BigDecimal(startKey++));
     obj.setBigIntegerAttribute(new BigInteger("" + startKey++));
@@ -155,7 +174,8 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
   }
 
   @DynamoDBTable(tableName = "aws-java-sdk-util-crypto")
-  public static final class NumberAttributeTestClassExtended extends NumberAttributeTestClass {
+  public static final class NumberAttributeTestClassExtended
+    extends NumberAttributeTestClass {
 
     private String extraField;
 
@@ -171,7 +191,8 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
     public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + ((extraField == null) ? 0 : extraField.hashCode());
+      result =
+        prime * result + ((extraField == null) ? 0 : extraField.hashCode());
       return result;
     }
 
@@ -180,7 +201,8 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
       if (this == obj) return true;
       if (!super.equals(obj)) return false;
       if (getClass() != obj.getClass()) return false;
-      NumberAttributeTestClassExtended other = (NumberAttributeTestClassExtended) obj;
+      NumberAttributeTestClassExtended other =
+        (NumberAttributeTestClassExtended) obj;
       if (extraField == null) {
         if (other.extraField != null) return false;
       } else if (!extraField.equals(other.extraField)) return false;
@@ -217,7 +239,8 @@ public class ConfigurationITCase extends DynamoDBMapperCryptoIntegrationTestBase
       final int prime = 31;
       int result = 1;
       result = prime * result + ((key == null) ? 0 : key.hashCode());
-      result = prime * result + ((otherField == null) ? 0 : otherField.hashCode());
+      result =
+        prime * result + ((otherField == null) ? 0 : otherField.hashCode());
       return result;
     }
 

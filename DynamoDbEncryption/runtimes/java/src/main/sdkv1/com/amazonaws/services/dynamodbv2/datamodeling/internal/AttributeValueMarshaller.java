@@ -30,6 +30,7 @@ import java.util.Map;
 
 /** @author Greg Rubin */
 public class AttributeValueMarshaller {
+
   private static final Charset UTF8 = Charset.forName("UTF-8");
   private static final int TRUE_FLAG = 1;
   private static final int FALSE_FLAG = 0;
@@ -63,8 +64,10 @@ public class AttributeValueMarshaller {
    * @see java.io.DataInput
    */
   public static ByteBuffer marshall(final AttributeValue attributeValue) {
-    try (ByteArrayOutputStream resultBytes = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(resultBytes); ) {
+    try (
+      ByteArrayOutputStream resultBytes = new ByteArrayOutputStream();
+      DataOutputStream out = new DataOutputStream(resultBytes);
+    ) {
       marshall(attributeValue, out);
       out.close();
       resultBytes.close();
@@ -75,9 +78,10 @@ public class AttributeValueMarshaller {
     }
   }
 
-  private static void marshall(final AttributeValue attributeValue, final DataOutputStream out)
-      throws IOException {
-
+  private static void marshall(
+    final AttributeValue attributeValue,
+    final DataOutputStream out
+  ) throws IOException {
     if (attributeValue.getB() != null) {
       out.writeChar('b');
       writeBytes(attributeValue.getB(), out);
@@ -90,7 +94,9 @@ public class AttributeValueMarshaller {
     } else if (attributeValue.getNS() != null) {
       out.writeChar('N');
 
-      final List<String> ns = new ArrayList<String>(attributeValue.getNS().size());
+      final List<String> ns = new ArrayList<String>(
+        attributeValue.getNS().size()
+      );
       for (final String n : attributeValue.getNS()) {
         ns.add(trimZeros(n));
       }
@@ -113,8 +119,9 @@ public class AttributeValueMarshaller {
       for (final AttributeValue attr : l) {
         if (attr == null) {
           throw new NullPointerException(
-              "Encountered null list entry value while marshalling attribute value "
-                  + attributeValue);
+            "Encountered null list entry value while marshalling attribute value " +
+            attributeValue
+          );
         }
         marshall(attr, out);
       }
@@ -131,23 +138,28 @@ public class AttributeValueMarshaller {
 
         if (mValue == null) {
           throw new NullPointerException(
-              "Encountered null map value for key "
-                  + mKey
-                  + " while marshalling attribute value "
-                  + attributeValue);
+            "Encountered null map value for key " +
+            mKey +
+            " while marshalling attribute value " +
+            attributeValue
+          );
         }
         marshall(mValue, out);
       }
     } else {
       throw new IllegalArgumentException(
-          "A seemingly empty AttributeValue is indicative of invalid input or potential errors");
+        "A seemingly empty AttributeValue is indicative of invalid input or potential errors"
+      );
     }
   }
 
   /** @see #marshall(AttributeValue) */
   public static AttributeValue unmarshall(final ByteBuffer plainText) {
-    try (final DataInputStream in =
-        new DataInputStream(new ByteBufferInputStream(plainText.asReadOnlyBuffer()))) {
+    try (
+      final DataInputStream in = new DataInputStream(
+        new ByteBufferInputStream(plainText.asReadOnlyBuffer())
+      )
+    ) {
       return unmarshall(in);
     } catch (IOException ex) {
       // Due to the objects in use, an IOException is not possible.
@@ -155,7 +167,8 @@ public class AttributeValueMarshaller {
     }
   }
 
-  private static AttributeValue unmarshall(final DataInputStream in) throws IOException {
+  private static AttributeValue unmarshall(final DataInputStream in)
+    throws IOException {
     char type = in.readChar();
     AttributeValue result = new AttributeValue();
     switch (type) {
@@ -201,7 +214,10 @@ public class AttributeValueMarshaller {
         break;
       case 'M':
         final int mCount = in.readInt();
-        final Map<String, AttributeValue> m = new HashMap<String, AttributeValue>();
+        final Map<String, AttributeValue> m = new HashMap<
+          String,
+          AttributeValue
+        >();
         for (int mIdx = 0; mIdx < mCount; mIdx++) {
           final AttributeValue key = unmarshall(in);
           if (key.getS() == null) {
@@ -227,8 +243,10 @@ public class AttributeValueMarshaller {
     return number.stripTrailingZeros().toPlainString();
   }
 
-  private static void writeStringList(List<String> values, final DataOutputStream out)
-      throws IOException {
+  private static void writeStringList(
+    List<String> values,
+    final DataOutputStream out
+  ) throws IOException {
     final List<String> sorted = new ArrayList<String>(values);
     Collections.sort(sorted);
     out.writeInt(sorted.size());
@@ -238,7 +256,7 @@ public class AttributeValueMarshaller {
   }
 
   private static List<String> readStringList(final DataInputStream in)
-      throws IOException, IllegalArgumentException {
+    throws IOException, IllegalArgumentException {
     final int nCount = in.readInt();
     List<String> ns = new ArrayList<String>(nCount);
     for (int nIdx = 0; nIdx < nCount; nIdx++) {
@@ -247,14 +265,15 @@ public class AttributeValueMarshaller {
     return ns;
   }
 
-  private static void writeString(String value, final DataOutputStream out) throws IOException {
+  private static void writeString(String value, final DataOutputStream out)
+    throws IOException {
     final byte[] bytes = value.getBytes(UTF8);
     out.writeInt(bytes.length);
     out.write(bytes);
   }
 
   private static String readString(final DataInputStream in)
-      throws IOException, IllegalArgumentException {
+    throws IOException, IllegalArgumentException {
     byte[] bytes;
     int length;
     length = in.readInt();
@@ -266,8 +285,10 @@ public class AttributeValueMarshaller {
     return tmp;
   }
 
-  private static void writeBytesList(List<ByteBuffer> values, final DataOutputStream out)
-      throws IOException {
+  private static void writeBytesList(
+    List<ByteBuffer> values,
+    final DataOutputStream out
+  ) throws IOException {
     final List<ByteBuffer> sorted = new ArrayList<ByteBuffer>(values);
     Collections.sort(sorted);
     out.writeInt(sorted.size());
@@ -276,7 +297,8 @@ public class AttributeValueMarshaller {
     }
   }
 
-  private static List<ByteBuffer> readBytesList(final DataInputStream in) throws IOException {
+  private static List<ByteBuffer> readBytesList(final DataInputStream in)
+    throws IOException {
     final int bCount = in.readInt();
     List<ByteBuffer> bs = new ArrayList<ByteBuffer>(bCount);
     for (int bIdx = 0; bIdx < bCount; bIdx++) {
@@ -285,7 +307,8 @@ public class AttributeValueMarshaller {
     return bs;
   }
 
-  private static void writeBytes(ByteBuffer value, final DataOutputStream out) throws IOException {
+  private static void writeBytes(ByteBuffer value, final DataOutputStream out)
+    throws IOException {
     value = value.asReadOnlyBuffer();
     value.rewind();
     out.writeInt(value.remaining());
@@ -294,7 +317,8 @@ public class AttributeValueMarshaller {
     }
   }
 
-  private static ByteBuffer readBytes(final DataInputStream in) throws IOException {
+  private static ByteBuffer readBytes(final DataInputStream in)
+    throws IOException {
     final int length = in.readInt();
     final byte[] buf = new byte[length];
     in.readFully(buf);

@@ -21,25 +21,25 @@ module {:options "-functionSyntax:4"} WriteSetPermutations {
 
   function GetConfigs() : JSON
   {
-      Object([("AllSign",
-        Object([("attributeActionsOnEncrypt",
-          Object([
-            ("RecNum", String("SIGN_ONLY")),
-            ("StringSet", String("SIGN_ONLY")),
-            ("NumberSet", String("SIGN_ONLY")),
-            ("BinarySet", String("SIGN_ONLY"))
-          ])
-        )])),
-      ("AllEncrypt",
-        Object([("attributeActionsOnEncrypt",
-          Object([
-            ("RecNum", String("SIGN_ONLY")),
-            ("StringSet", String("ENCRYPT_AND_SIGN")),
-            ("NumberSet", String("ENCRYPT_AND_SIGN")),
-            ("BinarySet", String("ENCRYPT_AND_SIGN"))
-          ])
-        )])
-      )])
+    Object([("AllSign",
+             Object([("attributeActionsOnEncrypt",
+             Object([
+             ("RecNum", String("SIGN_ONLY")),
+             ("StringSet", String("SIGN_ONLY")),
+             ("NumberSet", String("SIGN_ONLY")),
+             ("BinarySet", String("SIGN_ONLY"))
+             ])
+             )])),
+            ("AllEncrypt",
+             Object([("attributeActionsOnEncrypt",
+             Object([
+             ("RecNum", String("SIGN_ONLY")),
+             ("StringSet", String("ENCRYPT_AND_SIGN")),
+             ("NumberSet", String("ENCRYPT_AND_SIGN")),
+             ("BinarySet", String("ENCRYPT_AND_SIGN"))
+             ])
+             )])
+            )])
   }
 
   function {:tailrecursion} GetStringArray(str : StringList, acc : seq<JSON> := []) : JSON
@@ -69,11 +69,11 @@ module {:options "-functionSyntax:4"} WriteSetPermutations {
   {
     var numStr := Base10Int2String(recNum);
     Object([
-        ("RecNum", Object([("N", String(numStr))])),
-        ("StringSet", Object([("SS", GetStringArray(str))])),
-        ("NumberSet", Object([("NS", GetStringArray(num))])),
-        ("BinarySet", Object([("BS", GetBinaryArray(bytes))]))
-    ])
+             ("RecNum", Object([("N", String(numStr))])),
+             ("StringSet", Object([("SS", GetStringArray(str))])),
+             ("NumberSet", Object([("NS", GetStringArray(num))])),
+             ("BinarySet", Object([("BS", GetBinaryArray(bytes))]))
+           ])
   }
 
 
@@ -123,13 +123,13 @@ module {:options "-functionSyntax:4"} WriteSetPermutations {
   }
 
   method WriteSetPermutations()
-  {          
+  {
     var configs := GetConfigs();
     var records := GetRecords();
     var whole := Object([("RoundTripTest", Object([
-      ("Records", Array(records)),
-      ("Configs", configs)
-    ]))]);
+                          ("Records", Array(records)),
+                          ("Configs", configs)
+                          ]))]);
 
     var jsonBytes :- expect API.Serialize(whole);
     var jsonBv := BytesBv(jsonBytes);

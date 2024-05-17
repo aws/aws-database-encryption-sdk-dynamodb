@@ -26,7 +26,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.materials.Encry
  * @author Greg Rubin
  */
 public interface EncryptionMaterialsProvider {
-
   /**
    * Retrieves encryption materials matching the specified description from some source.
    *

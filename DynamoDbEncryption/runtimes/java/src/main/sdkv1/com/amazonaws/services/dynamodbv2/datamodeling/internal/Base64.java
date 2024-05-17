@@ -19,6 +19,7 @@ import java.util.Base64.Encoder;
 
 /** A class for decoding Base64 strings and encoding bytes as Base64 strings. */
 public class Base64 {
+
   private static final Decoder DECODER = java.util.Base64.getMimeDecoder();
   private static final Encoder ENCODER = java.util.Base64.getEncoder();
 

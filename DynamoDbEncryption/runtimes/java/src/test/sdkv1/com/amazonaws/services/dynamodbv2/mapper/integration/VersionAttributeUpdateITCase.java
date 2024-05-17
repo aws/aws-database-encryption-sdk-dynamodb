@@ -43,7 +43,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 /** Tests updating version fields correctly */
-public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class VersionAttributeUpdateITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @DynamoDBTable(tableName = "aws-java-sdk-util-crypto")
   public static class VersionFieldBaseClass {
@@ -75,7 +76,10 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       int result = 1;
       result = prime * result + ((key == null) ? 0 : key.hashCode());
       result =
-          prime * result + ((normalStringAttribute == null) ? 0 : normalStringAttribute.hashCode());
+        prime * result +
+        ((normalStringAttribute == null)
+            ? 0
+            : normalStringAttribute.hashCode());
       return result;
     }
 
@@ -90,7 +94,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       } else if (!key.equals(other.key)) return false;
       if (normalStringAttribute == null) {
         if (other.normalStringAttribute != null) return false;
-      } else if (!normalStringAttribute.equals(other.normalStringAttribute)) return false;
+      } else if (
+        !normalStringAttribute.equals(other.normalStringAttribute)
+      ) return false;
       return true;
     }
   }
@@ -138,7 +144,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     }
 
     // Saving new objects with a null version field should populate it
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (StringVersionField obj : objs) {
       assertNull(obj.getVersion());
       util.save(obj);
@@ -182,13 +190,15 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
 
     @Override
     public String toString() {
-      return "BigIntegerVersionField [version="
-          + version
-          + ", key="
-          + key
-          + ", normalStringAttribute="
-          + normalStringAttribute
-          + "]";
+      return (
+        "BigIntegerVersionField [version=" +
+        version +
+        ", key=" +
+        key +
+        ", normalStringAttribute=" +
+        normalStringAttribute +
+        "]"
+      );
     }
   }
 
@@ -196,12 +206,16 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
   public void testBigIntegerVersion() {
     List<BigIntegerVersionField> objs = new ArrayList<BigIntegerVersionField>();
     for (int i = 0; i < 5; i++) {
-      BigIntegerVersionField obj = getUniqueObject(new BigIntegerVersionField());
+      BigIntegerVersionField obj = getUniqueObject(
+        new BigIntegerVersionField()
+      );
       objs.add(obj);
     }
 
     // Saving new objects with a null version field should populate it
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (BigIntegerVersionField obj : objs) {
       assertNull(obj.getVersion());
       util.save(obj);
@@ -211,7 +225,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     }
 
     for (BigIntegerVersionField obj : objs) {
-      BigIntegerVersionField replacement = getUniqueObject(new BigIntegerVersionField());
+      BigIntegerVersionField replacement = getUniqueObject(
+        new BigIntegerVersionField()
+      );
       replacement.setKey(obj.getKey());
       replacement.setVersion(obj.getVersion());
 
@@ -219,7 +235,10 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       // The version field should have changed in memory
       assertFalse(obj.getVersion().equals(replacement.getVersion()));
 
-      BigIntegerVersionField loadedObject = util.load(BigIntegerVersionField.class, obj.getKey());
+      BigIntegerVersionField loadedObject = util.load(
+        BigIntegerVersionField.class,
+        obj.getKey()
+      );
       assertEquals(replacement, loadedObject);
 
       // Trying to update the object again should trigger a concurrency
@@ -227,20 +246,21 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       try {
         util.save(obj);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
 
       // Now try again overlaying the correct version number by using a saveExpression
       // this should not throw the conditional check failed exception
       try {
         DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression();
-        Map<String, ExpectedAttributeValue> expected =
-            new HashMap<String, ExpectedAttributeValue>();
-        ExpectedAttributeValue expectedVersion =
-            new ExpectedAttributeValue()
-                .withValue(
-                    new AttributeValue()
-                        .withN(obj.getVersion().add(BigInteger.valueOf(1)).toString()));
+        Map<String, ExpectedAttributeValue> expected = new HashMap<
+          String,
+          ExpectedAttributeValue
+        >();
+        ExpectedAttributeValue expectedVersion = new ExpectedAttributeValue()
+          .withValue(
+            new AttributeValue()
+              .withN(obj.getVersion().add(BigInteger.valueOf(1)).toString())
+          );
         expected.put("version", expectedVersion);
         saveExpression.setExpected(expected);
         util.save(obj, saveExpression);
@@ -268,7 +288,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + ((notCalledVersion == null) ? 0 : notCalledVersion.hashCode());
+      result =
+        prime * result +
+        ((notCalledVersion == null) ? 0 : notCalledVersion.hashCode());
       return result;
     }
 
@@ -294,7 +316,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     }
 
     // Saving new objects with a null version field should populate it
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (IntegerVersionField obj : objs) {
       assertNull(obj.getNotCalledVersion());
       util.save(obj);
@@ -304,15 +328,22 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     }
 
     for (IntegerVersionField obj : objs) {
-      IntegerVersionField replacement = getUniqueObject(new IntegerVersionField());
+      IntegerVersionField replacement = getUniqueObject(
+        new IntegerVersionField()
+      );
       replacement.setKey(obj.getKey());
       replacement.setNotCalledVersion(obj.getNotCalledVersion());
 
       util.save(replacement);
       // The version field should have changed in memory
-      assertFalse(obj.getNotCalledVersion().equals(replacement.getNotCalledVersion()));
+      assertFalse(
+        obj.getNotCalledVersion().equals(replacement.getNotCalledVersion())
+      );
 
-      IntegerVersionField loadedObject = util.load(IntegerVersionField.class, obj.getKey());
+      IntegerVersionField loadedObject = util.load(
+        IntegerVersionField.class,
+        obj.getKey()
+      );
       assertEquals(replacement, loadedObject);
 
       // Trying to update the object again should trigger a concurrency
@@ -320,15 +351,13 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       try {
         util.save(obj);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
 
       // Trying to delete the object should also fail
       try {
         util.delete(obj);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
 
       // But specifying CLOBBER will allow deletion
       util.save(obj, new DynamoDBMapperConfig(SaveBehavior.CLOBBER));
@@ -339,18 +368,19 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
         obj.setNotCalledVersion(3);
         util.delete(obj);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
 
       // Now try deleting again overlaying the correct version number by using a deleteExpression
       // this should not throw the conditional check failed exception
       try {
-        DynamoDBDeleteExpression deleteExpression = new DynamoDBDeleteExpression();
-        Map<String, ExpectedAttributeValue> expected =
-            new HashMap<String, ExpectedAttributeValue>();
-        ExpectedAttributeValue expectedVersion =
-            new ExpectedAttributeValue()
-                .withValue(new AttributeValue().withN("2")); // version is still 2 in db
+        DynamoDBDeleteExpression deleteExpression =
+          new DynamoDBDeleteExpression();
+        Map<String, ExpectedAttributeValue> expected = new HashMap<
+          String,
+          ExpectedAttributeValue
+        >();
+        ExpectedAttributeValue expectedVersion = new ExpectedAttributeValue()
+          .withValue(new AttributeValue().withN("2")); // version is still 2 in db
         expected.put("version", expectedVersion);
         deleteExpression.setExpected(expected);
         util.delete(obj, deleteExpression);
@@ -366,31 +396,44 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
    */
   @Test
   public void testVersionedAttributeWithUserProvidedExpectedConditions() {
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
-    IntegerVersionField versionedObject = getUniqueObject(new IntegerVersionField());
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
+    IntegerVersionField versionedObject = getUniqueObject(
+      new IntegerVersionField()
+    );
     assertNull(versionedObject.getNotCalledVersion());
 
     // Add additional expected conditions via DynamoDBSaveExpression.
     // Expected conditions joined by AND are compatible with the conditions
     // for auto-generated keys.
-    DynamoDBSaveExpression saveExpression =
-        new DynamoDBSaveExpression()
-            .withExpected(
-                Collections.singletonMap("otherAttribute", new ExpectedAttributeValue(false)))
-            .withConditionalOperator(ConditionalOperator.AND);
+    DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
+      .withExpected(
+        Collections.singletonMap(
+          "otherAttribute",
+          new ExpectedAttributeValue(false)
+        )
+      )
+      .withConditionalOperator(ConditionalOperator.AND);
     // The save should succeed since the user provided conditions are joined by AND.
     mapper.save(versionedObject, saveExpression);
     // The version field should be populated
     assertNotNull(versionedObject.getNotCalledVersion());
-    IntegerVersionField other = mapper.load(IntegerVersionField.class, versionedObject.getKey());
+    IntegerVersionField other = mapper.load(
+      IntegerVersionField.class,
+      versionedObject.getKey()
+    );
     assertEquals(other, versionedObject);
 
     // delete should also work
-    DynamoDBDeleteExpression deleteExpression =
-        new DynamoDBDeleteExpression()
-            .withExpected(
-                Collections.singletonMap("otherAttribute", new ExpectedAttributeValue(false)))
-            .withConditionalOperator(ConditionalOperator.AND);
+    DynamoDBDeleteExpression deleteExpression = new DynamoDBDeleteExpression()
+      .withExpected(
+        Collections.singletonMap(
+          "otherAttribute",
+          new ExpectedAttributeValue(false)
+        )
+      )
+      .withConditionalOperator(ConditionalOperator.AND);
     mapper.delete(versionedObject, deleteExpression);
 
     // Change the conditional operator to OR.
@@ -401,30 +444,36 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     deleteExpression.setConditionalOperator(ConditionalOperator.OR);
     try {
       mapper.save(getUniqueObject(new IntegerVersionField()), saveExpression);
-    } catch (IllegalArgumentException expected) {
-    }
+    } catch (IllegalArgumentException expected) {}
     try {
-      mapper.delete(getUniqueObject(new IntegerVersionField()), deleteExpression);
-    } catch (IllegalArgumentException expected) {
-    }
+      mapper.delete(
+        getUniqueObject(new IntegerVersionField()),
+        deleteExpression
+      );
+    } catch (IllegalArgumentException expected) {}
 
     // User-provided OR conditions should work if they completely override
     // the generated conditions for the version field.
     Map<String, ExpectedAttributeValue> goodConditions =
-        ImmutableMapParameter.of(
-            "otherAttribute", new ExpectedAttributeValue(false),
-            "version", new ExpectedAttributeValue(false));
+      ImmutableMapParameter.of(
+        "otherAttribute",
+        new ExpectedAttributeValue(false),
+        "version",
+        new ExpectedAttributeValue(false)
+      );
     Map<String, ExpectedAttributeValue> badConditions =
-        ImmutableMapParameter.of(
-            "otherAttribute", new ExpectedAttributeValue(new AttributeValue("non-existent-value")),
-            "version", new ExpectedAttributeValue(new AttributeValue().withN("-1")));
+      ImmutableMapParameter.of(
+        "otherAttribute",
+        new ExpectedAttributeValue(new AttributeValue("non-existent-value")),
+        "version",
+        new ExpectedAttributeValue(new AttributeValue().withN("-1"))
+      );
 
     IntegerVersionField newObj = getUniqueObject(new IntegerVersionField());
     saveExpression.setExpected(badConditions);
     try {
       mapper.save(newObj, saveExpression);
-    } catch (ConditionalCheckFailedException expected) {
-    }
+    } catch (ConditionalCheckFailedException expected) {}
 
     saveExpression.setExpected(goodConditions);
     mapper.save(newObj, saveExpression);
@@ -432,8 +481,7 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     deleteExpression.setExpected(badConditions);
     try {
       mapper.delete(newObj, deleteExpression);
-    } catch (ConditionalCheckFailedException expected) {
-    }
+    } catch (ConditionalCheckFailedException expected) {}
 
     deleteExpression.setExpected(goodConditions);
     mapper.delete(newObj, deleteExpression);
@@ -482,7 +530,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     }
 
     // Saving new objects with a null version field should populate it
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (ByteVersionField obj : objs) {
       assertNull(obj.getVersion());
       util.save(obj);
@@ -500,7 +550,10 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       // The version field should have changed in memory
       assertFalse(obj.getVersion().equals(replacement.getVersion()));
 
-      ByteVersionField loadedObject = util.load(ByteVersionField.class, obj.getKey());
+      ByteVersionField loadedObject = util.load(
+        ByteVersionField.class,
+        obj.getKey()
+      );
       assertEquals(replacement, loadedObject);
 
       // Trying to update the object again should trigger a concurrency
@@ -508,8 +561,7 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       try {
         util.save(obj);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
     }
   }
 
@@ -556,7 +608,9 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
     }
 
     // Saving new objects with a null version field should populate it
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (LongVersionField obj : objs) {
       assertNull(obj.getVersion());
       util.save(obj);
@@ -574,7 +628,10 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       // The version field should have changed in memory
       assertFalse(obj.getVersion().equals(replacement.getVersion()));
 
-      LongVersionField loadedObject = util.load(LongVersionField.class, obj.getKey());
+      LongVersionField loadedObject = util.load(
+        LongVersionField.class,
+        obj.getKey()
+      );
       assertEquals(replacement, loadedObject);
 
       // Trying to update the object again should trigger a concurrency
@@ -582,8 +639,7 @@ public class VersionAttributeUpdateITCase extends DynamoDBMapperCryptoIntegratio
       try {
         util.save(obj);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
     }
   }
 

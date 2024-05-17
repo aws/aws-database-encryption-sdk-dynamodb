@@ -103,14 +103,22 @@ public class RangeKeyTestClass {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
-    result = prime * result + ((integerSetAttribute == null) ? 0 : integerSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
+    result =
+      prime * result +
+      ((integerSetAttribute == null) ? 0 : integerSetAttribute.hashCode());
     result = prime * result + (int) (key ^ (key >>> 32));
     long temp;
     temp = Double.doubleToLongBits(rangeKey);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((stringAttribute == null) ? 0 : stringAttribute.hashCode());
-    result = prime * result + ((stringSetAttribute == null) ? 0 : stringSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((stringAttribute == null) ? 0 : stringAttribute.hashCode());
+    result =
+      prime * result +
+      ((stringSetAttribute == null) ? 0 : stringSetAttribute.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -123,18 +131,27 @@ public class RangeKeyTestClass {
     RangeKeyTestClass other = (RangeKeyTestClass) obj;
     if (bigDecimalAttribute == null) {
       if (other.bigDecimalAttribute != null) return false;
-    } else if (!bigDecimalAttribute.equals(other.bigDecimalAttribute)) return false;
+    } else if (
+      !bigDecimalAttribute.equals(other.bigDecimalAttribute)
+    ) return false;
     if (integerSetAttribute == null) {
       if (other.integerSetAttribute != null) return false;
-    } else if (!integerSetAttribute.equals(other.integerSetAttribute)) return false;
+    } else if (
+      !integerSetAttribute.equals(other.integerSetAttribute)
+    ) return false;
     if (key != other.key) return false;
-    if (Double.doubleToLongBits(rangeKey) != Double.doubleToLongBits(other.rangeKey)) return false;
+    if (
+      Double.doubleToLongBits(rangeKey) !=
+      Double.doubleToLongBits(other.rangeKey)
+    ) return false;
     if (stringAttribute == null) {
       if (other.stringAttribute != null) return false;
     } else if (!stringAttribute.equals(other.stringAttribute)) return false;
     if (stringSetAttribute == null) {
       if (other.stringSetAttribute != null) return false;
-    } else if (!stringSetAttribute.equals(other.stringSetAttribute)) return false;
+    } else if (
+      !stringSetAttribute.equals(other.stringSetAttribute)
+    ) return false;
     if (version == null) {
       if (other.version != null) return false;
     } else if (!version.equals(other.version)) return false;
@@ -143,20 +160,22 @@ public class RangeKeyTestClass {
 
   @Override
   public String toString() {
-    return "RangeKeyTestClass [key="
-        + key
-        + ", rangeKey="
-        + rangeKey
-        + ", version="
-        + version
-        + ", integerSetAttribute="
-        + integerSetAttribute
-        + ", stringSetAttribute="
-        + stringSetAttribute
-        + ", bigDecimalAttribute="
-        + bigDecimalAttribute
-        + ", stringAttribute="
-        + stringAttribute
-        + "]";
+    return (
+      "RangeKeyTestClass [key=" +
+      key +
+      ", rangeKey=" +
+      rangeKey +
+      ", version=" +
+      version +
+      ", integerSetAttribute=" +
+      integerSetAttribute +
+      ", stringSetAttribute=" +
+      stringSetAttribute +
+      ", bigDecimalAttribute=" +
+      bigDecimalAttribute +
+      ", stringAttribute=" +
+      stringAttribute +
+      "]"
+    );
   }
 }

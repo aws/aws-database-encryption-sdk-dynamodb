@@ -21,10 +21,11 @@ The first category is for general support, used across multiple DynamoDB API tra
 - [AddSignedBeacons](#addsignedbeacons) - Add non encrypted attributes to an item to enable searchable encryption
 - [GetEncryptedBeacons](#getencryptedbeacons) - Get new attributes for an item to enable searchable encryption
 - [RemoveBeacons](#removebeacons) - Remove all private attributes from an item,
- e.g. the ones added in [AddSignedBeacons](#addsignedbeacons) and [GetEncryptedBeacons](#getencryptedbeacons)
+  e.g. the ones added in [AddSignedBeacons](#addsignedbeacons) and [GetEncryptedBeacons](#getencryptedbeacons)
 - [HandleBeaconKeyFieldName](#handlebeaconkeyfieldname) - Handle the beacon key field name for Multi Key Store configurations
 
 The second category is support for specific interceptors, where the whole input or output structure is modified.
+
 - [QueryInputForBeacons](#queryinputforbeacons)
 - [QueryOutputForBeacons](#queryoutputforbeacons)
 - [ScanInputForBeacons](#scaninputforbeacons)

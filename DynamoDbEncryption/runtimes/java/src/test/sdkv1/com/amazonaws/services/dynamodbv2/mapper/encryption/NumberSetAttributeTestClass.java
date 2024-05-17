@@ -140,19 +140,36 @@ public class NumberSetAttributeTestClass {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
-    result = prime * result + ((bigIntegerAttribute == null) ? 0 : bigIntegerAttribute.hashCode());
-    result = prime * result + ((booleanAttribute == null) ? 0 : booleanAttribute.hashCode());
-    result = prime * result + ((byteObjectAttribute == null) ? 0 : byteObjectAttribute.hashCode());
-    result = prime * result + ((calendarAttribute == null) ? 0 : calendarAttribute.hashCode());
-    result = prime * result + ((dateAttribute == null) ? 0 : dateAttribute.hashCode());
     result =
-        prime * result + ((doubleObjectAttribute == null) ? 0 : doubleObjectAttribute.hashCode());
+      prime * result +
+      ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
     result =
-        prime * result + ((floatObjectAttribute == null) ? 0 : floatObjectAttribute.hashCode());
-    result = prime * result + ((integerAttribute == null) ? 0 : integerAttribute.hashCode());
+      prime * result +
+      ((bigIntegerAttribute == null) ? 0 : bigIntegerAttribute.hashCode());
+    result =
+      prime * result +
+      ((booleanAttribute == null) ? 0 : booleanAttribute.hashCode());
+    result =
+      prime * result +
+      ((byteObjectAttribute == null) ? 0 : byteObjectAttribute.hashCode());
+    result =
+      prime * result +
+      ((calendarAttribute == null) ? 0 : calendarAttribute.hashCode());
+    result =
+      prime * result + ((dateAttribute == null) ? 0 : dateAttribute.hashCode());
+    result =
+      prime * result +
+      ((doubleObjectAttribute == null) ? 0 : doubleObjectAttribute.hashCode());
+    result =
+      prime * result +
+      ((floatObjectAttribute == null) ? 0 : floatObjectAttribute.hashCode());
+    result =
+      prime * result +
+      ((integerAttribute == null) ? 0 : integerAttribute.hashCode());
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + ((longObjectAttribute == null) ? 0 : longObjectAttribute.hashCode());
+    result =
+      prime * result +
+      ((longObjectAttribute == null) ? 0 : longObjectAttribute.hashCode());
     return result;
   }
 
@@ -164,16 +181,22 @@ public class NumberSetAttributeTestClass {
     NumberSetAttributeTestClass other = (NumberSetAttributeTestClass) obj;
     if (bigDecimalAttribute == null) {
       if (other.bigDecimalAttribute != null) return false;
-    } else if (!bigDecimalAttribute.equals(other.bigDecimalAttribute)) return false;
+    } else if (
+      !bigDecimalAttribute.equals(other.bigDecimalAttribute)
+    ) return false;
     if (bigIntegerAttribute == null) {
       if (other.bigIntegerAttribute != null) return false;
-    } else if (!bigIntegerAttribute.equals(other.bigIntegerAttribute)) return false;
+    } else if (
+      !bigIntegerAttribute.equals(other.bigIntegerAttribute)
+    ) return false;
     if (booleanAttribute == null) {
       if (other.booleanAttribute != null) return false;
     } else if (!booleanAttribute.equals(other.booleanAttribute)) return false;
     if (byteObjectAttribute == null) {
       if (other.byteObjectAttribute != null) return false;
-    } else if (!byteObjectAttribute.equals(other.byteObjectAttribute)) return false;
+    } else if (
+      !byteObjectAttribute.equals(other.byteObjectAttribute)
+    ) return false;
     if (calendarAttribute == null) {
       if (other.calendarAttribute != null) return false;
     } else if (!calendarAttribute.equals(other.calendarAttribute)) return false;
@@ -182,10 +205,14 @@ public class NumberSetAttributeTestClass {
     } else if (!dateAttribute.equals(other.dateAttribute)) return false;
     if (doubleObjectAttribute == null) {
       if (other.doubleObjectAttribute != null) return false;
-    } else if (!doubleObjectAttribute.equals(other.doubleObjectAttribute)) return false;
+    } else if (
+      !doubleObjectAttribute.equals(other.doubleObjectAttribute)
+    ) return false;
     if (floatObjectAttribute == null) {
       if (other.floatObjectAttribute != null) return false;
-    } else if (!floatObjectAttribute.equals(other.floatObjectAttribute)) return false;
+    } else if (
+      !floatObjectAttribute.equals(other.floatObjectAttribute)
+    ) return false;
     if (integerAttribute == null) {
       if (other.integerAttribute != null) return false;
     } else if (!integerAttribute.equals(other.integerAttribute)) return false;
@@ -194,7 +221,9 @@ public class NumberSetAttributeTestClass {
     } else if (!key.equals(other.key)) return false;
     if (longObjectAttribute == null) {
       if (other.longObjectAttribute != null) return false;
-    } else if (!longObjectAttribute.equals(other.longObjectAttribute)) return false;
+    } else if (
+      !longObjectAttribute.equals(other.longObjectAttribute)
+    ) return false;
     return true;
   }
 

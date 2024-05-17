@@ -23,6 +23,7 @@ import java.util.Set;
 
 @DynamoDBTable(tableName = "TableName")
 public class BaseClass {
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -33,7 +34,8 @@ public class BaseClass {
     result = prime * result + intValue;
     result = prime * result + rangeKey;
     result = prime * result + ((stringSet == null) ? 0 : stringSet.hashCode());
-    result = prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
+    result =
+      prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
     result = prime * result + Double.valueOf(doubleValue).hashCode();
     result = prime * result + ((doubleSet == null) ? 0 : doubleSet.hashCode());
     return result;
@@ -160,26 +162,28 @@ public class BaseClass {
 
   @Override
   public String toString() {
-    return "BaseClass [hashKey="
-        + hashKey
-        + ", rangeKey="
-        + rangeKey
-        + ", stringValue="
-        + stringValue
-        + ", intValue="
-        + intValue
-        + ", byteArrayValue="
-        + Arrays.toString(byteArrayValue)
-        + ", stringSet="
-        + stringSet
-        + ", intSet="
-        + intSet
-        + ", doubleValue="
-        + doubleValue
-        + ", doubleSet="
-        + doubleSet
-        + ", version="
-        + version
-        + "]";
+    return (
+      "BaseClass [hashKey=" +
+      hashKey +
+      ", rangeKey=" +
+      rangeKey +
+      ", stringValue=" +
+      stringValue +
+      ", intValue=" +
+      intValue +
+      ", byteArrayValue=" +
+      Arrays.toString(byteArrayValue) +
+      ", stringSet=" +
+      stringSet +
+      ", intSet=" +
+      intSet +
+      ", doubleValue=" +
+      doubleValue +
+      ", doubleSet=" +
+      doubleSet +
+      ", version=" +
+      version +
+      "]"
+    );
   }
 }

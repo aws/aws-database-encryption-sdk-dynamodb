@@ -28,7 +28,7 @@ phases:
       - cd  aws-database-encryption-sdk-dynamodb/
   pre_build:
     commands:
-      # Get published CA DBESDK jar 
+      # Get published CA DBESDK jar
       - export CODEARTIFACT_TOKEN=$(aws codeartifact get-authorization-token --domain crypto-tools-internal --domain-owner 587316601012 --region us-east-1 --query authorizationToken --output text)
       - export CODEARTIFACT_REPO_URL=https://crypto-tools-internal-587316601012.d.codeartifact.us-east-1.amazonaws.com/maven/java-dbesdk-ddb-staging/
       # Get CI Creds to be able to call DBESDK TestVectors
@@ -55,11 +55,11 @@ phases:
       - make transpile_implementation_java
       - make transpile_test_java
       - gradle -p runtimes/java runTests
-      
+
       # Test Examples
       - cd ../Examples
       # Run Simple Examples
       - gradle -p runtimes/java/DynamoDbEncryption test
       # Run Migration Examples
       - gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-      - gradle -p runtimes/java/Migration/DDBECToAWSDBE test 
+      - gradle -p runtimes/java/Migration/DDBECToAWSDBE test

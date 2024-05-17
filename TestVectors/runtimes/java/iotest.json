@@ -51,10 +51,38 @@
           "Ten": "ENCRYPT_AND_SIGN"
         }
       },
-      "EncryptedRecords": 
-
-
-	[{"Nine":{"NS":["1.2","3.4","5.6"]},"Five":{"B":"AARybHwIVYTqimgQmf/28IdG4A=="},"Four":{"B":"AADQa3Cw2qtet+YFiaTUQD4Q"},"Seven":{"B":"AgCImU484lb/YZ7E7E7+NKT2lbrr5TYgLCQ50TqZuxkxdrzOSVO07AqcGNCi0XwxduV873D6LCfhaOynlPswz80beTj6biVp0Ah5CkJi6teAjPeUJ1cG4WjDcSxLpXCCv8KsvViaJCzlIk93FJnmZ0BOu2RtLw=="},"Three":{"B":"//8wu6VB6UjE92NZjbO7/hjUzd8mpI3QSxeyNeDFuG76jsbt"},"Eight":{"B":"AQHUXu8jU6NMpBcSIpAyeNZuvwSZeVPQySP01B+U3HbWHSsSzzwE4ROQiYuA"},"aws_dbe_foot":{"B":"D/YXHHupxxTz1v4wBUEYGgeGI2GemQc+2DvcTWgf7mGdAyZud4qFRlHSdBLKf22yMGUCMHsUBFo5daiYKBYG21+Rtt9MaK2C4LYJCkYolczprzk2sRLatCUBODJcY8oY5WSOGQIxAMjCuBzS2libNd3wJf+USDshT8KnTF9gWy8l4lcRdNqh2wA2te4O+MIgOYPDri4Trg=="},"RecNum":{"N":"1"},"aws_dbe_head":{"B":"AQHfu0Zj8zh/taT81BQj63RdFL6khx4cvxHBCZ8JpFGGCwALZXNlZWVlc2VlZXMAAQAVYXdzLWNyeXB0by1wdWJsaWMta2V5AERBOHZjRnlPYk8vaVhoK3lsRXdOQVRJejRnaEFSdTYrQmlSWlM5UUhpNW9KRG01blFndGNvdTZGbG8xbnpBbDdaZUE9PQEAEWF3cy1rbXMtaGllcmFyY2h5ACRiZDM4NDJmZi0zMDc2LTQwOTItOTkxOC00Mzk1NzMwMDUwYjgAjMy6eCJuoTUxLyIWmKwxnlrgh67/i9bu18vc9TCxhvLU2x3WXleieFPlqWdzlCNuX+AsL8pFAmCbOPscn1ZJcTxrpcp10g7DHei3Rwzpzhij7bVCcp+GHKy3mX/2AQ1biDtjNn5SoWizJVizjcpbnZQg4zJildLF5CHvl/8ixuOrcvA6iNNKCCZKSn4etx75EuHFeQJpdace+uq1bcVzZOyncjnUaZPTvC+a0HA="},"One":{"B":"AAHH++2oPhfNWHEOla3j5h3AEktTtvb/Cqow"},"Ten":{"B":"Af/8Rlpvxv+RYmLDIkgqgud9Hm6akJWDLWg="},"Six":{"L":[{"S":"one"},{"S":"two"},{"S":"three"},{"L":[{"N":"1"},{"N":"2"},{"N":"3"},{"N":"4"}]}]},"Two":{"B":"AAK70U9MdGMCeCq7Ueb4IcjlteI="}}],
+      "EncryptedRecords": [
+        {
+          "Nine": { "NS": ["1.2", "3.4", "5.6"] },
+          "Five": { "B": "AARybHwIVYTqimgQmf/28IdG4A==" },
+          "Four": { "B": "AADQa3Cw2qtet+YFiaTUQD4Q" },
+          "Seven": {
+            "B": "AgCImU484lb/YZ7E7E7+NKT2lbrr5TYgLCQ50TqZuxkxdrzOSVO07AqcGNCi0XwxduV873D6LCfhaOynlPswz80beTj6biVp0Ah5CkJi6teAjPeUJ1cG4WjDcSxLpXCCv8KsvViaJCzlIk93FJnmZ0BOu2RtLw=="
+          },
+          "Three": { "B": "//8wu6VB6UjE92NZjbO7/hjUzd8mpI3QSxeyNeDFuG76jsbt" },
+          "Eight": {
+            "B": "AQHUXu8jU6NMpBcSIpAyeNZuvwSZeVPQySP01B+U3HbWHSsSzzwE4ROQiYuA"
+          },
+          "aws_dbe_foot": {
+            "B": "D/YXHHupxxTz1v4wBUEYGgeGI2GemQc+2DvcTWgf7mGdAyZud4qFRlHSdBLKf22yMGUCMHsUBFo5daiYKBYG21+Rtt9MaK2C4LYJCkYolczprzk2sRLatCUBODJcY8oY5WSOGQIxAMjCuBzS2libNd3wJf+USDshT8KnTF9gWy8l4lcRdNqh2wA2te4O+MIgOYPDri4Trg=="
+          },
+          "RecNum": { "N": "1" },
+          "aws_dbe_head": {
+            "B": "AQHfu0Zj8zh/taT81BQj63RdFL6khx4cvxHBCZ8JpFGGCwALZXNlZWVlc2VlZXMAAQAVYXdzLWNyeXB0by1wdWJsaWMta2V5AERBOHZjRnlPYk8vaVhoK3lsRXdOQVRJejRnaEFSdTYrQmlSWlM5UUhpNW9KRG01blFndGNvdTZGbG8xbnpBbDdaZUE9PQEAEWF3cy1rbXMtaGllcmFyY2h5ACRiZDM4NDJmZi0zMDc2LTQwOTItOTkxOC00Mzk1NzMwMDUwYjgAjMy6eCJuoTUxLyIWmKwxnlrgh67/i9bu18vc9TCxhvLU2x3WXleieFPlqWdzlCNuX+AsL8pFAmCbOPscn1ZJcTxrpcp10g7DHei3Rwzpzhij7bVCcp+GHKy3mX/2AQ1biDtjNn5SoWizJVizjcpbnZQg4zJildLF5CHvl/8ixuOrcvA6iNNKCCZKSn4etx75EuHFeQJpdace+uq1bcVzZOyncjnUaZPTvC+a0HA="
+          },
+          "One": { "B": "AAHH++2oPhfNWHEOla3j5h3AEktTtvb/Cqow" },
+          "Ten": { "B": "Af/8Rlpvxv+RYmLDIkgqgud9Hm6akJWDLWg=" },
+          "Six": {
+            "L": [
+              { "S": "one" },
+              { "S": "two" },
+              { "S": "three" },
+              { "L": [{ "N": "1" }, { "N": "2" }, { "N": "3" }, { "N": "4" }] }
+            ]
+          },
+          "Two": { "B": "AAK70U9MdGMCeCq7Ueb4IcjlteI=" }
+        }
+      ],
       "PlainTextRecords": [
         {
           "RecNum": 1,
@@ -75,12 +103,7 @@
               "two",
               "three",
               {
-                "L": [
-                  1,
-                  2,
-                  3,
-                  4
-                ]
+                "L": [1, 2, 3, 4]
               }
             ]
           },
@@ -97,18 +120,10 @@
             }
           },
           "Eight": {
-            "SS": [
-              "one",
-              "two",
-              "three"
-            ]
+            "SS": ["one", "two", "three"]
           },
           "Nine": {
-            "NS": [
-              "1.2",
-              3.4,
-              "5.6"
-            ]
+            "NS": ["1.2", 3.4, "5.6"]
           },
           "Ten": {
             "BS": [""]
@@ -155,12 +170,7 @@
               "two",
               "three",
               {
-                "L": [
-                  1,
-                  2,
-                  3,
-                  4
-                ]
+                "L": [1, 2, 3, 4]
               }
             ]
           },
@@ -177,18 +187,10 @@
             }
           },
           "Eight": {
-            "SS": [
-              "one",
-              "two",
-              "three"
-            ]
+            "SS": ["one", "two", "three"]
           },
           "Nine": {
-            "NS": [
-              "1.2",
-              3.4,
-              "5.6"
-            ]
+            "NS": ["1.2", 3.4, "5.6"]
           },
           "Ten": {
             "BS": [""]

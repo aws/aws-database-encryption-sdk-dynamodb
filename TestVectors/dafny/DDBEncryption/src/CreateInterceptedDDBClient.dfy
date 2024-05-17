@@ -10,18 +10,18 @@ module CreateInterceptedDDBClient {
 
   method {:extern} CreateInterceptedDDBClient(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
     returns (output: Result<ComAmazonawsDynamodbTypes.IDynamoDBClient, AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error>)
-    ensures output.Success? ==> 
-      && fresh(output.value)
-      && fresh(output.value.Modifies)
-      && fresh(output.value.History)
-      && output.value.ValidState()
+    ensures output.Success? ==>
+              && fresh(output.value)
+              && fresh(output.value.Modifies)
+              && fresh(output.value.History)
+              && output.value.ValidState()
 
   method {:extern} CreateVanillaDDBClient()
     returns (output: Result<ComAmazonawsDynamodbTypes.IDynamoDBClient, AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error>)
-    ensures output.Success? ==> 
-      && fresh(output.value)
-      && fresh(output.value.Modifies)
-      && fresh(output.value.History)
-      && output.value.ValidState()
+    ensures output.Success? ==>
+              && fresh(output.value)
+              && fresh(output.value.Modifies)
+              && fresh(output.value.History)
+              && output.value.ValidState()
 
 }

@@ -23,46 +23,54 @@ import software.amazon.cryptography.keystore.model.KeyStoreConfig;
  */
 public class CreateKeyStoreTableExample {
 
-    // Create KeyStore Table Example
-    public static void KeyStoreCreateTable(String keyStoreTableName,
-                                           String logicalKeyStoreName,
-                                           String kmsKeyArn) {
-        // 1. Configure your KeyStore resource.
-        //    `ddbTableName` is the name you want for the DDB table that
-        //    will back your keystore.
-        //    `kmsKeyArn` is the KMS Key that will protect your branch keys and beacon keys
-        //    when they are stored in your DDB table.
-        final KeyStore keystore = KeyStore.builder().KeyStoreConfig(
-                KeyStoreConfig.builder()
-                        .ddbClient(DynamoDbClient.create())
-                        .ddbTableName(keyStoreTableName)
-                        .logicalKeyStoreName(logicalKeyStoreName)
-                        .kmsClient(KmsClient.create())
-                        .kmsConfiguration(KMSConfiguration.builder()
-                            .kmsKeyArn(kmsKeyArn)
-                            .build())
-                        .build()).build();
+  // Create KeyStore Table Example
+  public static void KeyStoreCreateTable(
+    String keyStoreTableName,
+    String logicalKeyStoreName,
+    String kmsKeyArn
+  ) {
+    // 1. Configure your KeyStore resource.
+    //    `ddbTableName` is the name you want for the DDB table that
+    //    will back your keystore.
+    //    `kmsKeyArn` is the KMS Key that will protect your branch keys and beacon keys
+    //    when they are stored in your DDB table.
+    final KeyStore keystore = KeyStore
+      .builder()
+      .KeyStoreConfig(
+        KeyStoreConfig
+          .builder()
+          .ddbClient(DynamoDbClient.create())
+          .ddbTableName(keyStoreTableName)
+          .logicalKeyStoreName(logicalKeyStoreName)
+          .kmsClient(KmsClient.create())
+          .kmsConfiguration(
+            KMSConfiguration.builder().kmsKeyArn(kmsKeyArn).build()
+          )
+          .build()
+      )
+      .build();
 
-        // 2. Create the DynamoDb table that will store the branch keys and beacon keys.
-        //    This checks if the correct table already exists at `ddbTableName`
-        //    by using the DescribeTable API. If no table exists,
-        //    it will create one. If a table exists, it will verify
-        //    the table's configuration and will error if the configuration is incorrect.
-        keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
+    // 2. Create the DynamoDb table that will store the branch keys and beacon keys.
+    //    This checks if the correct table already exists at `ddbTableName`
+    //    by using the DescribeTable API. If no table exists,
+    //    it will create one. If a table exists, it will verify
+    //    the table's configuration and will error if the configuration is incorrect.
+    keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
+    // It may take a couple minutes for the table to become ACTIVE,
+    // at which point it is ready to store branch and beacon keys.
+    // See the Create KeyStore Key Example for how to populate
+    // this table.
+  }
 
-        // It may take a couple minutes for the table to become ACTIVE,
-        // at which point it is ready to store branch and beacon keys.
-        // See the Create KeyStore Key Example for how to populate
-        // this table.
+  public static void main(final String[] args) {
+    if (args.length <= 1) {
+      throw new IllegalArgumentException(
+        "To run this example, include the keyStoreTableName, logicalKeyStoreName, and kmsKeyArn in args"
+      );
     }
-
-    public static void main(final String[] args) {
-        if (args.length <= 1) {
-            throw new IllegalArgumentException("To run this example, include the keyStoreTableName, logicalKeyStoreName, and kmsKeyArn in args");
-        }
-        final String keyStoreTableName = args[0];
-        final String logicalKeyStoreName = args[1];
-        final String kmsKeyArn = args[2];
-        KeyStoreCreateTable(keyStoreTableName, logicalKeyStoreName, kmsKeyArn);
-    }
+    final String keyStoreTableName = args[0];
+    final String logicalKeyStoreName = args[1];
+    final String kmsKeyArn = args[2];
+    KeyStoreCreateTable(keyStoreTableName, logicalKeyStoreName, kmsKeyArn);
+  }
 }

@@ -50,9 +50,12 @@ public interface DelegatedKey extends SecretKey {
    * @throws UnsupportedOperationException if encryption is not supported or if <code>
    *     additionalAssociatedData</code> is provided, but not supported.
    */
-  public byte[] encrypt(byte[] plainText, byte[] additionalAssociatedData, String algorithm)
-      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-          NoSuchAlgorithmException, NoSuchPaddingException;
+  public byte[] encrypt(
+    byte[] plainText,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException;
 
   /**
    * Decrypts the provided ciphertext and returns a byte-array containing the plaintext.
@@ -66,9 +69,12 @@ public interface DelegatedKey extends SecretKey {
    * @throws UnsupportedOperationException if decryption is not supported or if <code>
    *     additionalAssociatedData</code> is provided, but not supported.
    */
-  public byte[] decrypt(byte[] cipherText, byte[] additionalAssociatedData, String algorithm)
-      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-          NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException;
+  public byte[] decrypt(
+    byte[] cipherText,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException;
 
   /**
    * Wraps (encrypts) the provided <code>key</code> to make it safe for storage or transmission.
@@ -82,9 +88,12 @@ public interface DelegatedKey extends SecretKey {
    * @throws UnsupportedOperationException if wrapping is not supported or if <code>
    *     additionalAssociatedData</code> is provided, but not supported.
    */
-  public byte[] wrap(Key key, byte[] additionalAssociatedData, String algorithm)
-      throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
-          IllegalBlockSizeException;
+  public byte[] wrap(
+    Key key,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException;
 
   /**
    * Unwraps (decrypts) the provided <code>wrappedKey</code> to recover the original key.
@@ -99,12 +108,13 @@ public interface DelegatedKey extends SecretKey {
    *     additionalAssociatedData</code> is provided, but not supported.
    */
   public Key unwrap(
-      byte[] wrappedKey,
-      String wrappedKeyAlgorithm,
-      int wrappedKeyType,
-      byte[] additionalAssociatedData,
-      String algorithm)
-      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException;
+    byte[] wrappedKey,
+    String wrappedKeyAlgorithm,
+    int wrappedKeyType,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException;
 
   /**
    * Calculates and returns a signature for <code>dataToSign</code>.
@@ -114,7 +124,8 @@ public interface DelegatedKey extends SecretKey {
    * @return the signature
    * @throws UnsupportedOperationException if signing is not supported
    */
-  public byte[] sign(byte[] dataToSign, String algorithm) throws GeneralSecurityException;
+  public byte[] sign(byte[] dataToSign, String algorithm)
+    throws GeneralSecurityException;
 
   /**
    * Checks the provided signature for correctness.

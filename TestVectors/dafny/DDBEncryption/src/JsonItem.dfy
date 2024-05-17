@@ -367,41 +367,41 @@ module {:options "-functionSyntax:4"} DdbItemJson {
         Success("0." + Zeros(|str| - num.e10) + str)
   }
 
-    function NormalizeItem(value : DDB.AttributeMap) : DDB.AttributeMap
-    {
-      map k <- value :: k := Normalize(value[k])
-    }
+  function NormalizeItem(value : DDB.AttributeMap) : DDB.AttributeMap
+  {
+    map k <- value :: k := Normalize(value[k])
+  }
 
-    function Normalize(value : DDB.AttributeValue) : DDB.AttributeValue
-    {
-      match value {
-        case N(n) =>
-          var nn := Norm.NormalizeNumber(n);
-          if nn.Success? then
-            DDB.AttributeValue.N(nn.value)
-          else
-            value
-        case SS(s) =>
-          var asSet := Seq.ToSet(s);
-          DDB.AttributeValue.SS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
-        case NS(s) =>
-          var normList := Seq.MapWithResult(n => Norm.NormalizeNumber(n), s);
-          if normList.Success? then
-            var asSet := Seq.ToSet(normList.value);
-            DDB.AttributeValue.NS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
-          else
-            value
-        case BS(s) =>
-          var asSet := Seq.ToSet(s);
-          DDB.AttributeValue.BS(SortedSets.ComputeSetToOrderedSequence2(asSet, ByteLess))
-        case L(list) =>
-          // for some reason, Seq.Map() fails for verify, even when revealed
-          var value := seq(|list|, i requires 0 <= i < |list| => Normalize(list[i]));
-          DDB.AttributeValue.L(value)
-        case M(m) =>
-          DDB.AttributeValue.M(map k <- m :: k := Normalize(m[k]))
-        case _ => value
-      }
+  function Normalize(value : DDB.AttributeValue) : DDB.AttributeValue
+  {
+    match value {
+      case N(n) =>
+        var nn := Norm.NormalizeNumber(n);
+        if nn.Success? then
+          DDB.AttributeValue.N(nn.value)
+        else
+          value
+      case SS(s) =>
+        var asSet := Seq.ToSet(s);
+        DDB.AttributeValue.SS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
+      case NS(s) =>
+        var normList := Seq.MapWithResult(n => Norm.NormalizeNumber(n), s);
+        if normList.Success? then
+          var asSet := Seq.ToSet(normList.value);
+          DDB.AttributeValue.NS(SortedSets.ComputeSetToOrderedSequence2(asSet, CharLess))
+        else
+          value
+      case BS(s) =>
+        var asSet := Seq.ToSet(s);
+        DDB.AttributeValue.BS(SortedSets.ComputeSetToOrderedSequence2(asSet, ByteLess))
+      case L(list) =>
+        // for some reason, Seq.Map() fails for verify, even when revealed
+        var value := seq(|list|, i requires 0 <= i < |list| => Normalize(list[i]));
+        DDB.AttributeValue.L(value)
+      case M(m) =>
+        DDB.AttributeValue.M(map k <- m :: k := Normalize(m[k]))
+      case _ => value
     }
+  }
 
 }

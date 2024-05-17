@@ -17,5 +17,5 @@ package com.amazonaws.services.dynamodbv2.datamodeling.encryption;
 /** @author Greg Rubin */
 public enum EncryptionFlags {
   ENCRYPT,
-  SIGN
+  SIGN,
 }

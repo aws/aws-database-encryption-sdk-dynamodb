@@ -4,10 +4,10 @@ import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 import software.amazon.awssdk.services.sts.model.Credentials;
 import software.amazon.cryptography.materialproviders.IClientSupplier;
-import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.cryptography.materialproviders.model.GetClientInput;
 
 /*
@@ -32,23 +32,29 @@ public class RegionalRoleClientSupplier implements IClientSupplier {
     }
 
     String arn = config.regionIamRoleMap.get(getClientInput.region());
-    Credentials creds = stsClient.assumeRole(AssumeRoleRequest.builder()
-            .roleArn(arn)
-            .durationSeconds(900) // 15 minutes is the minimum value
-            .roleSessionName("Java-Client-Supplier-Example-Session")
-        .build()).credentials();
+    Credentials creds = stsClient
+      .assumeRole(
+        AssumeRoleRequest
+          .builder()
+          .roleArn(arn)
+          .durationSeconds(900) // 15 minutes is the minimum value
+          .roleSessionName("Java-Client-Supplier-Example-Session")
+          .build()
+      )
+      .credentials();
 
-    return KmsClient.builder()
-        .credentialsProvider(
-            StaticCredentialsProvider.create(
-                AwsSessionCredentials.create(
-                    creds.accessKeyId(),
-                    creds.secretAccessKey(),
-                    creds.sessionToken()
-                )
-            )
+    return KmsClient
+      .builder()
+      .credentialsProvider(
+        StaticCredentialsProvider.create(
+          AwsSessionCredentials.create(
+            creds.accessKeyId(),
+            creds.secretAccessKey(),
+            creds.sessionToken()
+          )
         )
-        .region(Region.of(getClientInput.region()))
-        .build();
+      )
+      .region(Region.of(getClientInput.region()))
+      .build();
   }
 }

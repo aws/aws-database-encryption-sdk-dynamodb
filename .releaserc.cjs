@@ -28,7 +28,7 @@ const Runtimes = {
     "DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj": {
       dependencies: [],
       assemblyInfo: "DynamoDbEncryption/runtimes/net/AssemblyInfo.cs",
-    }
+    },
   },
 };
 
@@ -37,57 +37,58 @@ const Runtimes = {
  */
 module.exports = {
   branches: ["main"],
-  repositoryUrl:
-    "git@github.com:aws/aws-database-encryption-sdk-dynamodb.git",
+  repositoryUrl: "git@github.com:aws/aws-database-encryption-sdk-dynamodb.git",
   plugins: [
     // Check the commits since the last release
-    ["@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/commit-analyzer",
       {
-        "preset": "conventionalcommits",
-        "parserOpts": {
-          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+        preset: "conventionalcommits",
+        parserOpts: {
+          noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES"],
         },
-        "presetConfig": {
-          "types": [
-            {"type": "feat", "section": "Features"},
-            {"type": "fix", "section": "Fixes"},
-            {"type": "chore", "section": "Maintenance"},
-            {"type": "docs", "section": "Maintenance"},
-            {"type": "revert", "section": "Fixes"},
-            {"type": "style", "hidden": true},
-            {"type": "refactor", "hidden": true},
-            {"type": "perf", "hidden": true},
-            {"type": "test", "hidden": true}
-          ]
+        presetConfig: {
+          types: [
+            { type: "feat", section: "Features" },
+            { type: "fix", section: "Fixes" },
+            { type: "chore", section: "Maintenance" },
+            { type: "docs", section: "Maintenance" },
+            { type: "revert", section: "Fixes" },
+            { type: "style", hidden: true },
+            { type: "refactor", hidden: true },
+            { type: "perf", hidden: true },
+            { type: "test", hidden: true },
+          ],
         },
-        "releaseRules": [
-          {"type": "docs", "release": "patch"},
-          {"type": "revert", "release": "patch"},
-          {"type": "chore", "release": "patch"}
-        ]
+        releaseRules: [
+          { type: "docs", release: "patch" },
+          { type: "revert", release: "patch" },
+          { type: "chore", release: "patch" },
+        ],
       },
     ],
     // Based on the commits generate release notes
-    ["@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/release-notes-generator",
       {
-        "preset": "conventionalcommits",
-        "parserOpts": {
-          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+        preset: "conventionalcommits",
+        parserOpts: {
+          noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES"],
         },
-        "presetConfig": {
-            "types": [
-                {"type": "feat", "section": "Features"},
-                {"type": "fix", "section": "Fixes"},
-                {"type": "chore", "section": "Maintenance"},
-                {"type": "docs", "section": "Maintenance"},
-                {"type": "revert", "section": "Fixes"},
-                {"type": "style", "hidden": true},
-                {"type": "refactor", "hidden": true},
-                {"type": "perf", "hidden": true},
-                {"type": "test", "hidden": true}
-            ]
-        }
-      }
+        presetConfig: {
+          types: [
+            { type: "feat", section: "Features" },
+            { type: "fix", section: "Fixes" },
+            { type: "chore", section: "Maintenance" },
+            { type: "docs", section: "Maintenance" },
+            { type: "revert", section: "Fixes" },
+            { type: "style", hidden: true },
+            { type: "refactor", hidden: true },
+            { type: "perf", hidden: true },
+            { type: "test", hidden: true },
+          ],
+        },
+      },
     ],
     // Update the change log with the generated release notes
     [
@@ -108,7 +109,7 @@ module.exports = {
           {
             files: Object.keys(Runtimes.java),
             from: "projectJavaVersion=.*",
-            to: 'projectJavaVersion=${nextRelease.version}',
+            to: "projectJavaVersion=${nextRelease.version}",
             results: Object.keys(Runtimes.java).map(CheckResults),
             countMatches: true,
           },

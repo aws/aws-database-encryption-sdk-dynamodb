@@ -38,7 +38,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** Tests string set attributes */
-public class NumericSetAttributesITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class NumericSetAttributesITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   private static final String INTEGER_ATTRIBUTE = "integerAttribute";
   private static final String FLOAT_OBJECT_ATTRIBUTE = "floatObjectAttribute";
@@ -54,8 +55,9 @@ public class NumericSetAttributesITCase extends DynamoDBMapperCryptoIntegrationT
   private static int start = 1;
   private static int byteStart = 1;
 
-  private static final List<Map<String, AttributeValue>> attrs =
-      new LinkedList<Map<String, AttributeValue>>();
+  private static final List<Map<String, AttributeValue>> attrs = new LinkedList<
+    Map<String, AttributeValue>
+  >();
 
   // Test data
   static {
@@ -63,38 +65,49 @@ public class NumericSetAttributesITCase extends DynamoDBMapperCryptoIntegrationT
       Map<String, AttributeValue> attr = new HashMap<String, AttributeValue>();
       attr.put(KEY_NAME, new AttributeValue().withS("" + start++));
       attr.put(
-          INTEGER_ATTRIBUTE, new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        INTEGER_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(
-          FLOAT_OBJECT_ATTRIBUTE,
-          new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        FLOAT_OBJECT_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(
-          DOUBLE_OBJECT_ATTRIBUTE,
-          new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        DOUBLE_OBJECT_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(
-          BIG_INTEGER_ATTRIBUTE,
-          new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        BIG_INTEGER_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(
-          BIG_DECIMAL_ATTRIBUTE,
-          new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        BIG_DECIMAL_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(
-          LONG_OBJECT_ATTRIBUTE,
-          new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        LONG_OBJECT_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(
-          BYTE_OBJECT_ATTRIBUTE,
-          new AttributeValue().withNS("" + byteStart++, "" + byteStart++, "" + byteStart++));
+        BYTE_OBJECT_ATTRIBUTE,
+        new AttributeValue()
+          .withNS("" + byteStart++, "" + byteStart++, "" + byteStart++)
+      );
       attr.put(BOOLEAN_ATTRIBUTE, new AttributeValue().withNS("0", "1"));
       attrs.add(attr);
     }
   }
-  ;
 
   @BeforeClass
   public static void setUp() throws Exception {
     DynamoDBMapperCryptoIntegrationTestBase.setUp();
-    DynamoDBEncryptor encryptor =
-        DynamoDBEncryptor.getInstance(new TestEncryptionMaterialsProvider());
-    EncryptionContext context =
-        new EncryptionContext.Builder().withHashKeyName(KEY_NAME).withTableName(TABLE_NAME).build();
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+      new TestEncryptionMaterialsProvider()
+    );
+    EncryptionContext context = new EncryptionContext.Builder()
+      .withHashKeyName(KEY_NAME)
+      .withTableName(TABLE_NAME)
+      .build();
     // Insert the data
     for (Map<String, AttributeValue> attr : attrs) {
       attr = encryptor.encryptAllFieldsExcept(attr, context, KEY_NAME);
@@ -104,56 +117,89 @@ public class NumericSetAttributesITCase extends DynamoDBMapperCryptoIntegrationT
 
   @Test
   public void testLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     for (Map<String, AttributeValue> attr : attrs) {
-      NumberSetAttributeTestClass x =
-          util.load(NumberSetAttributeTestClass.class, attr.get(KEY_NAME).getS());
+      NumberSetAttributeTestClass x = util.load(
+        NumberSetAttributeTestClass.class,
+        attr.get(KEY_NAME).getS()
+      );
       assertEquals(x.getKey(), attr.get(KEY_NAME).getS());
 
       // Convert all numbers to the most inclusive type for easy comparison
-      assertNumericSetsEquals(x.getBigDecimalAttribute(), attr.get(BIG_DECIMAL_ATTRIBUTE).getNS());
-      assertNumericSetsEquals(x.getBigIntegerAttribute(), attr.get(BIG_INTEGER_ATTRIBUTE).getNS());
       assertNumericSetsEquals(
-          x.getFloatObjectAttribute(), attr.get(FLOAT_OBJECT_ATTRIBUTE).getNS());
+        x.getBigDecimalAttribute(),
+        attr.get(BIG_DECIMAL_ATTRIBUTE).getNS()
+      );
       assertNumericSetsEquals(
-          x.getDoubleObjectAttribute(), attr.get(DOUBLE_OBJECT_ATTRIBUTE).getNS());
-      assertNumericSetsEquals(x.getIntegerAttribute(), attr.get(INTEGER_ATTRIBUTE).getNS());
-      assertNumericSetsEquals(x.getLongObjectAttribute(), attr.get(LONG_OBJECT_ATTRIBUTE).getNS());
-      assertNumericSetsEquals(x.getByteObjectAttribute(), attr.get(BYTE_OBJECT_ATTRIBUTE).getNS());
+        x.getBigIntegerAttribute(),
+        attr.get(BIG_INTEGER_ATTRIBUTE).getNS()
+      );
+      assertNumericSetsEquals(
+        x.getFloatObjectAttribute(),
+        attr.get(FLOAT_OBJECT_ATTRIBUTE).getNS()
+      );
+      assertNumericSetsEquals(
+        x.getDoubleObjectAttribute(),
+        attr.get(DOUBLE_OBJECT_ATTRIBUTE).getNS()
+      );
+      assertNumericSetsEquals(
+        x.getIntegerAttribute(),
+        attr.get(INTEGER_ATTRIBUTE).getNS()
+      );
+      assertNumericSetsEquals(
+        x.getLongObjectAttribute(),
+        attr.get(LONG_OBJECT_ATTRIBUTE).getNS()
+      );
+      assertNumericSetsEquals(
+        x.getByteObjectAttribute(),
+        attr.get(BYTE_OBJECT_ATTRIBUTE).getNS()
+      );
       assertSetsEqual(toSet("0", "1"), attr.get(BOOLEAN_ATTRIBUTE).getNS());
     }
   }
 
   @Test
   public void testSave() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       NumberSetAttributeTestClass obj = getUniqueObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (NumberSetAttributeTestClass obj : objs) {
       util.save(obj);
     }
 
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          util.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = util.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
   }
 
   @Test
   public void testUpdate() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       NumberSetAttributeTestClass obj = getUniqueObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (NumberSetAttributeTestClass obj : objs) {
       util.save(obj);
     }
@@ -162,7 +208,10 @@ public class NumericSetAttributesITCase extends DynamoDBMapperCryptoIntegrationT
       NumberSetAttributeTestClass replacement = getUniqueObject();
       replacement.setKey(obj.getKey());
       util.save(replacement);
-      assertEquals(replacement, util.load(NumberSetAttributeTestClass.class, obj.getKey()));
+      assertEquals(
+        replacement,
+        util.load(NumberSetAttributeTestClass.class, obj.getKey())
+      );
     }
   }
 
@@ -170,24 +219,58 @@ public class NumericSetAttributesITCase extends DynamoDBMapperCryptoIntegrationT
     NumberSetAttributeTestClass obj = new NumberSetAttributeTestClass();
     obj.setKey(String.valueOf(startKey++));
     obj.setBigDecimalAttribute(
-        toSet(new BigDecimal(startKey++), new BigDecimal(startKey++), new BigDecimal(startKey++)));
+      toSet(
+        new BigDecimal(startKey++),
+        new BigDecimal(startKey++),
+        new BigDecimal(startKey++)
+      )
+    );
     obj.setBigIntegerAttribute(
-        toSet(
-            new BigInteger("" + startKey++),
-            new BigInteger("" + startKey++),
-            new BigInteger("" + startKey++)));
+      toSet(
+        new BigInteger("" + startKey++),
+        new BigInteger("" + startKey++),
+        new BigInteger("" + startKey++)
+      )
+    );
     obj.setByteObjectAttribute(
-        toSet(new Byte("" + byteStart++), new Byte("" + byteStart++), new Byte("" + byteStart++)));
+      toSet(
+        new Byte("" + byteStart++),
+        new Byte("" + byteStart++),
+        new Byte("" + byteStart++)
+      )
+    );
     obj.setDoubleObjectAttribute(
-        toSet(new Double("" + start++), new Double("" + start++), new Double("" + start++)));
+      toSet(
+        new Double("" + start++),
+        new Double("" + start++),
+        new Double("" + start++)
+      )
+    );
     obj.setFloatObjectAttribute(
-        toSet(new Float("" + start++), new Float("" + start++), new Float("" + start++)));
+      toSet(
+        new Float("" + start++),
+        new Float("" + start++),
+        new Float("" + start++)
+      )
+    );
     obj.setIntegerAttribute(
-        toSet(new Integer("" + start++), new Integer("" + start++), new Integer("" + start++)));
+      toSet(
+        new Integer("" + start++),
+        new Integer("" + start++),
+        new Integer("" + start++)
+      )
+    );
     obj.setLongObjectAttribute(
-        toSet(new Long("" + start++), new Long("" + start++), new Long("" + start++)));
+      toSet(
+        new Long("" + start++),
+        new Long("" + start++),
+        new Long("" + start++)
+      )
+    );
     obj.setBooleanAttribute(toSet(true, false));
-    obj.setDateAttribute(toSet(new Date(startKey++), new Date(startKey++), new Date(startKey++)));
+    obj.setDateAttribute(
+      toSet(new Date(startKey++), new Date(startKey++), new Date(startKey++))
+    );
     Set<Calendar> cals = new HashSet<Calendar>();
     for (Date d : obj.getDateAttribute()) {
       Calendar cal = GregorianCalendar.getInstance();

@@ -20,6 +20,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "TableName")
 public class KeysOnly {
+
   private int hashKey;
   private int rangeKey;
 

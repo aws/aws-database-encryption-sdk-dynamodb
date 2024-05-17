@@ -22,27 +22,42 @@ import javax.crypto.SecretKey;
 
 /** @author Greg Rubin */
 public class AsymmetricRawMaterials extends WrappedRawMaterials {
+
   @SuppressWarnings("unchecked")
   public AsymmetricRawMaterials(KeyPair encryptionKey, KeyPair signingPair)
-      throws GeneralSecurityException {
+    throws GeneralSecurityException {
     this(encryptionKey, signingPair, Collections.EMPTY_MAP);
   }
 
   public AsymmetricRawMaterials(
-      KeyPair encryptionKey, KeyPair signingPair, Map<String, String> description)
-      throws GeneralSecurityException {
-    super(encryptionKey.getPublic(), encryptionKey.getPrivate(), signingPair, description);
+    KeyPair encryptionKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) throws GeneralSecurityException {
+    super(
+      encryptionKey.getPublic(),
+      encryptionKey.getPrivate(),
+      signingPair,
+      description
+    );
   }
 
   @SuppressWarnings("unchecked")
   public AsymmetricRawMaterials(KeyPair encryptionKey, SecretKey macKey)
-      throws GeneralSecurityException {
+    throws GeneralSecurityException {
     this(encryptionKey, macKey, Collections.EMPTY_MAP);
   }
 
   public AsymmetricRawMaterials(
-      KeyPair encryptionKey, SecretKey macKey, Map<String, String> description)
-      throws GeneralSecurityException {
-    super(encryptionKey.getPublic(), encryptionKey.getPrivate(), macKey, description);
+    KeyPair encryptionKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) throws GeneralSecurityException {
+    super(
+      encryptionKey.getPublic(),
+      encryptionKey.getPrivate(),
+      macKey,
+      description
+    );
   }
 }

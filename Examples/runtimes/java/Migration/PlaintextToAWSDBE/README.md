@@ -9,6 +9,7 @@ from a plaintext database.
 ## Step 1
 
 In Step 1, you update your system to do the following:
+
 - continue to read plaintext items
 - continue to write plaintext items
 - prepare to read encrypted items
@@ -22,6 +23,7 @@ You must ensure that the changes in Step 1 make it to all your readers before yo
 ## Step 2
 
 In Step 2, you update your system to do the following:
+
 - continue to read plaintext items
 - start writing encrypted items
 - continue to read encrypted items
@@ -41,6 +43,7 @@ you should prioritize moving on to Step 3.
 
 Once all old items are encrypted,
 update your system to do the following:
+
 - continue to write encrypted items
 - continue to read encrypted items
 - do not accept reading plaintext items

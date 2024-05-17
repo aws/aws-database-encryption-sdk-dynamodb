@@ -9,9 +9,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class AttributeValueSerializer extends JsonSerializer<AttributeValue> {
+
   @Override
-  public void serialize(AttributeValue value, JsonGenerator jgen, SerializerProvider provider)
-      throws IOException {
+  public void serialize(
+    AttributeValue value,
+    JsonGenerator jgen,
+    SerializerProvider provider
+  ) throws IOException {
     if (value != null) {
       jgen.writeStartObject();
       if (value.getS() != null) {
@@ -39,7 +43,8 @@ public class AttributeValueSerializer extends JsonSerializer<AttributeValue> {
         jgen.writeEndArray();
       } else {
         throw new IllegalStateException(
-            "AttributeValue has no value or type not implemented for serialization.");
+          "AttributeValue has no value or type not implemented for serialization."
+        );
       }
       jgen.writeEndObject();
     }

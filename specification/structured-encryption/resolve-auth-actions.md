@@ -57,7 +57,7 @@ The sequence of bytes representing the serialized header, as is usually found in
 This operation MUST output the following:
 
 [Crypto List](./structures.md#crypto-list): Input terminal data and the Crypto Schema for each Terminal,
-  calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
+calculated using the Crypto Legend in the header, the signature scope used for decryption, and the data in the input structure.
 
 ## Behavior
 

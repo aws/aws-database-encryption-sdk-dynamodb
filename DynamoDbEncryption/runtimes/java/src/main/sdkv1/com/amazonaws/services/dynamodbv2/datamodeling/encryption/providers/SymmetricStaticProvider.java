@@ -31,6 +31,7 @@ import javax.crypto.SecretKey;
  * @author Greg Rubin
  */
 public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
+
   private final SymmetricRawMaterials materials;
 
   /**
@@ -55,8 +56,12 @@ public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
    *     returned by this object.
    */
   public SymmetricStaticProvider(
-      SecretKey encryptionKey, KeyPair signingPair, Map<String, String> description) {
-    materials = new SymmetricRawMaterials(encryptionKey, signingPair, description);
+    SecretKey encryptionKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) {
+    materials =
+      new SymmetricRawMaterials(encryptionKey, signingPair, description);
   }
 
   /**
@@ -79,7 +84,10 @@ public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
    *     returned by this object.
    */
   public SymmetricStaticProvider(
-      SecretKey encryptionKey, SecretKey macKey, Map<String, String> description) {
+    SecretKey encryptionKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) {
     materials = new SymmetricRawMaterials(encryptionKey, macKey, description);
   }
 
@@ -90,10 +98,12 @@ public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
    */
   @Override
   public DecryptionMaterials getDecryptionMaterials(EncryptionContext context) {
-    if (context
+    if (
+      context
         .getMaterialDescription()
         .entrySet()
-        .containsAll(materials.getMaterialDescription().entrySet())) {
+        .containsAll(materials.getMaterialDescription().entrySet())
+    ) {
       return materials;
     } else {
       return null;

@@ -19,15 +19,17 @@ import java.security.SecureRandom;
 import java.util.Properties;
 
 public class Utils {
-  private static final ThreadLocal<SecureRandom> RND =
-      new ThreadLocal<SecureRandom>() {
-        @Override
-        protected SecureRandom initialValue() {
-          final SecureRandom result = new SecureRandom();
-          result.nextBoolean(); // Force seeding
-          return result;
-        }
-      };
+
+  private static final ThreadLocal<SecureRandom> RND = new ThreadLocal<
+    SecureRandom
+  >() {
+    @Override
+    protected SecureRandom initialValue() {
+      final SecureRandom result = new SecureRandom();
+      result.nextBoolean(); // Force seeding
+      return result;
+    }
+  };
 
   private Utils() {
     // Prevent instantiation
@@ -55,6 +57,6 @@ public class Utils {
    * Loads the version of the library
    */
   public static String loadVersion() {
-      return "2.0.3-legacy";
+    return "2.0.3-legacy";
   }
 }

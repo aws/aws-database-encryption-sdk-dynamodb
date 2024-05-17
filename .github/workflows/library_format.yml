@@ -13,10 +13,6 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        library:
-          [
-            DynamoDbEncryption,
-          ]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -39,9 +35,21 @@ jobs:
         with:
           dafny-version: ${{ '4.2.0' }}
 
-      - name: Check format of ${{ matrix.library }} Dafny code
-        working-directory: ./${{ matrix.library }}
+      - name: Check format of Dafny code
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make format_dafny-check
+
+      - name: Check format of Dotnet code
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make format_net-check
+
+      - name: Check format of Java code et al
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make setup_prettier
+          make format_java_misc-check

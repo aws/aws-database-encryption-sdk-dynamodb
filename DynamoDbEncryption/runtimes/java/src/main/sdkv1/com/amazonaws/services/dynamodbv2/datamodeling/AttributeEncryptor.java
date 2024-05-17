@@ -44,14 +44,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Greg Rubin
  */
 public class AttributeEncryptor implements AttributeTransformer {
+
   private final DynamoDBEncryptor encryptor;
-  private final Map<Class<?>, ModelClassMetadata> metadataCache = new ConcurrentHashMap<>();
+  private final Map<Class<?>, ModelClassMetadata> metadataCache =
+    new ConcurrentHashMap<>();
 
   public AttributeEncryptor(final DynamoDBEncryptor encryptor) {
     this.encryptor = encryptor;
   }
 
-  public AttributeEncryptor(final EncryptionMaterialsProvider encryptionMaterialsProvider) {
+  public AttributeEncryptor(
+    final EncryptionMaterialsProvider encryptionMaterialsProvider
+  ) {
     encryptor = DynamoDBEncryptor.getInstance(encryptionMaterialsProvider);
   }
 
@@ -64,7 +68,8 @@ public class AttributeEncryptor implements AttributeTransformer {
     // one map of attributeActionsOnEncrypt per model class
     final ModelClassMetadata metadata = getModelClassMetadata(parameters);
 
-    final Map<String, AttributeValue> attributeValues = parameters.getAttributeValues();
+    final Map<String, AttributeValue> attributeValues =
+      parameters.getAttributeValues();
     // If this class is marked as "DoNotTouch" then we know our encryptor will not change it at all
     // so we may as well fast-return and do nothing. This also avoids emitting errors when they
     // would not apply.
@@ -81,26 +86,36 @@ public class AttributeEncryptor implements AttributeTransformer {
     // expected fields.
     if (parameters.isPartialUpdate()) {
       throw new DynamoDBMappingException(
-          "Use of AttributeEncryptor without SaveBehavior.PUT or SaveBehavior.CLOBBER is an error "
-              + "and can result in data-corruption. This occured while trying to save "
-              + parameters.getModelClass());
+        "Use of AttributeEncryptor without SaveBehavior.PUT or SaveBehavior.CLOBBER is an error " +
+        "and can result in data-corruption. This occured while trying to save " +
+        parameters.getModelClass()
+      );
     }
 
     try {
       return encryptor.encryptRecord(
-          attributeValues, metadata.getEncryptionFlags(), paramsToContext(parameters));
+        attributeValues,
+        metadata.getEncryptionFlags(),
+        paramsToContext(parameters)
+      );
     } catch (Exception ex) {
       throw new DynamoDBMappingException(ex);
     }
   }
 
   @Override
-  public Map<String, AttributeValue> untransform(final Parameters<?> parameters) {
-    final Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = getEncryptionFlags(parameters);
+  public Map<String, AttributeValue> untransform(
+    final Parameters<?> parameters
+  ) {
+    final Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt =
+      getEncryptionFlags(parameters);
 
     try {
       return encryptor.decryptRecord(
-          parameters.getAttributeValues(), attributeActionsOnEncrypt, paramsToContext(parameters));
+        parameters.getAttributeValues(),
+        attributeActionsOnEncrypt,
+        paramsToContext(parameters)
+      );
     } catch (Exception ex) {
       throw new DynamoDBMappingException(ex);
     }
@@ -112,7 +127,9 @@ public class AttributeEncryptor implements AttributeTransformer {
    * based on the presence of the @HandleUnknownAttributes annotation (unless the class
    * has @DoNotTouch, then we don't include them).
    */
-  private Map<String, Set<EncryptionFlags>> getEncryptionFlags(final Parameters<?> parameters) {
+  private Map<String, Set<EncryptionFlags>> getEncryptionFlags(
+    final Parameters<?> parameters
+  ) {
     final ModelClassMetadata metadata = getModelClassMetadata(parameters);
 
     // If the class is annotated with @DoNotTouch, then none of the attributes are
@@ -121,15 +138,20 @@ public class AttributeEncryptor implements AttributeTransformer {
       return metadata.getEncryptionFlags();
     }
 
-    final Set<EncryptionFlags> unknownAttributeBehavior = metadata.getUnknownAttributeBehavior();
-    final Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<>();
+    final Set<EncryptionFlags> unknownAttributeBehavior =
+      metadata.getUnknownAttributeBehavior();
+    final Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt =
+      new HashMap<>();
     attributeActionsOnEncrypt.putAll(metadata.getEncryptionFlags());
 
-    for (final String attributeName : parameters.getAttributeValues().keySet()) {
-      if (!attributeActionsOnEncrypt.containsKey(attributeName)
-          && !encryptor.getSignatureFieldName().equals(attributeName)
-          && !encryptor.getMaterialDescriptionFieldName().equals(attributeName)) {
-
+    for (final String attributeName : parameters
+      .getAttributeValues()
+      .keySet()) {
+      if (
+        !attributeActionsOnEncrypt.containsKey(attributeName) &&
+        !encryptor.getSignatureFieldName().equals(attributeName) &&
+        !encryptor.getMaterialDescriptionFieldName().equals(attributeName)
+      ) {
         attributeActionsOnEncrypt.put(attributeName, unknownAttributeBehavior);
       }
     }
@@ -137,7 +159,9 @@ public class AttributeEncryptor implements AttributeTransformer {
     return attributeActionsOnEncrypt;
   }
 
-  private <T> ModelClassMetadata getModelClassMetadata(Parameters<T> parameters) {
+  private <T> ModelClassMetadata getModelClassMetadata(
+    Parameters<T> parameters
+  ) {
     // Due to the lack of explicit synchronization, it is possible that
     // elements in the cache will be added multiple times. Since they will
     // all be identical, this is okay. Avoiding explicit synchronization
@@ -147,26 +171,35 @@ public class AttributeEncryptor implements AttributeTransformer {
     ModelClassMetadata metadata = metadataCache.get(clazz);
 
     if (metadata == null) {
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<>();
+      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt =
+        new HashMap<>();
 
       final boolean handleUnknownAttributes = handleUnknownAttributes(clazz);
-      final EnumSet<EncryptionFlags> unknownAttributeBehavior =
-          EnumSet.noneOf(EncryptionFlags.class);
+      final EnumSet<EncryptionFlags> unknownAttributeBehavior = EnumSet.noneOf(
+        EncryptionFlags.class
+      );
 
       if (shouldTouch(clazz)) {
-        Mappings mappings = DynamoDBMappingsRegistry.instance().mappingsOf(clazz);
+        Mappings mappings = DynamoDBMappingsRegistry
+          .instance()
+          .mappingsOf(clazz);
 
         for (Mapping mapping : mappings.getMappings()) {
-          final EnumSet<EncryptionFlags> flags = EnumSet.noneOf(EncryptionFlags.class);
+          final EnumSet<EncryptionFlags> flags = EnumSet.noneOf(
+            EncryptionFlags.class
+          );
           StandardAnnotationMaps.FieldMap<?> fieldMap =
-              StandardAnnotationMaps.of(mapping.getter(), null);
+            StandardAnnotationMaps.of(mapping.getter(), null);
           if (shouldTouch(fieldMap)) {
             if (shouldEncryptAttribute(clazz, mapping, fieldMap)) {
               flags.add(EncryptionFlags.ENCRYPT);
             }
             flags.add(EncryptionFlags.SIGN);
           }
-          attributeActionsOnEncrypt.put(mapping.getAttributeName(), Collections.unmodifiableSet(flags));
+          attributeActionsOnEncrypt.put(
+            mapping.getAttributeName(),
+            Collections.unmodifiableSet(flags)
+          );
         }
 
         if (handleUnknownAttributes) {
@@ -179,10 +212,11 @@ public class AttributeEncryptor implements AttributeTransformer {
       }
 
       metadata =
-          new ModelClassMetadata(
-              Collections.unmodifiableMap(attributeActionsOnEncrypt),
-              doNotTouch(clazz),
-              Collections.unmodifiableSet(unknownAttributeBehavior));
+        new ModelClassMetadata(
+          Collections.unmodifiableMap(attributeActionsOnEncrypt),
+          doNotTouch(clazz),
+          Collections.unmodifiableSet(unknownAttributeBehavior)
+        );
       metadataCache.put(clazz, metadata);
     }
     return metadata;
@@ -225,28 +259,33 @@ public class AttributeEncryptor implements AttributeTransformer {
 
   /** @return True if the attribute should be encrypted, false otherwise. */
   private boolean shouldEncryptAttribute(
-      final Class<?> clazz,
-      final Mapping mapping,
-      final StandardAnnotationMaps.FieldMap<?> fieldMap) {
-
-    return !(doNotEncrypt(clazz)
-        || doNotEncrypt(fieldMap)
-        || mapping.isPrimaryKey()
-        || mapping.isVersion());
+    final Class<?> clazz,
+    final Mapping mapping,
+    final StandardAnnotationMaps.FieldMap<?> fieldMap
+  ) {
+    return !(
+      doNotEncrypt(clazz) ||
+      doNotEncrypt(fieldMap) ||
+      mapping.isPrimaryKey() ||
+      mapping.isVersion()
+    );
   }
 
   private static EncryptionContext paramsToContext(Parameters<?> params) {
     final Class<?> clazz = params.getModelClass();
-    final TableAadOverride override = clazz.getAnnotation(TableAadOverride.class);
-    final String tableName = ((override == null) ? params.getTableName() : override.tableName());
+    final TableAadOverride override = clazz.getAnnotation(
+      TableAadOverride.class
+    );
+    final String tableName =
+      ((override == null) ? params.getTableName() : override.tableName());
 
     return new EncryptionContext.Builder()
-        .withHashKeyName(params.getHashKeyName())
-        .withRangeKeyName(params.getRangeKeyName())
-        .withTableName(tableName)
-        .withModeledClass(params.getModelClass())
-        .withAttributeValues(params.getAttributeValues())
-        .build();
+      .withHashKeyName(params.getHashKeyName())
+      .withRangeKeyName(params.getRangeKeyName())
+      .withTableName(tableName)
+      .withModeledClass(params.getModelClass())
+      .withAttributeValues(params.getAttributeValues())
+      .build();
   }
 
   private boolean handleUnknownAttributes(Class<?> clazz) {
@@ -254,14 +293,16 @@ public class AttributeEncryptor implements AttributeTransformer {
   }
 
   private static class ModelClassMetadata {
+
     private final Map<String, Set<EncryptionFlags>> encryptionFlags;
     private final boolean doNotTouch;
     private final Set<EncryptionFlags> unknownAttributeBehavior;
 
     public ModelClassMetadata(
-        Map<String, Set<EncryptionFlags>> encryptionFlags,
-        boolean doNotTouch,
-        Set<EncryptionFlags> unknownAttributeBehavior) {
+      Map<String, Set<EncryptionFlags>> encryptionFlags,
+      boolean doNotTouch,
+      Set<EncryptionFlags> unknownAttributeBehavior
+    ) {
       this.encryptionFlags = encryptionFlags;
       this.doNotTouch = doNotTouch;
       this.unknownAttributeBehavior = unknownAttributeBehavior;

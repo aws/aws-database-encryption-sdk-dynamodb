@@ -26,8 +26,9 @@ public class ByteBufferInputStreamTest {
 
   @Test
   public void testRead() throws IOException {
-    ByteBufferInputStream bis =
-        new ByteBufferInputStream(ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+    ByteBufferInputStream bis = new ByteBufferInputStream(
+      ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
+    );
     for (int x = 0; x < 10; ++x) {
       assertEquals(10 - x, bis.available());
       assertEquals(x, bis.read());
@@ -38,8 +39,9 @@ public class ByteBufferInputStreamTest {
 
   @Test
   public void testReadByteArray() throws IOException {
-    ByteBufferInputStream bis =
-        new ByteBufferInputStream(ByteBuffer.wrap(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+    ByteBufferInputStream bis = new ByteBufferInputStream(
+      ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
+    );
     assertEquals(10, bis.available());
 
     byte[] buff = new byte[4];
@@ -47,25 +49,27 @@ public class ByteBufferInputStreamTest {
     int len = bis.read(buff);
     assertEquals(4, len);
     assertEquals(6, bis.available());
-    assertArrayEquals(new byte[] {0, 1, 2, 3}, buff);
+    assertArrayEquals(new byte[] { 0, 1, 2, 3 }, buff);
 
     len = bis.read(buff);
     assertEquals(4, len);
     assertEquals(2, bis.available());
-    assertArrayEquals(new byte[] {4, 5, 6, 7}, buff);
+    assertArrayEquals(new byte[] { 4, 5, 6, 7 }, buff);
 
     len = bis.read(buff);
     assertEquals(2, len);
     assertEquals(0, bis.available());
-    assertArrayEquals(new byte[] {8, 9, 6, 7}, buff);
+    assertArrayEquals(new byte[] { 8, 9, 6, 7 }, buff);
     bis.close();
   }
 
   @Test
   public void testSkip() throws IOException {
-    ByteBufferInputStream bis =
-        new ByteBufferInputStream(
-            ByteBuffer.wrap(new byte[] {(byte) 0xFA, 15, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+    ByteBufferInputStream bis = new ByteBufferInputStream(
+      ByteBuffer.wrap(
+        new byte[] { (byte) 0xFA, 15, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+      )
+    );
     assertEquals(13, bis.available());
     assertEquals(0xFA, bis.read());
     assertEquals(12, bis.available());
@@ -81,7 +85,11 @@ public class ByteBufferInputStreamTest {
 
   @Test
   public void testMarkSupported() throws IOException {
-    try (ByteBufferInputStream bis = new ByteBufferInputStream(ByteBuffer.allocate(0))) {
+    try (
+      ByteBufferInputStream bis = new ByteBufferInputStream(
+        ByteBuffer.allocate(0)
+      )
+    ) {
       assertFalse(bis.markSupported());
     }
   }

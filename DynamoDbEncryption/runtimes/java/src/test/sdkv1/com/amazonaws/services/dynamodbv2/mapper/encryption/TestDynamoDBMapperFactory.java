@@ -18,18 +18,26 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 
 public class TestDynamoDBMapperFactory {
+
   public static DynamoDBMapper createDynamoDBMapper(AmazonDynamoDB dynamo) {
     return new DynamoDBMapper(
-        dynamo,
-        DynamoDBMapperConfig.builder()
-            .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.PUT)
-            .build(),
-        new AttributeEncryptor(new TestEncryptionMaterialsProvider()));
+      dynamo,
+      DynamoDBMapperConfig
+        .builder()
+        .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.PUT)
+        .build(),
+      new AttributeEncryptor(new TestEncryptionMaterialsProvider())
+    );
   }
 
   public static DynamoDBMapper createDynamoDBMapper(
-      AmazonDynamoDB dynamo, DynamoDBMapperConfig config) {
+    AmazonDynamoDB dynamo,
+    DynamoDBMapperConfig config
+  ) {
     return new DynamoDBMapper(
-        dynamo, config, new AttributeEncryptor(new TestEncryptionMaterialsProvider()));
+      dynamo,
+      config,
+      new AttributeEncryptor(new TestEncryptionMaterialsProvider())
+    );
   }
 }

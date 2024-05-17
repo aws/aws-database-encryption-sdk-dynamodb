@@ -20,6 +20,7 @@ public class ScenarioManifest {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Scenario {
+
     @JsonProperty("ciphertext")
     public String ciphertextPath;
 
@@ -37,6 +38,7 @@ public class ScenarioManifest {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Metastore {
+
     @JsonProperty("ciphertext")
     public String path;
 
@@ -51,6 +53,7 @@ public class ScenarioManifest {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Keys {
+
     @JsonProperty("encrypt")
     public String encryptName;
 
@@ -65,6 +68,7 @@ public class ScenarioManifest {
   }
 
   public static class KeyData {
+
     public String material;
     public String algorithm;
     public String encoding;
