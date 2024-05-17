@@ -1,12 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy"
-include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/CMMs/RequiredEncryptionContextCMM.dfy"
+
 include "../../DynamoDbEncryption/src/DynamoToStruct.dfy"
-include "../../DynamoDbEncryption/src/SearchInfo.dfy"
 include "Util.dfy"
 include "InternalLegacyOverride.dfy"
-include "../../DynamoDbEncryption/src/Util.dfy"
 include "../../StructuredEncryption/src/Util.dfy"
 
 module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations {
@@ -26,7 +23,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import RequiredEncryptionContextCMM
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
-  import DynamoDbEncryptionUtil
   import StandardLibrary.String
   import StructuredEncryptionHeader
 

@@ -8,13 +8,12 @@ include "Footer.dfy"
 include "Paths.dfy"
 include "Crypt.dfy"
 include "Util.dfy"
-include "SortCanon.dfy"
+include "Canonize.dfy"
 
 module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations {
   import opened StructuredEncryptionUtil
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
-  import SortCanon
   import Base64
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
@@ -34,6 +33,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   import HKDF
   import AlgorithmSuites
   import Maps
+  import opened Canonize
 
   datatype Config = Config(
     primitives : Primitives.AtomicPrimitivesClient,
@@ -75,14 +75,16 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   predicate DecryptPathStructureEnsuresPublicly(
     input: DecryptPathStructureInput,
-    output: Result<DecryptPathStructureOutput, Error>) {
-    true
+    output: Result<DecryptPathStructureOutput, Error>)
+  {
+    output.Success? ==>  DecryptPathFinal(input.encryptedStructure, output.value.plaintextStructure)
   }
 
   predicate EncryptPathStructureEnsuresPublicly(
     input: EncryptPathStructureInput,
-    output: Result<EncryptPathStructureOutput, Error>) {
-    true
+    output: Result<EncryptPathStructureOutput, Error>)
+  {
+    output.Success? ==> EncryptPathFinal(input.plaintextStructure, output.value.encryptedStructure)
   }
 
   predicate ResolveAuthActionsEnsuresPublicly(
@@ -94,30 +96,16 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   method ResolveAuthActions (config: InternalConfig, input: ResolveAuthActionsInput)
     returns (output: Result<ResolveAuthActionsOutput, Error>)
   {
+    :- Need(AuthListHasNoDuplicatesFromSet(input.authActions), E("Duplicate Paths"));
+    SetSizeImpliesAuthListHasNoDuplicates(input.authActions);
+    assert AuthListHasNoDuplicates(input.authActions);
     var head :- Header.PartialDeserialize(input.headerBytes);
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(input.tableName, input.authActions, head.legend);
+    :- Need(exists x :: x in input.authActions && x.key == HeaderPath, E("Header Required"));
+    :- Need(exists x :: x in input.authActions && x.key == FooterPath, E("Footer Required"));
+    var canonData :- ForDecrypt(input.tableName, input.authActions, head.legend);
+    reveal CanonCryptoMatchesAuthList();
     return Success(ResolveAuthActionsOutput(cryptoActions := UnCanon(canonData)));
-  }
-
-  predicate method SameUnCanon(x : CanonCryptoItem, y : CryptoItem)
-  {
-    && x.origKey == y.key
-    && x.data == y.data
-    && x.action == y.action
-  }
-
-  function method UnCanon(input : CanonCryptoList) : (ret : CryptoList)
-    ensures
-      && |ret| == |input|
-      && forall i | 0 <= i < |input| :: SameUnCanon(input[i], ret[i])
-  {
-    if |input| == 0 then
-      []
-    else
-      var newItem := CryptoItem(key := input[0].origKey, data := input[0].data, action := input[0].action);
-      assert SameUnCanon(input[0], newItem);
-      [newItem] + UnCanon(input[1..])
   }
 
   const DBE_COMMITMENT_POLICY := CMP.CommitmentPolicy.DBE(CMP.DBECommitmentPolicy.REQUIRE_ENCRYPT_REQUIRE_DECRYPT)
@@ -250,148 +238,12 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return Success(mat);
   }
 
-  function method {:opaque} MakeCanon(tableName : GoodString, data : CryptoItem) : (result : CanonCryptoItem)
-    requires Paths.ValidPath(data.key)
-    ensures result.key == Paths.CanonPath(tableName, data.key)
-    ensures result.origKey == data.key
-    ensures result.data == data.data
-    ensures result.action == data.action
+  method GetV2EncryptionContextCanon(schema : CanonCryptoList)
+    returns (output : Result<CMP.EncryptionContext, Error>)
   {
-    CanonCryptoItem(Paths.CanonPath(tableName, data.key), data.key, data.data, data.action)
-  }
-
-  function method {:opaque} MakeCanonAuth(tableName : GoodString, data : AuthItem) : (result : CanonAuthItem)
-    requires Paths.ValidPath(data.key)
-    ensures result.key == Paths.CanonPath(tableName, data.key)
-    ensures result.origKey == data.key
-    ensures result.data == data.data
-    ensures result.action == data.action
-  {
-    CanonAuthItem(Paths.CanonPath(tableName, data.key), data.key, data.data, data.action)
-  }
-
-  // construct the EncryptCanon
-  function method {:opaque} {:vcs_split_on_every_assert} CanonizeForEncrypt(tableName : GoodString, data : CryptoList)
-    : (ret : Result<CanonCryptoList, Error>)
-    ensures ret.Success? ==>
-              && (forall k <- data :: Paths.ValidPath(k.key))
-              && (forall k <- data :: (exists x :: x in ret.value && x.origKey == k.key && k.data == x.data))
-              && |data| == |ret.value|
-              && (forall k <- ret.value :: Paths.ValidPath(k.origKey))
-              && (forall k <- ret.value :: k.key == Paths.CanonPath(tableName, k.origKey))
-  {
-    :- Need(forall k <- data :: Paths.ValidPath(k.key), E("Invalid Paths"));
-    var canonList : CanonCryptoList := Seq.Map((s : CryptoItem) requires Paths.ValidPath(s.key) => MakeCanon(tableName, s), data);
-
-    assert |canonList| == |data|;
-    assert forall i | 0 <= i < |data| :: canonList[i] == MakeCanon(tableName, data[i]);
-    assert forall k <- data :: (exists x :: x in canonList && k.key == x.origKey && k.data == x.data);
-    assert forall k <- canonList :: Paths.ValidPath(k.origKey);
-    assert forall k <- canonList :: k.key == Paths.CanonPath(tableName, k.origKey);
-
-    var canonSorted := SortCanon.CryptoSort(canonList);
-
-    assert |canonSorted| == |data|;
-    assert forall k <- canonList :: k in multiset(canonList);
-    assert forall k <- canonList :: k in canonSorted;
-    assert forall k <- canonSorted :: k in multiset(canonSorted);
-    assert forall k <- canonSorted :: k in canonList;
-    assert forall k <- data :: (exists x :: x in canonSorted && k.key == x.origKey);
-    assert forall k <- canonSorted :: Paths.ValidPath(k.origKey);
-    assert forall k <- canonSorted :: k.key == Paths.CanonPath(tableName, k.origKey);
-
-    Success(canonSorted)
-  }
-
-  function method LegendToAction(v : Header.LegendByte) : CryptoAction
-  {
-    if v == Header.ENCRYPT_AND_SIGN_LEGEND then
-      ENCRYPT_AND_SIGN
-    else if v == Header.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND then
-      SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
-    else
-      SIGN_ONLY
-  }
-
-  predicate method Same(x : CanonAuthItem, y : CanonCryptoItem)
-  {
-    && x.key == y.key
-    && x.origKey == y.origKey
-    && x.data == y.data
-  }
-
-  function method MakeCryptoItem(x : CanonAuthItem, action : CryptoAction) : (ret : CanonCryptoItem)
-    ensures Same(x, ret)
-  {
-    CanonCryptoItem(x.key, x.origKey, x.data, action)
-  }
-
-  function method {:tailrecursion} {:opaque} ResolveLegend(
-    fields : CanonAuthList,
-    legend : Header.Legend,
-    ghost origFields : CanonAuthList,
-    acc : CanonCryptoList
-  )
-    : (ret : Result<CanonCryptoList, Error>)
-    requires |fields| + |acc| == |origFields|
-    requires forall i | 0 <= i < |acc| :: Same(origFields[i], acc[i])
-    requires forall i | |acc| <= i < |origFields| :: origFields[i] == fields[i-|acc|]
-    ensures ret.Success? ==>
-              && |origFields| == |ret.value|
-              && forall i | 0 <= i < |origFields| :: Same(origFields[i], ret.value[i])
-  {
-    if |fields| == 0 then
-      :- Need(|legend| == 0, E("Schema changed : something that was signed is now unsigned."));
-      Success(acc)
-    else if fields[0].action == DO_NOT_SIGN then
-      ResolveLegend(fields[1..], legend, origFields, acc + [MakeCryptoItem(fields[0], DO_NOTHING)])
-    else
-      :- Need(0 < |legend|, E("Schema changed : something that was unsigned is now signed."));
-      ResolveLegend(fields[1..], legend[1..], origFields, acc + [MakeCryptoItem(fields[0], LegendToAction(legend[0]))])
-  }
-
-  // construct the DecryptCanon
-  function method {:opaque}  {:vcs_split_on_every_assert}  CanonizeForDecrypt(tableName : GoodString, data : AuthList, legend: Header.Legend)
-    : (ret : Result<CanonCryptoList, Error>)
-    ensures ret.Success? ==>
-              && (forall k <- data :: Paths.ValidPath(k.key))
-              && (forall k <- data :: (exists x :: x in ret.value && k.key == x.origKey && k.data == x.data))
-              && |data| == |ret.value|
-              && (forall k <- ret.value :: Paths.ValidPath(k.origKey))
-              && (forall k <- ret.value :: k.key == Paths.CanonPath(tableName, k.origKey))
-  {
-    :- Need(forall k <- data :: Paths.ValidPath(k.key), E("Invalid Paths"));
-    var canonList : CanonAuthList := Seq.Map((s : AuthItem) requires Paths.ValidPath(s.key) => MakeCanonAuth(tableName, s), data);
-
-    assert |canonList| == |data|;
-    assert forall i | 0 <= i < |data| :: canonList[i] == MakeCanonAuth(tableName, data[i]);
-    assert forall k <- data :: (exists x :: x in canonList && k.key == x.origKey && k.data == x.data);
-    assert forall k <- canonList :: Paths.ValidPath(k.origKey);
-    assert forall k <- canonList :: k.key == Paths.CanonPath(tableName, k.origKey);
-
-    var canonSorted := SortCanon.AuthSort(canonList);
-
-    assert |canonSorted| == |data|;
-    assert forall k <- canonList :: k in multiset(canonList);
-    assert forall k <- canonList :: k in canonSorted;
-    assert forall k <- canonSorted :: k in multiset(canonSorted);
-    assert forall k <- canonSorted :: k in canonList;
-    assert forall k <- data :: (exists x :: x in canonSorted && k.key == x.origKey && k.data == x.data);
-    assert forall k <- canonSorted :: Paths.ValidPath(k.origKey);
-    assert forall k <- canonSorted :: k.key == Paths.CanonPath(tableName, k.origKey);
-
-    var acc : CanonCryptoList := [];
-    assert |canonSorted| + |acc| == |canonSorted|;
-    assert forall i | 0 <= i < |acc| :: Same(canonSorted[i], acc[i]);
-    assert forall i | |acc| <= i < |canonSorted| :: canonSorted[i] == canonSorted[i-|acc|];
-    var canonResolved :- ResolveLegend(canonSorted, legend, canonSorted, acc);
-
-    assert |canonResolved| == |data|;
-    assert forall k <- data :: (exists x :: x in canonResolved && k.key == x.origKey && k.data == x.data);
-    assert forall k <- canonResolved :: Paths.ValidPath(k.origKey);
-    assert forall k <- canonResolved :: k.key == Paths.CanonPath(tableName, k.origKey);
-
-    Success(canonResolved)
+    var canonAttrs : CanonCryptoList := Seq.Filter((s : CanonCryptoItem) => s.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, schema);
+    var contextAttrs : CryptoList := Seq.Map((s : CanonCryptoItem) => CryptoItem(key := s.origKey, data := s.data, action := s.action), canonAttrs);
+    output := GetV2EncryptionContext2(contextAttrs);
   }
 
   method GetV2EncryptionContext(schema : CryptoList)
@@ -532,29 +384,42 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     cryptoSchema: CryptoSchemaMap,
+    ghost origKeys : seq<string> := keys,
     acc : CryptoList := []
   )
     : (ret : Result<CryptoList, Error>)
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in cryptoSchema
     requires forall k <- acc :: |k.key| == 1
+    requires CryptoListHasNoDuplicates(acc)
+    requires |acc| + |keys| == |origKeys|
+    requires keys == origKeys[|acc|..]
+    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(origKeys[i])
+    requires Seq.HasNoDuplicates(keys)
+    requires Seq.HasNoDuplicates(origKeys)
+
     ensures ret.Success? ==>
-              forall k <- ret.value :: |k.key| == 1
+              && (forall k <- ret.value :: |k.key| == 1)
+              && CryptoListHasNoDuplicates(ret.value)
   {
+    reveal Seq.HasNoDuplicates();
+    Paths.StringToUniPathUnique();
     if |keys| == 0 then
       Success(acc)
     else
       var key := keys[0];
       var path := Paths.StringToUniPath(key);
       var item := CryptoItem(key := path, data := plaintextStructure[key], action := cryptoSchema[key]);
-      BuildCryptoMap2(keys[1..], plaintextStructure, cryptoSchema, acc + [item])
+      var newAcc := acc + [item];
+      BuildCryptoMap2(keys[1..], plaintextStructure, cryptoSchema, origKeys, newAcc)
   }
 
   function method BuildCryptoMap(plaintextStructure: StructuredDataMap, cryptoSchema: CryptoSchemaMap) :
     (ret : Result<CryptoList, Error>)
     requires plaintextStructure.Keys == cryptoSchema.Keys
     ensures ret.Success? ==>
-              forall k <- ret.value :: |k.key| == 1
+              && (forall k <- ret.value :: |k.key| == 1)
+              && CryptoListHasNoDuplicates(ret.value)
   {
     var keys := SortedSets.ComputeSetToOrderedSequence2(plaintextStructure.Keys, CharLess);
     BuildCryptoMap2(keys, plaintextStructure, cryptoSchema)
@@ -564,29 +429,41 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     authSchema: AuthenticateSchemaMap,
+    ghost origKeys : seq<string> := keys,
     acc : AuthList := []
   )
     : (ret : Result<AuthList, Error>)
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in authSchema
     requires forall k <- acc :: |k.key| == 1
+    requires AuthListHasNoDuplicates(acc)
+    requires |acc| + |keys| == |origKeys|
+    requires keys == origKeys[|acc|..]
+    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(origKeys[i])
+    requires Seq.HasNoDuplicates(keys)
+    requires Seq.HasNoDuplicates(origKeys)
+
     ensures ret.Success? ==>
-              forall k <- ret.value :: |k.key| == 1
+              && (forall k <- ret.value :: |k.key| == 1)
+              && AuthListHasNoDuplicates(ret.value)
   {
+    reveal Seq.HasNoDuplicates();
     if |keys| == 0 then
       Success(acc)
     else
       var key := keys[0];
       var path := Paths.StringToUniPath(key);
       var item := AuthItem(key := path, data := plaintextStructure[key], action := authSchema[key]);
-      BuildAuthMap2(keys[1..], plaintextStructure, authSchema, acc + [item])
+      var newAcc := acc + [item];
+      BuildAuthMap2(keys[1..], plaintextStructure, authSchema, origKeys, newAcc)
   }
 
   function method BuildAuthMap(plaintextStructure: StructuredDataMap, authSchema: AuthenticateSchemaMap)
     : (ret : Result<AuthList, Error>)
     requires plaintextStructure.Keys == authSchema.Keys
     ensures ret.Success? ==>
-              forall k <- ret.value :: |k.key| == 1
+              && (forall k <- ret.value :: |k.key| == 1)
+              && AuthListHasNoDuplicates(ret.value)
   {
     var keys := SortedSets.ComputeSetToOrderedSequence2(plaintextStructure.Keys, CharLess);
     BuildAuthMap2(keys, plaintextStructure, authSchema)
@@ -612,13 +489,31 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar)
   }
 
+  lemma EncryptStructureOutputHasSinglePaths(origData : CryptoList, finalData : CryptoList)
+    requires EncryptPathFinal(origData, finalData)
+    requires forall k <- origData :: |k.key| == 1
+    ensures forall k <- finalData :: |k.key| == 1
+  {
+    reveal EncryptPathFinal();
+    reveal CryptoUpdatedCryptoListHeader();
+    reveal NewCryptoUpdatedCrypto();
+  }
+
+  lemma DecryptStructureOutputHasSinglePaths(origData : AuthList, finalData : CryptoList)
+    requires DecryptPathFinal(origData, finalData)
+    requires forall k <- origData :: |k.key| == 1
+    ensures forall k <- finalData :: |k.key| == 1
+  {
+    reveal DecryptPathFinal();
+    reveal AuthUpdatedCrypto();
+    reveal CryptoUpdatedAuth();
+  }
 
   method {:vcs_split_on_every_assert} EncryptStructure(config: InternalConfig, input: EncryptStructureInput)
     returns (output: Result<EncryptStructureOutput, Error>)
     ensures output.Success? ==>
               && var headerSchema := output.value.cryptoSchema;
               && var inputSchema := input.cryptoSchema;
-              // && (forall k :: k in headerSchema ==> k in inputSchema && inputSchema[k] == headerSchema[k])
               && (forall v :: v in headerSchema.Values ==> IsAuthAttr(v))
   {
     //= specification/structured-encryption/encrypt-structure.md#behavior
@@ -646,8 +541,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# Encrypt Structure MUST then behave as [Encrypt Path Structure](encrypt-path-structure.md)
     var pathOutput :- EncryptPathStructure(config, pathInput);
 
+    assert forall k <- pathOutput.encryptedStructure :: |k.key| == 1 by {
+      EncryptStructureOutputHasSinglePaths(cryptoMap, pathOutput.encryptedStructure);
+    }
+
     // This should be provable, but I'm not smart enough
-    assert forall k <- pathInput.plaintextStructure :: |k.key| == 1;
     :- Need(forall k <- pathOutput.encryptedStructure :: |k.key| == 1, E("Internal Error"));
 
     //= specification/structured-encryption/encrypt-structure.md#behavior
@@ -664,12 +562,87 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return Success(plainOutput);
   }
 
-  const HeaderPaths : seq<Path> := [HeaderPath, FooterPath]
+  //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+  //= type=implication
+  //# - for every entry in the input [Crypto List](#crypto-list)
+  //# an entry MUST exist with the same [path](./structures.md#path) in the final Encrypted Structured Data.
+  // && (forall k <- input.plaintextStructure :: (exists x :: x in output.value.encryptedStructure && x.key == k.key))
+  lemma AllEncryptPathInputInOutput(origData : CryptoList, finalData : CryptoList)
+    requires EncryptPathFinal(origData, finalData)
+    ensures forall k <- origData :: (exists x :: x in finalData && x.key == k.key)
+  {
+    reveal EncryptPathFinal();
+    reveal CryptoUpdatedCryptoListHeader();
+    reveal CryptoUpdatedNewCrypto();
+  }
+
+  //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+  //= type=implication
+  //# If the [Crypto Schema](#crypto-list)
+  //# indicates a [Crypto Action](./structures.md#crypto-action)
+  //# of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign),
+  //# the Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+  //# equal to 0xffff and the value MUST be
+  //# the [encryption](#terminal-data-encryption)
+  //# of the input's Terminal Data.
+
+  //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+  //= type=implication
+  //# Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+  //# and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
+
+  lemma AllEncryptPathInputUpdatedInOutput(origData : CryptoList, finalData : CryptoList)
+    requires EncryptPathFinal(origData, finalData)
+    ensures forall k <- origData :: (exists x :: x in finalData && Updated4(k, x, DoEncrypt))
+  {
+    reveal EncryptPathFinal();
+    reveal CryptoUpdatedCryptoListHeader();
+    reveal CryptoUpdatedNewCrypto();
+  }
+
+  //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+  //= type=implication
+  //# - For every entry in the final Encrypted Structured Data, other than the header and footer,
+  //# an entry MUST exist with the same [path](./structures.md#path) in the input [Crypto List](#crypto-list).
+  lemma AllEncryptPathOutputInInput(origData : CryptoList, finalData : CryptoList)
+    requires EncryptPathFinal(origData, finalData)
+    ensures |finalData| == |origData| + 2
+    ensures forall k <- finalData[..(|finalData|-2)] :: (exists x :: x in origData && x.key == k.key)
+  {
+    reveal EncryptPathFinal();
+    reveal CryptoUpdatedCryptoListHeader();
+    reveal NewCryptoUpdatedCrypto();
+  }
+
+
+  //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+  //= type=implication
+  //# - The [Header Field](#header-field) MUST exist in the final Encrypted Structured Data
+  lemma EncryptPathOutputHasHeader(origData : CryptoList, finalData : CryptoList)
+    requires EncryptPathFinal(origData, finalData)
+    ensures |finalData| == |origData| + 2
+    ensures finalData[|finalData|-2].key == HeaderPath
+  {
+    reveal EncryptPathFinal();
+  }
+
+  //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+  //= type=implication
+  //# - The [Footer Field](#footer-field) MUST exist in the final Encrypted Structured Data
+  lemma EncryptPathOutputHasFooter(origData : CryptoList, finalData : CryptoList)
+    requires EncryptPathFinal(origData, finalData)
+    ensures |finalData| == |origData| + 2
+    ensures finalData[|finalData|-1].key == FooterPath
+  {
+    reveal EncryptPathFinal();
+  }
 
   method {:vcs_split_on_every_assert} EncryptPathStructure(config: InternalConfig, input: EncryptPathStructureInput)
     returns (output: Result<EncryptPathStructureOutput, Error>)
     ensures
       output.Success? ==>
+        && EncryptPathFinal(input.plaintextStructure, output.value.encryptedStructure)
+
         //= specification/structured-encryption/encrypt-path-structure.md#crypto-list
         //= type=implication
         //# The Crypto List MUST include at least one [Crypto Action](./structures.md#crypto-action)
@@ -682,56 +655,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         //# or the [footer index](./footer.md#footer-index).
         && (!exists x | x in input.plaintextStructure :: x.key in HeaderPaths)
 
-        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
-        //= type=implication
-        //# - for every entry in the input [Crypto List](#crypto-list)
-        //# an entry MUST exist with the same [path](./structures.md#path) in the final Encrypted Structured Data.
-        && (forall k <- input.plaintextStructure :: (exists x :: x in output.value.encryptedStructure && x.key == k.key))
-
-        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
-        //= type=implication
-        //# Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
-        //# and [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data's.
-        && (forall k <- input.plaintextStructure ::
-              (exists x ::
-                 && x in output.value.encryptedStructure
-                 && x.key == k.key
-                 && (
-                      || k.action == ENCRYPT_AND_SIGN
-                      || x.data == k.data
-                    )))
-
         //= specification/structured-encryption/encrypt-path-structure.md#crypto-list
         //= type=implication
         //# The [paths](./structures.md#path) in the input [Crypto List](./structures.md#crypto-list) MUST be unique.
-        && var pathSet := set x | x in input.plaintextStructure :: x.key;
-        && |pathSet| == |input.plaintextStructure|
+        && CryptoListHasNoDuplicatesFromSet(input.plaintextStructure)
 
-        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
+        //= specification/structured-encryption/encrypt-path-structure.md#encryption-context
         //= type=implication
-        //# - There MUST be no other entries in the final Encrypted Structured Data.
-        && |output.value.encryptedStructure| == 2 + |input.plaintextStructure|
-
-        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
-        //= type=implication
-        //# - The [Header Field](#header-field) MUST exist in the final Encrypted Structured Data
-        && output.value.encryptedStructure[|output.value.encryptedStructure|-2].key == HeaderPath
-
-        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
-        //= type=implication
-        //# - The [Footer Field](#footer-field) MUST exist in the final Encrypted Structured Data
-        && output.value.encryptedStructure[|output.value.encryptedStructure|-1].key == FooterPath
-
-        //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
-        //= type=implication
-        //# If the [Crypto Schema](#crypto-list)
-        //# indicates a [Crypto Action](./structures.md#crypto-action)
-        //# of [ENCRYPT_AND_SIGN](./structures.md#encryptandsign),
-        //# the Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
-        //# equal to 0xffff and the value MUST be
-        //# the [encryption](#terminal-data-encryption)
-        //# of the input's Terminal Data.
-        && (forall x | 0 <= x < |output.value.encryptedStructure| :: (output.value.encryptedStructure[x].action == ENCRYPT_AND_SIGN ==> output.value.encryptedStructure[x].data.typeId == BYTES_TYPE_ID))
+        //# The operation MUST fail if an encryption context is provided which contains a key with the prefix `aws-crypto-`.
+        && (
+             || input.encryptionContext.None?
+             || !exists k <- input.encryptionContext.value :: ReservedCryptoContextPrefixUTF8 <= input.encryptionContext.value[k])
   {
     :- Need(
       || input.encryptionContext.None?
@@ -744,12 +678,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(!exists x | x in input.plaintextStructure :: x.key in HeaderPaths,
             E("The paths " + HeaderField + " and " + FooterField + " are reserved."));
 
-    var pathSet := set x | x in input.plaintextStructure :: x.key;
-    :- Need(|pathSet| == |input.plaintextStructure|, E("Duplicate Paths"));
-
+    :- Need(CryptoListHasNoDuplicatesFromSet(input.plaintextStructure), E("Duplicate Paths"));
+    SetSizeImpliesCryptoListHasNoDuplicates(input.plaintextStructure);
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var plaintextStructure : CryptoList := input.plaintextStructure;
-    var canonData :- CanonizeForEncrypt(input.tableName, plaintextStructure);
+
+    var canonData :- ForEncrypt(input.tableName, input.plaintextStructure);
 
     //= specification/structured-encryption/encrypt-path-structure.md#calculate-intermediate-encrypted-structured-data
     //= type=implication
@@ -757,12 +690,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# in the input [Crypto List](#crypto-list)
     //# there MUST be an entry with the same [canonical path](./header.md#canonical-path)
     //# in Intermediate Encrypted Structured Data.
-    assert forall k <- input.plaintextStructure :: (exists x :: x in canonData && x.origKey == k.key && x.data == k.data);
+    assert forall k <- input.plaintextStructure :: (exists x :: x in canonData && x.origKey == k.key && x.data == k.data) by {
+      reveal CanonCryptoMatchesCryptoList();
+      reveal CryptoExistsInCanonCrypto();
+    }
 
     //= specification/structured-encryption/encrypt-path-structure.md#calculate-intermediate-encrypted-structured-data
     //= type=implication
     //# There MUST be no other entries in the Intermediate Encrypted Structured Data.
-    assert |input.plaintextStructure| == |canonData|;
+    assert |input.plaintextStructure| == |canonData| by {
+      reveal CanonCryptoMatchesCryptoList();
+    }
 
     //= specification/structured-encryption/encrypt-path-structure.md#retrieve-encryption-materials
     //# This operation MUST [calculate the appropriate CMM and encryption context](#create-new-encryption-context-and-cmm).
@@ -773,9 +711,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# If no [Crypto Action](./structures.md#crypto-action) is configured to be
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
     //# then the input cmm and encryption context MUST be used unchanged.
-    if exists x <- plaintextStructure :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
+    if exists x <- input.plaintextStructure :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
       assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
-      var newEncryptionContext :- GetV2EncryptionContext(plaintextStructure);
+      var newEncryptionContext :- GetV2EncryptionContext(input.plaintextStructure);
       if |newEncryptionContext| != 0 {
         //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# An error MUST be returned if any of the entries added to the encryption context in this step
@@ -842,77 +780,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     :- Need(|canonData| < (UINT32_LIMIT / 3), E("Too many encrypted fields"));
     // input canonData has all input fields, none encrypted
     // output canonData has all input fields, some encrypted
-    assert forall k <- input.plaintextStructure :: (exists x :: x in canonData && x.origKey == k.key);
-    var encryptedItems : CanonCryptoList :- Crypt.Encrypt(config.primitives, alg, key, head, canonData);
-    assert forall k <- input.plaintextStructure :: (exists x :: x in encryptedItems && x.origKey == k.key);
+    var encryptedItems : CanonCryptoList :- Crypt.Encrypt(config.primitives, alg, key, head, canonData, input.tableName, input.plaintextStructure);
 
-    // this assert can be an implication, because it is explicitly ensuring an intermediate state.
-    assert forall i | 0 <= i < |canonData| :: canonData[i].key == encryptedItems[i].key;
-
-    // this assert can be an implication, because it is explicitly ensuring an intermediate state.
-    assert forall i | 0 <= i < |encryptedItems| :: encryptedItems[i].key == canonData[i].key;
-
-    assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN ==> encryptedItems[x].data.typeId == BYTES_TYPE_ID);
-    assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN || encryptedItems[x].data == canonData[x].data);
-
-    // verifies, but it takes too long
-    assume {:axiom} forall k <- input.plaintextStructure ::
-        (exists x ::
-           && x in encryptedItems
-           && x.origKey == k.key
-           && Crypt.Updated5(k, x, Crypt.DoEncrypt)
-        );
+    var smallResult : CryptoList := UnCanonEncrypt(encryptedItems, input.tableName, input.plaintextStructure);
 
     var footer :- Footer.CreateFooter(config.primitives, mat, encryptedItems, headerSerialized);
     var footerAttribute := footer.makeTerminal();
 
-    assert forall k <- input.plaintextStructure :: (exists x :: x in encryptedItems && x.origKey == k.key);
-    var smallResult : CryptoList := UnCanon(encryptedItems);
-    assert forall k <- input.plaintextStructure :: (exists x :: x in smallResult && x.key == k.key);
-    assert forall x | 0 <= x < |smallResult| :: (smallResult[x].action == ENCRYPT_AND_SIGN ==> smallResult[x].data.typeId == BYTES_TYPE_ID) by {
-      assert |smallResult| == |encryptedItems|;
-      assert forall x | 0 <= x < |smallResult| :: SameUnCanon(encryptedItems[x], smallResult[x]);
-      assert forall x | 0 <= x < |smallResult| :: (smallResult[x].action == encryptedItems[x].action && smallResult[x].data == encryptedItems[x].data);
-      assert forall x | 0 <= x < |encryptedItems| :: (encryptedItems[x].action == ENCRYPT_AND_SIGN || encryptedItems[x].data == canonData[x].data);
-    }
-    // verifies, but it takes too long
-    assume {:axiom} forall k <- input.plaintextStructure ::
-        (exists x ::
-           && x in smallResult
-           && x.key == k.key
-           && Crypt.Updated4(k, x, Crypt.DoEncrypt)
-        );
-
-    var headItem := CryptoItem(key := HeaderPath, data := headerAttribute, action := DO_NOTHING);
-    var footItem := CryptoItem(key := FooterPath, data := footerAttribute, action := DO_NOTHING);
-    var largeResult := smallResult + [headItem, footItem];
-    assert |largeResult| == |smallResult| + 2;
-    assert largeResult[|largeResult|-2] == headItem;
-    assert largeResult[|largeResult|-2].key == HeaderPath;
-    assert largeResult[|largeResult|-1] == footItem;
-    assert largeResult[|largeResult|-1].key == FooterPath;
-    assert forall k <- input.plaintextStructure :: (exists x :: x in largeResult && x.key == k.key);
-    assert forall x | 0 <= x < |largeResult| :: (largeResult[x].action == ENCRYPT_AND_SIGN ==> largeResult[x].data.typeId == BYTES_TYPE_ID) by {
-      assert forall x | 0 <= x < |smallResult| :: (smallResult[x].action == ENCRYPT_AND_SIGN ==> smallResult[x].data.typeId == BYTES_TYPE_ID);
-      assert forall x | 0 <= x < |smallResult| :: smallResult[x] == largeResult[x];
-      assert forall x | 0 <= x < |smallResult| :: (largeResult[x].action == ENCRYPT_AND_SIGN ==> largeResult[x].data.typeId == BYTES_TYPE_ID);
-      assert largeResult[|smallResult|] == headItem;
-      assert largeResult[|smallResult|].key == HeaderPath;
-      assert largeResult[|smallResult|+1] == footItem;
-      assert largeResult[|smallResult|+1].key == FooterPath;
-      assert largeResult[|smallResult|].action == DO_NOTHING;
-      assert largeResult[|smallResult|+1].action == DO_NOTHING;
-      assert |largeResult| == |smallResult| + 2;
-      // verifies, but it takes too long
-      assume {:axiom} forall x | |smallResult| <= x < |largeResult| :: largeResult[x].action == DO_NOTHING;
-    }
-
-    assert forall k <- input.plaintextStructure ::
-        (exists x ::
-           && x in largeResult
-           && x.key == k.key
-           && Crypt.Updated4(k, x, Crypt.DoEncrypt)
-        );
+    var largeResult := AddHeaders(smallResult, headerAttribute, footerAttribute, input.plaintextStructure);
 
     var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
     var parsedHeader := ParsedHeader (
@@ -926,8 +801,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       encryptedStructure := largeResult,
       parsedHeader := parsedHeader
     );
-    assert encryptOutput.encryptedStructure[|encryptOutput.encryptedStructure|-1].key == FooterPath;
-
+    assert EncryptPathFinal(input.plaintextStructure, encryptOutput.encryptedStructure);
     return Success(encryptOutput);
   }
 
@@ -969,6 +843,41 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       Fail(E("Encryption Context Mismatch\n" + str))
   }
 
+  method NewCmm(config: InternalConfig, cmm : CMP.ICryptographicMaterialsManager, context : CMP.EncryptionContext)
+    returns (ret : Result<CMP.ICryptographicMaterialsManager, Error>)
+    requires |context| != 0
+    requires ValidInternalConfig?(config)
+    requires cmm.ValidState()
+    requires cmm.Modifies !! {config.materialProviders.History}
+
+    modifies ModifiesInternalConfig(config)
+    modifies   cmm.Modifies
+
+    ensures ValidInternalConfig?(config)
+    ensures cmm.ValidState()
+    ensures ret.Success? ==>
+              && ret.value.ValidState()
+              && fresh(ret.value)
+  {
+
+    var contextKeysX := SortedSets.ComputeSetToOrderedSequence2(context.Keys, ByteLess);
+    assert forall k <- contextKeysX :: ValidUTF8Seq(k) by {
+      assert forall k <- context.Keys :: ValidUTF8Seq(k);
+      assert forall k <- contextKeysX :: k in context.Keys;
+    }
+    var contextKeys :  seq<UTF8.ValidUTF8Bytes> := contextKeysX;
+
+    var cmmR := config.materialProviders.CreateRequiredEncryptionContextCMM(
+      CMP.CreateRequiredEncryptionContextCMMInput(
+        underlyingCMM := Some(cmm),
+        keyring := None,
+        requiredEncryptionContextKeys := contextKeys
+      )
+    );
+    var newCmm :- cmmR.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    return Success(newCmm);
+  }
+
   method {:vcs_split_on_every_assert} DecryptStructure (config: InternalConfig, input: DecryptStructureInput)
     returns (output: Result<DecryptStructureOutput, Error>)
   {
@@ -996,9 +905,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# Decrypt Structure MUST then behave as [Decrypt Path Structure](decrypt-path-structure.md)
     var pathOutput :- DecryptPathStructure(config, pathInput);
 
-    // This should be provable, but I'm not smart enough
-    assert forall k <- pathInput.encryptedStructure :: |k.key| == 1;
-    :- Need(forall k <- pathOutput.plaintextStructure :: |k.key| == 1, E("Internal Error"));
+    assert forall k <- pathOutput.plaintextStructure :: |k.key| == 1 by {
+      DecryptStructureOutputHasSinglePaths(pathInput.encryptedStructure, pathOutput.plaintextStructure);
+    }
 
     //= specification/structured-encryption/decrypt-structure.md#behavior
     //= type=implication
@@ -1014,10 +923,70 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return Success(plainOutput);
   }
 
+  //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+  //= type=implication
+  //# - For every entry in the [input Auth List](#auth-list), other than the header and footer,
+  //# an entry MUST exist with the same key in the output Crypto List.
+  lemma AllDecryptPathInputInOutput(origData : AuthList, finalData : CryptoList)
+    requires DecryptPathFinal(origData, finalData)
+    ensures forall k <- origData :: (k.key in [HeaderPath, FooterPath]) || exists x :: x in finalData
+  {
+    reveal DecryptPathFinal();
+    reveal AuthUpdatedCrypto();
+  }
+
+  //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+  //= type=implication
+  //# - For every entry in the output Crypto List
+  //# an entry MUST exist with the same key in the [input Auth List](#auth-list).
+  lemma AllDecryptPathOutputInInput(origData : AuthList, finalData : CryptoList)
+    requires DecryptPathFinal(origData, finalData)
+    ensures forall k <- finalData :: exists x :: x in origData
+  {
+    reveal DecryptPathFinal();
+    reveal CryptoUpdatedAuth();
+  }
+
+  //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+  //= type=implication
+  //# If the action is [ENCRYPT_AND_SIGN](./structures.md#encryptandsign)
+  //# this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
+  //# equal to the first two bytes of the input Terminal Data's value,
+  //# and a value equal to the [decryption](#terminal-data-decryption) of the input Terminal Data's value.
+
+  //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+  //= type=implication
+  //# Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
+  //# [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data.
+
+  lemma AllDecryptPathOutputUpdatesInput(origData : AuthList, finalData : CryptoList)
+    requires DecryptPathFinal(origData, finalData)
+    ensures forall k <- finalData :: exists x ::
+                                       && x in origData
+                                       && (k.action != ENCRYPT_AND_SIGN <==> x.data == k.data)
+                                       && (k.action == ENCRYPT_AND_SIGN <==> x.data != k.data)
+                                       && (k.action == ENCRYPT_AND_SIGN ==> |x.data.value| >= 2 && k.data.typeId == x.data.value[..2])
+  {
+    reveal DecryptPathFinal();
+    reveal CryptoUpdatedAuth();
+  }
+
+  //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+  //= type=implication
+  //# - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
+  lemma DecryptPathRemovesHeaders(origData : AuthList, finalData : CryptoList)
+    requires DecryptPathFinal(origData, finalData)
+    ensures !exists x :: x in finalData && x.key == HeaderPath
+    ensures !exists x :: x in finalData && x.key == FooterPath
+  {
+    reveal DecryptPathFinal();
+  }
+
   method {:vcs_split_on_every_assert} DecryptPathStructure (config: InternalConfig, input: DecryptPathStructureInput)
     returns (output: Result<DecryptPathStructureOutput, Error>)
 
     ensures output.Success? ==>
+              && DecryptPathFinal(input.encryptedStructure, output.value.plaintextStructure)
               && var encRecord : AuthList := input.encryptedStructure;
 
               //= specification/structured-encryption/decrypt-path-structure.md#parse-the-header
@@ -1059,45 +1028,15 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# according to the [header format](./header.md).
               && Header.PartialDeserialize(headerSerialized.value).Success?
 
-              //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+              //= specification/structured-encryption/decrypt-path-structure.md#auth-list
               //= type=implication
-              //# - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
-              && (!exists x :: x in output.value.plaintextStructure && x.key == HeaderPath)
-              && (!exists x :: x in output.value.plaintextStructure && x.key == FooterPath)
-
-              //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
-              //= type=implication
-              //# - For every entry in the [input Auth List](#auth-list), other than the header and footer,
-              //# an entry MUST exist with the same key in the output Crypto List.
-              && (forall k <- input.encryptedStructure | k.key !in HeaderPaths ::
-                    (exists x :: x in output.value.plaintextStructure && x.key == k.key))
-
-              //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
-              //= type=implication
-              //# - The output Crypto List MUST NOT have any additional entries.
-              && |output.value.plaintextStructure| == |input.encryptedStructure| - 2
-
-              //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
-              //= type=implication
-              //# If the action is [ENCRYPT_AND_SIGN](./structures.md#encryptandsign)
-              //# this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id)
-              //# equal to the first two bytes of the input Terminal Data's value,
-              //# and a value equal to the [decryption](#terminal-data-decryption) of the input Terminal Data's value.
-
-              //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
-              //= type=implication
-              //# Otherwise, this Terminal Data MUST have [Terminal Type ID](./structures.md#terminal-type-id) and
-              //# [Terminal Value](./structures.md#terminal-value) equal to the input Terminal Data.
-              && (forall k <- input.encryptedStructure  | k.key !in HeaderPaths ::
-                    (exists x ::
-                       && x in output.value.plaintextStructure
-                       && x.key == k.key
-                       && (x.action == ENCRYPT_AND_SIGN ==> |k.data.value| >= 2 && x.data.typeId == k.data.value[..2])
-                       && (x.action != ENCRYPT_AND_SIGN ==> k.data == x.data)
-                    )
-                 )
+              //# The Auth List MUST NOT contain duplicate Paths.
+              && AuthListHasNoDuplicatesFromSet(input.encryptedStructure)
   {
     :- Need(exists x :: (x in input.encryptedStructure && x.action == SIGN), E("At least one Authenticate Action must be SIGN"));
+
+    :- Need(AuthListHasNoDuplicatesFromSet(input.encryptedStructure), E("Duplicate Paths"));
+    SetSizeImpliesAuthListHasNoDuplicates(input.encryptedStructure);
 
     var headerSerialized :- GetBinary(input.encryptedStructure, HeaderPath);
     var footerSerialized :- GetBinary(input.encryptedStructure, FooterPath);
@@ -1111,11 +1050,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var headerAlgorithmSuite :- head.GetAlgorithmSuite(config.materialProviders);
 
     :- Need(ValidString(input.tableName), E("Bad Table Name"));
-    var canonData :- CanonizeForDecrypt(input.tableName, input.encryptedStructure, head.legend);
-    assert forall k <- input.encryptedStructure :: (exists x :: x in canonData && k.key == x.origKey && k.data == x.data);
-    assert |canonData| == |input.encryptedStructure|;
-    assert exists x :: x in canonData && x.origKey == HeaderPath;
-    assert exists x :: x in canonData && x.origKey == FooterPath;
+    var canonData :- ForDecrypt(input.tableName, input.encryptedStructure, head.legend);
 
     assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
 
@@ -1180,6 +1115,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //   parsed in the header.
     // - Encrypted Data Keys: The [Encrypted Data Keys parsed from the header](./header.md#encrypted-data-keys).
 
+    // assert (cmm == input.cmm) || fresh(cmm);
     var matR := cmm.DecryptMaterials(
       CMP.DecryptMaterialsInput (
         algorithmSuiteId := headerAlgorithmSuite.id,
@@ -1227,46 +1163,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= specification/structured-encryption/decrypt-path-structure.md#verify-signatures
     //# Decryption MUST fail immediately if verification fails.
     var _ :- footer.validate(config.primitives, mat, head.dataKeys, canonData, headerSerialized.value);
-    var decryptedItems : CanonCryptoList :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData);
-    assert |decryptedItems| == |input.encryptedStructure|;
-    assert forall k <- input.encryptedStructure :: (exists x :: x in decryptedItems && x.origKey == k.key);
-    assert exists x :: x in decryptedItems && x.origKey == HeaderPath;
-    assert exists x :: x in decryptedItems && x.origKey == FooterPath;
+    var decryptedItems : CanonCryptoList :- Crypt.Decrypt(config.primitives, postCMMAlg, key, head, canonData, input.tableName, input.encryptedStructure);
 
-    assert (forall k <- input.encryptedStructure ::
-              (exists x ::
-                 && x in decryptedItems
-                 && x.origKey == k.key
-                 && Crypt.Updated2(k, x, Crypt.DoDecrypt)
-              ));
-
-    var largeResult := UnCanon(decryptedItems);
-    assert |largeResult| == |input.encryptedStructure|;
-    assert forall k <- input.encryptedStructure :: (exists x :: x in largeResult && x.key == k.key);
-    assert (forall k <- input.encryptedStructure ::
-              (exists x ::
-                 && x in largeResult
-                 && x.key == k.key
-                 && Crypt.Updated3(k, x, Crypt.DoDecrypt)
-              ));
-
-    assert exists x :: x in largeResult && x.key == HeaderPath;
-    assert exists x :: x in largeResult && x.key == FooterPath;
-    var smallResult := Seq.Filter((x : CryptoItem) => x.key !in HeaderPaths, largeResult);
-    reveal Seq.Filter();
-    assert !exists x :: x in smallResult && x.key == HeaderPath;
-    assert !exists x :: x in smallResult && x.key == FooterPath;
-    // verifies, but it takes too long
-    assume {:axiom} forall k <- largeResult | k.key !in HeaderPaths :: (exists x :: x in smallResult && x == k);
-    :- Need(|smallResult| == |input.encryptedStructure| - 2, E("Internal Error."));
-    assert |smallResult| == |input.encryptedStructure| - 2;
-
-    assert (forall k <- input.encryptedStructure  | k.key !in HeaderPaths ::
-              (exists x ::
-                 && x in smallResult
-                 && x.key == k.key
-                 && Crypt.Updated3(k, x, Crypt.DoDecrypt)
-              ));
+    var largeResult := UnCanonDecrypt(decryptedItems, input.tableName, input.encryptedStructure);
+    var smallResult := RemoveHeaders(largeResult, input.encryptedStructure);
 
     //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
     //= type=implication
@@ -1284,15 +1184,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       parsedHeader := parsedHeader
     );
 
-    assert (forall k <- input.encryptedStructure  | k.key !in HeaderPaths ::
-              (exists x ::
-                 && x in smallResult
-                 && x.key == k.key
-                 && (x.action == ENCRYPT_AND_SIGN ==> |k.data.value| >= 2 && x.data.typeId == k.data.value[..2])
-                 && (x.action != ENCRYPT_AND_SIGN ==> k.data == x.data)
-              )
-      );
-
+    assert DecryptPathFinal(input.encryptedStructure, decryptOutput.plaintextStructure);
     output := Success(decryptOutput);
   }
 

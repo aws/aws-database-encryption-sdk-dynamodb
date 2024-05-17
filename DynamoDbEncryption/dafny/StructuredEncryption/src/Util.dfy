@@ -15,6 +15,7 @@ module StructuredEncryptionUtil {
   import AlgorithmSuites
   import SortedSets
   import Base64
+  import opened Seq
 
   // all attributes with this prefix reserved for the implementation
   const ReservedPrefix := "aws_dbe_"
@@ -23,6 +24,7 @@ module StructuredEncryptionUtil {
   const FooterField := ReservedPrefix + "foot"
   const HeaderPath : Path := [member(StructureSegment(key := HeaderField))]
   const FooterPath : Path := [member(StructureSegment(key := FooterField))]
+  const HeaderPaths : seq<Path> := [HeaderPath, FooterPath]
   const ReservedCryptoContextPrefixString := "aws-crypto-"
   const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
 
@@ -56,6 +58,60 @@ module StructuredEncryptionUtil {
   )
   type CanonCryptoList = seq<CanonCryptoItem>
   type CanonAuthList = seq<CanonAuthItem>
+
+  function method CryptoListToSet(xs: CryptoList) : (ret : set<Path>)
+    ensures |xs| == 0 ==> |ret| == 0
+    ensures |xs| == 1 ==> ret == {xs[0].key}
+    ensures |xs| == 1 ==> |ret| == 1
+  {
+    set k <- xs :: k.key
+  }
+
+  function method CanonCryptoListToSet(xs: CanonCryptoList) : (ret : set<Path>)
+    ensures |xs| == 0 ==> |ret| == 0
+    ensures |xs| == 1 ==> ret == {xs[0].origKey}
+    ensures |xs| == 1 ==> |ret| == 1
+  {
+    set k <- xs :: k.origKey
+  }
+
+  function method AuthListToSet(xs: AuthList) : (ret : set<Path>)
+    ensures |xs| == 0 ==> |ret| == 0
+    ensures |xs| == 1 ==> ret == {xs[0].key}
+    ensures |xs| == 1 ==> |ret| == 1
+  {
+    set k <- xs :: k.key
+  }
+
+  predicate method CryptoListHasNoDuplicatesFromSet(xs: CryptoList)
+  {
+    |CryptoListToSet(xs)| == |xs|
+  }
+
+  predicate method AuthListHasNoDuplicatesFromSet(xs: AuthList)
+  {
+    |AuthListToSet(xs)| == |xs|
+  }
+
+  predicate CryptoListHasNoDuplicates(xs: CryptoList)
+  {
+    forall i, j :: 0 <= i < j < |xs| ==> xs[i].key != xs[j].key
+  }
+
+  predicate AuthListHasNoDuplicates(xs: AuthList)
+  {
+    forall i, j :: 0 <= i < j < |xs| ==> xs[i].key != xs[j].key
+  }
+
+  predicate CanonCryptoListHasNoDuplicates(xs: CanonCryptoList)
+  {
+    forall i, j :: 0 <= i < j < |xs| ==> xs[i].origKey != xs[j].origKey
+  }
+
+  predicate CanonAuthListHasNoDuplicates(xs: CanonAuthList)
+  {
+    forall i, j :: 0 <= i < j < |xs| ==> xs[i].origKey != xs[j].origKey
+  }
 
   //= specification/structured-encryption/encrypt-path-structure.md#header-field
   //= type=implication
@@ -248,5 +304,96 @@ module StructuredEncryptionUtil {
     var serializedValue := base64DecodedVal[2..];
     Success(StructuredDataTerminal(value := serializedValue, typeId := typeId))
   }
+
+  lemma CryptoListNoDupFromMap(xs: seq<CryptoItem>)
+    requires HasNoDuplicates(Map((x: CryptoItem) => x.key, xs))
+    ensures CryptoListHasNoDuplicates(xs)
+  {
+    var ys := Map((x: CryptoItem) => x.key, xs);
+    assert forall i, j | 0 <= i < j < |xs| :: ys[i] != ys[j] by {
+      reveal HasNoDuplicates();
+    }
+    assert forall i | 0 <= i < |xs| :: ys[i] == xs[i].key;
+  }
+
+  lemma AuthListNoDupFromMap(xs: seq<AuthItem>)
+    requires HasNoDuplicates(Map((x: AuthItem) => x.key, xs))
+    ensures AuthListHasNoDuplicates(xs)
+  {
+    var ys := Map((x: AuthItem) => x.key, xs);
+    assert forall i, j | 0 <= i < j < |xs| :: ys[i] != ys[j] by {
+      reveal HasNoDuplicates();
+    }
+    assert forall i | 0 <= i < |xs| :: ys[i] == xs[i].key;
+  }
+
+  lemma CryptoListCard(xs: seq<CryptoItem>)
+    ensures |ToSet(Map((x: CryptoItem) => x.key, xs))| == |CryptoListToSet(xs)|
+  {
+    reveal ToSet();
+    var ys := Map((x: CryptoItem) => x.key, xs);
+    forall x ensures x in ToSet(ys) <==> x in CryptoListToSet(xs) {
+      assert x in ToSet(ys) ==> x in CryptoListToSet(xs);
+      assert x in CryptoListToSet(xs) ==> x in ToSet(ys) by {
+        if x in CryptoListToSet(xs) {
+          var i :| 0 <= i < |xs| && xs[i].key == x;
+          assert ys[i] == x by {
+            calc == {
+              ys[i];
+              Map((x: CryptoItem) => x.key, xs)[i];
+              xs[i].key;
+              x;
+            }
+          }
+        } else {}
+      }
+    }
+    assert ToSet(ys) == CryptoListToSet(xs);
+  }
+
+  lemma AuthListCard(xs: seq<AuthItem>)
+    ensures |ToSet(Map((x: AuthItem) => x.key, xs))| == |AuthListToSet(xs)|
+  {
+    reveal ToSet();
+    var ys := Map((x: AuthItem) => x.key, xs);
+    forall x ensures x in ToSet(ys) <==> x in AuthListToSet(xs) {
+      assert x in ToSet(ys) ==> x in AuthListToSet(xs);
+      assert x in AuthListToSet(xs) ==> x in ToSet(ys) by {
+        if x in AuthListToSet(xs) {
+          var i :| 0 <= i < |xs| && xs[i].key == x;
+          assert ys[i] == x by {
+            calc == {
+              ys[i];
+              Map((x: AuthItem) => x.key, xs)[i];
+              xs[i].key;
+              x;
+            }
+          }
+        } else {}
+      }
+    }
+    assert ToSet(ys) == AuthListToSet(xs);
+  }
+
+  lemma SetSizeImpliesCryptoListHasNoDuplicates(xs: seq<CryptoItem>)
+    requires CryptoListHasNoDuplicatesFromSet(xs)
+    ensures CryptoListHasNoDuplicates(xs)
+  {
+    var ys := Map((x: CryptoItem) => x.key, xs);
+    CryptoListCard(xs);
+    LemmaNoDuplicatesCardinalityOfSet(ys);
+    CryptoListNoDupFromMap(xs);
+  }
+
+  lemma SetSizeImpliesAuthListHasNoDuplicates(xs: seq<AuthItem>)
+    requires AuthListHasNoDuplicatesFromSet(xs)
+    ensures AuthListHasNoDuplicates(xs)
+  {
+    var ys := Map((x: AuthItem) => x.key, xs);
+    AuthListCard(xs);
+    LemmaNoDuplicatesCardinalityOfSet(ys);
+    AuthListNoDupFromMap(xs);
+  }
+
 
 }

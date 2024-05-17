@@ -5,13 +5,16 @@ include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Util.dfy"
 
 module SortCanon {
-  export provides
+  export
+    provides
       AuthSort,
       CryptoSort,
       AuthBelow,
       CryptoBelow,
       StructuredEncryptionUtil,
-      Relations
+      Relations,
+      AuthSortIsCryptoSort,
+      SortedIsSorted
 
   import opened Wrappers
   import opened StandardLibrary
@@ -26,6 +29,20 @@ module SortCanon {
 
   predicate method CryptoBelow(x: CanonCryptoItem, y: CanonCryptoItem) {
     Below(x.key, y.key)
+  }
+
+  lemma SameBelow2(x1 : CanonAuthItem, x2 : CanonAuthItem, y1 : CanonCryptoItem, y2 : CanonCryptoItem)
+    requires x1.key == y1.key
+    requires x2.key == y2.key
+    ensures AuthBelow(x1, x2) == CryptoBelow(y1, y2)
+  {}
+
+  lemma SameBelow()
+    ensures forall x1 : CanonAuthItem, x2 : CanonAuthItem, y1 : CanonCryptoItem, y2 : CanonCryptoItem
+              | x1.key == y1.key && x2.key == y2.key
+              :: AuthBelow(x1, x2) == CryptoBelow(y1, y2)
+  {
+
   }
 
   lemma AuthBelowIsReflexive(x: CanonAuthItem)
@@ -185,21 +202,109 @@ module SortCanon {
   {
   }
 
-  function method AuthSort(x : seq<CanonAuthItem>) : (result : seq<CanonAuthItem>)
+  lemma AuthSortIsCryptoSort(x : CanonAuthList, y : CanonCryptoList)
+    requires SortedBy(x, AuthBelow)
+    requires |x| == |y|
+    requires forall i | 0 <= i < |x| :: x[i].key == y[i].key
+    ensures SortedBy(y, CryptoBelow)
+  {}
+
+  lemma SortedIsSorted(x : CanonCryptoList, y : CanonCryptoList)
+    requires SortedBy(x, CryptoBelow)
+    requires |x| == |y|
+    requires forall i | 0 <= i < |x| :: x[i].key == y[i].key
+    ensures SortedBy(y, CryptoBelow)
+  {}
+
+
+  function method AuthSort(x : CanonAuthList) : (result : CanonAuthList)
+    requires CanonAuthListHasNoDuplicates(x)
     ensures multiset(x) == multiset(result)
     ensures SortedBy(result, AuthBelow)
+    ensures CanonAuthListHasNoDuplicates(result)
   {
     AuthBelowIsTotal();
-    MergeSortBy(x, AuthBelow)
+    var ret := MergeSortBy(x, AuthBelow);
+    CanonAuthListMultiNoDup(x, ret);
+    assert CanonAuthListHasNoDuplicates(ret);
+    ret
   }
 
-  function method CryptoSort(x : seq<CanonCryptoItem>) : (result : seq<CanonCryptoItem>)
+  function method CryptoSort(x : CanonCryptoList) : (result : CanonCryptoList)
+    requires CanonCryptoListHasNoDuplicates(x)
     ensures multiset(x) == multiset(result)
+    ensures multiset(result) == multiset(x)
     ensures SortedBy(result, CryptoBelow)
+    ensures CanonCryptoListHasNoDuplicates(result)
   {
     CryptoBelowIsTotal();
-    MergeSortBy(x, CryptoBelow)
+    var ret := MergeSortBy(x, CryptoBelow);
+    CanonCryptoListMultiNoDup(x, ret);
+    assert CanonCryptoListHasNoDuplicates(ret);
+    ret
   }
 
+  lemma MultisetHasNoDuplicates(xs: CanonCryptoList)
+    requires CanonCryptoListHasNoDuplicates(xs)
+    ensures forall x | x in multiset(xs) :: multiset(xs)[x] == 1
+  {
+    if |xs| == 0 {
+    } else {
+      assert xs == Seq.DropLast(xs) + [Seq.Last(xs)];
+      assert Seq.Last(xs) !in Seq.DropLast(xs);
+      assert CanonCryptoListHasNoDuplicates(Seq.DropLast(xs));
+      MultisetHasNoDuplicates(Seq.DropLast(xs));
+    }
+  }
+  lemma MultisetHasNoDuplicates2(xs: CanonAuthList)
+    requires CanonAuthListHasNoDuplicates(xs)
+    ensures forall x | x in multiset(xs) :: multiset(xs)[x] == 1
+  {
+    if |xs| == 0 {
+    } else {
+      assert xs == Seq.DropLast(xs) + [Seq.Last(xs)];
+      assert Seq.Last(xs) !in Seq.DropLast(xs);
+      assert CanonAuthListHasNoDuplicates(Seq.DropLast(xs));
+      MultisetHasNoDuplicates2(Seq.DropLast(xs));
+    }
+  }
+  lemma CanonCryptoListMultiNoDup(a: CanonCryptoList, b: CanonCryptoList)
+    requires CanonCryptoListHasNoDuplicates(a) && multiset(a) == multiset(b)
+    ensures CanonCryptoListHasNoDuplicates(b)
+  {
+    forall i,j | 0 <= i < j < |b|
+      ensures b[i].origKey != b[j].origKey
+    {
+      assert b[i] in multiset(a);
+      assert b[j] in multiset(a);
+      if b[i] == b[j] {
+        assert b[i].origKey == b[j].origKey;
+        MultisetHasNoDuplicates(a);
+        assert multiset(b)[b[i]] == 1;
+        assert b == b[..i] + [b[i]] + b[i+1..j] + [b[j]] + b[j+1..];
+      } else {
+        assert b[i].origKey != b[j].origKey;
+      }
+    }
+  }
+  lemma CanonAuthListMultiNoDup(a: CanonAuthList, b: CanonAuthList)
+    requires CanonAuthListHasNoDuplicates(a) && multiset(a) == multiset(b)
+    ensures CanonAuthListHasNoDuplicates(b)
+  {
+    forall i,j | 0 <= i < j < |b|
+      ensures b[i].origKey != b[j].origKey
+    {
+      assert b[i] in multiset(a);
+      assert b[j] in multiset(a);
+      if b[i] == b[j] {
+        assert b[i].origKey == b[j].origKey;
+        MultisetHasNoDuplicates2(a);
+        assert multiset(b)[b[i]] == 1;
+        assert b == b[..i] + [b[i]] + b[i+1..j] + [b[j]] + b[j+1..];
+      } else {
+        assert b[i].origKey != b[j].origKey;
+      }
+    }
+  }
 
 }
