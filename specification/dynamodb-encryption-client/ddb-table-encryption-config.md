@@ -173,6 +173,7 @@ how those items should be decrypted,
 and whether new items should be encrypted using the legacy format.
 
 This config MUST contain:
+
 - [Legacy Encryptor](#legacy-encryptor)
 - [Attributes Flags](#attribute-flags)
 - [Legacy Policy](#legacy-policy)

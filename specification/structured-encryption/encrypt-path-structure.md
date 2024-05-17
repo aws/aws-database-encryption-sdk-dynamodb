@@ -84,6 +84,7 @@ The operation MUST fail if an encryption context is provided which contains a ke
 ## Output
 
 This operation MUST output the following:
+
 - [Encrypted Crypto List](#encrypted-crypto-list)
 - [Parsed Header](./decrypt-structure.md#parsed-header)
 
@@ -118,6 +119,7 @@ This operation MUST obtain a set of encryption materials by calling
 on the [CMM](#cmm) calculated above.
 
 This operation MUST call Get Encryption Materials on the CMM as follows.
+
 - Encryption Context: This MUST be the encryption context calculated above.
 - Commitment Policy: This MUST be
   [REQUIRE_ENCRYPT_REQUIRE_DECRYPT](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/commitment-policy.md#esdkrequire_encrypt_require_decrypt).
@@ -160,6 +162,7 @@ The Legend MUST be named "aws-crypto-legend" and be a string with one character 
 with a one-to-one correspondence with the attributes sorted by their UTF8 encoding,
 each character designating the original type of the attribute,
 to allow reversing of the [encoding](../dynamodb-encryption-client/encrypt-item.md#base-context-value-version-2).
+
 - 'S' if the attribute was of type String
 - 'N' if the attribute was of type Number
 - 'L' if the attribute was of type Null or Boolean
@@ -167,6 +170,7 @@ to allow reversing of the [encoding](../dynamodb-encryption-client/encrypt-item.
 
 Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
+
 - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The name of every entry added above.
 
@@ -206,10 +210,10 @@ There MUST be no other entries in the Intermediate Encrypted Structured Data.
 ### Calculate Info
 
 The `info` used for the HKDF function MUST be
-| Field                | Length   |
+| Field | Length |
 | -------------------- | -------- |
-| "AWS_DBE_DERIVE_KEY" | 18       |
-| Message ID           | 32       |
+| "AWS_DBE_DERIVE_KEY" | 18 |
+| Message ID | 32 |
 
 ### Calculate Cipherkey and Nonce
 
@@ -231,14 +235,14 @@ sorting those paths in ascending order,
 and taking the zero-based position of the field in that sorted list.
 
 The calculated Field Root MUST have length equal to the
-  [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
+[algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 The `FieldKeyNonce` for a given offset MUST be 16 bytes comprised of
-| Field         | Length   | Interpretation |
+| Field | Length | Interpretation |
 | ------------- | -------- | -------------- |
-| "AwsDbeField" | 11       | Literal Ascii String |
-| 0x2c          | 1        | 44, the length of the eventual FieldKey |
-| offset        | 4        | 32 bit integer representation of offset |
+| "AwsDbeField" | 11 | Literal Ascii String |
+| 0x2c | 1 | 44, the length of the eventual FieldKey |
+| offset | 4 | 32 bit integer representation of offset |
 
 The `FieldKey` for a given key and offset MUST be the first 44 bytes
 of the aes256ctr_stream
@@ -260,10 +264,10 @@ equal `0xFFFF`.
 The output encrypted Terminal Data MUST have a [Terminal Value](./structures.md#terminal-value)
 with the following serialization:
 
-| Field                      | Length   |
-| -------------------------- | -------- |
-| Terminal Type Id           | 2        |
-| Encrypted Terminal Value   | Variable |
+| Field                    | Length   |
+| ------------------------ | -------- |
+| Terminal Type Id         | 2        |
+| Encrypted Terminal Value | Variable |
 
 ##### Terminal Type Id
 
@@ -272,6 +276,7 @@ Terminal Type Id MUST equal the input Terminal Data's Terminal Type Id.
 ##### Encrypted Terminal Value
 
 The Encrypted Terminal Value MUST be derived according to the following encryption:
+
 - The encryption algorithm used is the
   [encryption algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.

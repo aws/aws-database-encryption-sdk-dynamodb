@@ -18,7 +18,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotEncrypt;
 
 @DoNotEncrypt
 public class SignOnlyWithUnknownAttributeAnnotationWithNewAttribute
-    extends SignOnlyWithUnknownAttributeAnnotation {
+  extends SignOnlyWithUnknownAttributeAnnotation {
 
   private String newAttribute;
 

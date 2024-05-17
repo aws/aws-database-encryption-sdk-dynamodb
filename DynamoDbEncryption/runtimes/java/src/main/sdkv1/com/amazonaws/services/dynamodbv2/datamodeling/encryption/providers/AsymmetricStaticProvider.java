@@ -27,6 +27,7 @@ import javax.crypto.SecretKey;
  * @author Greg Rubin
  */
 public class AsymmetricStaticProvider extends WrappedMaterialsProvider {
+
   public AsymmetricStaticProvider(KeyPair encryptionKey, KeyPair signingPair) {
     this(encryptionKey, signingPair, Collections.<String, String>emptyMap());
   }
@@ -36,12 +37,28 @@ public class AsymmetricStaticProvider extends WrappedMaterialsProvider {
   }
 
   public AsymmetricStaticProvider(
-      KeyPair encryptionKey, KeyPair signingPair, Map<String, String> description) {
-    super(encryptionKey.getPublic(), encryptionKey.getPrivate(), signingPair, description);
+    KeyPair encryptionKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) {
+    super(
+      encryptionKey.getPublic(),
+      encryptionKey.getPrivate(),
+      signingPair,
+      description
+    );
   }
 
   public AsymmetricStaticProvider(
-      KeyPair encryptionKey, SecretKey macKey, Map<String, String> description) {
-    super(encryptionKey.getPublic(), encryptionKey.getPrivate(), macKey, description);
+    KeyPair encryptionKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) {
+    super(
+      encryptionKey.getPublic(),
+      encryptionKey.getPrivate(),
+      macKey,
+      description
+    );
   }
 }

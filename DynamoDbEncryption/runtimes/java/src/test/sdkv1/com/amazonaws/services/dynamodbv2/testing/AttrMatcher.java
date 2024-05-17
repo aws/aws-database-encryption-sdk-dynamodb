@@ -23,6 +23,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 public class AttrMatcher extends BaseMatcher<Map<String, AttributeValue>> {
+
   private final Map<String, AttributeValue> expected;
   private final boolean invert;
 
@@ -57,18 +58,20 @@ public class AttrMatcher extends BaseMatcher<Map<String, AttributeValue>> {
   }
 
   public static boolean attrEquals(AttributeValue e, AttributeValue a) {
-    if (!isEqual(e.getB(), a.getB())
-        || !isEqual(e.getBOOL(), a.getBOOL())
-        || !isSetEqual(e.getBS(), a.getBS())
-        || !isEqual(e.getN(), a.getN())
-        || !isSetEqual(e.getNS(), a.getNS())
-        || !isEqual(e.getNULL(), a.getNULL())
-        || !isEqual(e.getS(), a.getS())
-        || !isSetEqual(e.getSS(), a.getSS())) {
+    if (
+      !isEqual(e.getB(), a.getB()) ||
+      !isEqual(e.getBOOL(), a.getBOOL()) ||
+      !isSetEqual(e.getBS(), a.getBS()) ||
+      !isEqual(e.getN(), a.getN()) ||
+      !isSetEqual(e.getNS(), a.getNS()) ||
+      !isEqual(e.getNULL(), a.getNULL()) ||
+      !isEqual(e.getS(), a.getS()) ||
+      !isSetEqual(e.getSS(), a.getSS())
+    ) {
       return false;
     }
     // Recursive types need special handling
-    if (e.getM() == null ^ a.getM() == null) {
+    if ((e.getM() == null) ^ (a.getM() == null)) {
       return false;
     } else if (e.getM() != null) {
       if (!e.getM().keySet().equals(a.getM().keySet())) {
@@ -80,7 +83,7 @@ public class AttrMatcher extends BaseMatcher<Map<String, AttributeValue>> {
         }
       }
     }
-    if (e.getL() == null ^ a.getL() == null) {
+    if ((e.getL() == null) ^ (a.getL() == null)) {
       return false;
     } else if (e.getL() != null) {
       if (e.getL().size() != a.getL().size()) {
@@ -99,7 +102,7 @@ public class AttrMatcher extends BaseMatcher<Map<String, AttributeValue>> {
   public void describeTo(Description description) {}
 
   private static boolean isEqual(Object o1, Object o2) {
-    if (o1 == null ^ o2 == null) {
+    if ((o1 == null) ^ (o2 == null)) {
       return false;
     }
     if (o1 == o2) return true;
@@ -107,7 +110,7 @@ public class AttrMatcher extends BaseMatcher<Map<String, AttributeValue>> {
   }
 
   private static <T> boolean isSetEqual(Collection<T> c1, Collection<T> c2) {
-    if (c1 == null ^ c2 == null) {
+    if ((c1 == null) ^ (c2 == null)) {
       return false;
     }
     if (c1 != null) {

@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /** @author Greg Rubin */
 public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
+
   private final Map<String, String> description;
   private final String encryptionAlias;
   private final String signingAlias;
@@ -47,32 +48,35 @@ public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
   private final ProtectionParameter signingProtection;
   private final KeyStore keyStore;
   private final AtomicReference<CurrentMaterials> currMaterials =
-      new AtomicReference<KeyStoreMaterialsProvider.CurrentMaterials>();
+    new AtomicReference<KeyStoreMaterialsProvider.CurrentMaterials>();
 
   public KeyStoreMaterialsProvider(
-      KeyStore keyStore,
-      String encryptionAlias,
-      String signingAlias,
-      Map<String, String> description)
-      throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
+    KeyStore keyStore,
+    String encryptionAlias,
+    String signingAlias,
+    Map<String, String> description
+  )
+    throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
     this(keyStore, encryptionAlias, signingAlias, null, null, description);
   }
 
   public KeyStoreMaterialsProvider(
-      KeyStore keyStore,
-      String encryptionAlias,
-      String signingAlias,
-      ProtectionParameter encryptionProtection,
-      ProtectionParameter signingProtection,
-      Map<String, String> description)
-      throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
+    KeyStore keyStore,
+    String encryptionAlias,
+    String signingAlias,
+    ProtectionParameter encryptionProtection,
+    ProtectionParameter signingProtection,
+    Map<String, String> description
+  )
+    throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
     super();
     this.keyStore = keyStore;
     this.encryptionAlias = encryptionAlias;
     this.signingAlias = signingAlias;
     this.encryptionProtection = encryptionProtection;
     this.signingProtection = signingProtection;
-    this.description = Collections.unmodifiableMap(new HashMap<String, String>(description));
+    this.description =
+      Collections.unmodifiableMap(new HashMap<String, String>(description));
 
     validateKeys();
     loadKeys();
@@ -81,14 +85,22 @@ public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
   @Override
   public DecryptionMaterials getDecryptionMaterials(EncryptionContext context) {
     CurrentMaterials materials = currMaterials.get();
-    if (context.getMaterialDescription().entrySet().containsAll(description.entrySet())) {
+    if (
+      context
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    ) {
       if (materials.encryptionEntry instanceof SecretKeyEntry) {
         return materials.symRawMaterials;
       } else {
         try {
           return makeAsymMaterials(materials, context.getMaterialDescription());
         } catch (GeneralSecurityException ex) {
-          throw new DynamoDBMappingException("Unable to decrypt envelope key", ex);
+          throw new DynamoDBMappingException(
+            "Unable to decrypt envelope key",
+            ex
+          );
         }
       }
     } else {
@@ -105,20 +117,31 @@ public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
       try {
         return makeAsymMaterials(materials, description);
       } catch (GeneralSecurityException ex) {
-        throw new DynamoDBMappingException("Unable to encrypt envelope key", ex);
+        throw new DynamoDBMappingException(
+          "Unable to encrypt envelope key",
+          ex
+        );
       }
     }
   }
 
   private AsymmetricRawMaterials makeAsymMaterials(
-      CurrentMaterials materials, Map<String, String> description) throws GeneralSecurityException {
+    CurrentMaterials materials,
+    Map<String, String> description
+  ) throws GeneralSecurityException {
     KeyPair encryptionPair = entry2Pair(materials.encryptionEntry);
     if (materials.signingEntry instanceof SecretKeyEntry) {
       return new AsymmetricRawMaterials(
-          encryptionPair, ((SecretKeyEntry) materials.signingEntry).getSecretKey(), description);
+        encryptionPair,
+        ((SecretKeyEntry) materials.signingEntry).getSecretKey(),
+        description
+      );
     } else {
       return new AsymmetricRawMaterials(
-          encryptionPair, entry2Pair(materials.signingEntry), description);
+        encryptionPair,
+        entry2Pair(materials.signingEntry),
+        description
+      );
     }
   }
 
@@ -137,7 +160,8 @@ public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
       pub = tc.getTrustedCertificate().getPublicKey();
     } else {
       throw new IllegalArgumentException(
-          "Only entry types PrivateKeyEntry and TrustedCertificateEntry are supported.");
+        "Only entry types PrivateKeyEntry and TrustedCertificateEntry are supported."
+      );
     }
     return new KeyPair(pub, priv);
   }
@@ -151,28 +175,42 @@ public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
     try {
       loadKeys();
     } catch (GeneralSecurityException ex) {
-      throw new DynamoDBMappingException("Unable to load keys from keystore", ex);
+      throw new DynamoDBMappingException(
+        "Unable to load keys from keystore",
+        ex
+      );
     }
   }
 
   private void validateKeys() throws KeyStoreException {
     if (!keyStore.containsAlias(encryptionAlias)) {
-      throw new IllegalArgumentException("Keystore does not contain alias: " + encryptionAlias);
+      throw new IllegalArgumentException(
+        "Keystore does not contain alias: " + encryptionAlias
+      );
     }
     if (!keyStore.containsAlias(signingAlias)) {
-      throw new IllegalArgumentException("Keystore does not contain alias: " + signingAlias);
+      throw new IllegalArgumentException(
+        "Keystore does not contain alias: " + signingAlias
+      );
     }
   }
 
   private void loadKeys()
-      throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
-    Entry encryptionEntry = keyStore.getEntry(encryptionAlias, encryptionProtection);
+    throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
+    Entry encryptionEntry = keyStore.getEntry(
+      encryptionAlias,
+      encryptionProtection
+    );
     Entry signingEntry = keyStore.getEntry(signingAlias, signingProtection);
-    CurrentMaterials newMaterials = new CurrentMaterials(encryptionEntry, signingEntry);
+    CurrentMaterials newMaterials = new CurrentMaterials(
+      encryptionEntry,
+      signingEntry
+    );
     currMaterials.set(newMaterials);
   }
 
   private class CurrentMaterials {
+
     public final Entry encryptionEntry;
     public final Entry signingEntry;
     public final SymmetricRawMaterials symRawMaterials;
@@ -185,16 +223,18 @@ public class KeyStoreMaterialsProvider implements EncryptionMaterialsProvider {
       if (encryptionEntry instanceof SecretKeyEntry) {
         if (signingEntry instanceof SecretKeyEntry) {
           this.symRawMaterials =
-              new SymmetricRawMaterials(
-                  ((SecretKeyEntry) encryptionEntry).getSecretKey(),
-                  ((SecretKeyEntry) signingEntry).getSecretKey(),
-                  description);
+            new SymmetricRawMaterials(
+              ((SecretKeyEntry) encryptionEntry).getSecretKey(),
+              ((SecretKeyEntry) signingEntry).getSecretKey(),
+              description
+            );
         } else {
           this.symRawMaterials =
-              new SymmetricRawMaterials(
-                  ((SecretKeyEntry) encryptionEntry).getSecretKey(),
-                  entry2Pair(signingEntry),
-                  description);
+            new SymmetricRawMaterials(
+              ((SecretKeyEntry) encryptionEntry).getSecretKey(),
+              entry2Pair(signingEntry),
+              description
+            );
         }
       } else {
         this.symRawMaterials = null;

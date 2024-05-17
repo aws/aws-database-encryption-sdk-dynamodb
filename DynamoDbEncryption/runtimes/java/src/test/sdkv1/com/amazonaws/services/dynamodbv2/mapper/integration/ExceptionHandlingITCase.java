@@ -29,7 +29,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 /** Tests of exception handling */
-public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class ExceptionHandlingITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   public static class NoTableAnnotation {
 
@@ -47,13 +48,17 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testNoTableAnnotation() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(new NoTableAnnotation());
   }
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testNoTableAnnotationLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.load(NoTableAnnotation.class, "abc");
   }
 
@@ -89,7 +94,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testNoDefaultConstructor() {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     NoDefaultConstructor obj = new NoDefaultConstructor("" + startKey++, "abc");
     util.save(obj);
     util.load(NoDefaultConstructor.class, obj.getKey());
@@ -104,13 +111,17 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testNoHashKeyGetter() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(new NoKeyGetterDefined());
   }
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testNoHashKeyGetterLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.load(NoKeyGetterDefined.class, "abc");
   }
 
@@ -133,13 +144,17 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testPrivateKeyGetter() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(new PrivateKeyGetter());
   }
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testPrivateKeyGetterLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.load(PrivateKeyGetter.class, "abc");
   }
 
@@ -162,7 +177,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testPrivateKeySetter() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(new PrivateKeySetter());
   }
 
@@ -174,8 +191,12 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
   public void testPrivateKeySetterLoad() throws Exception {
     Map<String, AttributeValue> attr = new HashMap<String, AttributeValue>();
     attr.put(KEY_NAME, new AttributeValue().withS("abc"));
-    dynamo.putItem(new PutItemRequest().withTableName(TABLE_NAME).withItem(attr));
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    dynamo.putItem(
+      new PutItemRequest().withTableName(TABLE_NAME).withItem(attr)
+    );
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.load(PrivateKeySetter.class, "abc");
   }
 
@@ -205,7 +226,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testPrivateSetterLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     PrivateSetter object = new PrivateSetter();
     object.setStringProperty("value");
     util.save(object);
@@ -241,7 +264,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     OverloadedSetter obj = new OverloadedSetter();
     obj.setKey("" + startKey++);
     obj.setAttribute("abc", "123");
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
 
     mapper.load(OverloadedSetter.class, obj.getKey());
@@ -276,7 +301,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     WrongTypeForSetter obj = new WrongTypeForSetter();
     obj.setKey("" + startKey++);
     obj.setAttribute(123);
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
 
     mapper.load(WrongTypeForSetter.class, obj.getKey());
@@ -311,8 +338,12 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     Map<String, AttributeValue> attr = new HashMap<String, AttributeValue>();
     attr.put("integerProperty", new AttributeValue().withS("abc"));
     attr.put(KEY_NAME, new AttributeValue().withS("" + startKey++));
-    dynamo.putItem(new PutItemRequest().withTableName(TABLE_NAME).withItem(attr));
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    dynamo.putItem(
+      new PutItemRequest().withTableName(TABLE_NAME).withItem(attr)
+    );
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.load(NumericFields.class, attr.get(KEY_NAME).getS());
   }
 
@@ -321,8 +352,12 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     Map<String, AttributeValue> attr = new HashMap<String, AttributeValue>();
     attr.put("integerProperty", new AttributeValue().withNS("1", "2", "3"));
     attr.put(KEY_NAME, new AttributeValue().withS("" + startKey++));
-    dynamo.putItem(new PutItemRequest().withTableName(TABLE_NAME).withItem(attr));
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    dynamo.putItem(
+      new PutItemRequest().withTableName(TABLE_NAME).withItem(attr)
+    );
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.load(NumericFields.class, attr.get(KEY_NAME).getS());
   }
 
@@ -358,9 +393,13 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testComplexTypeFailure() {
-    ComplexType complexType =
-        new ComplexType("" + startKey++, new ComplexType("" + startKey++, null));
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    ComplexType complexType = new ComplexType(
+      "" + startKey++,
+      new ComplexType("" + startKey++, null)
+    );
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(complexType);
   }
 
@@ -390,12 +429,16 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
 
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testUnsupportedHashKeyType() {
-    ComplexType complexType =
-        new ComplexType("" + startKey++, new ComplexType("" + startKey++, null));
+    ComplexType complexType = new ComplexType(
+      "" + startKey++,
+      new ComplexType("" + startKey++, null)
+    );
     ComplexHashKeyType obj = new ComplexHashKeyType();
     obj.setKey(complexType);
     obj.setAttribute("abc");
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(obj);
   }
 
@@ -429,7 +472,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     obj.setKey("" + startKey++);
     obj.setBadlyMapped(new ArrayList<String>());
     obj.getBadlyMapped().add("abc");
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
   }
 
@@ -463,7 +508,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     FractionalVersionAttribute obj = new FractionalVersionAttribute();
     obj.setKey("" + startKey++);
     obj.setVersion(0d);
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
   }
 
@@ -496,7 +543,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
   public void testAutoGeneratedIntegerHashKey() {
     AutoGeneratedIntegerKey obj = new AutoGeneratedIntegerKey();
     obj.setValue("fdgfdsgf");
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
   }
 
@@ -540,7 +589,9 @@ public class ExceptionHandlingITCase extends DynamoDBMapperCryptoIntegrationTest
     AutoGeneratedIntegerRangeKey obj = new AutoGeneratedIntegerRangeKey();
     obj.setKey("Bldadsfa");
     obj.setValue("fdgfdsgf");
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
   }
 }

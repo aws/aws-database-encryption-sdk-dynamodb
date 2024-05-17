@@ -41,7 +41,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** Tests numeric attributes */
-public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class SimpleNumericAttributesITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   private static final String INT_ATTRIBUTE = "intAttribute";
   private static final String INTEGER_ATTRIBUTE = "integerAttribute";
@@ -56,7 +57,8 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
   private static final String BYTE_ATTRIBUTE = "byteAttribute";
   private static final String BYTE_OBJECT_ATTRIBUTE = "byteObjectAttribute";
   private static final String BOOLEAN_ATTRIBUTE = "booleanAttribute";
-  private static final String BOOLEAN_OBJECT_ATTRIBUTE = "booleanObjectAttribute";
+  private static final String BOOLEAN_OBJECT_ATTRIBUTE =
+    "booleanObjectAttribute";
   private static final String SHORT_ATTRIBUTE = "shortAttribute";
   private static final String SHORT_OBJECT_ATTRIBUTE = "shortObjectAttribute";
 
@@ -65,8 +67,9 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
   private static int start = 1;
   private static int byteStart = -127;
 
-  private static final List<Map<String, AttributeValue>> attrs =
-      new LinkedList<Map<String, AttributeValue>>();
+  private static final List<Map<String, AttributeValue>> attrs = new LinkedList<
+    Map<String, AttributeValue>
+  >();
 
   // Test data
   static {
@@ -76,31 +79,51 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
       attr.put(INT_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(INTEGER_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(FLOAT_ATTRIBUTE, new AttributeValue().withN("" + start++));
-      attr.put(FLOAT_OBJECT_ATTRIBUTE, new AttributeValue().withN("" + start++));
+      attr.put(
+        FLOAT_OBJECT_ATTRIBUTE,
+        new AttributeValue().withN("" + start++)
+      );
       attr.put(DOUBLE_ATTRIBUTE, new AttributeValue().withN("" + start++));
-      attr.put(DOUBLE_OBJECT_ATTRIBUTE, new AttributeValue().withN("" + start++));
+      attr.put(
+        DOUBLE_OBJECT_ATTRIBUTE,
+        new AttributeValue().withN("" + start++)
+      );
       attr.put(BIG_INTEGER_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(BIG_DECIMAL_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(LONG_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(LONG_OBJECT_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(BYTE_ATTRIBUTE, new AttributeValue().withN("" + byteStart++));
-      attr.put(BYTE_OBJECT_ATTRIBUTE, new AttributeValue().withN("" + byteStart++));
-      attr.put(BOOLEAN_ATTRIBUTE, new AttributeValue().withN(start++ % 2 == 0 ? "1" : "0"));
-      attr.put(BOOLEAN_OBJECT_ATTRIBUTE, new AttributeValue().withN(start++ % 2 == 0 ? "1" : "0"));
+      attr.put(
+        BYTE_OBJECT_ATTRIBUTE,
+        new AttributeValue().withN("" + byteStart++)
+      );
+      attr.put(
+        BOOLEAN_ATTRIBUTE,
+        new AttributeValue().withN(start++ % 2 == 0 ? "1" : "0")
+      );
+      attr.put(
+        BOOLEAN_OBJECT_ATTRIBUTE,
+        new AttributeValue().withN(start++ % 2 == 0 ? "1" : "0")
+      );
       attr.put(SHORT_ATTRIBUTE, new AttributeValue().withN("" + byteStart++));
-      attr.put(SHORT_OBJECT_ATTRIBUTE, new AttributeValue().withN("" + byteStart++));
+      attr.put(
+        SHORT_OBJECT_ATTRIBUTE,
+        new AttributeValue().withN("" + byteStart++)
+      );
       attrs.add(attr);
     }
   }
-  ;
 
   @BeforeClass
   public static void setUp() throws Exception {
     DynamoDBMapperCryptoIntegrationTestBase.setUp();
-    DynamoDBEncryptor encryptor =
-        DynamoDBEncryptor.getInstance(new TestEncryptionMaterialsProvider());
-    EncryptionContext context =
-        new EncryptionContext.Builder().withHashKeyName(KEY_NAME).withTableName(TABLE_NAME).build();
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+      new TestEncryptionMaterialsProvider()
+    );
+    EncryptionContext context = new EncryptionContext.Builder()
+      .withHashKeyName(KEY_NAME)
+      .withTableName(TABLE_NAME)
+      .build();
     // Insert the data
     for (Map<String, AttributeValue> attr : attrs) {
       attr = encryptor.encryptAllFieldsExcept(attr, context, KEY_NAME);
@@ -116,53 +139,81 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
 
   @Test
   public void testLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     for (Map<String, AttributeValue> attr : attrs) {
-      NumberAttributeTestClass x = util.load(getKeyObject(attr.get(KEY_NAME).getS()));
+      NumberAttributeTestClass x = util.load(
+        getKeyObject(attr.get(KEY_NAME).getS())
+      );
       assertEquals(x.getKey(), attr.get(KEY_NAME).getS());
 
       // Convert all numbers to the most inclusive type for easy comparison
       assertEquals(
-          x.getBigDecimalAttribute(), new BigDecimal(attr.get(BIG_DECIMAL_ATTRIBUTE).getN()));
+        x.getBigDecimalAttribute(),
+        new BigDecimal(attr.get(BIG_DECIMAL_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getBigIntegerAttribute()),
-          new BigDecimal(attr.get(BIG_INTEGER_ATTRIBUTE).getN()));
+        new BigDecimal(x.getBigIntegerAttribute()),
+        new BigDecimal(attr.get(BIG_INTEGER_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getFloatAttribute()), new BigDecimal(attr.get(FLOAT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getFloatAttribute()),
+        new BigDecimal(attr.get(FLOAT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getFloatObjectAttribute()),
-          new BigDecimal(attr.get(FLOAT_OBJECT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getFloatObjectAttribute()),
+        new BigDecimal(attr.get(FLOAT_OBJECT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getDoubleAttribute()),
-          new BigDecimal(attr.get(DOUBLE_ATTRIBUTE).getN()));
+        new BigDecimal(x.getDoubleAttribute()),
+        new BigDecimal(attr.get(DOUBLE_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getDoubleObjectAttribute()),
-          new BigDecimal(attr.get(DOUBLE_OBJECT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getDoubleObjectAttribute()),
+        new BigDecimal(attr.get(DOUBLE_OBJECT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getIntAttribute()), new BigDecimal(attr.get(INT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getIntAttribute()),
+        new BigDecimal(attr.get(INT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getIntegerAttribute()),
-          new BigDecimal(attr.get(INTEGER_ATTRIBUTE).getN()));
+        new BigDecimal(x.getIntegerAttribute()),
+        new BigDecimal(attr.get(INTEGER_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getLongAttribute()), new BigDecimal(attr.get(LONG_ATTRIBUTE).getN()));
+        new BigDecimal(x.getLongAttribute()),
+        new BigDecimal(attr.get(LONG_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getLongObjectAttribute()),
-          new BigDecimal(attr.get(LONG_OBJECT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getLongObjectAttribute()),
+        new BigDecimal(attr.get(LONG_OBJECT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getByteAttribute()), new BigDecimal(attr.get(BYTE_ATTRIBUTE).getN()));
+        new BigDecimal(x.getByteAttribute()),
+        new BigDecimal(attr.get(BYTE_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getByteObjectAttribute()),
-          new BigDecimal(attr.get(BYTE_OBJECT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getByteObjectAttribute()),
+        new BigDecimal(attr.get(BYTE_OBJECT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getShortAttribute()), new BigDecimal(attr.get(SHORT_ATTRIBUTE).getN()));
+        new BigDecimal(x.getShortAttribute()),
+        new BigDecimal(attr.get(SHORT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          new BigDecimal(x.getShortObjectAttribute()),
-          new BigDecimal(attr.get(SHORT_OBJECT_ATTRIBUTE).getN()));
-      assertEquals(x.isBooleanAttribute(), attr.get(BOOLEAN_ATTRIBUTE).getN().equals("1"));
+        new BigDecimal(x.getShortObjectAttribute()),
+        new BigDecimal(attr.get(SHORT_OBJECT_ATTRIBUTE).getN())
+      );
       assertEquals(
-          (Object) x.getBooleanObjectAttribute(),
-          (Object) attr.get(BOOLEAN_OBJECT_ATTRIBUTE).getN().equals("1"));
+        x.isBooleanAttribute(),
+        attr.get(BOOLEAN_ATTRIBUTE).getN().equals("1")
+      );
+      assertEquals(
+        (Object) x.getBooleanObjectAttribute(),
+        (Object) attr.get(BOOLEAN_OBJECT_ATTRIBUTE).getN().equals("1")
+      );
     }
 
     // Test loading an object that doesn't exist
@@ -171,13 +222,17 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
 
   @Test
   public void testSave() throws Exception {
-    List<NumberAttributeTestClass> objs = new ArrayList<NumberAttributeTestClass>();
+    List<NumberAttributeTestClass> objs = new ArrayList<
+      NumberAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       NumberAttributeTestClass obj = getUniqueObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (NumberAttributeTestClass obj : objs) {
       util.save(obj);
     }
@@ -191,13 +246,17 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
 
   @Test
   public void testUpdate() throws Exception {
-    List<NumberAttributeTestClass> objs = new ArrayList<NumberAttributeTestClass>();
+    List<NumberAttributeTestClass> objs = new ArrayList<
+      NumberAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       NumberAttributeTestClass obj = getUniqueObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (NumberAttributeTestClass obj : objs) {
       util.save(obj);
     }
@@ -218,14 +277,18 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
   /** Tests automatically setting a hash key upon saving. */
   @Test
   public void testSetHashKey() throws Exception {
-    List<NumberAttributeTestClass> objs = new ArrayList<NumberAttributeTestClass>();
+    List<NumberAttributeTestClass> objs = new ArrayList<
+      NumberAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       NumberAttributeTestClass obj = getUniqueObject();
       obj.setKey(null);
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (NumberAttributeTestClass obj : objs) {
       assertNull(obj.getKey());
       util.save(obj);
@@ -241,10 +304,15 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
   @Test
   public void testDelete() throws Exception {
     NumberAttributeTestClass obj = getUniqueObject();
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(obj);
 
-    NumberAttributeTestClass loaded = util.load(NumberAttributeTestClass.class, obj.getKey());
+    NumberAttributeTestClass loaded = util.load(
+      NumberAttributeTestClass.class,
+      obj.getKey()
+    );
     loaded.setIgnored(obj.getIgnored());
     assertEquals(obj, loaded);
 
@@ -255,12 +323,17 @@ public class SimpleNumericAttributesITCase extends DynamoDBMapperCryptoIntegrati
   @Test
   public void performanceTest() throws Exception {
     NumberAttributeTestClass obj = getUniqueObject();
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
     HashMap<String, AttributeValue> key = new HashMap<String, AttributeValue>();
     key.put(KEY_NAME, new AttributeValue().withS(obj.getKey()));
-    GetItemResult item =
-        dynamo.getItem(new GetItemRequest().withTableName("aws-java-sdk-util-crypto").withKey(key));
+    GetItemResult item = dynamo.getItem(
+      new GetItemRequest()
+        .withTableName("aws-java-sdk-util-crypto")
+        .withKey(key)
+    );
 
     long start = System.currentTimeMillis();
     for (int i = 0; i < 10000; i++) {

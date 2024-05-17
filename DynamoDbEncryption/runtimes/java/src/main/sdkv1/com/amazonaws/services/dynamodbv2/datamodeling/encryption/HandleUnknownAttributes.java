@@ -36,6 +36,7 @@ import java.lang.annotation.Target;
  *
  * @author Dan Cavallaro
  */
-@Target(value = {ElementType.TYPE})
+@Target(value = { ElementType.TYPE })
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface HandleUnknownAttributes {}
+public @interface HandleUnknownAttributes {
+}

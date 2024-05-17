@@ -22,7 +22,9 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 /** @author Greg Rubin */
-public abstract class AbstractRawMaterials implements DecryptionMaterials, EncryptionMaterials {
+public abstract class AbstractRawMaterials
+  implements DecryptionMaterials, EncryptionMaterials {
+
   private Map<String, String> description;
   private final Key signingKey;
   private final Key verificationKey;
@@ -32,7 +34,10 @@ public abstract class AbstractRawMaterials implements DecryptionMaterials, Encry
     this(signingPair, Collections.EMPTY_MAP);
   }
 
-  protected AbstractRawMaterials(KeyPair signingPair, Map<String, String> description) {
+  protected AbstractRawMaterials(
+    KeyPair signingPair,
+    Map<String, String> description
+  ) {
     this.signingKey = signingPair.getPrivate();
     this.verificationKey = signingPair.getPublic();
     setMaterialDescription(description);
@@ -43,10 +48,14 @@ public abstract class AbstractRawMaterials implements DecryptionMaterials, Encry
     this(macKey, Collections.EMPTY_MAP);
   }
 
-  protected AbstractRawMaterials(SecretKey macKey, Map<String, String> description) {
+  protected AbstractRawMaterials(
+    SecretKey macKey,
+    Map<String, String> description
+  ) {
     this.signingKey = macKey;
     this.verificationKey = macKey;
-    this.description = Collections.unmodifiableMap(new HashMap<String, String>(description));
+    this.description =
+      Collections.unmodifiableMap(new HashMap<String, String>(description));
   }
 
   @Override
@@ -55,7 +64,8 @@ public abstract class AbstractRawMaterials implements DecryptionMaterials, Encry
   }
 
   public void setMaterialDescription(Map<String, String> description) {
-    this.description = Collections.unmodifiableMap(new HashMap<String, String>(description));
+    this.description =
+      Collections.unmodifiableMap(new HashMap<String, String>(description));
   }
 
   @Override

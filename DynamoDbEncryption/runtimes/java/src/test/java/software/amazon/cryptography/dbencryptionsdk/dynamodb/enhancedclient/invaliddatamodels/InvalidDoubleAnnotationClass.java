@@ -13,35 +13,35 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 @DynamoDbBean
 public class InvalidDoubleAnnotationClass {
 
-    private String id;
-    private String sortKey;
-    private String invalid;
+  private String id;
+  private String sortKey;
+  private String invalid;
 
-    @DynamoDbPartitionKey
-    public String getId() {
-        return this.id;
-    }
+  @DynamoDbPartitionKey
+  public String getId() {
+    return this.id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    @DynamoDbSortKey
-    public String getSortKey() {
-        return this.sortKey;
-    }
+  @DynamoDbSortKey
+  public String getSortKey() {
+    return this.sortKey;
+  }
 
-    public void setSortKey(String sortKey) {
-        this.sortKey = sortKey;
-    }
+  public void setSortKey(String sortKey) {
+    this.sortKey = sortKey;
+  }
 
-    @DynamoDbEncryptionSignOnly
-    @DynamoDbEncryptionDoNothing
-    public String getInvalid() {
-        return this.invalid;
-    }
+  @DynamoDbEncryptionSignOnly
+  @DynamoDbEncryptionDoNothing
+  public String getInvalid() {
+    return this.invalid;
+  }
 
-    public void setInvalid(String invalid) {
-        this.invalid = invalid;
-    }
+  public void setInvalid(String invalid) {
+    this.invalid = invalid;
+  }
 }

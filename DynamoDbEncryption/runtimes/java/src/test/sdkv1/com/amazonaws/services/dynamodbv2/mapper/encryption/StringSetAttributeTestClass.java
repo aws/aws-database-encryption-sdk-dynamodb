@@ -48,7 +48,9 @@ public class StringSetAttributeTestClass {
     return StringSetAttributeRenamed;
   }
 
-  public void setStringSetAttributeRenamed(Set<String> stringSetAttributeRenamed) {
+  public void setStringSetAttributeRenamed(
+    Set<String> stringSetAttributeRenamed
+  ) {
     StringSetAttributeRenamed = stringSetAttributeRenamed;
   }
 
@@ -57,10 +59,14 @@ public class StringSetAttributeTestClass {
     final int prime = 31;
     int result = 1;
     result =
-        prime * result
-            + ((StringSetAttributeRenamed == null) ? 0 : StringSetAttributeRenamed.hashCode());
+      prime * result +
+      ((StringSetAttributeRenamed == null)
+          ? 0
+          : StringSetAttributeRenamed.hashCode());
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + ((stringSetAttribute == null) ? 0 : stringSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((stringSetAttribute == null) ? 0 : stringSetAttribute.hashCode());
     return result;
   }
 
@@ -72,13 +78,17 @@ public class StringSetAttributeTestClass {
     StringSetAttributeTestClass other = (StringSetAttributeTestClass) obj;
     if (StringSetAttributeRenamed == null) {
       if (other.StringSetAttributeRenamed != null) return false;
-    } else if (!StringSetAttributeRenamed.equals(other.StringSetAttributeRenamed)) return false;
+    } else if (
+      !StringSetAttributeRenamed.equals(other.StringSetAttributeRenamed)
+    ) return false;
     if (key == null) {
       if (other.key != null) return false;
     } else if (!key.equals(other.key)) return false;
     if (stringSetAttribute == null) {
       if (other.stringSetAttribute != null) return false;
-    } else if (!stringSetAttribute.equals(other.stringSetAttribute)) return false;
+    } else if (
+      !stringSetAttribute.equals(other.stringSetAttribute)
+    ) return false;
     return true;
   }
 }

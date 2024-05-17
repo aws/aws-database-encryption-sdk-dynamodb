@@ -25,39 +25,50 @@ import software.amazon.cryptography.keystore.model.KeyStoreConfig;
  */
 public class CreateKeyStoreKeyExample {
 
-    public static String KeyStoreCreateKey(String keyStoreTableName,
-                                           String logicalKeyStoreName,
-                                           String kmsKeyArn) {
-        // 1. Configure your KeyStore resource.
-        //    This SHOULD be the same configuration that was used to create the DDB table
-        //    in the "Create KeyStore Table Example".
-        final KeyStore keystore = KeyStore.builder().KeyStoreConfig(
-                KeyStoreConfig.builder()
-                        .ddbClient(DynamoDbClient.create())
-                        .ddbTableName(keyStoreTableName)
-                        .logicalKeyStoreName(logicalKeyStoreName)
-                        .kmsClient(KmsClient.create())
-                        .kmsConfiguration(KMSConfiguration.builder()
-                            .kmsKeyArn(kmsKeyArn)
-                            .build())
-                        .build()).build();
+  public static String KeyStoreCreateKey(
+    String keyStoreTableName,
+    String logicalKeyStoreName,
+    String kmsKeyArn
+  ) {
+    // 1. Configure your KeyStore resource.
+    //    This SHOULD be the same configuration that was used to create the DDB table
+    //    in the "Create KeyStore Table Example".
+    final KeyStore keystore = KeyStore
+      .builder()
+      .KeyStoreConfig(
+        KeyStoreConfig
+          .builder()
+          .ddbClient(DynamoDbClient.create())
+          .ddbTableName(keyStoreTableName)
+          .logicalKeyStoreName(logicalKeyStoreName)
+          .kmsClient(KmsClient.create())
+          .kmsConfiguration(
+            KMSConfiguration.builder().kmsKeyArn(kmsKeyArn).build()
+          )
+          .build()
+      )
+      .build();
 
-        // 2. Create a new branch key and beacon key in our KeyStore.
-        //    Both the branch key and the beacon key will share an Id.
-        //    This creation is eventually consistent.
+    // 2. Create a new branch key and beacon key in our KeyStore.
+    //    Both the branch key and the beacon key will share an Id.
+    //    This creation is eventually consistent.
 
-        final String branchKeyId = keystore.CreateKey(CreateKeyInput.builder().build()).branchKeyIdentifier();
+    final String branchKeyId = keystore
+      .CreateKey(CreateKeyInput.builder().build())
+      .branchKeyIdentifier();
 
-        return branchKeyId;
+    return branchKeyId;
+  }
+
+  public static void main(final String[] args) {
+    if (args.length <= 1) {
+      throw new IllegalArgumentException(
+        "To run this example, include the keyStoreTableName, logicalKeyStoreName, and kmsKeyArn in args"
+      );
     }
-
-    public static void main(final String[] args) {
-        if (args.length <= 1) {
-            throw new IllegalArgumentException("To run this example, include the keyStoreTableName, logicalKeyStoreName, and kmsKeyArn in args");
-        }
-        final String keyStoreTableName = args[0];
-        final String logicalKeyStoreName = args[1];
-        final String kmsKeyArn = args[2];
-        KeyStoreCreateKey(keyStoreTableName, logicalKeyStoreName, kmsKeyArn);
-    }
+    final String keyStoreTableName = args[0];
+    final String logicalKeyStoreName = args[1];
+    final String kmsKeyArn = args[2];
+    KeyStoreCreateKey(keyStoreTableName, logicalKeyStoreName, kmsKeyArn);
+  }
 }

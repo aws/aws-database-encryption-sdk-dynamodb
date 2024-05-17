@@ -23,6 +23,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 public class AttributeValueMatcher extends BaseMatcher<AttributeValue> {
+
   private final AttributeValue expected;
   private final boolean invert;
 
@@ -49,19 +50,21 @@ public class AttributeValueMatcher extends BaseMatcher<AttributeValue> {
   public void describeTo(Description description) {}
 
   public static boolean attrEquals(AttributeValue e, AttributeValue a) {
-    if (!isEqual(e.getB(), a.getB())
-        || !isNumberEqual(e.getN(), a.getN())
-        || !isEqual(e.getS(), a.getS())
-        || !isEqual(e.getBS(), a.getBS())
-        || !isNumberEqual(e.getNS(), a.getNS())
-        || !isEqual(e.getSS(), a.getSS())) {
+    if (
+      !isEqual(e.getB(), a.getB()) ||
+      !isNumberEqual(e.getN(), a.getN()) ||
+      !isEqual(e.getS(), a.getS()) ||
+      !isEqual(e.getBS(), a.getBS()) ||
+      !isNumberEqual(e.getNS(), a.getNS()) ||
+      !isEqual(e.getSS(), a.getSS())
+    ) {
       return false;
     }
     return true;
   }
 
   private static boolean isNumberEqual(String o1, String o2) {
-    if (o1 == null ^ o2 == null) {
+    if ((o1 == null) ^ (o2 == null)) {
       return false;
     }
     if (o1 == o2) return true;
@@ -71,15 +74,18 @@ public class AttributeValueMatcher extends BaseMatcher<AttributeValue> {
   }
 
   private static boolean isEqual(Object o1, Object o2) {
-    if (o1 == null ^ o2 == null) {
+    if ((o1 == null) ^ (o2 == null)) {
       return false;
     }
     if (o1 == o2) return true;
     return o1.equals(o2);
   }
 
-  private static boolean isNumberEqual(Collection<String> c1, Collection<String> c2) {
-    if (c1 == null ^ c2 == null) {
+  private static boolean isNumberEqual(
+    Collection<String> c1,
+    Collection<String> c2
+  ) {
+    if ((c1 == null) ^ (c2 == null)) {
       return false;
     }
     if (c1 != null) {
@@ -99,7 +105,7 @@ public class AttributeValueMatcher extends BaseMatcher<AttributeValue> {
   }
 
   private static <T> boolean isEqual(Collection<T> c1, Collection<T> c2) {
-    if (c1 == null ^ c2 == null) {
+    if ((c1 == null) ^ (c2 == null)) {
       return false;
     }
     if (c1 != null) {

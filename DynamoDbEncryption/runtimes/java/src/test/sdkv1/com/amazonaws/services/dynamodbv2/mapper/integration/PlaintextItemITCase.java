@@ -28,13 +28,19 @@ import java.util.Map;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class PlaintextItemITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class PlaintextItemITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
+
   private static final String STRING_ATTRIBUTE = "stringAttribute";
   private static Map<String, AttributeValue> plaintextItem = new HashMap<>();
+
   // Test data
   static {
     plaintextItem.put(KEY_NAME, new AttributeValue().withS("" + startKey++));
-    plaintextItem.put(STRING_ATTRIBUTE, new AttributeValue().withS("" + startKey++));
+    plaintextItem.put(
+      STRING_ATTRIBUTE,
+      new AttributeValue().withS("" + startKey++)
+    );
   }
 
   @BeforeClass
@@ -46,22 +52,36 @@ public class PlaintextItemITCase extends DynamoDBMapperCryptoIntegrationTestBase
 
   @Test
   public void testLoadWithPlaintextItem() {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
-    UntouchedTable load = util.load(UntouchedTable.class, plaintextItem.get(KEY_NAME).getS());
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
+    UntouchedTable load = util.load(
+      UntouchedTable.class,
+      plaintextItem.get(KEY_NAME).getS()
+    );
 
     assertEquals(load.getKey(), plaintextItem.get(KEY_NAME).getS());
-    assertEquals(load.getStringAttribute(), plaintextItem.get(STRING_ATTRIBUTE).getS());
+    assertEquals(
+      load.getStringAttribute(),
+      plaintextItem.get(STRING_ATTRIBUTE).getS()
+    );
   }
 
   @Test
   public void testLoadWithPlaintextItemWithModelHavingNewEncryptedAttribute() {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
-    UntouchedWithNewEncryptedAttributeTable load =
-        util.load(
-            UntouchedWithNewEncryptedAttributeTable.class, plaintextItem.get(KEY_NAME).getS());
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
+    UntouchedWithNewEncryptedAttributeTable load = util.load(
+      UntouchedWithNewEncryptedAttributeTable.class,
+      plaintextItem.get(KEY_NAME).getS()
+    );
 
     assertEquals(load.getKey(), plaintextItem.get(KEY_NAME).getS());
-    assertEquals(load.getStringAttribute(), plaintextItem.get(STRING_ATTRIBUTE).getS());
+    assertEquals(
+      load.getStringAttribute(),
+      plaintextItem.get(STRING_ATTRIBUTE).getS()
+    );
     assertNull(load.getNewAttribute());
   }
 
@@ -97,11 +117,15 @@ public class PlaintextItemITCase extends DynamoDBMapperCryptoIntegrationTestBase
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       UntouchedTable that = (UntouchedTable) o;
-      return key.equals(that.key) && stringAttribute.equals(that.stringAttribute);
+      return (
+        key.equals(that.key) && stringAttribute.equals(that.stringAttribute)
+      );
     }
   }
 
-  public static final class UntouchedWithNewEncryptedAttributeTable extends UntouchedTable {
+  public static final class UntouchedWithNewEncryptedAttributeTable
+    extends UntouchedTable {
+
     private String newAttribute;
 
     public String getNewAttribute() {

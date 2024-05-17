@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  * from the {@link ProviderStore} to avoid excessive load on the backing systems.
  */
 public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
+
   private static final long INITIAL_VERSION = 0;
   private static final String PROVIDER_CACHE_KEY_DELIM = "#";
   private static final int DEFAULT_CACHE_MAX_SIZE = 1000;
@@ -28,25 +29,26 @@ public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
   private final TTLCache<EncryptionMaterialsProvider> providerCache;
   private final TTLCache<Long> versionCache;
 
-  private final EntryLoader<Long> versionLoader =
-      new EntryLoader<Long>() {
-        @Override
-        public Long load(String entryKey) {
-          return keystore.getMaxVersion(entryKey);
-        }
-      };
+  private final EntryLoader<Long> versionLoader = new EntryLoader<Long>() {
+    @Override
+    public Long load(String entryKey) {
+      return keystore.getMaxVersion(entryKey);
+    }
+  };
 
   private final EntryLoader<EncryptionMaterialsProvider> providerLoader =
-      new EntryLoader<EncryptionMaterialsProvider>() {
-        @Override
-        public EncryptionMaterialsProvider load(String entryKey) {
-          final String[] parts = entryKey.split(PROVIDER_CACHE_KEY_DELIM, 2);
-          if (parts.length != 2) {
-            throw new IllegalStateException("Invalid cache key for provider cache: " + entryKey);
-          }
-          return keystore.getProvider(parts[0], Long.parseLong(parts[1]));
+    new EntryLoader<EncryptionMaterialsProvider>() {
+      @Override
+      public EncryptionMaterialsProvider load(String entryKey) {
+        final String[] parts = entryKey.split(PROVIDER_CACHE_KEY_DELIM, 2);
+        if (parts.length != 2) {
+          throw new IllegalStateException(
+            "Invalid cache key for provider cache: " + entryKey
+          );
         }
-      };
+        return keystore.getProvider(parts[0], Long.parseLong(parts[1]));
+      }
+    };
 
   /**
    * Creates a new {@link CachingMostRecentProvider}.
@@ -57,7 +59,10 @@ public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
    * @param ttlInMillis The length of time in milliseconds to cache the most recent provider
    */
   public CachingMostRecentProvider(
-      final ProviderStore keystore, final String materialName, final long ttlInMillis) {
+    final ProviderStore keystore,
+    final String materialName,
+    final long ttlInMillis
+  ) {
     this(keystore, materialName, ttlInMillis, DEFAULT_CACHE_MAX_SIZE);
   }
 
@@ -72,16 +77,19 @@ public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
    *     be evicted from the cache once this size is exceeded.
    */
   public CachingMostRecentProvider(
-      final ProviderStore keystore,
-      final String materialName,
-      final long ttlInMillis,
-      final int maxCacheSize) {
+    final ProviderStore keystore,
+    final String materialName,
+    final long ttlInMillis,
+    final int maxCacheSize
+  ) {
     this.keystore = checkNotNull(keystore, "keystore must not be null");
     this.defaultMaterialName = materialName;
     this.ttlInNanos = TimeUnit.MILLISECONDS.toNanos(ttlInMillis);
 
-    this.providerCache = new TTLCache<>(maxCacheSize, ttlInMillis, providerLoader);
-    this.versionCache = new TTLCache<>(maxCacheSize, ttlInMillis, versionLoader);
+    this.providerCache =
+      new TTLCache<>(maxCacheSize, ttlInMillis, providerLoader);
+    this.versionCache =
+      new TTLCache<>(maxCacheSize, ttlInMillis, versionLoader);
   }
 
   @Override
@@ -96,25 +104,29 @@ public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
       // only happens once in a multithreaded environment,
       // in order to limit calls to the keystore's dependencies.
       final String cacheKey = buildCacheKey(materialName, INITIAL_VERSION);
-      EncryptionMaterialsProvider newProvider =
-          providerCache.load(
-              cacheKey,
-              s -> {
-                // Create the new material in the keystore
-                final String[] parts = s.split(PROVIDER_CACHE_KEY_DELIM, 2);
-                if (parts.length != 2) {
-                  throw new IllegalStateException("Invalid cache key for provider cache: " + s);
-                }
-                EncryptionMaterialsProvider provider =
-                    keystore.getOrCreate(parts[0], Long.parseLong(parts[1]));
+      EncryptionMaterialsProvider newProvider = providerCache.load(
+        cacheKey,
+        s -> {
+          // Create the new material in the keystore
+          final String[] parts = s.split(PROVIDER_CACHE_KEY_DELIM, 2);
+          if (parts.length != 2) {
+            throw new IllegalStateException(
+              "Invalid cache key for provider cache: " + s
+            );
+          }
+          EncryptionMaterialsProvider provider = keystore.getOrCreate(
+            parts[0],
+            Long.parseLong(parts[1])
+          );
 
-                // We now should have version 0 in our keystore.
-                // Update the version cache for this material as a side effect
-                versionCache.put(materialName, INITIAL_VERSION);
+          // We now should have version 0 in our keystore.
+          // Update the version cache for this material as a side effect
+          versionCache.put(materialName, INITIAL_VERSION);
 
-                // Return the new materials to be put into the cache
-                return provider;
-              });
+          // Return the new materials to be put into the cache
+          return provider;
+        }
+      );
 
       return newProvider.getEncryptionMaterials(context);
     } else {
@@ -124,8 +136,9 @@ public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
   }
 
   public DecryptionMaterials getDecryptionMaterials(EncryptionContext context) {
-    final long version =
-        keystore.getVersionFromMaterialDescription(context.getMaterialDescription());
+    final long version = keystore.getVersionFromMaterialDescription(
+      context.getMaterialDescription()
+    );
     final String materialName = getMaterialName(context);
     final String cacheKey = buildCacheKey(materialName, version);
 
@@ -166,14 +179,19 @@ public class CachingMostRecentProvider implements EncryptionMaterialsProvider {
       return 0;
     }
     // Otherwise, return the last update time of that entry
-    return TimeUnit.NANOSECONDS.toMillis(versionCache.getLastUpdated(getMaterialName()));
+    return TimeUnit.NANOSECONDS.toMillis(
+      versionCache.getLastUpdated(getMaterialName())
+    );
   }
 
   protected String getMaterialName(final EncryptionContext context) {
     return defaultMaterialName;
   }
 
-  private static String buildCacheKey(final String materialName, final long version) {
+  private static String buildCacheKey(
+    final String materialName,
+    final long version
+  ) {
     StringBuilder result = new StringBuilder(materialName);
     result.append(PROVIDER_CACHE_KEY_DELIM);
     result.append(version);

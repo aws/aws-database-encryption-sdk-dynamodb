@@ -49,8 +49,9 @@ import javax.crypto.spec.SecretKeySpec;
  */
 // NOTE: This class must remain thread-safe.
 class DynamoDBSigner {
+
   private static final ConcurrentHashMap<String, DynamoDBSigner> cache =
-      new ConcurrentHashMap<String, DynamoDBSigner>();
+    new ConcurrentHashMap<String, DynamoDBSigner>();
 
   protected static final Charset UTF8 = Charset.forName("UTF-8");
   private final SecureRandom rnd;
@@ -89,34 +90,46 @@ class DynamoDBSigner {
   }
 
   void verifySignature(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      byte[] associatedData,
-      Key verificationKey,
-      ByteBuffer signature)
-      throws GeneralSecurityException {
-
-//    System.out.println("verifySignature");
-//    System.out.println(itemAttributes);
-//    System.out.println(attributeActionsOnEncrypt);
-//    System.out.println("==========");
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    byte[] associatedData,
+    Key verificationKey,
+    ByteBuffer signature
+  ) throws GeneralSecurityException {
+    //    System.out.println("verifySignature");
+    //    System.out.println(itemAttributes);
+    //    System.out.println(attributeActionsOnEncrypt);
+    //    System.out.println("==========");
 
     if (verificationKey instanceof DelegatedKey) {
       DelegatedKey dKey = (DelegatedKey) verificationKey;
-      byte[] stringToSign = calculateStringToSign(itemAttributes, attributeActionsOnEncrypt, associatedData);
-      if (!dKey.verify(stringToSign, toByteArray(signature), dKey.getAlgorithm())) {
+      byte[] stringToSign = calculateStringToSign(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData
+      );
+      if (
+        !dKey.verify(stringToSign, toByteArray(signature), dKey.getAlgorithm())
+      ) {
         throw new SignatureException("Bad signature");
       }
     } else if (verificationKey instanceof SecretKey) {
-      byte[] calculatedSig =
-          calculateSignature(
-              itemAttributes, attributeActionsOnEncrypt, associatedData, (SecretKey) verificationKey);
+      byte[] calculatedSig = calculateSignature(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData,
+        (SecretKey) verificationKey
+      );
       if (!safeEquals(signature, calculatedSig)) {
         throw new SignatureException("Bad signature");
       }
     } else if (verificationKey instanceof PublicKey) {
       PublicKey integrityKey = (PublicKey) verificationKey;
-      byte[] stringToSign = calculateStringToSign(itemAttributes, attributeActionsOnEncrypt, associatedData);
+      byte[] stringToSign = calculateStringToSign(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData
+      );
       Signature sig = Signature.getInstance(getSigningAlgorithm());
       sig.initVerify(integrityKey);
       sig.update(stringToSign);
@@ -129,10 +142,10 @@ class DynamoDBSigner {
   }
 
   static byte[] calculateStringToSign(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      byte[] associatedData)
-      throws NoSuchAlgorithmException {
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    byte[] associatedData
+  ) throws NoSuchAlgorithmException {
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       List<String> attrNames = new ArrayList<String>(itemAttributes.keySet());
@@ -174,42 +187,70 @@ class DynamoDBSigner {
 
   /** The itemAttributes have already been encrypted, if necessary, before the signing. */
   byte[] calculateSignature(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      byte[] associatedData,
-      Key key)
-      throws GeneralSecurityException {
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    byte[] associatedData,
+    Key key
+  ) throws GeneralSecurityException {
     if (key instanceof DelegatedKey) {
-      return calculateSignature(itemAttributes, attributeActionsOnEncrypt, associatedData, (DelegatedKey) key);
+      return calculateSignature(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData,
+        (DelegatedKey) key
+      );
     } else if (key instanceof SecretKey) {
-      return calculateSignature(itemAttributes, attributeActionsOnEncrypt, associatedData, (SecretKey) key);
+      return calculateSignature(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData,
+        (SecretKey) key
+      );
     } else if (key instanceof PrivateKey) {
-      return calculateSignature(itemAttributes, attributeActionsOnEncrypt, associatedData, (PrivateKey) key);
+      return calculateSignature(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData,
+        (PrivateKey) key
+      );
     } else {
       throw new IllegalArgumentException("No integrity key provided");
     }
   }
 
   byte[] calculateSignature(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      byte[] associatedData,
-      DelegatedKey key)
-      throws GeneralSecurityException {
-    byte[] stringToSign = calculateStringToSign(itemAttributes, attributeActionsOnEncrypt, associatedData);
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    byte[] associatedData,
+    DelegatedKey key
+  ) throws GeneralSecurityException {
+    byte[] stringToSign = calculateStringToSign(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      associatedData
+    );
     return key.sign(stringToSign, key.getAlgorithm());
   }
 
   byte[] calculateSignature(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      byte[] associatedData,
-      SecretKey key)
-      throws GeneralSecurityException {
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    byte[] associatedData,
+    SecretKey key
+  ) throws GeneralSecurityException {
     if (key instanceof DelegatedKey) {
-      return calculateSignature(itemAttributes, attributeActionsOnEncrypt, associatedData, (DelegatedKey) key);
+      return calculateSignature(
+        itemAttributes,
+        attributeActionsOnEncrypt,
+        associatedData,
+        (DelegatedKey) key
+      );
     }
-    byte[] stringToSign = calculateStringToSign(itemAttributes, attributeActionsOnEncrypt, associatedData);
+    byte[] stringToSign = calculateStringToSign(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      associatedData
+    );
     Mac hmac = Mac.getInstance(key.getAlgorithm());
     hmac.init(key);
     hmac.update(stringToSign);
@@ -217,12 +258,16 @@ class DynamoDBSigner {
   }
 
   byte[] calculateSignature(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      byte[] associatedData,
-      PrivateKey key)
-      throws GeneralSecurityException {
-    byte[] stringToSign = calculateStringToSign(itemAttributes, attributeActionsOnEncrypt, associatedData);
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    byte[] associatedData,
+    PrivateKey key
+  ) throws GeneralSecurityException {
+    byte[] stringToSign = calculateStringToSign(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      associatedData
+    );
     Signature sig = Signature.getInstance(signingAlgorithm);
     sig.initSign(key, rnd);
     sig.update(stringToSign);

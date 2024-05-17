@@ -11,11 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        library:
-          [
-            DynamoDbEncryption,
-            TestVectors
-          ]
+        library: [DynamoDbEncryption, TestVectors]
         # Note dotnet is only used for formatting generated code
         # in this workflow
         dotnet-version: ["6.0.x"]

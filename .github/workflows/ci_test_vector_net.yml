@@ -1,7 +1,7 @@
 # This workflow performs test vectors in DotNet.
 name: Library DotNet Test Vectors
 
-on: 
+on:
   pull_request:
   push:
     branches:
@@ -11,11 +11,11 @@ jobs:
   testDotNet:
     strategy:
       matrix:
-        dotnet-version: [ '6.0.x' ]
+        dotnet-version: ["6.0.x"]
         os: [
-          # Run on ubuntu image that comes pre-configured with docker
-          ubuntu-latest
-        ]
+            # Run on ubuntu image that comes pre-configured with docker
+            ubuntu-latest,
+          ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -25,7 +25,7 @@ jobs:
         uses: rrainn/dynamodb-action@v4.0.0
         with:
           port: 8000
-          cors: '*'
+          cors: "*"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -41,7 +41,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: '4.2.0'
+          dafny-version: "4.2.0"
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
@@ -62,4 +62,3 @@ jobs:
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0
-

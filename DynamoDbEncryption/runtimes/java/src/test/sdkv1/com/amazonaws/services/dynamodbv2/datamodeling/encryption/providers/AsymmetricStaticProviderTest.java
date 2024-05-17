@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class AsymmetricStaticProviderTest {
+
   private static KeyPair encryptionPair;
   private static SecretKey macKey;
   private static KeyPair sigPair;
@@ -63,9 +64,11 @@ public class AsymmetricStaticProviderTest {
 
   @Test
   public void constructWithMac() throws GeneralSecurityException {
-    AsymmetricStaticProvider prov =
-        new AsymmetricStaticProvider(
-            encryptionPair, macKey, Collections.<String, String>emptyMap());
+    AsymmetricStaticProvider prov = new AsymmetricStaticProvider(
+      encryptionPair,
+      macKey,
+      Collections.<String, String>emptyMap()
+    );
 
     EncryptionMaterials eMat = prov.getEncryptionMaterials(ctx);
     SecretKey encryptionKey = eMat.getEncryptionKey();
@@ -79,9 +82,11 @@ public class AsymmetricStaticProviderTest {
 
   @Test
   public void constructWithSigPair() throws GeneralSecurityException {
-    AsymmetricStaticProvider prov =
-        new AsymmetricStaticProvider(
-            encryptionPair, sigPair, Collections.<String, String>emptyMap());
+    AsymmetricStaticProvider prov = new AsymmetricStaticProvider(
+      encryptionPair,
+      sigPair,
+      Collections.<String, String>emptyMap()
+    );
 
     EncryptionMaterials eMat = prov.getEncryptionMaterials(ctx);
     SecretKey encryptionKey = eMat.getEncryptionKey();
@@ -95,9 +100,11 @@ public class AsymmetricStaticProviderTest {
 
   @Test
   public void randomEnvelopeKeys() throws GeneralSecurityException {
-    AsymmetricStaticProvider prov =
-        new AsymmetricStaticProvider(
-            encryptionPair, macKey, Collections.<String, String>emptyMap());
+    AsymmetricStaticProvider prov = new AsymmetricStaticProvider(
+      encryptionPair,
+      macKey,
+      Collections.<String, String>emptyMap()
+    );
 
     EncryptionMaterials eMat = prov.getEncryptionMaterials(ctx);
     SecretKey encryptionKey = eMat.getEncryptionKey();
@@ -108,20 +115,26 @@ public class AsymmetricStaticProviderTest {
     SecretKey encryptionKey2 = eMat2.getEncryptionKey();
     assertEquals(macKey, eMat.getSigningKey());
 
-    assertFalse("Envelope keys must be different", encryptionKey.equals(encryptionKey2));
+    assertFalse(
+      "Envelope keys must be different",
+      encryptionKey.equals(encryptionKey2)
+    );
   }
 
   @Test
   public void testRefresh() {
     // This does nothing, make sure we don't throw and exception.
-    AsymmetricStaticProvider prov =
-        new AsymmetricStaticProvider(encryptionPair, macKey, description);
+    AsymmetricStaticProvider prov = new AsymmetricStaticProvider(
+      encryptionPair,
+      macKey,
+      description
+    );
     prov.refresh();
   }
 
   private static EncryptionContext ctx(EncryptionMaterials mat) {
     return new EncryptionContext.Builder()
-        .withMaterialDescription(mat.getMaterialDescription())
-        .build();
+      .withMaterialDescription(mat.getMaterialDescription())
+      .build();
   }
 }

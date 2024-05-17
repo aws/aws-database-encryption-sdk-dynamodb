@@ -9,11 +9,13 @@ This project implements the AWS Database Encryption SDK for DynamoDB for .NET.
 The AWS Database Encryption SDK for DynamoDB is available on [NuGet](https://www.nuget.org/) and can referenced from an existing `.csproj` through typical ways.
 
 Using the dotnet CLI:
+
 ```shell
 dotnet add <your-project-name>.csproj package AWS.Cryptography.DbEncryptionSDK.DynamoDb
 ```
 
 Alternatively, you may directly modify the `.csproj` and add the AWS Database Encryption SDK for DynamoDB to `PackageReference` `ItemGroup`:
+
 ```xml
 <PackageReference Include="AWS.Cryptography.DbEncryptionSDK.DynamoDb" />
 ```
@@ -36,8 +38,8 @@ To build, the AWS Database Encryption SDK for DynamoDB requires the most up to d
 The AWS Database Encryption SDK for DynamoDB targets frameworks [`net48` and `net6.0`](https://docs.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks).
 To build and test the AWS Database Encryption SDK for DynamoDB, you must install the following .NET tools:
 
-* [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) or newer
-* [.NET Framework 4.8.0](https://docs.microsoft.com/en-us/dotnet/framework/install/) or newer (if on Windows)
+- [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) or newer
+- [.NET Framework 4.8.0](https://docs.microsoft.com/en-us/dotnet/framework/install/) or newer (if on Windows)
 
 You will also need to ensure that you fetch all submodules using either `git clone --recursive ...` when cloning the repository or `git submodule update --init` on an existing clone.
 
@@ -59,7 +61,7 @@ If you set up the AWS Database Encryption SDK for DynamoDB to use the AWS KMS Ke
 the AWS Database Encryption SDK for DynamoDB will make calls to AWS KMS on your behalf,
 using the appropriate AWS SDK.
 
-However, you must first set up AWS credentials for use with the AWS SDK. 
+However, you must first set up AWS credentials for use with the AWS SDK.
 Instructions for setting up AWS credentials are available in the [AWS Docs for the AWS SDK for .NET.](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-creds.html).
 
 ## Testing the AWS Database Encryption SDK for DynamoDB for .NET
@@ -79,7 +81,7 @@ Run the test suite with:
 cd DynamoDbEncryption
 make transpile_test_net
 # Windows/Linux
-make test_net 
+make test_net
 # On Mac
 make test_net_mac_brew
 ```
@@ -100,11 +102,13 @@ Please note that tests and test vectors require internet access and valid AWS cr
 Most c# IDEs appreciate Solution files.
 To generate one Solution file for all the projects here,
 run:
+
 ```
 cd DynamoDbEncryption/runtimes/net
 dotnet new sln --name DBESDK
 dotnet sln add $(find . -name '*.csproj')
 ```
+
 Then ask your IDE to open `DBESDK.sln`.
 
 ## License

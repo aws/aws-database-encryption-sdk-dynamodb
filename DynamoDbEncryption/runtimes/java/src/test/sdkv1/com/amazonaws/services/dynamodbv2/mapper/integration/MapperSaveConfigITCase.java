@@ -38,14 +38,14 @@ import org.testng.annotations.Test;
 /**
  * Tests the behavior of save method of DynamoDBMapper under different SaveBehavior configurations.
  */
-public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTestBase {
+public class MapperSaveConfigITCase
+  extends MapperSaveConfigCryptoIntegrationTestBase {
 
   @AfterClass
   public static void teatDown() throws Exception {
     try {
       //            dynamo.deleteTable(new DeleteTableRequest(tableName));
-    } catch (Exception e) {
-    }
+    } catch (Exception e) {}
   }
 
   /*********************************************
@@ -57,8 +57,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
    * already existed in the table.
    */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testDefaultWithOnlyKeyAttributesSpecifiedRecordInTable() throws Exception {
-
+  public void testDefaultWithOnlyKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* First put a new item (with non-key attribute)*/
     TestItem testItem = putRandomUniqueItem("foo", null);
 
@@ -81,7 +81,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
    * object by a key-only put request even if it is using UPDATE configuration.
    */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testDefaultWithOnlyKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testDefaultWithOnlyKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -98,8 +99,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** Update an existing item in the table. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testDefaultWithKeyAndNonKeyAttributesSpecifiedRecordInTable() throws Exception {
-
+  public void testDefaultWithKeyAndNonKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* First put a new item (without non-key attribute)*/
     TestItem testItem = putRandomUniqueItem(null, null);
     String hashKeyValue = testItem.getHashKey();
@@ -123,12 +124,16 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
   }
 
   /** Use UPDATE to put a new item in the table. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testDefaultWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testDefaultWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -141,7 +146,10 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
   }
 
   /*********************************************
@@ -153,8 +161,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
    * item at all, since all the null-valued non-key attributes are ignored.
    */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testUpdateSkipNullWithOnlyKeyAttributesSpecifiedRecordInTable() throws Exception {
-
+  public void testUpdateSkipNullWithOnlyKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* First put a new item (with non-key attribute)*/
     TestItem testItem = putRandomUniqueItem("foo", null);
 
@@ -174,7 +182,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** The behavior should be the same as UPDATE. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testUpdateSkipNullWithOnlyKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testUpdateSkipNullWithOnlyKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -192,8 +201,7 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
   /** Use UPDATE_SKIP_NULL_ATTRIBUTES to update an existing item in the table. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testUpdateSkipNullWithKeyAndNonKeyAttributesSpecifiedRecordInTable()
-      throws Exception {
-
+    throws Exception {
     /* First put a new item (without non-key attribute)*/
     TestItem testItem = putRandomUniqueItem(null, null);
     String hashKeyValue = testItem.getHashKey();
@@ -218,7 +226,10 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
 
     /* At last, save the object again, but with non-key attribute set as null.
      * This should not change the existing item.
@@ -236,7 +247,7 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
   /** Use UPDATE_SKIP_NULL_ATTRIBUTES to put a new item in the table. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
   public void testUpdateSkipNullWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable()
-      throws Exception {
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -249,7 +260,10 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
   }
 
   /*********************************************
@@ -258,8 +272,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** The behavior should be the same as UPDATE_SKIP_NULL_ATTRIBUTES. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testAppendSetWithOnlyKeyAttributesSpecifiedRecordInTable() throws Exception {
-
+  public void testAppendSetWithOnlyKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* First put a new item (with non-key attributes)*/
     Set<String> randomSet = generateRandomStringSet(3);
     TestItem testItem = putRandomUniqueItem("foo", randomSet);
@@ -277,12 +291,15 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
     assertEquals("foo", returnedObject.getNonKeyAttribute());
-    assertTrue(assertSetEquals(randomSet, returnedObject.getStringSetAttribute()));
+    assertTrue(
+      assertSetEquals(randomSet, returnedObject.getStringSetAttribute())
+    );
   }
 
   /** The behavior should be the same as UPDATE and UPDATE_SKIP_NULL_ATTRIBUTES. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testAppendSetWithOnlyKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testAppendSetWithOnlyKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -300,8 +317,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** Use APPEND_SET to update an existing item in the table. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testAppendSetWithKeyAndNonKeyAttributesSpecifiedRecordInTable() throws Exception {
-
+  public void testAppendSetWithKeyAndNonKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* First put a new item (without non-key attribute)*/
     TestItem testItem = putRandomUniqueItem(null, null);
     String hashKeyValue = testItem.getHashKey();
@@ -329,9 +346,16 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
     assertTrue(
-        assertSetEquals(testItem.getStringSetAttribute(), returnedObject.getStringSetAttribute()));
+      assertSetEquals(
+        testItem.getStringSetAttribute(),
+        returnedObject.getStringSetAttribute()
+      )
+    );
 
     /* Override nonKeyAttribute and append stringSetAttribute */
     testItem.setNonKeyAttribute("blabla");
@@ -346,14 +370,22 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertEquals("blabla", returnedObject.getNonKeyAttribute());
     // expected set after the append
     stringSetAttributeValue.addAll(appendSetAttribute);
-    assertTrue(assertSetEquals(stringSetAttributeValue, returnedObject.getStringSetAttribute()));
+    assertTrue(
+      assertSetEquals(
+        stringSetAttributeValue,
+        returnedObject.getStringSetAttribute()
+      )
+    );
 
     /* Append on an existing scalar attribute would result in an exception */
-    TestAppendToScalarItem testAppendToScalarItem = new TestAppendToScalarItem();
+    TestAppendToScalarItem testAppendToScalarItem =
+      new TestAppendToScalarItem();
     testAppendToScalarItem.setHashKey(testItem.getHashKey());
     testAppendToScalarItem.setRangeKey(testItem.getRangeKey());
     // this fake set attribute actually points to a scalar attribute
-    testAppendToScalarItem.setFakeStringSetAttribute(generateRandomStringSet(1));
+    testAppendToScalarItem.setFakeStringSetAttribute(
+      generateRandomStringSet(1)
+    );
     try {
       dynamoMapper.save(testAppendToScalarItem, appendSetConfig);
       fail("Should have thrown a 'Type mismatch' service exception.");
@@ -364,7 +396,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** Use APPEND_SET to put a new item in the table. */
   @Test(expectedExceptions = DynamoDBMappingException.class)
-  public void testAppendSetWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testAppendSetWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -378,8 +411,14 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
-    assertEquals(testItem.getStringSetAttribute(), returnedObject.getStringSetAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
+    assertEquals(
+      testItem.getStringSetAttribute(),
+      returnedObject.getStringSetAttribute()
+    );
   }
 
   /*********************************************
@@ -388,7 +427,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** Use CLOBBER to override the existing item by saving a key-only object. */
   @Test
-  public void testClobberWithOnlyKeyAttributesSpecifiedRecordInTable() throws Exception {
+  public void testClobberWithOnlyKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* Put the item with non-key attribute */
     TestItem testItem = putRandomUniqueItem("foo", null);
 
@@ -406,7 +446,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** Use CLOBBER to put a new item with only key attributes. */
   @Test
-  public void testClobberWithOnlyKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testClobberWithOnlyKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -423,7 +464,8 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
 
   /** Use CLOBBER to override the existing item. */
   @Test
-  public void testClobberWithKeyAndNonKeyAttributesSpecifiedRecordInTable() throws Exception {
+  public void testClobberWithKeyAndNonKeyAttributesSpecifiedRecordInTable()
+    throws Exception {
     /* Put the item with non-key attribute */
     TestItem testItem = putRandomUniqueItem("foo", null);
 
@@ -436,12 +478,16 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
   }
 
   /** Use CLOBBER to put a new item. */
   @Test
-  public void testClobberWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable() throws Exception {
+  public void testClobberWithKeyAndNonKeyAttributesSpecifiedRecordNotInTable()
+    throws Exception {
     TestItem testItem = new TestItem();
     testItem.setHashKey(UUID.randomUUID().toString());
     testItem.setRangeKey(System.currentTimeMillis());
@@ -454,41 +500,56 @@ public class MapperSaveConfigITCase extends MapperSaveConfigCryptoIntegrationTes
     assertNotNull(returnedObject);
     assertEquals(testItem.getHashKey(), returnedObject.getHashKey());
     assertEquals(testItem.getRangeKey(), returnedObject.getRangeKey());
-    assertEquals(testItem.getNonKeyAttribute(), returnedObject.getNonKeyAttribute());
+    assertEquals(
+      testItem.getNonKeyAttribute(),
+      returnedObject.getNonKeyAttribute()
+    );
   }
 
   private static TestItem putRandomUniqueItem(
-      String nonKeyAttributeValue, Set<String> stringSetAttributeValue)
-      throws GeneralSecurityException {
+    String nonKeyAttributeValue,
+    Set<String> stringSetAttributeValue
+  ) throws GeneralSecurityException {
     String hashKeyValue = UUID.randomUUID().toString();
     Long rangeKeyValue = System.currentTimeMillis();
     Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
     item.put(hashKeyName, new AttributeValue().withS(hashKeyValue));
-    item.put(rangeKeyName, new AttributeValue().withN(rangeKeyValue.toString()));
+    item.put(
+      rangeKeyName,
+      new AttributeValue().withN(rangeKeyValue.toString())
+    );
     if (null != nonKeyAttributeValue) {
-      item.put(nonKeyAttributeName, new AttributeValue().withS(nonKeyAttributeValue));
+      item.put(
+        nonKeyAttributeName,
+        new AttributeValue().withS(nonKeyAttributeValue)
+      );
     }
     if (null != stringSetAttributeValue) {
-      item.put(stringSetAttributeName, new AttributeValue().withSS(stringSetAttributeValue));
+      item.put(
+        stringSetAttributeName,
+        new AttributeValue().withSS(stringSetAttributeValue)
+      );
     }
 
-    DynamoDBEncryptor encryptor =
-        DynamoDBEncryptor.getInstance(new TestEncryptionMaterialsProvider());
-    EncryptionContext context =
-        new EncryptionContext.Builder()
-            .withHashKeyName(hashKeyName)
-            .withRangeKeyName(rangeKeyName)
-            .withTableName(tableName)
-            .build();
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+      new TestEncryptionMaterialsProvider()
+    );
+    EncryptionContext context = new EncryptionContext.Builder()
+      .withHashKeyName(hashKeyName)
+      .withRangeKeyName(rangeKeyName)
+      .withTableName(tableName)
+      .build();
     Map<String, Set<EncryptionFlags>> flags =
-        encryptor.allEncryptionFlagsExcept(item, hashKeyName, rangeKeyName);
+      encryptor.allEncryptionFlagsExcept(item, hashKeyName, rangeKeyName);
     // completely exclude the nonKeyAttributeName; otherwise some of the
     // updateSkipNullConfig test will never work
     flags.remove(nonKeyAttributeName);
     flags.remove(stringSetAttributeName);
     item = encryptor.encryptRecord(item, flags, context);
     //        item = encryptor.encryptAllFieldsExcept(item, context, hashKeyName, rangeKeyName);
-    dynamo.putItem(new PutItemRequest().withTableName(tableName).withItem(item));
+    dynamo.putItem(
+      new PutItemRequest().withTableName(tableName).withItem(item)
+    );
     /* Returns the item as a modeled object. */
     TestItem testItem = new TestItem();
     testItem.setHashKey(hashKeyValue);

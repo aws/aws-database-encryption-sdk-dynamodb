@@ -45,7 +45,9 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @Test
   public void testComplexTypes() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     ComplexClass obj = getUniqueObject();
     util.save(obj);
@@ -76,18 +78,36 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     cal.setTime(new Date(startKey++));
     obj.setCalendarAttribute(cal);
     obj.setComplexNestedType(
-        new ComplexNestedType(
-            "" + start++, start++, new ComplexNestedType("" + start++, start++, null)));
-    List<ComplexNestedType> complexTypes = new ArrayList<ComplexTypeITCase.ComplexNestedType>();
+      new ComplexNestedType(
+        "" + start++,
+        start++,
+        new ComplexNestedType("" + start++, start++, null)
+      )
+    );
+    List<ComplexNestedType> complexTypes = new ArrayList<
+      ComplexTypeITCase.ComplexNestedType
+    >();
     complexTypes.add(
-        new ComplexNestedType(
-            "" + start++, start++, new ComplexNestedType("" + start++, start++, null)));
+      new ComplexNestedType(
+        "" + start++,
+        start++,
+        new ComplexNestedType("" + start++, start++, null)
+      )
+    );
     complexTypes.add(
-        new ComplexNestedType(
-            "" + start++, start++, new ComplexNestedType("" + start++, start++, null)));
+      new ComplexNestedType(
+        "" + start++,
+        start++,
+        new ComplexNestedType("" + start++, start++, null)
+      )
+    );
     complexTypes.add(
-        new ComplexNestedType(
-            "" + start++, start++, new ComplexNestedType("" + start++, start++, null)));
+      new ComplexNestedType(
+        "" + start++,
+        start++,
+        new ComplexNestedType("" + start++, start++, null)
+      )
+    );
     obj.setComplexNestedTypeList(complexTypes);
     return obj;
   }
@@ -96,20 +116,28 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
    * Type with a complex nested field for working with marshallers
    */
 
-  public static final class ComplexNestedTypeMarshaller extends JsonMarshaller<ComplexNestedType> {}
+  public static final class ComplexNestedTypeMarshaller
+    extends JsonMarshaller<ComplexNestedType> {}
 
   public static final class ComplexNestedListTypeMarshaller
-      extends JsonMarshaller<List<ComplexNestedType>> {
+    extends JsonMarshaller<List<ComplexNestedType>> {
 
     /* (non-Javadoc)
      * @see com.amazonaws.services.dynamodbv2.datamodeling.JsonMarshaller#unmarshall(java.lang.Class, java.lang.String)
      */
     @Override
-    public List<ComplexNestedType> unmarshall(Class<List<ComplexNestedType>> clazz, String obj) {
+    public List<ComplexNestedType> unmarshall(
+      Class<List<ComplexNestedType>> clazz,
+      String obj
+    ) {
       try {
         JsonFactory jsonFactory = new MappingJsonFactory();
-        JsonParser jsonParser = jsonFactory.createJsonParser(new StringReader(obj));
-        return jsonParser.readValueAs(new TypeReference<List<ComplexNestedType>>() {});
+        JsonParser jsonParser = jsonFactory.createJsonParser(
+          new StringReader(obj)
+        );
+        return jsonParser.readValueAs(
+          new TypeReference<List<ComplexNestedType>>() {}
+        );
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -132,12 +160,16 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       this.complexNestedType = complexNestedType;
     }
 
-    @DynamoDBMarshalling(marshallerClass = ComplexNestedListTypeMarshaller.class)
+    @DynamoDBMarshalling(
+      marshallerClass = ComplexNestedListTypeMarshaller.class
+    )
     public List<ComplexNestedType> getComplexNestedTypeList() {
       return complexNestedTypeList;
     }
 
-    public void setComplexNestedTypeList(List<ComplexNestedType> complexNestedTypeList) {
+    public void setComplexNestedTypeList(
+      List<ComplexNestedType> complexNestedTypeList
+    ) {
       this.complexNestedTypeList = complexNestedTypeList;
     }
 
@@ -158,10 +190,16 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + ((complexNestedType == null) ? 0 : complexNestedType.hashCode());
       result =
-          prime * result + ((complexNestedTypeList == null) ? 0 : complexNestedTypeList.hashCode());
-      result = prime * result + ((extraField == null) ? 0 : extraField.hashCode());
+        prime * result +
+        ((complexNestedType == null) ? 0 : complexNestedType.hashCode());
+      result =
+        prime * result +
+        ((complexNestedTypeList == null)
+            ? 0
+            : complexNestedTypeList.hashCode());
+      result =
+        prime * result + ((extraField == null) ? 0 : extraField.hashCode());
       return result;
     }
 
@@ -178,10 +216,14 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       ComplexClass other = (ComplexClass) obj;
       if (complexNestedType == null) {
         if (other.complexNestedType != null) return false;
-      } else if (!complexNestedType.equals(other.complexNestedType)) return false;
+      } else if (
+        !complexNestedType.equals(other.complexNestedType)
+      ) return false;
       if (complexNestedTypeList == null) {
         if (other.complexNestedTypeList != null) return false;
-      } else if (!complexNestedTypeList.equals(other.complexNestedTypeList)) return false;
+      } else if (
+        !complexNestedTypeList.equals(other.complexNestedTypeList)
+      ) return false;
       if (extraField == null) {
         if (other.extraField != null) return false;
       } else if (!extraField.equals(other.extraField)) return false;
@@ -197,7 +239,11 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
     public ComplexNestedType() {}
 
-    public ComplexNestedType(String stringValue, Integer intValue, ComplexNestedType nestedType) {
+    public ComplexNestedType(
+      String stringValue,
+      Integer intValue,
+      ComplexNestedType nestedType
+    ) {
       super();
       this.stringValue = stringValue;
       this.intValue = intValue;
@@ -233,8 +279,10 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((intValue == null) ? 0 : intValue.hashCode());
-      result = prime * result + ((nestedType == null) ? 0 : nestedType.hashCode());
-      result = prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
+      result =
+        prime * result + ((nestedType == null) ? 0 : nestedType.hashCode());
+      result =
+        prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
       return result;
     }
 
@@ -286,7 +334,9 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((key == null) ? 0 : key.hashCode());
-      result = prime * result + ((otherAttribute == null) ? 0 : otherAttribute.hashCode());
+      result =
+        prime * result +
+        ((otherAttribute == null) ? 0 : otherAttribute.hashCode());
       return result;
     }
 
@@ -316,7 +366,9 @@ public class ComplexTypeITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     obj.setKey(key);
     obj.setOtherAttribute("" + start++);
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     mapper.save(obj);
     ComplexKey loaded = mapper.load(ComplexKey.class, obj.getKey());

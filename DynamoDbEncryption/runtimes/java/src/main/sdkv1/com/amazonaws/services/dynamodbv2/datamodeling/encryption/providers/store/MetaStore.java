@@ -57,11 +57,14 @@ import javax.crypto.spec.SecretKeySpec;
  * @author rubin
  */
 public class MetaStore extends ProviderStore {
+
   private static final String INTEGRITY_ALGORITHM_FIELD = "intAlg";
   private static final String INTEGRITY_KEY_FIELD = "int";
   private static final String ENCRYPTION_ALGORITHM_FIELD = "encAlg";
   private static final String ENCRYPTION_KEY_FIELD = "enc";
-  private static final Pattern COMBINED_PATTERN = Pattern.compile("([^#]+)#(\\d*)");
+  private static final Pattern COMBINED_PATTERN = Pattern.compile(
+    "([^#]+)#(\\d*)"
+  );
   private static final String DEFAULT_INTEGRITY = "HmacSHA256";
   private static final String DEFAULT_ENCRYPTION = "AES";
   private static final String MATERIAL_TYPE_VERSION = "t";
@@ -72,7 +75,7 @@ public class MetaStore extends ProviderStore {
 
   /** Default no-op implementation of {@link ExtraDataSupplier}. */
   private static final EmptyExtraDataSupplier EMPTY_EXTRA_DATA_SUPPLIER =
-      new EmptyExtraDataSupplier();
+    new EmptyExtraDataSupplier();
 
   /** DDB fields that must be encrypted. */
   private static final Set<String> ENCRYPTED_FIELDS;
@@ -97,7 +100,6 @@ public class MetaStore extends ProviderStore {
 
   /** Provides extra data that should be persisted along with the standard material data. */
   public interface ExtraDataSupplier {
-
     /**
      * Gets the extra data attributes for the specified material name.
      *
@@ -105,7 +107,10 @@ public class MetaStore extends ProviderStore {
      * @param version version number.
      * @return plain text of the extra data.
      */
-    Map<String, AttributeValue> getAttributes(final String materialName, final long version);
+    Map<String, AttributeValue> getAttributes(
+      final String materialName,
+      final long version
+    );
 
     /**
      * Gets the extra data field names that should be signed only but not encrypted.
@@ -123,7 +128,10 @@ public class MetaStore extends ProviderStore {
    * @param encryptor used to perform crypto operations on the record attributes.
    */
   public MetaStore(
-      final AmazonDynamoDB ddb, final String tableName, final DynamoDBEncryptor encryptor) {
+    final AmazonDynamoDB ddb,
+    final String tableName,
+    final DynamoDBEncryptor encryptor
+  ) {
     this(ddb, tableName, encryptor, EMPTY_EXTRA_DATA_SUPPLIER);
   }
 
@@ -136,60 +144,84 @@ public class MetaStore extends ProviderStore {
    * @param extraDataSupplier provides extra data that should be stored along with the material.
    */
   public MetaStore(
-      final AmazonDynamoDB ddb,
-      final String tableName,
-      final DynamoDBEncryptor encryptor,
-      final ExtraDataSupplier extraDataSupplier) {
+    final AmazonDynamoDB ddb,
+    final String tableName,
+    final DynamoDBEncryptor encryptor,
+    final ExtraDataSupplier extraDataSupplier
+  ) {
     this.ddb = checkNotNull(ddb, "ddb must not be null");
     this.tableName = checkNotNull(tableName, "tableName must not be null");
     this.encryptor = checkNotNull(encryptor, "encryptor must not be null");
-    this.extraDataSupplier = checkNotNull(extraDataSupplier, "extraDataSupplier must not be null");
+    this.extraDataSupplier =
+      checkNotNull(extraDataSupplier, "extraDataSupplier must not be null");
 
     this.ddbCtx =
-        new EncryptionContext.Builder()
-            .withTableName(this.tableName)
-            .withHashKeyName(DEFAULT_HASH_KEY)
-            .withRangeKeyName(DEFAULT_RANGE_KEY)
-            .build();
+      new EncryptionContext.Builder()
+        .withTableName(this.tableName)
+        .withHashKeyName(DEFAULT_HASH_KEY)
+        .withRangeKeyName(DEFAULT_RANGE_KEY)
+        .build();
 
     final Map<String, ExpectedAttributeValue> tmpExpected = new HashMap<>();
-    tmpExpected.put(DEFAULT_HASH_KEY, new ExpectedAttributeValue().withExists(false));
-    tmpExpected.put(DEFAULT_RANGE_KEY, new ExpectedAttributeValue().withExists(false));
+    tmpExpected.put(
+      DEFAULT_HASH_KEY,
+      new ExpectedAttributeValue().withExists(false)
+    );
+    tmpExpected.put(
+      DEFAULT_RANGE_KEY,
+      new ExpectedAttributeValue().withExists(false)
+    );
     doesNotExist = Collections.unmodifiableMap(tmpExpected);
 
     this.doNotEncrypt = getSignedOnlyFields(extraDataSupplier);
   }
 
   @Override
-  public EncryptionMaterialsProvider getProvider(final String materialName, final long version) {
+  public EncryptionMaterialsProvider getProvider(
+    final String materialName,
+    final long version
+  ) {
     Map<String, AttributeValue> item = getMaterialItem(materialName, version);
     return decryptProvider(item);
   }
 
   @Override
-  public EncryptionMaterialsProvider getOrCreate(final String materialName, final long nextId) {
-    final Map<String, AttributeValue> plaintext = createMaterialItem(materialName, nextId);
-    final Map<String, AttributeValue> ciphertext = conditionalPut(getEncryptedText(plaintext));
+  public EncryptionMaterialsProvider getOrCreate(
+    final String materialName,
+    final long nextId
+  ) {
+    final Map<String, AttributeValue> plaintext = createMaterialItem(
+      materialName,
+      nextId
+    );
+    final Map<String, AttributeValue> ciphertext = conditionalPut(
+      getEncryptedText(plaintext)
+    );
     return decryptProvider(ciphertext);
   }
 
   @Override
   public long getMaxVersion(final String materialName) {
-    final List<Map<String, AttributeValue>> items =
-        ddb.query(
-                new QueryRequest()
-                    .withTableName(tableName)
-                    .withConsistentRead(Boolean.TRUE)
-                    .withKeyConditions(
-                        Collections.singletonMap(
-                            DEFAULT_HASH_KEY,
-                            new Condition()
-                                .withComparisonOperator(ComparisonOperator.EQ)
-                                .withAttributeValueList(new AttributeValue().withS(materialName))))
-                    .withLimit(1)
-                    .withScanIndexForward(false)
-                    .withAttributesToGet(DEFAULT_RANGE_KEY))
-            .getItems();
+    final List<Map<String, AttributeValue>> items = ddb
+      .query(
+        new QueryRequest()
+          .withTableName(tableName)
+          .withConsistentRead(Boolean.TRUE)
+          .withKeyConditions(
+            Collections.singletonMap(
+              DEFAULT_HASH_KEY,
+              new Condition()
+                .withComparisonOperator(ComparisonOperator.EQ)
+                .withAttributeValueList(
+                  new AttributeValue().withS(materialName)
+                )
+            )
+          )
+          .withLimit(1)
+          .withScanIndexForward(false)
+          .withAttributesToGet(DEFAULT_RANGE_KEY)
+      )
+      .getItems();
     if (items.isEmpty()) {
       return -1L;
     } else {
@@ -198,7 +230,9 @@ public class MetaStore extends ProviderStore {
   }
 
   @Override
-  public long getVersionFromMaterialDescription(final Map<String, String> description) {
+  public long getVersionFromMaterialDescription(
+    final Map<String, String> description
+  ) {
     final Matcher m = COMBINED_PATTERN.matcher(description.get(META_ID));
     if (m.matches()) {
       return Long.parseLong(m.group(2));
@@ -216,16 +250,19 @@ public class MetaStore extends ProviderStore {
    * @param targetMetaStore target MetaStore where the encryption material to be stored.
    */
   public void replicate(
-      final String materialName, final long version, final MetaStore targetMetaStore) {
+    final String materialName,
+    final long version,
+    final MetaStore targetMetaStore
+  ) {
     try {
       Map<String, AttributeValue> item = getMaterialItem(materialName, version);
       final Map<String, AttributeValue> plainText = getPlainText(item);
-      final Map<String, AttributeValue> encryptedText = targetMetaStore.getEncryptedText(plainText);
-      final PutItemRequest put =
-          new PutItemRequest()
-              .withTableName(targetMetaStore.tableName)
-              .withItem(encryptedText)
-              .withExpected(doesNotExist);
+      final Map<String, AttributeValue> encryptedText =
+        targetMetaStore.getEncryptedText(plainText);
+      final PutItemRequest put = new PutItemRequest()
+        .withTableName(targetMetaStore.tableName)
+        .withItem(encryptedText)
+        .withExpected(doesNotExist);
       targetMetaStore.ddb.putItem(put);
     } catch (ConditionalCheckFailedException e) {
       // Item already present.
@@ -233,13 +270,20 @@ public class MetaStore extends ProviderStore {
   }
 
   private Map<String, AttributeValue> getMaterialItem(
-      final String materialName, final long version) {
+    final String materialName,
+    final long version
+  ) {
     final Map<String, AttributeValue> ddbKey = new HashMap<>();
     ddbKey.put(DEFAULT_HASH_KEY, new AttributeValue().withS(materialName));
-    ddbKey.put(DEFAULT_RANGE_KEY, new AttributeValue().withN(Long.toString(version)));
+    ddbKey.put(
+      DEFAULT_RANGE_KEY,
+      new AttributeValue().withN(Long.toString(version))
+    );
     final Map<String, AttributeValue> item = ddbGet(ddbKey);
     if (item == null || item.isEmpty()) {
-      throw new IndexOutOfBoundsException("No material found: " + materialName + "#" + version);
+      throw new IndexOutOfBoundsException(
+        "No material found: " + materialName + "#" + version
+      );
     }
     return item;
   }
@@ -253,18 +297,22 @@ public class MetaStore extends ProviderStore {
    * @return result of create table request.
    */
   public static CreateTableResult createTable(
-      final AmazonDynamoDB ddb,
-      final String tableName,
-      final ProvisionedThroughput provisionedThroughput) {
+    final AmazonDynamoDB ddb,
+    final String tableName,
+    final ProvisionedThroughput provisionedThroughput
+  ) {
     return ddb.createTable(
-        Arrays.asList(
-            new AttributeDefinition(DEFAULT_HASH_KEY, ScalarAttributeType.S),
-            new AttributeDefinition(DEFAULT_RANGE_KEY, ScalarAttributeType.N)),
-        tableName,
-        Arrays.asList(
-            new KeySchemaElement(DEFAULT_HASH_KEY, KeyType.HASH),
-            new KeySchemaElement(DEFAULT_RANGE_KEY, KeyType.RANGE)),
-        provisionedThroughput);
+      Arrays.asList(
+        new AttributeDefinition(DEFAULT_HASH_KEY, ScalarAttributeType.S),
+        new AttributeDefinition(DEFAULT_RANGE_KEY, ScalarAttributeType.N)
+      ),
+      tableName,
+      Arrays.asList(
+        new KeySchemaElement(DEFAULT_HASH_KEY, KeyType.HASH),
+        new KeySchemaElement(DEFAULT_RANGE_KEY, KeyType.RANGE)
+      ),
+      provisionedThroughput
+    );
   }
 
   /**
@@ -272,8 +320,12 @@ public class MetaStore extends ProviderStore {
    * implementation of {@link MetaStore}.
    */
   private static class EmptyExtraDataSupplier implements ExtraDataSupplier {
+
     @Override
-    public Map<String, AttributeValue> getAttributes(String materialName, long version) {
+    public Map<String, AttributeValue> getAttributes(
+      String materialName,
+      long version
+    ) {
       return Collections.emptyMap();
     }
 
@@ -289,11 +341,16 @@ public class MetaStore extends ProviderStore {
    * @param extraDataSupplier extra data supplier that is used to return sign only field names.
    * @return fields that must be signed.
    */
-  private static Set<String> getSignedOnlyFields(final ExtraDataSupplier extraDataSupplier) {
-    final Set<String> signedOnlyFields = extraDataSupplier.getSignedOnlyFieldNames();
+  private static Set<String> getSignedOnlyFields(
+    final ExtraDataSupplier extraDataSupplier
+  ) {
+    final Set<String> signedOnlyFields =
+      extraDataSupplier.getSignedOnlyFieldNames();
     for (final String signedOnlyField : signedOnlyFields) {
       if (ENCRYPTED_FIELDS.contains(signedOnlyField)) {
-        throw new IllegalArgumentException(signedOnlyField + " must be encrypted");
+        throw new IllegalArgumentException(
+          signedOnlyField + " must be encrypted"
+        );
       }
     }
 
@@ -305,10 +362,14 @@ public class MetaStore extends ProviderStore {
     return Collections.unmodifiableSet(doNotEncryptFields);
   }
 
-  private Map<String, AttributeValue> conditionalPut(final Map<String, AttributeValue> item) {
+  private Map<String, AttributeValue> conditionalPut(
+    final Map<String, AttributeValue> item
+  ) {
     try {
-      final PutItemRequest put =
-          new PutItemRequest().withTableName(tableName).withItem(item).withExpected(doesNotExist);
+      final PutItemRequest put = new PutItemRequest()
+        .withTableName(tableName)
+        .withItem(item)
+        .withExpected(doesNotExist);
       ddb.putItem(put);
       return item;
     } catch (final ConditionalCheckFailedException ex) {
@@ -319,10 +380,17 @@ public class MetaStore extends ProviderStore {
     }
   }
 
-  private Map<String, AttributeValue> ddbGet(final Map<String, AttributeValue> ddbKey) {
-    return ddb.getItem(
-            new GetItemRequest().withTableName(tableName).withConsistentRead(true).withKey(ddbKey))
-        .getItem();
+  private Map<String, AttributeValue> ddbGet(
+    final Map<String, AttributeValue> ddbKey
+  ) {
+    return ddb
+      .getItem(
+        new GetItemRequest()
+          .withTableName(tableName)
+          .withConsistentRead(true)
+          .withKey(ddbKey)
+      )
+      .getItem();
   }
 
   /**
@@ -334,30 +402,52 @@ public class MetaStore extends ProviderStore {
    * @return newly generated plaintext material item.
    */
   private Map<String, AttributeValue> createMaterialItem(
-      final String materialName, final long version) {
-    final SecretKeySpec encryptionKey = new SecretKeySpec(Utils.getRandom(32), DEFAULT_ENCRYPTION);
-    final SecretKeySpec integrityKey = new SecretKeySpec(Utils.getRandom(32), DEFAULT_INTEGRITY);
+    final String materialName,
+    final long version
+  ) {
+    final SecretKeySpec encryptionKey = new SecretKeySpec(
+      Utils.getRandom(32),
+      DEFAULT_ENCRYPTION
+    );
+    final SecretKeySpec integrityKey = new SecretKeySpec(
+      Utils.getRandom(32),
+      DEFAULT_INTEGRITY
+    );
 
-    final Map<String, AttributeValue> plaintext = new HashMap<String, AttributeValue>();
+    final Map<String, AttributeValue> plaintext = new HashMap<
+      String,
+      AttributeValue
+    >();
     plaintext.put(DEFAULT_HASH_KEY, new AttributeValue().withS(materialName));
-    plaintext.put(DEFAULT_RANGE_KEY, new AttributeValue().withN(Long.toString(version)));
+    plaintext.put(
+      DEFAULT_RANGE_KEY,
+      new AttributeValue().withN(Long.toString(version))
+    );
     plaintext.put(MATERIAL_TYPE_VERSION, new AttributeValue().withS("0"));
     plaintext.put(
-        ENCRYPTION_KEY_FIELD,
-        new AttributeValue().withB(ByteBuffer.wrap(encryptionKey.getEncoded())));
+      ENCRYPTION_KEY_FIELD,
+      new AttributeValue().withB(ByteBuffer.wrap(encryptionKey.getEncoded()))
+    );
     plaintext.put(
-        ENCRYPTION_ALGORITHM_FIELD, new AttributeValue().withS(encryptionKey.getAlgorithm()));
+      ENCRYPTION_ALGORITHM_FIELD,
+      new AttributeValue().withS(encryptionKey.getAlgorithm())
+    );
     plaintext.put(
-        INTEGRITY_KEY_FIELD,
-        new AttributeValue().withB(ByteBuffer.wrap(integrityKey.getEncoded())));
+      INTEGRITY_KEY_FIELD,
+      new AttributeValue().withB(ByteBuffer.wrap(integrityKey.getEncoded()))
+    );
     plaintext.put(
-        INTEGRITY_ALGORITHM_FIELD, new AttributeValue().withS(integrityKey.getAlgorithm()));
+      INTEGRITY_ALGORITHM_FIELD,
+      new AttributeValue().withS(integrityKey.getAlgorithm())
+    );
     plaintext.putAll(extraDataSupplier.getAttributes(materialName, version));
 
     return plaintext;
   }
 
-  private EncryptionMaterialsProvider decryptProvider(final Map<String, AttributeValue> item) {
+  private EncryptionMaterialsProvider decryptProvider(
+    final Map<String, AttributeValue> item
+  ) {
     final Map<String, AttributeValue> plaintext = getPlainText(item);
 
     final String type = plaintext.get(MATERIAL_TYPE_VERSION).getS();
@@ -367,19 +457,25 @@ public class MetaStore extends ProviderStore {
     switch (type) {
       case "0": // Only currently supported type
         encryptionKey =
-            new SecretKeySpec(
-                plaintext.get(ENCRYPTION_KEY_FIELD).getB().array(),
-                plaintext.get(ENCRYPTION_ALGORITHM_FIELD).getS());
+          new SecretKeySpec(
+            plaintext.get(ENCRYPTION_KEY_FIELD).getB().array(),
+            plaintext.get(ENCRYPTION_ALGORITHM_FIELD).getS()
+          );
         integrityKey =
-            new SecretKeySpec(
-                plaintext.get(INTEGRITY_KEY_FIELD).getB().array(),
-                plaintext.get(INTEGRITY_ALGORITHM_FIELD).getS());
+          new SecretKeySpec(
+            plaintext.get(INTEGRITY_KEY_FIELD).getB().array(),
+            plaintext.get(INTEGRITY_ALGORITHM_FIELD).getS()
+          );
         break;
       default:
         throw new IllegalStateException("Unsupported material type: " + type);
     }
     return new WrappedMaterialsProvider(
-        encryptionKey, encryptionKey, integrityKey, buildDescription(plaintext));
+      encryptionKey,
+      encryptionKey,
+      integrityKey,
+      buildDescription(plaintext)
+    );
   }
 
   /**
@@ -390,7 +486,9 @@ public class MetaStore extends ProviderStore {
    * @throws AmazonClientException when failed to decrypt material item.
    * @return decrypted item.
    */
-  private Map<String, AttributeValue> getPlainText(final Map<String, AttributeValue> ciphertext) {
+  private Map<String, AttributeValue> getPlainText(
+    final Map<String, AttributeValue> ciphertext
+  ) {
     try {
       return encryptor.decryptAllFieldsExcept(ciphertext, ddbCtx, doNotEncrypt);
     } catch (final GeneralSecurityException e) {
@@ -405,7 +503,9 @@ public class MetaStore extends ProviderStore {
    * @throws AmazonClientException when failed to encrypt material item.
    * @param plaintext plaintext to be encrypted.
    */
-  private Map<String, AttributeValue> getEncryptedText(Map<String, AttributeValue> plaintext) {
+  private Map<String, AttributeValue> getEncryptedText(
+    Map<String, AttributeValue> plaintext
+  ) {
     try {
       return encryptor.encryptAllFieldsExcept(plaintext, ddbCtx, doNotEncrypt);
     } catch (final GeneralSecurityException e) {
@@ -413,10 +513,15 @@ public class MetaStore extends ProviderStore {
     }
   }
 
-  private Map<String, String> buildDescription(final Map<String, AttributeValue> plaintext) {
+  private Map<String, String> buildDescription(
+    final Map<String, AttributeValue> plaintext
+  ) {
     return Collections.singletonMap(
-        META_ID,
-        plaintext.get(DEFAULT_HASH_KEY).getS() + "#" + plaintext.get(DEFAULT_RANGE_KEY).getN());
+      META_ID,
+      plaintext.get(DEFAULT_HASH_KEY).getS() +
+      "#" +
+      plaintext.get(DEFAULT_RANGE_KEY).getN()
+    );
   }
 
   private static <V> V checkNotNull(final V ref, final String errMsg) {

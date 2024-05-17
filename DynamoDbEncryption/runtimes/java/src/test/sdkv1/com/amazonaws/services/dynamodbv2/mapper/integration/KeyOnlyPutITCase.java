@@ -17,6 +17,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 public class KeyOnlyPutITCase extends DynamoDBCryptoIntegrationTestBase {
+
   @DynamoDBTable(tableName = "aws-java-sdk-util-crypto")
   public static class HashAndAttribute {
 
@@ -47,7 +48,10 @@ public class KeyOnlyPutITCase extends DynamoDBCryptoIntegrationTestBase {
       int result = 1;
       result = prime * result + ((key == null) ? 0 : key.hashCode());
       result =
-          prime * result + ((normalStringAttribute == null) ? 0 : normalStringAttribute.hashCode());
+        prime * result +
+        ((normalStringAttribute == null)
+            ? 0
+            : normalStringAttribute.hashCode());
       return result;
     }
 
@@ -62,7 +66,9 @@ public class KeyOnlyPutITCase extends DynamoDBCryptoIntegrationTestBase {
       } else if (!key.equals(other.key)) return false;
       if (normalStringAttribute == null) {
         if (other.normalStringAttribute != null) return false;
-      } else if (!normalStringAttribute.equals(other.normalStringAttribute)) return false;
+      } else if (
+        !normalStringAttribute.equals(other.normalStringAttribute)
+      ) return false;
       return true;
     }
   }

@@ -57,84 +57,112 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @Test
   public void testBatchSave() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 40; i++) {
       NumberSetAttributeTestClass obj = getUniqueNumericObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     List<FailedBatch> failedBatches = mapper.batchSave(objs);
 
     assertTrue(0 == failedBatches.size());
 
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
   }
 
   @Test
   public void testBatchSaveAsArray() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 40; i++) {
       NumberSetAttributeTestClass obj = getUniqueNumericObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
-    NumberSetAttributeTestClass[] objsArray =
-        objs.toArray(new NumberSetAttributeTestClass[objs.size()]);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
+    NumberSetAttributeTestClass[] objsArray = objs.toArray(
+      new NumberSetAttributeTestClass[objs.size()]
+    );
     mapper.batchSave((Object[]) objsArray);
 
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
   }
 
   @Test
   public void testBatchSaveAsListFromArray() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 40; i++) {
       NumberSetAttributeTestClass obj = getUniqueNumericObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
-    NumberSetAttributeTestClass[] objsArray =
-        objs.toArray(new NumberSetAttributeTestClass[objs.size()]);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
+    NumberSetAttributeTestClass[] objsArray = objs.toArray(
+      new NumberSetAttributeTestClass[objs.size()]
+    );
     mapper.batchSave(Arrays.asList(objsArray));
 
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
   }
 
   @Test
   public void testBatchDelete() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 40; i++) {
       NumberSetAttributeTestClass obj = getUniqueNumericObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.batchSave(objs);
 
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
 
     // Delete the odd ones
     int i = 0;
-    List<NumberSetAttributeTestClass> toDelete = new LinkedList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> toDelete = new LinkedList<
+      NumberSetAttributeTestClass
+    >();
     for (NumberSetAttributeTestClass obj : objs) {
       if (i++ % 2 == 0) toDelete.add(obj);
     }
@@ -143,8 +171,10 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
     i = 0;
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       if (i++ % 2 == 0) {
         assertNull(loaded);
       } else {
@@ -155,30 +185,40 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @Test
   public void testBatchSaveAndDelete() throws Exception {
-    List<NumberSetAttributeTestClass> objs = new ArrayList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> objs = new ArrayList<
+      NumberSetAttributeTestClass
+    >();
     for (int i = 0; i < 40; i++) {
       NumberSetAttributeTestClass obj = getUniqueNumericObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.batchSave(objs);
 
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
 
     // Delete the odd ones
     int i = 0;
-    List<NumberSetAttributeTestClass> toDelete = new LinkedList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> toDelete = new LinkedList<
+      NumberSetAttributeTestClass
+    >();
     for (NumberSetAttributeTestClass obj : objs) {
       if (i++ % 2 == 0) toDelete.add(obj);
     }
 
     // And add a bunch of new ones
-    List<NumberSetAttributeTestClass> toSave = new LinkedList<NumberSetAttributeTestClass>();
+    List<NumberSetAttributeTestClass> toSave = new LinkedList<
+      NumberSetAttributeTestClass
+    >();
     for (i = 0; i < 50; i++) {
       NumberSetAttributeTestClass obj = getUniqueNumericObject();
       toSave.add(obj);
@@ -188,8 +228,10 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
     i = 0;
     for (NumberSetAttributeTestClass obj : objs) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       if (i++ % 2 == 0) {
         assertNull(loaded);
       } else {
@@ -198,15 +240,16 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     }
 
     for (NumberSetAttributeTestClass obj : toSave) {
-      NumberSetAttributeTestClass loaded =
-          mapper.load(NumberSetAttributeTestClass.class, obj.getKey());
+      NumberSetAttributeTestClass loaded = mapper.load(
+        NumberSetAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
   }
 
   @Test
   public void testMultipleTables() throws Exception {
-
     List<Object> objs = new ArrayList<Object>();
     int numItems = 10;
     for (int i = 0; i < numItems; i++) {
@@ -219,7 +262,9 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     }
     Collections.shuffle(objs);
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     List<FailedBatch> failedBatches = mapper.batchSave(objs);
     assertTrue(failedBatches.size() == 0);
 
@@ -227,14 +272,17 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       Object loaded = null;
       if (obj instanceof NumberSetAttributeTestClass) {
         loaded =
-            mapper.load(
-                NumberSetAttributeTestClass.class, ((NumberSetAttributeTestClass) obj).getKey());
+          mapper.load(
+            NumberSetAttributeTestClass.class,
+            ((NumberSetAttributeTestClass) obj).getKey()
+          );
       } else if (obj instanceof RangeKeyTestClass) {
         loaded =
-            mapper.load(
-                RangeKeyTestClass.class,
-                ((RangeKeyTestClass) obj).getKey(),
-                ((RangeKeyTestClass) obj).getRangeKey());
+          mapper.load(
+            RangeKeyTestClass.class,
+            ((RangeKeyTestClass) obj).getKey(),
+            ((RangeKeyTestClass) obj).getRangeKey()
+          );
       } else {
         fail();
       }
@@ -251,8 +299,9 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     // And add a bunch of new ones
     List<Object> toSave = new LinkedList<Object>();
     for (i = 0; i < numItems; i++) {
-      if (i % 2 == 0) toSave.add(getUniqueNumericObject());
-      else toSave.add(getUniqueRangeKeyObject());
+      if (i % 2 == 0) toSave.add(getUniqueNumericObject()); else toSave.add(
+        getUniqueRangeKeyObject()
+      );
     }
 
     failedBatches = mapper.batchWrite(toSave, toDelete);
@@ -263,14 +312,17 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       Object loaded = null;
       if (obj instanceof NumberSetAttributeTestClass) {
         loaded =
-            mapper.load(
-                NumberSetAttributeTestClass.class, ((NumberSetAttributeTestClass) obj).getKey());
+          mapper.load(
+            NumberSetAttributeTestClass.class,
+            ((NumberSetAttributeTestClass) obj).getKey()
+          );
       } else if (obj instanceof RangeKeyTestClass) {
         loaded =
-            mapper.load(
-                RangeKeyTestClass.class,
-                ((RangeKeyTestClass) obj).getKey(),
-                ((RangeKeyTestClass) obj).getRangeKey());
+          mapper.load(
+            RangeKeyTestClass.class,
+            ((RangeKeyTestClass) obj).getKey(),
+            ((RangeKeyTestClass) obj).getRangeKey()
+          );
       } else {
         fail();
       }
@@ -286,14 +338,17 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       Object loaded = null;
       if (obj instanceof NumberSetAttributeTestClass) {
         loaded =
-            mapper.load(
-                NumberSetAttributeTestClass.class, ((NumberSetAttributeTestClass) obj).getKey());
+          mapper.load(
+            NumberSetAttributeTestClass.class,
+            ((NumberSetAttributeTestClass) obj).getKey()
+          );
       } else if (obj instanceof RangeKeyTestClass) {
         loaded =
-            mapper.load(
-                RangeKeyTestClass.class,
-                ((RangeKeyTestClass) obj).getKey(),
-                ((RangeKeyTestClass) obj).getRangeKey());
+          mapper.load(
+            RangeKeyTestClass.class,
+            ((RangeKeyTestClass) obj).getKey(),
+            ((RangeKeyTestClass) obj).getRangeKey()
+          );
       } else {
         fail();
       }
@@ -304,7 +359,6 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   /** Test whether it finish processing all the items even if the first batch is failed. */
   @Test
   public void testErrorHandling() {
-
     List<Object> objs = new ArrayList<Object>();
     int numItems = 25;
 
@@ -318,20 +372,25 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     // The failed batch
     List<FailedBatch> failedBatches = mapper.batchSave(objs);
     assertTrue(1 == failedBatches.size());
-    assertTrue(numItems == failedBatches.get(0).getUnprocessedItems().get("tableNotExist").size());
+    assertTrue(
+      numItems ==
+      failedBatches.get(0).getUnprocessedItems().get("tableNotExist").size()
+    );
 
     // The second batch succeeds, get them back
     for (Object obj : objs.subList(25, 50)) {
-      RangeKeyTestClass loaded =
-          mapper.load(
-              RangeKeyTestClass.class,
-              ((RangeKeyTestClass) obj).getKey(),
-              ((RangeKeyTestClass) obj).getRangeKey());
+      RangeKeyTestClass loaded = mapper.load(
+        RangeKeyTestClass.class,
+        ((RangeKeyTestClass) obj).getKey(),
+        ((RangeKeyTestClass) obj).getRangeKey()
+      );
       assertEquals(obj, loaded);
     }
   }
@@ -339,28 +398,34 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   /** Test whether we can split large batch request into small pieces. */
   @Test
   public void testLargeRequestEntity() {
-
     // The total batch size is beyond 1M, test whether our client can split
     // the batch correctly
-    List<BinaryAttributeByteBufferTestClass> objs =
-        new ArrayList<BinaryAttributeByteBufferTestClass>();
+    List<BinaryAttributeByteBufferTestClass> objs = new ArrayList<
+      BinaryAttributeByteBufferTestClass
+    >();
 
     int numItems = 25;
     final int CONTENT_LENGTH = 1024 * 25;
 
     for (int i = 0; i < numItems; i++) {
-      BinaryAttributeByteBufferTestClass obj = getUniqueByteBufferObject(CONTENT_LENGTH);
+      BinaryAttributeByteBufferTestClass obj = getUniqueByteBufferObject(
+        CONTENT_LENGTH
+      );
       objs.add(obj);
     }
 
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     List<FailedBatch> failedBatches = mapper.batchSave(objs);
     assertEquals(failedBatches.size(), 0);
 
     // Get these objects back
     for (BinaryAttributeByteBufferTestClass obj : objs) {
-      BinaryAttributeByteBufferTestClass loaded =
-          mapper.load(BinaryAttributeByteBufferTestClass.class, obj.getKey());
+      BinaryAttributeByteBufferTestClass loaded = mapper.load(
+        BinaryAttributeByteBufferTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
 
@@ -369,15 +434,18 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     // save these small items.
     objs.clear();
     numItems = 10;
-    List<BinaryAttributeByteBufferTestClass> largeObjs =
-        new ArrayList<BinaryAttributeByteBufferTestClass>();
+    List<BinaryAttributeByteBufferTestClass> largeObjs = new ArrayList<
+      BinaryAttributeByteBufferTestClass
+    >();
 
     // Put three super large item(beyond 64k)
     largeObjs.add(getUniqueByteBufferObject(CONTENT_LENGTH * 30));
     largeObjs.add(getUniqueByteBufferObject(CONTENT_LENGTH * 30));
     largeObjs.add(getUniqueByteBufferObject(CONTENT_LENGTH * 30));
     for (int i = 0; i < numItems - 3; i++) {
-      BinaryAttributeByteBufferTestClass obj = getUniqueByteBufferObject(CONTENT_LENGTH / 25);
+      BinaryAttributeByteBufferTestClass obj = getUniqueByteBufferObject(
+        CONTENT_LENGTH / 25
+      );
       objs.add(obj);
     }
 
@@ -392,8 +460,10 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
     // Get these small objects back
     for (BinaryAttributeByteBufferTestClass obj : objs) {
-      BinaryAttributeByteBufferTestClass loaded =
-          mapper.load(BinaryAttributeByteBufferTestClass.class, obj.getKey());
+      BinaryAttributeByteBufferTestClass loaded = mapper.load(
+        BinaryAttributeByteBufferTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
 
@@ -401,7 +471,9 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     // processed
     largeObjs.clear();
     for (int i = 0; i < 5; i++) {
-      BinaryAttributeByteBufferTestClass obj = getUniqueByteBufferObject(CONTENT_LENGTH * 30);
+      BinaryAttributeByteBufferTestClass obj = getUniqueByteBufferObject(
+        CONTENT_LENGTH * 30
+      );
       largeObjs.add(obj);
     }
     if (DEBUG) System.err.println("failedBatches.size()=" + size);
@@ -418,24 +490,54 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     NumberSetAttributeTestClass obj = new NumberSetAttributeTestClass();
     obj.setKey(String.valueOf(startKeyDebug++));
     obj.setBigDecimalAttribute(
-        toSet(new BigDecimal(startKey++), new BigDecimal(startKey++), new BigDecimal(startKey++)));
+      toSet(
+        new BigDecimal(startKey++),
+        new BigDecimal(startKey++),
+        new BigDecimal(startKey++)
+      )
+    );
     obj.setBigIntegerAttribute(
-        toSet(
-            new BigInteger("" + startKey++),
-            new BigInteger("" + startKey++),
-            new BigInteger("" + startKey++)));
+      toSet(
+        new BigInteger("" + startKey++),
+        new BigInteger("" + startKey++),
+        new BigInteger("" + startKey++)
+      )
+    );
     obj.setByteObjectAttribute(
-        toSet(new Byte(nextByte()), new Byte(nextByte()), new Byte(nextByte())));
+      toSet(new Byte(nextByte()), new Byte(nextByte()), new Byte(nextByte()))
+    );
     obj.setDoubleObjectAttribute(
-        toSet(new Double("" + start++), new Double("" + start++), new Double("" + start++)));
+      toSet(
+        new Double("" + start++),
+        new Double("" + start++),
+        new Double("" + start++)
+      )
+    );
     obj.setFloatObjectAttribute(
-        toSet(new Float("" + start++), new Float("" + start++), new Float("" + start++)));
+      toSet(
+        new Float("" + start++),
+        new Float("" + start++),
+        new Float("" + start++)
+      )
+    );
     obj.setIntegerAttribute(
-        toSet(new Integer("" + start++), new Integer("" + start++), new Integer("" + start++)));
+      toSet(
+        new Integer("" + start++),
+        new Integer("" + start++),
+        new Integer("" + start++)
+      )
+    );
     obj.setLongObjectAttribute(
-        toSet(new Long("" + start++), new Long("" + start++), new Long("" + start++)));
+      toSet(
+        new Long("" + start++),
+        new Long("" + start++),
+        new Long("" + start++)
+      )
+    );
     obj.setBooleanAttribute(toSet(true, false));
-    obj.setDateAttribute(toSet(new Date(startKey++), new Date(startKey++), new Date(startKey++)));
+    obj.setDateAttribute(
+      toSet(new Date(startKey++), new Date(startKey++), new Date(startKey++))
+    );
     Set<Calendar> cals = new HashSet<Calendar>();
     for (Date d : obj.getDateAttribute()) {
       Calendar cal = GregorianCalendar.getInstance();
@@ -453,11 +555,13 @@ public class BatchWriteITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     obj.setBigDecimalAttribute(new BigDecimal(startKey++));
     obj.setRangeKey(start++);
     obj.setStringAttribute("" + startKey++);
-    obj.setStringSetAttribute(toSet("" + startKey++, "" + startKey++, "" + startKey++));
+    obj.setStringSetAttribute(
+      toSet("" + startKey++, "" + startKey++, "" + startKey++)
+    );
     return obj;
   }
 
   private String nextByte() {
-    return "" + byteStart++ % Byte.MAX_VALUE;
+    return "" + (byteStart++ % Byte.MAX_VALUE);
   }
 }

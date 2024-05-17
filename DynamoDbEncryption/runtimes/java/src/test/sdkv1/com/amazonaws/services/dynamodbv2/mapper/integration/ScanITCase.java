@@ -58,7 +58,9 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   private static final int PARALLEL_SCAN_SEGMENTS = 5;
 
   private static void createTestData() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (int i = 0; i < 500; i++) {
       util.save(new SimpleClass(Integer.toString(i), Integer.toString(i)));
     }
@@ -67,17 +69,23 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   @BeforeClass
   public static void setUpTestData() throws Exception {
     String keyName = "id";
-    CreateTableRequest createTableRequest =
-        new CreateTableRequest()
-            .withTableName(TABLE_NAME)
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(keyName)
-                    .withAttributeType(ScalarAttributeType.S));
+    CreateTableRequest createTableRequest = new CreateTableRequest()
+      .withTableName(TABLE_NAME)
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(keyName)
+          .withKeyType(KeyType.HASH)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(keyName)
+          .withAttributeType(ScalarAttributeType.S)
+      );
     createTableRequest.setProvisionedThroughput(
-        new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L));
+      new ProvisionedThroughput()
+        .withReadCapacityUnits(10L)
+        .withWriteCapacityUnits(5L)
+    );
 
     TableUtils.createTableIfNotExists(dynamo, createTableRequest);
     TableUtils.waitUntilActive(dynamo, TABLE_NAME);
@@ -87,14 +95,22 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @Test
   public void testScan() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
-    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression().withLimit(SCAN_LIMIT);
+    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+      .withLimit(SCAN_LIMIT);
     scanExpression.addFilterCondition(
-        "value", new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL.toString()));
+      "value",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.NOT_NULL.toString())
+    );
     scanExpression.addFilterCondition(
-        "extraData",
-        new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL.toString()));
+      "extraData",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.NOT_NULL.toString())
+    );
     List<SimpleClass> list = util.scan(SimpleClass.class, scanExpression);
 
     int count = 0;
@@ -119,40 +135,59 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
   /** Tests scanning the table with AND/OR logic operator. */
   @Test
   public void testScanWithConditionalOperator() {
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
-    DynamoDBScanExpression scanExpression =
-        new DynamoDBScanExpression()
-            .withLimit(SCAN_LIMIT)
-            .withScanFilter(
-                ImmutableMapParameter.of(
-                    "value", new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL),
-                    "non-existent-field",
-                        new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL)))
-            .withConditionalOperator(ConditionalOperator.AND);
+    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+      .withLimit(SCAN_LIMIT)
+      .withScanFilter(
+        ImmutableMapParameter.of(
+          "value",
+          new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL),
+          "non-existent-field",
+          new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL)
+        )
+      )
+      .withConditionalOperator(ConditionalOperator.AND);
 
-    List<SimpleClass> andConditionResult = mapper.scan(SimpleClass.class, scanExpression);
+    List<SimpleClass> andConditionResult = mapper.scan(
+      SimpleClass.class,
+      scanExpression
+    );
     assertTrue(andConditionResult.isEmpty());
 
-    List<SimpleClass> orConditionResult =
-        mapper.scan(
-            SimpleClass.class, scanExpression.withConditionalOperator(ConditionalOperator.OR));
+    List<SimpleClass> orConditionResult = mapper.scan(
+      SimpleClass.class,
+      scanExpression.withConditionalOperator(ConditionalOperator.OR)
+    );
     assertFalse(orConditionResult.isEmpty());
   }
 
   @Test
   public void testParallelScan() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
-    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression().withLimit(SCAN_LIMIT);
+    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+      .withLimit(SCAN_LIMIT);
     scanExpression.addFilterCondition(
-        "value", new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL.toString()));
+      "value",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.NOT_NULL.toString())
+    );
     scanExpression.addFilterCondition(
-        "extraData",
-        new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL.toString()));
+      "extraData",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.NOT_NULL.toString())
+    );
 
-    PaginatedParallelScanList<SimpleClass> parallelScanList =
-        util.parallelScan(SimpleClass.class, scanExpression, PARALLEL_SCAN_SEGMENTS);
+    PaginatedParallelScanList<SimpleClass> parallelScanList = util.parallelScan(
+      SimpleClass.class,
+      scanExpression,
+      PARALLEL_SCAN_SEGMENTS
+    );
     int count = 0;
     Iterator<SimpleClass> iterator = parallelScanList.iterator();
     HashMap<String, Boolean> allDataAppearance = new HashMap<String, Boolean>();
@@ -174,22 +209,29 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     assertTrue(totalCount == count);
     assertTrue(totalCount == parallelScanList.size());
 
-    assertTrue(parallelScanList.contains(parallelScanList.get(parallelScanList.size() / 2)));
+    assertTrue(
+      parallelScanList.contains(
+        parallelScanList.get(parallelScanList.size() / 2)
+      )
+    );
     assertTrue(count == parallelScanList.toArray().length);
   }
 
   @Test
   public void testParallelScanExceptionHandling() {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     int INVALID_LIMIT = 0;
-    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression().withLimit(INVALID_LIMIT);
+    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+      .withLimit(INVALID_LIMIT);
     try {
       // Using 2 segments to reduce the chance of a RejectedExecutionException occurring when too
       // many threads are spun up
       // An alternative would be to maintain a higher segment count, but re-test when a
       // RejectedExecutionException occurs
       PaginatedParallelScanList<SimpleClass> parallelScanList =
-          util.parallelScan(SimpleClass.class, scanExpression, 2);
+        util.parallelScan(SimpleClass.class, scanExpression, 2);
       fail("Test succeeded when it should have failed");
     } catch (AmazonServiceException ase) {
       assertNotNull(ase.getErrorCode());
@@ -202,17 +244,27 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @Test
   public void testScanPage() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
     scanExpression.addFilterCondition(
-        "value", new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL.toString()));
+      "value",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.NOT_NULL.toString())
+    );
     scanExpression.addFilterCondition(
-        "extraData",
-        new Condition().withComparisonOperator(ComparisonOperator.NOT_NULL.toString()));
+      "extraData",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.NOT_NULL.toString())
+    );
     int limit = 3;
     scanExpression.setLimit(limit);
-    ScanResultPage<SimpleClass> result = util.scanPage(SimpleClass.class, scanExpression);
+    ScanResultPage<SimpleClass> result = util.scanPage(
+      SimpleClass.class,
+      scanExpression
+    );
 
     int count = 0;
     Iterator<SimpleClass> iterator = result.getResults().iterator();
@@ -247,6 +299,7 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @DynamoDBTable(tableName = "aws-java-sdk-util-scan-crypto")
   public static final class SimpleClass {
+
     private String id;
     private String value;
     private String extraData;

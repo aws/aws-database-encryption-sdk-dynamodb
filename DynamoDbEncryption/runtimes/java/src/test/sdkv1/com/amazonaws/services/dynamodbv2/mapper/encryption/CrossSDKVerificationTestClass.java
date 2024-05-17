@@ -201,7 +201,9 @@ public class CrossSDKVerificationTestClass {
     return bigDecimalSetAttribute;
   }
 
-  public void setBigDecimalSetAttribute(Set<BigDecimal> bigDecimalSetAttribute) {
+  public void setBigDecimalSetAttribute(
+    Set<BigDecimal> bigDecimalSetAttribute
+  ) {
     this.bigDecimalSetAttribute = bigDecimalSetAttribute;
   }
 
@@ -209,7 +211,9 @@ public class CrossSDKVerificationTestClass {
     return bigIntegerSetAttribute;
   }
 
-  public void setBigIntegerSetAttribute(Set<BigInteger> bigIntegerSetAttribute) {
+  public void setBigIntegerSetAttribute(
+    Set<BigInteger> bigIntegerSetAttribute
+  ) {
     this.bigIntegerSetAttribute = bigIntegerSetAttribute;
   }
 
@@ -265,33 +269,74 @@ public class CrossSDKVerificationTestClass {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
     result =
-        prime * result + ((bigDecimalSetAttribute == null) ? 0 : bigDecimalSetAttribute.hashCode());
-    result = prime * result + ((bigIntegerAttribute == null) ? 0 : bigIntegerAttribute.hashCode());
+      prime * result +
+      ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
     result =
-        prime * result + ((bigIntegerSetAttribute == null) ? 0 : bigIntegerSetAttribute.hashCode());
-    result = prime * result + ((booleanAttribute == null) ? 0 : booleanAttribute.hashCode());
-    result = prime * result + ((booleanSetAttribute == null) ? 0 : booleanSetAttribute.hashCode());
-    result = prime * result + ((byteAttribute == null) ? 0 : byteAttribute.hashCode());
-    result = prime * result + ((byteSetAttribute == null) ? 0 : byteSetAttribute.hashCode());
-    result = prime * result + ((calendarAttribute == null) ? 0 : calendarAttribute.hashCode());
+      prime * result +
+      ((bigDecimalSetAttribute == null)
+          ? 0
+          : bigDecimalSetAttribute.hashCode());
     result =
-        prime * result + ((calendarSetAttribute == null) ? 0 : calendarSetAttribute.hashCode());
-    result = prime * result + ((dateAttribute == null) ? 0 : dateAttribute.hashCode());
-    result = prime * result + ((dateSetAttribute == null) ? 0 : dateSetAttribute.hashCode());
-    result = prime * result + ((doubleAttribute == null) ? 0 : doubleAttribute.hashCode());
-    result = prime * result + ((doubleSetAttribute == null) ? 0 : doubleSetAttribute.hashCode());
-    result = prime * result + ((floatAttribute == null) ? 0 : floatAttribute.hashCode());
-    result = prime * result + ((floatSetAttribute == null) ? 0 : floatSetAttribute.hashCode());
-    result = prime * result + ((integerAttribute == null) ? 0 : integerAttribute.hashCode());
-    result = prime * result + ((integerSetAttribute == null) ? 0 : integerSetAttribute.hashCode());
+      prime * result +
+      ((bigIntegerAttribute == null) ? 0 : bigIntegerAttribute.hashCode());
+    result =
+      prime * result +
+      ((bigIntegerSetAttribute == null)
+          ? 0
+          : bigIntegerSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((booleanAttribute == null) ? 0 : booleanAttribute.hashCode());
+    result =
+      prime * result +
+      ((booleanSetAttribute == null) ? 0 : booleanSetAttribute.hashCode());
+    result =
+      prime * result + ((byteAttribute == null) ? 0 : byteAttribute.hashCode());
+    result =
+      prime * result +
+      ((byteSetAttribute == null) ? 0 : byteSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((calendarAttribute == null) ? 0 : calendarAttribute.hashCode());
+    result =
+      prime * result +
+      ((calendarSetAttribute == null) ? 0 : calendarSetAttribute.hashCode());
+    result =
+      prime * result + ((dateAttribute == null) ? 0 : dateAttribute.hashCode());
+    result =
+      prime * result +
+      ((dateSetAttribute == null) ? 0 : dateSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((doubleAttribute == null) ? 0 : doubleAttribute.hashCode());
+    result =
+      prime * result +
+      ((doubleSetAttribute == null) ? 0 : doubleSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((floatAttribute == null) ? 0 : floatAttribute.hashCode());
+    result =
+      prime * result +
+      ((floatSetAttribute == null) ? 0 : floatSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((integerAttribute == null) ? 0 : integerAttribute.hashCode());
+    result =
+      prime * result +
+      ((integerSetAttribute == null) ? 0 : integerSetAttribute.hashCode());
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + ((lastUpdater == null) ? 0 : lastUpdater.hashCode());
-    result = prime * result + ((longAttribute == null) ? 0 : longAttribute.hashCode());
-    result = prime * result + ((longSetAttribute == null) ? 0 : longSetAttribute.hashCode());
+    result =
+      prime * result + ((lastUpdater == null) ? 0 : lastUpdater.hashCode());
+    result =
+      prime * result + ((longAttribute == null) ? 0 : longAttribute.hashCode());
+    result =
+      prime * result +
+      ((longSetAttribute == null) ? 0 : longSetAttribute.hashCode());
     result = prime * result + ((rangeKey == null) ? 0 : rangeKey.hashCode());
-    result = prime * result + ((stringSetAttribute == null) ? 0 : stringSetAttribute.hashCode());
+    result =
+      prime * result +
+      ((stringSetAttribute == null) ? 0 : stringSetAttribute.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -304,22 +349,32 @@ public class CrossSDKVerificationTestClass {
     CrossSDKVerificationTestClass other = (CrossSDKVerificationTestClass) obj;
     if (bigDecimalAttribute == null) {
       if (other.bigDecimalAttribute != null) return false;
-    } else if (!bigDecimalAttribute.equals(other.bigDecimalAttribute)) return false;
+    } else if (
+      !bigDecimalAttribute.equals(other.bigDecimalAttribute)
+    ) return false;
     if (bigDecimalSetAttribute == null) {
       if (other.bigDecimalSetAttribute != null) return false;
-    } else if (!bigDecimalSetAttribute.equals(other.bigDecimalSetAttribute)) return false;
+    } else if (
+      !bigDecimalSetAttribute.equals(other.bigDecimalSetAttribute)
+    ) return false;
     if (bigIntegerAttribute == null) {
       if (other.bigIntegerAttribute != null) return false;
-    } else if (!bigIntegerAttribute.equals(other.bigIntegerAttribute)) return false;
+    } else if (
+      !bigIntegerAttribute.equals(other.bigIntegerAttribute)
+    ) return false;
     if (bigIntegerSetAttribute == null) {
       if (other.bigIntegerSetAttribute != null) return false;
-    } else if (!bigIntegerSetAttribute.equals(other.bigIntegerSetAttribute)) return false;
+    } else if (
+      !bigIntegerSetAttribute.equals(other.bigIntegerSetAttribute)
+    ) return false;
     if (booleanAttribute == null) {
       if (other.booleanAttribute != null) return false;
     } else if (!booleanAttribute.equals(other.booleanAttribute)) return false;
     if (booleanSetAttribute == null) {
       if (other.booleanSetAttribute != null) return false;
-    } else if (!booleanSetAttribute.equals(other.booleanSetAttribute)) return false;
+    } else if (
+      !booleanSetAttribute.equals(other.booleanSetAttribute)
+    ) return false;
     if (byteAttribute == null) {
       if (other.byteAttribute != null) return false;
     } else if (!byteAttribute.equals(other.byteAttribute)) return false;
@@ -331,7 +386,9 @@ public class CrossSDKVerificationTestClass {
     } else if (!calendarAttribute.equals(other.calendarAttribute)) return false;
     if (calendarSetAttribute == null) {
       if (other.calendarSetAttribute != null) return false;
-    } else if (!calendarSetAttribute.equals(other.calendarSetAttribute)) return false;
+    } else if (
+      !calendarSetAttribute.equals(other.calendarSetAttribute)
+    ) return false;
     if (dateAttribute == null) {
       if (other.dateAttribute != null) return false;
     } else if (!dateAttribute.equals(other.dateAttribute)) return false;
@@ -343,7 +400,9 @@ public class CrossSDKVerificationTestClass {
     } else if (!doubleAttribute.equals(other.doubleAttribute)) return false;
     if (doubleSetAttribute == null) {
       if (other.doubleSetAttribute != null) return false;
-    } else if (!doubleSetAttribute.equals(other.doubleSetAttribute)) return false;
+    } else if (
+      !doubleSetAttribute.equals(other.doubleSetAttribute)
+    ) return false;
     if (floatAttribute == null) {
       if (other.floatAttribute != null) return false;
     } else if (!floatAttribute.equals(other.floatAttribute)) return false;
@@ -355,7 +414,9 @@ public class CrossSDKVerificationTestClass {
     } else if (!integerAttribute.equals(other.integerAttribute)) return false;
     if (integerSetAttribute == null) {
       if (other.integerSetAttribute != null) return false;
-    } else if (!integerSetAttribute.equals(other.integerSetAttribute)) return false;
+    } else if (
+      !integerSetAttribute.equals(other.integerSetAttribute)
+    ) return false;
     if (key == null) {
       if (other.key != null) return false;
     } else if (!key.equals(other.key)) return false;
@@ -373,7 +434,9 @@ public class CrossSDKVerificationTestClass {
     } else if (!rangeKey.equals(other.rangeKey)) return false;
     if (stringSetAttribute == null) {
       if (other.stringSetAttribute != null) return false;
-    } else if (!stringSetAttribute.equals(other.stringSetAttribute)) return false;
+    } else if (
+      !stringSetAttribute.equals(other.stringSetAttribute)
+    ) return false;
     if (version == null) {
       if (other.version != null) return false;
     } else if (!version.equals(other.version)) return false;

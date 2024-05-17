@@ -37,6 +37,7 @@ and the numeric value might be formatted differently.
 
 A [Structured Data](../structured-encryption/structures.md#structured-data)
 converted from a DynamoDB Item has the following requirements:
+
 - MUST contain a [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
   for each attribute on the DynamoDB Item, and no others.
 
@@ -52,6 +53,7 @@ converted from a DynamoDB Item has the following requirements:
 In order to convert to a DynamoDB Item,
 [Structured Data](../structured-encryption/structures.md#structured-data)
 adheres to the following:
+
 - This [Structured Data Map](../structured-encryption/structures.md#structured-data-map),
   if not empty,
 - MUST NOT have any `Key` strings that are invalid DynamoDB AttributeNames, that is, with more than 65535 characters.
@@ -59,11 +61,12 @@ adheres to the following:
 A DynamoDB Item converted from a
 [Structured Data](../structured-encryption/structures.md#structured-data)
 has the following requirements:
+
 - MUST contain an Attribute for every [Structured Data Terminal](../structured-encryption/structures.md#structured-data-terminal)
   on the Structured Data, and no other Attributes.
 
 - Each Attribute MUST be deserializable
-    according to [the serialization scheme](./ddb-attribute-serialization.md#value).
+  according to [the serialization scheme](./ddb-attribute-serialization.md#value).
 
 ### Duplicates
 

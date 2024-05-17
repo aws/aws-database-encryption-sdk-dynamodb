@@ -10,6 +10,7 @@
 ### Changelog
 
 - 1.1.0
+
   - Update for simplified structured encryption
 
 - 1.0.0
@@ -94,18 +95,21 @@ A Crypto Action is a supported [Authenticate Action](#authenticate-action) and [
 ##### ENCRYPT_AND_SIGN
 
 ENCRYPT_AND_SIGN indicates that the following actions apply to a [Terminal Data](#terminal-data):
+
 - [ENCRYPT](#encrypt)
 - [SIGN](#sign)
 
 ##### SIGN_ONLY
 
 SIGN_ONLY indicates that the following actions apply to a [Terminal Data](#terminal-data):
+
 - [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [SIGN](#sign)
 
 ##### SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
 
 SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT indicates that the following actions apply to a [Terminal Data](#terminal-data):
+
 - [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [SIGN](#sign)
 
@@ -114,6 +118,7 @@ and further that the [Terminal Data](#terminal-data) MUST be included in the enc
 ##### DO_NOTHING
 
 DO_NOTHING indicates that the following actions apply to a [Terminal Data](#terminal-data):
+
 - [DO_NOT_ENCRYPT](#do_not_encrypt)
 - [DO_NOT_SIGN](#do_not_sign)
 
@@ -164,6 +169,7 @@ Structured Data is expressed as a [Structured Data Map](#structured-data-map)
 #### Structured Data Map
 
 A Structured Data Map MUST consist of:
+
 - A map strings to [Terminal Data](#terminal-data)
   - This map MUST NOT allow duplicate key values
 
@@ -204,6 +210,7 @@ A path is a sequence of [path segments](#path-segment) that refer to a location 
 ### Crypto Item
 
 A crypto item MUST consist of
+
 - a [Path](#path)
 - a [Crypto Action](#crypto-action)
 - a [Terminal Data](#terminal-data)
@@ -217,6 +224,7 @@ A crypto list MUST be a sequence of [crypto item](#crypto-item)
 ### Auth Item
 
 An auth item MUST consist of
+
 - a [Path](#path)
 - an [Authenticate Action](#authenticate-action)
 - a [Terminal Data](#terminal-data)

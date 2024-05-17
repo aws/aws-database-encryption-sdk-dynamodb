@@ -215,32 +215,51 @@ public class NumberAttributeTestClass {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
-    result = prime * result + ((bigIntegerAttribute == null) ? 0 : bigIntegerAttribute.hashCode());
+    result =
+      prime * result +
+      ((bigDecimalAttribute == null) ? 0 : bigDecimalAttribute.hashCode());
+    result =
+      prime * result +
+      ((bigIntegerAttribute == null) ? 0 : bigIntegerAttribute.hashCode());
     result = prime * result + (booleanAttribute ? 1231 : 1237);
     result =
-        prime * result + ((booleanObjectAttribute == null) ? 0 : booleanObjectAttribute.hashCode());
+      prime * result +
+      ((booleanObjectAttribute == null)
+          ? 0
+          : booleanObjectAttribute.hashCode());
     result = prime * result + byteAttribute;
-    result = prime * result + ((byteObjectAttribute == null) ? 0 : byteObjectAttribute.hashCode());
-    result = prime * result + ((calendarAttribute == null) ? 0 : calendarAttribute.hashCode());
-    result = prime * result + ((dateAttribute == null) ? 0 : dateAttribute.hashCode());
+    result =
+      prime * result +
+      ((byteObjectAttribute == null) ? 0 : byteObjectAttribute.hashCode());
+    result =
+      prime * result +
+      ((calendarAttribute == null) ? 0 : calendarAttribute.hashCode());
+    result =
+      prime * result + ((dateAttribute == null) ? 0 : dateAttribute.hashCode());
     long temp;
     temp = Double.doubleToLongBits(doubleAttribute);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result =
-        prime * result + ((doubleObjectAttribute == null) ? 0 : doubleObjectAttribute.hashCode());
+      prime * result +
+      ((doubleObjectAttribute == null) ? 0 : doubleObjectAttribute.hashCode());
     result = prime * result + Float.floatToIntBits(floatAttribute);
     result =
-        prime * result + ((floatObjectAttribute == null) ? 0 : floatObjectAttribute.hashCode());
+      prime * result +
+      ((floatObjectAttribute == null) ? 0 : floatObjectAttribute.hashCode());
     result = prime * result + ((ignored == null) ? 0 : ignored.hashCode());
     result = prime * result + intAttribute;
-    result = prime * result + ((integerAttribute == null) ? 0 : integerAttribute.hashCode());
+    result =
+      prime * result +
+      ((integerAttribute == null) ? 0 : integerAttribute.hashCode());
     result = prime * result + ((key == null) ? 0 : key.hashCode());
     result = prime * result + (int) (longAttribute ^ (longAttribute >>> 32));
-    result = prime * result + ((longObjectAttribute == null) ? 0 : longObjectAttribute.hashCode());
+    result =
+      prime * result +
+      ((longObjectAttribute == null) ? 0 : longObjectAttribute.hashCode());
     result = prime * result + shortAttribute;
     result =
-        prime * result + ((shortObjectAttribute == null) ? 0 : shortObjectAttribute.hashCode());
+      prime * result +
+      ((shortObjectAttribute == null) ? 0 : shortObjectAttribute.hashCode());
     return result;
   }
 
@@ -252,34 +271,50 @@ public class NumberAttributeTestClass {
     NumberAttributeTestClass other = (NumberAttributeTestClass) obj;
     if (bigDecimalAttribute == null) {
       if (other.bigDecimalAttribute != null) return false;
-    } else if (!bigDecimalAttribute.equals(other.bigDecimalAttribute)) return false;
+    } else if (
+      !bigDecimalAttribute.equals(other.bigDecimalAttribute)
+    ) return false;
     if (bigIntegerAttribute == null) {
       if (other.bigIntegerAttribute != null) return false;
-    } else if (!bigIntegerAttribute.equals(other.bigIntegerAttribute)) return false;
+    } else if (
+      !bigIntegerAttribute.equals(other.bigIntegerAttribute)
+    ) return false;
     if (booleanAttribute != other.booleanAttribute) return false;
     if (booleanObjectAttribute == null) {
       if (other.booleanObjectAttribute != null) return false;
-    } else if (!booleanObjectAttribute.equals(other.booleanObjectAttribute)) return false;
+    } else if (
+      !booleanObjectAttribute.equals(other.booleanObjectAttribute)
+    ) return false;
     if (byteAttribute != other.byteAttribute) return false;
     if (byteObjectAttribute == null) {
       if (other.byteObjectAttribute != null) return false;
-    } else if (!byteObjectAttribute.equals(other.byteObjectAttribute)) return false;
+    } else if (
+      !byteObjectAttribute.equals(other.byteObjectAttribute)
+    ) return false;
     if (calendarAttribute == null) {
       if (other.calendarAttribute != null) return false;
     } else if (!calendarAttribute.equals(other.calendarAttribute)) return false;
     if (dateAttribute == null) {
       if (other.dateAttribute != null) return false;
     } else if (!dateAttribute.equals(other.dateAttribute)) return false;
-    if (Double.doubleToLongBits(doubleAttribute) != Double.doubleToLongBits(other.doubleAttribute))
-      return false;
+    if (
+      Double.doubleToLongBits(doubleAttribute) !=
+      Double.doubleToLongBits(other.doubleAttribute)
+    ) return false;
     if (doubleObjectAttribute == null) {
       if (other.doubleObjectAttribute != null) return false;
-    } else if (!doubleObjectAttribute.equals(other.doubleObjectAttribute)) return false;
-    if (Float.floatToIntBits(floatAttribute) != Float.floatToIntBits(other.floatAttribute))
-      return false;
+    } else if (
+      !doubleObjectAttribute.equals(other.doubleObjectAttribute)
+    ) return false;
+    if (
+      Float.floatToIntBits(floatAttribute) !=
+      Float.floatToIntBits(other.floatAttribute)
+    ) return false;
     if (floatObjectAttribute == null) {
       if (other.floatObjectAttribute != null) return false;
-    } else if (!floatObjectAttribute.equals(other.floatObjectAttribute)) return false;
+    } else if (
+      !floatObjectAttribute.equals(other.floatObjectAttribute)
+    ) return false;
     if (ignored == null) {
       if (other.ignored != null) return false;
     } else if (!ignored.equals(other.ignored)) return false;
@@ -293,11 +328,15 @@ public class NumberAttributeTestClass {
     if (longAttribute != other.longAttribute) return false;
     if (longObjectAttribute == null) {
       if (other.longObjectAttribute != null) return false;
-    } else if (!longObjectAttribute.equals(other.longObjectAttribute)) return false;
+    } else if (
+      !longObjectAttribute.equals(other.longObjectAttribute)
+    ) return false;
     if (shortAttribute != other.shortAttribute) return false;
     if (shortObjectAttribute == null) {
       if (other.shortObjectAttribute != null) return false;
-    } else if (!shortObjectAttribute.equals(other.shortObjectAttribute)) return false;
+    } else if (
+      !shortObjectAttribute.equals(other.shortObjectAttribute)
+    ) return false;
     return true;
   }
 }
