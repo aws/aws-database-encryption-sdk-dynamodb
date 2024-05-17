@@ -1,5 +1,7 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
+import software.amazon.cryptography.examples.TestUtils;
+
 public class SearchableEncryptionTestUtils {
   // Our tests require access to DDB Tables with these name
   public static final String SIMPLE_BEACON_TEST_DDB_TABLE_NAME = "SimpleBeaconTestTable";
@@ -11,7 +13,7 @@ public class SearchableEncryptionTestUtils {
   public static final String TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
 
   // Our tests require access to DDB Table with this name configured as a branch keystore
-  public static final String TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME = "KeyStoreDdbTable";
-  public static final String TEST_LOGICAL_KEYSTORE_NAME = "KeyStoreDdbTable";
+  public static final String TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME = TestUtils.TEST_DDB_TABLE_NAME;
+  public static final String TEST_LOGICAL_KEYSTORE_NAME = TestUtils.TEST_LOGICAL_KEYSTORE_NAME;
 
 }

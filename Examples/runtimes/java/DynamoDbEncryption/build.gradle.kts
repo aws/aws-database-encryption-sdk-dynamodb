@@ -77,8 +77,16 @@ dependencies {
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
     implementation("software.amazon.awssdk:sts")
-
+    implementation("software.amazon.awssdk:apache-client:2.19.0")
     implementation("org.bouncycastle:bcprov-jdk18on:1.72")
+
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    implementation("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
+    // https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation("org.apache.commons:commons-lang3:3.14.0")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
