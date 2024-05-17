@@ -971,6 +971,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     reveal CryptoUpdatedAuth();
   }
 
+  //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
+  //= type=implication
+  //# - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
+  lemma DecryptPathRemovesHeaders(origData : AuthList, finalData : CryptoList)
+    requires DecryptPathFinal(origData, finalData)
+    ensures !exists x :: x in finalData && x.key == HeaderPath
+    ensures !exists x :: x in finalData && x.key == FooterPath
+  {
+    reveal DecryptPathFinal();
+  }
+
   method {:vcs_split_on_every_assert} DecryptPathStructure (config: InternalConfig, input: DecryptPathStructureInput)
     returns (output: Result<DecryptPathStructureOutput, Error>)
 
@@ -1017,17 +1028,10 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               //# according to the [header format](./header.md).
               && Header.PartialDeserialize(headerSerialized.value).Success?
 
-              //= specification/structured-encryption/decrypt-path-structure.md#construct-decrypted-structured-data
-              //= type=implication
-              //# - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
-              && (!exists x :: x in output.value.plaintextStructure && x.key == HeaderPath)
-              && (!exists x :: x in output.value.plaintextStructure && x.key == FooterPath)
-
               //= specification/structured-encryption/decrypt-path-structure.md#auth-list
               //= type=implication
               //# The Auth List MUST NOT contain duplicate Paths.
               && AuthListHasNoDuplicatesFromSet(input.encryptedStructure)
-
   {
     :- Need(exists x :: (x in input.encryptedStructure && x.action == SIGN), E("At least one Authenticate Action must be SIGN"));
 
