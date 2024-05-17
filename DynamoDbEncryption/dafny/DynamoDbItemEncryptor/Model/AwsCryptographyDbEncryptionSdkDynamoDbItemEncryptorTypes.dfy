@@ -170,7 +170,7 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorServi
   import opened Types = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import Operations : AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
   function method DefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
-  method {:vcs_split_on_every_assert} DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
+  method DynamoDbItemEncryptor(config: DynamoDbItemEncryptorConfig := DefaultDynamoDbItemEncryptorConfig())
     returns (res: Result<DynamoDbItemEncryptorClient, Error>)
     requires config.keyring.Some? ==>
                config.keyring.value.ValidState()
