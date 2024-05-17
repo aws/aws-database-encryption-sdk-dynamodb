@@ -22,6 +22,8 @@ duvet_report:
 		--source-pattern "DynamoDbEncryption/runtimes/java/src/main/java/**/*.java" \
 		--html specification_compliance_report.html
 
+format_all: format_dafny format_net format_java_misc
+
 format_dafny:
 	$(foreach PROJECT, $(PROJECTS), \
 		$(MAKE) -C $(PROJECT) format_dafny && \
@@ -42,10 +44,10 @@ format_net-check:
 		$(MAKE) -C $(PROJECT) format_net-check && \
 	) true
 
-format_java_misc:
+format_java_misc: setup_prettier
 	npx prettier --plugin=prettier-plugin-java . --write
 
-format_java_misc-check:
+format_java_misc-check: setup_prettier
 	npx prettier --plugin=prettier-plugin-java . --check
 
 setup_prettier:

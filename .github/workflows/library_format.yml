@@ -37,7 +37,6 @@ jobs:
 
       - name: Check format of Java code et al
         run: |
-          make setup_prettier
           make format_java_misc-check
 
       - name: Check format of Dafny code
