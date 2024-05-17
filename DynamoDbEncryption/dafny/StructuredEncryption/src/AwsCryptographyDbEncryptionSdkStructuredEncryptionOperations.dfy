@@ -603,7 +603,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   //= specification/structured-encryption/encrypt-path-structure.md#encrypted-structured-data
   //= type=implication
   //# - For every entry in the final Encrypted Structured Data, other than the header and footer,
-  //# an entry MUST exist with the same [path](./structures.md#path) int the input [Crypto List](#crypto-list).
+  //# an entry MUST exist with the same [path](./structures.md#path) in the input [Crypto List](#crypto-list).
   lemma AllEncryptPathOutputInInput(origData : CryptoList, finalData : CryptoList)
     requires EncryptPathFinal(origData, finalData)
     ensures |finalData| == |origData| + 2

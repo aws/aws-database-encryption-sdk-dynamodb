@@ -313,7 +313,7 @@ The Footer Field Value MUST be the serialized [footer](footer.md).
 - The [Header Field](#header-field) MUST exist in the final Encrypted Structured Data
 - The [Footer Field](#footer-field) MUST exist in the final Encrypted Structured Data
 - For every entry in the final Encrypted Structured Data, other than the header and footer,
-  an entry MUST exist with the same [path](./structures.md#path) int the input [Crypto List](#crypto-list).
+  an entry MUST exist with the same [path](./structures.md#path) in the input [Crypto List](#crypto-list).
 
 For each entry in the final Encrypted Structured Data:
 

@@ -635,12 +635,12 @@ module {:options "/functionSyntax:4" } Canonize {
       [newItem] + UnCanon(input[1..])
   }
 
-  lemma SameUnCanonUpdatedAll23()
+  lemma Update2ImpliesUpdate3()
     ensures forall oldVal : AuthItem, x : CanonCryptoItem, y : CryptoItem ::
               SameUnCanon(x, y) && Updated2(oldVal, x, DoDecrypt) ==> Updated3(oldVal, y, DoDecrypt)
   {}
 
-  lemma SameUnCanonUpdatedAll54()
+  lemma Update5ImpliesUpdate4()
     ensures forall oldVal : CryptoItem, x : CanonCryptoItem, y : CryptoItem ::
               SameUnCanon(x, y) && Updated5(oldVal, x, DoEncrypt) ==> Updated4(oldVal, y, DoEncrypt)
   {}
@@ -654,7 +654,7 @@ module {:options "/functionSyntax:4" } Canonize {
     reveal AuthUpdatedCanonCrypto();
     reveal AuthUpdatedCrypto();
     assert forall k <- origData :: exists x :: x in output && Updated3(k, x, DoDecrypt) by {
-      SameUnCanonUpdatedAll23();
+      Update2ImpliesUpdate3();
     }
   }
 
@@ -689,7 +689,7 @@ module {:options "/functionSyntax:4" } Canonize {
     reveal CanonCryptoUpdatedAuth();
     reveal CryptoUpdatedAuth();
     assert forall k <- output :: exists x :: x in origData && Updated3(x, k, DoDecrypt) by {
-      SameUnCanonUpdatedAll23();
+      Update2ImpliesUpdate3();
       assert forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt);
       assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt) by {
         InputIsInput(origData, input);
@@ -725,7 +725,7 @@ module {:options "/functionSyntax:4" } Canonize {
     reveal CryptoUpdatedCanonCrypto();
     reveal CryptoUpdatedNewCrypto();
     assert forall k <- origData :: exists x :: x in output && Updated4(k, x, DoEncrypt) by {
-      SameUnCanonUpdatedAll54();
+      Update5ImpliesUpdate4();
     }
   }
 
@@ -740,7 +740,7 @@ module {:options "/functionSyntax:4" } Canonize {
     forall i | 0 <= i < |output| ensures NewCryptoUpdatedCrypto(output[i], origData) {
       reveal CanonCryptoUpdatedCrypto();
       reveal NewCryptoUpdatedCrypto();
-      SameUnCanonUpdatedAll54();
+      Update5ImpliesUpdate4();
     }
   }
 
