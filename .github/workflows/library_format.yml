@@ -47,4 +47,3 @@ jobs:
       - name: Check format of Dotnet code
         run: |
           make format_net-check
-
