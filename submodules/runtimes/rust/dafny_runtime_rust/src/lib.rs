@@ -821,7 +821,7 @@ impl<T: DafnyTypeEq> Sequence<T> {
 }
 impl<T> PartialEq<Sequence<T>> for Sequence<T>
 where
-    T: DafnyTypeEq,
+    T: DafnyType + PartialEq<T>,
 {
     fn eq(&self, other: &Sequence<T>) -> bool {
         // Iterate through both elements and verify that they are equal
@@ -1987,6 +1987,12 @@ impl DafnyPrint for () {
 #[derive(Clone)]
 pub struct DafnyCharUTF16(pub u16);
 pub type DafnyStringUTF16 = Sequence<DafnyCharUTF16>;
+
+impl Default for DafnyCharUTF16 {
+    fn default() -> Self {
+        Self(0)
+    }
+}
 
 impl DafnyPrint for DafnyCharUTF16 {
     #[inline]
@@ -3415,6 +3421,11 @@ pub fn upcast<A, B>() -> Rc<impl Fn(A) -> B>
   where A : UpcastTo<B>
 {
     Rc::new(|x: A| x.upcast_to())
+}
+
+pub fn upcast_id<A>() -> Rc<impl Fn(A) -> A>
+{
+    Rc::new(|x: A| x)
 }
 
 pub fn rc_coerce<T: Clone, U: Clone>(f: Rc<impl Fn(T) -> U>) -> Rc<impl Fn(Rc<T>) -> Rc<U>> {
