@@ -13,7 +13,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
  * IDEs tend to fight this so I'm sorry.
  */
 
-import Dafny.Aws.Cryptography.Primitives.Types.InternalResult;
+import StandardLibraryInternal.InternalResult;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
