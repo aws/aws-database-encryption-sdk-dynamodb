@@ -20,6 +20,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 public class DdbRecordMatcher extends BaseMatcher<Map<String, AttributeValue>> {
+
   private final Map<String, AttributeValue> expected;
   private final boolean invert;
 
@@ -31,7 +32,10 @@ public class DdbRecordMatcher extends BaseMatcher<Map<String, AttributeValue>> {
     return new DdbRecordMatcher(expected, false);
   }
 
-  public DdbRecordMatcher(Map<String, AttributeValue> expected, boolean invert) {
+  public DdbRecordMatcher(
+    Map<String, AttributeValue> expected,
+    boolean invert
+  ) {
     this.expected = expected;
     this.invert = invert;
   }

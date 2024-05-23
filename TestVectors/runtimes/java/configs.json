@@ -14,14 +14,9 @@
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING",
-        "NumberTest" : "ENCRYPT_AND_SIGN"
+        "NumberTest": "ENCRYPT_AND_SIGN"
       },
-      "allowedUnsignedAttributes": [
-        "One",
-        "Seven",
-        "Eight",
-        "Nine"
-      ],
+      "allowedUnsignedAttributes": ["One", "Seven", "Eight", "Nine"],
       "search": {
         "versions": [
           {
@@ -60,14 +55,9 @@
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING",
-        "NumberTest" : "SIGN_ONLY"
+        "NumberTest": "SIGN_ONLY"
       },
-      "allowedUnsignedAttributes": [
-        "One",
-        "Seven",
-        "Eight",
-        "Nine"
-      ],
+      "allowedUnsignedAttributes": ["One", "Seven", "Eight", "Nine"],
       "search": {
         "versions": [
           {
@@ -106,14 +96,9 @@
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING",
-        "NumberTest" : "SIGN_ONLY"
+        "NumberTest": "SIGN_ONLY"
       },
-      "allowedUnsignedAttributes": [
-        "One",
-        "Seven",
-        "Eight",
-        "Nine"
-      ]
+      "allowedUnsignedAttributes": ["One", "Seven", "Eight", "Nine"]
     },
     "4": {
       "attributeActionsOnEncrypt": {
@@ -128,14 +113,9 @@
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING",
-        "NumberTest" : "SIGN_ONLY"
+        "NumberTest": "SIGN_ONLY"
       },
-      "allowedUnsignedAttributes": [
-        "One",
-        "Seven",
-        "Eight",
-        "Nine"
-      ]
+      "allowedUnsignedAttributes": ["One", "Seven", "Eight", "Nine"]
     },
     "5": {
       "attributeActionsOnEncrypt": {
@@ -150,14 +130,9 @@
         "Seven": "DO_NOTHING",
         "Eight": "DO_NOTHING",
         "Nine": "DO_NOTHING",
-        "NumberTest" : "SIGN_ONLY"
+        "NumberTest": "SIGN_ONLY"
       },
-      "allowedUnsignedAttributes": [
-        "One",
-        "Seven",
-        "Eight",
-        "Nine"
-      ],
+      "allowedUnsignedAttributes": ["One", "Seven", "Eight", "Nine"],
       "search": {
         "versions": [
           {

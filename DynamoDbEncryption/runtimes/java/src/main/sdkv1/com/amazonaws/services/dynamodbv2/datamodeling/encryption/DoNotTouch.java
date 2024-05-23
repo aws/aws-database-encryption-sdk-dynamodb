@@ -33,7 +33,8 @@ import java.lang.annotation.Target;
  * @author Greg Rubin
  */
 @DynamoDB
-@Target(value = {ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+@Target(value = { ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(value = RetentionPolicy.RUNTIME)
 @Deprecated
-public @interface DoNotTouch {}
+public @interface DoNotTouch {
+}

@@ -17,7 +17,8 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DynamoDBMapperCryptoIntegrationTestBase extends DynamoDBCryptoIntegrationTestBase {
+public class DynamoDBMapperCryptoIntegrationTestBase
+  extends DynamoDBCryptoIntegrationTestBase {
 
   public static void setUpMapperTestBase() {
     DynamoDBCryptoIntegrationTestBase.setUpTestBase();
@@ -26,8 +27,11 @@ public class DynamoDBMapperCryptoIntegrationTestBase extends DynamoDBCryptoInteg
   /*
    * Utility methods
    */
-  protected static BinaryAttributeByteBufferTestClass getUniqueByteBufferObject(int contentLength) {
-    BinaryAttributeByteBufferTestClass obj = new BinaryAttributeByteBufferTestClass();
+  protected static BinaryAttributeByteBufferTestClass getUniqueByteBufferObject(
+    int contentLength
+  ) {
+    BinaryAttributeByteBufferTestClass obj =
+      new BinaryAttributeByteBufferTestClass();
     obj.setKey(String.valueOf(startKey++));
     obj.setBinaryAttribute(ByteBuffer.wrap(generateByteArray(contentLength)));
     Set<ByteBuffer> byteBufferSet = new HashSet<ByteBuffer>();

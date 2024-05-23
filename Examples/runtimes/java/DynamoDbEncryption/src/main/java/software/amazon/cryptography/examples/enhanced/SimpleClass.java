@@ -14,57 +14,56 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 @DynamoDbBean
 public class SimpleClass {
 
-    private String partitionKey;
-    private int sortKey;
-    private String attribute1;
-    private String attribute2;
-    private String attribute3;
+  private String partitionKey;
+  private int sortKey;
+  private String attribute1;
+  private String attribute2;
+  private String attribute3;
 
-    @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = "partition_key")
-    public String getPartitionKey() {
-        return this.partitionKey;
-    }
+  @DynamoDbPartitionKey
+  @DynamoDbAttribute(value = "partition_key")
+  public String getPartitionKey() {
+    return this.partitionKey;
+  }
 
-    public void setPartitionKey(String partitionKey) {
-        this.partitionKey = partitionKey;
-    }
+  public void setPartitionKey(String partitionKey) {
+    this.partitionKey = partitionKey;
+  }
 
-    @DynamoDbSortKey
-    @DynamoDbAttribute(value = "sort_key")
-    public int getSortKey() {
-        return this.sortKey;
-    }
+  @DynamoDbSortKey
+  @DynamoDbAttribute(value = "sort_key")
+  public int getSortKey() {
+    return this.sortKey;
+  }
 
-    public void setSortKey(int sortKey) {
-        this.sortKey = sortKey;
-    }
+  public void setSortKey(int sortKey) {
+    this.sortKey = sortKey;
+  }
 
-    public String getAttribute1() {
-        return this.attribute1;
-    }
+  public String getAttribute1() {
+    return this.attribute1;
+  }
 
-    public void setAttribute1(String attribute1) {
-        this.attribute1 = attribute1;
-    }
+  public void setAttribute1(String attribute1) {
+    this.attribute1 = attribute1;
+  }
 
-    @DynamoDbEncryptionSignOnly
-    public String getAttribute2() {
-        return this.attribute2;
-    }
+  @DynamoDbEncryptionSignOnly
+  public String getAttribute2() {
+    return this.attribute2;
+  }
 
-    public void setAttribute2(String attribute2) {
-        this.attribute2 = attribute2;
-    }
+  public void setAttribute2(String attribute2) {
+    this.attribute2 = attribute2;
+  }
 
-    @DynamoDbEncryptionDoNothing
-    public String getAttribute3() {
-        return this.attribute3;
-    }
+  @DynamoDbEncryptionDoNothing
+  public String getAttribute3() {
+    return this.attribute3;
+  }
 
-    @DynamoDbAttribute(value = ":attribute3")
-    public void setAttribute3(String attribute3) {
-        this.attribute3 = attribute3;
-    }
+  @DynamoDbAttribute(value = ":attribute3")
+  public void setAttribute3(String attribute3) {
+    this.attribute3 = attribute3;
+  }
 }
-

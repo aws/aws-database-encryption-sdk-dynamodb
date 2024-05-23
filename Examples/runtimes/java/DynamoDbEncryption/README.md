@@ -1,6 +1,6 @@
 # AWS Database Encryption SDK for DynamoDb Java Examples
 
-This project contains examples for using the AWS Database Encryption SDK for DynamoDb in Java. 
+This project contains examples for using the AWS Database Encryption SDK for DynamoDb in Java.
 
 Overview:
 
@@ -23,7 +23,7 @@ Overview:
 
 ### Development Requirements
 
-* A Java 8 or newer development environment
+- A Java 8 or newer development environment
 
 ### Building and Running
 
@@ -40,4 +40,3 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This project is licensed under the Apache-2.0 License.
-

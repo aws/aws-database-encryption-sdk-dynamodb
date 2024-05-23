@@ -14,7 +14,8 @@
  */
 package com.amazonaws.services.dynamodbv2.testing.types;
 
-public class BaseClassWithNewAttribute extends BaseClassWithUnknownAttributeAnnotation {
+public class BaseClassWithNewAttribute
+  extends BaseClassWithUnknownAttributeAnnotation {
 
   private String newAttribute;
 

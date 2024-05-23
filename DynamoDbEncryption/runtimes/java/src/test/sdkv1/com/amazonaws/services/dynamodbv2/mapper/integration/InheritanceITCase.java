@@ -57,7 +57,10 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       int result = 1;
       result = prime * result + ((key == null) ? 0 : key.hashCode());
       result =
-          prime * result + ((normalStringAttribute == null) ? 0 : normalStringAttribute.hashCode());
+        prime * result +
+        ((normalStringAttribute == null)
+            ? 0
+            : normalStringAttribute.hashCode());
       return result;
     }
 
@@ -72,7 +75,9 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       } else if (!key.equals(other.key)) return false;
       if (normalStringAttribute == null) {
         if (other.normalStringAttribute != null) return false;
-      } else if (!normalStringAttribute.equals(other.normalStringAttribute)) return false;
+      } else if (
+        !normalStringAttribute.equals(other.normalStringAttribute)
+      ) return false;
       return true;
     }
   }
@@ -136,7 +141,8 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + ((subSubField == null) ? 0 : subSubField.hashCode());
+      result =
+        prime * result + ((subSubField == null) ? 0 : subSubField.hashCode());
       return result;
     }
 
@@ -162,7 +168,9 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (Object obj : objs) {
       util.save(obj);
       assertEquals(util.load(SubClass.class, ((SubClass) obj).getKey()), obj);
@@ -179,7 +187,9 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (SubSubClass obj : objs) {
       util.save(obj);
       assertEquals(util.load(SubSubClass.class, obj.getKey()), obj);
@@ -188,7 +198,6 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
 
   @DynamoDBTable(tableName = "aws-java-sdk-util-crypto")
   public static interface Interface {
-
     @DynamoDBHashKey
     public String getKey();
 
@@ -225,7 +234,8 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
+      result =
+        prime * result + ((attribute == null) ? 0 : attribute.hashCode());
       result = prime * result + ((key == null) ? 0 : key.hashCode());
       return result;
     }
@@ -257,7 +267,9 @@ public class InheritanceITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     }
 
     // Saving new objects with a null version field should populate it
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (Interface obj : objs) {
       util.save(obj);
       assertEquals(util.load(Implementation.class, obj.getKey()), obj);

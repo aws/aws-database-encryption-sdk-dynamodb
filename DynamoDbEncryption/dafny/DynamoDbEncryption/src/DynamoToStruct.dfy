@@ -267,10 +267,10 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set
     //= type=implication
     //# A Set MUST be serialized as:
-    //# | Field        | Length   |
-    //# | ------------ | -------- |
-    //# | Set Count    | 4        |
-    //# | Set Entries  | Variable |
+    //# | Field       | Length   |
+    //# | ----------- | -------- |
+    //# | Set Count   | 4        |
+    //# | Set Entries | Variable |
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-count
     //= type=implication
@@ -332,10 +332,10 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list
     //= type=implication
     //# List MUST be serialized as:
-    //# | Field         | Length   |
-    //# | ------------- | -------- |
-    //# | List Count    | 4        |
-    //# | List Entries  | Variable |
+    //# | Field        | Length   |
+    //# | ------------ | -------- |
+    //# | List Count   | 4        |
+    //# | List Entries | Variable |
     ensures a.L? && ret.Success? && !prefix ==>
               //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-count
               //= type=implication
@@ -363,9 +363,9 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-attribute
     //= type=implication
     //# Map MUST be serialized as:
-    //# | Field                   | Length   |
-    //# | ----------------------- | -------- |
-    //# | Key Value Pair Count    | 4        |
+    //# | Field                  | Length   |
+    //# | ---------------------- | -------- |
+    //# | Key Value Pair Count   | 4        |
     //# | Key Value Pair Entries  | Variable |
     ensures a.M? && ret.Success? && !prefix ==>
               && U32ToBigEndian(|a.M|).Success?
@@ -570,10 +570,10 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entries
     //= type=implication
     //# Each of these entries MUST be serialized as:
-    //# | Field               | Length                               |
-    //# | ------------------- | ------------------------------------ |
-    //# | Set Entry Length    | 4                                    |
-    //# | Set Entry Value     | Variable. Equal to Set Entry Length. |
+    //# | Field            | Length                               |
+    //# | ---------------- | ------------------------------------ |
+    //# | Set Entry Length | 4                                    |
+    //# | Set Entry Value  | Variable. Equal to Set Entry Length. |
     ensures ret.Success? ==>
               && U32ToBigEndian(|b|).Success?
               && |ret.value| == LENGTH_LEN + |b|
@@ -602,11 +602,11 @@ module DynamoToStruct {
   // Can't be {:tailrecursion} because it calls AttrToBytes which might again call CollectList
   //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
   //# Each list entry in the sequence MUST be serialized as:
-  //# | Field                | Length                     |
-  //# | -------------------- | -------------------------- |
-  //# | List Entry Type      | 2                          |
-  //# | List Entry Length    | 4                          |
-  //# | List Entry Value     | Variable. Equal to Length. |
+  //# | Field             | Length                     |
+  //# | ----------------- | -------------------------- |
+  //# | List Entry Type   | 2                          |
+  //# | List Entry Length | 4                          |
+  //# | List Entry Value  | Variable. Equal to Length. |
 
   //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
   //# The order of these serialized list entries MUST match

@@ -30,6 +30,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 
 public class TestDelegatedKey implements DelegatedKey {
+
   private static final long serialVersionUID = 1L;
 
   private final Key realKey;
@@ -54,13 +55,18 @@ public class TestDelegatedKey implements DelegatedKey {
   }
 
   @Override
-  public byte[] encrypt(byte[] plainText, byte[] additionalAssociatedData, String algorithm)
-      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-          NoSuchAlgorithmException, NoSuchPaddingException {
+  public byte[] encrypt(
+    byte[] plainText,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
     Cipher cipher = Cipher.getInstance(extractAlgorithm(algorithm));
     cipher.init(Cipher.ENCRYPT_MODE, realKey);
     byte[] iv = cipher.getIV();
-    byte[] result = new byte[cipher.getOutputSize(plainText.length) + iv.length + 1];
+    byte[] result = new byte[cipher.getOutputSize(plainText.length) +
+    iv.length +
+    1];
     result[0] = (byte) iv.length;
     System.arraycopy(iv, 0, result, 1, iv.length);
     try {
@@ -72,20 +78,30 @@ public class TestDelegatedKey implements DelegatedKey {
   }
 
   @Override
-  public byte[] decrypt(byte[] cipherText, byte[] additionalAssociatedData, String algorithm)
-      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-          NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+  public byte[] decrypt(
+    byte[] cipherText,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException {
     final byte ivLength = cipherText[0];
     IvParameterSpec iv = new IvParameterSpec(cipherText, 1, ivLength);
     Cipher cipher = Cipher.getInstance(extractAlgorithm(algorithm));
     cipher.init(Cipher.DECRYPT_MODE, realKey, iv);
-    return cipher.doFinal(cipherText, ivLength + 1, cipherText.length - ivLength - 1);
+    return cipher.doFinal(
+      cipherText,
+      ivLength + 1,
+      cipherText.length - ivLength - 1
+    );
   }
 
   @Override
-  public byte[] wrap(Key key, byte[] additionalAssociatedData, String algorithm)
-      throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException,
-          IllegalBlockSizeException {
+  public byte[] wrap(
+    Key key,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException {
     Cipher cipher = Cipher.getInstance(extractAlgorithm(algorithm));
     cipher.init(Cipher.WRAP_MODE, realKey);
     return cipher.wrap(key);
@@ -93,12 +109,13 @@ public class TestDelegatedKey implements DelegatedKey {
 
   @Override
   public Key unwrap(
-      byte[] wrappedKey,
-      String wrappedKeyAlgorithm,
-      int wrappedKeyType,
-      byte[] additionalAssociatedData,
-      String algorithm)
-      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    byte[] wrappedKey,
+    String wrappedKeyAlgorithm,
+    int wrappedKeyType,
+    byte[] additionalAssociatedData,
+    String algorithm
+  )
+    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
     Cipher cipher = Cipher.getInstance(extractAlgorithm(algorithm));
     cipher.init(Cipher.UNWRAP_MODE, realKey);
     return cipher.unwrap(wrappedKey, wrappedKeyAlgorithm, wrappedKeyType);
@@ -106,7 +123,7 @@ public class TestDelegatedKey implements DelegatedKey {
 
   @Override
   public byte[] sign(byte[] dataToSign, String algorithm)
-      throws NoSuchAlgorithmException, InvalidKeyException {
+    throws NoSuchAlgorithmException, InvalidKeyException {
     Mac mac = Mac.getInstance(extractAlgorithm(algorithm));
     mac.init(realKey);
     return mac.doFinal(dataToSign);

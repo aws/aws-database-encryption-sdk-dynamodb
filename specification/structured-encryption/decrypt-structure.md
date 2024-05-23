@@ -10,6 +10,7 @@
 ### Changelog
 
 - 1.1.0
+
   - Update for simplified structured encryption
 
 - 1.0.0

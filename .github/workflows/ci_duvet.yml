@@ -3,7 +3,7 @@
 # with respect to the specification
 name: Duvet report
 
-on: 
+on:
   pull_request:
   push:
     branches:

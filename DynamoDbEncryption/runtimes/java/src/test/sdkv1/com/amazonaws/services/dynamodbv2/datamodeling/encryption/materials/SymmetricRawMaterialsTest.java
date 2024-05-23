@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class SymmetricRawMaterialsTest {
+
   private static SecretKey encryptionKey;
   private static SecretKey macKey;
   private static KeyPair sigPair;
@@ -60,7 +61,10 @@ public class SymmetricRawMaterialsTest {
 
   @Test
   public void macNoDescription() throws NoSuchAlgorithmException {
-    SymmetricRawMaterials mat = new SymmetricRawMaterials(encryptionKey, macKey);
+    SymmetricRawMaterials mat = new SymmetricRawMaterials(
+      encryptionKey,
+      macKey
+    );
     assertEquals(encryptionKey, mat.getEncryptionKey());
     assertEquals(encryptionKey, mat.getDecryptionKey());
     assertEquals(macKey, mat.getSigningKey());
@@ -70,7 +74,11 @@ public class SymmetricRawMaterialsTest {
 
   @Test
   public void macWithDescription() throws NoSuchAlgorithmException {
-    SymmetricRawMaterials mat = new SymmetricRawMaterials(encryptionKey, macKey, description);
+    SymmetricRawMaterials mat = new SymmetricRawMaterials(
+      encryptionKey,
+      macKey,
+      description
+    );
     assertEquals(encryptionKey, mat.getEncryptionKey());
     assertEquals(encryptionKey, mat.getDecryptionKey());
     assertEquals(macKey, mat.getSigningKey());
@@ -81,7 +89,10 @@ public class SymmetricRawMaterialsTest {
 
   @Test
   public void sigNoDescription() throws NoSuchAlgorithmException {
-    SymmetricRawMaterials mat = new SymmetricRawMaterials(encryptionKey, sigPair);
+    SymmetricRawMaterials mat = new SymmetricRawMaterials(
+      encryptionKey,
+      sigPair
+    );
     assertEquals(encryptionKey, mat.getEncryptionKey());
     assertEquals(encryptionKey, mat.getDecryptionKey());
     assertEquals(sigPair.getPrivate(), mat.getSigningKey());
@@ -91,7 +102,11 @@ public class SymmetricRawMaterialsTest {
 
   @Test
   public void sigWithDescription() throws NoSuchAlgorithmException {
-    SymmetricRawMaterials mat = new SymmetricRawMaterials(encryptionKey, sigPair, description);
+    SymmetricRawMaterials mat = new SymmetricRawMaterials(
+      encryptionKey,
+      sigPair,
+      description
+    );
     assertEquals(encryptionKey, mat.getEncryptionKey());
     assertEquals(encryptionKey, mat.getDecryptionKey());
     assertEquals(sigPair.getPrivate(), mat.getSigningKey());

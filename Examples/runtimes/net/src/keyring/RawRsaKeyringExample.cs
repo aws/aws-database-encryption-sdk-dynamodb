@@ -217,19 +217,19 @@ public class RawRsaKeyringExample
         {
             return false;
         }
-        
+
         // If only one file is present: throw exception
         if (File.Exists(EXAMPLE_RSA_PRIVATE_KEY_FILENAME) && !File.Exists(EXAMPLE_RSA_PUBLIC_KEY_FILENAME))
         {
             throw new ApplicationException("Missing public key file at " + EXAMPLE_RSA_PUBLIC_KEY_FILENAME);
         }
-        
+
         // If a key pair already exists: do not overwrite existing key pair
         if (File.Exists(EXAMPLE_RSA_PRIVATE_KEY_FILENAME) && !File.Exists(EXAMPLE_RSA_PUBLIC_KEY_FILENAME))
         {
             throw new ApplicationException("Missing private key file at " + EXAMPLE_RSA_PRIVATE_KEY_FILENAME);
         }
-        
+
         // If neither file is present, generate a new key pair
         return true;
     }
@@ -250,15 +250,15 @@ public class RawRsaKeyringExample
         // In practice, you should not generate this in your code, and should instead
         // retrieve this key from a secure key management system (e.g. HSM)
         // This key is created here for example purposes only.
-        
+
         var r = new RsaKeyPairGenerator();
         r.Init(new KeyGenerationParameters(new SecureRandom(), 2048));
         var keys = r.GenerateKeyPair();
-        
+
         var privateKeyStringWriter = new StringWriter();
         var pemWriter = new PemWriter(privateKeyStringWriter);
         pemWriter.WriteObject(keys.Private);
-        
+
         var privateKeyUtf8EncodedByteBuffer = Encoding.UTF8.GetBytes(privateKeyStringWriter.ToString());
         var fc = new FileStream(EXAMPLE_RSA_PRIVATE_KEY_FILENAME, FileMode.Create, FileAccess.Write);
         fc.Write(privateKeyUtf8EncodedByteBuffer);

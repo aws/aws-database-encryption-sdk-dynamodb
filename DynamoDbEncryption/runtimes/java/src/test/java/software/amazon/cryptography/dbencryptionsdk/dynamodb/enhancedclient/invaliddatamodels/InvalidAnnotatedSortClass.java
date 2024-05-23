@@ -8,25 +8,25 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 @DynamoDbBean
 public class InvalidAnnotatedSortClass {
 
-    private String id;
-    private String sortKey;
+  private String id;
+  private String sortKey;
 
-    @DynamoDbPartitionKey
-    public String getId() {
-        return this.id;
-    }
+  @DynamoDbPartitionKey
+  public String getId() {
+    return this.id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    @DynamoDbEncryptionDoNothing
-    @DynamoDbSortKey
-    public String getSortKey() {
-        return this.sortKey;
-    }
+  @DynamoDbEncryptionDoNothing
+  @DynamoDbSortKey
+  public String getSortKey() {
+    return this.sortKey;
+  }
 
-    public void setSortKey(String sortKey) {
-        this.sortKey = sortKey;
-    }
+  public void setSortKey(String sortKey) {
+    this.sortKey = sortKey;
+  }
 }

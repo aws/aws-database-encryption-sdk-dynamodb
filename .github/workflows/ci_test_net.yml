@@ -1,7 +1,7 @@
 # This workflow performs tests in .NET.
 name: test dotnet
 
-on: 
+on:
   pull_request:
   push:
     branches:
@@ -12,7 +12,7 @@ on:
     # (accordingly to the "nightly" parameter).
     inputs:
       nightly:
-        description: 'Run the nightly build'
+        description: "Run the nightly build"
         required: false
         type: boolean
   schedule:
@@ -30,15 +30,9 @@ jobs:
     if: (github.event_name != 'schedule' || github.repository_owner == 'aws')
     strategy:
       matrix:
-        library: [
-          DynamoDbEncryption,
-        ]
-        dotnet-version: [ '6.0.x' ]
-        os: [
-          macos-12,
-          ubuntu-latest,
-          windows-latest
-        ]
+        library: [DynamoDbEncryption]
+        dotnet-version: ["6.0.x"]
+        os: [macos-12, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -52,7 +46,7 @@ jobs:
           git config --global core.longpaths true
       - uses: actions/checkout@v3
         with:
-          submodules: recursive        
+          submodules: recursive
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
@@ -73,8 +67,8 @@ jobs:
           library: ${{ matrix.library }}
           diff-generated-code: false
           update-and-regenerate-mpl: true
-            
-      - name: Download Dependencies 
+
+      - name: Download Dependencies
         working-directory: ./${{ matrix.library }}
         run: make setup_net
 
@@ -92,16 +86,16 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_net CORES=$CORES
-      
+
       - name: Test ${{ matrix.library }} net48
         if: matrix.os == 'windows-latest'
         working-directory: ./${{ matrix.library }}
         shell: bash
         run: |
-            dotnet restore runtimes/net/tests
-            dotnet build runtimes/net/tests
-            make test_net FRAMEWORK=net48
-      
+          dotnet restore runtimes/net/tests
+          dotnet build runtimes/net/tests
+          make test_net FRAMEWORK=net48
+
       - name: Test ${{ matrix.library }} net6.0
         working-directory: ./${{ matrix.library }}
         shell: bash
@@ -113,7 +107,7 @@ jobs:
           else
             make test_net FRAMEWORK=net6.0
           fi
-      
+
       - name: Test Build and Pack ${{ matrix.library}}
         shell: bash
         if: matrix.os != 'windows-latest'
@@ -121,4 +115,3 @@ jobs:
         run: |
           dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168
           dotnet pack runtimes/net/DynamoDbEncryption.csproj --no-build /p:Configuration=Release --output build
-

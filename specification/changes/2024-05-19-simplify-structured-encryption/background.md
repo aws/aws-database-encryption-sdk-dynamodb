@@ -4,6 +4,7 @@
 # Simplify Structure Encryption
 
 The problems with structured encryption are twofold:
+
 1. The existing recursive structures are needlessly complex
 2. The existing structures are not actually suitable for encrypting nested structures.
 
@@ -48,7 +49,7 @@ whose values were always a CryptoAction.
 
 Thus we might as well replace the whole thing with
 
-``` smithy
+```smithy
 map CryptoSchemaMap {
     key: String,
     value: CryptoAction
@@ -74,13 +75,13 @@ So the existing smithy model makes nested structures difficult to write and diff
 
 More useful would be something more like this :
 
-CryptoSchema  ("A.B" := SIGN_ONLY, "A.C" := ENCRYPT_AND_SIGN);
+CryptoSchema ("A.B" := SIGN_ONLY, "A.C" := ENCRYPT_AND_SIGN);
 StructuredData("A.B" := SomeBytes, "A.C" := OtherBytes));
 
 Thus we introduce the type `Path` which is a sequence of member strings,
 so the two paths in the example above would be ["A","B"] and ["A","C"].
 
-The Path is really the more complex  :
+The Path is really the more complex :
 
 ```smithy
 structure StructureSegment {@required key : String}
@@ -114,7 +115,7 @@ To capture a more comprehensive set of structures.
 
 The obvious next step is to change the maps to this form:
 
-``` smithy
+```smithy
 map CryptoSchemaMap {
     key: Path,
     value: CryptoAction

@@ -8,6 +8,7 @@ if you are currently using the DynamoDb Encryption Client.
 ## Step 1
 
 In Step 1, you update youe system to do the following:
+
 - continue to read items in the old format
 - continue to write items in the old format
 - prepare to read items in the new format
@@ -20,6 +21,7 @@ You must ensure that the changes in Step 1 make it to all your reads before you 
 ## Step 2
 
 In Step 2, you update your system to do the following:
+
 - continue to read items in the old format
 - start writing items in the new format
 - continue to read items in the new format
@@ -35,6 +37,7 @@ depends on your system and your desired security properties for old and new item
 
 Once all old items are re-encrypted to use the new format,
 you may update your system to do the following:
+
 - continue to write items in the new format
 - continue to read items in the new format
 - do not accept reading items in the old format

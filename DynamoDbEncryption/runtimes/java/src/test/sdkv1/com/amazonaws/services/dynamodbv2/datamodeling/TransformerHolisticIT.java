@@ -60,45 +60,50 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TransformerHolisticIT {
-  private static final SecretKey aesKey =
-      new SecretKeySpec(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, "AES");
-  private static final SecretKey hmacKey =
-      new SecretKeySpec(new byte[] {0, 1, 2, 3, 4, 5, 6, 7}, "HmacSHA256");
+
+  private static final SecretKey aesKey = new SecretKeySpec(
+    new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
+    "AES"
+  );
+  private static final SecretKey hmacKey = new SecretKeySpec(
+    new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+    "HmacSHA256"
+  );
   private static final String rsaEncPub =
-      "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtiNSLSvT9cExXOcD0dGZ"
-          + "9DFEMHw8895gAZcCdSppDrxbD7XgZiQYTlgt058i5fS+l11guAUJtKt5sZ2u8Fx0"
-          + "K9pxMdlczGtvQJdx/LQETEnLnfzAijvHisJ8h6dQOVczM7t01KIkS24QZElyO+kY"
-          + "qMWLytUV4RSHnrnIuUtPHCe6LieDWT2+1UBguxgtFt1xdXlquACLVv/Em3wp40Xc"
-          + "bIwzhqLitb98rTY/wqSiGTz1uvvBX46n+f2j3geZKCEDGkWcXYw3dH4lRtDWTbqw"
-          + "eRcaNDT/MJswQlBk/Up9KCyN7gjX67gttiCO6jMoTNDejGeJhG4Dd2o0vmn8WJlr"
-          + "5wIDAQAB";
+    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtiNSLSvT9cExXOcD0dGZ" +
+    "9DFEMHw8895gAZcCdSppDrxbD7XgZiQYTlgt058i5fS+l11guAUJtKt5sZ2u8Fx0" +
+    "K9pxMdlczGtvQJdx/LQETEnLnfzAijvHisJ8h6dQOVczM7t01KIkS24QZElyO+kY" +
+    "qMWLytUV4RSHnrnIuUtPHCe6LieDWT2+1UBguxgtFt1xdXlquACLVv/Em3wp40Xc" +
+    "bIwzhqLitb98rTY/wqSiGTz1uvvBX46n+f2j3geZKCEDGkWcXYw3dH4lRtDWTbqw" +
+    "eRcaNDT/MJswQlBk/Up9KCyN7gjX67gttiCO6jMoTNDejGeJhG4Dd2o0vmn8WJlr" +
+    "5wIDAQAB";
   private static final String rsaEncPriv =
-      "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC2I1ItK9P1wTFc"
-          + "5wPR0Zn0MUQwfDzz3mABlwJ1KmkOvFsPteBmJBhOWC3TnyLl9L6XXWC4BQm0q3mx"
-          + "na7wXHQr2nEx2VzMa29Al3H8tARMScud/MCKO8eKwnyHp1A5VzMzu3TUoiRLbhBk"
-          + "SXI76RioxYvK1RXhFIeeuci5S08cJ7ouJ4NZPb7VQGC7GC0W3XF1eWq4AItW/8Sb"
-          + "fCnjRdxsjDOGouK1v3ytNj/CpKIZPPW6+8Ffjqf5/aPeB5koIQMaRZxdjDd0fiVG"
-          + "0NZNurB5Fxo0NP8wmzBCUGT9Sn0oLI3uCNfruC22II7qMyhM0N6MZ4mEbgN3ajS+"
-          + "afxYmWvnAgMBAAECggEBAIIU293zDWDZZ73oJ+w0fHXQsdjHAmlRitPX3CN99KZX"
-          + "k9m2ldudL9bUV3Zqk2wUzgIg6LDEuFfWmAVojsaP4VBopKtriEFfAYfqIbjPgLpT"
-          + "gh8FoyWW6D6MBJCFyGALjUAHQ7uRScathvt5ESMEqV3wKJTmdsfX97w/B8J+rLN3"
-          + "3fT3ZJUck5duZ8XKD+UtX1Y3UE1hTWo3Ae2MFND964XyUqy+HaYXjH0x6dhZzqyJ"
-          + "/OJ/MPGeMJgxp+nUbMWerwxrLQceNFVgnQgHj8e8k4fd04rkowkkPua912gNtmz7"
-          + "DuIEvcMnY64z585cn+cnXUPJwtu3JbAmn/AyLsV9FLECgYEA798Ut/r+vORB16JD"
-          + "KFu38pQCgIbdCPkXeI0DC6u1cW8JFhgRqi+AqSrEy5SzY3IY7NVMSRsBI9Y026Bl"
-          + "R9OQwTrOzLRAw26NPSDvbTkeYXlY9+hX7IovHjGkho/OxyTJ7bKRDYLoNCz56BC1"
-          + "khIWvECpcf/fZU0nqOFVFqF3H/UCgYEAwmJ4rjl5fksTNtNRL6ivkqkHIPKXzk5w"
-          + "C+L90HKNicic9bqyX8K4JRkGKSNYN3mkjrguAzUlEld390qNBw5Lu7PwATv0e2i+"
-          + "6hdwJsjTKNpj7Nh4Mieq6d7lWe1L8FLyHEhxgIeQ4BgqrVtPPOH8IBGpuzVZdWwI"
-          + "dgOvEvAi/usCgYBdfk3NB/+SEEW5jn0uldE0s4vmHKq6fJwxWIT/X4XxGJ4qBmec"
-          + "NbeoOAtMbkEdWbNtXBXHyMbA+RTRJctUG5ooNou0Le2wPr6+PMAVilXVGD8dIWpj"
-          + "v9htpFvENvkZlbU++IKhCY0ICR++3ARpUrOZ3Hou/NRN36y9nlZT48tSoQKBgES2"
-          + "Bi6fxmBsLUiN/f64xAc1lH2DA0I728N343xRYdK4hTMfYXoUHH+QjurvwXkqmI6S"
-          + "cEFWAdqv7IoPYjaCSSb6ffYRuWP+LK4WxuAO0QV53SSViDdCalntHmlhRhyXVVnG"
-          + "CckDIqT0JfHNev7savDzDWpNe2fUXlFJEBPDqrstAoGBAOpd5+QBHF/tP5oPILH4"
-          + "aD/zmqMH7VtB+b/fOPwtIM+B/WnU7hHLO5t2lJYu18Be3amPkfoQIB7bpkM3Cer2"
-          + "G7Jw+TcHrY+EtIziDB5vwau1fl4VcbA9SfWpBojJ5Ifo9ELVxGiK95WxeQNSmLUy"
-          + "7AJzhK1Gwey8a/v+xfqiu9sE";
+    "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC2I1ItK9P1wTFc" +
+    "5wPR0Zn0MUQwfDzz3mABlwJ1KmkOvFsPteBmJBhOWC3TnyLl9L6XXWC4BQm0q3mx" +
+    "na7wXHQr2nEx2VzMa29Al3H8tARMScud/MCKO8eKwnyHp1A5VzMzu3TUoiRLbhBk" +
+    "SXI76RioxYvK1RXhFIeeuci5S08cJ7ouJ4NZPb7VQGC7GC0W3XF1eWq4AItW/8Sb" +
+    "fCnjRdxsjDOGouK1v3ytNj/CpKIZPPW6+8Ffjqf5/aPeB5koIQMaRZxdjDd0fiVG" +
+    "0NZNurB5Fxo0NP8wmzBCUGT9Sn0oLI3uCNfruC22II7qMyhM0N6MZ4mEbgN3ajS+" +
+    "afxYmWvnAgMBAAECggEBAIIU293zDWDZZ73oJ+w0fHXQsdjHAmlRitPX3CN99KZX" +
+    "k9m2ldudL9bUV3Zqk2wUzgIg6LDEuFfWmAVojsaP4VBopKtriEFfAYfqIbjPgLpT" +
+    "gh8FoyWW6D6MBJCFyGALjUAHQ7uRScathvt5ESMEqV3wKJTmdsfX97w/B8J+rLN3" +
+    "3fT3ZJUck5duZ8XKD+UtX1Y3UE1hTWo3Ae2MFND964XyUqy+HaYXjH0x6dhZzqyJ" +
+    "/OJ/MPGeMJgxp+nUbMWerwxrLQceNFVgnQgHj8e8k4fd04rkowkkPua912gNtmz7" +
+    "DuIEvcMnY64z585cn+cnXUPJwtu3JbAmn/AyLsV9FLECgYEA798Ut/r+vORB16JD" +
+    "KFu38pQCgIbdCPkXeI0DC6u1cW8JFhgRqi+AqSrEy5SzY3IY7NVMSRsBI9Y026Bl" +
+    "R9OQwTrOzLRAw26NPSDvbTkeYXlY9+hX7IovHjGkho/OxyTJ7bKRDYLoNCz56BC1" +
+    "khIWvECpcf/fZU0nqOFVFqF3H/UCgYEAwmJ4rjl5fksTNtNRL6ivkqkHIPKXzk5w" +
+    "C+L90HKNicic9bqyX8K4JRkGKSNYN3mkjrguAzUlEld390qNBw5Lu7PwATv0e2i+" +
+    "6hdwJsjTKNpj7Nh4Mieq6d7lWe1L8FLyHEhxgIeQ4BgqrVtPPOH8IBGpuzVZdWwI" +
+    "dgOvEvAi/usCgYBdfk3NB/+SEEW5jn0uldE0s4vmHKq6fJwxWIT/X4XxGJ4qBmec" +
+    "NbeoOAtMbkEdWbNtXBXHyMbA+RTRJctUG5ooNou0Le2wPr6+PMAVilXVGD8dIWpj" +
+    "v9htpFvENvkZlbU++IKhCY0ICR++3ARpUrOZ3Hou/NRN36y9nlZT48tSoQKBgES2" +
+    "Bi6fxmBsLUiN/f64xAc1lH2DA0I728N343xRYdK4hTMfYXoUHH+QjurvwXkqmI6S" +
+    "cEFWAdqv7IoPYjaCSSb6ffYRuWP+LK4WxuAO0QV53SSViDdCalntHmlhRhyXVVnG" +
+    "CckDIqT0JfHNev7savDzDWpNe2fUXlFJEBPDqrstAoGBAOpd5+QBHF/tP5oPILH4" +
+    "aD/zmqMH7VtB+b/fOPwtIM+B/WnU7hHLO5t2lJYu18Be3amPkfoQIB7bpkM3Cer2" +
+    "G7Jw+TcHrY+EtIziDB5vwau1fl4VcbA9SfWpBojJ5Ifo9ELVxGiK95WxeQNSmLUy" +
+    "7AJzhK1Gwey8a/v+xfqiu9sE";
   private static final PrivateKey rsaPriv;
   private static final PublicKey rsaPub;
   private static final KeyPair rsaPair;
@@ -118,7 +123,10 @@ public class TransformerHolisticIT {
   // AttributeEncryptor *must* be used with SaveBehavior.CLOBBER to avoid the risk of data
   // corruption.
   private static final DynamoDBMapperConfig CLOBBER_CONFIG =
-      DynamoDBMapperConfig.builder().withSaveBehavior(SaveBehavior.CLOBBER).build();
+    DynamoDBMapperConfig
+      .builder()
+      .withSaveBehavior(SaveBehavior.CLOBBER)
+      .build();
   private static final BaseClass ENCRYPTED_TEST_VALUE = new BaseClass();
   private static final Mixed MIXED_TEST_VALUE = new Mixed();
   private static final SignOnly SIGNED_TEST_VALUE = new SignOnly();
@@ -129,15 +137,23 @@ public class TransformerHolisticIT {
   private static final SignOnly SIGNED_TEST_VALUE_2 = new SignOnly();
   private static final Untouched UNTOUCHED_TEST_VALUE_2 = new Untouched();
 
-  private static final String TEST_VECTOR_MANIFEST_DIR = "/vectors/encrypted_item/";
-  private static final String SCENARIO_MANIFEST_PATH = TEST_VECTOR_MANIFEST_DIR + "scenarios.json";
+  private static final String TEST_VECTOR_MANIFEST_DIR =
+    "/vectors/encrypted_item/";
+  private static final String SCENARIO_MANIFEST_PATH =
+    TEST_VECTOR_MANIFEST_DIR + "scenarios.json";
   private static final String JAVA_DIR = "java";
 
   static {
     try {
       KeyFactory rsaFact = KeyFactory.getInstance("RSA");
-      rsaPub = rsaFact.generatePublic(new X509EncodedKeySpec(Base64.decode(rsaEncPub)));
-      rsaPriv = rsaFact.generatePrivate(new PKCS8EncodedKeySpec(Base64.decode(rsaEncPriv)));
+      rsaPub =
+        rsaFact.generatePublic(
+          new X509EncodedKeySpec(Base64.decode(rsaEncPub))
+        );
+      rsaPriv =
+        rsaFact.generatePrivate(
+          new PKCS8EncodedKeySpec(Base64.decode(rsaEncPriv))
+        );
       rsaPair = new KeyPair(rsaPub, rsaPriv);
     } catch (GeneralSecurityException ex) {
       throw new RuntimeException(ex);
@@ -151,40 +167,52 @@ public class TransformerHolisticIT {
     ENCRYPTED_TEST_VALUE.setVersion(0);
     ENCRYPTED_TEST_VALUE.setIntValue(123);
     ENCRYPTED_TEST_VALUE.setStringValue("Hello world!");
-    ENCRYPTED_TEST_VALUE.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    ENCRYPTED_TEST_VALUE.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     ENCRYPTED_TEST_VALUE.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    ENCRYPTED_TEST_VALUE.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    ENCRYPTED_TEST_VALUE.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
 
     MIXED_TEST_VALUE.setHashKey(6);
     MIXED_TEST_VALUE.setRangeKey(8);
     MIXED_TEST_VALUE.setVersion(0);
     MIXED_TEST_VALUE.setIntValue(123);
     MIXED_TEST_VALUE.setStringValue("Hello world!");
-    MIXED_TEST_VALUE.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    MIXED_TEST_VALUE.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     MIXED_TEST_VALUE.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    MIXED_TEST_VALUE.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    MIXED_TEST_VALUE.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
 
     SIGNED_TEST_VALUE.setHashKey(8);
     SIGNED_TEST_VALUE.setRangeKey(10);
     SIGNED_TEST_VALUE.setVersion(0);
     SIGNED_TEST_VALUE.setIntValue(123);
     SIGNED_TEST_VALUE.setStringValue("Hello world!");
-    SIGNED_TEST_VALUE.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    SIGNED_TEST_VALUE.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     SIGNED_TEST_VALUE.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    SIGNED_TEST_VALUE.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    SIGNED_TEST_VALUE.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
 
     UNTOUCHED_TEST_VALUE.setHashKey(7);
     UNTOUCHED_TEST_VALUE.setRangeKey(9);
     UNTOUCHED_TEST_VALUE.setVersion(0);
     UNTOUCHED_TEST_VALUE.setIntValue(123);
     UNTOUCHED_TEST_VALUE.setStringValue("Hello world!");
-    UNTOUCHED_TEST_VALUE.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    UNTOUCHED_TEST_VALUE.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     UNTOUCHED_TEST_VALUE.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    UNTOUCHED_TEST_VALUE.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    UNTOUCHED_TEST_VALUE.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
 
     // Now storing doubles
     ENCRYPTED_TEST_VALUE_2.setHashKey(5);
@@ -192,78 +220,100 @@ public class TransformerHolisticIT {
     ENCRYPTED_TEST_VALUE_2.setVersion(0);
     ENCRYPTED_TEST_VALUE_2.setIntValue(123);
     ENCRYPTED_TEST_VALUE_2.setStringValue("Hello world!");
-    ENCRYPTED_TEST_VALUE_2.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    ENCRYPTED_TEST_VALUE_2.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     ENCRYPTED_TEST_VALUE_2.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    ENCRYPTED_TEST_VALUE_2.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    ENCRYPTED_TEST_VALUE_2.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
     ENCRYPTED_TEST_VALUE_2.setDoubleValue(15);
     ENCRYPTED_TEST_VALUE_2.setDoubleSet(
-        new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
 
     MIXED_TEST_VALUE_2.setHashKey(6);
     MIXED_TEST_VALUE_2.setRangeKey(8);
     MIXED_TEST_VALUE_2.setVersion(0);
     MIXED_TEST_VALUE_2.setIntValue(123);
     MIXED_TEST_VALUE_2.setStringValue("Hello world!");
-    MIXED_TEST_VALUE_2.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    MIXED_TEST_VALUE_2.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     MIXED_TEST_VALUE_2.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    MIXED_TEST_VALUE_2.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    MIXED_TEST_VALUE_2.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
     MIXED_TEST_VALUE_2.setDoubleValue(15);
     MIXED_TEST_VALUE_2.setDoubleSet(
-        new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
 
     SIGNED_TEST_VALUE_2.setHashKey(8);
     SIGNED_TEST_VALUE_2.setRangeKey(10);
     SIGNED_TEST_VALUE_2.setVersion(0);
     SIGNED_TEST_VALUE_2.setIntValue(123);
     SIGNED_TEST_VALUE_2.setStringValue("Hello world!");
-    SIGNED_TEST_VALUE_2.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    SIGNED_TEST_VALUE_2.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     SIGNED_TEST_VALUE_2.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    SIGNED_TEST_VALUE_2.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    SIGNED_TEST_VALUE_2.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
     SIGNED_TEST_VALUE_2.setDoubleValue(15);
     SIGNED_TEST_VALUE_2.setDoubleSet(
-        new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
 
     UNTOUCHED_TEST_VALUE_2.setHashKey(7);
     UNTOUCHED_TEST_VALUE_2.setRangeKey(9);
     UNTOUCHED_TEST_VALUE_2.setVersion(0);
     UNTOUCHED_TEST_VALUE_2.setIntValue(123);
     UNTOUCHED_TEST_VALUE_2.setStringValue("Hello world!");
-    UNTOUCHED_TEST_VALUE_2.setByteArrayValue(new byte[] {0, 1, 2, 3, 4, 5});
+    UNTOUCHED_TEST_VALUE_2.setByteArrayValue(new byte[] { 0, 1, 2, 3, 4, 5 });
     UNTOUCHED_TEST_VALUE_2.setStringSet(
-        new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?")));
-    UNTOUCHED_TEST_VALUE_2.setIntSet(new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0)));
+      new HashSet<String>(Arrays.asList("Goodbye", "Cruel", "World", "?"))
+    );
+    UNTOUCHED_TEST_VALUE_2.setIntSet(
+      new HashSet<Integer>(Arrays.asList(1, 200, 10, 15, 0))
+    );
     UNTOUCHED_TEST_VALUE_2.setDoubleValue(15);
     UNTOUCHED_TEST_VALUE_2.setDoubleSet(
-        new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
   }
 
   @DataProvider(name = "getEncryptTestVectors")
   public static Object[][] getEncryptTestVectors() throws IOException {
-    ScenarioManifest scenarioManifest =
-        getManifestFromFile(SCENARIO_MANIFEST_PATH, new TypeReference<ScenarioManifest>() {});
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+      SCENARIO_MANIFEST_PATH,
+      new TypeReference<ScenarioManifest>() {}
+    );
     loadKeyData(scenarioManifest.keyDataPath);
 
     // Only use Java generated test vectors to dedupe the scenarios for encrypt,
     // we only care that we are able to generate data using the different provider configurations
-    List<Object[]> dedupedScenarios =
-        scenarioManifest.scenarios.stream()
-            .filter(s -> s.ciphertextPath.contains(JAVA_DIR))
-            .map(s -> new Object[] {s})
-            .collect(Collectors.toList());
+    List<Object[]> dedupedScenarios = scenarioManifest.scenarios
+      .stream()
+      .filter(s -> s.ciphertextPath.contains(JAVA_DIR))
+      .map(s -> new Object[] { s })
+      .collect(Collectors.toList());
     return dedupedScenarios.toArray(new Object[dedupedScenarios.size()][]);
   }
 
   @DataProvider(name = "getDecryptTestVectors")
   public static Object[][] getDecryptTestVectors() throws IOException {
-    ScenarioManifest scenarioManifest =
-        getManifestFromFile(SCENARIO_MANIFEST_PATH, new TypeReference<ScenarioManifest>() {});
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+      SCENARIO_MANIFEST_PATH,
+      new TypeReference<ScenarioManifest>() {}
+    );
     loadKeyData(scenarioManifest.keyDataPath);
 
-    List<Object[]> scenarios =
-        scenarioManifest.scenarios.stream().map(s -> new Object[] {s}).collect(Collectors.toList());
+    List<Object[]> scenarios = scenarioManifest.scenarios
+      .stream()
+      .map(s -> new Object[] { s })
+      .collect(Collectors.toList());
     return scenarios.toArray(new Object[scenarios.size()][]);
   }
 
@@ -290,27 +340,37 @@ public class TransformerHolisticIT {
     ProviderStore metastore = null;
     if (scenario.metastore != null) {
       MetaStore.createTable(
-          client, scenario.metastore.tableName, new ProvisionedThroughput(100L, 100L));
+        client,
+        scenario.metastore.tableName,
+        new ProvisionedThroughput(100L, 100L)
+      );
       putDataFromFile(client, scenario.metastore.path);
-      EncryptionMaterialsProvider metaProvider =
-          createProvider(
-              scenario.metastore.providerName,
-              scenario.materialName,
-              scenario.metastore.keys,
-              null);
+      EncryptionMaterialsProvider metaProvider = createProvider(
+        scenario.metastore.providerName,
+        scenario.materialName,
+        scenario.metastore.keys,
+        null
+      );
       metastore =
-          new MetaStore(
-              client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
+        new MetaStore(
+          client,
+          scenario.metastore.tableName,
+          DynamoDBEncryptor.getInstance(metaProvider)
+        );
     }
 
     // Create the mapper with the provider under test
-    EncryptionMaterialsProvider provider =
-        createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(
-            client,
-            new DynamoDBMapperConfig(SaveBehavior.CLOBBER),
-            new AttributeEncryptor(provider));
+    EncryptionMaterialsProvider provider = createProvider(
+      scenario.providerName,
+      scenario.materialName,
+      scenario.keys,
+      metastore
+    );
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      new DynamoDBMapperConfig(SaveBehavior.CLOBBER),
+      new AttributeEncryptor(provider)
+    );
 
     // Verify successful decryption
     switch (scenario.version) {
@@ -322,7 +382,10 @@ public class TransformerHolisticIT {
         break;
       default:
         throw new IllegalStateException(
-            "Version " + scenario.version + " not yet implemented in test vector runner");
+          "Version " +
+          scenario.version +
+          " not yet implemented in test vector runner"
+        );
     }
   }
 
@@ -342,168 +405,356 @@ public class TransformerHolisticIT {
     ProviderStore metastore = null;
     if (scenario.metastore != null) {
       MetaStore.createTable(
-        client, scenario.metastore.tableName, new ProvisionedThroughput(100L, 100L));
+        client,
+        scenario.metastore.tableName,
+        new ProvisionedThroughput(100L, 100L)
+      );
       putDataFromFile(client, scenario.metastore.path);
-      EncryptionMaterialsProvider metaProvider =
-        createProvider(
-          scenario.metastore.providerName,
-          scenario.materialName,
-          scenario.metastore.keys,
-          null);
+      EncryptionMaterialsProvider metaProvider = createProvider(
+        scenario.metastore.providerName,
+        scenario.materialName,
+        scenario.metastore.keys,
+        null
+      );
       metastore =
         new MetaStore(
-          client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
+          client,
+          scenario.metastore.tableName,
+          DynamoDBEncryptor.getInstance(metaProvider)
+        );
     }
 
     // Create the mapper with the provider under test
-    EncryptionMaterialsProvider provider =
-      createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
+    EncryptionMaterialsProvider provider = createProvider(
+      scenario.providerName,
+      scenario.materialName,
+      scenario.keys,
+      metastore
+    );
 
-    final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(provider);
+    final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(
+      provider
+    );
 
     // Verify successful decryption
     switch (scenario.version) {
       case "v0":
-        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, ENCRYPTED_TEST_VALUE);
-        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, MIXED_TEST_VALUE);
-        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, SIGNED_TEST_VALUE);
-//        The Encryptor can not decrypt an unencrypted record.
-//        However, the mapper can.
-//        This is why this vector exists but is not tested.
-//        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE));
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          ENCRYPTED_TEST_VALUE
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          MIXED_TEST_VALUE
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          SIGNED_TEST_VALUE
+        );
+        //        The Encryptor can not decrypt an unencrypted record.
+        //        However, the mapper can.
+        //        This is why this vector exists but is not tested.
+        //        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE));
         break;
       case "v1":
-        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, ENCRYPTED_TEST_VALUE_2);
-        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, MIXED_TEST_VALUE_2);
-        LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, SIGNED_TEST_VALUE_2);
-//        The Encryptor can not decrypt an unencrypted record.
-//        However, the mapper can.
-//        This is why this vector exists but is not tested.
-//        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          ENCRYPTED_TEST_VALUE_2
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          MIXED_TEST_VALUE_2
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          SIGNED_TEST_VALUE_2
+        );
+        //        The Encryptor can not decrypt an unencrypted record.
+        //        However, the mapper can.
+        //        This is why this vector exists but is not tested.
+        //        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
         break;
       default:
         throw new IllegalStateException(
-          "Version " + scenario.version + " not yet implemented in test vector runner");
+          "Version " +
+          scenario.version +
+          " not yet implemented in test vector runner"
+        );
     }
 
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Foo");
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Bar");
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Baz");
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Foo"
+    );
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Bar"
+    );
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Baz"
+    );
 
     for (int x = 1; x <= 3; ++x) {
-      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,0,x);
-      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,1,x);
-      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,4 + x,x);
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        0,
+        x
+      );
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        1,
+        x
+      );
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        4 + x,
+        x
+      );
     }
-
   }
 
   @Test(dataProvider = "getEncryptTestVectors")
   public void encryptWithTestVector(Scenario scenario) throws IOException {
-    client = DynamoDBEmbedded.create().amazonDynamoDB();;
-
+    client = DynamoDBEmbedded.create().amazonDynamoDB();
     // load data into ciphertext tables
     createCiphertextTables(client);
 
     // create and load metastore table if necessary
     ProviderStore metastore = null;
+
     if (scenario.metastore != null) {
       MetaStore.createTable(
-          client, scenario.metastore.tableName, new ProvisionedThroughput(100L, 100L));
+        client,
+        scenario.metastore.tableName,
+        new ProvisionedThroughput(100L, 100L)
+      );
       putDataFromFile(client, scenario.metastore.path);
-      EncryptionMaterialsProvider metaProvider =
-          createProvider(
-              scenario.metastore.providerName,
-              scenario.materialName,
-              scenario.metastore.keys,
-              null);
+      EncryptionMaterialsProvider metaProvider = createProvider(
+        scenario.metastore.providerName,
+        scenario.materialName,
+        scenario.metastore.keys,
+        null
+      );
       metastore =
-          new MetaStore(
-              client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
+        new MetaStore(
+          client,
+          scenario.metastore.tableName,
+          DynamoDBEncryptor.getInstance(metaProvider)
+        );
     }
-
     // Encrypt data with the provider under test, only ensure that no exception is thrown
-    EncryptionMaterialsProvider provider =
-        createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
+    EncryptionMaterialsProvider provider = createProvider(
+      scenario.providerName,
+      scenario.materialName,
+      scenario.keys,
+      metastore
+    );
+
     generateStandardData(provider);
   }
 
   @Test(dataProvider = "getEncryptTestVectors")
-  public void encryptWithLegacyTestVector(Scenario scenario) throws IOException {
-    client = DynamoDBEmbedded.create().amazonDynamoDB();;
-
+  public void encryptWithLegacyTestVector(Scenario scenario)
+    throws IOException {
+    client = DynamoDBEmbedded.create().amazonDynamoDB();
     // load data into ciphertext tables
     createCiphertextTables(client);
 
     // create and load metastore table if necessary
     ProviderStore metastore = null;
+
     if (scenario.metastore != null) {
       MetaStore.createTable(
-        client, scenario.metastore.tableName, new ProvisionedThroughput(100L, 100L));
+        client,
+        scenario.metastore.tableName,
+        new ProvisionedThroughput(100L, 100L)
+      );
       putDataFromFile(client, scenario.metastore.path);
-      EncryptionMaterialsProvider metaProvider =
-        createProvider(
-          scenario.metastore.providerName,
-          scenario.materialName,
-          scenario.metastore.keys,
-          null);
+      EncryptionMaterialsProvider metaProvider = createProvider(
+        scenario.metastore.providerName,
+        scenario.materialName,
+        scenario.metastore.keys,
+        null
+      );
       metastore =
         new MetaStore(
-          client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
+          client,
+          scenario.metastore.tableName,
+          DynamoDBEncryptor.getInstance(metaProvider)
+        );
     }
-
     // Encrypt data with the provider under test, only ensure that no exception is thrown
-    EncryptionMaterialsProvider provider =
-      createProvider(scenario.providerName, scenario.materialName, scenario.keys, metastore);
+    EncryptionMaterialsProvider provider = createProvider(
+      scenario.providerName,
+      scenario.materialName,
+      scenario.keys,
+      metastore
+    );
 
-    final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(provider);
+    final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(
+      provider
+    );
 
     // First I encrypt and put the items into the database
     // that I expect to exist on the decrypt side.
 
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, ENCRYPTED_TEST_VALUE_2);
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, MIXED_TEST_VALUE_2);
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, SIGNED_TEST_VALUE_2);
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      ENCRYPTED_TEST_VALUE_2
+    );
 
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new HashKeyOnly("Foo"));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new HashKeyOnly("Bar"));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new HashKeyOnly("Baz"));
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      MIXED_TEST_VALUE_2
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      SIGNED_TEST_VALUE_2
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new HashKeyOnly("Foo")
+    );
 
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(0, 1));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(0, 2));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(0, 3));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(1, 1));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(1, 2));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(1, 3));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(5, 1));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(6, 2));
-    LegacyTestVectors.encryptAndPut(client, legacyEncryptor, new KeysOnly(7, 3));
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new HashKeyOnly("Bar")
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new HashKeyOnly("Baz")
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(0, 1)
+    );
 
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(0, 2)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(0, 3)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(1, 1)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(1, 2)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(1, 3)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(5, 1)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(6, 2)
+    );
+    LegacyTestVectors.encryptAndPut(
+      client,
+      legacyEncryptor,
+      new KeysOnly(7, 3)
+    );
     // Now that all the items exist in the database
     // I decrypt them all.
     // This looks exactly like the decrypt test vectors
     // this is **not** an accident.
 
-    LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, ENCRYPTED_TEST_VALUE_2);
-    LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, MIXED_TEST_VALUE_2);
-    LegacyTestVectors.decryptBaseClassTestVector(client, legacyEncryptor, SIGNED_TEST_VALUE_2);
+    LegacyTestVectors.decryptBaseClassTestVector(
+      client,
+      legacyEncryptor,
+      ENCRYPTED_TEST_VALUE_2
+    );
 
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Foo");
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Bar");
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(client, legacyEncryptor, "Baz");
+    LegacyTestVectors.decryptBaseClassTestVector(
+      client,
+      legacyEncryptor,
+      MIXED_TEST_VALUE_2
+    );
+    LegacyTestVectors.decryptBaseClassTestVector(
+      client,
+      legacyEncryptor,
+      SIGNED_TEST_VALUE_2
+    );
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Foo"
+    );
 
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Bar"
+    );
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Baz"
+    );
     for (int x = 1; x <= 3; ++x) {
-      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,0,x);
-      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,1,x);
-      LegacyTestVectors.decryptKeysOnlyTestVector(client,legacyEncryptor,4 + x,x);
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        0,
+        x
+      );
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        1,
+        x
+      );
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        4 + x,
+        x
+      );
     }
-
   }
 
   @Test
   public void simpleSaveLoad() {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(client, CLOBBER_CONFIG, new AttributeEncryptor(symProv));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      CLOBBER_CONFIG,
+      new AttributeEncryptor(symProv)
+    );
     Mixed obj = new Mixed();
     obj.setHashKey(0);
     obj.setRangeKey(15);
@@ -513,7 +764,9 @@ public class TransformerHolisticIT {
     obj.getIntSet().add(7);
     obj.setDoubleValue(15);
     obj.setStringValue("Blargh!");
-    obj.setDoubleSet(new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+    obj.setDoubleSet(
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
 
     mapper.save(obj);
 
@@ -540,13 +793,16 @@ public class TransformerHolisticIT {
    */
   @Test
   public void optimisticLockingTest() {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(
-            client,
-            DynamoDBMapperConfig.builder().withSaveBehavior(SaveBehavior.PUT).build(),
-            new AttributeEncryptor(symProv));
-    DynamoDBMapper clobberMapper =
-        new DynamoDBMapper(client, CLOBBER_CONFIG, new AttributeEncryptor(symProv));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      DynamoDBMapperConfig.builder().withSaveBehavior(SaveBehavior.PUT).build(),
+      new AttributeEncryptor(symProv)
+    );
+    DynamoDBMapper clobberMapper = new DynamoDBMapper(
+      client,
+      CLOBBER_CONFIG,
+      new AttributeEncryptor(symProv)
+    );
 
     /*
      * Lineage of objects
@@ -567,7 +823,9 @@ public class TransformerHolisticIT {
     expected.getIntSet().add(7);
     expected.setDoubleValue(15);
     expected.setStringValue("Blargh!");
-    expected.setDoubleSet(new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+    expected.setDoubleSet(
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
 
     mapper.save(expected);
     Mixed v1 = mapper.load(Mixed.class, hashKey, rangeKey);
@@ -603,8 +861,11 @@ public class TransformerHolisticIT {
 
   @Test
   public void leadingAndTrailingZeros() {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(client, CLOBBER_CONFIG, new AttributeEncryptor(symProv));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      CLOBBER_CONFIG,
+      new AttributeEncryptor(symProv)
+    );
     Mixed obj = new Mixed();
     obj.setHashKey(0);
     obj.setRangeKey(15);
@@ -614,7 +875,9 @@ public class TransformerHolisticIT {
     obj.getIntSet().add(7);
     obj.setStringValue("Blargh!");
     obj.setDoubleValue(15);
-    obj.setDoubleSet(new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+    obj.setDoubleSet(
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
 
     mapper.save(obj);
 
@@ -622,12 +885,22 @@ public class TransformerHolisticIT {
     Map<String, AttributeValue> key = new HashMap<String, AttributeValue>();
     key.put(HASH_KEY, new AttributeValue().withN("0"));
     key.put(RANGE_KEY, new AttributeValue().withN("15"));
-    Map<String, AttributeValueUpdate> attributeUpdates =
-        new HashMap<String, AttributeValueUpdate>();
+    Map<String, AttributeValueUpdate> attributeUpdates = new HashMap<
+      String,
+      AttributeValueUpdate
+    >();
     attributeUpdates.put(
-        "doubleValue",
-        new AttributeValueUpdate(new AttributeValue().withN("15"), AttributeAction.PUT));
-    UpdateItemRequest update = new UpdateItemRequest("TableName", key, attributeUpdates);
+      "doubleValue",
+      new AttributeValueUpdate(
+        new AttributeValue().withN("15"),
+        AttributeAction.PUT
+      )
+    );
+    UpdateItemRequest update = new UpdateItemRequest(
+      "TableName",
+      key,
+      attributeUpdates
+    );
     client.updateItem(update);
 
     Mixed result = mapper.load(Mixed.class, 0, 15);
@@ -645,8 +918,11 @@ public class TransformerHolisticIT {
 
   @Test
   public void simpleSaveLoadAsym() {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(client, CLOBBER_CONFIG, new AttributeEncryptor(asymProv));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      CLOBBER_CONFIG,
+      new AttributeEncryptor(asymProv)
+    );
 
     BaseClass obj = new BaseClass();
     obj.setHashKey(0);
@@ -657,7 +933,9 @@ public class TransformerHolisticIT {
     obj.getIntSet().add(7);
     obj.setDoubleValue(15);
     obj.setStringValue("Blargh!");
-    obj.setDoubleSet(new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D)));
+    obj.setDoubleSet(
+      new HashSet<Double>(Arrays.asList(15.0D, 7.6D, -3D, -34.2D, 0.0D))
+    );
     mapper.save(obj);
 
     BaseClass result = mapper.load(BaseClass.class, 0, 15);
@@ -675,8 +953,11 @@ public class TransformerHolisticIT {
 
   @Test
   public void simpleSaveLoadHashOnly() {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(client, CLOBBER_CONFIG, new AttributeEncryptor(symProv));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      CLOBBER_CONFIG,
+      new AttributeEncryptor(symProv)
+    );
 
     HashKeyOnly obj = new HashKeyOnly("");
     obj.setHashKey("Foo");
@@ -692,8 +973,11 @@ public class TransformerHolisticIT {
 
   @Test
   public void simpleSaveLoadKeysOnly() {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(client, CLOBBER_CONFIG, new AttributeEncryptor(asymProv));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      CLOBBER_CONFIG,
+      new AttributeEncryptor(asymProv)
+    );
 
     KeysOnly obj = new KeysOnly();
     obj.setHashKey(0);
@@ -709,9 +993,11 @@ public class TransformerHolisticIT {
   }
 
   public void generateStandardData(EncryptionMaterialsProvider prov) {
-    DynamoDBMapper mapper =
-        new DynamoDBMapper(
-            client, new DynamoDBMapperConfig(SaveBehavior.CLOBBER), new AttributeEncryptor(prov));
+    DynamoDBMapper mapper = new DynamoDBMapper(
+      client,
+      new DynamoDBMapperConfig(SaveBehavior.CLOBBER),
+      new AttributeEncryptor(prov)
+    );
     mapper.save(new HashKeyOnly("Foo"));
     mapper.save(new HashKeyOnly("Bar"));
     mapper.save(new HashKeyOnly("Baz"));
@@ -730,7 +1016,6 @@ public class TransformerHolisticIT {
     mapper.save(MIXED_TEST_VALUE_2);
     mapper.save(SIGNED_TEST_VALUE_2);
     mapper.save(UNTOUCHED_TEST_VALUE_2);
-
     // Uncomment the function below to print the generated data
     // in our test vector format.
 
@@ -739,29 +1024,37 @@ public class TransformerHolisticIT {
 
   private void assertVersionCompatibility(DynamoDBMapper mapper) {
     assertEquals(
-        UNTOUCHED_TEST_VALUE,
-        mapper.load(
-            UNTOUCHED_TEST_VALUE.getClass(),
-            UNTOUCHED_TEST_VALUE.getHashKey(),
-            UNTOUCHED_TEST_VALUE.getRangeKey()));
+      UNTOUCHED_TEST_VALUE,
+      mapper.load(
+        UNTOUCHED_TEST_VALUE.getClass(),
+        UNTOUCHED_TEST_VALUE.getHashKey(),
+        UNTOUCHED_TEST_VALUE.getRangeKey()
+      )
+    );
     assertEquals(
-        SIGNED_TEST_VALUE,
-        mapper.load(
-            SIGNED_TEST_VALUE.getClass(),
-            SIGNED_TEST_VALUE.getHashKey(),
-            SIGNED_TEST_VALUE.getRangeKey()));
+      SIGNED_TEST_VALUE,
+      mapper.load(
+        SIGNED_TEST_VALUE.getClass(),
+        SIGNED_TEST_VALUE.getHashKey(),
+        SIGNED_TEST_VALUE.getRangeKey()
+      )
+    );
     assertEquals(
-        MIXED_TEST_VALUE,
-        mapper.load(
-            MIXED_TEST_VALUE.getClass(),
-            MIXED_TEST_VALUE.getHashKey(),
-            MIXED_TEST_VALUE.getRangeKey()));
+      MIXED_TEST_VALUE,
+      mapper.load(
+        MIXED_TEST_VALUE.getClass(),
+        MIXED_TEST_VALUE.getHashKey(),
+        MIXED_TEST_VALUE.getRangeKey()
+      )
+    );
     assertEquals(
-        ENCRYPTED_TEST_VALUE,
-        mapper.load(
-            ENCRYPTED_TEST_VALUE.getClass(),
-            ENCRYPTED_TEST_VALUE.getHashKey(),
-            ENCRYPTED_TEST_VALUE.getRangeKey()));
+      ENCRYPTED_TEST_VALUE,
+      mapper.load(
+        ENCRYPTED_TEST_VALUE.getClass(),
+        ENCRYPTED_TEST_VALUE.getHashKey(),
+        ENCRYPTED_TEST_VALUE.getRangeKey()
+      )
+    );
 
     assertEquals("Foo", mapper.load(HashKeyOnly.class, "Foo").getHashKey());
     assertEquals("Bar", mapper.load(HashKeyOnly.class, "Bar").getHashKey());
@@ -784,29 +1077,37 @@ public class TransformerHolisticIT {
 
   private void assertVersionCompatibility_2(DynamoDBMapper mapper) {
     assertEquals(
-        UNTOUCHED_TEST_VALUE_2,
-        mapper.load(
-            UNTOUCHED_TEST_VALUE_2.getClass(),
-            UNTOUCHED_TEST_VALUE_2.getHashKey(),
-            UNTOUCHED_TEST_VALUE_2.getRangeKey()));
+      UNTOUCHED_TEST_VALUE_2,
+      mapper.load(
+        UNTOUCHED_TEST_VALUE_2.getClass(),
+        UNTOUCHED_TEST_VALUE_2.getHashKey(),
+        UNTOUCHED_TEST_VALUE_2.getRangeKey()
+      )
+    );
     assertEquals(
-        SIGNED_TEST_VALUE_2,
-        mapper.load(
-            SIGNED_TEST_VALUE_2.getClass(),
-            SIGNED_TEST_VALUE_2.getHashKey(),
-            SIGNED_TEST_VALUE_2.getRangeKey()));
+      SIGNED_TEST_VALUE_2,
+      mapper.load(
+        SIGNED_TEST_VALUE_2.getClass(),
+        SIGNED_TEST_VALUE_2.getHashKey(),
+        SIGNED_TEST_VALUE_2.getRangeKey()
+      )
+    );
     assertEquals(
-        MIXED_TEST_VALUE_2,
-        mapper.load(
-            MIXED_TEST_VALUE_2.getClass(),
-            MIXED_TEST_VALUE_2.getHashKey(),
-            MIXED_TEST_VALUE_2.getRangeKey()));
+      MIXED_TEST_VALUE_2,
+      mapper.load(
+        MIXED_TEST_VALUE_2.getClass(),
+        MIXED_TEST_VALUE_2.getHashKey(),
+        MIXED_TEST_VALUE_2.getRangeKey()
+      )
+    );
     assertEquals(
-        ENCRYPTED_TEST_VALUE_2,
-        mapper.load(
-            ENCRYPTED_TEST_VALUE_2.getClass(),
-            ENCRYPTED_TEST_VALUE_2.getHashKey(),
-            ENCRYPTED_TEST_VALUE_2.getRangeKey()));
+      ENCRYPTED_TEST_VALUE_2,
+      mapper.load(
+        ENCRYPTED_TEST_VALUE_2.getClass(),
+        ENCRYPTED_TEST_VALUE_2.getHashKey(),
+        ENCRYPTED_TEST_VALUE_2.getRangeKey()
+      )
+    );
 
     assertEquals("Foo", mapper.load(HashKeyOnly.class, "Foo").getHashKey());
     assertEquals("Bar", mapper.load(HashKeyOnly.class, "Bar").getHashKey());
@@ -842,29 +1143,42 @@ public class TransformerHolisticIT {
       Map<String, AttributeValue> lastKey = null;
       do {
         scanResult =
-            client.scan(new ScanRequest().withTableName(table).withExclusiveStartKey(lastKey));
+          client.scan(
+            new ScanRequest()
+              .withTableName(table)
+              .withExclusiveStartKey(lastKey)
+          );
         lastKey = scanResult.getLastEvaluatedKey();
 
         testVector.put(table, scanResult.getItems());
-
       } while (lastKey != null);
     }
-    String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testVector);
+    String jsonResult = mapper
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(testVector);
     System.out.println(jsonResult);
   }
 
   private EncryptionMaterialsProvider createProvider(
-      String providerName, String materialName, Keys keys, ProviderStore metastore) {
+    String providerName,
+    String materialName,
+    Keys keys,
+    ProviderStore metastore
+  ) {
     switch (providerName) {
       case ScenarioManifest.MOST_RECENT_PROVIDER_NAME:
         return new CachingMostRecentProvider(metastore, materialName, 1000);
       case ScenarioManifest.STATIC_PROVIDER_NAME:
         KeyData decryptKeyData = keyDataMap.get(keys.decryptName);
         KeyData verifyKeyData = keyDataMap.get(keys.verifyName);
-        SecretKey decryptKey =
-            new SecretKeySpec(Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
-        SecretKey verifyKey =
-            new SecretKeySpec(Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
+        SecretKey decryptKey = new SecretKeySpec(
+          Base64.decode(decryptKeyData.material),
+          decryptKeyData.algorithm
+        );
+        SecretKey verifyKey = new SecretKeySpec(
+          Base64.decode(verifyKeyData.material),
+          verifyKeyData.algorithm
+        );
         return new SymmetricStaticProvider(decryptKey, verifyKey);
       case ScenarioManifest.WRAPPED_PROVIDER_NAME:
         decryptKeyData = keyDataMap.get(keys.decryptName);
@@ -873,12 +1187,24 @@ public class TransformerHolisticIT {
         // This can be either the asymmetric provider, where we should test using it's explicit
         // constructor,
         // or a wrapped symmetric where we use the wrapped materials constructor.
-        if (decryptKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)) {
+        if (
+          decryptKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)
+        ) {
           decryptKey =
-              new SecretKeySpec(Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+            new SecretKeySpec(
+              Base64.decode(decryptKeyData.material),
+              decryptKeyData.algorithm
+            );
           verifyKey =
-              new SecretKeySpec(Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
-          return new WrappedMaterialsProvider(decryptKey, decryptKey, verifyKey);
+            new SecretKeySpec(
+              Base64.decode(verifyKeyData.material),
+              verifyKeyData.algorithm
+            );
+          return new WrappedMaterialsProvider(
+            decryptKey,
+            decryptKey,
+            verifyKey
+          );
         } else {
           KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
           KeyData signKeyData = keyDataMap.get(keys.signName);
@@ -887,20 +1213,20 @@ public class TransformerHolisticIT {
             // asymmetric scheme this will need to be updated.
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
 
-            PublicKey encryptMaterial =
-                rsaFact.generatePublic(
-                    new X509EncodedKeySpec(Base64.decode(encryptKeyData.material)));
-            PrivateKey decryptMaterial =
-                rsaFact.generatePrivate(
-                    new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material)));
+            PublicKey encryptMaterial = rsaFact.generatePublic(
+              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material))
+            );
+            PrivateKey decryptMaterial = rsaFact.generatePrivate(
+              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material))
+            );
             KeyPair decryptPair = new KeyPair(encryptMaterial, decryptMaterial);
 
-            PublicKey verifyMaterial =
-                rsaFact.generatePublic(
-                    new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
-            PrivateKey signingMaterial =
-                rsaFact.generatePrivate(
-                    new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
+            PublicKey verifyMaterial = rsaFact.generatePublic(
+              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
+            );
+            PrivateKey signingMaterial = rsaFact.generatePrivate(
+              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
+            );
             KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
 
             return new AsymmetricStaticProvider(decryptPair, sigPair);
@@ -909,10 +1235,16 @@ public class TransformerHolisticIT {
           }
         }
       case ScenarioManifest.AWS_KMS_PROVIDER_NAME:
-        return new DirectKmsMaterialProvider(kmsClient, keyDataMap.get(keys.decryptName).keyId);
+        return new DirectKmsMaterialProvider(
+          kmsClient,
+          keyDataMap.get(keys.decryptName).keyId
+        );
       default:
         throw new IllegalStateException(
-            "Provider " + providerName + " not yet implemented in test vector runner");
+          "Provider " +
+          providerName +
+          " not yet implemented in test vector runner"
+        );
     }
   }
 
@@ -920,69 +1252,100 @@ public class TransformerHolisticIT {
   // The underlying structure to these tables is hardcoded,
   // and we run all test vectors assuming the ciphertext matches the key schema for these tables.
   private void createCiphertextTables(AmazonDynamoDB client) {
-    ArrayList<AttributeDefinition> attrDef = new ArrayList<AttributeDefinition>();
+    ArrayList<AttributeDefinition> attrDef = new ArrayList<
+      AttributeDefinition
+    >();
     attrDef.add(
-        new AttributeDefinition()
-            .withAttributeName(HASH_KEY)
-            .withAttributeType(ScalarAttributeType.N));
+      new AttributeDefinition()
+        .withAttributeName(HASH_KEY)
+        .withAttributeType(ScalarAttributeType.N)
+    );
     attrDef.add(
-        new AttributeDefinition()
-            .withAttributeName(RANGE_KEY)
-            .withAttributeType(ScalarAttributeType.N));
+      new AttributeDefinition()
+        .withAttributeName(RANGE_KEY)
+        .withAttributeType(ScalarAttributeType.N)
+    );
 
     ArrayList<KeySchemaElement> keySchema = new ArrayList<KeySchemaElement>();
-    keySchema.add(new KeySchemaElement().withAttributeName(HASH_KEY).withKeyType(KeyType.HASH));
-    keySchema.add(new KeySchemaElement().withAttributeName(RANGE_KEY).withKeyType(KeyType.RANGE));
+    keySchema.add(
+      new KeySchemaElement()
+        .withAttributeName(HASH_KEY)
+        .withKeyType(KeyType.HASH)
+    );
+    keySchema.add(
+      new KeySchemaElement()
+        .withAttributeName(RANGE_KEY)
+        .withKeyType(KeyType.RANGE)
+    );
 
     client.createTable(
-        new CreateTableRequest()
-            .withTableName("TableName")
-            .withAttributeDefinitions(attrDef)
-            .withKeySchema(keySchema)
-            .withProvisionedThroughput(new ProvisionedThroughput(100L, 100L)));
+      new CreateTableRequest()
+        .withTableName("TableName")
+        .withAttributeDefinitions(attrDef)
+        .withKeySchema(keySchema)
+        .withProvisionedThroughput(new ProvisionedThroughput(100L, 100L))
+    );
 
     attrDef = new ArrayList<AttributeDefinition>();
     attrDef.add(
-        new AttributeDefinition()
-            .withAttributeName(HASH_KEY)
-            .withAttributeType(ScalarAttributeType.S));
+      new AttributeDefinition()
+        .withAttributeName(HASH_KEY)
+        .withAttributeType(ScalarAttributeType.S)
+    );
     keySchema = new ArrayList<KeySchemaElement>();
-    keySchema.add(new KeySchemaElement().withAttributeName(HASH_KEY).withKeyType(KeyType.HASH));
+    keySchema.add(
+      new KeySchemaElement()
+        .withAttributeName(HASH_KEY)
+        .withKeyType(KeyType.HASH)
+    );
 
     client.createTable(
-        new CreateTableRequest()
-            .withTableName("HashKeyOnly")
-            .withAttributeDefinitions(attrDef)
-            .withKeySchema(keySchema)
-            .withProvisionedThroughput(new ProvisionedThroughput(100L, 100L)));
+      new CreateTableRequest()
+        .withTableName("HashKeyOnly")
+        .withAttributeDefinitions(attrDef)
+        .withKeySchema(keySchema)
+        .withProvisionedThroughput(new ProvisionedThroughput(100L, 100L))
+    );
 
     attrDef = new ArrayList<AttributeDefinition>();
     attrDef.add(
-        new AttributeDefinition()
-            .withAttributeName(HASH_KEY)
-            .withAttributeType(ScalarAttributeType.B));
+      new AttributeDefinition()
+        .withAttributeName(HASH_KEY)
+        .withAttributeType(ScalarAttributeType.B)
+    );
     attrDef.add(
-        new AttributeDefinition()
-            .withAttributeName(RANGE_KEY)
-            .withAttributeType(ScalarAttributeType.N));
+      new AttributeDefinition()
+        .withAttributeName(RANGE_KEY)
+        .withAttributeType(ScalarAttributeType.N)
+    );
 
     keySchema = new ArrayList<KeySchemaElement>();
-    keySchema.add(new KeySchemaElement().withAttributeName(HASH_KEY).withKeyType(KeyType.HASH));
-    keySchema.add(new KeySchemaElement().withAttributeName(RANGE_KEY).withKeyType(KeyType.RANGE));
+    keySchema.add(
+      new KeySchemaElement()
+        .withAttributeName(HASH_KEY)
+        .withKeyType(KeyType.HASH)
+    );
+    keySchema.add(
+      new KeySchemaElement()
+        .withAttributeName(RANGE_KEY)
+        .withKeyType(KeyType.RANGE)
+    );
 
     client.createTable(
-        new CreateTableRequest()
-            .withTableName("DeterministicTable")
-            .withAttributeDefinitions(attrDef)
-            .withKeySchema(keySchema)
-            .withProvisionedThroughput(new ProvisionedThroughput(100L, 100L)));
+      new CreateTableRequest()
+        .withTableName("DeterministicTable")
+        .withAttributeDefinitions(attrDef)
+        .withKeySchema(keySchema)
+        .withProvisionedThroughput(new ProvisionedThroughput(100L, 100L))
+    );
   }
 
   // Given a file in the test vector ciphertext format, put those entries into their tables.
   // This assumes the expected tables have already been created.
-  private void putDataFromFile(AmazonDynamoDB client, String filename) throws IOException {
+  private void putDataFromFile(AmazonDynamoDB client, String filename)
+    throws IOException {
     Map<String, List<Map<String, AttributeValue>>> manifest =
-        getCiphertextManifestFromFile(filename);
+      getCiphertextManifestFromFile(filename);
     for (String tableName : manifest.keySet()) {
       for (Map<String, AttributeValue> attributes : manifest.get(tableName)) {
         client.putItem(new PutItemRequest(tableName, attributes));
@@ -990,18 +1353,27 @@ public class TransformerHolisticIT {
     }
   }
 
-  private Map<String, List<Map<String, AttributeValue>>> getCiphertextManifestFromFile(
-      String filename) throws IOException {
+  private Map<
+    String,
+    List<Map<String, AttributeValue>>
+  > getCiphertextManifestFromFile(String filename) throws IOException {
     return getManifestFromFile(
-        TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
-        new TypeReference<Map<String, List<Map<String, DeserializedAttributeValue>>>>() {});
+      TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
+      new TypeReference<
+        Map<String, List<Map<String, DeserializedAttributeValue>>>
+      >() {}
+    );
   }
 
-  private static <T> T getManifestFromFile(String filename, TypeReference typeRef)
-      throws IOException {
+  private static <T> T getManifestFromFile(
+    String filename,
+    TypeReference typeRef
+  ) throws IOException {
     final URL url = TransformerHolisticIT.class.getResource(filename);
     if (url == null) {
-      throw new IllegalStateException("Missing file " + filename + " in src/test/resources.");
+      throw new IllegalStateException(
+        "Missing file " + filename + " in src/test/resources."
+      );
     }
     final File manifestFile = new File(url.getPath());
     final ObjectMapper manifestMapper = new ObjectMapper();
@@ -1010,9 +1382,10 @@ public class TransformerHolisticIT {
 
   private static void loadKeyData(String filename) throws IOException {
     keyDataMap =
-        getManifestFromFile(
-            TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
-            new TypeReference<Map<String, KeyData>>() {});
+      getManifestFromFile(
+        TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
+        new TypeReference<Map<String, KeyData>>() {}
+      );
   }
 
   private static String stripFilePath(String path) {

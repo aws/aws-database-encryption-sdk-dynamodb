@@ -15,23 +15,23 @@ in order to store metadata on its encryption.
 
 The Partial Header MUST be
 
-| Length (bytes) | Meaning |
-|---|---|
-| 1 | [Format Version](#format-version) |
-| 1 | [Format Flavor](#format-flavor) |
-| 32 | [Message ID](#message-id) |
-| Variable | [Encrypt Legend](#encrypt-legend) |
-| Variable | [Encryption Context](#encryption-context) |
-| Variable | [Encrypted Data Keys](#encrypted-data-keys) |
+| Length (bytes) | Meaning                                     |
+| -------------- | ------------------------------------------- |
+| 1              | [Format Version](#format-version)           |
+| 1              | [Format Flavor](#format-flavor)             |
+| 32             | [Message ID](#message-id)                   |
+| Variable       | [Encrypt Legend](#encrypt-legend)           |
+| Variable       | [Encryption Context](#encryption-context)   |
+| Variable       | [Encrypted Data Keys](#encrypted-data-keys) |
 
 ### Full Header Value
 
 The value of the header MUST be
 
-| Length (bytes) | Meaning |
-|---|---|
-| Variable | [Partial Header](#partial-header) |
-| 32 | [Header Commitment](#header-commitment) |
+| Length (bytes) | Meaning                                 |
+| -------------- | --------------------------------------- |
+| Variable       | [Partial Header](#partial-header)       |
+| 32             | [Header Commitment](#header-commitment) |
 
 ### Format Version
 
@@ -54,10 +54,10 @@ Algorithm Suite ID; with the first byte assumed to be 0x67.
 The algorithm suite indicated by the flavor MUST be a
 [DBE supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#supported-algorithm-suites-enum).
 
-| Value | Algorithm Suite ID | Algorithm Suite Enum |
-|---|---|---|
-| 0x00 | 0x67 0x00 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384 |
-| 0x01 | 0x67 0x01 | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
+| Value | Algorithm Suite ID | Algorithm Suite Enum                                                 |
+| ----- | ------------------ | -------------------------------------------------------------------- |
+| 0x00  | 0x67 0x00          | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384            |
+| 0x01  | 0x67 0x01          | ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384 |
 
 ### Message ID
 
@@ -71,10 +71,10 @@ The Encrypt Legend is a serialized description of which authenticated fields in 
 
 The Encrypt Legend MUST be serialized as
 
-| Field | Length (bytes) | Interpreted as |
-| ----- | -------------- | -------------- |
-| Encrypt Legend Length | 2 | big endian UInt16 |
-| [Encrypt Legend Bytes](#encrypt-legend-bytes) | Variable. Equal to the value specified in the previous 2 bytes (Encrypt Legend Length). | Bytes |
+| Field                                         | Length (bytes)                                                                          | Interpreted as    |
+| --------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------- |
+| Encrypt Legend Length                         | 2                                                                                       | big endian UInt16 |
+| [Encrypt Legend Bytes](#encrypt-legend-bytes) | Variable. Equal to the value specified in the previous 2 bytes (Encrypt Legend Length). | Bytes             |
 
 #### Encrypt Legend Bytes
 
@@ -96,8 +96,8 @@ The Encrypt Legend Bytes MUST be serialized as follows:
 
 1. Order every authenticated attribute in the item by the [Canonical Path](#canonical-path)
 2. For each authenticated terminal, in order,
-append one of the byte values specified above to indicate whether
-that field should be encrypted.
+   append one of the byte values specified above to indicate whether
+   that field should be encrypted.
 
 The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
 by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
@@ -124,9 +124,9 @@ followed by the length of the key, followed by the key as a UTF8 string.
 
 The Encryption Context MUST be serialized as follows
 
-| Field | Length (bytes) | Interpreted as |
-| ----- | -------------- | -------------- |
-| [Key Value Pair Count](#key-value-pair-count) | 2 | big endian UInt16 |
+| Field                                             | Length (bytes)                                                       | Interpreted as                                    |
+| ------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------- |
+| [Key Value Pair Count](#key-value-pair-count)     | 2                                                                    | big endian UInt16                                 |
 | [Key Value Pair Entries](#key-value-pair-entries) | Variable. Determined by the count and length of each key-value pair. | [Key Value Pair Entries](#key-value-pair-entries) |
 
 #### Key Value Pair Count
@@ -144,20 +144,20 @@ in ascending order according to the UTF-8 encoded binary value.
 
 Each Key Value Pair MUST be serialized as follows
 
-| Field | Length (bytes) | Interpreted as |
-| ----- | -------------- | -------------- |
-| Key Length | 2 | big endian UInt16 |
-| Key | Variable. Equal to the value specified in the previous 2 bytes (Key Length). | UTF-8 encoded bytes |
-| Value Length | 2 | big endian UInt16 |
-| Value | Variable. Equal to the value specified in the previous 2 bytes (Value Length). | UTF-8 encoded bytes |
+| Field        | Length (bytes)                                                                 | Interpreted as      |
+| ------------ | ------------------------------------------------------------------------------ | ------------------- |
+| Key Length   | 2                                                                              | big endian UInt16   |
+| Key          | Variable. Equal to the value specified in the previous 2 bytes (Key Length).   | UTF-8 encoded bytes |
+| Value Length | 2                                                                              | big endian UInt16   |
+| Value        | Variable. Equal to the value specified in the previous 2 bytes (Value Length). | UTF-8 encoded bytes |
 
 ### Encrypted Data Keys
 
 The Encrypted Data Keys MUST be serialized as follows
 
-| Field | Length (bytes) | Interpreted as |
-| ----- | -------------- | -------------- |
-| [Encrypted Data Key Count](#encrypted-data-key-count) | 1 | unsigned 8 bit number |
+| Field                                                     | Length (bytes)                                                       | Interpreted as                                            |
+| --------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------- |
+| [Encrypted Data Key Count](#encrypted-data-key-count)     | 1                                                                    | unsigned 8 bit number                                     |
 | [Encrypted Data Key Entries](#encrypted-data-key-entries) | Variable. Determined by the count and length of each key-value pair. | [Encrypted Data Key Entries](#encrypted-data-key-entries) |
 
 #### Encrypted Data Key Count
@@ -169,14 +169,14 @@ This value MUST be greater than 0.
 
 Each Encrypted Data Key MUST be serialized as follows
 
-| Field | Length (bytes) | Interpreted as |
-| ----- | -------------- | -------------- |
-| [Key Provider ID Length](#key-provider-id-length)  | 2 | big endian UInt16 |
-| [Key Provider ID](#key-provider-id) | Variable. Equal to the value specified in the previous 2 bytes (Key Provider ID Length). | UTF-8 encoded bytes |
-| [Key Provider Information Length](#key-provider-information-length) | 2 | big endian UInt16 |
-| [Key Provider Information](#key-provider-information) | Variable. Equal to the value specified in the previous 2 bytes (Key Provider Information Length). | Bytes |
-| [Encrypted Data Key Length](#encrypted-data-key-length) | 2 | big endian UInt16 |
-| [Encrypted Data Key](#encrypted-data-key) | Variable. Equal to the value specified in the previous 2 bytes (Encrypted Data Key Length). | Bytes |
+| Field                                                               | Length (bytes)                                                                                    | Interpreted as      |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------- |
+| [Key Provider ID Length](#key-provider-id-length)                   | 2                                                                                                 | big endian UInt16   |
+| [Key Provider ID](#key-provider-id)                                 | Variable. Equal to the value specified in the previous 2 bytes (Key Provider ID Length).          | UTF-8 encoded bytes |
+| [Key Provider Information Length](#key-provider-information-length) | 2                                                                                                 | big endian UInt16   |
+| [Key Provider Information](#key-provider-information)               | Variable. Equal to the value specified in the previous 2 bytes (Key Provider Information Length). | Bytes               |
+| [Encrypted Data Key Length](#encrypted-data-key-length)             | 2                                                                                                 | big endian UInt16   |
+| [Encrypted Data Key](#encrypted-data-key)                           | Variable. Equal to the value specified in the previous 2 bytes (Encrypted Data Key Length).       | Bytes               |
 
 ##### Key Provider ID Length
 
@@ -215,10 +215,10 @@ The calculated Commitment Key MUST have length equal to the
 [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
 
 The `info` used for the HKDF function MUST be
-| Field                | Length   |
+| Field | Length |
 | -------------------- | -------- |
-| "AWS_DBE_COMMIT_KEY" | 18       |
-| Message ID           | 32       |
+| "AWS_DBE_COMMIT_KEY" | 18 |
+| Message ID | 32 |
 
 The HKDF calculation MUST use a supplied key, no salt, and an `info` as described above.
 
@@ -239,7 +239,7 @@ def GetHeaderCommitment(Header, CommitKey):
 def CheckHeaderCommitment(Header, CommitKey):
     Commitment = Header[-32:32]  # Last 32 bytes of the header
     Preceding = Header[:-32]     # Everything before the Header Commitment
-    return ConstantTimeEquals(Commitment, GetHeaderCommitment(Preceding, CommitKey)    
+    return ConstantTimeEquals(Commitment, GetHeaderCommitment(Preceding, CommitKey)
 ```
 
 #### Commitment Verification

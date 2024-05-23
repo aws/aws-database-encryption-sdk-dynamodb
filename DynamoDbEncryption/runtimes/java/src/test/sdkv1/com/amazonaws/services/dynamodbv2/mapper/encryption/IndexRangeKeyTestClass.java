@@ -53,7 +53,10 @@ public class IndexRangeKeyTestClass {
   }
 
   @DoNotEncrypt
-  @DynamoDBIndexRangeKey(localSecondaryIndexName = "index_foo", attributeName = "indexFooRangeKey")
+  @DynamoDBIndexRangeKey(
+    localSecondaryIndexName = "index_foo",
+    attributeName = "indexFooRangeKey"
+  )
   public Double getIndexFooRangeKeyWithFakeName() {
     return indexFooRangeKey;
   }
@@ -73,7 +76,9 @@ public class IndexRangeKeyTestClass {
   }
 
   @DoNotEncrypt
-  @DynamoDBIndexRangeKey(localSecondaryIndexNames = {"index_foo_copy", "index_bar_copy"})
+  @DynamoDBIndexRangeKey(
+    localSecondaryIndexNames = { "index_foo_copy", "index_bar_copy" }
+  )
   public Double getMultipleIndexRangeKey() {
     return multipleIndexRangeKey;
   }
@@ -114,8 +119,10 @@ public class IndexRangeKeyTestClass {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((fooAttribute == null) ? 0 : fooAttribute.hashCode());
-    result = prime * result + ((barAttribute == null) ? 0 : barAttribute.hashCode());
+    result =
+      prime * result + ((fooAttribute == null) ? 0 : fooAttribute.hashCode());
+    result =
+      prime * result + ((barAttribute == null) ? 0 : barAttribute.hashCode());
     result = prime * result + (int) (key ^ (key >>> 32));
     long temp;
     temp = Double.doubleToLongBits(rangeKey);
@@ -141,11 +148,18 @@ public class IndexRangeKeyTestClass {
       if (other.barAttribute != null) return false;
     } else if (!barAttribute.equals(other.barAttribute)) return false;
     if (key != other.key) return false;
-    if (Double.doubleToLongBits(rangeKey) != Double.doubleToLongBits(other.rangeKey)) return false;
-    if (Double.doubleToLongBits(indexFooRangeKey)
-        != Double.doubleToLongBits(other.indexFooRangeKey)) return false;
-    if (Double.doubleToLongBits(indexBarRangeKey)
-        != Double.doubleToLongBits(other.indexBarRangeKey)) return false;
+    if (
+      Double.doubleToLongBits(rangeKey) !=
+      Double.doubleToLongBits(other.rangeKey)
+    ) return false;
+    if (
+      Double.doubleToLongBits(indexFooRangeKey) !=
+      Double.doubleToLongBits(other.indexFooRangeKey)
+    ) return false;
+    if (
+      Double.doubleToLongBits(indexBarRangeKey) !=
+      Double.doubleToLongBits(other.indexBarRangeKey)
+    ) return false;
     if (version == null) {
       if (other.version != null) return false;
     } else if (!version.equals(other.version)) return false;
@@ -154,20 +168,22 @@ public class IndexRangeKeyTestClass {
 
   @Override
   public String toString() {
-    return "IndexRangeKeyTestClass [key="
-        + key
-        + ", rangeKey="
-        + rangeKey
-        + ", version="
-        + version
-        + ", indexFooRangeKey="
-        + indexFooRangeKey
-        + ", indexBarRangeKey="
-        + indexBarRangeKey
-        + ", fooAttribute="
-        + fooAttribute
-        + ", barAttribute="
-        + barAttribute
-        + "]";
+    return (
+      "IndexRangeKeyTestClass [key=" +
+      key +
+      ", rangeKey=" +
+      rangeKey +
+      ", version=" +
+      version +
+      ", indexFooRangeKey=" +
+      indexFooRangeKey +
+      ", indexBarRangeKey=" +
+      indexBarRangeKey +
+      ", fooAttribute=" +
+      fooAttribute +
+      ", barAttribute=" +
+      barAttribute +
+      "]"
+    );
   }
 }

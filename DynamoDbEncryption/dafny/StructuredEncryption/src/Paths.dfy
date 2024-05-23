@@ -34,6 +34,12 @@ module StructuredEncryptionPaths {
     [member(StructureSegment(key := x))]
   }
 
+  lemma StringToUniPathUnique()
+    ensures forall x : string, y : string
+              :: x != y ==> StringToUniPath(x) != StringToUniPath(y)
+  {
+  }
+
   function method UniPathToString(x : Path) : Result<string, Error>
     requires |x| == 1
   {

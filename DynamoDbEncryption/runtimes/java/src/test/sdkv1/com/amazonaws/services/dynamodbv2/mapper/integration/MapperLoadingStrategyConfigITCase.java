@@ -36,7 +36,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** Integration tests for PaginationLoadingStrategy configuration */
-public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class MapperLoadingStrategyConfigITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   private static long hashKey = System.currentTimeMillis();
   private static int PAGE_SIZE = 5;
@@ -53,26 +54,32 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
   @Test
   public void testLazyLoading() {
     // Get all the paginated lists using the tested loading strategy
-    PaginatedList<RangeKeyTestClass> queryList =
-        getTestPaginatedQueryList(PaginationLoadingStrategy.LAZY_LOADING);
-    PaginatedList<RangeKeyTestClass> scanList =
-        getTestPaginatedScanList(PaginationLoadingStrategy.LAZY_LOADING);
+    PaginatedList<RangeKeyTestClass> queryList = getTestPaginatedQueryList(
+      PaginationLoadingStrategy.LAZY_LOADING
+    );
+    PaginatedList<RangeKeyTestClass> scanList = getTestPaginatedScanList(
+      PaginationLoadingStrategy.LAZY_LOADING
+    );
     PaginatedList<RangeKeyTestClass> parallelScanList =
-        getTestPaginatedParallelScanList(PaginationLoadingStrategy.LAZY_LOADING);
+      getTestPaginatedParallelScanList(PaginationLoadingStrategy.LAZY_LOADING);
 
     // check that only at most one page of results are loaded up to this point
     assertTrue(getLoadedResultsNumber(queryList) <= PAGE_SIZE);
     assertTrue(getLoadedResultsNumber(scanList) <= PAGE_SIZE);
-    assertTrue(getLoadedResultsNumber(parallelScanList) <= PAGE_SIZE * PARALLEL_SEGMENT);
+    assertTrue(
+      getLoadedResultsNumber(parallelScanList) <= PAGE_SIZE * PARALLEL_SEGMENT
+    );
 
     testAllPaginatedListOperations(queryList);
     testAllPaginatedListOperations(scanList);
     testAllPaginatedListOperations(parallelScanList);
 
     // Re-construct the paginated lists and test the iterator behavior
-    queryList = getTestPaginatedQueryList(PaginationLoadingStrategy.LAZY_LOADING);
+    queryList =
+      getTestPaginatedQueryList(PaginationLoadingStrategy.LAZY_LOADING);
     scanList = getTestPaginatedScanList(PaginationLoadingStrategy.LAZY_LOADING);
-    parallelScanList = getTestPaginatedParallelScanList(PaginationLoadingStrategy.LAZY_LOADING);
+    parallelScanList =
+      getTestPaginatedParallelScanList(PaginationLoadingStrategy.LAZY_LOADING);
 
     testPaginatedListIterator(queryList);
     testPaginatedListIterator(scanList);
@@ -82,12 +89,14 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
   @Test
   public void testEagerLoading() {
     // Get all the paginated lists using the tested loading strategy
-    PaginatedList<RangeKeyTestClass> queryList =
-        getTestPaginatedQueryList(PaginationLoadingStrategy.EAGER_LOADING);
-    PaginatedList<RangeKeyTestClass> scanList =
-        getTestPaginatedScanList(PaginationLoadingStrategy.EAGER_LOADING);
+    PaginatedList<RangeKeyTestClass> queryList = getTestPaginatedQueryList(
+      PaginationLoadingStrategy.EAGER_LOADING
+    );
+    PaginatedList<RangeKeyTestClass> scanList = getTestPaginatedScanList(
+      PaginationLoadingStrategy.EAGER_LOADING
+    );
     PaginatedList<RangeKeyTestClass> parallelScanList =
-        getTestPaginatedParallelScanList(PaginationLoadingStrategy.EAGER_LOADING);
+      getTestPaginatedParallelScanList(PaginationLoadingStrategy.EAGER_LOADING);
 
     // check that all results have been loaded
     assertTrue(RESULTS_NUM == getLoadedResultsNumber(queryList));
@@ -99,9 +108,11 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
     testAllPaginatedListOperations(parallelScanList);
 
     // Re-construct the paginated lists and test the iterator behavior
-    queryList = getTestPaginatedQueryList(PaginationLoadingStrategy.LAZY_LOADING);
+    queryList =
+      getTestPaginatedQueryList(PaginationLoadingStrategy.LAZY_LOADING);
     scanList = getTestPaginatedScanList(PaginationLoadingStrategy.LAZY_LOADING);
-    parallelScanList = getTestPaginatedParallelScanList(PaginationLoadingStrategy.LAZY_LOADING);
+    parallelScanList =
+      getTestPaginatedParallelScanList(PaginationLoadingStrategy.LAZY_LOADING);
 
     testPaginatedListIterator(queryList);
     testPaginatedListIterator(scanList);
@@ -111,17 +122,23 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
   @Test
   public void testIterationOnly() {
     // Get all the paginated lists using the tested loading strategy
-    PaginatedList<RangeKeyTestClass> queryList =
-        getTestPaginatedQueryList(PaginationLoadingStrategy.ITERATION_ONLY);
-    PaginatedList<RangeKeyTestClass> scanList =
-        getTestPaginatedScanList(PaginationLoadingStrategy.ITERATION_ONLY);
+    PaginatedList<RangeKeyTestClass> queryList = getTestPaginatedQueryList(
+      PaginationLoadingStrategy.ITERATION_ONLY
+    );
+    PaginatedList<RangeKeyTestClass> scanList = getTestPaginatedScanList(
+      PaginationLoadingStrategy.ITERATION_ONLY
+    );
     PaginatedList<RangeKeyTestClass> parallelScanList =
-        getTestPaginatedParallelScanList(PaginationLoadingStrategy.ITERATION_ONLY);
+      getTestPaginatedParallelScanList(
+        PaginationLoadingStrategy.ITERATION_ONLY
+      );
 
     // check that only at most one page of results are loaded up to this point
     assertTrue(getLoadedResultsNumber(queryList) <= PAGE_SIZE);
     assertTrue(getLoadedResultsNumber(scanList) <= PAGE_SIZE);
-    assertTrue(getLoadedResultsNumber(parallelScanList) <= PAGE_SIZE * PARALLEL_SEGMENT);
+    assertTrue(
+      getLoadedResultsNumber(parallelScanList) <= PAGE_SIZE * PARALLEL_SEGMENT
+    );
 
     testIterationOnlyPaginatedListOperations(queryList);
     testIterationOnlyPaginatedListOperations(scanList);
@@ -129,7 +146,9 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
   }
 
   private static void createTestData() {
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     List<RangeKeyTestClass> objs = new ArrayList<RangeKeyTestClass>();
     for (int i = 0; i < OBJECTS_NUM; i++) {
@@ -143,8 +162,11 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
   }
 
   private static PaginatedList<RangeKeyTestClass> getTestPaginatedQueryList(
-      PaginationLoadingStrategy paginationLoadingStrategy) {
-    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(ConsistentReads.CONSISTENT);
+    PaginationLoadingStrategy paginationLoadingStrategy
+  ) {
+    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(
+      ConsistentReads.CONSISTENT
+    );
     DynamoDBMapper mapper = new DynamoDBMapper(dynamo, mapperConfig);
 
     // Construct the query expression for the tested hash-key value and any range-key value greater
@@ -152,74 +174,96 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
     RangeKeyTestClass keyObject = new RangeKeyTestClass();
     keyObject.setKey(hashKey);
     DynamoDBQueryExpression<RangeKeyTestClass> queryExpression =
-        new DynamoDBQueryExpression<RangeKeyTestClass>().withHashKeyValues(keyObject);
+      new DynamoDBQueryExpression<RangeKeyTestClass>()
+        .withHashKeyValues(keyObject);
     queryExpression
-        .withRangeKeyCondition(
-            "rangeKey",
-            new Condition()
-                .withComparisonOperator(ComparisonOperator.GT.toString())
-                .withAttributeValueList(new AttributeValue().withN("1.0")))
-        .withLimit(PAGE_SIZE);
+      .withRangeKeyCondition(
+        "rangeKey",
+        new Condition()
+          .withComparisonOperator(ComparisonOperator.GT.toString())
+          .withAttributeValueList(new AttributeValue().withN("1.0"))
+      )
+      .withLimit(PAGE_SIZE);
 
     return mapper.query(
-        RangeKeyTestClass.class,
-        queryExpression,
-        new DynamoDBMapperConfig(paginationLoadingStrategy));
+      RangeKeyTestClass.class,
+      queryExpression,
+      new DynamoDBMapperConfig(paginationLoadingStrategy)
+    );
   }
 
   private static PaginatedList<RangeKeyTestClass> getTestPaginatedScanList(
-      PaginationLoadingStrategy paginationLoadingStrategy) {
-    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(ConsistentReads.CONSISTENT);
+    PaginationLoadingStrategy paginationLoadingStrategy
+  ) {
+    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(
+      ConsistentReads.CONSISTENT
+    );
     DynamoDBMapper mapper = new DynamoDBMapper(dynamo, mapperConfig);
 
     // Construct the scan expression with the exact same conditions
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
     scanExpression.addFilterCondition(
-        "key",
-        new Condition()
-            .withComparisonOperator(ComparisonOperator.EQ)
-            .withAttributeValueList(new AttributeValue().withN(Long.toString(hashKey))));
+      "key",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.EQ)
+        .withAttributeValueList(
+          new AttributeValue().withN(Long.toString(hashKey))
+        )
+    );
     scanExpression.addFilterCondition(
-        "rangeKey",
-        new Condition()
-            .withComparisonOperator(ComparisonOperator.GT)
-            .withAttributeValueList(new AttributeValue().withN("1.0")));
+      "rangeKey",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.GT)
+        .withAttributeValueList(new AttributeValue().withN("1.0"))
+    );
     scanExpression.setLimit(PAGE_SIZE);
 
     return mapper.scan(
-        RangeKeyTestClass.class,
-        scanExpression,
-        new DynamoDBMapperConfig(paginationLoadingStrategy));
+      RangeKeyTestClass.class,
+      scanExpression,
+      new DynamoDBMapperConfig(paginationLoadingStrategy)
+    );
   }
 
-  private static PaginatedList<RangeKeyTestClass> getTestPaginatedParallelScanList(
-      PaginationLoadingStrategy paginationLoadingStrategy) {
-    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(ConsistentReads.CONSISTENT);
+  private static PaginatedList<
+    RangeKeyTestClass
+  > getTestPaginatedParallelScanList(
+    PaginationLoadingStrategy paginationLoadingStrategy
+  ) {
+    DynamoDBMapperConfig mapperConfig = new DynamoDBMapperConfig(
+      ConsistentReads.CONSISTENT
+    );
     DynamoDBMapper mapper = new DynamoDBMapper(dynamo, mapperConfig);
 
     // Construct the scan expression with the exact same conditions
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
     scanExpression.addFilterCondition(
-        "key",
-        new Condition()
-            .withComparisonOperator(ComparisonOperator.EQ)
-            .withAttributeValueList(new AttributeValue().withN(Long.toString(hashKey))));
+      "key",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.EQ)
+        .withAttributeValueList(
+          new AttributeValue().withN(Long.toString(hashKey))
+        )
+    );
     scanExpression.addFilterCondition(
-        "rangeKey",
-        new Condition()
-            .withComparisonOperator(ComparisonOperator.GT)
-            .withAttributeValueList(new AttributeValue().withN("1.0")));
+      "rangeKey",
+      new Condition()
+        .withComparisonOperator(ComparisonOperator.GT)
+        .withAttributeValueList(new AttributeValue().withN("1.0"))
+    );
     scanExpression.setLimit(PAGE_SIZE);
 
     return mapper.parallelScan(
-        RangeKeyTestClass.class,
-        scanExpression,
-        PARALLEL_SEGMENT,
-        new DynamoDBMapperConfig(paginationLoadingStrategy));
+      RangeKeyTestClass.class,
+      scanExpression,
+      PARALLEL_SEGMENT,
+      new DynamoDBMapperConfig(paginationLoadingStrategy)
+    );
   }
 
-  private static void testAllPaginatedListOperations(PaginatedList<RangeKeyTestClass> list) {
-
+  private static void testAllPaginatedListOperations(
+    PaginatedList<RangeKeyTestClass> list
+  ) {
     // (1) isEmpty()
     assertFalse(list.isEmpty());
 
@@ -239,9 +283,10 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
     assertTrue(RESULTS_NUM == subList.size());
     try {
       list.subList(0, RESULTS_NUM + 1);
-      fail("IndexOutOfBoundsException is IndexOutOfBoundsException but not thrown");
-    } catch (IndexOutOfBoundsException e) {
-    }
+      fail(
+        "IndexOutOfBoundsException is IndexOutOfBoundsException but not thrown"
+      );
+    } catch (IndexOutOfBoundsException e) {}
 
     // (5) indexOf(Object org0)
     assertTrue(list.indexOf(obj) < RESULTS_NUM);
@@ -253,7 +298,9 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
     assertTrue(RESULTS_NUM == list.size());
   }
 
-  private static void testPaginatedListIterator(PaginatedList<RangeKeyTestClass> list) {
+  private static void testPaginatedListIterator(
+    PaginatedList<RangeKeyTestClass> list
+  ) {
     for (RangeKeyTestClass item : list) {
       assertTrue(hashKey == item.getKey());
       assertTrue(item.getRangeKey() < OBJECTS_NUM);
@@ -267,60 +314,51 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
   }
 
   private static void testIterationOnlyPaginatedListOperations(
-      PaginatedList<RangeKeyTestClass> list) {
-
+    PaginatedList<RangeKeyTestClass> list
+  ) {
     // Unsupported operations
 
     // (1) isEmpty()
     try {
       list.isEmpty();
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
 
     // (2) get(int n)
     try {
       list.get(RESULTS_NUM / 2);
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
 
     // (3) contains(Object org0)
     try {
       list.contains(new RangeKeyTestClass());
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
 
     // (4) subList(int org0, int arg1)
     try {
       list.subList(0, RESULTS_NUM);
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
 
     // (5) indexOf(Object org0)
     try {
       list.indexOf(new RangeKeyTestClass());
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
 
     // (6) loadAllResults()
     try {
       list.loadAllResults();
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
 
     // (7) size()
     try {
       list.size();
       fail("UnsupportedOperationException expected but is not thrown");
-    } catch (UnsupportedOperationException e) {
-    }
-    ;
-
+    } catch (UnsupportedOperationException e) {}
     // Could be iterated once
     for (RangeKeyTestClass item : list) {
       assertTrue(hashKey == item.getKey());
@@ -334,16 +372,18 @@ public class MapperLoadingStrategyConfigITCase extends DynamoDBMapperCryptoInteg
       for (@SuppressWarnings("unused") RangeKeyTestClass item : list) {
         fail("UnsupportedOperationException expected but is not thrown");
       }
-    } catch (UnsupportedOperationException e) {
-    }
+    } catch (UnsupportedOperationException e) {}
   }
 
   /** Use reflection to get the size of the private allResults field * */
   @SuppressWarnings("unchecked")
-  private static int getLoadedResultsNumber(PaginatedList<RangeKeyTestClass> list) {
+  private static int getLoadedResultsNumber(
+    PaginatedList<RangeKeyTestClass> list
+  ) {
     Field privateAllResults = null;
     try {
-      privateAllResults = list.getClass().getSuperclass().getDeclaredField("allResults");
+      privateAllResults =
+        list.getClass().getSuperclass().getDeclaredField("allResults");
     } catch (SecurityException e) {
       fail(e.getMessage());
     } catch (NoSuchFieldException e) {

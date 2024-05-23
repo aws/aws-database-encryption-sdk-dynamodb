@@ -20,7 +20,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotEncrypt;
 @DynamoDBTable(tableName = "TableName")
 public class DoNotEncryptField extends Mixed {
 
-  @DoNotEncrypt int value;
+  @DoNotEncrypt
+  int value;
 
   public int getValue() {
     return value;

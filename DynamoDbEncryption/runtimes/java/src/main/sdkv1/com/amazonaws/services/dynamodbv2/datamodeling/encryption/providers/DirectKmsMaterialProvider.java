@@ -53,6 +53,7 @@ import javax.crypto.spec.SecretKeySpec;
  *     Encryption Context</a>
  */
 public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
+
   static final String USER_AGENT_PREFIX = "DynamodbEncryptionSdkJava/";
   private static final String USER_AGENT = USER_AGENT_PREFIX + loadVersion();
   private static final String COVERED_ATTR_CTX_KEY = "aws-kms-ec-attr";
@@ -81,27 +82,30 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
   }
 
   public DirectKmsMaterialProvider(
-      AWSKMS kms, String encryptionKeyId, Map<String, String> materialDescription) {
+    AWSKMS kms,
+    String encryptionKeyId,
+    Map<String, String> materialDescription
+  ) {
     this.kms = kms;
     this.encryptionKeyId = encryptionKeyId;
     this.description =
-        materialDescription != null
-            ? Collections.unmodifiableMap(new HashMap<>(materialDescription))
-            : Collections.<String, String>emptyMap();
+      materialDescription != null
+        ? Collections.unmodifiableMap(new HashMap<>(materialDescription))
+        : Collections.<String, String>emptyMap();
 
     dataKeyDesc =
-        description.containsKey(WrappedRawMaterials.CONTENT_KEY_ALGORITHM)
-            ? description.get(WrappedRawMaterials.CONTENT_KEY_ALGORITHM)
-            : DEFAULT_ENC_ALG;
+      description.containsKey(WrappedRawMaterials.CONTENT_KEY_ALGORITHM)
+        ? description.get(WrappedRawMaterials.CONTENT_KEY_ALGORITHM)
+        : DEFAULT_ENC_ALG;
 
     String[] parts = dataKeyDesc.split("/", 2);
     this.dataKeyAlg = parts[0];
     this.dataKeyLength = parts.length == 2 ? Integer.parseInt(parts[1]) : 256;
 
     sigKeyDesc =
-        description.containsKey(SIGNING_KEY_ALGORITHM)
-            ? description.get(SIGNING_KEY_ALGORITHM)
-            : DEFAULT_SIG_ALG;
+      description.containsKey(SIGNING_KEY_ALGORITHM)
+        ? description.get(SIGNING_KEY_ALGORITHM)
+        : DEFAULT_SIG_ALG;
 
     parts = sigKeyDesc.split("/", 2);
     this.sigKeyAlg = parts[0];
@@ -114,11 +118,16 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
 
   @Override
   public DecryptionMaterials getDecryptionMaterials(EncryptionContext context) {
-    final Map<String, String> materialDescription = context.getMaterialDescription();
+    final Map<String, String> materialDescription =
+      context.getMaterialDescription();
 
     final Map<String, String> ec = new HashMap<>();
-    final String providedEncAlg = materialDescription.get(CONTENT_KEY_ALGORITHM);
-    final String providedSigAlg = materialDescription.get(SIGNING_KEY_ALGORITHM);
+    final String providedEncAlg = materialDescription.get(
+      CONTENT_KEY_ALGORITHM
+    );
+    final String providedSigAlg = materialDescription.get(
+      SIGNING_KEY_ALGORITHM
+    );
 
     ec.put("*" + CONTENT_KEY_ALGORITHM + "*", providedEncAlg);
     ec.put("*" + SIGNING_KEY_ALGORITHM + "*", providedSigAlg);
@@ -127,7 +136,8 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
 
     DecryptRequest request = appendUserAgent(new DecryptRequest());
     request.setCiphertextBlob(
-        ByteBuffer.wrap(Base64.decode(materialDescription.get(ENVELOPE_KEY))));
+      ByteBuffer.wrap(Base64.decode(materialDescription.get(ENVELOPE_KEY)))
+    );
     request.setEncryptionContext(ec);
     final DecryptResult decryptResult = decrypt(request, context);
     validateEncryptionKeyId(decryptResult.getKeyId(), context);
@@ -141,16 +151,28 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
     kdf.init(toArray(decryptResult.getPlaintext()));
 
     final String[] encAlgParts = providedEncAlg.split("/", 2);
-    int encLength = encAlgParts.length == 2 ? Integer.parseInt(encAlgParts[1]) : 256;
+    int encLength = encAlgParts.length == 2
+      ? Integer.parseInt(encAlgParts[1])
+      : 256;
     final String[] sigAlgParts = providedSigAlg.split("/", 2);
-    int sigLength = sigAlgParts.length == 2 ? Integer.parseInt(sigAlgParts[1]) : 256;
+    int sigLength = sigAlgParts.length == 2
+      ? Integer.parseInt(sigAlgParts[1])
+      : 256;
 
-    final SecretKey encryptionKey =
-        new SecretKeySpec(kdf.deriveKey(KDF_ENC_INFO, encLength / 8), encAlgParts[0]);
-    final SecretKey macKey =
-        new SecretKeySpec(kdf.deriveKey(KDF_SIG_INFO, sigLength / 8), sigAlgParts[0]);
+    final SecretKey encryptionKey = new SecretKeySpec(
+      kdf.deriveKey(KDF_ENC_INFO, encLength / 8),
+      encAlgParts[0]
+    );
+    final SecretKey macKey = new SecretKeySpec(
+      kdf.deriveKey(KDF_SIG_INFO, sigLength / 8),
+      sigAlgParts[0]
+    );
 
-    return new SymmetricRawMaterials(encryptionKey, macKey, materialDescription);
+    return new SymmetricRawMaterials(
+      encryptionKey,
+      macKey,
+      materialDescription
+    );
   }
 
   @Override
@@ -165,7 +187,9 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
       throw new DynamoDBMappingException("Encryption key id is empty.");
     }
 
-    final GenerateDataKeyRequest req = appendUserAgent(new GenerateDataKeyRequest());
+    final GenerateDataKeyRequest req = appendUserAgent(
+      new GenerateDataKeyRequest()
+    );
     req.setKeyId(keyId);
     // NumberOfBytes parameter is used because we're not using this key as an AES-256 key,
     // we're using it as an HKDF-SHA256 key.
@@ -181,7 +205,9 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
     materialDescription.put(CONTENT_KEY_ALGORITHM, dataKeyDesc);
     materialDescription.put(SIGNING_KEY_ALGORITHM, sigKeyDesc);
     materialDescription.put(
-        ENVELOPE_KEY, Base64.encodeToString(toArray(dataKeyResult.getCiphertextBlob())));
+      ENVELOPE_KEY,
+      Base64.encodeToString(toArray(dataKeyResult.getCiphertextBlob()))
+    );
 
     final Hkdf kdf;
     try {
@@ -192,11 +218,19 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
 
     kdf.init(toArray(dataKeyResult.getPlaintext()));
 
-    final SecretKey encryptionKey =
-        new SecretKeySpec(kdf.deriveKey(KDF_ENC_INFO, dataKeyLength / 8), dataKeyAlg);
-    final SecretKey signatureKey =
-        new SecretKeySpec(kdf.deriveKey(KDF_SIG_INFO, sigKeyLength / 8), sigKeyAlg);
-    return new SymmetricRawMaterials(encryptionKey, signatureKey, materialDescription);
+    final SecretKey encryptionKey = new SecretKeySpec(
+      kdf.deriveKey(KDF_ENC_INFO, dataKeyLength / 8),
+      dataKeyAlg
+    );
+    final SecretKey signatureKey = new SecretKeySpec(
+      kdf.deriveKey(KDF_SIG_INFO, sigKeyLength / 8),
+      sigKeyAlg
+    );
+    return new SymmetricRawMaterials(
+      encryptionKey,
+      signatureKey,
+      materialDescription
+    );
   }
 
   /**
@@ -217,7 +251,7 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
    * @throws DynamoDBMappingException when we fails to select a valid encryption key id.
    */
   protected String selectEncryptionKeyId(EncryptionContext context)
-      throws DynamoDBMappingException {
+    throws DynamoDBMappingException {
     return getEncryptionKeyId();
   }
 
@@ -229,8 +263,10 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
    * @param context encryption context.
    * @throws DynamoDBMappingException when encryptionKeyId is invalid.
    */
-  protected void validateEncryptionKeyId(String encryptionKeyId, EncryptionContext context)
-      throws DynamoDBMappingException {
+  protected void validateEncryptionKeyId(
+    String encryptionKeyId,
+    EncryptionContext context
+  ) throws DynamoDBMappingException {
     // No action taken.
   }
 
@@ -244,7 +280,10 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
    * @param context additional useful data to decrypt the ciphertext.
    * @return the decrypted plaintext for the given ciphertext.
    */
-  protected DecryptResult decrypt(final DecryptRequest request, final EncryptionContext context) {
+  protected DecryptResult decrypt(
+    final DecryptRequest request,
+    final EncryptionContext context
+  ) {
     return kms.decrypt(request);
   }
 
@@ -259,7 +298,9 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
    * @return the newly generated data key which includes both the plaintext and ciphertext.
    */
   protected GenerateDataKeyResult generateDataKey(
-      final GenerateDataKeyRequest request, final EncryptionContext context) {
+    final GenerateDataKeyRequest request,
+    final EncryptionContext context
+  ) {
     return kms.generateDataKey(request);
   }
 
@@ -277,10 +318,15 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
    *   <dd>{@code TableName}
    * </dl>
    */
-  protected void populateKmsEcFromEc(EncryptionContext context, Map<String, String> kmsEc) {
+  protected void populateKmsEcFromEc(
+    EncryptionContext context,
+    Map<String, String> kmsEc
+  ) {
     final String hashKeyName = context.getHashKeyName();
     if (hashKeyName != null) {
-      final AttributeValue hashKey = context.getAttributeValues().get(hashKeyName);
+      final AttributeValue hashKey = context
+        .getAttributeValues()
+        .get(hashKeyName);
       if (hashKey.getN() != null) {
         kmsEc.put(hashKeyName, hashKey.getN());
       } else if (hashKey.getS() != null) {
@@ -289,21 +335,28 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
         kmsEc.put(hashKeyName, Base64.encodeToString(toArray(hashKey.getB())));
       } else {
         throw new UnsupportedOperationException(
-            "DirectKmsMaterialProvider only supports String, Number, and Binary HashKeys");
+          "DirectKmsMaterialProvider only supports String, Number, and Binary HashKeys"
+        );
       }
     }
     final String rangeKeyName = context.getRangeKeyName();
     if (rangeKeyName != null) {
-      final AttributeValue rangeKey = context.getAttributeValues().get(rangeKeyName);
+      final AttributeValue rangeKey = context
+        .getAttributeValues()
+        .get(rangeKeyName);
       if (rangeKey.getN() != null) {
         kmsEc.put(rangeKeyName, rangeKey.getN());
       } else if (rangeKey.getS() != null) {
         kmsEc.put(rangeKeyName, rangeKey.getS());
       } else if (rangeKey.getB() != null) {
-        kmsEc.put(rangeKeyName, Base64.encodeToString(toArray(rangeKey.getB())));
+        kmsEc.put(
+          rangeKeyName,
+          Base64.encodeToString(toArray(rangeKey.getB()))
+        );
       } else {
         throw new UnsupportedOperationException(
-            "DirectKmsMaterialProvider only supports String, Number, and Binary RangeKeys");
+          "DirectKmsMaterialProvider only supports String, Number, and Binary RangeKeys"
+        );
       }
     }
 
@@ -320,7 +373,9 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
     return result;
   }
 
-  private static <X extends AmazonWebServiceRequest> X appendUserAgent(final X request) {
+  private static <X extends AmazonWebServiceRequest> X appendUserAgent(
+    final X request
+  ) {
     request.getRequestClientOptions().appendUserAgent(USER_AGENT);
     return request;
   }

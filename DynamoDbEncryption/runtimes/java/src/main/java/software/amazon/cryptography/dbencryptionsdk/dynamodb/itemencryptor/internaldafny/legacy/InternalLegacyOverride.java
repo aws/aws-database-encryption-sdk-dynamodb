@@ -1,5 +1,21 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy;
 
+import Wrappers_Compile.Option;
+import Wrappers_Compile.Result;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
+import dafny.DafnyMap;
+import dafny.DafnySequence;
+import dafny.TypeDescriptor;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
 /**
  * This file does *NOT* import a lot of things.
  * This is because it is dealing with converting
@@ -15,24 +31,9 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
 
 import StandardLibraryInternal.InternalResult;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
-import Wrappers_Compile.Option;
-import dafny.DafnyMap;
-import dafny.DafnySequence;
-import Wrappers_Compile.Result;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
-import dafny.TypeDescriptor;
-import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
-
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
+
   private DynamoDBEncryptor encryptor;
   private Map<String, Set<EncryptionFlags>> actions;
   private EncryptionContext encryptionContext;
@@ -52,26 +53,21 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     this._policy = policy;
     // It is possible that these values
     // have been customized by the customer.
-    this.materialDescriptionFieldName = software
-      .amazon
-      .smithy
-      .dafny
-      .conversion
-      .ToDafny
-      .Simple
-      .CharacterSequence(encryptor.getMaterialDescriptionFieldName());
-    this.signatureFieldName = software
-      .amazon
-      .smithy
-      .dafny
-      .conversion
-      .ToDafny
-      .Simple
-      .CharacterSequence(encryptor.getSignatureFieldName());
+    this.materialDescriptionFieldName =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+        encryptor.getMaterialDescriptionFieldName()
+      );
+    this.signatureFieldName =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+        encryptor.getSignatureFieldName()
+      );
   }
 
   public static TypeDescriptor<InternalLegacyOverride> _typeDescriptor() {
-    return TypeDescriptor.referenceWithInitializer(InternalLegacyOverride.class, () -> null);
+    return TypeDescriptor.referenceWithInitializer(
+      InternalLegacyOverride.class,
+      () -> null
+    );
   }
 
   public boolean IsLegacyInput(
@@ -80,117 +76,106 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     //= specification/dynamodb-encryption-client/decrypt-item.md#determining-legacy-items
     //# An item MUST be determined to be encrypted under the legacy format if it contains
     //# attributes for the material description and the signature.
-    return input.is_DecryptItemInput() &&
+    return (
+      input.is_DecryptItemInput() &&
       input._encryptedItem.contains(materialDescriptionFieldName) &&
-      input._encryptedItem.contains(signatureFieldName);
+      input._encryptedItem.contains(signatureFieldName)
+    );
   }
 
   public LegacyPolicy policy() {
     return _policy;
   }
 
-  public Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput, Error> EncryptItem(
+  public Result<
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput,
+    Error
+  > EncryptItem(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemInput input
   ) {
-
     // Precondition: Policy MUST allow the caller to encrypt.
     if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
       return CreateEncryptItemFailure(createError("Legacy Policy does not support encrypt."));
     }
 
     try {
-      Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> plaintextItem = software
-        .amazon
-        .cryptography
-        .dbencryptionsdk
-        .dynamodb
-        .itemencryptor
-        .ToNative
-        .EncryptItemInput(input)
-        .plaintextItem();
+      Map<
+        String,
+        software.amazon.awssdk.services.dynamodb.model.AttributeValue
+      > plaintextItem =
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative
+          .EncryptItemInput(input)
+          .plaintextItem();
 
-      final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> encryptedItem = encryptor
-        .encryptRecord(
-          V2MapToV1Map(plaintextItem),
-          actions,
-          encryptionContext
+      final Map<
+        String,
+        com.amazonaws.services.dynamodbv2.model.AttributeValue
+      > encryptedItem = encryptor.encryptRecord(
+        V2MapToV1Map(plaintextItem),
+        actions,
+        encryptionContext
+      );
+
+      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput nativeOutput =
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput
+          .builder()
+          .encryptedItem(V1MapToV2Map(encryptedItem))
+          .build();
+      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput dafnyOutput =
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToDafny.EncryptItemOutput(
+          nativeOutput
         );
-
-      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput nativeOutput = software
-        .amazon
-        .cryptography
-        .dbencryptionsdk
-        .dynamodb
-        .itemencryptor
-        .model
-        .EncryptItemOutput
-        .builder()
-        .encryptedItem(V1MapToV2Map(encryptedItem))
-        .build();
-      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput dafnyOutput = software
-        .amazon
-        .cryptography
-        .dbencryptionsdk
-        .dynamodb
-        .itemencryptor
-        .ToDafny
-        .EncryptItemOutput(nativeOutput);
       return CreateEncryptItemSuccess(dafnyOutput);
     } catch (Exception ex) {
       return CreateEncryptItemFailure(Error.create_Opaque(ex));
     }
   }
 
-  public Result<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput, Error> DecryptItem(
+  public Result<
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput,
+    Error
+  > DecryptItem(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput input
   ) {
-
     // Precondition: Policy MUST allow the caller to decrypt.
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
     //# `FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT` is configured,
     //# and the input item [is an item written in the legacy format](#determining-legacy-items),
     //# this operation MUST fail.
-    if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT() && !_policy.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
-      return CreateDecryptItemFailure(createError("Legacy Policy does not support decrypt."));
+    if (
+      !_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT() &&
+      !_policy.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()
+    ) {
+      return CreateDecryptItemFailure("Legacy Policy does not support decrypt.");
     }
     try {
-      Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> encryptedItem = software
-        .amazon
-        .cryptography
-        .dbencryptionsdk
-        .dynamodb
-        .itemencryptor
-        .ToNative
-        .DecryptItemInput(input)
-        .encryptedItem();
+      Map<
+        String,
+        software.amazon.awssdk.services.dynamodb.model.AttributeValue
+      > encryptedItem =
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative
+          .DecryptItemInput(input)
+          .encryptedItem();
 
-      final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> plaintextItem = encryptor
-        .decryptRecord(
-          V2MapToV1Map(encryptedItem),
-          actions,
-          encryptionContext
+      final Map<
+        String,
+        com.amazonaws.services.dynamodbv2.model.AttributeValue
+      > plaintextItem = encryptor.decryptRecord(
+        V2MapToV1Map(encryptedItem),
+        actions,
+        encryptionContext
+      );
+
+      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput nativeOutput =
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput
+          .builder()
+          .plaintextItem(V1MapToV2Map(plaintextItem))
+          .build();
+      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput dafnyOutput =
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToDafny.DecryptItemOutput(
+          nativeOutput
         );
-
-      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput nativeOutput = software
-        .amazon
-        .cryptography
-        .dbencryptionsdk
-        .dynamodb
-        .itemencryptor
-        .model
-        .DecryptItemOutput
-        .builder()
-        .plaintextItem(V1MapToV2Map(plaintextItem))
-        .build();
-      final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput dafnyOutput = software
-        .amazon
-        .cryptography
-        .dbencryptionsdk
-        .dynamodb
-        .itemencryptor
-        .ToDafny
-        .DecryptItemOutput(nativeOutput);
       return CreateDecryptItemSuccess(dafnyOutput);
     } catch (Exception ex) {
       return CreateDecryptItemFailure(Error.create_Opaque(ex));
@@ -200,39 +185,42 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   public static Result<Option<InternalLegacyOverride>, Error> Build(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig encryptorConfig
   ) {
-
     // Check for early return (Postcondition): If there is no legacyOverride there is nothing to do.
     if (encryptorConfig.dtor_legacyOverride().is_None()) {
       return CreateBuildSuccess(CreateInternalLegacyOverrideNone());
     }
-    final software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride legacyOverride = encryptorConfig
-      .dtor_legacyOverride()
-      .dtor_value();
+    final software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride legacyOverride =
+      encryptorConfig.dtor_legacyOverride().dtor_value();
 
-    final ILegacyDynamoDbEncryptor maybeEncryptor = software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative
-      .LegacyDynamoDbEncryptor(legacyOverride.dtor_encryptor());
+    final ILegacyDynamoDbEncryptor maybeEncryptor =
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative.LegacyDynamoDbEncryptor(
+        legacyOverride.dtor_encryptor()
+      );
 
     // Precondition: The encryptor MUST be a DynamoDBEncryptor
     if (!isDynamoDBEncryptor(maybeEncryptor)) {
       return CreateBuildFailure(createError("Legacy encryptor is not supported"));
     }
     // Preconditions: MUST be able to create valid encryption context
-    final InternalResult<EncryptionContext, Error> maybeEncryptionContext = legacyEncryptionContext(encryptorConfig);
+    final InternalResult<EncryptionContext, Error> maybeEncryptionContext =
+      legacyEncryptionContext(encryptorConfig);
     if (maybeEncryptionContext.isFailure()) {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
     // Precondition: All actions MUST be supported types
-    final InternalResult<Map<String, Set<EncryptionFlags>>, Error> maybeActions = legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
-    if (maybeActions.isFailure()) {
+    final InternalResult<Map<String, Set<EncryptionFlags>>, Error> maybeActions =
+      legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
+    if (maybeActions.is_Failure()) {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
 
-    final InternalLegacyOverride internalLegacyOverride = new InternalLegacyOverride(
-      (DynamoDBEncryptor) maybeEncryptor,
-      maybeActions.value(),
-      maybeEncryptionContext.value(),
-      legacyOverride.dtor_policy()
-    );
+    final InternalLegacyOverride internalLegacyOverride =
+      new InternalLegacyOverride(
+        (DynamoDBEncryptor) maybeEncryptor,
+        maybeActions.dtor_value(),
+        maybeEncryptionContext.dtor_value(),
+        legacyOverride.dtor_policy()
+      );
 
     return CreateBuildSuccess(CreateInternalLegacyOverrideSome(internalLegacyOverride));
   }
@@ -251,27 +239,33 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     return maybe.getClass().equals(DynamoDBEncryptor.class);
   }
 
-  public static String ToNativeString(DafnySequence< ? extends Character> s)
-  {
+  public static String ToNativeString(DafnySequence<? extends Character> s) {
     return software.amazon.smithy.dafny.conversion.ToNative.Simple.String(s);
   }
 
-  public static DafnySequence<Character> ToDafnyString(String s)
-  {
-    return software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(s);
+  public static DafnySequence<Character> ToDafnyString(String s) {
+    return software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+      s
+    );
   }
 
   public static InternalResult<EncryptionContext, Error> legacyEncryptionContext(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig config
   ) {
     try {
-      EncryptionContext.Builder encryptionContextBuilder = new EncryptionContext
-        .Builder()
-        .withTableName(ToNativeString(config.dtor_logicalTableName()))
-        .withHashKeyName(ToNativeString(config.dtor_partitionKeyName()));
+      EncryptionContext.Builder encryptionContextBuilder =
+        new EncryptionContext.Builder()
+          .withTableName(ToNativeString(config.dtor_logicalTableName()))
+          .withHashKeyName(ToNativeString(config.dtor_partitionKeyName()));
 
-      final EncryptionContext encryptionContext = config.dtor_sortKeyName().is_Some()
-        ? encryptionContextBuilder.withRangeKeyName(ToNativeString(config.dtor_sortKeyName().dtor_value())).build()
+      final EncryptionContext encryptionContext = config
+          .dtor_sortKeyName()
+          .is_Some()
+        ? encryptionContextBuilder
+          .withRangeKeyName(
+            ToNativeString(config.dtor_sortKeyName().dtor_value())
+          )
+          .build()
         : encryptionContextBuilder.build();
 
       return InternalResult.success(encryptionContext);
@@ -281,14 +275,25 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   }
 
   public static InternalResult<Map<String, Set<EncryptionFlags>>, Error> legacyActions(
-    DafnyMap<? extends DafnySequence<? extends Character>, ? extends CryptoAction> attributeActionsOnEncrypt
+    DafnyMap<
+      ? extends DafnySequence<? extends Character>,
+      ? extends CryptoAction
+    > attributeActionsOnEncrypt
   ) {
     try {
-      final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
-      final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN);
+      final EnumSet<EncryptionFlags> signOnly = EnumSet.of(
+        EncryptionFlags.SIGN
+      );
+      final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+        EncryptionFlags.ENCRYPT,
+        EncryptionFlags.SIGN
+      );
 
       Map<String, Set<EncryptionFlags>> legacyActions = new HashMap<>();
-      BiConsumer<? super DafnySequence<? extends Character>, ? super CryptoAction> buildLegacyActions = (dafnyKey, value) -> {
+      BiConsumer<
+        ? super DafnySequence<? extends Character>,
+        ? super CryptoAction
+      > buildLegacyActions = (dafnyKey, value) -> {
         final String key = ToNativeString(dafnyKey);
         if (value.is_SIGN__ONLY()) {
           legacyActions.put(key, signOnly);
@@ -304,7 +309,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       attributeActionsOnEncrypt.forEach(buildLegacyActions);
       return InternalResult.success(legacyActions);
     } catch (IllegalArgumentException ex) {
-      final Error dafnyEx = Error.create_DynamoDbItemEncryptorException(ToDafnyString(ex.getMessage()));
+      final Error dafnyEx = Error.create_DynamoDbItemEncryptorException(
+        ToDafnyString(ex.getMessage())
+      );
       return InternalResult.failure(dafnyEx);
     } catch (Exception ex) {
       return InternalResult.failure(Error.create_Opaque(ex));
@@ -314,18 +321,29 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   public static com.amazonaws.services.dynamodbv2.model.AttributeValue V2AttributeToV1Attribute(
     software.amazon.awssdk.services.dynamodb.model.AttributeValue value
   ) {
-    final com.amazonaws.services.dynamodbv2.model.AttributeValue attribute = new com.amazonaws.services.dynamodbv2.model.AttributeValue();
+    final com.amazonaws.services.dynamodbv2.model.AttributeValue attribute =
+      new com.amazonaws.services.dynamodbv2.model.AttributeValue();
     switch (value.type()) {
       case B:
         return attribute.withB(value.b().asByteBuffer());
       case BOOL:
         return attribute.withBOOL(value.bool());
       case BS:
-        return attribute
-          .withBS(value.bs().stream().map(b -> b.asByteBuffer()).collect(Collectors.toList()));
+        return attribute.withBS(
+          value
+            .bs()
+            .stream()
+            .map(b -> b.asByteBuffer())
+            .collect(Collectors.toList())
+        );
       case L:
-        return attribute
-          .withL(value.l().stream().map(a -> V2AttributeToV1Attribute(a)).collect(Collectors.toList()));
+        return attribute.withL(
+          value
+            .l()
+            .stream()
+            .map(a -> V2AttributeToV1Attribute(a))
+            .collect(Collectors.toList())
+        );
       case M:
         return attribute.withM(V2MapToV1Map(value.m()));
       case N:
@@ -345,26 +363,37 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     throw new IllegalArgumentException("omfg");
   }
 
-  public static Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> V2MapToV1Map(
-    Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> input
+  public static Map<
+    String,
+    com.amazonaws.services.dynamodbv2.model.AttributeValue
+  > V2MapToV1Map(
+    Map<
+      String,
+      software.amazon.awssdk.services.dynamodb.model.AttributeValue
+    > input
   ) {
     return input
       .entrySet()
       .stream()
-      .collect(Collectors.toMap(
-        entry -> entry.getKey(),
-        entry -> V2AttributeToV1Attribute(entry.getValue()))
+      .collect(
+        Collectors.toMap(
+          entry -> entry.getKey(),
+          entry -> V2AttributeToV1Attribute(entry.getValue())
+        )
       );
   }
 
   public static software.amazon.awssdk.services.dynamodb.model.AttributeValue V1AttributeToV2Attribute(
     com.amazonaws.services.dynamodbv2.model.AttributeValue value
   ) {
-    final software.amazon.awssdk.services.dynamodb.model.AttributeValue.Builder attributeBuilder = software.amazon.awssdk.services.dynamodb.model.AttributeValue.builder();
+    final software.amazon.awssdk.services.dynamodb.model.AttributeValue.Builder attributeBuilder =
+      software.amazon.awssdk.services.dynamodb.model.AttributeValue.builder();
     if (Boolean.TRUE.equals(value.getNULL())) {
       return attributeBuilder.nul(value.getNULL()).build();
     } else if (Boolean.FALSE.equals(value.getNULL())) {
-      throw new UnsupportedOperationException("False-NULL is not supported in DynamoDB");
+      throw new UnsupportedOperationException(
+        "False-NULL is not supported in DynamoDB"
+      );
     } else if (value.getBOOL() != null) {
       return attributeBuilder.bool(value.getBOOL()).build();
     } else if (value.getS() != null) {
@@ -379,11 +408,23 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       return attributeBuilder.ns(value.getNS()).build();
     } else if (value.getBS() != null) {
       return attributeBuilder
-        .bs(value.getBS().stream().map(bb -> SdkBytes.fromByteBuffer(bb)).collect(Collectors.toList()))
+        .bs(
+          value
+            .getBS()
+            .stream()
+            .map(bb -> SdkBytes.fromByteBuffer(bb))
+            .collect(Collectors.toList())
+        )
         .build();
     } else if (value.getL() != null) {
       return attributeBuilder
-        .l(value.getL().stream().map(a -> V1AttributeToV2Attribute(a)).collect(Collectors.toList()))
+        .l(
+          value
+            .getL()
+            .stream()
+            .map(a -> V1AttributeToV2Attribute(a))
+            .collect(Collectors.toList())
+        )
         .build();
     } else if (value.getM() != null) {
       return attributeBuilder.m(V1MapToV2Map(value.getM())).build();
@@ -392,16 +433,20 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     }
   }
 
-  public static Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> V1MapToV2Map(
+  public static Map<
+    String,
+    software.amazon.awssdk.services.dynamodb.model.AttributeValue
+  > V1MapToV2Map(
     Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> input
   ) {
     return input
       .entrySet()
       .stream()
-      .collect(Collectors.toMap(
-        entry -> entry.getKey(),
-        entry -> V1AttributeToV2Attribute(entry.getValue()))
+      .collect(
+        Collectors.toMap(
+          entry -> entry.getKey(),
+          entry -> V1AttributeToV2Attribute(entry.getValue())
+        )
       );
   }
-
 }

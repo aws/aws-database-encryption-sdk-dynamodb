@@ -57,6 +57,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncr
  * @author Greg Rubin
  */
 public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
+
   private static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
   private static final String DEFAULT_METADATA_FIELD = "*amzn-ddb-map-desc*";
   private static final String DEFAULT_SIGNATURE_FIELD = "*amzn-ddb-map-sig*";
@@ -64,16 +65,16 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   private static final Charset UTF8 = Charset.forName("UTF-8");
   private static final String SYMMETRIC_ENCRYPTION_MODE = "/CBC/PKCS5Padding";
   private static final ConcurrentHashMap<String, Integer> BLOCK_SIZE_CACHE =
-      new ConcurrentHashMap<>();
+    new ConcurrentHashMap<>();
   private static final Function<String, Integer> BLOCK_SIZE_CALCULATOR =
-      (transformation) -> {
-        try {
-          final Cipher c = Cipher.getInstance(transformation);
-          return c.getBlockSize();
-        } catch (final GeneralSecurityException ex) {
-          throw new IllegalArgumentException("Algorithm does not exist", ex);
-        }
-      };
+    transformation -> {
+      try {
+        final Cipher c = Cipher.getInstance(transformation);
+        return c.getBlockSize();
+      } catch (final GeneralSecurityException ex) {
+        throw new IllegalArgumentException("Algorithm does not exist", ex);
+      }
+    };
 
   private static final int CURRENT_VERSION = 0;
 
@@ -86,10 +87,16 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   private final String signingAlgorithmHeader;
 
   public static final String DEFAULT_SIGNING_ALGORITHM_HEADER =
-      DEFAULT_DESCRIPTION_BASE + "signingAlg";
-  private Function<EncryptionContext, EncryptionContext> encryptionContextOverrideOperator;
+    DEFAULT_DESCRIPTION_BASE + "signingAlg";
+  private Function<
+    EncryptionContext,
+    EncryptionContext
+  > encryptionContextOverrideOperator;
 
-  protected DynamoDBEncryptor(EncryptionMaterialsProvider provider, String descriptionBase) {
+  protected DynamoDBEncryptor(
+    EncryptionMaterialsProvider provider,
+    String descriptionBase
+  ) {
     this.encryptionMaterialsProvider = provider;
     this.descriptionBase = descriptionBase;
     symmetricEncryptionModeHeader = this.descriptionBase + "sym-mode";
@@ -97,11 +104,15 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   }
 
   public static DynamoDBEncryptor getInstance(
-      EncryptionMaterialsProvider provider, String descriptionbase) {
+    EncryptionMaterialsProvider provider,
+    String descriptionbase
+  ) {
     return new DynamoDBEncryptor(provider, descriptionbase);
   }
 
-  public static DynamoDBEncryptor getInstance(EncryptionMaterialsProvider provider) {
+  public static DynamoDBEncryptor getInstance(
+    EncryptionMaterialsProvider provider
+  ) {
     return getInstance(provider, DEFAULT_DESCRIPTION_BASE);
   }
 
@@ -119,19 +130,25 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @throws GeneralSecurityException
    */
   public Map<String, AttributeValue> decryptAllFieldsExcept(
-      Map<String, AttributeValue> itemAttributes, EncryptionContext context, String... doNotDecrypt)
-      throws GeneralSecurityException {
-    return decryptAllFieldsExcept(itemAttributes, context, Arrays.asList(doNotDecrypt));
+    Map<String, AttributeValue> itemAttributes,
+    EncryptionContext context,
+    String... doNotDecrypt
+  ) throws GeneralSecurityException {
+    return decryptAllFieldsExcept(
+      itemAttributes,
+      context,
+      Arrays.asList(doNotDecrypt)
+    );
   }
 
   /** @see #decryptAllFieldsExcept(Map, EncryptionContext, String...) */
   public Map<String, AttributeValue> decryptAllFieldsExcept(
-      Map<String, AttributeValue> itemAttributes,
-      EncryptionContext context,
-      Collection<String> doNotDecrypt)
-      throws GeneralSecurityException {
+    Map<String, AttributeValue> itemAttributes,
+    EncryptionContext context,
+    Collection<String> doNotDecrypt
+  ) throws GeneralSecurityException {
     Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt =
-        allDecryptionFlagsExcept(itemAttributes, doNotDecrypt);
+      allDecryptionFlagsExcept(itemAttributes, doNotDecrypt);
     return decryptRecord(itemAttributes, attributeActionsOnEncrypt, context);
   }
 
@@ -142,8 +159,13 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @param doNotDecrypt fields to be excluded
    */
   public Map<String, Set<EncryptionFlags>> allDecryptionFlagsExcept(
-      Map<String, AttributeValue> itemAttributes, String... doNotDecrypt) {
-    return allDecryptionFlagsExcept(itemAttributes, Arrays.asList(doNotDecrypt));
+    Map<String, AttributeValue> itemAttributes,
+    String... doNotDecrypt
+  ) {
+    return allDecryptionFlagsExcept(
+      itemAttributes,
+      Arrays.asList(doNotDecrypt)
+    );
   }
 
   /**
@@ -153,18 +175,31 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @param doNotDecrypt fields to be excluded
    */
   public Map<String, Set<EncryptionFlags>> allDecryptionFlagsExcept(
-      Map<String, AttributeValue> itemAttributes, Collection<String> doNotDecrypt) {
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes,
+    Collection<String> doNotDecrypt
+  ) {
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     for (String fieldName : doNotDecrypt) {
-      attributeActionsOnEncrypt.put(fieldName, EnumSet.of(EncryptionFlags.SIGN));
+      attributeActionsOnEncrypt.put(
+        fieldName,
+        EnumSet.of(EncryptionFlags.SIGN)
+      );
     }
 
     for (String fieldName : itemAttributes.keySet()) {
-      if (!attributeActionsOnEncrypt.containsKey(fieldName)
-          && !fieldName.equals(getMaterialDescriptionFieldName())
-          && !fieldName.equals(getSignatureFieldName())) {
-        attributeActionsOnEncrypt.put(fieldName, EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN));
+      if (
+        !attributeActionsOnEncrypt.containsKey(fieldName) &&
+        !fieldName.equals(getMaterialDescriptionFieldName()) &&
+        !fieldName.equals(getSignatureFieldName())
+      ) {
+        attributeActionsOnEncrypt.put(
+          fieldName,
+          EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN)
+        );
       }
     }
     return attributeActionsOnEncrypt;
@@ -182,19 +217,24 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @throws GeneralSecurityException
    */
   public Map<String, AttributeValue> encryptAllFieldsExcept(
-      Map<String, AttributeValue> itemAttributes, EncryptionContext context, String... doNotEncrypt)
-      throws GeneralSecurityException {
-
-    return encryptAllFieldsExcept(itemAttributes, context, Arrays.asList(doNotEncrypt));
+    Map<String, AttributeValue> itemAttributes,
+    EncryptionContext context,
+    String... doNotEncrypt
+  ) throws GeneralSecurityException {
+    return encryptAllFieldsExcept(
+      itemAttributes,
+      context,
+      Arrays.asList(doNotEncrypt)
+    );
   }
 
   public Map<String, AttributeValue> encryptAllFieldsExcept(
-      Map<String, AttributeValue> itemAttributes,
-      EncryptionContext context,
-      Collection<String> doNotEncrypt)
-      throws GeneralSecurityException {
+    Map<String, AttributeValue> itemAttributes,
+    EncryptionContext context,
+    Collection<String> doNotEncrypt
+  ) throws GeneralSecurityException {
     Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt =
-        allEncryptionFlagsExcept(itemAttributes, doNotEncrypt);
+      allEncryptionFlagsExcept(itemAttributes, doNotEncrypt);
     return encryptRecord(itemAttributes, attributeActionsOnEncrypt, context);
   }
 
@@ -205,8 +245,13 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @param doNotEncrypt fields to be excluded
    */
   public Map<String, Set<EncryptionFlags>> allEncryptionFlagsExcept(
-      Map<String, AttributeValue> itemAttributes, String... doNotEncrypt) {
-    return allEncryptionFlagsExcept(itemAttributes, Arrays.asList(doNotEncrypt));
+    Map<String, AttributeValue> itemAttributes,
+    String... doNotEncrypt
+  ) {
+    return allEncryptionFlagsExcept(
+      itemAttributes,
+      Arrays.asList(doNotEncrypt)
+    );
   }
 
   /**
@@ -216,26 +261,42 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @param doNotEncrypt fields to be excluded
    */
   public Map<String, Set<EncryptionFlags>> allEncryptionFlagsExcept(
-      Map<String, AttributeValue> itemAttributes, Collection<String> doNotEncrypt) {
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes,
+    Collection<String> doNotEncrypt
+  ) {
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
     for (String fieldName : doNotEncrypt) {
-      attributeActionsOnEncrypt.put(fieldName, EnumSet.of(EncryptionFlags.SIGN));
+      attributeActionsOnEncrypt.put(
+        fieldName,
+        EnumSet.of(EncryptionFlags.SIGN)
+      );
     }
 
     for (String fieldName : itemAttributes.keySet()) {
       if (!attributeActionsOnEncrypt.containsKey(fieldName)) {
-        attributeActionsOnEncrypt.put(fieldName, EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN));
+        attributeActionsOnEncrypt.put(
+          fieldName,
+          EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN)
+        );
       }
     }
     return attributeActionsOnEncrypt;
   }
 
   public Map<String, AttributeValue> decryptRecord(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      EncryptionContext context)
-      throws GeneralSecurityException {
-    if (!itemContainsFieldsToDecryptOrSign(itemAttributes.keySet(), attributeActionsOnEncrypt)) {
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    EncryptionContext context
+  ) throws GeneralSecurityException {
+    if (
+      !itemContainsFieldsToDecryptOrSign(
+        itemAttributes.keySet(),
+        attributeActionsOnEncrypt
+      )
+    ) {
       return itemAttributes;
     }
     // Copy to avoid changing anyone elses objects
@@ -245,20 +306,27 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     DecryptionMaterials materials;
     SecretKey decryptionKey;
 
-    DynamoDBSigner signer = DynamoDBSigner.getInstance(DEFAULT_SIGNATURE_ALGORITHM, Utils.getRng());
+    DynamoDBSigner signer = DynamoDBSigner.getInstance(
+      DEFAULT_SIGNATURE_ALGORITHM,
+      Utils.getRng()
+    );
 
     if (itemAttributes.containsKey(materialDescriptionFieldName)) {
-      materialDescription = unmarshallDescription(itemAttributes.get(materialDescriptionFieldName));
+      materialDescription =
+        unmarshallDescription(itemAttributes.get(materialDescriptionFieldName));
     }
     // Copy the material description and attribute values into the context
     context =
-        new EncryptionContext.Builder(context)
-            .withMaterialDescription(materialDescription)
-            .withAttributeValues(itemAttributes)
-            .build();
+      new EncryptionContext.Builder(context)
+        .withMaterialDescription(materialDescription)
+        .withAttributeValues(itemAttributes)
+        .build();
 
-    Function<EncryptionContext, EncryptionContext> encryptionContextOverrideOperator =
-        getEncryptionContextOverrideOperator();
+    Function<
+      EncryptionContext,
+      EncryptionContext
+    > encryptionContextOverrideOperator =
+      getEncryptionContextOverrideOperator();
     if (encryptionContextOverrideOperator != null) {
       context = encryptionContextOverrideOperator.apply(context);
     }
@@ -271,32 +339,46 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     }
 
     ByteBuffer signature;
-    if (!itemAttributes.containsKey(signatureFieldName)
-        || itemAttributes.get(signatureFieldName).getB() == null) {
+    if (
+      !itemAttributes.containsKey(signatureFieldName) ||
+      itemAttributes.get(signatureFieldName).getB() == null
+    ) {
       signature = ByteBuffer.allocate(0);
     } else {
-      signature = itemAttributes.get(signatureFieldName).getB().asReadOnlyBuffer();
+      signature =
+        itemAttributes.get(signatureFieldName).getB().asReadOnlyBuffer();
     }
     itemAttributes.remove(signatureFieldName);
 
     String associatedData = "TABLE>" + context.getTableName() + "<TABLE";
     signer.verifySignature(
-        itemAttributes,
-        attributeActionsOnEncrypt,
-        associatedData.getBytes(UTF8),
-        materials.getVerificationKey(),
-        signature);
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      associatedData.getBytes(UTF8),
+      materials.getVerificationKey(),
+      signature
+    );
     itemAttributes.remove(materialDescriptionFieldName);
 
-    actualDecryption(itemAttributes, attributeActionsOnEncrypt, decryptionKey, materialDescription);
+    actualDecryption(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      decryptionKey,
+      materialDescription
+    );
     return itemAttributes;
   }
 
   private boolean itemContainsFieldsToDecryptOrSign(
-      Set<String> attributeNamesToCheck, Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt) {
-    return attributeNamesToCheck.stream()
-        .filter(attributeActionsOnEncrypt::containsKey)
-        .anyMatch(attributeName -> !attributeActionsOnEncrypt.get(attributeName).isEmpty());
+    Set<String> attributeNamesToCheck,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt
+  ) {
+    return attributeNamesToCheck
+      .stream()
+      .filter(attributeActionsOnEncrypt::containsKey)
+      .anyMatch(attributeName ->
+        !attributeActionsOnEncrypt.get(attributeName).isEmpty()
+      );
   }
 
   /**
@@ -310,10 +392,10 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @throws GeneralSecurityException if failed to encrypt the record
    */
   public Map<String, AttributeValue> encryptRecord(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      EncryptionContext context)
-      throws GeneralSecurityException {
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    EncryptionContext context
+  ) throws GeneralSecurityException {
     if (attributeActionsOnEncrypt.isEmpty()) {
       return itemAttributes;
     }
@@ -321,21 +403,34 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     itemAttributes = new HashMap<String, AttributeValue>(itemAttributes);
 
     // Copy the attribute values into the context
-    context = new EncryptionContext.Builder(context).withAttributeValues(itemAttributes).build();
+    context =
+      new EncryptionContext.Builder(context)
+        .withAttributeValues(itemAttributes)
+        .build();
 
-    Function<EncryptionContext, EncryptionContext> encryptionContextOverrideOperator =
-        getEncryptionContextOverrideOperator();
+    Function<
+      EncryptionContext,
+      EncryptionContext
+    > encryptionContextOverrideOperator =
+      getEncryptionContextOverrideOperator();
     if (encryptionContextOverrideOperator != null) {
       context = encryptionContextOverrideOperator.apply(context);
     }
 
-    EncryptionMaterials materials = encryptionMaterialsProvider.getEncryptionMaterials(context);
+    EncryptionMaterials materials =
+      encryptionMaterialsProvider.getEncryptionMaterials(context);
     // We need to copy this because we modify it to record other encryption details
-    Map<String, String> materialDescription =
-        new HashMap<String, String>(materials.getMaterialDescription());
+    Map<String, String> materialDescription = new HashMap<String, String>(
+      materials.getMaterialDescription()
+    );
     SecretKey encryptionKey = materials.getEncryptionKey();
 
-    actualEncryption(itemAttributes, attributeActionsOnEncrypt, materialDescription, encryptionKey);
+    actualEncryption(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      materialDescription,
+      encryptionKey
+    );
 
     // The description must be stored after encryption because its data
     // is necessary for proper decryption.
@@ -344,23 +439,30 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     if (signingAlgo != null) {
       signer = DynamoDBSigner.getInstance(signingAlgo, Utils.getRng());
     } else {
-      signer = DynamoDBSigner.getInstance(DEFAULT_SIGNATURE_ALGORITHM, Utils.getRng());
+      signer =
+        DynamoDBSigner.getInstance(DEFAULT_SIGNATURE_ALGORITHM, Utils.getRng());
     }
 
     if (materials.getSigningKey() instanceof PrivateKey) {
-      materialDescription.put(signingAlgorithmHeader, signer.getSigningAlgorithm());
+      materialDescription.put(
+        signingAlgorithmHeader,
+        signer.getSigningAlgorithm()
+      );
     }
     if (!materialDescription.isEmpty()) {
-      itemAttributes.put(materialDescriptionFieldName, marshallDescription(materialDescription));
+      itemAttributes.put(
+        materialDescriptionFieldName,
+        marshallDescription(materialDescription)
+      );
     }
 
     String associatedData = "TABLE>" + context.getTableName() + "<TABLE";
-    byte[] signature =
-        signer.calculateSignature(
-            itemAttributes,
-            attributeActionsOnEncrypt,
-            associatedData.getBytes(UTF8),
-            materials.getSigningKey());
+    byte[] signature = signer.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      associatedData.getBytes(UTF8),
+      materials.getSigningKey()
+    );
 
     AttributeValue signatureAttribute = new AttributeValue();
     signatureAttribute.setB(ByteBuffer.wrap(signature));
@@ -370,33 +472,40 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   }
 
   private void actualDecryption(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      SecretKey encryptionKey,
-      Map<String, String> materialDescription)
-      throws GeneralSecurityException {
-    final String encryptionMode =
-        encryptionKey != null
-            ? encryptionKey.getAlgorithm() + materialDescription.get(symmetricEncryptionModeHeader)
-            : null;
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    SecretKey encryptionKey,
+    Map<String, String> materialDescription
+  ) throws GeneralSecurityException {
+    final String encryptionMode = encryptionKey != null
+      ? encryptionKey.getAlgorithm() +
+      materialDescription.get(symmetricEncryptionModeHeader)
+      : null;
     Cipher cipher = null;
     int blockSize = -1;
 
     for (Map.Entry<String, AttributeValue> entry : itemAttributes.entrySet()) {
-      Set<EncryptionFlags> flags = attributeActionsOnEncrypt.get(entry.getKey());
+      Set<EncryptionFlags> flags = attributeActionsOnEncrypt.get(
+        entry.getKey()
+      );
       if (flags != null && flags.contains(EncryptionFlags.ENCRYPT)) {
         if (!flags.contains(EncryptionFlags.SIGN)) {
           throw new IllegalArgumentException(
-              "All encrypted fields must be signed. Bad field: " + entry.getKey());
+            "All encrypted fields must be signed. Bad field: " + entry.getKey()
+          );
         }
         ByteBuffer plainText;
         ByteBuffer cipherText = entry.getValue().getB().asReadOnlyBuffer();
         cipherText.rewind();
         if (encryptionKey instanceof DelegatedKey) {
           plainText =
-              ByteBuffer.wrap(
-                  ((DelegatedKey) encryptionKey)
-                      .decrypt(toByteArray(cipherText), null, encryptionMode));
+            ByteBuffer.wrap(
+              ((DelegatedKey) encryptionKey).decrypt(
+                  toByteArray(cipherText),
+                  null,
+                  encryptionMode
+                )
+            );
         } else {
           if (cipher == null) {
             blockSize = getBlockSize(encryptionMode);
@@ -404,8 +513,14 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
           }
           byte[] iv = new byte[blockSize];
           cipherText.get(iv);
-          cipher.init(Cipher.DECRYPT_MODE, encryptionKey, new IvParameterSpec(iv), Utils.getRng());
-          plainText = ByteBuffer.allocate(cipher.getOutputSize(cipherText.remaining()));
+          cipher.init(
+            Cipher.DECRYPT_MODE,
+            encryptionKey,
+            new IvParameterSpec(iv),
+            Utils.getRng()
+          );
+          plainText =
+            ByteBuffer.allocate(cipher.getOutputSize(cipherText.remaining()));
           cipher.doFinal(cipherText, plainText);
           plainText.rewind();
         }
@@ -415,7 +530,10 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   }
 
   protected static int getBlockSize(final String encryptionMode) {
-    return BLOCK_SIZE_CACHE.computeIfAbsent(encryptionMode, BLOCK_SIZE_CALCULATOR);
+    return BLOCK_SIZE_CACHE.computeIfAbsent(
+      encryptionMode,
+      BLOCK_SIZE_CALCULATOR
+    );
   }
 
   /**
@@ -424,32 +542,43 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * corresponding attribute flags.
    */
   private void actualEncryption(
-      Map<String, AttributeValue> itemAttributes,
-      Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
-      Map<String, String> materialDescription,
-      SecretKey encryptionKey)
-      throws GeneralSecurityException {
+    Map<String, AttributeValue> itemAttributes,
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt,
+    Map<String, String> materialDescription,
+    SecretKey encryptionKey
+  ) throws GeneralSecurityException {
     String encryptionMode = null;
     if (encryptionKey != null) {
-      materialDescription.put(this.symmetricEncryptionModeHeader, SYMMETRIC_ENCRYPTION_MODE);
+      materialDescription.put(
+        this.symmetricEncryptionModeHeader,
+        SYMMETRIC_ENCRYPTION_MODE
+      );
       encryptionMode = encryptionKey.getAlgorithm() + SYMMETRIC_ENCRYPTION_MODE;
     }
     Cipher cipher = null;
     int blockSize = -1;
 
     for (Map.Entry<String, AttributeValue> entry : itemAttributes.entrySet()) {
-      Set<EncryptionFlags> flags = attributeActionsOnEncrypt.get(entry.getKey());
+      Set<EncryptionFlags> flags = attributeActionsOnEncrypt.get(
+        entry.getKey()
+      );
       if (flags != null && flags.contains(EncryptionFlags.ENCRYPT)) {
         if (!flags.contains(EncryptionFlags.SIGN)) {
           throw new IllegalArgumentException(
-              "All encrypted fields must be signed. Bad field: " + entry.getKey());
+            "All encrypted fields must be signed. Bad field: " + entry.getKey()
+          );
         }
-        ByteBuffer plainText = AttributeValueMarshaller.marshall(entry.getValue());
+        ByteBuffer plainText = AttributeValueMarshaller.marshall(
+          entry.getValue()
+        );
         plainText.rewind();
         ByteBuffer cipherText;
         if (encryptionKey instanceof DelegatedKey) {
           DelegatedKey dk = (DelegatedKey) encryptionKey;
-          cipherText = ByteBuffer.wrap(dk.encrypt(toByteArray(plainText), null, encryptionMode));
+          cipherText =
+            ByteBuffer.wrap(
+              dk.encrypt(toByteArray(plainText), null, encryptionMode)
+            );
         } else {
           if (cipher == null) {
             blockSize = getBlockSize(encryptionMode);
@@ -458,15 +587,22 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
           // Encryption format: <iv><ciphertext>
           // Note a unique iv is generated per attribute
           cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, Utils.getRng());
-          cipherText = ByteBuffer.allocate(blockSize + cipher.getOutputSize(plainText.remaining()));
+          cipherText =
+            ByteBuffer.allocate(
+              blockSize + cipher.getOutputSize(plainText.remaining())
+            );
           cipherText.position(blockSize);
           cipher.doFinal(plainText, cipherText);
           cipherText.flip();
           final byte[] iv = cipher.getIV();
           if (iv.length != blockSize) {
             throw new IllegalStateException(
-                String.format(
-                    "Generated IV length (%d) not equal to block size (%d)", iv.length, blockSize));
+              String.format(
+                "Generated IV length (%d) not equal to block size (%d)",
+                iv.length,
+                blockSize
+              )
+            );
           }
           cipherText.put(iv);
           cipherText.rewind();
@@ -512,7 +648,9 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    *
    * @param materialDescriptionFieldName
    */
-  public void setMaterialDescriptionFieldName(final String materialDescriptionFieldName) {
+  public void setMaterialDescriptionFieldName(
+    final String materialDescriptionFieldName
+  ) {
     this.materialDescriptionFieldName = materialDescriptionFieldName;
   }
 
@@ -524,7 +662,9 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @return the description encoded as an AttributeValue with a ByteBuffer value
    * @see java.io.DataOutput#writeUTF(String)
    */
-  protected static AttributeValue marshallDescription(Map<String, String> description) {
+  protected static AttributeValue marshallDescription(
+    Map<String, String> description
+  ) {
     try {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       DataOutputStream out = new DataOutputStream(bos);
@@ -550,11 +690,17 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
   public String getSigningAlgorithmHeader() {
     return signingAlgorithmHeader;
   }
+
   /** @see #marshallDescription(Map) */
-  protected static Map<String, String> unmarshallDescription(AttributeValue attributeValue) {
+  protected static Map<String, String> unmarshallDescription(
+    AttributeValue attributeValue
+  ) {
     attributeValue.getB().mark();
-    try (DataInputStream in =
-        new DataInputStream(new ByteBufferInputStream(attributeValue.getB()))) {
+    try (
+      DataInputStream in = new DataInputStream(
+        new ByteBufferInputStream(attributeValue.getB())
+      )
+    ) {
       Map<String, String> result = new HashMap<String, String>();
       int version = in.readInt();
       if (version != CURRENT_VERSION) {
@@ -597,7 +743,11 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @see com.amazonaws.services.dynamodbv2.datamodeling.encryption.utils.EncryptionContextOperators
    */
   public final void setEncryptionContextOverrideOperator(
-      Function<EncryptionContext, EncryptionContext> encryptionContextOverrideOperator) {
+    Function<
+      EncryptionContext,
+      EncryptionContext
+    > encryptionContextOverrideOperator
+  ) {
     this.encryptionContextOverrideOperator = encryptionContextOverrideOperator;
   }
 
@@ -605,8 +755,10 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
    * @return the operator used to override the EncryptionContext
    * @see #setEncryptionContextOverrideOperator(Function)
    */
-  public final Function<EncryptionContext, EncryptionContext>
-      getEncryptionContextOverrideOperator() {
+  public final Function<
+    EncryptionContext,
+    EncryptionContext
+  > getEncryptionContextOverrideOperator() {
     return encryptionContextOverrideOperator;
   }
 

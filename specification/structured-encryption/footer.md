@@ -21,10 +21,10 @@ the [Authenticate Schema](./structures.md#authenticate-schema) indicates `SIGN`
 
 The [Terminal Value](./structures.md#terminal-value) of the footer MUST be
 
-| Field | Length (bytes) | Interpreted as |
-| ----- | -------------- | -------------- |
-| [Recipient Tags](#recipient-tags) | Variable. 48 bytes per Encrypted Data Key in the header | Bytes |
-| [Signature](#signature) | 0 or 96 | Signature, if signatures are enabled |
+| Field                             | Length (bytes)                                          | Interpreted as                       |
+| --------------------------------- | ------------------------------------------------------- | ------------------------------------ |
+| [Recipient Tags](#recipient-tags) | Variable. 48 bytes per Encrypted Data Key in the header | Bytes                                |
+| [Signature](#signature)           | 0 or 96                                                 | Signature, if signatures are enabled |
 
 ### Canonical Hash
 

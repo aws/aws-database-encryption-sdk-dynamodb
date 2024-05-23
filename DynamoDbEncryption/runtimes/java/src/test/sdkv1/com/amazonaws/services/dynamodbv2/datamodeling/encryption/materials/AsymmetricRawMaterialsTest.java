@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class AsymmetricRawMaterialsTest {
+
   private static SecureRandom rnd;
   private static KeyPair encryptionPair;
   private static SecretKey macKey;
@@ -58,7 +59,10 @@ public class AsymmetricRawMaterialsTest {
 
   @Test
   public void macNoDescription() throws GeneralSecurityException {
-    AsymmetricRawMaterials matEncryption = new AsymmetricRawMaterials(encryptionPair, macKey);
+    AsymmetricRawMaterials matEncryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      macKey
+    );
     assertEquals(macKey, matEncryption.getSigningKey());
     assertEquals(macKey, matEncryption.getVerificationKey());
     assertFalse(matEncryption.getMaterialDescription().isEmpty());
@@ -66,8 +70,11 @@ public class AsymmetricRawMaterialsTest {
     SecretKey envelopeKey = matEncryption.getEncryptionKey();
     assertEquals(envelopeKey, matEncryption.getDecryptionKey());
 
-    AsymmetricRawMaterials matDecryption =
-        new AsymmetricRawMaterials(encryptionPair, macKey, matEncryption.getMaterialDescription());
+    AsymmetricRawMaterials matDecryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      macKey,
+      matEncryption.getMaterialDescription()
+    );
     assertEquals(macKey, matDecryption.getSigningKey());
     assertEquals(macKey, matDecryption.getVerificationKey());
     assertEquals(envelopeKey, matDecryption.getEncryptionKey());
@@ -76,28 +83,43 @@ public class AsymmetricRawMaterialsTest {
 
   @Test
   public void macWithDescription() throws GeneralSecurityException {
-    AsymmetricRawMaterials matEncryption =
-        new AsymmetricRawMaterials(encryptionPair, macKey, description);
+    AsymmetricRawMaterials matEncryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      macKey,
+      description
+    );
     assertEquals(macKey, matEncryption.getSigningKey());
     assertEquals(macKey, matEncryption.getVerificationKey());
     assertFalse(matEncryption.getMaterialDescription().isEmpty());
-    assertEquals("test value", matEncryption.getMaterialDescription().get("TestKey"));
+    assertEquals(
+      "test value",
+      matEncryption.getMaterialDescription().get("TestKey")
+    );
 
     SecretKey envelopeKey = matEncryption.getEncryptionKey();
     assertEquals(envelopeKey, matEncryption.getDecryptionKey());
 
-    AsymmetricRawMaterials matDecryption =
-        new AsymmetricRawMaterials(encryptionPair, macKey, matEncryption.getMaterialDescription());
+    AsymmetricRawMaterials matDecryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      macKey,
+      matEncryption.getMaterialDescription()
+    );
     assertEquals(macKey, matDecryption.getSigningKey());
     assertEquals(macKey, matDecryption.getVerificationKey());
     assertEquals(envelopeKey, matDecryption.getEncryptionKey());
     assertEquals(envelopeKey, matDecryption.getDecryptionKey());
-    assertEquals("test value", matDecryption.getMaterialDescription().get("TestKey"));
+    assertEquals(
+      "test value",
+      matDecryption.getMaterialDescription().get("TestKey")
+    );
   }
 
   @Test
   public void sigNoDescription() throws GeneralSecurityException {
-    AsymmetricRawMaterials matEncryption = new AsymmetricRawMaterials(encryptionPair, sigPair);
+    AsymmetricRawMaterials matEncryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      sigPair
+    );
     assertEquals(sigPair.getPrivate(), matEncryption.getSigningKey());
     assertEquals(sigPair.getPublic(), matEncryption.getVerificationKey());
     assertFalse(matEncryption.getMaterialDescription().isEmpty());
@@ -105,8 +127,11 @@ public class AsymmetricRawMaterialsTest {
     SecretKey envelopeKey = matEncryption.getEncryptionKey();
     assertEquals(envelopeKey, matEncryption.getDecryptionKey());
 
-    AsymmetricRawMaterials matDecryption =
-        new AsymmetricRawMaterials(encryptionPair, sigPair, matEncryption.getMaterialDescription());
+    AsymmetricRawMaterials matDecryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      sigPair,
+      matEncryption.getMaterialDescription()
+    );
     assertEquals(sigPair.getPrivate(), matDecryption.getSigningKey());
     assertEquals(sigPair.getPublic(), matDecryption.getVerificationKey());
     assertEquals(envelopeKey, matDecryption.getEncryptionKey());
@@ -115,22 +140,34 @@ public class AsymmetricRawMaterialsTest {
 
   @Test
   public void sigWithDescription() throws GeneralSecurityException {
-    AsymmetricRawMaterials matEncryption =
-        new AsymmetricRawMaterials(encryptionPair, sigPair, description);
+    AsymmetricRawMaterials matEncryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      sigPair,
+      description
+    );
     assertEquals(sigPair.getPrivate(), matEncryption.getSigningKey());
     assertEquals(sigPair.getPublic(), matEncryption.getVerificationKey());
     assertFalse(matEncryption.getMaterialDescription().isEmpty());
-    assertEquals("test value", matEncryption.getMaterialDescription().get("TestKey"));
+    assertEquals(
+      "test value",
+      matEncryption.getMaterialDescription().get("TestKey")
+    );
 
     SecretKey envelopeKey = matEncryption.getEncryptionKey();
     assertEquals(envelopeKey, matEncryption.getDecryptionKey());
 
-    AsymmetricRawMaterials matDecryption =
-        new AsymmetricRawMaterials(encryptionPair, sigPair, matEncryption.getMaterialDescription());
+    AsymmetricRawMaterials matDecryption = new AsymmetricRawMaterials(
+      encryptionPair,
+      sigPair,
+      matEncryption.getMaterialDescription()
+    );
     assertEquals(sigPair.getPrivate(), matDecryption.getSigningKey());
     assertEquals(sigPair.getPublic(), matDecryption.getVerificationKey());
     assertEquals(envelopeKey, matDecryption.getEncryptionKey());
     assertEquals(envelopeKey, matDecryption.getDecryptionKey());
-    assertEquals("test value", matDecryption.getMaterialDescription().get("TestKey"));
+    assertEquals(
+      "test value",
+      matDecryption.getMaterialDescription().get("TestKey")
+    );
   }
 }

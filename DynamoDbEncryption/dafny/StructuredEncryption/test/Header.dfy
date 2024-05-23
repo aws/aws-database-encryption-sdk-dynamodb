@@ -19,6 +19,7 @@ module TestHeader {
   import opened UTF8
   import Aws.Cryptography.Primitives
   import AlgorithmSuites
+  import Canonize
 
   method {:test} TestRoundTrip() {
     var head := PartialHeader (
@@ -136,7 +137,7 @@ module TestHeader {
       MakeCrypto("pqr", DO_NOTHING)
     ];
     var tableName : GoodString := "name";
-    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var canonSchema :- expect Canonize.ForEncrypt(tableName, schemaMap);
     var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
@@ -158,7 +159,7 @@ module TestHeader {
       MakeCrypto("zzzz", DO_NOTHING)
     ];
     var tableName : GoodString := "name";
-    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var canonSchema :- expect Canonize.ForEncrypt(tableName, schemaMap);
     var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test
@@ -180,7 +181,7 @@ module TestHeader {
       MakeCrypto("aaaa", SIGN_ONLY)
     ];
     var tableName : GoodString := "name";
-    var canonSchema :- expect OPS.CanonizeForEncrypt(tableName, schemaMap);
+    var canonSchema :- expect Canonize.ForEncrypt(tableName, schemaMap);
     var legend :- expect MakeLegend(canonSchema);
     //= specification/structured-encryption/header.md#encrypt-legend-bytes
     //= type=test

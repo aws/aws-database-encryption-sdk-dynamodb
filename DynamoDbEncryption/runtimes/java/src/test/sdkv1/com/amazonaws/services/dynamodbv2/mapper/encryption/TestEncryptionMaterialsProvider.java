@@ -22,43 +22,42 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-public class TestEncryptionMaterialsProvider implements EncryptionMaterialsProvider {
-  private final EncryptionMaterials em =
-      new EncryptionMaterials() {
-        @Override
-        public Map<String, String> getMaterialDescription() {
-          return new StringMapBuilder("id", "test").build();
-        }
+public class TestEncryptionMaterialsProvider
+  implements EncryptionMaterialsProvider {
 
-        @Override
-        public SecretKey getEncryptionKey() {
-          return new SecretKeySpec(new byte[32], "AES");
-        }
+  private final EncryptionMaterials em = new EncryptionMaterials() {
+    @Override
+    public Map<String, String> getMaterialDescription() {
+      return new StringMapBuilder("id", "test").build();
+    }
 
-        @Override
-        public Key getSigningKey() {
-          return new SecretKeySpec(new byte[32], "HmacSHA256");
-        }
-      };
+    @Override
+    public SecretKey getEncryptionKey() {
+      return new SecretKeySpec(new byte[32], "AES");
+    }
 
-  private final DecryptionMaterials dm =
-      new DecryptionMaterials() {
+    @Override
+    public Key getSigningKey() {
+      return new SecretKeySpec(new byte[32], "HmacSHA256");
+    }
+  };
 
-        @Override
-        public Map<String, String> getMaterialDescription() {
-          return new StringMapBuilder("id", "test").build();
-        }
+  private final DecryptionMaterials dm = new DecryptionMaterials() {
+    @Override
+    public Map<String, String> getMaterialDescription() {
+      return new StringMapBuilder("id", "test").build();
+    }
 
-        @Override
-        public SecretKey getDecryptionKey() {
-          return new SecretKeySpec(new byte[32], "AES");
-        }
+    @Override
+    public SecretKey getDecryptionKey() {
+      return new SecretKeySpec(new byte[32], "AES");
+    }
 
-        @Override
-        public Key getVerificationKey() {
-          return new SecretKeySpec(new byte[32], "HmacSHA256");
-        }
-      };
+    @Override
+    public Key getVerificationKey() {
+      return new SecretKeySpec(new byte[32], "HmacSHA256");
+    }
+  };
 
   @Override
   public DecryptionMaterials getDecryptionMaterials(EncryptionContext context) {

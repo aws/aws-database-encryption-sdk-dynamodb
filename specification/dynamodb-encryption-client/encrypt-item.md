@@ -57,6 +57,7 @@ This operation MUST output the following:
 - [Encrypted DynamoDB Item](#encrypted-dynamodb-item)
 
 This operation MUST also output a [Parsed Header](#parsed-header) if the following is true:
+
 - The operation is not using a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) that allows legacy decrypts,
   and the input item is a [legacy item](./decrypt-item.md#determining-legacy-items).
 - The operation is not using a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) that allows plaintext reads,
@@ -106,6 +107,7 @@ which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#d
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
+
 - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context)
 
@@ -113,6 +115,7 @@ Given the converted [Structured Data](../structured-encryption/structures.md#str
 this operation MUST delegate encryption of this data to
 Structured Encryption Client's [Encrypt Structure](../structured-encryption/encrypt-structure.md),
 with the following inputs:
+
 - Structured Data MUST be the Structured Data converted above.
 - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
   analogous to the [configured Attribute Actions](./ddb-table-encryption-config.md#attribute-actions).
@@ -145,12 +148,14 @@ A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
 The DynamoDB Item Base Context MUST contain:
+
 - the key "aws-crypto-table-name" with a value equal to the configured
   [logical table name](./ddb-table-encryption-config.md#logical-table-name).
 - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
 - the [value](#base-context-value-version-1) of the Partition Key.
 
 If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
+
 - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name).
 - the [value](#base-context-value-version-1) of the Sort Key.
 
@@ -163,11 +168,13 @@ A DynamoDB Item Base Context is a map of string key-values pairs
 that contains information related to a particular DynamoDB Item.
 
 The DynamoDB Item Base Context MUST contain:
+
 - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name of the DynamoDB Table
-    this item is stored in (or will be stored in).
+  this item is stored in (or will be stored in).
 - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key on this item.
 
 If this item has a Sort Key attribute, the DynamoDB Item Base Context MUST contain:
+
 - the key "aws-crypto-sort-name" with a value equal to the [DynamoDB Sort Key Name](./ddb-table-encryption-config.md#dynamodb-sort-key-name).
 
 If this item does not have a sort key attribute,
@@ -191,6 +198,7 @@ The key MUST be as per [Encryption Context Naming]
 (../structured-encryption/encrypt-path-structure.md#encryption-context-naming).
 
 The value MUST be :
+
 - If the type is Number or String, the unaltered (already utf8) bytes of the value
 - If the type if Null, the string "null"
 - If the type is Boolean, then the string "true" for true and the string "false" for false.
