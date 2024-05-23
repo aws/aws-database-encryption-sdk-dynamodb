@@ -179,8 +179,11 @@ module
     else
       DDBE.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;      
 
+    :- Need((cmpClient as object) is MaterialProviders.MaterialProvidersClient, DynamoDbItemEncryptorException(
+      message := "Needs a MaterialProvidersClient"
+    ));
     var internalConfig := Operations.Config(
-      cmpClient := cmpClient,
+      cmpClient := (cmpClient as object) as MaterialProviders.MaterialProvidersClient,
       logicalTableName := config.logicalTableName,
       partitionKeyName := config.partitionKeyName,
       sortKeyName := config.sortKeyName,

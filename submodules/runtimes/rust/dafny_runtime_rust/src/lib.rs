@@ -3403,24 +3403,34 @@ macro_rules! maybe_placebos_from {
 // Coercion
 ////////////////
 
-// To use this trait, one needs to clone the element before.
+// For converting a datatype like Option<T> to an Option<Z> (still same type, arguments are changed)
+
+// For converting any value to a trait representation.
 pub trait UpcastTo<U>: Clone {
     fn upcast_to(self) -> U;
 }
 
-#[macro_export]
-macro_rules! UpcastTo {
-    ($from:ty, $to:ty) => {
-        impl $crate::UpcastTo<*mut $to> for & $from {
-            fn upcast_to(self) -> *mut $to {
-                self as *const $to as *mut $to
-            }
-        }
-    };
+
+pub fn upcast<A, B>() -> Rc<impl Fn(A) -> B>
+  where A : UpcastTo<B>
+{
+    Rc::new(|x: A| x.upcast_to())
 }
+
+pub fn rc_coerce<T: Clone, U: Clone>(f: Rc<impl Fn(T) -> U>) -> Rc<impl Fn(Rc<T>) -> Rc<U>> {
+    Rc::new(move |x: Rc<T>| Rc::new(f.as_ref()(x.as_ref().clone())))
+}
+pub fn box_coerce<T: Clone, U: Clone>(f: Box<impl Fn(T) -> U>) -> Box<impl Fn(Box<T>) -> Box<U>> {
+    Box::new(move |x: Box<T>| Box::new(f.as_ref()(x.as_ref().clone())))
+}
+
 use nightly_crimes::nightly_crimes;
 nightly_crimes! {
     #![feature(unsize)]
+    // To be used like UpcastTo::<Rc<dyn SomeType>>::upcast_to(x: Rc<StructType>)
+    //   if impl SomeType for StructType {} exists
+    // But also like  UpcastTo::<Rc<dyn SomeHyperType>>::upcast_to(x: Rc<dyn SomeType>)
+    //   if trait SomeType: SomeHyperType { ... } exists
     impl<From, To> UpcastTo<::std::rc::Rc<To>> for ::std::rc::Rc<From>
     where
         From: ?Sized + core::marker::Unsize<To>,
@@ -3430,23 +3440,15 @@ nightly_crimes! {
         self as ::std::rc::Rc<To>
         }
     }
-}
-
-#[macro_export]
-macro_rules! UpcastToRc {
-    ($from:ty, $to:ty) => {
-        impl $crate::UpcastTo<::std::rc::Rc<$to>> for ::std::rc::Rc<$from> {
-            fn upcast_to(&self) -> ::std::rc::Rc<$to> {
-                (*self) as *const $to as *mut $to
-            }
+    // UpcastTo for pointers
+    impl<From, To> UpcastTo<*mut To> for *mut From
+    where
+        From: 'static + ?Sized + core::marker::Unsize<To>,
+        To: ?Sized,
+    {
+        fn upcast_to(self) -> *mut To {
+            self as *const To as *mut To
         }
-    };
-}
-
-// UpcastTo for pointers
-impl<T: 'static> UpcastTo<*mut dyn Any> for *mut T {
-    fn upcast_to(self) -> *mut dyn Any {
-        self as *const dyn Any as *mut dyn Any
     }
 }
 
@@ -3462,66 +3464,66 @@ where
 }
 
 // UpcastTo for sets
-impl<V, U> UpcastTo<Set<V>> for Set<U>
-where
-    V: DafnyTypeEq,
-    U: DafnyTypeEq + UpcastTo<V>,
+impl<U: DafnyTypeEq> Set<U>
 {
-    fn upcast_to(self) -> Set<V> {
-        // We need to upcast individual elements
-        let mut new_set: HashSet<V> = HashSet::<V>::default();
-        for value in self.data.iter() {
-            new_set.insert(value.clone().upcast_to());
-        }
-        Set::from_hashset_owned(new_set)
+    pub fn coerce<V: DafnyTypeEq>(f: Rc<impl Fn(U) -> V>) -> Rc<impl Fn(Set<U>) -> Set<V>> {
+        Rc::new(move |x: Set<U>| {
+            // We need to upcast individual elements
+            let f2 = f.clone();
+            let mut new_set: HashSet<V> = HashSet::<V>::default();
+            for value in x.data.iter() {
+                new_set.insert(f2(value.clone()));
+            }
+            Set::from_hashset_owned(new_set)
+        })
     }
 }
 
 // UpcastTo for sequences
-impl<V, U> UpcastTo<Sequence<V>> for Sequence<U>
-where
-    V: DafnyTypeEq,
-    U: DafnyTypeEq + UpcastTo<V>,
+impl<U: DafnyType> Sequence<U>
 {
-    fn upcast_to(self) -> Sequence<V> {
+    pub fn coerce<V: DafnyType>(f: Rc<impl Fn(U) -> V>) -> Rc<impl Fn(Sequence<U>) -> Sequence<V>> {
         // We need to upcast individual elements
-        let mut new_seq: Vec<V> = Vec::<V>::default();
-        for value in self.to_array().iter() {
-            new_seq.push(value.clone().upcast_to());
-        }
-        Sequence::from_array_owned(new_seq)
+        Rc::new(move |x: Sequence<U>| {
+            let mut new_seq: Vec<V> = Vec::<V>::default();
+            let f2 = f.clone();
+            for value in x.to_array().iter() {
+                new_seq.push(f2(value.clone()));
+            }
+            Sequence::from_array_owned(new_seq)
+        })
     }
 }
 
 // Upcast for multisets
-impl<V, U> UpcastTo<Multiset<V>> for Multiset<U>
-where
-    V: DafnyTypeEq,
-    U: DafnyTypeEq + UpcastTo<V>,
+impl<U: DafnyTypeEq> Multiset<U>
 {
-    fn upcast_to(self) -> Multiset<V> {
+    pub fn coerce<V: DafnyTypeEq>(f: Rc<impl Fn(U) -> V>) -> Rc<impl Fn(Multiset<U>) -> Multiset<V>> {
         // We need to upcast individual elements
-        let mut new_multiset: HashMap<V, DafnyInt> = HashMap::<V, DafnyInt>::default();
-        for (value, count) in self.data.into_iter() {
-            new_multiset.insert(value.upcast_to(), count.clone());
-        }
-        Multiset::from_hashmap_owned(new_multiset)
+        Rc::new(move |x: Multiset<U>| {
+                let f2 = f.clone();
+            // We need to upcast individual elements
+            let mut new_multiset: HashMap<V, DafnyInt> = HashMap::<V, DafnyInt>::default();
+            for (value, count) in x.data.into_iter() {
+                new_multiset.insert(f2(value), count.clone());
+            }
+            Multiset::from_hashmap_owned(new_multiset)
+        })
     }
 }
 
 // Upcast for Maps
-impl<K, U, V> UpcastTo<Map<K, V>> for Map<K, U>
-where
-    K: DafnyTypeEq,
-    U: DafnyTypeEq + UpcastTo<V>,
-    V: DafnyTypeEq,
+impl<K: DafnyTypeEq, U: DafnyTypeEq> Map<K, U>
 {
-    fn upcast_to(self) -> Map<K, V> {
+    pub fn coerce<V: DafnyTypeEq>(f: Rc<impl Fn(U) -> V>) -> Rc<impl Fn(Map<K, U>) -> Map<K, V>> {
         // We need to upcast individual elements
-        let mut new_map: HashMap<K, V> = HashMap::<K, V>::default();
-        for (key, value) in self.data.iter() {
-            new_map.insert(key.clone(), value.clone().upcast_to());
-        }
-        Map::from_hashmap_owned(new_map)
+        Rc::new(move |x: Map<K, U>| {
+            let f2 = f.clone();
+            let mut new_map: HashMap<K, V> = HashMap::<K, V>::default();
+            for (key, value) in x.data.iter() {
+                new_map.insert(key.clone(), f2(value.clone()));
+            }
+            Map::from_hashmap_owned(new_map)
+        })
     }
 }

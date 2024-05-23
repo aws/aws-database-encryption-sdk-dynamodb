@@ -45,7 +45,7 @@ impl ExternDigest::_default {
 
 impl RSAEncryption_dRSA::_default {
   #[allow(non_snake_case)]
-  pub fn GenerateKeyPairExtern(_lengthBits: &::dafny_runtime::DafnyInt) -> (::dafny_runtime::Sequence<u8>, ::dafny_runtime::Sequence<u8>) {
+  pub fn GenerateKeyPairExtern(_lengthBits: i32) -> (::dafny_runtime::Sequence<u8>, ::dafny_runtime::Sequence<u8>) {
     panic!("RSAEncryption_dRSA::GenerateKeyPairExtern not implemented");
   }
   #[allow(non_snake_case)]
@@ -221,4 +221,9 @@ pub mod r#_software_damazon_dcryptography_dinternaldafny_dStormTrackingCMC {
   impl StormTrackingCMC {
 
   }
+}
+
+pub mod r#_software_damazon_dcryptography_dinternaldafny_dSynchronizedLocalCMC {
+  pub struct SynchronizedLocalCMC {}
+
 }

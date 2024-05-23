@@ -179,7 +179,8 @@ module SearchConfigToInfo {
 
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
-    var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
+    :- Need((primitives as object) is Primitives.AtomicPrimitivesClient, E("Primitives must return an atomic client"));
+    var source :- MakeKeySource(outer, config.keyStore, config.keySource, (primitives as object) as Primitives.AtomicPrimitivesClient);
     output := ConvertVersionWithSource(outer, config, source);
   }
 

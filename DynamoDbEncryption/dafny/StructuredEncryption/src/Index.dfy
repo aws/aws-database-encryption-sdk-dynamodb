@@ -22,9 +22,11 @@ module
   {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
+    :- Need((primitives as object) is Primitives.AtomicPrimitivesClient, StructuredEncryptionException(message := "Primitives must return an atomic client"));
     var maybeMatProv := MaterialProviders.MaterialProviders();
     var matProv :- maybeMatProv.MapFailure(e => AwsCryptographyMaterialProviders(e));
-    var client := new StructuredEncryptionClient(Operations.Config(primitives := primitives, materialProviders := matProv));
+    :- Need((matProv as object) is MaterialProviders.MaterialProvidersClient, StructuredEncryptionException(message := "matProv must return an providers client"));
+    var client := new StructuredEncryptionClient(Operations.Config(primitives := (primitives as object) as Primitives.AtomicPrimitivesClient, materialProviders := (matProv as object) as MaterialProviders.MaterialProvidersClient));
     return Success(client);
   }
 
