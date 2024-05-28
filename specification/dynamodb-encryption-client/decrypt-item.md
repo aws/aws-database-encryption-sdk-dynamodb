@@ -52,6 +52,7 @@ This operation MUST output the following:
 - [DynamoDb Item](#output-dynamodb-item)
 
 This operation MUST also output a [Parsed Header](#parsed-header) if the following is true:
+
 - The operation is not using a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) that allows legacy decrypts,
   and the input item is a [legacy item](#determining-legacy-items).
 - The operation is not using a [Plaintext Policy](./ddb-table-encryption-config.md#plaintext-policy) that allows plaintext reads,
@@ -104,6 +105,7 @@ which is [converted](./ddb-item-conversion.md) from the [input DynamoDB Item](#i
 This operation MUST create a
 [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
+
 - This item encryptor's [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The keys from the [DynamoDB Item Base Context](#dynamodb-item-base-context).
 
@@ -111,6 +113,7 @@ Given the converted [Structured Data](../structured-encryption/structures.md#str
 this operation MUST delegate decryption of this data to
 Structured Encryption Client's [Decrypt Structure](../structured-encryption/encrypt-structure.md),
 with the following inputs:
+
 - Encrypted Structured Data MUST be the Structured Data converted above.
 - Authenticate Schema MUST be a [Authenticate Schema](../structured-encryption/structures.md#crypto-schema)
   built with the following requirements:
@@ -169,7 +172,7 @@ this operation MUST yield an error.
 
 An item MUST be determined to be encrypted under the legacy format if it contains
 attributes for the material description and the signature.
-These are usually "*amzn-ddb-map-desc*" and "*amzn-ddb-map-sig*" respectively,
+These are usually "_amzn-ddb-map-desc_" and "_amzn-ddb-map-sig_" respectively,
 although the DynamoDbEncryptor allows callers to configure custom names for these attributes.
 
 ### Determining Plaintext Items

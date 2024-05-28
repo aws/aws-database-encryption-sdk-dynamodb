@@ -67,13 +67,14 @@ A CMM that implements the [CMM interface](../../submodules/MaterialProviders/aws
 See [encryption context](./structures.md#encryption-context).
 
 In order for decryption to succeed:
+
 - This MUST include any key-values pairs that were used during the original [encryption](./encrypt-path-structure.md)
-of the [input data](#auth-list),
-but not stored in the [input Structured Data's header](./header.md#encryption-context).
+  of the [input data](#auth-list),
+  but not stored in the [input Structured Data's header](./header.md#encryption-context).
 - This MAY include any key-values pairs that are stored
-in the [input Structured Data's header](./header.md#encryption-context).
+  in the [input Structured Data's header](./header.md#encryption-context).
 - This MUST NOT include any key-values pairs that were not
-used during the original [encryption](./encrypt-structure.md) of the [input data](#auth-list).
+  used during the original [encryption](./encrypt-structure.md) of the [input data](#auth-list).
 
 ## Output
 
@@ -130,6 +131,7 @@ which is determined based on the input [Authentication Schema](#auth-list) and t
 parsed [Encrypt Legend](./header.md#encrypt-legend) in the header,
 such that for each [Terminal Data](./structures.md#terminal-data)
 in the [input Structured Data](#auth-list):
+
 - The Crypto Action is [DO_NOTHING](./structures.md#DO_NOTHING) if
   the Authentication Schema indicates [DO_NOT_SIGN](./structures.md#donotsign) for this Terminal Data.
 - The Crypto Action is [SIGN_ONLY](./structures.md#signonly) if
@@ -151,6 +153,7 @@ This operation MUST obtain a set of decryption materials by calling
 on the [CMM](#cmm) calculated above.
 
 The call to the CMM's Decrypt Materials operation MUST be constructed as follows:
+
 - Encryption Context: The [Encryption Context parsed from the header](./header.md#encryption-context).
 - Algorithm Suite ID: The algorithm suite [indicated by the Message Format Flavor](./header.md#format-flavor)
   parsed in the header.
@@ -182,6 +185,7 @@ have the same key as any entry already in the encryption context.
 
 Then, this operation MUST create a [Required Encryption Context CMM](https://github.com/awslabs/private-aws-encryption-sdk-specification-staging/blob/dafny-verified/framework/required-encryption-context-cmm.md)
 with the following inputs:
+
 - This input [CMM](./ddb-table-encryption-config.md#cmm) as the underlying CMM.
 - The name of every entry added above.
 
@@ -208,6 +212,7 @@ The Cipherkey and Nonce must be calculated as for [encryption](encrypt-structure
 ### Construct Decrypted Structured Data
 
 In the output a [Crypto List](./structures.md#crypto-list):
+
 - An entry MUST NOT exist with the key "aws_dbe_head" or "aws_dbe_foot".
 - For every entry in the [input Auth List](#auth-list), other than the header and footer,
   an entry MUST exist with the same key in the output Crypto List.
@@ -234,16 +239,17 @@ encrypted Terminal Data as input, and returns a Terminal Data.
 
 The input [Terminal Value](./structures.md#terminal-value) MUST be deserialized as follows:
 
-| Field                      | Length   |
-| -------------------------- | -------- |
-| Terminal Type Id           | 2        |
-| Encrypted Terminal Value   | Variable |
+| Field                    | Length   |
+| ------------------------ | -------- |
+| Terminal Type Id         | 2        |
+| Encrypted Terminal Value | Variable |
 
 The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
 equal to the deserialized Terminal Type Id.
 
 The output Terminal Data MUST have a [Terminal Value](./structures.md#terminal-type-id)
 equal to the following decryption:
+
 - The decryption algorithm used is the
   [encryption algorithm](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings)
   indicated in the algorithm suite.

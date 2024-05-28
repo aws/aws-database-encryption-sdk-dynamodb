@@ -37,12 +37,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** Tests simple string attributes */
-public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class SimpleStringAttributesITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   private static final String ORIGINAL_NAME_ATTRIBUTE = "originalName";
   private static final String STRING_ATTRIBUTE = "stringAttribute";
-  private static final List<Map<String, AttributeValue>> attrs =
-      new LinkedList<Map<String, AttributeValue>>();
+  private static final List<Map<String, AttributeValue>> attrs = new LinkedList<
+    Map<String, AttributeValue>
+  >();
 
   // Test data
   static {
@@ -50,19 +52,24 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
       Map<String, AttributeValue> attr = new HashMap<String, AttributeValue>();
       attr.put(KEY_NAME, new AttributeValue().withS("" + startKey++));
       attr.put(STRING_ATTRIBUTE, new AttributeValue().withS("" + startKey++));
-      attr.put(ORIGINAL_NAME_ATTRIBUTE, new AttributeValue().withS("" + startKey++));
+      attr.put(
+        ORIGINAL_NAME_ATTRIBUTE,
+        new AttributeValue().withS("" + startKey++)
+      );
       attrs.add(attr);
     }
   }
-  ;
 
   @BeforeClass
   public static void setUp() throws Exception {
     DynamoDBMapperCryptoIntegrationTestBase.setUp();
-    DynamoDBEncryptor encryptor =
-        DynamoDBEncryptor.getInstance(new TestEncryptionMaterialsProvider());
-    EncryptionContext context =
-        new EncryptionContext.Builder().withHashKeyName(KEY_NAME).withTableName(TABLE_NAME).build();
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+      new TestEncryptionMaterialsProvider()
+    );
+    EncryptionContext context = new EncryptionContext.Builder()
+      .withHashKeyName(KEY_NAME)
+      .withTableName(TABLE_NAME)
+      .build();
     // Insert the data
     for (Map<String, AttributeValue> attr : attrs) {
       attr = encryptor.encryptAllFieldsExcept(attr, context, KEY_NAME);
@@ -72,32 +79,46 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
 
   @Test
   public void testLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     for (Map<String, AttributeValue> attr : attrs) {
-      StringAttributeTestClass x =
-          util.load(StringAttributeTestClass.class, attr.get(KEY_NAME).getS());
+      StringAttributeTestClass x = util.load(
+        StringAttributeTestClass.class,
+        attr.get(KEY_NAME).getS()
+      );
       assertEquals(x.getKey(), attr.get(KEY_NAME).getS());
       assertEquals(x.getStringAttribute(), attr.get(STRING_ATTRIBUTE).getS());
-      assertEquals(x.getRenamedAttribute(), attr.get(ORIGINAL_NAME_ATTRIBUTE).getS());
+      assertEquals(
+        x.getRenamedAttribute(),
+        attr.get(ORIGINAL_NAME_ATTRIBUTE).getS()
+      );
     }
   }
 
   @Test
   public void testSave() {
-    List<StringAttributeTestClass> objs = new ArrayList<StringAttributeTestClass>();
+    List<StringAttributeTestClass> objs = new ArrayList<
+      StringAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       StringAttributeTestClass obj = getUniqueObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (StringAttributeTestClass obj : objs) {
       util.save(obj);
     }
 
     for (StringAttributeTestClass obj : objs) {
-      StringAttributeTestClass loaded = util.load(StringAttributeTestClass.class, obj.getKey());
+      StringAttributeTestClass loaded = util.load(
+        StringAttributeTestClass.class,
+        obj.getKey()
+      );
       assertEquals(obj, loaded);
     }
   }
@@ -107,7 +128,9 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
   public void testIncompleteObject() {
     StringAttributeTestClass obj = getUniqueObject();
     obj.setStringAttribute(null);
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     util.save(obj);
 
     assertEquals(obj, util.load(StringAttributeTestClass.class, obj.getKey()));
@@ -121,13 +144,17 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
 
   @Test
   public void testUpdate() {
-    List<StringAttributeTestClass> objs = new ArrayList<StringAttributeTestClass>();
+    List<StringAttributeTestClass> objs = new ArrayList<
+      StringAttributeTestClass
+    >();
     for (int i = 0; i < 5; i++) {
       StringAttributeTestClass obj = getUniqueObject();
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (StringAttributeTestClass obj : objs) {
       util.save(obj);
     }
@@ -137,7 +164,10 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
       replacement.setKey(obj.getKey());
       util.save(replacement);
 
-      assertEquals(replacement, util.load(StringAttributeTestClass.class, obj.getKey()));
+      assertEquals(
+        replacement,
+        util.load(StringAttributeTestClass.class, obj.getKey())
+      );
     }
   }
 
@@ -145,12 +175,16 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
   public void testSaveOnlyKey() {
     KeyOnly obj = new KeyOnly();
     obj.setKey("" + startKey++);
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj);
 
-    KeyOnly loaded =
-        mapper.load(
-            KeyOnly.class, obj.getKey(), new DynamoDBMapperConfig(ConsistentReads.CONSISTENT));
+    KeyOnly loaded = mapper.load(
+      KeyOnly.class,
+      obj.getKey(),
+      new DynamoDBMapperConfig(ConsistentReads.CONSISTENT)
+    );
     assertEquals(obj, loaded);
 
     // saving again shouldn't be an error
@@ -161,12 +195,16 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
   public void testSaveOnlyKeyClobber() {
     KeyOnly obj = new KeyOnly();
     obj.setKey("" + startKey++);
-    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper mapper = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     mapper.save(obj, new DynamoDBMapperConfig(SaveBehavior.CLOBBER));
 
-    KeyOnly loaded =
-        mapper.load(
-            KeyOnly.class, obj.getKey(), new DynamoDBMapperConfig(ConsistentReads.CONSISTENT));
+    KeyOnly loaded = mapper.load(
+      KeyOnly.class,
+      obj.getKey(),
+      new DynamoDBMapperConfig(ConsistentReads.CONSISTENT)
+    );
     assertEquals(obj, loaded);
 
     // saving again shouldn't be an error
@@ -175,6 +213,7 @@ public class SimpleStringAttributesITCase extends DynamoDBMapperCryptoIntegratio
 
   @DynamoDBTable(tableName = "aws-java-sdk-util-crypto")
   public static final class KeyOnly {
+
     private String key;
 
     @DynamoDBHashKey

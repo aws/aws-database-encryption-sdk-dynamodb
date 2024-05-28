@@ -43,6 +43,7 @@ import javax.crypto.SecretKey;
  * @author Greg Rubin
  */
 public class WrappedRawMaterials extends AbstractRawMaterials {
+
   /**
    * The key-name in the Description which contains the algorithm use to wrap content key. Example
    * values are "AESWrap", or "RSA/ECB/OAEPWithSHA-256AndMGF1Padding".
@@ -62,28 +63,50 @@ public class WrappedRawMaterials extends AbstractRawMaterials {
   protected final Key unwrappingKey;
   private final SecretKey envelopeKey;
 
-  public WrappedRawMaterials(Key wrappingKey, Key unwrappingKey, KeyPair signingPair)
-      throws GeneralSecurityException {
-    this(wrappingKey, unwrappingKey, signingPair, Collections.<String, String>emptyMap());
+  public WrappedRawMaterials(
+    Key wrappingKey,
+    Key unwrappingKey,
+    KeyPair signingPair
+  ) throws GeneralSecurityException {
+    this(
+      wrappingKey,
+      unwrappingKey,
+      signingPair,
+      Collections.<String, String>emptyMap()
+    );
   }
 
   public WrappedRawMaterials(
-      Key wrappingKey, Key unwrappingKey, KeyPair signingPair, Map<String, String> description)
-      throws GeneralSecurityException {
+    Key wrappingKey,
+    Key unwrappingKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) throws GeneralSecurityException {
     super(signingPair, description);
     this.wrappingKey = wrappingKey;
     this.unwrappingKey = unwrappingKey;
     this.envelopeKey = initEnvelopeKey();
   }
 
-  public WrappedRawMaterials(Key wrappingKey, Key unwrappingKey, SecretKey macKey)
-      throws GeneralSecurityException {
-    this(wrappingKey, unwrappingKey, macKey, Collections.<String, String>emptyMap());
+  public WrappedRawMaterials(
+    Key wrappingKey,
+    Key unwrappingKey,
+    SecretKey macKey
+  ) throws GeneralSecurityException {
+    this(
+      wrappingKey,
+      unwrappingKey,
+      macKey,
+      Collections.<String, String>emptyMap()
+    );
   }
 
   public WrappedRawMaterials(
-      Key wrappingKey, Key unwrappingKey, SecretKey macKey, Map<String, String> description)
-      throws GeneralSecurityException {
+    Key wrappingKey,
+    Key unwrappingKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) throws GeneralSecurityException {
     super(macKey, description);
     this.wrappingKey = wrappingKey;
     this.unwrappingKey = unwrappingKey;
@@ -123,15 +146,13 @@ public class WrappedRawMaterials extends AbstractRawMaterials {
       }
       return unwrapKey(description, encryptedKey, wrappingAlgorithm);
     } else {
-      SecretKey key =
-          description.containsKey(CONTENT_KEY_ALGORITHM)
-              ? generateContentKey(description.get(CONTENT_KEY_ALGORITHM))
-              : generateContentKey(DEFAULT_ALGORITHM);
+      SecretKey key = description.containsKey(CONTENT_KEY_ALGORITHM)
+        ? generateContentKey(description.get(CONTENT_KEY_ALGORITHM))
+        : generateContentKey(DEFAULT_ALGORITHM);
 
-      String wrappingAlg =
-          description.containsKey(KEY_WRAPPING_ALGORITHM)
-              ? description.get(KEY_WRAPPING_ALGORITHM)
-              : getTransformation(wrappingKey.getAlgorithm());
+      String wrappingAlg = description.containsKey(KEY_WRAPPING_ALGORITHM)
+        ? description.get(KEY_WRAPPING_ALGORITHM)
+        : getTransformation(wrappingKey.getAlgorithm());
       byte[] encryptedKey = wrapKey(key, wrappingAlg);
       description.put(ENVELOPE_KEY, Base64.encodeToString(encryptedKey));
       description.put(CONTENT_KEY_ALGORITHM, key.getAlgorithm());
@@ -142,8 +163,7 @@ public class WrappedRawMaterials extends AbstractRawMaterials {
   }
 
   public byte[] wrapKey(SecretKey key, String wrappingAlg)
-      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-          IllegalBlockSizeException {
+    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException {
     if (wrappingKey instanceof DelegatedKey) {
       return ((DelegatedKey) wrappingKey).wrap(key, null, wrappingAlg);
     } else {
@@ -155,17 +175,19 @@ public class WrappedRawMaterials extends AbstractRawMaterials {
   }
 
   protected SecretKey unwrapKey(
-      Map<String, String> description, byte[] encryptedKey, String wrappingAlgorithm)
-      throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    Map<String, String> description,
+    byte[] encryptedKey,
+    String wrappingAlgorithm
+  )
+    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
     if (unwrappingKey instanceof DelegatedKey) {
-      return (SecretKey)
-          ((DelegatedKey) unwrappingKey)
-              .unwrap(
-                  encryptedKey,
-                  description.get(CONTENT_KEY_ALGORITHM),
-                  Cipher.SECRET_KEY,
-                  null,
-                  wrappingAlgorithm);
+      return (SecretKey) ((DelegatedKey) unwrappingKey).unwrap(
+          encryptedKey,
+          description.get(CONTENT_KEY_ALGORITHM),
+          Cipher.SECRET_KEY,
+          null,
+          wrappingAlgorithm
+        );
     } else {
       Cipher cipher = Cipher.getInstance(wrappingAlgorithm);
 
@@ -175,11 +197,16 @@ public class WrappedRawMaterials extends AbstractRawMaterials {
       String contentKeyAlgorithm = algPieces[0];
 
       cipher.init(Cipher.UNWRAP_MODE, unwrappingKey, Utils.getRng());
-      return (SecretKey) cipher.unwrap(encryptedKey, contentKeyAlgorithm, Cipher.SECRET_KEY);
+      return (SecretKey) cipher.unwrap(
+        encryptedKey,
+        contentKeyAlgorithm,
+        Cipher.SECRET_KEY
+      );
     }
   }
 
-  protected SecretKey generateContentKey(final String algorithm) throws NoSuchAlgorithmException {
+  protected SecretKey generateContentKey(final String algorithm)
+    throws NoSuchAlgorithmException {
     String[] pieces = algorithm.split("/", 2);
     KeyGenerator kg = KeyGenerator.getInstance(pieces[0]);
     int keyLen = 0;

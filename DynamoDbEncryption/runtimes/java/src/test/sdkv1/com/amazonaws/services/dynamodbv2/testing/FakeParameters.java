@@ -24,41 +24,59 @@ import java.util.Collections;
 import java.util.Map;
 
 public class FakeParameters<T> {
+
   public static <T> AttributeTransformer.Parameters<T> getInstance(
-      Class<T> clazz,
-      Map<String, AttributeValue> attribs,
-      DynamoDBMapperConfig config,
-      String tableName,
-      String hashKeyName,
-      String rangeKeyName) {
-    return getInstance(clazz, attribs, config, tableName, hashKeyName, rangeKeyName, false);
+    Class<T> clazz,
+    Map<String, AttributeValue> attribs,
+    DynamoDBMapperConfig config,
+    String tableName,
+    String hashKeyName,
+    String rangeKeyName
+  ) {
+    return getInstance(
+      clazz,
+      attribs,
+      config,
+      tableName,
+      hashKeyName,
+      rangeKeyName,
+      false
+    );
   }
 
   public static <T> AttributeTransformer.Parameters<T> getInstance(
-      Class<T> clazz,
-      Map<String, AttributeValue> attribs,
-      DynamoDBMapperConfig config,
-      String tableName,
-      String hashKeyName,
-      String rangeKeyName,
-      boolean isPartialUpdate) {
-
+    Class<T> clazz,
+    Map<String, AttributeValue> attribs,
+    DynamoDBMapperConfig config,
+    String tableName,
+    String hashKeyName,
+    String rangeKeyName,
+    boolean isPartialUpdate
+  ) {
     // We use this relatively insane proxy setup so that modifications to the Parameters
     // interface doesn't break our tests (unless it actually impacts our code).
-    FakeParameters<T> fakeParams =
-        new FakeParameters<T>(
-            clazz, attribs, config, tableName, hashKeyName, rangeKeyName, isPartialUpdate);
+    FakeParameters<T> fakeParams = new FakeParameters<T>(
+      clazz,
+      attribs,
+      config,
+      tableName,
+      hashKeyName,
+      rangeKeyName,
+      isPartialUpdate
+    );
     @SuppressWarnings("unchecked")
     AttributeTransformer.Parameters<T> proxyObject =
-        (AttributeTransformer.Parameters<T>)
-            Proxy.newProxyInstance(
-                AttributeTransformer.class.getClassLoader(),
-                new Class[] {AttributeTransformer.Parameters.class},
-                new ParametersInvocationHandler<T>(fakeParams));
+      (AttributeTransformer.Parameters<T>) Proxy.newProxyInstance(
+        AttributeTransformer.class.getClassLoader(),
+        new Class[] { AttributeTransformer.Parameters.class },
+        new ParametersInvocationHandler<T>(fakeParams)
+      );
     return proxyObject;
   }
 
-  private static class ParametersInvocationHandler<T> implements InvocationHandler {
+  private static class ParametersInvocationHandler<T>
+    implements InvocationHandler {
+
     private final FakeParameters<T> params;
 
     public ParametersInvocationHandler(FakeParameters<T> params) {
@@ -66,7 +84,8 @@ public class FakeParameters<T> {
     }
 
     @Override
-    public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object obj, Method method, Object[] args)
+      throws Throwable {
       if (args != null && args.length > 0) {
         throw new UnsupportedOperationException();
       }
@@ -84,13 +103,14 @@ public class FakeParameters<T> {
   private final boolean isPartialUpdate;
 
   private FakeParameters(
-      Class<T> clazz,
-      Map<String, AttributeValue> attribs,
-      DynamoDBMapperConfig config,
-      String tableName,
-      String hashKeyName,
-      String rangeKeyName,
-      boolean isPartialUpdate) {
+    Class<T> clazz,
+    Map<String, AttributeValue> attribs,
+    DynamoDBMapperConfig config,
+    String tableName,
+    String hashKeyName,
+    String rangeKeyName,
+    boolean isPartialUpdate
+  ) {
     super();
     this.clazz = clazz;
     this.attrs = Collections.unmodifiableMap(attribs);

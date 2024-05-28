@@ -58,8 +58,12 @@ public class BinaryAttributeByteBufferTestClass {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + ((binaryAttribute == null) ? 0 : binaryAttribute.hashCode());
-    result = prime * result + ((binarySetAttribute == null) ? 0 : binarySetAttribute.hashCode());
+    result =
+      prime * result +
+      ((binaryAttribute == null) ? 0 : binaryAttribute.hashCode());
+    result =
+      prime * result +
+      ((binarySetAttribute == null) ? 0 : binarySetAttribute.hashCode());
     return result;
   }
 
@@ -68,7 +72,8 @@ public class BinaryAttributeByteBufferTestClass {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    BinaryAttributeByteBufferTestClass other = (BinaryAttributeByteBufferTestClass) obj;
+    BinaryAttributeByteBufferTestClass other =
+      (BinaryAttributeByteBufferTestClass) obj;
     if (key == null) {
       if (other.key != null) return false;
     } else if (!key.equals(other.key)) return false;
@@ -77,7 +82,9 @@ public class BinaryAttributeByteBufferTestClass {
     } else if (!binaryAttribute.equals(other.binaryAttribute)) return false;
     if (binarySetAttribute == null) {
       if (other.binarySetAttribute != null) return false;
-    } else if (!binarySetAttribute.equals(other.binarySetAttribute)) return false;
+    } else if (
+      !binarySetAttribute.equals(other.binarySetAttribute)
+    ) return false;
     return true;
   }
 }

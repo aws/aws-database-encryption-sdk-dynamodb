@@ -53,113 +53,150 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class TestEncryptExistingTable {
 
-    public static void EncryptExistingTable(String kmsKeyId, String ddbTableName) {
-        // 1. Continue to configure your Keyring, Table Schema,
-        //    and allowedUnsignedAttributes as you did in Step 1.
-        MaterialProviders matProv = MaterialProviders.builder()
-            .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-            .build();
-        final CreateAwsKmsMrkMultiKeyringInput keyringInput = CreateAwsKmsMrkMultiKeyringInput.builder()
-            .generator(kmsKeyId)
-            .build();
-        final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+  public static void EncryptExistingTable(
+    String kmsKeyId,
+    String ddbTableName
+  ) {
+    // 1. Continue to configure your Keyring, Table Schema,
+    //    and allowedUnsignedAttributes as you did in Step 1.
+    MaterialProviders matProv = MaterialProviders
+      .builder()
+      .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+      .build();
+    final CreateAwsKmsMrkMultiKeyringInput keyringInput =
+      CreateAwsKmsMrkMultiKeyringInput.builder().generator(kmsKeyId).build();
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(
+      keyringInput
+    );
 
-        final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+    final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(
+      SimpleClass.class
+    );
 
-        final List<String> unsignedAttributes = Arrays.asList("attribute3");
+    final List<String> unsignedAttributes = Arrays.asList("attribute3");
 
-        // 2. Create encryption configuration for table,
-        //    using the same plaintext override as Step 2
-        //    (`FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`).
-        Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-        tableConfigs.put(ddbTableName,
-            DynamoDbEnhancedTableEncryptionConfig.builder()
-                .logicalTableName(ddbTableName)
-                .keyring(kmsKeyring)
-                .schemaOnEncrypt(tableSchema)
-                .allowedUnsignedAttributes(unsignedAttributes)
-                .plaintextOverride(PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
-                .build());
+    // 2. Create encryption configuration for table,
+    //    using the same plaintext override as Step 2
+    //    (`FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`).
+    Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
+      new HashMap<>();
+    tableConfigs.put(
+      ddbTableName,
+      DynamoDbEnhancedTableEncryptionConfig
+        .builder()
+        .logicalTableName(ddbTableName)
+        .keyring(kmsKeyring)
+        .schemaOnEncrypt(tableSchema)
+        .allowedUnsignedAttributes(unsignedAttributes)
+        .plaintextOverride(
+          PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+        )
+        .build()
+    );
 
-        // 3. Create DynamoDbEncryptionInterceptor using the above config
-        DynamoDbEncryptionInterceptor interceptor =
-            DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-                CreateDynamoDbEncryptionInterceptorInput.builder()
-                    .tableEncryptionConfigs(tableConfigs)
-                    .build());
+    // 3. Create DynamoDbEncryptionInterceptor using the above config
+    DynamoDbEncryptionInterceptor interceptor =
+      DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+        CreateDynamoDbEncryptionInterceptorInput
+          .builder()
+          .tableEncryptionConfigs(tableConfigs)
+          .build()
+      );
 
-        // 4. Create the EnhancedClient using the interceptor, and create a table from the schema
-        DynamoDbClient ddb = DynamoDbClient.builder()
-            .region(Region.US_WEST_2)
-            .overrideConfiguration(
-                ClientOverrideConfiguration.builder()
-                    .addExecutionInterceptor(interceptor)
-                    .build())
-            .build();
-        DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-            .dynamoDbClient(ddb)
-            .build();
-        final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+    // 4. Create the EnhancedClient using the interceptor, and create a table from the schema
+    DynamoDbClient ddb = DynamoDbClient
+      .builder()
+      .region(Region.US_WEST_2)
+      .overrideConfiguration(
+        ClientOverrideConfiguration
+          .builder()
+          .addExecutionInterceptor(interceptor)
+          .build()
+      )
+      .build();
+    DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient
+      .builder()
+      .dynamoDbClient(ddb)
+      .build();
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
+      ddbTableName,
+      tableSchema
+    );
 
-        // 5. Scan the table for items with no `aws_dbe_head` attribute.
-        //    Any record with the `aws_dbe_head` attribute is an encrypted record.
-        //    Any record without the attribute is a plaintext record.
-        //    To limit the number of affected records, we also
-        //    add a condition to our filter expression that the `partition_key`
-        //    partition key attribute is specific to our test, i.e.
-        //    equals "PlaintextMigrationTest". We do this because our
-        //    table contains multiple types of records, and we are only encrypting
-        //    some in this test.
-        Map<String,String> expressionAttributesNames = new HashMap<>();
-        expressionAttributesNames.put("#header", "aws_dbe_head");
-        expressionAttributesNames.put("#pk", "partition_key");
+    // 5. Scan the table for items with no `aws_dbe_head` attribute.
+    //    Any record with the `aws_dbe_head` attribute is an encrypted record.
+    //    Any record without the attribute is a plaintext record.
+    //    To limit the number of affected records, we also
+    //    add a condition to our filter expression that the `partition_key`
+    //    partition key attribute is specific to our test, i.e.
+    //    equals "PlaintextMigrationTest". We do this because our
+    //    table contains multiple types of records, and we are only encrypting
+    //    some in this test.
+    Map<String, String> expressionAttributesNames = new HashMap<>();
+    expressionAttributesNames.put("#header", "aws_dbe_head");
+    expressionAttributesNames.put("#pk", "partition_key");
 
-        Map<String, AttributeValue> expressionAttributesValues = new HashMap<>();
-        expressionAttributesValues.put(":plaintexttest", AttributeValue.builder().s("PlaintextMigrationExample").build());
+    Map<String, AttributeValue> expressionAttributesValues = new HashMap<>();
+    expressionAttributesValues.put(
+      ":plaintexttest",
+      AttributeValue.builder().s("PlaintextMigrationExample").build()
+    );
 
-        ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest.builder()
-            // We use consistent reads because we run this test in our CI,
-            // where we put items then scan for them very quickly.
-            // This ensures our scan has data from all write requests.
-            .consistentRead(true)
-            .filterExpression(Expression.builder()
-                .expression("attribute_not_exists(#header) and #pk = :plaintexttest")
-                .expressionNames(expressionAttributesNames)
-                .expressionValues(expressionAttributesValues)
-                .build())
-            .build();
-        PageIterable<SimpleClass> scanIterable = table.scan(scanEnhancedRequest);
+    ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest
+      .builder()
+      // We use consistent reads because we run this test in our CI,
+      // where we put items then scan for them very quickly.
+      // This ensures our scan has data from all write requests.
+      .consistentRead(true)
+      .filterExpression(
+        Expression
+          .builder()
+          .expression("attribute_not_exists(#header) and #pk = :plaintexttest")
+          .expressionNames(expressionAttributesNames)
+          .expressionValues(expressionAttributesValues)
+          .build()
+      )
+      .build();
+    PageIterable<SimpleClass> scanIterable = table.scan(scanEnhancedRequest);
 
-        // Verify we are about to modify an acceptable number of items.
-        // In our test migration, this should be exactly 2.
-        // Steps 0, 1, and 2 were run previously.
-        // Steps 0 and 1 added plaintext items that did not have the header attribute,
-        // while Step 2 added an encrypted item that did have the header attribute.
-        // The scan should return the items from Steps 0 and 1.
-        assert scanIterable.items().stream().count() == 2;
+    // Verify we are about to modify an acceptable number of items.
+    // In our test migration, this should be exactly 2.
+    // Steps 0, 1, and 2 were run previously.
+    // Steps 0 and 1 added plaintext items that did not have the header attribute,
+    // while Step 2 added an encrypted item that did have the header attribute.
+    // The scan should return the items from Steps 0 and 1.
+    assert scanIterable.items().stream().count() == 2;
 
-        // 6. Encrypt each item.
-        //    Since we have configured our table to write encrypted records,
-        //    we can simply put each item back to the table,
-        //    and the client will overwrite the plaintext record with the encrypted record.
-        scanIterable.stream().forEach(
-            p -> p.items().forEach(
-                table::putItem
-            )
-        );
+    // 6. Encrypt each item.
+    //    Since we have configured our table to write encrypted records,
+    //    we can simply put each item back to the table,
+    //    and the client will overwrite the plaintext record with the encrypted record.
+    scanIterable.stream().forEach(p -> p.items().forEach(table::putItem));
 
-        // Demonstrate that the same scan now returns no results
-        scanIterable = table.scan(scanEnhancedRequest);
-        System.out.println(scanIterable.items().stream().count());
-        assert scanIterable.items().stream().count() == 0;
-    }
-    @Test
-    public void TestEncryptExistingTable() {
-        // Given: All the previous migration steps have been run.
-        MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 0);
-        MigrationExampleStep1.MigrationStep1(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 1);
-        MigrationExampleStep2.MigrationStep2(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME, 2);
-        // When: Execute migration, Then: Success (i.e. encrypts 2 plaintext values)
-        EncryptExistingTable(TestUtils.TEST_KMS_KEY_ID, TestUtils.TEST_DDB_TABLE_NAME);
-    }
+    // Demonstrate that the same scan now returns no results
+    scanIterable = table.scan(scanEnhancedRequest);
+    System.out.println(scanIterable.items().stream().count());
+    assert scanIterable.items().stream().count() == 0;
+  }
+
+  @Test
+  public void TestEncryptExistingTable() {
+    // Given: All the previous migration steps have been run.
+    MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 0);
+    MigrationExampleStep1.MigrationStep1(
+      TestUtils.TEST_KMS_KEY_ID,
+      TestUtils.TEST_DDB_TABLE_NAME,
+      1
+    );
+    MigrationExampleStep2.MigrationStep2(
+      TestUtils.TEST_KMS_KEY_ID,
+      TestUtils.TEST_DDB_TABLE_NAME,
+      2
+    );
+    // When: Execute migration, Then: Success (i.e. encrypts 2 plaintext values)
+    EncryptExistingTable(
+      TestUtils.TEST_KMS_KEY_ID,
+      TestUtils.TEST_DDB_TABLE_NAME
+    );
+  }
 }

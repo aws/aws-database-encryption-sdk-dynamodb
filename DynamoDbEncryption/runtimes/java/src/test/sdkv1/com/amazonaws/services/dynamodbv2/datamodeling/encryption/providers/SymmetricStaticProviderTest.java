@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class SymmetricStaticProviderTest {
+
   private static SecretKey encryptionKey;
   private static SecretKey macKey;
   private static KeyPair sigPair;
@@ -64,96 +65,168 @@ public class SymmetricStaticProviderTest {
 
   @Test
   public void simpleMac() {
-    SymmetricStaticProvider prov =
-        new SymmetricStaticProvider(encryptionKey, macKey, Collections.<String, String>emptyMap());
-    assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      Collections.<String, String>emptyMap()
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
     assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
 
     assertEquals(
-        encryptionKey,
-        prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
-            .getDecryptionKey());
+      encryptionKey,
+      prov
+        .getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
+        .getDecryptionKey()
+    );
     assertEquals(
-        macKey,
-        prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
-            .getVerificationKey());
+      macKey,
+      prov
+        .getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
+        .getVerificationKey()
+    );
   }
 
   @Test
   public void simpleSig() {
-    SymmetricStaticProvider prov =
-        new SymmetricStaticProvider(encryptionKey, sigPair, Collections.<String, String>emptyMap());
-    assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-    assertEquals(sigPair.getPrivate(), prov.getEncryptionMaterials(ctx).getSigningKey());
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      sigPair,
+      Collections.<String, String>emptyMap()
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(
+      sigPair.getPrivate(),
+      prov.getEncryptionMaterials(ctx).getSigningKey()
+    );
 
     assertEquals(
-        encryptionKey,
-        prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
-            .getDecryptionKey());
+      encryptionKey,
+      prov
+        .getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
+        .getDecryptionKey()
+    );
     assertEquals(
-        sigPair.getPublic(),
-        prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
-            .getVerificationKey());
+      sigPair.getPublic(),
+      prov
+        .getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
+        .getVerificationKey()
+    );
   }
 
   @Test
   public void equalDescMac() {
-
-    SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-    assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
     assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
     assertTrue(
-        prov.getEncryptionMaterials(ctx)
-            .getMaterialDescription()
-            .entrySet()
-            .containsAll(description.entrySet()));
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
-    assertEquals(encryptionKey, prov.getDecryptionMaterials(ctx(description)).getDecryptionKey());
-    assertEquals(macKey, prov.getDecryptionMaterials(ctx(description)).getVerificationKey());
+    assertEquals(
+      encryptionKey,
+      prov.getDecryptionMaterials(ctx(description)).getDecryptionKey()
+    );
+    assertEquals(
+      macKey,
+      prov.getDecryptionMaterials(ctx(description)).getVerificationKey()
+    );
   }
 
   @Test
   public void supersetDescMac() {
-    SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-    assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
     assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
     assertTrue(
-        prov.getEncryptionMaterials(ctx)
-            .getMaterialDescription()
-            .entrySet()
-            .containsAll(description.entrySet()));
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
     Map<String, String> superSet = new HashMap<String, String>(description);
     superSet.put("NewValue", "super!");
 
-    assertEquals(encryptionKey, prov.getDecryptionMaterials(ctx(superSet)).getDecryptionKey());
-    assertEquals(macKey, prov.getDecryptionMaterials(ctx(superSet)).getVerificationKey());
+    assertEquals(
+      encryptionKey,
+      prov.getDecryptionMaterials(ctx(superSet)).getDecryptionKey()
+    );
+    assertEquals(
+      macKey,
+      prov.getDecryptionMaterials(ctx(superSet)).getVerificationKey()
+    );
   }
 
   @Test
   public void subsetDescMac() {
-    SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-    assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
     assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
     assertTrue(
-        prov.getEncryptionMaterials(ctx)
-            .getMaterialDescription()
-            .entrySet()
-            .containsAll(description.entrySet()));
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
-    assertNull(prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap())));
+    assertNull(
+      prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
+    );
   }
 
   @Test
   public void noMatchDescMac() {
-    SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-    assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
     assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
     assertTrue(
-        prov.getEncryptionMaterials(ctx)
-            .getMaterialDescription()
-            .entrySet()
-            .containsAll(description.entrySet()));
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
     Map<String, String> noMatch = new HashMap<String, String>();
     noMatch.put("NewValue", "no match!");
@@ -164,7 +237,11 @@ public class SymmetricStaticProviderTest {
   @Test
   public void testRefresh() {
     // This does nothing, make sure we don't throw and exception.
-    SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
     prov.refresh();
   }
 
@@ -174,6 +251,8 @@ public class SymmetricStaticProviderTest {
   }
 
   private static EncryptionContext ctx(Map<String, String> desc) {
-    return new EncryptionContext.Builder().withMaterialDescription(desc).build();
+    return new EncryptionContext.Builder()
+      .withMaterialDescription(desc)
+      .build();
   }
 }

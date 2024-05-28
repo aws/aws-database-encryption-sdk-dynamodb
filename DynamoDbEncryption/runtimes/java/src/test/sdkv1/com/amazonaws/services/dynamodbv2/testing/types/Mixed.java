@@ -19,6 +19,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
 import java.util.Set;
 
 public class Mixed extends BaseClass {
+
   @Override
   @DoNotEncrypt
   public String getStringValue() {

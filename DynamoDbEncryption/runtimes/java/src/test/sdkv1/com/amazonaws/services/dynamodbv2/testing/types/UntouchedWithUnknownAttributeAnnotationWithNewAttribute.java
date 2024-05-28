@@ -18,7 +18,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
 
 @DoNotTouch
 public class UntouchedWithUnknownAttributeAnnotationWithNewAttribute
-    extends UntouchedWithUnknownAttributeAnnotation {
+  extends UntouchedWithUnknownAttributeAnnotation {
 
   private String newAttribute;
 

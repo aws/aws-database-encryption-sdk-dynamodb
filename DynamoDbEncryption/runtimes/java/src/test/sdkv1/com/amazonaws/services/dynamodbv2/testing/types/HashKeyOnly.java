@@ -19,6 +19,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "HashKeyOnly")
 public class HashKeyOnly {
+
   private String hashKey;
 
   public HashKeyOnly() {}

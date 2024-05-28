@@ -21,6 +21,7 @@ import javax.crypto.SecretKey;
 
 /** @author Greg Rubin */
 public class SymmetricRawMaterials extends AbstractRawMaterials {
+
   private final SecretKey cryptoKey;
 
   @SuppressWarnings("unchecked")
@@ -29,7 +30,10 @@ public class SymmetricRawMaterials extends AbstractRawMaterials {
   }
 
   public SymmetricRawMaterials(
-      SecretKey encryptionKey, KeyPair signingPair, Map<String, String> description) {
+    SecretKey encryptionKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) {
     super(signingPair, description);
     this.cryptoKey = encryptionKey;
   }
@@ -40,7 +44,10 @@ public class SymmetricRawMaterials extends AbstractRawMaterials {
   }
 
   public SymmetricRawMaterials(
-      SecretKey encryptionKey, SecretKey macKey, Map<String, String> description) {
+    SecretKey encryptionKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) {
     super(macKey, description);
     this.cryptoKey = encryptionKey;
   }

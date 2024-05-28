@@ -33,7 +33,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** Tests range and hash key combination */
-public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTestBase {
+public class RangeKeyAttributesITCase
+  extends DynamoDBMapperCryptoIntegrationTestBase {
 
   private static final String RANGE_KEY = "rangeKey";
   private static final String INTEGER_ATTRIBUTE = "integerSetAttribute";
@@ -46,8 +47,9 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
   // it's out of the range of some data types
   private static int start = 1;
 
-  private static final List<Map<String, AttributeValue>> attrs =
-      new LinkedList<Map<String, AttributeValue>>();
+  private static final List<Map<String, AttributeValue>> attrs = new LinkedList<
+    Map<String, AttributeValue>
+  >();
 
   // Test data
   static {
@@ -56,61 +58,88 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
       attr.put(KEY_NAME, new AttributeValue().withN("" + startKey++));
       attr.put(RANGE_KEY, new AttributeValue().withN("" + start++));
       attr.put(
-          INTEGER_ATTRIBUTE, new AttributeValue().withNS("" + start++, "" + start++, "" + start++));
+        INTEGER_ATTRIBUTE,
+        new AttributeValue().withNS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(BIG_DECIMAL_ATTRIBUTE, new AttributeValue().withN("" + start++));
       attr.put(STRING_ATTRIBUTE, new AttributeValue().withS("" + start++));
       attr.put(
-          STRING_SET_ATTRIBUTE,
-          new AttributeValue().withSS("" + start++, "" + start++, "" + start++));
+        STRING_SET_ATTRIBUTE,
+        new AttributeValue().withSS("" + start++, "" + start++, "" + start++)
+      );
       attr.put(VERSION_ATTRIBUTE, new AttributeValue().withN("1"));
 
       attrs.add(attr);
     }
   }
-  ;
 
   @BeforeClass
   public static void setUp() throws Exception {
     setUpTableWithRangeAttribute();
-    DynamoDBEncryptor encryptor =
-        DynamoDBEncryptor.getInstance(new TestEncryptionMaterialsProvider());
-    EncryptionContext context =
-        new EncryptionContext.Builder()
-            .withHashKeyName(KEY_NAME)
-            .withRangeKeyName(RANGE_KEY)
-            .withTableName(TABLE_WITH_RANGE_ATTRIBUTE)
-            .build();
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+      new TestEncryptionMaterialsProvider()
+    );
+    EncryptionContext context = new EncryptionContext.Builder()
+      .withHashKeyName(KEY_NAME)
+      .withRangeKeyName(RANGE_KEY)
+      .withTableName(TABLE_WITH_RANGE_ATTRIBUTE)
+      .build();
     // Insert the data
     for (Map<String, AttributeValue> attr : attrs) {
       attr =
-          encryptor.encryptAllFieldsExcept(
-              attr, context, KEY_NAME, RANGE_KEY, VERSION_ATTRIBUTE, BIG_DECIMAL_ATTRIBUTE);
+        encryptor.encryptAllFieldsExcept(
+          attr,
+          context,
+          KEY_NAME,
+          RANGE_KEY,
+          VERSION_ATTRIBUTE,
+          BIG_DECIMAL_ATTRIBUTE
+        );
       dynamo.putItem(new PutItemRequest(TABLE_WITH_RANGE_ATTRIBUTE, attr));
     }
   }
 
   @Test
   public void testLoad() throws Exception {
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
 
     for (Map<String, AttributeValue> attr : attrs) {
-      RangeKeyTestClass x =
-          util.load(
-              newRangeKey(
-                  Long.parseLong(attr.get(KEY_NAME).getN()),
-                  Double.parseDouble(attr.get(RANGE_KEY).getN())));
+      RangeKeyTestClass x = util.load(
+        newRangeKey(
+          Long.parseLong(attr.get(KEY_NAME).getN()),
+          Double.parseDouble(attr.get(RANGE_KEY).getN())
+        )
+      );
 
       // Convert all numbers to the most inclusive type for easy
       // comparison
-      assertEquals(new BigDecimal(x.getKey()), new BigDecimal(attr.get(KEY_NAME).getN()));
-      assertEquals(new BigDecimal(x.getRangeKey()), new BigDecimal(attr.get(RANGE_KEY).getN()));
       assertEquals(
-          new BigDecimal(x.getVersion()), new BigDecimal(attr.get(VERSION_ATTRIBUTE).getN()));
+        new BigDecimal(x.getKey()),
+        new BigDecimal(attr.get(KEY_NAME).getN())
+      );
       assertEquals(
-          x.getBigDecimalAttribute(), new BigDecimal(attr.get(BIG_DECIMAL_ATTRIBUTE).getN()));
-      assertNumericSetsEquals(x.getIntegerAttribute(), attr.get(INTEGER_ATTRIBUTE).getNS());
+        new BigDecimal(x.getRangeKey()),
+        new BigDecimal(attr.get(RANGE_KEY).getN())
+      );
+      assertEquals(
+        new BigDecimal(x.getVersion()),
+        new BigDecimal(attr.get(VERSION_ATTRIBUTE).getN())
+      );
+      assertEquals(
+        x.getBigDecimalAttribute(),
+        new BigDecimal(attr.get(BIG_DECIMAL_ATTRIBUTE).getN())
+      );
+      assertNumericSetsEquals(
+        x.getIntegerAttribute(),
+        attr.get(INTEGER_ATTRIBUTE).getNS()
+      );
       assertEquals(x.getStringAttribute(), attr.get(STRING_ATTRIBUTE).getS());
-      assertSetsEqual(x.getStringSetAttribute(), toSet(attr.get(STRING_SET_ATTRIBUTE).getSS()));
+      assertSetsEqual(
+        x.getStringSetAttribute(),
+        toSet(attr.get(STRING_SET_ATTRIBUTE).getSS())
+      );
     }
   }
 
@@ -129,14 +158,19 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (RangeKeyTestClass obj : objs) {
       util.save(obj);
     }
 
     for (RangeKeyTestClass obj : objs) {
-      RangeKeyTestClass loaded =
-          util.load(RangeKeyTestClass.class, obj.getKey(), obj.getRangeKey());
+      RangeKeyTestClass loaded = util.load(
+        RangeKeyTestClass.class,
+        obj.getKey(),
+        obj.getRangeKey()
+      );
       assertEquals(obj, loaded);
     }
   }
@@ -149,7 +183,9 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
       objs.add(obj);
     }
 
-    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
+    DynamoDBMapper util = TestDynamoDBMapperFactory.createDynamoDBMapper(
+      dynamo
+    );
     for (RangeKeyTestClass obj : objs) {
       util.save(obj);
     }
@@ -161,8 +197,11 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
       replacement.setVersion(obj.getVersion());
       util.save(replacement);
 
-      RangeKeyTestClass loadedObject =
-          util.load(RangeKeyTestClass.class, obj.getKey(), obj.getRangeKey());
+      RangeKeyTestClass loadedObject = util.load(
+        RangeKeyTestClass.class,
+        obj.getKey(),
+        obj.getRangeKey()
+      );
       assertEquals(replacement, loadedObject);
 
       // If we try to update the old version, we should get an error
@@ -170,8 +209,7 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
       try {
         util.save(replacement);
         fail("Should have thrown an exception");
-      } catch (Exception expected) {
-      }
+      } catch (Exception expected) {}
     }
   }
 
@@ -182,7 +220,9 @@ public class RangeKeyAttributesITCase extends DynamoDBMapperCryptoIntegrationTes
     obj.setBigDecimalAttribute(new BigDecimal(startKey++));
     obj.setRangeKey(start++);
     obj.setStringAttribute("" + startKey++);
-    obj.setStringSetAttribute(toSet("" + startKey++, "" + startKey++, "" + startKey++));
+    obj.setStringSetAttribute(
+      toSet("" + startKey++, "" + startKey++, "" + startKey++)
+    );
     return obj;
   }
 }

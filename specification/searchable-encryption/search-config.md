@@ -63,6 +63,7 @@ of any [configured field](#configured-field).
 
 Initialization MUST fail if the [beacon key source](#beacon-key-source) is a [multi key store](#multi-key-store-initialization)
 and the name of any of the following match the [beacon key field name](#beacon-key-field-name)
+
 - [virtual fields](virtual.md#virtual-field)
 - [standard beacons](beacons.md#standard-beacon)
 - [compound beacons](beacons.md#compound-beacon)
@@ -151,6 +152,7 @@ For version `N`, the name of the version tag is `aws_dbe_vN` and the value of th
 ## Beacon Key Source
 
 On initialization of a Beacon Key Source, the caller MUST provide exactly one of
+
 - a [Single Key Store](#single-key-store-initialization)
 - a [Multi Key Store](#multi-key-store-initialization)
 
@@ -213,17 +215,17 @@ that the [Key Store Cache](#key-store-cache) will be configured to.
 
 ### Key Store Cache
 
- For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
- MUST be created.
- For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
- MUST be 1
- For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
- MUST be key store's max cache size.
+For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
+MUST be created.
+For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+MUST be 1
+For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+MUST be key store's max cache size.
 
- The Key Store Cache MUST be bound to the Beacon Key Source.
- This is currently invariant because we construct the cache for each search config
- It is easy for beacon key ids to be unique within a single key source,
- this may not be true across all key sources.
+The Key Store Cache MUST be bound to the Beacon Key Source.
+This is currently invariant because we construct the cache for each search config
+It is easy for beacon key ids to be unique within a single key source,
+this may not be true across all key sources.
 
 ## Beacon Keys
 

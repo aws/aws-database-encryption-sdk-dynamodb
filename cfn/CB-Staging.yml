@@ -45,7 +45,7 @@ Resources:
         ## If this value is 0, greater than 25, or not provided then the full history is downloaded with each build project.
         GitCloneDepth: 0
         GitSubmodulesConfig:
-          FetchSubmodules: true 
+          FetchSubmodules: true
         InsecureSsl: false
         ReportBuildStatus: false
         Type: GITHUB
@@ -96,7 +96,6 @@ Resources:
         - !Ref CodeBuildCISTSAllow
         - "arn:aws:iam::aws:policy/AWSCodeArtifactReadOnlyAccess"
         - "arn:aws:iam::aws:policy/AWSCodeArtifactAdminAccess"
-
 
   CodeBuildCISTSAllow:
     Type: "AWS::IAM::ManagedPolicy"

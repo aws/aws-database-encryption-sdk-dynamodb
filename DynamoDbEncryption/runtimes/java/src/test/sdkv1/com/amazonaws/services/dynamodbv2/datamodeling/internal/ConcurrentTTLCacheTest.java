@@ -16,7 +16,9 @@ import org.testng.annotations.Test;
  */
 public class ConcurrentTTLCacheTest {
 
-  private static final long TTL_GRACE_IN_NANO = TimeUnit.MILLISECONDS.toNanos(500);
+  private static final long TTL_GRACE_IN_NANO = TimeUnit.MILLISECONDS.toNanos(
+    500
+  );
   private static final long ttlInMillis = 1000;
 
   @Test
@@ -41,6 +43,7 @@ public class ConcurrentTTLCacheTest {
 
   // Ensure the loader is only called once if two threads attempt to load during the grace period
   class GracePeriodCase extends MultithreadedTestCase {
+
     TTLCache<String> cache;
     TTLCache.EntryLoader loader;
     MsClock clock = mock(MsClock.class);
@@ -48,15 +51,16 @@ public class ConcurrentTTLCacheTest {
     @Override
     public void initialize() {
       loader =
-          spy(
-              new TTLCache.EntryLoader<String>() {
-                @Override
-                public String load(String entryKey) {
-                  // Wait until thread2 finishes to complete load
-                  waitForTick(2);
-                  return "loadedValue";
-                }
-              });
+        spy(
+          new TTLCache.EntryLoader<String>() {
+            @Override
+            public String load(String entryKey) {
+              // Wait until thread2 finishes to complete load
+              waitForTick(2);
+              return "loadedValue";
+            }
+          }
+        );
       when(clock.timestampNano()).thenReturn((long) 0);
       cache = new TTLCache<>(3, ttlInMillis, loader);
       cache.clock = clock;
@@ -67,7 +71,8 @@ public class ConcurrentTTLCacheTest {
 
     // The thread that first calls load in the grace period and acquires the lock
     public void thread1() {
-      when(clock.timestampNano()).thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + 1);
+      when(clock.timestampNano())
+        .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + 1);
       String loadedValue = cache.load("k1");
       assertTick(2);
       // Expect to get back the value calculated from load
@@ -78,7 +83,8 @@ public class ConcurrentTTLCacheTest {
     public void thread2() {
       // Wait until the first thread acquires the lock and starts load
       waitForTick(1);
-      when(clock.timestampNano()).thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + 1);
+      when(clock.timestampNano())
+        .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + 1);
       String loadedValue = cache.load("k1");
       // Expect to get back the original value in the cache
       assertEquals("v1", loadedValue);
@@ -93,6 +99,7 @@ public class ConcurrentTTLCacheTest {
 
   // Ensure the loader is only called once if two threads attempt to load an expired entry.
   class ExpiredCase extends MultithreadedTestCase {
+
     TTLCache<String> cache;
     TTLCache.EntryLoader loader;
     MsClock clock = mock(MsClock.class);
@@ -100,15 +107,16 @@ public class ConcurrentTTLCacheTest {
     @Override
     public void initialize() {
       loader =
-          spy(
-              new TTLCache.EntryLoader<String>() {
-                @Override
-                public String load(String entryKey) {
-                  // Wait until thread2 is waiting for the lock to complete load
-                  waitForTick(2);
-                  return "loadedValue";
-                }
-              });
+        spy(
+          new TTLCache.EntryLoader<String>() {
+            @Override
+            public String load(String entryKey) {
+              // Wait until thread2 is waiting for the lock to complete load
+              waitForTick(2);
+              return "loadedValue";
+            }
+          }
+        );
       when(clock.timestampNano()).thenReturn((long) 0);
       cache = new TTLCache<>(3, ttlInMillis, loader);
       cache.clock = clock;
@@ -120,7 +128,9 @@ public class ConcurrentTTLCacheTest {
     // The thread that first calls load after expiration
     public void thread1() {
       when(clock.timestampNano())
-          .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1);
+        .thenReturn(
+          TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1
+        );
       String loadedValue = cache.load("k1");
       assertTick(2);
       // Expect to get back the value calculated from load
@@ -134,7 +144,9 @@ public class ConcurrentTTLCacheTest {
       // Wait until the first thread acquires the lock and starts load
       waitForTick(1);
       when(clock.timestampNano())
-          .thenReturn(TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1);
+        .thenReturn(
+          TimeUnit.MILLISECONDS.toNanos(ttlInMillis) + TTL_GRACE_IN_NANO + 1
+        );
       String loadedValue = cache.load("k1");
       // Expect to get back the newly loaded value
       assertEquals("loadedValue", loadedValue);
@@ -151,6 +163,7 @@ public class ConcurrentTTLCacheTest {
 
   // Ensure the loader is only called once if two threads attempt to load the same new entry.
   class NewEntryCase extends MultithreadedTestCase {
+
     TTLCache<String> cache;
     TTLCache.EntryLoader loader;
     MsClock clock = mock(MsClock.class);
@@ -158,15 +171,16 @@ public class ConcurrentTTLCacheTest {
     @Override
     public void initialize() {
       loader =
-          spy(
-              new TTLCache.EntryLoader<String>() {
-                @Override
-                public String load(String entryKey) {
-                  // Wait until thread2 is blocked to complete load
-                  waitForTick(2);
-                  return "loadedValue";
-                }
-              });
+        spy(
+          new TTLCache.EntryLoader<String>() {
+            @Override
+            public String load(String entryKey) {
+              // Wait until thread2 is blocked to complete load
+              waitForTick(2);
+              return "loadedValue";
+            }
+          }
+        );
       when(clock.timestampNano()).thenReturn((long) 0);
       cache = new TTLCache<>(3, ttlInMillis, loader);
       cache.clock = clock;
@@ -201,6 +215,7 @@ public class ConcurrentTTLCacheTest {
 
   // Ensure the loader blocks put on load/put of the same new entry
   class PutLoadCase extends MultithreadedTestCase {
+
     TTLCache<String> cache;
     TTLCache.EntryLoader loader;
     MsClock clock = mock(MsClock.class);
@@ -208,15 +223,16 @@ public class ConcurrentTTLCacheTest {
     @Override
     public void initialize() {
       loader =
-          spy(
-              new TTLCache.EntryLoader<String>() {
-                @Override
-                public String load(String entryKey) {
-                  // Wait until the put blocks to complete load
-                  waitForTick(2);
-                  return "loadedValue";
-                }
-              });
+        spy(
+          new TTLCache.EntryLoader<String>() {
+            @Override
+            public String load(String entryKey) {
+              // Wait until the put blocks to complete load
+              waitForTick(2);
+              return "loadedValue";
+            }
+          }
+        );
       when(clock.timestampNano()).thenReturn((long) 0);
       cache = new TTLCache<>(3, ttlInMillis, loader);
       cache.clock = clock;

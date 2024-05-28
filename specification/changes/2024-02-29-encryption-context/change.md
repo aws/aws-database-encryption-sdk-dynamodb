@@ -36,18 +36,19 @@ And like the primary partition and sort keys, an attribute configured as SIGN_AN
 is required in any item to be encrypted.
 
 If any SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attribute is configured,
+
 - All SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes will be included in the encryption context
 - All SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes will be available to the Branch Key Selector
 - The values of the attributes in the encryption context will be more human readable. Specifically :
 
-| Type | attribute value | encryption context value |
-| ----------- | ----------- | ----------- |
-| String | "abc" | "abc" |
-| Number | "123" | "123" |
-| Null |  | "null" |
-| Boolean | true | "true" |
-| Boolean | false | "false" |
-| Anything else | n/a | the version 1 value, looking something like "AAFrZXk=" |
+| Type          | attribute value | encryption context value                               |
+| ------------- | --------------- | ------------------------------------------------------ |
+| String        | "abc"           | "abc"                                                  |
+| Number        | "123"           | "123"                                                  |
+| Null          |                 | "null"                                                 |
+| Boolean       | true            | "true"                                                 |
+| Boolean       | false           | "false"                                                |
+| Anything else | n/a             | the version 1 value, looking something like "AAFrZXk=" |
 
 Note that the values presented to the Branch Key Selector were always, and still are, DynamoDB AttributeValues.
 The changes in encryption context values refer only to the raw encryption context.

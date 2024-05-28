@@ -73,6 +73,7 @@ or more plainly, Binary Attribute Values are used as is.
 #### Boolean
 
 Boolean MUST be serialized as:
+
 - `0x00` if the value is `false`
 - `0x01` if the value is `true`
 
@@ -82,10 +83,10 @@ A Set is a String Set, Number Set, or Binary Set.
 
 A Set MUST be serialized as:
 
-| Field        | Length   |
-| ------------ | -------- |
-| Set Count    | 4        |
-| Set Entries  | Variable |
+| Field       | Length   |
+| ----------- | -------- |
+| Set Count   | 4        |
+| Set Entries | Variable |
 
 ##### Set Count
 
@@ -101,10 +102,10 @@ in which case [Set Entries](#set-entries) is a zero-length byte string.
 Set Entries is a sequence of serialized entries.
 Each of these entries MUST be serialized as:
 
-| Field               | Length                               |
-| ------------------- | ------------------------------------ |
-| Set Entry Length    | 4                                    |
-| Set Entry Value     | Variable. Equal to Set Entry Length. |
+| Field            | Length                               |
+| ---------------- | ------------------------------------ |
+| Set Entry Length | 4                                    |
+| Set Entry Value  | Variable. Equal to Set Entry Length. |
 
 All [Set Entry Values](#set-entry-value) are the same type.
 
@@ -130,6 +131,7 @@ equal to the length of [Set Entry Value](#set-entry-value).
 ###### Set Entry Value
 
 In DynamoDB, Set Entry Value can only be a [Value](#value) of the following types:
+
 - [String](#string)
 - [Number](#number)
 - [Binary](#binary)
@@ -138,10 +140,10 @@ In DynamoDB, Set Entry Value can only be a [Value](#value) of the following type
 
 Map MUST be serialized as:
 
-| Field                   | Length   |
-| ----------------------- | -------- |
-| Key Value Pair Count    | 4        |
-| Key Value Pair Entries  | Variable |
+| Field                  | Length   |
+| ---------------------- | -------- |
+| Key Value Pair Count   | 4        |
+| Key Value Pair Entries | Variable |
 
 ##### Key Value Pair Count
 
@@ -206,10 +208,10 @@ and MAY hold values of different types.
 
 List MUST be serialized as:
 
-| Field         | Length   |
-| ------------- | -------- |
-| List Count    | 4        |
-| List Entries  | Variable |
+| Field        | Length   |
+| ------------ | -------- |
+| List Count   | 4        |
+| List Entries | Variable |
 
 ##### List Count
 
@@ -225,11 +227,11 @@ in which case [List Entries](#list-entries) is an empty byte string.
 List Entries is a sequence of serialized list entries.
 Each list entry in the sequence MUST be serialized as:
 
-| Field                | Length                     |
-| -------------------- | -------------------------- |
-| List Entry Type      | 2                          |
-| List Entry Length    | 4                          |
-| List Entry Value     | Variable. Equal to Length. |
+| Field             | Length                     |
+| ----------------- | -------------------------- |
+| List Entry Type   | 2                          |
+| List Entry Length | 4                          |
+| List Entry Value  | Variable. Equal to Length. |
 
 The order of these serialized list entries MUST match
 the order of the entries in the original list.

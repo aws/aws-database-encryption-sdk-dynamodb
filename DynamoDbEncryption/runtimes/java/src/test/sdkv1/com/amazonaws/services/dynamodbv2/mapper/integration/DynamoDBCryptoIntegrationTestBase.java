@@ -33,15 +33,17 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 
 public class DynamoDBCryptoIntegrationTestBase extends DynamoDBTestBase {
+
   protected static final boolean DEBUG = false;
   protected static final String KEY_NAME = "key";
   protected static final String TABLE_NAME = "aws-java-sdk-util-crypto";
 
   protected static long startKey = System.currentTimeMillis();
 
-  protected static final String TABLE_WITH_RANGE_ATTRIBUTE = "aws-java-sdk-range-test-crypto";
+  protected static final String TABLE_WITH_RANGE_ATTRIBUTE =
+    "aws-java-sdk-range-test-crypto";
   protected static final String TABLE_WITH_INDEX_RANGE_ATTRIBUTE =
-      "aws-java-sdk-index-range-test-crypto";
+    "aws-java-sdk-index-range-test-crypto";
 
   protected static Logger log = Logger.getLogger("DynamoDBCryptoITCaseBase");
 
@@ -50,17 +52,23 @@ public class DynamoDBCryptoIntegrationTestBase extends DynamoDBTestBase {
     // Create a table
     DynamoDBTestBase.setUpTestBase();
     String keyName = KEY_NAME;
-    CreateTableRequest createTableRequest =
-        new CreateTableRequest()
-            .withTableName(TABLE_NAME)
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(keyName)
-                    .withAttributeType(ScalarAttributeType.S));
+    CreateTableRequest createTableRequest = new CreateTableRequest()
+      .withTableName(TABLE_NAME)
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(keyName)
+          .withKeyType(KeyType.HASH)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(keyName)
+          .withAttributeType(ScalarAttributeType.S)
+      );
     createTableRequest.setProvisionedThroughput(
-        new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L));
+      new ProvisionedThroughput()
+        .withReadCapacityUnits(10L)
+        .withWriteCapacityUnits(5L)
+    );
 
     if (TableUtils.createTableIfNotExists(dynamo, createTableRequest)) {
       TableUtils.waitUntilActive(dynamo, TABLE_NAME);
@@ -84,33 +92,43 @@ public class DynamoDBCryptoIntegrationTestBase extends DynamoDBTestBase {
     String keyName = DynamoDBCryptoIntegrationTestBase.KEY_NAME;
     String rangeKeyAttributeName = "rangeKey";
 
-    CreateTableRequest createTableRequest =
-        new CreateTableRequest()
-            .withTableName(TABLE_WITH_RANGE_ATTRIBUTE)
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH),
-                new KeySchemaElement()
-                    .withAttributeName(rangeKeyAttributeName)
-                    .withKeyType(KeyType.RANGE))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(keyName)
-                    .withAttributeType(ScalarAttributeType.N),
-                new AttributeDefinition()
-                    .withAttributeName(rangeKeyAttributeName)
-                    .withAttributeType(ScalarAttributeType.N));
+    CreateTableRequest createTableRequest = new CreateTableRequest()
+      .withTableName(TABLE_WITH_RANGE_ATTRIBUTE)
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(keyName)
+          .withKeyType(KeyType.HASH),
+        new KeySchemaElement()
+          .withAttributeName(rangeKeyAttributeName)
+          .withKeyType(KeyType.RANGE)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(keyName)
+          .withAttributeType(ScalarAttributeType.N),
+        new AttributeDefinition()
+          .withAttributeName(rangeKeyAttributeName)
+          .withAttributeType(ScalarAttributeType.N)
+      );
     createTableRequest.setProvisionedThroughput(
-        new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L));
+      new ProvisionedThroughput()
+        .withReadCapacityUnits(10L)
+        .withWriteCapacityUnits(5L)
+    );
 
     if (TableUtils.createTableIfNotExists(dynamo, createTableRequest)) {
       TableUtils.waitUntilActive(dynamo, TABLE_WITH_RANGE_ATTRIBUTE);
     }
   }
 
-  protected static void setUpTableWithIndexRangeAttribute(boolean recreateTable) throws Exception {
+  protected static void setUpTableWithIndexRangeAttribute(
+    boolean recreateTable
+  ) throws Exception {
     setUp();
     if (recreateTable) {
-      dynamo.deleteTable(new DeleteTableRequest().withTableName(TABLE_WITH_INDEX_RANGE_ATTRIBUTE));
+      dynamo.deleteTable(
+        new DeleteTableRequest().withTableName(TABLE_WITH_INDEX_RANGE_ATTRIBUTE)
+      );
       waitForTableToBecomeDeleted(TABLE_WITH_INDEX_RANGE_ATTRIBUTE);
     }
 
@@ -124,65 +142,92 @@ public class DynamoDBCryptoIntegrationTestBase extends DynamoDBTestBase {
     String indexFooCopyName = "index_foo_copy";
     String indexBarCopyName = "index_bar_copy";
 
-    CreateTableRequest createTableRequest =
-        new CreateTableRequest()
-            .withTableName(TABLE_WITH_INDEX_RANGE_ATTRIBUTE)
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH),
-                new KeySchemaElement()
-                    .withAttributeName(rangeKeyAttributeName)
-                    .withKeyType(KeyType.RANGE))
-            .withLocalSecondaryIndexes(
-                new LocalSecondaryIndex()
-                    .withIndexName(indexFooName)
-                    .withKeySchema(
-                        new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH),
-                        new KeySchemaElement()
-                            .withAttributeName(indexFooRangeKeyAttributeName)
-                            .withKeyType(KeyType.RANGE))
-                    .withProjection(new Projection().withProjectionType(ProjectionType.ALL)),
-                new LocalSecondaryIndex()
-                    .withIndexName(indexBarName)
-                    .withKeySchema(
-                        new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH),
-                        new KeySchemaElement()
-                            .withAttributeName(indexBarRangeKeyAttributeName)
-                            .withKeyType(KeyType.RANGE))
-                    .withProjection(new Projection().withProjectionType(ProjectionType.ALL)),
-                new LocalSecondaryIndex()
-                    .withIndexName(indexFooCopyName)
-                    .withKeySchema(
-                        new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH),
-                        new KeySchemaElement()
-                            .withAttributeName(multipleIndexRangeKeyAttributeName)
-                            .withKeyType(KeyType.RANGE))
-                    .withProjection(new Projection().withProjectionType(ProjectionType.ALL)),
-                new LocalSecondaryIndex()
-                    .withIndexName(indexBarCopyName)
-                    .withKeySchema(
-                        new KeySchemaElement().withAttributeName(keyName).withKeyType(KeyType.HASH),
-                        new KeySchemaElement()
-                            .withAttributeName(multipleIndexRangeKeyAttributeName)
-                            .withKeyType(KeyType.RANGE))
-                    .withProjection(new Projection().withProjectionType(ProjectionType.ALL)))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(keyName)
-                    .withAttributeType(ScalarAttributeType.N),
-                new AttributeDefinition()
-                    .withAttributeName(rangeKeyAttributeName)
-                    .withAttributeType(ScalarAttributeType.N),
-                new AttributeDefinition()
-                    .withAttributeName(indexFooRangeKeyAttributeName)
-                    .withAttributeType(ScalarAttributeType.N),
-                new AttributeDefinition()
-                    .withAttributeName(indexBarRangeKeyAttributeName)
-                    .withAttributeType(ScalarAttributeType.N),
-                new AttributeDefinition()
-                    .withAttributeName(multipleIndexRangeKeyAttributeName)
-                    .withAttributeType(ScalarAttributeType.N));
+    CreateTableRequest createTableRequest = new CreateTableRequest()
+      .withTableName(TABLE_WITH_INDEX_RANGE_ATTRIBUTE)
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(keyName)
+          .withKeyType(KeyType.HASH),
+        new KeySchemaElement()
+          .withAttributeName(rangeKeyAttributeName)
+          .withKeyType(KeyType.RANGE)
+      )
+      .withLocalSecondaryIndexes(
+        new LocalSecondaryIndex()
+          .withIndexName(indexFooName)
+          .withKeySchema(
+            new KeySchemaElement()
+              .withAttributeName(keyName)
+              .withKeyType(KeyType.HASH),
+            new KeySchemaElement()
+              .withAttributeName(indexFooRangeKeyAttributeName)
+              .withKeyType(KeyType.RANGE)
+          )
+          .withProjection(
+            new Projection().withProjectionType(ProjectionType.ALL)
+          ),
+        new LocalSecondaryIndex()
+          .withIndexName(indexBarName)
+          .withKeySchema(
+            new KeySchemaElement()
+              .withAttributeName(keyName)
+              .withKeyType(KeyType.HASH),
+            new KeySchemaElement()
+              .withAttributeName(indexBarRangeKeyAttributeName)
+              .withKeyType(KeyType.RANGE)
+          )
+          .withProjection(
+            new Projection().withProjectionType(ProjectionType.ALL)
+          ),
+        new LocalSecondaryIndex()
+          .withIndexName(indexFooCopyName)
+          .withKeySchema(
+            new KeySchemaElement()
+              .withAttributeName(keyName)
+              .withKeyType(KeyType.HASH),
+            new KeySchemaElement()
+              .withAttributeName(multipleIndexRangeKeyAttributeName)
+              .withKeyType(KeyType.RANGE)
+          )
+          .withProjection(
+            new Projection().withProjectionType(ProjectionType.ALL)
+          ),
+        new LocalSecondaryIndex()
+          .withIndexName(indexBarCopyName)
+          .withKeySchema(
+            new KeySchemaElement()
+              .withAttributeName(keyName)
+              .withKeyType(KeyType.HASH),
+            new KeySchemaElement()
+              .withAttributeName(multipleIndexRangeKeyAttributeName)
+              .withKeyType(KeyType.RANGE)
+          )
+          .withProjection(
+            new Projection().withProjectionType(ProjectionType.ALL)
+          )
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(keyName)
+          .withAttributeType(ScalarAttributeType.N),
+        new AttributeDefinition()
+          .withAttributeName(rangeKeyAttributeName)
+          .withAttributeType(ScalarAttributeType.N),
+        new AttributeDefinition()
+          .withAttributeName(indexFooRangeKeyAttributeName)
+          .withAttributeType(ScalarAttributeType.N),
+        new AttributeDefinition()
+          .withAttributeName(indexBarRangeKeyAttributeName)
+          .withAttributeType(ScalarAttributeType.N),
+        new AttributeDefinition()
+          .withAttributeName(multipleIndexRangeKeyAttributeName)
+          .withAttributeType(ScalarAttributeType.N)
+      );
     createTableRequest.setProvisionedThroughput(
-        new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L));
+      new ProvisionedThroughput()
+        .withReadCapacityUnits(10L)
+        .withWriteCapacityUnits(5L)
+    );
 
     if (TableUtils.createTableIfNotExists(dynamo, createTableRequest)) {
       TableUtils.waitUntilActive(dynamo, TABLE_WITH_INDEX_RANGE_ATTRIBUTE);
@@ -193,7 +238,10 @@ public class DynamoDBCryptoIntegrationTestBase extends DynamoDBTestBase {
     waitForTableToBecomeDeleted(dynamo, tableName);
   }
 
-  public static void waitForTableToBecomeDeleted(AmazonDynamoDB dynamo, String tableName) {
+  public static void waitForTableToBecomeDeleted(
+    AmazonDynamoDB dynamo,
+    String tableName
+  ) {
     log.info(() -> "Waiting for " + tableName + " to become Deleted...");
     long startTime = System.currentTimeMillis();
     long endTime = startTime + (60_000);
@@ -212,7 +260,9 @@ public class DynamoDBCryptoIntegrationTestBase extends DynamoDBTestBase {
           continue;
         }
       } catch (AmazonDynamoDBException exception) {
-        if (exception.getErrorCode().equalsIgnoreCase("ResourceNotFoundException")) {
+        if (
+          exception.getErrorCode().equalsIgnoreCase("ResourceNotFoundException")
+        ) {
           log.info(() -> "successfully deleted");
           return;
         }

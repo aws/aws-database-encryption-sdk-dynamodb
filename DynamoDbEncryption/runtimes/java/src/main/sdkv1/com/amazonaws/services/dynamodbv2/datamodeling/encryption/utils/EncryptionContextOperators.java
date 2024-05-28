@@ -34,17 +34,25 @@ public class EncryptionContextOperators {
    * @param newTableName the table name that should be used in the Encryption Context
    * @return A UnaryOperator that produces a new EncryptionContext with the supplied table name
    */
-  public static UnaryOperator<EncryptionContext> overrideEncryptionContextTableName(
-      String originalTableName, String newTableName) {
+  public static UnaryOperator<
+    EncryptionContext
+  > overrideEncryptionContextTableName(
+    String originalTableName,
+    String newTableName
+  ) {
     return encryptionContext -> {
-      if (encryptionContext == null
-          || encryptionContext.getTableName() == null
-          || originalTableName == null
-          || newTableName == null) {
+      if (
+        encryptionContext == null ||
+        encryptionContext.getTableName() == null ||
+        originalTableName == null ||
+        newTableName == null
+      ) {
         return encryptionContext;
       }
       if (originalTableName.equals(encryptionContext.getTableName())) {
-        return new EncryptionContext.Builder(encryptionContext).withTableName(newTableName).build();
+        return new EncryptionContext.Builder(encryptionContext)
+          .withTableName(newTableName)
+          .build();
       } else {
         return encryptionContext;
       }
@@ -62,17 +70,26 @@ public class EncryptionContextOperators {
    *     or isn't in the map, then the table name won't be overridden.
    * @return A UnaryOperator that produces a new EncryptionContext with the supplied table name
    */
-  public static UnaryOperator<EncryptionContext> overrideEncryptionContextTableNameUsingMap(
-      Map<String, String> tableNameOverrideMap) {
+  public static UnaryOperator<
+    EncryptionContext
+  > overrideEncryptionContextTableNameUsingMap(
+    Map<String, String> tableNameOverrideMap
+  ) {
     return encryptionContext -> {
-      if (tableNameOverrideMap == null
-          || encryptionContext == null
-          || encryptionContext.getTableName() == null) {
+      if (
+        tableNameOverrideMap == null ||
+        encryptionContext == null ||
+        encryptionContext.getTableName() == null
+      ) {
         return encryptionContext;
       }
-      String newTableName = tableNameOverrideMap.get(encryptionContext.getTableName());
+      String newTableName = tableNameOverrideMap.get(
+        encryptionContext.getTableName()
+      );
       if (newTableName != null) {
-        return new EncryptionContext.Builder(encryptionContext).withTableName(newTableName).build();
+        return new EncryptionContext.Builder(encryptionContext)
+          .withTableName(newTableName)
+          .build();
       } else {
         return encryptionContext;
       }

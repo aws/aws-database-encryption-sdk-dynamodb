@@ -35,20 +35,22 @@ import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import java.util.Set;
 import org.testng.annotations.BeforeClass;
 
-public class MapperSaveConfigCryptoIntegrationTestBase extends DynamoDBCryptoIntegrationTestBase {
+public class MapperSaveConfigCryptoIntegrationTestBase
+  extends DynamoDBCryptoIntegrationTestBase {
 
   protected static DynamoDBMapper dynamoMapper;
 
   protected static final DynamoDBMapperConfig defaultConfig =
-      new DynamoDBMapperConfig(SaveBehavior.UPDATE);
+    new DynamoDBMapperConfig(SaveBehavior.UPDATE);
   protected static final DynamoDBMapperConfig updateSkipNullConfig =
-      new DynamoDBMapperConfig(SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES);
+    new DynamoDBMapperConfig(SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES);
   protected static final DynamoDBMapperConfig appendSetConfig =
-      new DynamoDBMapperConfig(SaveBehavior.APPEND_SET);
+    new DynamoDBMapperConfig(SaveBehavior.APPEND_SET);
   protected static final DynamoDBMapperConfig clobberConfig =
-      new DynamoDBMapperConfig(SaveBehavior.CLOBBER);
+    new DynamoDBMapperConfig(SaveBehavior.CLOBBER);
 
-  protected static final String tableName = "aws-java-sdk-dynamodb-mapper-save-config-test-crypto";
+  protected static final String tableName =
+    "aws-java-sdk-dynamodb-mapper-save-config-test-crypto";
 
   protected static final String hashKeyName = "hashKey";
 
@@ -66,30 +68,37 @@ public class MapperSaveConfigCryptoIntegrationTestBase extends DynamoDBCryptoInt
 
   /** Provisioned Throughput for the test table created in Amazon DynamoDB */
   protected static final ProvisionedThroughput DEFAULT_PROVISIONED_THROUGHPUT =
-      new ProvisionedThroughput()
-          .withReadCapacityUnits(READ_CAPACITY)
-          .withWriteCapacityUnits(WRITE_CAPACITY);
+    new ProvisionedThroughput()
+      .withReadCapacityUnits(READ_CAPACITY)
+      .withWriteCapacityUnits(WRITE_CAPACITY);
 
   @BeforeClass
   public static void setUp() throws Exception {
     DynamoDBCryptoIntegrationTestBase.setUp();
     dynamoMapper = TestDynamoDBMapperFactory.createDynamoDBMapper(dynamo);
 
-    CreateTableRequest createTableRequest =
-        new CreateTableRequest()
-            .withTableName(tableName)
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(hashKeyName).withKeyType(KeyType.HASH))
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(rangeKeyName).withKeyType(KeyType.RANGE))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(hashKeyName)
-                    .withAttributeType(ScalarAttributeType.S))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(rangeKeyName)
-                    .withAttributeType(ScalarAttributeType.N));
+    CreateTableRequest createTableRequest = new CreateTableRequest()
+      .withTableName(tableName)
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(hashKeyName)
+          .withKeyType(KeyType.HASH)
+      )
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(rangeKeyName)
+          .withKeyType(KeyType.RANGE)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(hashKeyName)
+          .withAttributeType(ScalarAttributeType.S)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(rangeKeyName)
+          .withAttributeType(ScalarAttributeType.N)
+      );
     createTableRequest.setProvisionedThroughput(DEFAULT_PROVISIONED_THROUGHPUT);
 
     if (TableUtils.createTableIfNotExists(dynamo, createTableRequest)) {
@@ -180,34 +189,54 @@ public class MapperSaveConfigCryptoIntegrationTestBase extends DynamoDBCryptoInt
   }
 
   /** Helper method to create a table in Amazon DynamoDB */
-  protected static void createTestTable(ProvisionedThroughput provisionedThroughput) {
-    CreateTableRequest createTableRequest =
-        new CreateTableRequest()
-            .withTableName(tableName)
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(hashKeyName).withKeyType(KeyType.HASH))
-            .withKeySchema(
-                new KeySchemaElement().withAttributeName(rangeKeyName).withKeyType(KeyType.RANGE))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(hashKeyName)
-                    .withAttributeType(ScalarAttributeType.S))
-            .withAttributeDefinitions(
-                new AttributeDefinition()
-                    .withAttributeName(rangeKeyName)
-                    .withAttributeType(ScalarAttributeType.N));
+  protected static void createTestTable(
+    ProvisionedThroughput provisionedThroughput
+  ) {
+    CreateTableRequest createTableRequest = new CreateTableRequest()
+      .withTableName(tableName)
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(hashKeyName)
+          .withKeyType(KeyType.HASH)
+      )
+      .withKeySchema(
+        new KeySchemaElement()
+          .withAttributeName(rangeKeyName)
+          .withKeyType(KeyType.RANGE)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(hashKeyName)
+          .withAttributeType(ScalarAttributeType.S)
+      )
+      .withAttributeDefinitions(
+        new AttributeDefinition()
+          .withAttributeName(rangeKeyName)
+          .withAttributeType(ScalarAttributeType.N)
+      );
     createTableRequest.setProvisionedThroughput(provisionedThroughput);
 
-    TableDescription createdTableDescription =
-        dynamo.createTable(createTableRequest).getTableDescription();
+    TableDescription createdTableDescription = dynamo
+      .createTable(createTableRequest)
+      .getTableDescription();
     System.out.println("Created Table: " + createdTableDescription);
     assertEquals(tableName, createdTableDescription.getTableName());
     assertNotNull(createdTableDescription.getTableStatus());
-    assertEquals(hashKeyName, createdTableDescription.getKeySchema().get(0).getAttributeName());
     assertEquals(
-        KeyType.HASH.toString(), createdTableDescription.getKeySchema().get(0).getKeyType());
-    assertEquals(rangeKeyName, createdTableDescription.getKeySchema().get(1).getAttributeName());
+      hashKeyName,
+      createdTableDescription.getKeySchema().get(0).getAttributeName()
+    );
     assertEquals(
-        KeyType.RANGE.toString(), createdTableDescription.getKeySchema().get(1).getKeyType());
+      KeyType.HASH.toString(),
+      createdTableDescription.getKeySchema().get(0).getKeyType()
+    );
+    assertEquals(
+      rangeKeyName,
+      createdTableDescription.getKeySchema().get(1).getAttributeName()
+    );
+    assertEquals(
+      KeyType.RANGE.toString(),
+      createdTableDescription.getKeySchema().get(1).getKeyType()
+    );
   }
 }

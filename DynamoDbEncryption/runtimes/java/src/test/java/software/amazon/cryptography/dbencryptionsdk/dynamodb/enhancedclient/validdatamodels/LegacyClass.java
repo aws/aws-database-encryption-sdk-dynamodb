@@ -1,5 +1,7 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels;
 
+import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.TEST_TABLE_NAME;
+
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
@@ -13,8 +15,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionDoNothing;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionSignOnly;
 
-import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.TEST_TABLE_NAME;
-
 /**
  * This class is used by the Enhanced Client Tests
  */
@@ -23,62 +23,62 @@ import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.TE
 @DynamoDBTable(tableName = TEST_TABLE_NAME)
 public class LegacyClass {
 
-    private String partitionKey;
-    private int sortKey;
-    private String encryptAndSign;
-    private String doNothing;
-    private String signOnly;
+  private String partitionKey;
+  private int sortKey;
+  private String encryptAndSign;
+  private String doNothing;
+  private String signOnly;
 
-    @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = "partition_key")
-    @DynamoDBHashKey(attributeName = "partition_key")
-    public String getPartitionKey() {
-        return this.partitionKey;
-    }
+  @DynamoDbPartitionKey
+  @DynamoDbAttribute(value = "partition_key")
+  @DynamoDBHashKey(attributeName = "partition_key")
+  public String getPartitionKey() {
+    return this.partitionKey;
+  }
 
-    public void setPartitionKey(String partitionKey) {
-        this.partitionKey = partitionKey;
-    }
+  public void setPartitionKey(String partitionKey) {
+    this.partitionKey = partitionKey;
+  }
 
-    @DynamoDbSortKey
-    @DynamoDbAttribute(value = "sort_key")
-    @DynamoDBRangeKey(attributeName = "sort_key")
-    public int getSortKey() {
-        return this.sortKey;
-    }
+  @DynamoDbSortKey
+  @DynamoDbAttribute(value = "sort_key")
+  @DynamoDBRangeKey(attributeName = "sort_key")
+  public int getSortKey() {
+    return this.sortKey;
+  }
 
-    public void setSortKey(int sortKey) {
-        this.sortKey = sortKey;
-    }
+  public void setSortKey(int sortKey) {
+    this.sortKey = sortKey;
+  }
 
-    @DynamoDBAttribute
-    public String getEncryptAndSign() {
-        return this.encryptAndSign;
-    }
+  @DynamoDBAttribute
+  public String getEncryptAndSign() {
+    return this.encryptAndSign;
+  }
 
-    public void setEncryptAndSign(String encryptAndSign) {
-        this.encryptAndSign = encryptAndSign;
-    }
+  public void setEncryptAndSign(String encryptAndSign) {
+    this.encryptAndSign = encryptAndSign;
+  }
 
-    @DynamoDBAttribute
-    @DoNotEncrypt
-    @DynamoDbEncryptionSignOnly
-    public String getSignOnly() {
-        return this.signOnly;
-    }
+  @DynamoDBAttribute
+  @DoNotEncrypt
+  @DynamoDbEncryptionSignOnly
+  public String getSignOnly() {
+    return this.signOnly;
+  }
 
-    public void setSignOnly(String signOnly) {
-        this.signOnly = signOnly;
-    }
+  public void setSignOnly(String signOnly) {
+    this.signOnly = signOnly;
+  }
 
-    @DynamoDBAttribute
-    @DoNotTouch
-    @DynamoDbEncryptionDoNothing
-    public String getDoNothing() {
-        return this.doNothing;
-    }
+  @DynamoDBAttribute
+  @DoNotTouch
+  @DynamoDbEncryptionDoNothing
+  public String getDoNothing() {
+    return this.doNothing;
+  }
 
-    public void setDoNothing(String doNothing) {
-        this.doNothing = doNothing;
-    }
+  public void setDoNothing(String doNothing) {
+    this.doNothing = doNothing;
+  }
 }

@@ -7,11 +7,12 @@ This validates the Database Encryption SDK's cross-version compatibility.
 
 ### Development Requirements
 
-* Dafny 4.2.0: https://github.com/dafny-lang/dafny
-  
-  The code that executes the test vectors is written in Dafny. 
+- Dafny 4.2.0: https://github.com/dafny-lang/dafny
+
+  The code that executes the test vectors is written in Dafny.
   You must install the Dafny runtime to compile the Dafny tests into Java.
-* A Java 8 or newer development environment
+
+- A Java 8 or newer development environment
 
 ### Building and Running
 
@@ -48,4 +49,3 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This project is licensed under the Apache-2.0 License.
-

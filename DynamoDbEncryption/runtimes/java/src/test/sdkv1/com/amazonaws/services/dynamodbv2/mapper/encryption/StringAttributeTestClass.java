@@ -56,8 +56,12 @@ public class StringAttributeTestClass {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + ((renamedAttribute == null) ? 0 : renamedAttribute.hashCode());
-    result = prime * result + ((stringAttribute == null) ? 0 : stringAttribute.hashCode());
+    result =
+      prime * result +
+      ((renamedAttribute == null) ? 0 : renamedAttribute.hashCode());
+    result =
+      prime * result +
+      ((stringAttribute == null) ? 0 : stringAttribute.hashCode());
     return result;
   }
 

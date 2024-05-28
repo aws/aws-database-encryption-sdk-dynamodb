@@ -1,5 +1,5 @@
 {
-  "Strings" : [
+  "Strings": [
     "",
     "abc",
     "𐀂abc",
@@ -81,22 +81,13 @@
           "N": "100"
         },
         "StringSet": {
-          "SS": [
-            "aaa",
-            "bbb"
-          ]
+          "SS": ["aaa", "bbb"]
         },
         "NumberSet": {
-          "NS": [
-            "1.0",
-            "2.0"
-          ]
+          "NS": ["1.0", "2.0"]
         },
         "BinarySet": {
-          "BS": [
-            "b25l",
-            "dHdv"
-          ]
+          "BS": ["b25l", "dHdv"]
         }
       },
       {
@@ -104,22 +95,13 @@
           "N": "101"
         },
         "StringSet": {
-          "SS": [
-            "bbb",
-            "aaa"
-          ]
+          "SS": ["bbb", "aaa"]
         },
         "NumberSet": {
-          "NS": [
-            "2.0",
-            "1.0"
-          ]
+          "NS": ["2.0", "1.0"]
         },
         "BinarySet": {
-          "BS": [
-            "dHdv",
-            "b25l"
-          ]
+          "BS": ["dHdv", "b25l"]
         },
         "Bool": {
           "BOOL": true
@@ -130,13 +112,7 @@
           "N": "102"
         },
         "StringSet": {
-          "SS": [
-            "ddd",
-            "bbb",
-            "aaa",
-            "ccc",
-            "eee"
-          ]
+          "SS": ["ddd", "bbb", "aaa", "ccc", "eee"]
         },
         "NumberSet": {
           "NS": [
@@ -150,10 +126,7 @@
           ]
         },
         "BinarySet": {
-          "BS": [
-            "dHdv",
-            "b25l"
-          ]
+          "BS": ["dHdv", "b25l"]
         },
         "Bool": {
           "BOOL": true
@@ -161,13 +134,7 @@
         "Map": {
           "M": {
             "eee": {
-              "SS": [
-                "ddd",
-                "bbb",
-                "aaa",
-                "ccc",
-                "eee"
-              ]
+              "SS": ["ddd", "bbb", "aaa", "ccc", "eee"]
             },
             "aaa": {
               "NS": [
@@ -181,23 +148,14 @@
               ]
             },
             "ccc": {
-              "BS": [
-                "dHdv",
-                "b25l"
-              ]
+              "BS": ["dHdv", "b25l"]
             }
           }
         },
         "List": {
           "L": [
             {
-              "SS": [
-                "ddd",
-                "bbb",
-                "aaa",
-                "ccc",
-                "eee"
-              ]
+              "SS": ["ddd", "bbb", "aaa", "ccc", "eee"]
             },
             {
               "NS": [
@@ -211,10 +169,7 @@
               ]
             },
             {
-              "BS": [
-                "dHdv",
-                "b25l"
-              ]
+              "BS": ["dHdv", "b25l"]
             }
           ]
         }
@@ -224,19 +179,13 @@
           "N": "103"
         },
         "StringSet": {
-          "SS": [
-            "aaa"
-          ]
+          "SS": ["aaa"]
         },
         "NumberSet": {
-          "NS": [
-            "1.0"
-          ]
+          "NS": ["1.0"]
         },
         "BinarySet": {
-          "BS": [
-            "b25l"
-          ]
+          "BS": ["b25l"]
         },
         "String": {
           "S": ""
@@ -248,10 +197,10 @@
           "B": ""
         },
         "Map": {
-            "M": {"x" : {"S": ""}}
+          "M": { "x": { "S": "" } }
         },
         "List": {
-          "L": [{"S": ""}]
+          "L": [{ "S": "" }]
         },
         "Null": {
           "NULL": ""
@@ -263,18 +212,9 @@
     ]
   },
   "IoPairs": [
-    [
-      "1",
-      "2"
-    ],
-    [
-      "2",
-      "3"
-    ],
-    [
-      "3",
-      "4"
-    ]
+    ["1", "2"],
+    ["2", "3"],
+    ["3", "4"]
   ],
   "Values": {
     ":zero": {
@@ -303,23 +243,10 @@
     ":cmp1c": "F_Cuatro.S_",
     ":cmp1d": "F_Cuatro",
     ":strset": {
-      "SS": [
-        "Dos",
-        "Tres",
-        "Cuatro",
-        "Cinco",
-        "Seis"
-      ]
+      "SS": ["Dos", "Tres", "Cuatro", "Cinco", "Seis"]
     },
     ":strlist": {
-      "L": [
-        "Uno",
-        "Dos",
-        "Tres",
-        "Cuatro",
-        "Cinco",
-        "Seis"
-      ]
+      "L": ["Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis"]
     }
   },
   "Queries": [
@@ -370,45 +297,31 @@
     },
     {
       "Filter": "Two = :two",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "Two = :two or Three = :three or Four = :four OR Five = :five",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "Two = :two and Three = :three and Four = :four and Five = :five",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "Two in (:two, :three, :four, :five)",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "Five in (:two, :three, :four, :five)",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "Five in (:strset)",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "Five in (:strlist)",
-      "Fail": [
-        "4"
-      ]
+      "Fail": ["4"]
     },
     {
       "Filter": "contains(One, :oneA)"
@@ -432,80 +345,46 @@
       "Queries": [
         {
           "Query": "Comp1 = :cmp1a",
-          "Pass": [
-            1
-          ],
-          "Fail": [
-            0
-          ]
+          "Pass": [1],
+          "Fail": [0]
         },
         {
           "Query": "begins_with(Comp1, :cmp1c)",
-          "Pass": [
-            1
-          ],
-          "Fail": [
-            0
-          ]
+          "Pass": [1],
+          "Fail": [0]
         },
         {
           "Query": ":cmp1c <= Comp1",
-          "Pass": [
-            1
-          ],
-          "Fail": [
-            0
-          ]
+          "Pass": [1],
+          "Fail": [0]
         },
         {
           "Query": "cmp1c < Comp1",
-          "Fail": [
-            0,
-            1
-          ]
+          "Fail": [0, 1]
         },
         {
           "Query": "cmp1c = Comp1",
-          "Fail": [
-            0,
-            1
-          ]
+          "Fail": [0, 1]
         },
         {
           "Query": "begins_with(Comp1, :cmp1d)",
-          "Pass": [
-            1
-          ],
-          "Fail": [
-            0
-          ]
+          "Pass": [1],
+          "Fail": [0]
         },
         {
           "Query": "contains(Comp1, :cmp1c)",
-          "Pass": [
-            1
-          ],
-          "Fail": [
-            0
-          ]
+          "Pass": [1],
+          "Fail": [0]
         },
         {
           "Query": "contains(Comp1, :cmp1d)",
-          "Pass": [
-            1
-          ],
-          "Fail": [
-            0
-          ]
+          "Pass": [1],
+          "Fail": [0]
         },
         {
           "Query": "Comp1 = :cmp1b",
-          "Pass": [
-            0
-          ],
-          "Fail": [
-            1
-          ]
+          "Pass": [0],
+          "Fail": [1]
         }
       ]
     }

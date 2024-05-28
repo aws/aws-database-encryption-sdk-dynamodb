@@ -7,15 +7,15 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 @DynamoDbBean
 public class InvalidAnnotatedPartitionClass {
 
-    private String id;
+  private String id;
 
-    @DynamoDbEncryptionDoNothing
-    @DynamoDbPartitionKey
-    public String getId() {
-        return this.id;
-    }
+  @DynamoDbEncryptionDoNothing
+  @DynamoDbPartitionKey
+  public String getId() {
+    return this.id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 }

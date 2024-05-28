@@ -32,7 +32,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     );
     expect DdbItemJson.NormalizeItem(decrypted.plaintextItem) == DdbItemJson.NormalizeItem(plain.item);
 
-   return Success(true);
+    return Success(true);
   }
 
   method OneNegativeTest(name : string, config : JSON, encrypted : JSON) returns (output : Result<bool, string>)
@@ -47,7 +47,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     if decrypted.Success? {
       return Failure("Failed to fail to decrypt " + name);
     }
-   return Success(true);
+    return Success(true);
   }
 
   method OneTest(name : string, value : JSON) returns (output : Result<bool, string>)

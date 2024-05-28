@@ -10,14 +10,14 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.cryptography.materialproviders.IKeyring;
-import software.amazon.cryptography.materialproviders.MaterialProviders;
-import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
-import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.amazon.cryptography.materialproviders.IKeyring;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 /*
   Migration Step 3: This is an example demonstrating how to update your configuration
@@ -37,22 +37,30 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
  */
 public class MigrationExampleStep3 {
 
-  public static void MigrationStep3(String kmsKeyId, String ddbTableName, int sortReadValue) {
+  public static void MigrationStep3(
+    String kmsKeyId,
+    String ddbTableName,
+    int sortReadValue
+  ) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
     //    as it will correctly handle both single region and Multi-Region KMS Keys.
-    MaterialProviders matProv = MaterialProviders.builder()
-        .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-        .build();
-    final CreateAwsKmsMrkMultiKeyringInput keyringInput = CreateAwsKmsMrkMultiKeyringInput.builder()
-        .generator(kmsKeyId)
-        .build();
-    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+    MaterialProviders matProv = MaterialProviders
+      .builder()
+      .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+      .build();
+    final CreateAwsKmsMrkMultiKeyringInput keyringInput =
+      CreateAwsKmsMrkMultiKeyringInput.builder().generator(kmsKeyId).build();
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(
+      keyringInput
+    );
 
     // 2. Create a Table Schema over your annotated class.
     //    This uses the same annotated class as Step 2, which MUST be deployed to all hosts
     //    before deploying Step 2.
-    final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(SimpleClass.class);
+    final TableSchema<SimpleClass> tableSchema = TableSchema.fromBean(
+      SimpleClass.class
+    );
 
     // 3. Configure which attributes we expect to be excluded in the signature
     //    when reading items. This value MUST be the same as in Steps 1 and 2.
@@ -62,34 +70,47 @@ public class MigrationExampleStep3 {
     //    Do not specify a plaintext override. Unspecified plaintext override defaults to
     //    `FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ`, which is the desired behavior
     //    for a client interacting with a fully encrypted database.
-    Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
-    tableConfigs.put(ddbTableName,
-        DynamoDbEnhancedTableEncryptionConfig.builder()
-            .logicalTableName(ddbTableName)
-            .keyring(kmsKeyring)
-            .schemaOnEncrypt(tableSchema)
-            .allowedUnsignedAttributes(unsignedAttributes)
-            .build());
+    Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
+      new HashMap<>();
+    tableConfigs.put(
+      ddbTableName,
+      DynamoDbEnhancedTableEncryptionConfig
+        .builder()
+        .logicalTableName(ddbTableName)
+        .keyring(kmsKeyring)
+        .schemaOnEncrypt(tableSchema)
+        .allowedUnsignedAttributes(unsignedAttributes)
+        .build()
+    );
 
     // 5. Create DynamoDbEncryptionInterceptor using the above config
     DynamoDbEncryptionInterceptor interceptor =
-        DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-            CreateDynamoDbEncryptionInterceptorInput.builder()
-                .tableEncryptionConfigs(tableConfigs)
-                .build());
+      DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
+        CreateDynamoDbEncryptionInterceptorInput
+          .builder()
+          .tableEncryptionConfigs(tableConfigs)
+          .build()
+      );
 
     // 6. Create the EnhancedClient using the interceptor, and create a table from the schema
-    DynamoDbClient ddb = DynamoDbClient.builder()
-        .region(Region.US_WEST_2)
-        .overrideConfiguration(
-            ClientOverrideConfiguration.builder()
-                .addExecutionInterceptor(interceptor)
-                .build())
-        .build();
-    DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-        .dynamoDbClient(ddb)
-        .build();
-    final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, tableSchema);
+    DynamoDbClient ddb = DynamoDbClient
+      .builder()
+      .region(Region.US_WEST_2)
+      .overrideConfiguration(
+        ClientOverrideConfiguration
+          .builder()
+          .addExecutionInterceptor(interceptor)
+          .build()
+      )
+      .build();
+    DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient
+      .builder()
+      .dynamoDbClient(ddb)
+      .build();
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
+      ddbTableName,
+      tableSchema
+    );
 
     // 7. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be encrypted.
@@ -117,12 +138,16 @@ public class MigrationExampleStep3 {
 
     // Demonstrate we get the expected item back
     assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
-    assert returnedItem.getAttribute1().equals("this will be encrypted and signed");
+    assert returnedItem
+      .getAttribute1()
+      .equals("this will be encrypted and signed");
   }
 
   public static void main(final String[] args) {
     if (args.length < 3) {
-      throw new IllegalArgumentException("To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args.");
+      throw new IllegalArgumentException(
+        "To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args."
+      );
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];

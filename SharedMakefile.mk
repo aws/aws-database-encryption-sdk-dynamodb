@@ -10,3 +10,5 @@ SMITHY_DAFNY_ROOT := $(PROJECT_ROOT)/submodules/smithy-dafny
 GRADLEW := ./runtimes/java/gradlew
 
 include $(SMITHY_DAFNY_ROOT)/SmithyDafnyMakefile.mk
+
+VERIFY_TIMEOUT := 250

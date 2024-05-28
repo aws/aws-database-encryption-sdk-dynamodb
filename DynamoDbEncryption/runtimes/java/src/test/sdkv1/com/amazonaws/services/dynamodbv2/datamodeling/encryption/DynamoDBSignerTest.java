@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class DynamoDBSignerTest {
+
   // These use the Key type (rather than PublicKey, PrivateKey, and SecretKey)
   // to test the routing logic within the signer.
   private static Key pubKeyRsa;
@@ -48,7 +49,6 @@ public class DynamoDBSignerTest {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-
     // RSA key generation
     KeyPairGenerator rsaGen = KeyPairGenerator.getInstance("RSA");
     rsaGen.initialize(2048, Utils.getRng());
@@ -77,441 +77,854 @@ public class DynamoDBSignerTest {
 
   @Test
   public void mac() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey
+    );
 
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void macLists() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
-    itemAttributes.put("Key1", new AttributeValue().withSS("Value1", "Value2", "Value3"));
+    itemAttributes.put(
+      "Key1",
+      new AttributeValue().withSS("Value1", "Value2", "Value3")
+    );
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
-    itemAttributes.put("Key2", new AttributeValue().withNS("100", "200", "300"));
+    itemAttributes.put(
+      "Key2",
+      new AttributeValue().withNS("100", "200", "300")
+    );
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3",
-        new AttributeValue()
-            .withBS(
-                ByteBuffer.wrap(new byte[] {0, 1, 2, 3}), ByteBuffer.wrap(new byte[] {3, 2, 1})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey);
+      "Key3",
+      new AttributeValue()
+        .withBS(
+          ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }),
+          ByteBuffer.wrap(new byte[] { 3, 2, 1 })
+        )
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey
+    );
 
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void macListsUnsorted() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
-    itemAttributes.put("Key1", new AttributeValue().withSS("Value3", "Value1", "Value2"));
+    itemAttributes.put(
+      "Key1",
+      new AttributeValue().withSS("Value3", "Value1", "Value2")
+    );
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
-    itemAttributes.put("Key2", new AttributeValue().withNS("100", "300", "200"));
+    itemAttributes.put(
+      "Key2",
+      new AttributeValue().withNS("100", "300", "200")
+    );
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3",
-        new AttributeValue()
-            .withBS(
-                ByteBuffer.wrap(new byte[] {3, 2, 1}), ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey);
+      "Key3",
+      new AttributeValue()
+        .withBS(
+          ByteBuffer.wrap(new byte[] { 3, 2, 1 }),
+          ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 })
+        )
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey
+    );
 
-    Map<String, AttributeValue> scrambledAttributes = new HashMap<String, AttributeValue>();
-    scrambledAttributes.put("Key1", new AttributeValue().withSS("Value1", "Value2", "Value3"));
-    scrambledAttributes.put("Key2", new AttributeValue().withNS("100", "200", "300"));
+    Map<String, AttributeValue> scrambledAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
     scrambledAttributes.put(
-        "Key3",
-        new AttributeValue()
-            .withBS(
-                ByteBuffer.wrap(new byte[] {0, 1, 2, 3}), ByteBuffer.wrap(new byte[] {3, 2, 1})));
+      "Key1",
+      new AttributeValue().withSS("Value1", "Value2", "Value3")
+    );
+    scrambledAttributes.put(
+      "Key2",
+      new AttributeValue().withNS("100", "200", "300")
+    );
+    scrambledAttributes.put(
+      "Key3",
+      new AttributeValue()
+        .withBS(
+          ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }),
+          ByteBuffer.wrap(new byte[] { 3, 2, 1 })
+        )
+    );
 
     signerRsa.verifySignature(
-        scrambledAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      scrambledAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void macNoAdMatchesEmptyAd() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature = signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, null, macKey);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      null,
+      macKey
+    );
 
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void macWithIgnoredChange() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
     itemAttributes.put("Key4", new AttributeValue().withS("Ignored Value"));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey);
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey
+    );
 
     itemAttributes.put("Key4", new AttributeValue().withS("New Ignored Value"));
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void macChangedValue() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey
+    );
 
     itemAttributes.get("Key2").setN("99");
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void macChangedFlag() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey
+    );
 
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void macChangedAssociatedData() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[] {3, 2, 1}, macKey);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[] { 3, 2, 1 },
+      macKey
+    );
 
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[] {1, 2, 3}, macKey, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[] { 1, 2, 3 },
+      macKey,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void sig() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyRsa);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyRsa
+    );
 
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyRsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyRsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void sigWithReadOnlySignature() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyRsa);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyRsa
+    );
 
     signerRsa.verifySignature(
-        itemAttributes,
-        attributeActionsOnEncrypt,
-        new byte[0],
-        pubKeyRsa,
-        ByteBuffer.wrap(signature).asReadOnlyBuffer());
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyRsa,
+      ByteBuffer.wrap(signature).asReadOnlyBuffer()
+    );
   }
 
   @Test
   public void sigNoAdMatchesEmptyAd() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, null, privKeyRsa);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      null,
+      privKeyRsa
+    );
 
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyRsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyRsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void sigWithIgnoredChange() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
     itemAttributes.put("Key4", new AttributeValue().withS("Ignored Value"));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyRsa);
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyRsa
+    );
 
     itemAttributes.put("Key4", new AttributeValue().withS("New Ignored Value"));
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyRsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyRsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void sigChangedValue() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyRsa);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyRsa
+    );
 
     itemAttributes.get("Key2").setN("99");
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyRsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyRsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void sigChangedFlag() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyRsa);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyRsa
+    );
 
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
     signerRsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyRsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyRsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void sigChangedAssociatedData() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
-    attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT));
-    byte[] signature =
-        signerRsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyRsa);
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
+    attributeActionsOnEncrypt.put(
+      "Key3",
+      EnumSet.of(EncryptionFlags.SIGN, EncryptionFlags.ENCRYPT)
+    );
+    byte[] signature = signerRsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyRsa
+    );
 
     signerRsa.verifySignature(
-        itemAttributes,
-        attributeActionsOnEncrypt,
-        new byte[] {1, 2, 3},
-        pubKeyRsa,
-        ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[] { 1, 2, 3 },
+      pubKeyRsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void sigEcdsa() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
-    byte[] signature =
-        signerEcdsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyEcdsa);
+    byte[] signature = signerEcdsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyEcdsa
+    );
 
     signerEcdsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyEcdsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyEcdsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void sigEcdsaWithReadOnlySignature() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
-    byte[] signature =
-        signerEcdsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyEcdsa);
+    byte[] signature = signerEcdsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyEcdsa
+    );
 
     signerEcdsa.verifySignature(
-        itemAttributes,
-        attributeActionsOnEncrypt,
-        new byte[0],
-        pubKeyEcdsa,
-        ByteBuffer.wrap(signature).asReadOnlyBuffer());
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyEcdsa,
+      ByteBuffer.wrap(signature).asReadOnlyBuffer()
+    );
   }
 
   @Test
   public void sigEcdsaNoAdMatchesEmptyAd() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
-    byte[] signature =
-        signerEcdsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, null, privKeyEcdsa);
+    byte[] signature = signerEcdsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      null,
+      privKeyEcdsa
+    );
 
     signerEcdsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyEcdsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyEcdsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test
   public void sigEcdsaWithIgnoredChange() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key4", new AttributeValue().withS("Ignored Value"));
-    byte[] signature =
-        signerEcdsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyEcdsa);
+    byte[] signature = signerEcdsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyEcdsa
+    );
 
     itemAttributes.put("Key4", new AttributeValue().withS("New Ignored Value"));
     signerEcdsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyEcdsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyEcdsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void sigEcdsaChangedValue() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
-    byte[] signature =
-        signerEcdsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyEcdsa);
+    byte[] signature = signerEcdsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyEcdsa
+    );
 
     itemAttributes.get("Key2").setN("99");
     signerEcdsa.verifySignature(
-        itemAttributes, attributeActionsOnEncrypt, new byte[0], pubKeyEcdsa, ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      pubKeyEcdsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 
   @Test(expectedExceptions = SignatureException.class)
   public void sigEcdsaChangedAssociatedData() throws GeneralSecurityException {
-    Map<String, AttributeValue> itemAttributes = new HashMap<String, AttributeValue>();
-    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<String, Set<EncryptionFlags>>();
+    Map<String, AttributeValue> itemAttributes = new HashMap<
+      String,
+      AttributeValue
+    >();
+    Map<String, Set<EncryptionFlags>> attributeActionsOnEncrypt = new HashMap<
+      String,
+      Set<EncryptionFlags>
+    >();
 
     itemAttributes.put("Key1", new AttributeValue().withS("Value1"));
     attributeActionsOnEncrypt.put("Key1", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put("Key2", new AttributeValue().withN("100"));
     attributeActionsOnEncrypt.put("Key2", EnumSet.of(EncryptionFlags.SIGN));
     itemAttributes.put(
-        "Key3", new AttributeValue().withB(ByteBuffer.wrap(new byte[] {0, 1, 2, 3})));
+      "Key3",
+      new AttributeValue().withB(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3 }))
+    );
     attributeActionsOnEncrypt.put("Key3", EnumSet.of(EncryptionFlags.SIGN));
-    byte[] signature =
-        signerEcdsa.calculateSignature(itemAttributes, attributeActionsOnEncrypt, new byte[0], privKeyEcdsa);
+    byte[] signature = signerEcdsa.calculateSignature(
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[0],
+      privKeyEcdsa
+    );
 
     signerEcdsa.verifySignature(
-        itemAttributes,
-        attributeActionsOnEncrypt,
-        new byte[] {1, 2, 3},
-        pubKeyEcdsa,
-        ByteBuffer.wrap(signature));
+      itemAttributes,
+      attributeActionsOnEncrypt,
+      new byte[] { 1, 2, 3 },
+      pubKeyEcdsa,
+      ByteBuffer.wrap(signature)
+    );
   }
 }

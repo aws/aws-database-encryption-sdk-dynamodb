@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 public class LRUCacheTest {
+
   @Test
   public void test() {
     final LRUCache<String> cache = new LRUCache<String>(3);

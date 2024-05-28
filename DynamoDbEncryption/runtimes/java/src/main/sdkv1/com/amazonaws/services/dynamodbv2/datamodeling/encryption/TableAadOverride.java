@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  *
  * @author Greg Rubin
  */
-@Target(value = {ElementType.TYPE})
+@Target(value = { ElementType.TYPE })
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface TableAadOverride {
   String tableName();

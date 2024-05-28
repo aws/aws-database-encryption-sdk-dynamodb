@@ -42,6 +42,7 @@ import javax.crypto.SecretKey;
  * @author Greg Rubin
  */
 public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
+
   private final Key wrappingKey;
   private final Key unwrappingKey;
   private final KeyPair sigPair;
@@ -58,8 +59,17 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
    *     public key is provided, then this provider may only be used for decryption, but not
    *     encryption.
    */
-  public WrappedMaterialsProvider(Key wrappingKey, Key unwrappingKey, KeyPair signingPair) {
-    this(wrappingKey, unwrappingKey, signingPair, Collections.<String, String>emptyMap());
+  public WrappedMaterialsProvider(
+    Key wrappingKey,
+    Key unwrappingKey,
+    KeyPair signingPair
+  ) {
+    this(
+      wrappingKey,
+      unwrappingKey,
+      signingPair,
+      Collections.<String, String>emptyMap()
+    );
   }
 
   /**
@@ -76,12 +86,17 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
    *     returned by this object.
    */
   public WrappedMaterialsProvider(
-      Key wrappingKey, Key unwrappingKey, KeyPair signingPair, Map<String, String> description) {
+    Key wrappingKey,
+    Key unwrappingKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) {
     this.wrappingKey = wrappingKey;
     this.unwrappingKey = unwrappingKey;
     this.sigPair = signingPair;
     this.macKey = null;
-    this.description = Collections.unmodifiableMap(new HashMap<String, String>(description));
+    this.description =
+      Collections.unmodifiableMap(new HashMap<String, String>(description));
   }
 
   /**
@@ -92,8 +107,17 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
    *     decryption, but not encryption.
    * @param macKey the key used to sign/verify the data stored in Dynamo.
    */
-  public WrappedMaterialsProvider(Key wrappingKey, Key unwrappingKey, SecretKey macKey) {
-    this(wrappingKey, unwrappingKey, macKey, Collections.<String, String>emptyMap());
+  public WrappedMaterialsProvider(
+    Key wrappingKey,
+    Key unwrappingKey,
+    SecretKey macKey
+  ) {
+    this(
+      wrappingKey,
+      unwrappingKey,
+      macKey,
+      Collections.<String, String>emptyMap()
+    );
   }
 
   /**
@@ -108,12 +132,17 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
    *     returned by this object.
    */
   public WrappedMaterialsProvider(
-      Key wrappingKey, Key unwrappingKey, SecretKey macKey, Map<String, String> description) {
+    Key wrappingKey,
+    Key unwrappingKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) {
     this.wrappingKey = wrappingKey;
     this.unwrappingKey = unwrappingKey;
     this.sigPair = null;
     this.macKey = macKey;
-    this.description = Collections.unmodifiableMap(new HashMap<String, String>(description));
+    this.description =
+      Collections.unmodifiableMap(new HashMap<String, String>(description));
   }
 
   @Override
@@ -121,10 +150,18 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
     try {
       if (macKey != null) {
         return new WrappedRawMaterials(
-            wrappingKey, unwrappingKey, macKey, context.getMaterialDescription());
+          wrappingKey,
+          unwrappingKey,
+          macKey,
+          context.getMaterialDescription()
+        );
       } else {
         return new WrappedRawMaterials(
-            wrappingKey, unwrappingKey, sigPair, context.getMaterialDescription());
+          wrappingKey,
+          unwrappingKey,
+          sigPair,
+          context.getMaterialDescription()
+        );
       }
     } catch (GeneralSecurityException ex) {
       throw new DynamoDBMappingException("Unable to decrypt envelope key", ex);
@@ -135,9 +172,19 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
   public EncryptionMaterials getEncryptionMaterials(EncryptionContext context) {
     try {
       if (macKey != null) {
-        return new WrappedRawMaterials(wrappingKey, unwrappingKey, macKey, description);
+        return new WrappedRawMaterials(
+          wrappingKey,
+          unwrappingKey,
+          macKey,
+          description
+        );
       } else {
-        return new WrappedRawMaterials(wrappingKey, unwrappingKey, sigPair, description);
+        return new WrappedRawMaterials(
+          wrappingKey,
+          unwrappingKey,
+          sigPair,
+          description
+        );
       }
     } catch (GeneralSecurityException ex) {
       throw new DynamoDBMappingException("Unable to encrypt envelope key", ex);

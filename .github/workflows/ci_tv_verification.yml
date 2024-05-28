@@ -12,7 +12,7 @@ on:
     # (accordingly to the "nightly" parameter).
     inputs:
       nightly:
-        description: 'Run the nightly build'
+        description: "Run the nightly build"
         required: false
         type: boolean
   schedule:
@@ -31,12 +31,8 @@ jobs:
       matrix:
         # Break up verification between namespaces over multiple
         # actions to take advantage of parallelization
-        service: [
-          DDBEncryption
-        ]
-        os: [
-          macos-12,
-        ]
+        service: [DDBEncryption]
+        os: [macos-12]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3

@@ -42,7 +42,9 @@ public abstract class ProviderStore {
    * @throws IndexOutOfBoundsException if {@code version} is not a valid version
    */
   public abstract EncryptionMaterialsProvider getProvider(
-      final String materialName, final long version);
+    final String materialName,
+    final long version
+  );
 
   /**
    * Creates a new provider with a version one greater than the current max version. If multiple
@@ -60,11 +62,17 @@ public abstract class ProviderStore {
    *
    * @throws UnsupportedOperationException if a new provider cannot be created
    */
-  public EncryptionMaterialsProvider getOrCreate(final String materialName, final long nextId) {
+  public EncryptionMaterialsProvider getOrCreate(
+    final String materialName,
+    final long nextId
+  ) {
     try {
       return getProvider(materialName, nextId);
     } catch (final IndexOutOfBoundsException ex) {
-      throw new UnsupportedOperationException("This ProviderStore does not support creation.", ex);
+      throw new UnsupportedOperationException(
+        "This ProviderStore does not support creation.",
+        ex
+      );
     }
   }
 
@@ -75,5 +83,7 @@ public abstract class ProviderStore {
   public abstract long getMaxVersion(final String materialName);
 
   /** Extracts the material version from {@code description}. */
-  public abstract long getVersionFromMaterialDescription(final Map<String, String> description);
+  public abstract long getVersionFromMaterialDescription(
+    final Map<String, String> description
+  );
 }
