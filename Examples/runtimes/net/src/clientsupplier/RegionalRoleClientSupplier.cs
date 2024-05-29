@@ -20,11 +20,11 @@ public class RegionalRoleClientSupplier : ClientSupplierBase
     {
         String arn = _config.regionIamRoleMap[getClientInput.Region];
         Credentials creds = _stsClient.AssumeRoleAsync(new AssumeRoleRequest
-            {
-                RoleArn = arn,
-                DurationSeconds = 900, // 15 minutes is the minimum value
-                RoleSessionName = "Java-Client-Supplier-Example-Session"
-            }
+        {
+            RoleArn = arn,
+            DurationSeconds = 900, // 15 minutes is the minimum value
+            RoleSessionName = "Java-Client-Supplier-Example-Session"
+        }
         ).Result.Credentials;
 
         return new AmazonKeyManagementServiceClient(creds, RegionEndpoint.GetBySystemName(getClientInput.Region));

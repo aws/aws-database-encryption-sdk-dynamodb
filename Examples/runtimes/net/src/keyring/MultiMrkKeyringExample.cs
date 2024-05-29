@@ -272,8 +272,8 @@ public class MultiMrkKeyringExample
         //     and return back the original item.
         var onlySrkKeyToGet = new Dictionary<String, AttributeValue>
         {
-            ["partition_key"] = new AttributeValue("awsKmsMrkMultiKeyringItem"), 
-            ["sort_key"] = new AttributeValue{N = "0"}
+            ["partition_key"] = new AttributeValue("awsKmsMrkMultiKeyringItem"),
+            ["sort_key"] = new AttributeValue { N = "0" }
         };
 
         var onlySrkGetRequest = new GetItemRequest
@@ -288,5 +288,5 @@ public class MultiMrkKeyringExample
         Debug.Assert(onlySrkGetResponse.HttpStatusCode == HttpStatusCode.OK);
         var onlySrkReturnedItem = onlySrkGetResponse.Item;
         Debug.Assert(onlySrkReturnedItem["sensitive_data"].S.Equals("encrypt and sign me!"));
-        }
     }
+}

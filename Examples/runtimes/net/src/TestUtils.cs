@@ -58,12 +58,13 @@ public class TestUtils
         if (value.IsMSet) return "M";
         if (value.IsLSet) return "L";
         if (value.NULL == true) return "NULL";
-        if (value.IsBOOLSet)  return "BOOL";
+        if (value.IsBOOLSet) return "BOOL";
         return "UNKNOWN";
     }
 
     public static void PrintAttributeValue(AttributeValue value)
-    {   if (value.S != null) Console.Write($"S {value.S}\n");
+    {
+        if (value.S != null) Console.Write($"S {value.S}\n");
         if (value.N != null) Console.Write($"N {value.N}\n");
         if (value.B != null) Console.Write($"B {value.B}\n");
         if (value.SS.Any()) Console.Write($"SS {value.SS}\n");
