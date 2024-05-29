@@ -2063,6 +2063,12 @@ impl Sub<DafnyCharUTF16> for DafnyCharUTF16 {
 #[derive(Clone)]
 pub struct DafnyChar(pub char);
 pub type DafnyString = Sequence<DafnyChar>;
+impl Default for DafnyChar {
+    fn default() -> Self {
+        Self('a' as char)
+    }
+}
+
 
 impl DafnyPrint for DafnyChar {
     #[inline]
