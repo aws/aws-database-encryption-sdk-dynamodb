@@ -179,11 +179,11 @@ module DynamoToStructTest {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
     //= type=test
     //# Each list entry in the sequence MUST be serialized as:
-    //# | Field                | Length                     |
-    //# | -------------------- | -------------------------- |
-    //# | List Entry Type      | 2                          |
-    //# | List Entry Length    | 4                          |
-    //# | List Entry Value     | Variable. Equal to Length. |
+    //# | Field             | Length                     |
+    //# | ----------------- | -------------------------- |
+    //# | List Entry Type   | 2                          |
+    //# | List Entry Length | 4                          |
+    //# | List Entry Value  | Variable. Equal to Length. |
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entries
     //= type=test

@@ -6,6 +6,8 @@ include "../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/src/
 
 include "Header.dfy"
 include "Util.dfy"
+include "SortCanon.dfy"
+include "Canonize.dfy"
 
 module StructuredEncryptionCrypt {
   import opened Wrappers
@@ -23,6 +25,9 @@ module StructuredEncryptionCrypt {
   import HKDF
   import AesKdfCtr
   import Seq
+  import SortCanon
+    // import Relations
+  import opened Canonize
 
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
@@ -125,57 +130,45 @@ module StructuredEncryptionCrypt {
     return commitKey.MapFailure(e => AwsCryptographyPrimitives(e));
   }
 
-  datatype EncryptionSelector = DoEncrypt | DoDecrypt
-
-  // Updated return true if the given item has been updated properly for the given operation.
-  // Updated2..Update5 do exactly the same thing, but with different data types.
-  predicate Updated(oldVal : CanonCryptoItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  lemma EncryptDataUpdated(origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- origData :: CryptoExistsInCanonCrypto(k, data)
+    requires |finalData| == |origData| == |data|
+    requires (forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoEncrypt))
+    ensures forall k <- origData :: CryptoUpdatedCanonCrypto(k, finalData)
   {
-    && oldVal.key == newVal.key
-    && oldVal.origKey == newVal.origKey
-    && oldVal.action == newVal.action
-    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
-    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
-    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
-    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+    reveal CryptoExistsInCanonCrypto();
+    reveal CryptoUpdatedCanonCrypto();
+    assert forall oldVal <- origData :: exists i :: 0 <= i < |finalData| && Updated5(oldVal, finalData[i], DoEncrypt);
+    assert forall oldVal <- origData :: exists x :: x in finalData && Updated5(oldVal, x, DoEncrypt);
   }
 
-  predicate Updated2(oldVal : AuthItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
+  lemma EncryptFinalUpdated(origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- data :: CanonCryptoExistsInCrypto(k, origData)
+    requires |finalData| == |origData| == |data|
+    requires forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoEncrypt)
+    ensures forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData)
   {
-    && oldVal.key == newVal.origKey
-    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
-    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
-    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
-    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+    reveal CanonCryptoExistsInCrypto();
+    reveal CanonCryptoUpdatedCrypto();
+    assert forall val <- data :: exists x :: x in origData && x.key == val.origKey && x.data == val.data && x.action == val.action;
+    assert forall newVal <- finalData :: exists x :: x in origData && Updated5(x, newVal, DoEncrypt);
   }
 
-  predicate Updated3(oldVal : AuthItem, newVal : CryptoItem, mode : EncryptionSelector)
+  lemma EncryptMaintains(tableName : GoodString, origData : CryptoList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires CanonCryptoMatchesCryptoList(tableName, origData, data)
+    requires |finalData| == |data|
+    requires (forall i | 0 <= i < |data| :: Updated(data[i], finalData[i], DoEncrypt))
+    ensures CanonCryptoUpdatedCryptoList(tableName, origData, finalData)
   {
-    && oldVal.key == newVal.key
-    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
-    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
-    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
-    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
-  }
+    reveal CanonCryptoMatchesCryptoList();
+    reveal CanonCryptoUpdatedCryptoList();
 
-  predicate Updated4(oldVal : CryptoItem, newVal : CryptoItem, mode : EncryptionSelector)
-  {
-    && oldVal.key == newVal.key
-    && oldVal.action == newVal.action
-    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
-    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
-    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
-    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
-  }
-
-  predicate Updated5(oldVal : CryptoItem, newVal : CanonCryptoItem, mode : EncryptionSelector)
-  {
-    && oldVal.key == newVal.origKey
-    && oldVal.action == newVal.action
-    && (newVal.action != ENCRYPT_AND_SIGN <==> oldVal.data == newVal.data)
-    && (newVal.action == ENCRYPT_AND_SIGN <==> oldVal.data != newVal.data)
-    && (mode == DoEncrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> newVal.data.typeId == BYTES_TYPE_ID))
-    && (mode == DoDecrypt ==> (newVal.action == ENCRYPT_AND_SIGN ==> |oldVal.data.value| >= 2 && newVal.data.typeId == oldVal.data.value[..2]))
+    assert forall k <- origData :: CryptoUpdatedCanonCrypto(k, finalData) by {
+      EncryptDataUpdated(origData, data, finalData);
+    }
+    assert forall k <- finalData :: CanonCryptoUpdatedCrypto(k, origData) by {
+      EncryptFinalUpdated(origData, data, finalData);
+    }
   }
 
   // Encrypt a StructuredDataMap
@@ -184,9 +177,13 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    data : CanonCryptoList)
+    data : CanonCryptoList,
+    ghost tableName : GoodString,
+    ghost origData : CryptoList)
     returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
+    requires IsCryptoSorted(data)
+    requires CanonCryptoMatchesCryptoList(tableName, origData, data)
 
     modifies client.Modifies
     requires client.ValidState()
@@ -194,8 +191,57 @@ module StructuredEncryptionCrypt {
     ensures ret.Success? ==>
               && |ret.value| == |data|
               && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], DoEncrypt))
+              && CanonCryptoListHasNoDuplicates(ret.value)
+              && IsCryptoSorted(ret.value)
+              && CanonCryptoUpdatedCryptoList(tableName, origData, ret.value)
   {
-    ret := Crypt(DoEncrypt, client, alg, key, head, data);
+    reveal CanonCryptoMatchesCryptoList();
+    var result :- Crypt(DoEncrypt, client, alg, key, head, data);
+    assert CanonCryptoUpdatedCryptoList(tableName, origData, result) by {
+      EncryptMaintains(tableName, origData, data, result);
+    }
+    return Success(result);
+  }
+
+  lemma DecryptDataUpdated(origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- origData :: AuthExistsInCanonCrypto(k, data)
+    requires |finalData| == |origData| == |data|
+    requires (forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoDecrypt))
+    ensures forall k <- origData :: AuthUpdatedCanonCrypto(k, finalData)
+  {
+    reveal AuthExistsInCanonCrypto();
+    reveal AuthUpdatedCanonCrypto();
+    assert forall oldVal <- origData :: exists i :: 0 <= i < |finalData| && Updated2(oldVal, finalData[i], DoDecrypt);
+    assert forall oldVal <- origData :: exists x :: x in finalData && Updated2(oldVal, x, DoDecrypt);
+  }
+
+  lemma DecryptFinalUpdated(origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires forall k <- data :: CanonCryptoExistsInAuth(k, origData)
+    requires |finalData| == |origData| == |data|
+    requires (forall i | 0 <= i < |origData| :: Updated(data[i], finalData[i], DoDecrypt))
+    ensures forall k <- finalData :: CanonCryptoUpdatedAuth(k, origData)
+  {
+    reveal CanonCryptoExistsInAuth();
+    reveal CanonCryptoUpdatedAuth();
+    assert forall val <- data :: exists x :: x in origData && x.key == val.origKey && x.data == val.data;
+    assert forall newVal <- finalData :: exists x :: x in origData && Updated2(x, newVal, DoDecrypt);
+  }
+
+  lemma DecryptMaintains(tableName : GoodString, origData : AuthList, data : CanonCryptoList, finalData : CanonCryptoList)
+    requires CanonCryptoMatchesAuthList(tableName, origData, data)
+    requires |finalData| == |data|
+    requires (forall i | 0 <= i < |data| :: Updated(data[i], finalData[i], DoDecrypt))
+    ensures CanonCryptoUpdatedAuthList(tableName, origData, finalData)
+  {
+    reveal CanonCryptoMatchesAuthList();
+    reveal CanonCryptoUpdatedAuthList();
+
+    assert forall k <- origData :: AuthUpdatedCanonCrypto(k, finalData) by {
+      DecryptDataUpdated(origData, data, finalData);
+    }
+    assert forall k <- finalData :: CanonCryptoUpdatedAuth(k, origData) by {
+      DecryptFinalUpdated(origData, data, finalData);
+    }
   }
 
   // Decrypt a StructuredDataMap
@@ -204,18 +250,40 @@ module StructuredEncryptionCrypt {
     alg : CMP.AlgorithmSuiteInfo,
     key : Key,
     head : Header.PartialHeader,
-    data : CanonCryptoList)
+    data : CanonCryptoList,
+    ghost tableName : GoodString,
+    ghost origData : AuthList)
     returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
+    requires IsCryptoSorted(data)
+    requires CanonCryptoMatchesAuthList(tableName, origData, data)
 
     modifies client.Modifies
     requires client.ValidState()
     ensures client.ValidState()
     ensures ret.Success? ==>
               && |ret.value| == |data|
-              && forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], DoDecrypt)
+              && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], DoDecrypt))
+              && IsCryptoSorted(ret.value)
+              && CanonCryptoUpdatedAuthList(tableName, origData, ret.value)
   {
-    ret := Crypt(DoDecrypt, client, alg, key, head, data);
+    reveal CanonCryptoMatchesAuthList();
+    var result :- Crypt(DoDecrypt, client, alg, key, head, data);
+    assert CanonCryptoUpdatedAuthList(tableName, origData, result) by {
+      DecryptMaintains(tableName, origData, data, result);
+    }
+    return Success(result);
+  }
+
+  lemma MaintainSorted(data : CanonCryptoList, result : CanonCryptoList, mode : EncryptionSelector)
+    requires IsCryptoSorted(data)
+    requires |result| == |data|
+    requires forall i | 0 <= i < |data| :: Updated(data[i], result[i], mode)
+    ensures IsCryptoSorted(result)
+  {
+    reveal IsCryptoSorted();
+    assert forall i | 0 <= i < |data| :: data[i].key == result[i].key;
+    SortCanon.SortedIsSorted(data, result);
   }
 
   // Encrypt or Decrypt a StructuredDataMap
@@ -228,6 +296,8 @@ module StructuredEncryptionCrypt {
     data : CanonCryptoList)
     returns (ret : Result<CanonCryptoList, Error>)
     requires ValidSuite(alg)
+    requires CanonCryptoListHasNoDuplicates(data)
+    requires IsCryptoSorted(data)
 
     ensures ret.Success? ==>
               //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
@@ -263,6 +333,8 @@ module StructuredEncryptionCrypt {
     ensures ret.Success? ==>
               && |ret.value| == |data|
               && (forall i | 0 <= i < |data| :: Updated(data[i], ret.value[i], mode))
+              && CanonCryptoListHasNoDuplicates(ret.value)
+              && IsCryptoSorted(ret.value)
   {
     //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `FieldRootKey` MUST be generated with the plaintext data key in the encryption materials
@@ -283,8 +355,13 @@ module StructuredEncryptionCrypt {
     //# The calculated Field Root MUST have length equal to the
     //# [algorithm suite's encryption key length](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md#algorithm-suites-encryption-settings).
     assert |fieldRootKey| == AlgorithmSuites.GetEncryptKeyLength(alg) as int;
-    var result := CryptList(mode, client, alg, fieldRootKey, data);
-    return result;
+    var result :- CryptList(mode, client, alg, fieldRootKey, data);
+
+    assert IsCryptoSorted(result) by {
+      MaintainSorted(data, result, mode);
+    }
+
+    return Success(result);
   }
 
   // Encrypt or Decrypt each entry in keys, putting results in output

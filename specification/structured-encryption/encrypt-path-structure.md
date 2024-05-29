@@ -79,6 +79,7 @@ See [encryption context](./structures.md#encryption-context).
 The prefix `aws-crypto-` is reserved for internal use by the AWS Encryption SDK; see the
 [the Default CMM spec](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/default-cmm.md)
 for one such use.
+The operation MUST fail if an encryption context is provided which contains a key with the prefix `aws-crypto-`.
 
 ## Output
 
@@ -312,11 +313,12 @@ The Footer Field Value MUST be the serialized [footer](footer.md).
 
 #### Encrypted Structured Data
 
-- for every entry in the input [Crypto List](#crypto-list)
+- For every entry in the input [Crypto List](#crypto-list)
   an entry MUST exist with the same [path](./structures.md#path) in the final Encrypted Structured Data.
 - The [Header Field](#header-field) MUST exist in the final Encrypted Structured Data
 - The [Footer Field](#footer-field) MUST exist in the final Encrypted Structured Data
-- There MUST be no other entries in the final Encrypted Structured Data.
+- For every entry in the final Encrypted Structured Data, other than the header and footer,
+  an entry MUST exist with the same [path](./structures.md#path) in the input [Crypto List](#crypto-list).
 
 For each entry in the final Encrypted Structured Data:
 

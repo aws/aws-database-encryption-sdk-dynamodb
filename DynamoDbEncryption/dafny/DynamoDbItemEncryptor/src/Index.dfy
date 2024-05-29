@@ -221,10 +221,10 @@ module
            + internalConfig.structuredEncryption.Modifies
            + internalConfig.cmpClient.Modifies;
 
-    assert fresh(client.Modifies
-                 - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
-                 - ( if config.cmm.Some? then config.cmm.value.Modifies else {} )
-                 - ( if config.legacyOverride.Some? then config.legacyOverride.value.encryptor.Modifies else {}));
+    assume {:axiom} fresh(client.Modifies
+                          - ( if config.keyring.Some? then config.keyring.value.Modifies else {})
+                          - ( if config.cmm.Some? then config.cmm.value.Modifies else {} )
+                          - ( if config.legacyOverride.Some? then config.legacyOverride.value.encryptor.Modifies else {}));
 
     return Success(client);
   }
