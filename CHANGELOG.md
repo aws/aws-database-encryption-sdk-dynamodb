@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.5.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.4.0...v3.5.0) (2024-05-30)
+
+
+### Features
+
+* **DynamoDbEncryption:** Add GetEncryptedDataKeyDescription operation ([#856](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/856)) ([8f8471a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8f8471a479d9e7526dd8aaa6f34c906d2a0e2dbb))
+* improve verification ([#1020](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1020)) ([cbde4ef](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/cbde4efbd83c57bbbfb96358219dd421141f1da3))
+* simplify structured encryption ([#866](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/866)) ([a70a569](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/a70a569d632d051710cfeb37ce27c8785bdba7c2))
+
+
+### Maintenance
+
+* allow Legacy to use subclass of DynamoDBEncryptor ([#1073](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1073)) ([135acd9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/135acd9871698e76228d6c3ce925bcf589df39c6))
+* bump MPL to 1.4 ([#1067](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1067)) ([51bbab5](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/51bbab5589a5db611a3b7564a1c9703fb0de1a23))
+* **Java-Release:** update release commands and use SNAPSHOT builds ([#995](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/995)) ([ac9b79e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ac9b79eb18e1904962223e6add153fd49a0f188e))
+* reformat and enforce formatting ([#1035](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1035)) ([8a76a9d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8a76a9db2e6427b46748b07e654edaf855cd4338))
+* verify with Dafny 4.6 ([#1072](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1072)) ([9db6e78](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/9db6e78ee01583dd04238252c939277636fc06ad))
+
 ## [3.4.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.3.0...v3.4.0) (2024-04-30)
 
 ### Notes
