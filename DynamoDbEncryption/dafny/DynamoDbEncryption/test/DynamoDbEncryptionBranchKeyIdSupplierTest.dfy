@@ -43,8 +43,10 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   const BRANCH_KEY_ID_B := ALTERNATE_BRANCH_KEY_ID
   const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name")
   const RESERVED_PREFIX := "aws-crypto-attr."
+  const KEY_ATTR_NAME := UTF8.EncodeAscii(RESERVED_PREFIX + BRANCH_KEY)
+  const BRANCH_KEY_NAME := UTF8.EncodeAscii(BRANCH_KEY)
 
-  method {:test} TestHappyCase()
+  method {:test} {:vcs_split_on_every_assert} TestHappyCase()
   {
     var ddbKeyToBranchKeyId: Types.IDynamoDbKeyBranchKeyIdSupplier := new TestBranchKeyIdSupplier();
     var ddbEncResources :- expect DynamoDbEncryption.DynamoDbEncryption();
@@ -80,13 +82,12 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
       )
     );
 
-    var keyAttrName := UTF8.EncodeAscii(RESERVED_PREFIX + BRANCH_KEY);
 
     // Test Encryption Context with Case A
     var materials :- expect mpl.InitializeEncryptionMaterials(
       MPL.InitializeEncryptionMaterialsInput(
         algorithmSuiteId := TEST_DBE_ALG_SUITE_ID,
-        encryptionContext := map[EC_PARTITION_NAME := UTF8.EncodeAscii(BRANCH_KEY)],
+        encryptionContext := map[EC_PARTITION_NAME := BRANCH_KEY_NAME],
         requiredEncryptionContextKeys := [],
         signingKey := None,
         verificationKey := None
@@ -94,13 +95,13 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
     );
 
     var caseA :- expect UTF8.Encode(Base64.Encode(CASE_A_BYTES));
-    var contextCaseA := materials.encryptionContext[keyAttrName := caseA];
+    var contextCaseA := materials.encryptionContext[KEY_ATTR_NAME := caseA];
     var materialsA := materials.(encryptionContext := contextCaseA);
     TestRoundtrip(hierarchyKeyring, materialsA, TEST_DBE_ALG_SUITE_ID, BRANCH_KEY_ID_A);
 
     // Test Encryption Context with Case B
     var caseB :- expect UTF8.Encode(Base64.Encode(CASE_B_BYTES));
-    var contextCaseB := materials.encryptionContext[keyAttrName := caseB];
+    var contextCaseB := materials.encryptionContext[KEY_ATTR_NAME := caseB];
     var materialsB := materials.(encryptionContext := contextCaseB);
     TestRoundtrip(hierarchyKeyring, materialsB, TEST_DBE_ALG_SUITE_ID, BRANCH_KEY_ID_B);
   }

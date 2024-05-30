@@ -357,7 +357,7 @@ module DynamoToStruct {
               && U32ToBigEndian(|a.L|).Success?
               && |ret.value| >= PREFIX_LEN + LENGTH_LEN
               && ret.value[0..TYPEID_LEN] == SE.LIST
-              // && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
+                 // && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
               && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-attribute
