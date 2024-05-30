@@ -357,6 +357,9 @@ module DynamoToStruct {
               && U32ToBigEndian(|a.L|).Success?
               && |ret.value| >= PREFIX_LEN + LENGTH_LEN
               && ret.value[0..TYPEID_LEN] == SE.LIST
+              && ListAttrToBytes(a.L, depth).Success?
+              && ret.value[PREFIX_LEN..] == ListAttrToBytes(a.L, depth).value
+              && ListAttrToBytes(a.L, depth).value[..LENGTH_LEN] == U32ToBigEndian(|a.L|).value
               && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
               && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
@@ -492,6 +495,10 @@ module DynamoToStruct {
   }
 
   function method ListAttrToBytes(l: ListAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
+    ensures ret.Success? ==>
+              && U32ToBigEndian(|l|).Success?
+              && LENGTH_LEN <= |ret.value|
+              && ret.value[..LENGTH_LEN] == U32ToBigEndian(|l|).value
   {
     var count :- U32ToBigEndian(|l|);
     var body :- CollectList(l, depth);
