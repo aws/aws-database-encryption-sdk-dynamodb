@@ -222,6 +222,7 @@ module SortCanon {
     ensures multiset(x) == multiset(result)
     ensures SortedBy(result, AuthBelow)
     ensures CanonAuthListHasNoDuplicates(result)
+    ensures |result| == |x|
   {
     AuthBelowIsTotal();
     var ret := MergeSortBy(x, AuthBelow);
@@ -236,6 +237,7 @@ module SortCanon {
     ensures multiset(result) == multiset(x)
     ensures SortedBy(result, CryptoBelow)
     ensures CanonCryptoListHasNoDuplicates(result)
+    ensures |result| == |x|
   {
     CryptoBelowIsTotal();
     var ret := MergeSortBy(x, CryptoBelow);
