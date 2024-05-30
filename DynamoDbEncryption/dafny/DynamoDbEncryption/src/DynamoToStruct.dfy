@@ -496,9 +496,9 @@ module DynamoToStruct {
 
   function method ListAttrToBytes(l: ListAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
     ensures ret.Success? ==>
-      && U32ToBigEndian(|l|).Success?
-      && LENGTH_LEN <= |ret.value|
-      && ret.value[..LENGTH_LEN] == U32ToBigEndian(|l|).value
+              && U32ToBigEndian(|l|).Success?
+              && LENGTH_LEN <= |ret.value|
+              && ret.value[..LENGTH_LEN] == U32ToBigEndian(|l|).value
   {
     var count :- U32ToBigEndian(|l|);
     var body :- CollectList(l, depth);
