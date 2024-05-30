@@ -240,8 +240,7 @@ public class InternalLegacyOverride {
   public static boolean isDynamoDBEncryptor(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor maybe
   ) {
-    System.out.println(maybe.getClass());
-    return maybe.getClass().equals(DynamoDBEncryptor.class);
+    return maybe instanceof DynamoDBEncryptor;
   }
 
   public static String ToNativeString(DafnySequence<? extends Character> s) {
