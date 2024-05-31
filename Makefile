@@ -77,7 +77,7 @@ generate_properties_file:
 	";
 
 setup_semantic_release:
-	npm i --no-save semantic-release @semantic-release/changelog semantic-release-replace-plugin conventional-changelog-conventionalcommits @semantic-release/git
+	npm i --no-save semantic-release @semantic-release/changelog semantic-release-replace-plugin conventional-changelog-conventionalcommits@7.0.2 @semantic-release/git
 
 run_semantic_release:
 	npx semantic-release --no-ci
