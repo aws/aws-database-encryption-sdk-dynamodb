@@ -147,7 +147,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       !_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT() &&
       !_policy.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()
     ) {
-      return CreateDecryptItemFailure("Legacy Policy does not support decrypt.");
+      return CreateDecryptItemFailure(createError("Legacy Policy does not support decrypt."));
     }
     try {
       Map<
@@ -210,15 +210,15 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     // Precondition: All actions MUST be supported types
     final InternalResult<Map<String, Set<EncryptionFlags>>, Error> maybeActions =
       legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
-    if (maybeActions.is_Failure()) {
+    if (maybeActions.isFailure()) {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
 
     final InternalLegacyOverride internalLegacyOverride =
       new InternalLegacyOverride(
         (DynamoDBEncryptor) maybeEncryptor,
-        maybeActions.dtor_value(),
-        maybeEncryptionContext.dtor_value(),
+        maybeActions.value(),
+        maybeEncryptionContext.value(),
         legacyOverride.dtor_policy()
       );
 
