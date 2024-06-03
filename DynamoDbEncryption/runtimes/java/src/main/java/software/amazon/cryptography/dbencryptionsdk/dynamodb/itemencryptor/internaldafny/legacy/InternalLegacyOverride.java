@@ -1,5 +1,19 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy;
 
+/**
+ * This file does *NOT* import a lot of things.
+ * This is because it is dealing with converting
+ * between different versions of the same name.
+ * The DynamoDbItemEncryptor module has Dafny and Java versions
+ * of the same type.
+ * This means that `EncryptItemOutput` for example
+ * needs to be disambiguated between the Dafny version and the Java version.
+ * In order to make it clearer at each call-site exactly what is happening
+ * the full import is used.
+ * IDEs tend to fight this so I'm sorry.
+ */
+
+import StandardLibraryInternal.InternalResult;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
@@ -16,20 +30,6 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncr
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
-/**
- * This file does *NOT* import a lot of things.
- * This is because it is dealing with converting
- * between different versions of the same name.
- * The DynamoDbItemEncryptor module has Dafny and Java versions
- * of the same type.
- * This means that `EncryptItemOutput` for example
- * needs to be disambiguated between the Dafny version and the Java version.
- * In order to make it clearer at each call-site exactly what is happening
- * the full import is used.
- * IDEs tend to fight this so I'm sorry.
- */
-
-import StandardLibraryInternal.InternalResult;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 
 public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
@@ -95,7 +95,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   ) {
     // Precondition: Policy MUST allow the caller to encrypt.
     if (!_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()) {
-      return CreateEncryptItemFailure(createError("Legacy Policy does not support encrypt."));
+      return CreateEncryptItemFailure(
+        createError("Legacy Policy does not support encrypt.")
+      );
     }
 
     try {
@@ -147,7 +149,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       !_policy.is_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT() &&
       !_policy.is_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT()
     ) {
-      return CreateDecryptItemFailure(createError("Legacy Policy does not support decrypt."));
+      return CreateDecryptItemFailure(
+        createError("Legacy Policy does not support decrypt.")
+      );
     }
     try {
       Map<
@@ -199,7 +203,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
     // Precondition: The encryptor MUST be a DynamoDBEncryptor
     if (!isDynamoDBEncryptor(maybeEncryptor)) {
-      return CreateBuildFailure(createError("Legacy encryptor is not supported"));
+      return CreateBuildFailure(
+        createError("Legacy encryptor is not supported")
+      );
     }
     // Preconditions: MUST be able to create valid encryption context
     final InternalResult<EncryptionContext, Error> maybeEncryptionContext =
@@ -208,8 +214,12 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
     // Precondition: All actions MUST be supported types
-    final InternalResult<Map<String, Set<EncryptionFlags>>, Error> maybeActions =
-      legacyActions(legacyOverride.dtor_attributeActionsOnEncrypt());
+    final InternalResult<
+      Map<String, Set<EncryptionFlags>>,
+      Error
+    > maybeActions = legacyActions(
+      legacyOverride.dtor_attributeActionsOnEncrypt()
+    );
     if (maybeActions.isFailure()) {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
@@ -222,13 +232,18 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
         legacyOverride.dtor_policy()
       );
 
-    return CreateBuildSuccess(CreateInternalLegacyOverrideSome(internalLegacyOverride));
+    return CreateBuildSuccess(
+      CreateInternalLegacyOverrideSome(internalLegacyOverride)
+    );
   }
 
   //  Everything below this point is an implementation detail
 
   public static Error createError(String message) {
-    final DafnySequence<Character> dafnyMessage = software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(message);
+    final DafnySequence<Character> dafnyMessage =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+        message
+      );
     return Error.create_DynamoDbItemEncryptorException(dafnyMessage);
   }
 
@@ -248,7 +263,10 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     );
   }
 
-  public static InternalResult<EncryptionContext, Error> legacyEncryptionContext(
+  public static InternalResult<
+    EncryptionContext,
+    Error
+  > legacyEncryptionContext(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig config
   ) {
     try {
@@ -273,7 +291,10 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     }
   }
 
-  public static InternalResult<Map<String, Set<EncryptionFlags>>, Error> legacyActions(
+  public static InternalResult<
+    Map<String, Set<EncryptionFlags>>,
+    Error
+  > legacyActions(
     DafnyMap<
       ? extends DafnySequence<? extends Character>,
       ? extends CryptoAction

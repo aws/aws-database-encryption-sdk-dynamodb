@@ -68,7 +68,7 @@ jobs:
           library: DynamoDbEncryption
           diff-generated-code: false
           update-and-regenerate-mpl: true
-    
+
       - name: Build and locally deploy dependencies for examples
         shell: bash
         working-directory: ./DynamoDbEncryption
