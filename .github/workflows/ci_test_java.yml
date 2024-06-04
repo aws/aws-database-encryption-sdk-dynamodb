@@ -55,7 +55,7 @@ jobs:
           dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '4.2.0' }}
 
       - name: Regenerate code using smithy-dafny if necessary
-        if: ${{ inputs.nightly }}
+        if: ${{ github.event_name == 'schedule' || inputs.nightly }}
         uses: ./.github/actions/polymorph_codegen
         with:
           dafny: ${{ env.DAFNY_VERSION }}
