@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples;
 
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.hierarchy.regionBuild.CreateKeyStoreTableExample;
 
 public class TestCreateKeyStoreTableExample {
 

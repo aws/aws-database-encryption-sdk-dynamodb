@@ -1,17 +1,21 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
-import software.amazon.cryptography.examples.CreateKeyStoreKeyExample;
+import software.amazon.cryptography.examples.TestUtils;
+import software.amazon.cryptography.examples.hierarchy.controlPlane.CreateBranchKeyExample;
 
 public class TestBeaconStylesSearchableEncryptionExample {
 
   @Test
   public void TestCompoundItemEncryptDecrypt() throws InterruptedException {
     // Create new branch key for test
-    String keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey(
+    String keyId = CreateBranchKeyExample.KeyStoreCreateKey(
       SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME,
       SearchableEncryptionTestUtils.TEST_LOGICAL_KEYSTORE_NAME,
-      SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN
+      SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN,
+      TestUtils.keystoreAdminDDBClient,
+      TestUtils.kmsHttpClient,
+      TestUtils.defaultCreds
     );
 
     // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood

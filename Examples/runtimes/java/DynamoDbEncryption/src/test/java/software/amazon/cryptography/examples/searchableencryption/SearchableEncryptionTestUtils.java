@@ -1,5 +1,7 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
+import software.amazon.cryptography.examples.TestUtils;
+
 public class SearchableEncryptionTestUtils {
 
   // Our tests require access to DDB Tables with these name
@@ -16,6 +18,7 @@ public class SearchableEncryptionTestUtils {
 
   // Our tests require access to DDB Table with this name configured as a branch keystore
   public static final String TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME =
-    "KeyStoreDdbTable";
-  public static final String TEST_LOGICAL_KEYSTORE_NAME = "KeyStoreDdbTable";
+    TestUtils.TEST_DDB_TABLE_NAME;
+  public static final String TEST_LOGICAL_KEYSTORE_NAME =
+    TestUtils.TEST_LOGICAL_KEYSTORE_NAME;
 }

@@ -1,4 +1,4 @@
-package software.amazon.cryptography.examples;
+package software.amazon.cryptography.examples.hierarchy.regionBuild;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -16,7 +16,7 @@ import software.amazon.cryptography.keystore.model.KeyStoreConfig;
   using a helper method to create the DDB table that will be
   used to persist branch keys and beacons keys for this KeyStore.
 
-  This table creation should occur within your control plane. This
+  This table creation should occur during your region build. This
   only needs to occur once. While not demonstrated in this example,
   you should additionally use the `VersionKey` API on the KeyStore
   to periodically rotate your branch key material.
@@ -56,7 +56,7 @@ public class CreateKeyStoreTableExample {
     //    it will create one. If a table exists, it will verify
     //    the table's configuration and will error if the configuration is incorrect.
     keystore.CreateKeyStore(CreateKeyStoreInput.builder().build());
-    // It may take a couple minutes for the table to become ACTIVE,
+    // It may take a couple of minutes for the table to become ACTIVE,
     // at which point it is ready to store branch and beacon keys.
     // See the Create KeyStore Key Example for how to populate
     // this table.
