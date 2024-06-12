@@ -81,7 +81,7 @@ val dynamodb by configurations.creating
 dependencies {
     implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.24.2"))
     implementation("software.amazon.awssdk:dynamodb")
