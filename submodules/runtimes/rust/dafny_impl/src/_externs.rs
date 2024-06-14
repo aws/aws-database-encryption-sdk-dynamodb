@@ -223,13 +223,23 @@ pub mod r#_software_damazon_dcryptography_dinternaldafny_dStormTrackingCMC {
 
   pub struct StormTrackingCMC {}
   impl StormTrackingCMC {
-    pub fn _allocate_rcmut() -> ::dafny_runtime::Object<Self> {
-      ::dafny_runtime::allocate_rcmut::<Self>()
+    pub fn _allocate_object() -> ::dafny_runtime::Object<Self> {
+      ::dafny_runtime::allocate_object::<Self>()
     }
     pub fn _ctor(_this: &::dafny_runtime::Object<Self>, _cmc: &::dafny_runtime::Object<StormTracker::StormTracker>) -> () {
       todo!("r#_software_damazon_dcryptography_dinternaldafny_dStormTrackingCMC::_ctor not implemented");
     }
   }
+
+  impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any>
+    for StormTrackingCMC {
+    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  }
+
+  impl ::dafny_runtime::UpcastObject<dyn _software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::ICryptographicMaterialsCache>
+    for StormTrackingCMC {
+    ::dafny_runtime::UpcastObjectFn!(dyn _software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::ICryptographicMaterialsCache);
+}
 
   impl _software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::ICryptographicMaterialsCache for StormTrackingCMC {
     fn r#_PutCacheEntry_k(&mut self, _input: &std::rc::Rc<crate::ImplementationFromDafny::r#_software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::PutCacheEntryInput>) -> std::rc::Rc<crate::ImplementationFromDafny::Wrappers::Result<(), std::rc::Rc<crate::ImplementationFromDafny::r#_software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::Error>>> {
@@ -255,12 +265,23 @@ pub mod r#_software_damazon_dcryptography_dinternaldafny_dSynchronizedLocalCMC {
   pub struct SynchronizedLocalCMC {}
 
   impl SynchronizedLocalCMC {
-    pub fn _allocate_rcmut() -> ::dafny_runtime::Object<Self> {
-      ::dafny_runtime::allocate_rcmut::<Self>()
+    pub fn _allocate_object() -> ::dafny_runtime::Object<Self> {
+      ::dafny_runtime::allocate_object::<Self>()
     }
     pub fn _ctor(_this: &::dafny_runtime::Object<Self>, _cmc: &::dafny_runtime::Object<LocalCMC::LocalCMC>) -> () {
       todo!("r#_software_damazon_dcryptography_dinternaldafny_dSynchronizedLocalCMC::_ctor not implemented");
     }
+  }
+
+  
+  impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any>
+    for SynchronizedLocalCMC {
+    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  }
+
+  impl ::dafny_runtime::UpcastObject<dyn _software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::ICryptographicMaterialsCache>
+    for SynchronizedLocalCMC {
+    ::dafny_runtime::UpcastObjectFn!(dyn _software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::ICryptographicMaterialsCache);
   }
 
   impl _software_damazon_dcryptography_dmaterialproviders_dinternaldafny_dtypes::ICryptographicMaterialsCache for SynchronizedLocalCMC {
