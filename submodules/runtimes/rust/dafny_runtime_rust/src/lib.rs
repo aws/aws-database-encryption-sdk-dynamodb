@@ -582,7 +582,7 @@ impl<T: DafnyType> Add<&Sequence<T>> for &Sequence<T> {
     }
 }
 
-impl<T: DafnyTypeEq> Hash for Sequence<T> {
+impl<T: DafnyType + Hash> Hash for Sequence<T> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.cardinality_usize().hash(state);
         let array = self.to_array();
