@@ -3458,6 +3458,16 @@ pub fn rc_coerce<T: Clone, U: Clone>(f: Rc<impl Fn(T) -> U>) -> Rc<impl Fn(Rc<T>
 pub fn box_coerce<T: Clone, U: Clone>(f: Box<impl Fn(T) -> U>) -> Box<impl Fn(Box<T>) -> Box<U>> {
     Box::new(move |x: Box<T>| Box::new(f.as_ref()(x.as_ref().clone())))
 }
+pub fn fn1_coerce<T: Clone + 'static, A: Clone + 'static, R: Clone + 'static>(
+    a_to_r: Rc<impl Fn(A) -> R + 'static>) ->
+  Rc<impl Fn(Rc<dyn Fn(&T) -> A>) -> Rc<dyn Fn(&T) -> R> + 'static> {
+    Rc::new(move |t_to_a: Rc<dyn Fn(&T) -> A>| {
+        let a_to_r = a_to_r.clone();
+        let t_to_a = t_to_a.clone();
+        let r: Rc<dyn Fn(&T) -> R + 'static> = Rc::new(move |t: &T| a_to_r(t_to_a(t)));
+        r
+    })
+}
 
 
 // For pointers
