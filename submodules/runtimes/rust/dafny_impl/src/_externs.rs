@@ -1,3 +1,5 @@
+#![allow(warnings, unconditional_panic)]
+#![allow(nonstandard_style)]
 use crate::ImplementationFromDafny::*;
 
 use self::_software_damazon_dcryptography_dprimitives_dinternaldafny_dtypes::RSAPaddingMode;
@@ -146,8 +148,7 @@ pub mod DafnyLibraries {
 }
 
 pub mod r#_DafnyLibraries_dFileIO {
-  
-  #[allow(non_camel_case)]
+
   pub struct _default {}
   
   impl _default {
