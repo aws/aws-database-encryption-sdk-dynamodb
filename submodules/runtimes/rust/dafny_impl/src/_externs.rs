@@ -4,12 +4,7 @@ use crate::ImplementationFromDafny::*;
 
 use self::_software_damazon_dcryptography_dprimitives_dinternaldafny_dtypes::RSAPaddingMode;
 
-impl ExternRandom::_default {
-  #[allow(non_snake_case)]
-  pub fn GenerateBytes(_i: i32) -> ::std::rc::Rc<Wrappers::Result<::dafny_runtime::Sequence<u8>, ::std::rc::Rc<r#_software_damazon_dcryptography_dprimitives_dinternaldafny_dtypes::Error>>> {
-    todo!("ExternRandom.GenerateBytes not implemented");
-  }
-}
+pub use crate::random;
 
 impl r#_software_damazon_dcryptography_dprimitives_dinternaldafny_dtypes::AES_GCM {
   #[allow(non_snake_case)]
