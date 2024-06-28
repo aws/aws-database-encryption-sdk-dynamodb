@@ -12,7 +12,7 @@ public class TestHierarchicalKeyringExample {
     String keyId1 = CreateKeyStoreKeyExample.KeyStoreCreateKey(
       TestUtils.TEST_KEYSTORE_NAME,
       TestUtils.TEST_LOGICAL_KEYSTORE_NAME,
-      TestUtils.TEST_KEYSTORE_KMS_KEY_ID
+      "arn:aws:kms:us-west-2:370957321024:key/e20ac7b8-3d95-46ee-b3d5-f5dca6393945"
     );
     String keyId2 = CreateKeyStoreKeyExample.KeyStoreCreateKey(
       TestUtils.TEST_KEYSTORE_NAME,
