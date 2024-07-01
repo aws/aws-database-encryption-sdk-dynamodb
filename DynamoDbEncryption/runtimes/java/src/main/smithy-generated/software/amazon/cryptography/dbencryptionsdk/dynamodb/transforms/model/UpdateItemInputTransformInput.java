@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 public class UpdateItemInputTransformInput {
 
+  /**
+   * <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+   */
   private final UpdateItemRequest sdkInput;
 
   protected UpdateItemInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
+  /**
+   * @return <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+   */
   public UpdateItemRequest sdkInput() {
     return this.sdkInput;
   }
@@ -27,8 +33,14 @@ public class UpdateItemInputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkInput <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+     */
     Builder sdkInput(UpdateItemRequest sdkInput);
 
+    /**
+     * @return <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+     */
     UpdateItemRequest sdkInput();
 
     UpdateItemInputTransformInput build();

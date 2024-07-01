@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
 
 public class BatchGetItemInputTransformInput {
 
+  /**
+   * <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+   */
   private final BatchGetItemRequest sdkInput;
 
   protected BatchGetItemInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
+  /**
+   * @return <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+   */
   public BatchGetItemRequest sdkInput() {
     return this.sdkInput;
   }
@@ -27,8 +33,14 @@ public class BatchGetItemInputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkInput <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+     */
     Builder sdkInput(BatchGetItemRequest sdkInput);
 
+    /**
+     * @return <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+     */
     BatchGetItemRequest sdkInput();
 
     BatchGetItemInputTransformInput build();

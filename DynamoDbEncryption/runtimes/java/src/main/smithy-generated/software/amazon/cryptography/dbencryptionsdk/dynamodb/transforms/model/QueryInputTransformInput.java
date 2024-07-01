@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 
 public class QueryInputTransformInput {
 
+  /**
+   * <p>Represents the input of a <code>Query</code> operation.</p>
+   */
   private final QueryRequest sdkInput;
 
   protected QueryInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
+  /**
+   * @return <p>Represents the input of a <code>Query</code> operation.</p>
+   */
   public QueryRequest sdkInput() {
     return this.sdkInput;
   }
@@ -27,8 +33,14 @@ public class QueryInputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkInput <p>Represents the input of a <code>Query</code> operation.</p>
+     */
     Builder sdkInput(QueryRequest sdkInput);
 
+    /**
+     * @return <p>Represents the input of a <code>Query</code> operation.</p>
+     */
     QueryRequest sdkInput();
 
     QueryInputTransformInput build();
