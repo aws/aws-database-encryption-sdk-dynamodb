@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 
 public class GetItemOutputTransformOutput {
 
+  /**
+   * <p>Represents the output of a <code>GetItem</code> operation.</p>
+   */
   private final GetItemResponse transformedOutput;
 
   protected GetItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>GetItem</code> operation.</p>
+   */
   public GetItemResponse transformedOutput() {
     return this.transformedOutput;
   }
@@ -27,8 +33,14 @@ public class GetItemOutputTransformOutput {
   }
 
   public interface Builder {
+    /**
+     * @param transformedOutput <p>Represents the output of a <code>GetItem</code> operation.</p>
+     */
     Builder transformedOutput(GetItemResponse transformedOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>GetItem</code> operation.</p>
+     */
     GetItemResponse transformedOutput();
 
     GetItemOutputTransformOutput build();

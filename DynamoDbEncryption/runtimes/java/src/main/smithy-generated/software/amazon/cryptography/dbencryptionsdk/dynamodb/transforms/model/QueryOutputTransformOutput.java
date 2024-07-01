@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 public class QueryOutputTransformOutput {
 
+  /**
+   * <p>Represents the output of a <code>Query</code> operation.</p>
+   */
   private final QueryResponse transformedOutput;
 
   protected QueryOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>Query</code> operation.</p>
+   */
   public QueryResponse transformedOutput() {
     return this.transformedOutput;
   }
@@ -27,8 +33,14 @@ public class QueryOutputTransformOutput {
   }
 
   public interface Builder {
+    /**
+     * @param transformedOutput <p>Represents the output of a <code>Query</code> operation.</p>
+     */
     Builder transformedOutput(QueryResponse transformedOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>Query</code> operation.</p>
+     */
     QueryResponse transformedOutput();
 
     QueryOutputTransformOutput build();

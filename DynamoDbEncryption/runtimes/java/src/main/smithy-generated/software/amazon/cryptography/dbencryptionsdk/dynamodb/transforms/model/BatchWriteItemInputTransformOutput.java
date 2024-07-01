@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
 
 public class BatchWriteItemInputTransformOutput {
 
+  /**
+   * <p>Represents the input of a <code>BatchWriteItem</code> operation.</p>
+   */
   private final BatchWriteItemRequest transformedInput;
 
   protected BatchWriteItemInputTransformOutput(BuilderImpl builder) {
     this.transformedInput = builder.transformedInput();
   }
 
+  /**
+   * @return <p>Represents the input of a <code>BatchWriteItem</code> operation.</p>
+   */
   public BatchWriteItemRequest transformedInput() {
     return this.transformedInput;
   }
@@ -27,8 +33,14 @@ public class BatchWriteItemInputTransformOutput {
   }
 
   public interface Builder {
+    /**
+     * @param transformedInput <p>Represents the input of a <code>BatchWriteItem</code> operation.</p>
+     */
     Builder transformedInput(BatchWriteItemRequest transformedInput);
 
+    /**
+     * @return <p>Represents the input of a <code>BatchWriteItem</code> operation.</p>
+     */
     BatchWriteItemRequest transformedInput();
 
     BatchWriteItemInputTransformOutput build();

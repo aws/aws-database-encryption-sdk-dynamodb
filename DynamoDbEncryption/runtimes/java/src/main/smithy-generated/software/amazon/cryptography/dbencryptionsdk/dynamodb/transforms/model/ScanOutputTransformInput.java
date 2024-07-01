@@ -9,8 +9,14 @@ import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
 public class ScanOutputTransformInput {
 
+  /**
+   * <p>Represents the output of a <code>Scan</code> operation.</p>
+   */
   private final ScanResponse sdkOutput;
 
+  /**
+   * <p>Represents the input of a <code>Scan</code> operation.</p>
+   */
   private final ScanRequest originalInput;
 
   protected ScanOutputTransformInput(BuilderImpl builder) {
@@ -18,10 +24,16 @@ public class ScanOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>Scan</code> operation.</p>
+   */
   public ScanResponse sdkOutput() {
     return this.sdkOutput;
   }
 
+  /**
+   * @return <p>Represents the input of a <code>Scan</code> operation.</p>
+   */
   public ScanRequest originalInput() {
     return this.originalInput;
   }
@@ -35,12 +47,24 @@ public class ScanOutputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkOutput <p>Represents the output of a <code>Scan</code> operation.</p>
+     */
     Builder sdkOutput(ScanResponse sdkOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>Scan</code> operation.</p>
+     */
     ScanResponse sdkOutput();
 
+    /**
+     * @param originalInput <p>Represents the input of a <code>Scan</code> operation.</p>
+     */
     Builder originalInput(ScanRequest originalInput);
 
+    /**
+     * @return <p>Represents the input of a <code>Scan</code> operation.</p>
+     */
     ScanRequest originalInput();
 
     ScanOutputTransformInput build();
