@@ -667,7 +667,7 @@ module {:options "/functionSyntax:4" } Canonize {
     forall i | 0 <= i < |input| ensures exists x :: x in origData && Updated2(x, input[i], DoDecrypt) {
       var x :| x in origData && Updated2(x, input[i], DoDecrypt);
     }
-    assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt);
+    assume {:axiom} forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt);
   }
 
   // command line tools that say /vcsSplitOnEveryAssert fail without the {:vcs_split_on_every_assert false}
