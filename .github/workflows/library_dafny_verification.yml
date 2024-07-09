@@ -47,7 +47,7 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "6.0.x"
-      
+
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
         uses: ./.github/actions/polymorph_codegen
@@ -57,7 +57,7 @@ jobs:
           diff-generated-code: false
 
       - name: Verify ${{ matrix.library }} Dafny code
-        working-directory: ./${{ matrix.library }}
+        working-directory: ${{ matrix.library }}
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
@@ -65,6 +65,6 @@ jobs:
 
       - name: Check solver resource use
         if: success() || failure()
-        working-directory: ./${{ matrix.library }}
+        working-directory: ${{ matrix.library }}
         run: |
           make dafny-reportgenerator

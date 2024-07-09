@@ -21,5 +21,5 @@ jobs:
         id: read_property
         uses: christian-draeger/read-properties@1.1.1
         with:
-            path: "./project.properties"
-            properties: "dafnyVersion"
+          path: "./project.properties"
+          properties: "dafnyVersion"

@@ -50,7 +50,7 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
           dafny-version: ${{ inputs.dafny }}
-      
+
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
         uses: ./.github/actions/polymorph_codegen
@@ -68,13 +68,13 @@ jobs:
 
       - name: Build TestVectors implementation
         shell: bash
-        working-directory: ${{matrix.library}} 
+        working-directory: ${{matrix.library}}
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
 
       - name: Test TestVectors
-        working-directory: ${{matrix.library}} 
+        working-directory: ${{matrix.library}}
         run: |
           make test_java
