@@ -2,15 +2,23 @@
 name: Library Java Test Vectors
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   testJava:
     strategy:
       matrix:
+        library: [TestVectors]
         java-version: [8, 11, 16, 17]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
@@ -41,7 +49,16 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: "4.2.0"
+          dafny-version: ${{ inputs.dafny }}
+      
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
 
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v4
@@ -51,13 +68,13 @@ jobs:
 
       - name: Build TestVectors implementation
         shell: bash
-        working-directory: ./TestVectors
+        working-directory: ${{matrix.library}} 
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
 
       - name: Test TestVectors
-        working-directory: ./TestVectors
+        working-directory: ${{matrix.library}} 
         run: |
           make test_java

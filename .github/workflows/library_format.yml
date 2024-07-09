@@ -2,11 +2,17 @@
 name: Library format check
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
 jobs:
   format_projects:
     # Don't run the nightly build on forks

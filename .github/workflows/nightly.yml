@@ -1,0 +1,90 @@
+# This workflow invokes other workflows with the nightly Dafny build
+name: Dafny Nightly
+
+on:
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 16 * * *"
+
+jobs:
+  dafny-nightly-format:
+    # Don't run the cron builds on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_format.yml
+    with:
+      dafny: "nightly-latest"
+      regenerate-code: true
+  dafny-nightly-verification:
+    # Don't run the cron builds on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/library_dafny_verification.yml
+    with:
+      dafny: "nightly-latest"
+      regenerate-code: true
+  dafny-nightly-java:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/ci_test_java.yml
+    with:
+      dafny: "nightly-latest"
+      regenerate-code: true
+  dafny-nightly-test-vectors-java:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/ci_test_vector_java.yml
+    with:
+      dafny: "nightly-latest"
+      regenerate-code: true
+  dafny-nightly-net:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/ci_test_net.yml
+    with:
+      dafny: "nightly-latest"
+      regenerate-code: true
+  dafny-nightly-test-vectors-net:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/ci_test_vector_net.yml
+    with:
+      dafny: "nightly-latest"
+      regenerate-code: true
+
+  cut-issue-on-failure:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs:
+      [
+        dafny-nightly-format,
+        dafny-nightly-verification,
+        dafny-nightly-java,
+        dafny-nightly-net,
+      ]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    steps:
+      # We need access to the role that is able to get CI Bot Creds
+      - name: Configure AWS Credentials for Release
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::587316601012:role/GitHub-CI-CI-Bot-Credential-Access-Role-us-west-2
+          role-session-name: Dafny_Issue_Blocker
+
+      # Use AWS Secrets Manger GHA to retrieve CI Bot Creds
+      - name: Get CI Bot Creds Secret
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: Github/aws-crypto-tools-ci-bot
+          parse-json-secrets: true
+
+      - name: Create release blocker on dafny-lang/dafny
+        env:
+          GH_TOKEN: ${{ env.GITHUB_AWS_CRYPTO_TOOLS_CI_BOT_ESDK_RELEASE_TOKEN }}
+        run: |
+          gh issue create \
+            --repo "dafny-lang/dafny" \
+            --title "[PRERELEASE REGRESSION] Dafny prerelease regression from ${{ github.repository }}" \
+            --body "Failure in ${{ github.workflow_ref }}. \
+            See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

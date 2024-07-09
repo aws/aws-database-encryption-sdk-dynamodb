@@ -2,10 +2,17 @@
 name: dotnet examples
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   dotNetExamples:
@@ -36,7 +43,15 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: ${{ '4.2.0' }}
+          dafny-version: ${{ inputs.dafny }}
+      
+      - name: Regenerate code using smithy-dafny if necessary
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: DynamoDbEncryption
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
 
       - name: Download Dependencies
         working-directory: ./${{ matrix.library }}

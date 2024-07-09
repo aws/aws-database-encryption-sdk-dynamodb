@@ -1,0 +1,68 @@
+# This workflow checks if specfic files were modified,
+# if they were they require more than one approval from CODEOWNERS
+name: Check Release Files
+
+on:
+  pull_request:
+
+jobs:
+  require-approvals:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    env:
+      # unfortunately we can't check if the approver is part of the CODEOWNERS. This is a subset of aws/aws-crypto-tools-team
+      # to add more allowlisted approvers just modify this env variable
+      maintainers: seebees, texastony, ShubhamChaturvedi7, lucasmcdonald3, josecorella, imabhichow, rishav-karanjit, antonf-amzn, justplaz, ajewellamz
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Files changed
+        id: file-changes
+        shell: bash
+        run:
+          #  *release.yml files are responsible for releasing builds
+          # we require multiple approvers if any of those files change
+          # when adding any release file, it must be appended with *release
+          # we also want to check if there are changes to this file
+          echo "FILES=$(git diff --name-only origin/main origin/${GITHUB_HEAD_REF} .github/workflows/*release.yml .github/workflows/check-files.yml | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Check if FILES is not empty
+        id: comment
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILES: ${{ steps.file-changes.outputs.FILES }}
+        if: ${{env.FILES != ''}}
+        run: |
+          COMMENT="Detected changes to the release files or to the check-files action"
+          COMMENT_URL="https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
+          curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X POST $COMMENT_URL -d "{\"body\":\"$COMMENT\"}"
+
+      - name: Check Approvers
+        id: approvers
+        if: steps.comment.outcome == 'success'
+        # if this step fails we want to continue to post a message on the PR.
+        continue-on-error: true
+        # we are using this action because it does the heavy lifting for us, it uses the github_token enabled
+        # for github actions, this is ok because tokens are created for every workflow run and they expire at the end
+        # of the job
+        uses: peternied/required-approval@v1.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-required: 2
+          required-approvers-list: ${{env.maintainers}}
+
+      - name: Post Approvers Result
+        if: steps.approvers.outcome == 'failure'
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMENT="Changes to the release files or the check-files action requires 2 approvals from CODEOWNERS"
+          COMMENT_URL="https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
+          curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X POST $COMMENT_URL -d "{\"body\":\"$COMMENT\"}"
+          exit 1
