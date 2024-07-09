@@ -22,7 +22,7 @@ jobs:
       matrix:
         # Break up verification between namespaces over multiple
         # actions to take advantage of parallelization
-        library: [DDBEncryption, TestVectors]
+        library: [DynamoDbEncryption, TestVectors]
         os: [macos-12]
     runs-on: ${{ matrix.os }}
     defaults:
