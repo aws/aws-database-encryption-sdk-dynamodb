@@ -46,6 +46,7 @@ jobs:
           dafny-version: ${{ inputs.dafny }}
 
       - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
         uses: ./.github/actions/polymorph_codegen
         with:
           dafny: ${{ env.DAFNY_VERSION }}
