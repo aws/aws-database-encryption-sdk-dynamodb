@@ -658,28 +658,26 @@ module {:options "/functionSyntax:4" } Canonize {
     }
   }
 
-  // command line tools that say /vcsSplitOnEveryAssert fail without the {:vcs_split_on_every_assert false}
-  lemma {:vcs_split_on_every_assert false} InputIsInput(origData : AuthList, input : CanonCryptoList)
-    requires forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt)
-    ensures forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt)
+  ghost predicate Updated2Exists(origData : AuthList, item : CanonCryptoItem)
   {
-    assert forall i | 0 <= i < |input| :: input[i] in input;
-    forall i | 0 <= i < |input| ensures exists x :: x in origData && Updated2(x, input[i], DoDecrypt) {
-      var x :| x in origData && Updated2(x, input[i], DoDecrypt);
-    }
-    assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt);
+    exists x :: x in origData && Updated2(x, item, DoDecrypt)
   }
 
-  // command line tools that say /vcsSplitOnEveryAssert fail without the {:vcs_split_on_every_assert false}
-  lemma {:vcs_split_on_every_assert false} InputIsInput2(origData : CryptoList, input : CanonCryptoList)
-    requires forall val <- input :: exists x :: x in origData && Updated5(x, val, DoEncrypt)
-    ensures forall i | 0 <= i < |input| :: exists x :: x in origData && Updated5(x, input[i], DoEncrypt)
+  ghost predicate Updated5Exists(origData : CryptoList, item : CanonCryptoItem)
   {
-    assert forall i | 0 <= i < |input| :: input[i] in input;
-    forall i | 0 <= i < |input| ensures exists x :: x in origData && Updated5(x, input[i], DoEncrypt) {
-      var x :| x in origData && Updated5(x, input[i], DoEncrypt);
-    }
-    assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated5(x, input[i], DoEncrypt);
+    exists x :: x in origData && Updated5(x, item, DoEncrypt)
+  }
+
+  lemma InputIsInput(origData : AuthList, input : CanonCryptoList)
+    requires forall val <- input :: Updated2Exists(origData, val)
+    ensures forall i | 0 <= i < |input| :: Updated2Exists(origData, input[i])
+  {
+  }
+
+  lemma  InputIsInput2(origData : CryptoList, input : CanonCryptoList)
+    requires forall val <- input :: Updated5Exists(origData, val)
+    ensures forall i | 0 <= i < |input| :: Updated5Exists(origData, input[i])
+  {
   }
 
   lemma CryptoUpdatedAuthMaps(origData : AuthList, input : CanonCryptoList, output : CryptoList)
