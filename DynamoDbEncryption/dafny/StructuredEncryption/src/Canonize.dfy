@@ -663,10 +663,10 @@ module {:options "/functionSyntax:4" } Canonize {
     requires forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt)
     ensures forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt)
   {
-    assert forall i | 0 <= i < |input| :: input[i] in input;
-    forall i | 0 <= i < |input| ensures exists x :: x in origData && Updated2(x, input[i], DoDecrypt) {
-      var x :| x in origData && Updated2(x, input[i], DoDecrypt);
-    }
+    // assert forall i | 0 <= i < |input| :: input[i] in input;
+    // forall i | 0 <= i < |input| ensures exists x :: x in origData && Updated2(x, input[i], DoDecrypt) {
+    //   var x :| x in origData && Updated2(x, input[i], DoDecrypt);
+    // }
     assume {:axiom} forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt);
   }
 
