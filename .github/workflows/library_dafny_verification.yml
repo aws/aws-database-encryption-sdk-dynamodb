@@ -70,7 +70,13 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make verify_service CORES=$CORES SERVICE=${{ matrix.library }}
-
+      
+      - name: Check solver resource use
+        if: (success() || failure()) && ${{ matrix.library != 'TestVectors' }}
+        working-directory: ./DynamoDbEncryption
+        run: |
+          make dafny-reportgenerator
+      
       - name: Verify TestVectors Dafny code
         if: ${{ matrix.library == 'TestVectors' }}
         working-directory: ${{ matrix.library }}
@@ -78,9 +84,10 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make verify CORES=$CORES
-
+      
       - name: Check solver resource use
-        if: success() || failure()
-        working-directory: ${{ matrix.library }}
+        if: (success() || failure()) && ${{ matrix.library == 'TestVectors' }}
+        working-directory: ${{matrix.library}}
         run: |
           make dafny-reportgenerator
+
