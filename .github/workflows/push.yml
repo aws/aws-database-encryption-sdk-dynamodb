@@ -26,6 +26,11 @@ jobs:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
+  push-ci-test-vector-verification:
+    needs: getVerifyVersion
+    uses: ./.github/workflows/test_vector_verification.yml
+    with:
+      dafny: ${{needs.getVerifyVersion.outputs.version}}
   pr-ci-java:
     needs: getVersion
     uses: ./.github/workflows/ci_test_java.yml

@@ -1,5 +1,5 @@
 # This workflow performs static analysis checks.
-name: Library Dafny verification
+name: Test Vectors Dafny verification
 
 on:
   workflow_call:
@@ -20,15 +20,6 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        # Break up verification between namespaces over multiple
-        # actions to take advantage of parallelization
-        library:
-          [
-            DynamoDbEncryption,
-            DynamoDbEncryptionTransforms,
-            DynamoDbItemEncryptor,
-            StructuredEncryption,
-          ]
         os: [macos-12]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -59,18 +50,18 @@ jobs:
         uses: ./.github/actions/polymorph_codegen
         with:
           dafny: ${{ env.DAFNY_VERSION }}
-          library: ${{ matrix.library }}
+          library: TestVectors
           diff-generated-code: false
 
-      - name: Verify ${{ matrix.library }} Dafny code
-        working-directory: ./DynamoDbEncryption
+      - name: Verify TestVectors
+        working-directory: ./TestVectors
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make verify_service CORES=$CORES SERVICE=${{ matrix.library }}
+          make verify CORES=$CORES
 
       - name: Check solver resource use
         if: success() || failure()
-        working-directory: ./DynamoDbEncryption
+        working-directory: ./TestVectors
         run: |
           make dafny-reportgenerator

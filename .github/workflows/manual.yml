@@ -27,6 +27,11 @@ jobs:
     with:
       dafny: ${{ inputs.dafny }}
       regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-test-vector-verification:
+    uses: ./.github/workflows/test_vector_verification.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
   manual-ci-java:
     uses: ./.github/workflows/ci_test_java.yml
     with:
