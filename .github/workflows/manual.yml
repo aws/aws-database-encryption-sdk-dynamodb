@@ -1,0 +1,64 @@
+# This workflow invokes other workflows with the requested Dafny build.
+# It is primarily meant for manual compatibility testing,
+# such as trying out what the next pending nightly build will do ahead of time.
+name: Manual CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      dafny:
+        description: "The Dafny version to use"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  manual-ci-format:
+    uses: ./.github/workflows/library_format.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-verification:
+    uses: ./.github/workflows/library_dafny_verification.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-test-vector-verification:
+    uses: ./.github/workflows/test_vector_verification.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-java:
+    uses: ./.github/workflows/ci_test_java.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-java-test-vectors:
+    uses: ./.github/workflows/ci_test_vector_java.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-java-examples:
+    uses: ./.github/workflows/ci_examples_java.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-net:
+    uses: ./.github/workflows/ci_test_net.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-net-test-vectors:
+    uses: ./.github/workflows/ci_test_vector_net.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}
+  manual-ci-net-examples:
+    uses: ./.github/workflows/ci_examples_net.yml
+    with:
+      dafny: ${{ inputs.dafny }}
+      regenerate-code: ${{ inputs.regenerate-code }}

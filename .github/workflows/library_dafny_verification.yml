@@ -1,0 +1,76 @@
+# This workflow performs static analysis checks.
+name: Library Dafny verification
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  verification:
+    # Don't run the nightly build on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    strategy:
+      matrix:
+        # Break up verification between namespaces over multiple
+        # actions to take advantage of parallelization
+        library:
+          [
+            DynamoDbEncryption,
+            DynamoDbEncryptionTransforms,
+            DynamoDbItemEncryptor,
+            StructuredEncryption,
+          ]
+        os: [macos-12]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.7.0
+        with:
+          dafny-version: ${{ inputs.dafny }}
+
+      # dafny-reportgenerator requires next6
+      # but only 7.0 is installed on macos-12-large
+      - name: Setup .NET Core SDK '6.0.x'
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+
+      - name: Verify ${{ matrix.library }} Dafny code
+        working-directory: ./DynamoDbEncryption
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make verify_service CORES=$CORES SERVICE=${{ matrix.library }}
+
+      - name: Check solver resource use
+        if: success() || failure()
+        working-directory: ./DynamoDbEncryption
+        run: |
+          make dafny-reportgenerator

@@ -1,10 +1,12 @@
 # This workflow regenerates code using smithy-dafny and checks that the output matches what's checked in.
 name: Library Code Generation
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The dafny version to run"
+        required: true
+        type: string
 
 jobs:
   code-generation:
@@ -38,7 +40,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: 4.2.0
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
