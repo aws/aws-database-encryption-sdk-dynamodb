@@ -1,6 +1,10 @@
 name: "Check Out and update files with MPL-HEAD"
 description: "Updates the MPL submodule to point at HEAD and updates the files that depend on the version defined in project.properties"
 inputs:
+  dafny:
+    description: "The Dafny version to run"
+    required: true
+    type: string
   update-and-regenerate-mpl:
     description: "Locally update MPL to the tip of master and regenerate its code"
     required: true

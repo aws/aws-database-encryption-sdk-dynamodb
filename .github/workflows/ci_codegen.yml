@@ -42,6 +42,7 @@ jobs:
       - uses: ./.github/actions/mpl-head
         if: ${{ inputs.mpl-head == true }}
         with:
+          dafny: ${{ env.DAFNY_VERSION }}
           update-and-regenerate-mpl: true
 
       # Only used to format generated code
