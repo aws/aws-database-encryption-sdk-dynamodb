@@ -1,0 +1,45 @@
+name: "Check Out and update files with MPL-HEAD"
+description: "Updates the MPL submodule to point at HEAD and updates the files that depend on the version defined in project.properties"
+inputs:
+  update-and-regenerate-mpl:
+    description: "Locally update MPL to the tip of master and regenerate its code"
+    required: true
+    default: false
+    type: boolean
+runs:
+  using: "composite"
+  steps:
+    - name: Update MPL submodule locally if requested
+      if: inputs.update-and-regenerate-mpl == 'true'
+      working-directory: submodules/MaterialProviders
+      shell: bash
+      run: |
+        git fetch
+        git checkout main
+        git pull
+        git submodule update --init --recursive
+
+    - name: Update top-level project.properties file in MPL
+      if: inputs.update-and-regenerate-mpl == 'true'
+      shell: bash
+      working-directory: submodules/MaterialProviders
+      run: |
+        make generate_properties_file
+
+    # Update the project.properties file so that we pick up the right runtimes etc.,
+    # in cases where inputs.dafny is different from the current value in that file.
+    - name: Generate smithy-dafny-project.properties file
+      if: inputs.update-and-regenerate-mpl == 'true'
+      env:
+        DAFNY_VERSION: ${{ inputs.dafny }}
+      shell: bash
+      run: |
+        make generate_properties_file
+
+    - name: Update top-level project.properties file
+      if: inputs.update-and-regenerate-mpl == 'true'
+      shell: bash
+      run: |
+        awk -F= '!a[$1]++' smithy-dafny-project.properties project.properties > merged.properties
+        mv merged.properties project.properties
+        cat project.properties
