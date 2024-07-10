@@ -22,7 +22,7 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   push-ci-verification:
-    needs: getVersion
+    needs: getVerifyVersion 
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
