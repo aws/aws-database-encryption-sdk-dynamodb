@@ -22,7 +22,14 @@ jobs:
       matrix:
         # Break up verification between namespaces over multiple
         # actions to take advantage of parallelization
-        library: [DynamoDbEncryption, TestVectors]
+        library:
+          [
+            DynamoDbEncryption,
+            DynamoDbEncryptionTransforms,
+            DynamoDbItemEncryptor,
+            StructuredEncryption,
+            TestVectors,
+          ]
         os: [macos-12]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -57,6 +64,15 @@ jobs:
           diff-generated-code: false
 
       - name: Verify ${{ matrix.library }} Dafny code
+        if: ${{ matrix.library != 'TestVectors' }}
+        working-directory: DynamoDbEncryption/dafny/${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make verify CORES=$CORES
+
+      - name: Verify TestVectors Dafny code
+        if: ${{ matrix.library == 'TestVectors' }}
         working-directory: ${{ matrix.library }}
         run: |
           # This works because `node` is installed by default on GHA runners
