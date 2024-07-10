@@ -65,11 +65,11 @@ jobs:
 
       - name: Verify ${{ matrix.library }} Dafny code
         if: ${{ matrix.library != 'TestVectors' }}
-        working-directory: DynamoDbEncryption/dafny/${{ matrix.library }}
+        working-directory: ./DynamoDbEncryption
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make verify CORES=$CORES
+          make verify_service CORES=$CORES SERVICE=${{ matrix.library }}
 
       - name: Verify TestVectors Dafny code
         if: ${{ matrix.library == 'TestVectors' }}
