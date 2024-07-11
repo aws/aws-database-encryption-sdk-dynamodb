@@ -13,6 +13,11 @@ on:
         required: false
         default: false
         type: boolean
+      mpl-head:
+        description: "Using MPL HEAD"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   verification:
@@ -46,6 +51,12 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
           dafny-version: ${{ inputs.dafny }}
+
+      - uses: ./.github/actions/mpl-head
+        if: ${{ inputs.mpl-head == true }}
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          update-and-regenerate-mpl: true
 
       # dafny-reportgenerator requires next6
       # but only 7.0 is installed on macos-12-large

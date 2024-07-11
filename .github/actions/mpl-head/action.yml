@@ -21,12 +21,12 @@ runs:
         git checkout main
         git pull
         git submodule update --init --recursive
-      
+
     - name: Get the MPL version from the MPL submodule
       id: read_property
       uses: christian-draeger/read-properties@1.1.1
       with:
-        path: "submodules/MaterialProviders//project.properties"
+        path: "submodules/MaterialProviders/project.properties"
         properties: "mplVersion"
 
     - name: Update top-level project.properties file
