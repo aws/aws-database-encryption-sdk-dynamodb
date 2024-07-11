@@ -21,7 +21,6 @@ runs:
         git checkout main
         git pull
         git submodule update --init --recursive
-        cat project.properties
       
     - name: Get the MPL version from the MPL submodule
       id: read_property
@@ -34,4 +33,3 @@ runs:
       shell: bash
       run: |
         sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{steps.read_property.outputs.mplVersion}}/g" project.properties > project.properties2; mv project.properties2 project.properties
-        cat project.properties

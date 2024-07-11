@@ -30,7 +30,6 @@ jobs:
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: 1
-      DAFNY_VERSION: ${{inputs.dafny}}
     steps:
       - name: Support longpaths
         run: |
