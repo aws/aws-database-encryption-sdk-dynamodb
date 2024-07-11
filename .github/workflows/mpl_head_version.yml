@@ -17,6 +17,8 @@ jobs:
       version: ${{ steps.read_property.outputs.mplVersion }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Update MPL submodule locally if requested
         working-directory: submodules/MaterialProviders
         shell: bash
