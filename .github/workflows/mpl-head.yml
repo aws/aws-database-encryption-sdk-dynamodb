@@ -28,6 +28,7 @@ jobs:
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
       mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-head: true
   # mpl-head-ci-test-vector-verification:
   #   needs: getVerifyVersion
   #   uses: ./.github/workflows/test_vector_verification.yml
