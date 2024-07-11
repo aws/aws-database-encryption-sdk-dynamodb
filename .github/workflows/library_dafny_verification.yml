@@ -13,8 +13,12 @@ on:
         required: false
         default: false
         type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
       mpl-head:
-        description: "Using MPL HEAD"
+        description: "Running on MPL HEAD"
         required: false
         default: false
         type: boolean
@@ -52,11 +56,18 @@ jobs:
         with:
           dafny-version: ${{ inputs.dafny }}
 
-      - uses: ./.github/actions/mpl-head
+      - name: Update MPL submodule if using MPL HEAD
         if: ${{ inputs.mpl-head == true }}
-        with:
-          dafny: ${{ env.DAFNY_VERSION }}
-          update-and-regenerate-mpl: true
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+
+      - name: Update project.properties if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        run: |
+          sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
       # dafny-reportgenerator requires next6
       # but only 7.0 is installed on macos-12-large
@@ -74,7 +85,7 @@ jobs:
           diff-generated-code: false
 
       - name: Verify ${{ matrix.library }} Dafny code
-        working-directory: ./DynamoDbEncryption
+        working-directory: DynamoDbEncryption
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
@@ -82,6 +93,6 @@ jobs:
 
       - name: Check solver resource use
         if: success() || failure()
-        working-directory: ./DynamoDbEncryption
+        working-directory: DynamoDbEncryption
         run: |
           make dafny-reportgenerator

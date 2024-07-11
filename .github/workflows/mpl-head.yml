@@ -12,6 +12,9 @@ jobs:
   getVerifyVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/dafny_verify_version.yml
+  getMplHeadVersion:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/mpl_head_version.yml
   mpl-head-ci-format:
     needs: getVersion
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
@@ -19,12 +22,12 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   mpl-head-ci-verification:
-    needs: getVerifyVersion
+    needs: [getVerifyVersion, getMplHeadVersion]
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
-      mpl-head: true
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
   # mpl-head-ci-test-vector-verification:
   #   needs: getVerifyVersion
   #   uses: ./.github/workflows/test_vector_verification.yml
