@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
 public class ScanOutputTransformOutput {
 
+  /**
+   * <p>Represents the output of a <code>Scan</code> operation.</p>
+   */
   private final ScanResponse transformedOutput;
 
   protected ScanOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>Scan</code> operation.</p>
+   */
   public ScanResponse transformedOutput() {
     return this.transformedOutput;
   }
@@ -27,8 +33,14 @@ public class ScanOutputTransformOutput {
   }
 
   public interface Builder {
+    /**
+     * @param transformedOutput <p>Represents the output of a <code>Scan</code> operation.</p>
+     */
     Builder transformedOutput(ScanResponse transformedOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>Scan</code> operation.</p>
+     */
     ScanResponse transformedOutput();
 
     ScanOutputTransformOutput build();

@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 
 public class DeleteItemInputTransformInput {
 
+  /**
+   * <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+   */
   private final DeleteItemRequest sdkInput;
 
   protected DeleteItemInputTransformInput(BuilderImpl builder) {
     this.sdkInput = builder.sdkInput();
   }
 
+  /**
+   * @return <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+   */
   public DeleteItemRequest sdkInput() {
     return this.sdkInput;
   }
@@ -27,8 +33,14 @@ public class DeleteItemInputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkInput <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+     */
     Builder sdkInput(DeleteItemRequest sdkInput);
 
+    /**
+     * @return <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+     */
     DeleteItemRequest sdkInput();
 
     DeleteItemInputTransformInput build();
