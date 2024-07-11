@@ -18,10 +18,10 @@ runs:
       working-directory: submodules/MaterialProviders
       shell: bash
       run: |
-        git fetch
         git checkout main
         git pull
         git submodule update --init --recursive
+        cat project.properties
 
     - name: Update top-level project.properties file in MPL
       if: inputs.update-and-regenerate-mpl == 'true'
