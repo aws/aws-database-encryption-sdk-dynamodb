@@ -9,10 +9,10 @@ jobs:
   getVersion:
     # Don't run the cron builds on forks
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/dafny_version.yaml
+    uses: ./.github/workflows/dafny_version.yml
   getVerifyVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/dafny_verify_version.yaml
+    uses: ./.github/workflows/dafny_verify_version.yml
   daily-ci-format:
     needs: getVersion
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
@@ -22,7 +22,7 @@ jobs:
   daily-ci-codegen:
     needs: getVersion
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/library_codegen.yml
+    uses: ./.github/workflows/ci_codegen.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   daily-ci-verification:
@@ -31,15 +31,33 @@ jobs:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
-  daily-ci-java:
+  daily-ci-test-vector-verification:
+    needs: getVerifyVersion
+    uses: ./.github/workflows/test_vector_verification.yml
+    with:
+      dafny: ${{needs.getVerifyVersion.outputs.version}}
+  daily-ci-java-test-vectors:
     needs: getVersion
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/library_java_tests.yml
+    uses: ./.github/workflows/ci_test_vector_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  daily-ci-java-examples:
+    needs: getVersion
+    uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   daily-ci-net:
     needs: getVersion
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/library_net_tests.yml
+    uses: ./.github/workflows/ci_test_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  daily-ci-net-test-vectors:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_vector_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  daily-ci-net-examples:
+    needs: getVersion
+    uses: ./.github/workflows/ci_examples_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
