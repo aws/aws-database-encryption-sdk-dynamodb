@@ -26,6 +26,7 @@ jobs:
           git checkout main
           git pull
           git submodule update --init --recursive
+          git rev-parse HEAD
 
       - name: Get the MPL version from the MPL submodule
         id: read_property

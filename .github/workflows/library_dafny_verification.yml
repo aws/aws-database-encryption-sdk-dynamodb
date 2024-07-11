@@ -63,6 +63,7 @@ jobs:
           git checkout main
           git pull
           git submodule update --init --recursive
+          git rev-parse HEAD
 
       - name: Update project.properties if using MPL HEAD
         if: ${{ inputs.mpl-head == true }}
