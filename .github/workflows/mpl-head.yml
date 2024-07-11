@@ -2,7 +2,8 @@
 name: CI MPL HEAD
 
 on:
-  pull_request:
+  schedule:
+    - cron: "00 14 * * 1-5"
 
 jobs:
   getVersion:
