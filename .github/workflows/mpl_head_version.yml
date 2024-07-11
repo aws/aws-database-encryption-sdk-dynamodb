@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Update MPL submodule locally if requested
-        if: inputs.update-and-regenerate-mpl == 'true'
         working-directory: submodules/MaterialProviders
         shell: bash
         run: |
