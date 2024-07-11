@@ -33,5 +33,5 @@ runs:
     - name: Update top-level project.properties file
       shell: bash
       run: |
-        echo ${{ steps.read_property.outputs.mplVersion }}
+        sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{steps.read_property.outputs.mplVersion}}/g" project.properties > project.properties2; mv project.properties2 project.properties
         cat project.properties
