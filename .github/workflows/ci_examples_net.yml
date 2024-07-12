@@ -13,6 +13,11 @@ on:
         required: false
         default: false
         type: boolean
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   dotNetExamples:
@@ -44,6 +49,15 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
           dafny-version: ${{ inputs.dafny }}
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}

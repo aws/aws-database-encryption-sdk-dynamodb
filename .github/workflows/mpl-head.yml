@@ -1,9 +1,9 @@
-# This workflow runs every weekday at 16:00 UTC (9AM PDT)
-name: Daily CI
+# This workflow invokes other workflows with the latest MPL head at 14:00 UTC (7am PDT)
+name: CI MPL HEAD
 
 on:
   schedule:
-    - cron: "00 16 * * 1-5"
+    - cron: "00 14 * * 1-5"
 
 jobs:
   getVersion:
@@ -13,56 +13,66 @@ jobs:
   getVerifyVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/dafny_verify_version.yml
-  daily-ci-format:
+  getMplHeadVersion:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/mpl_head_version.yml
+  mpl-head-ci-format:
     needs: getVersion
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/library_format.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-codegen:
-    needs: getVersion
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/ci_codegen.yml
-    with:
-      dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-verification:
-    needs: getVerifyVersion
+  mpl-head-ci-verification:
+    needs: [getVerifyVersion, getMplHeadVersion]
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
-  daily-ci-test-vector-verification:
-    needs: getVerifyVersion
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-head: true
+  mpl-head-ci-test-vector-verification:
+    needs: [getVerifyVersion, getMplHeadVersion]
     uses: ./.github/workflows/test_vector_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
-  daily-ci-java:
-    needs: getVersion
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-head: true
+  mpl-head-ci-java:
+    needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_test_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-java-test-vectors:
-    needs: getVersion
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-head: true
+  mpl-head-ci-java-test-vectors:
+    needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-java-examples:
-    needs: getVersion
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-head: true
+  mpl-head-ci-java-examples:
+    needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-net:
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-head: true
+  mpl-head-ci-net:
     needs: getVersion
     uses: ./.github/workflows/ci_test_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-net-test-vectors:
+      mpl-head: true
+  mpl-head-ci-net-test-vectors:
     needs: getVersion
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-net-examples:
+      mpl-head: true
+  mpl-head-ci-net-examples:
     needs: getVersion
     uses: ./.github/workflows/ci_examples_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      mpl-head: true
