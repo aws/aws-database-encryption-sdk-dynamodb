@@ -28,7 +28,7 @@ var dafnyRuntimeJavaVersion = props.getProperty("dafnyRuntimeJavaVersion")
 var smithyDafnyJavaConversionVersion = props.getProperty("smithyDafnyJavaConversionVersion")
 
 group = "software.amazon.cryptography"
-version = ${mplVersion} 
+version = "${mplVersion}" 
 description = "TestVectorsDynamoDbEncryption"
 
 java {
