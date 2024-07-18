@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 
 public class DeleteItemOutputTransformOutput {
 
+  /**
+   * <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+   */
   private final DeleteItemResponse transformedOutput;
 
   protected DeleteItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+   */
   public DeleteItemResponse transformedOutput() {
     return this.transformedOutput;
   }
@@ -27,8 +33,14 @@ public class DeleteItemOutputTransformOutput {
   }
 
   public interface Builder {
+    /**
+     * @param transformedOutput <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+     */
     Builder transformedOutput(DeleteItemResponse transformedOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+     */
     DeleteItemResponse transformedOutput();
 
     DeleteItemOutputTransformOutput build();

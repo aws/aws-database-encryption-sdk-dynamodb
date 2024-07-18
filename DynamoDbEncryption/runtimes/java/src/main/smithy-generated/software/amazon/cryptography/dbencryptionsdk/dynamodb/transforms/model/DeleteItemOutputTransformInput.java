@@ -9,8 +9,14 @@ import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 
 public class DeleteItemOutputTransformInput {
 
+  /**
+   * <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+   */
   private final DeleteItemResponse sdkOutput;
 
+  /**
+   * <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+   */
   private final DeleteItemRequest originalInput;
 
   protected DeleteItemOutputTransformInput(BuilderImpl builder) {
@@ -18,10 +24,16 @@ public class DeleteItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+   */
   public DeleteItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
+  /**
+   * @return <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+   */
   public DeleteItemRequest originalInput() {
     return this.originalInput;
   }
@@ -35,12 +47,24 @@ public class DeleteItemOutputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkOutput <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+     */
     Builder sdkOutput(DeleteItemResponse sdkOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>DeleteItem</code> operation.</p>
+     */
     DeleteItemResponse sdkOutput();
 
+    /**
+     * @param originalInput <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+     */
     Builder originalInput(DeleteItemRequest originalInput);
 
+    /**
+     * @return <p>Represents the input of a <code>DeleteItem</code> operation.</p>
+     */
     DeleteItemRequest originalInput();
 
     DeleteItemOutputTransformInput build();

@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
+import dafny.TypeDescriptor;
 import java.lang.Character;
 import java.lang.Integer;
 import java.lang.RuntimeException;
@@ -596,8 +597,8 @@ public class ToDafny {
     Option<Integer> version;
     version =
       Objects.nonNull(nativeValue.Version())
-        ? Option.create_Some((nativeValue.Version()))
-        : Option.create_None();
+        ? Option.create_Some(TypeDescriptor.INT, (nativeValue.Version()))
+        : Option.create_None(TypeDescriptor.INT);
     return new ResolveAttributesInput(tableName, item, version);
   }
 
