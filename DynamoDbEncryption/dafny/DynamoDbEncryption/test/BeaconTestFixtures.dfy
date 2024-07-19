@@ -130,28 +130,6 @@ module BeaconTestFixtures {
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
       kmsConfiguration := kmsConfig,
-      logicalKeyStoreName := "foo",
-      grantTokens := None,
-      ddbTableName := "foo",
-      ddbClient := Some(ddbClient),
-      kmsClient := Some(kmsClient)
-    );
-
-    var store :- expect KeyStore.KeyStore(keyStoreConfig);
-    return store;
-  }
-
-  method GetMultiKeyStore() returns (output : SI.ValidStore)
-    ensures fresh(output.Modifies)
-  {
-    var kmsClient :- expect KMS.KMSClient();
-    var ddbClient :- expect DDBC.DynamoDBClient();
-    var kmsConfig := KTypes.KMSConfiguration.kmsKeyArn(
-      "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
-    );
-    var keyStoreConfig := KTypes.KeyStoreConfig(
-      id := None,
-      kmsConfiguration := kmsConfig,
       logicalKeyStoreName := "KeyStoreDdbTable",
       grantTokens := None,
       ddbTableName := "KeyStoreDdbTable",
@@ -162,7 +140,6 @@ module BeaconTestFixtures {
     var store :- expect KeyStore.KeyStore(keyStoreConfig);
     return store;
   }
-
 
   method GetEmptyBeacons() returns (output : BeaconVersion)
     ensures output.keyStore.ValidState()
@@ -205,7 +182,7 @@ module BeaconTestFixtures {
     ensures fresh(output.keyStore.Modifies)
     ensures output.version == 1
   {
-    var store := GetMultiKeyStore();
+    var store := GetKeyStore();
     return BeaconVersion (
         version := 1,
         keyStore := store,

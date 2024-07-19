@@ -32,6 +32,7 @@ module TestDDBSupport {
     expect newItem == SimpleItem + expectedNew;
   }
 
+  // DynamoDB String :: cast string to DDB.AttributeValue.S
   function method DS(x : string) : DDB.AttributeValue
   {
     DDB.AttributeValue.S(x)
