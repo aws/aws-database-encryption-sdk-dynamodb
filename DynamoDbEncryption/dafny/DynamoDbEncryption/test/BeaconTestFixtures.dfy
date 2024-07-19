@@ -141,6 +141,29 @@ module BeaconTestFixtures {
     return store;
   }
 
+  method GetMultiKeyStore() returns (output : SI.ValidStore)
+    ensures fresh(output.Modifies)
+  {
+    var kmsClient :- expect KMS.KMSClient();
+    var ddbClient :- expect DDBC.DynamoDBClient();
+    var kmsConfig := KTypes.KMSConfiguration.kmsKeyArn(
+      "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+    );
+    var keyStoreConfig := KTypes.KeyStoreConfig(
+      id := None,
+      kmsConfiguration := kmsConfig,
+      logicalKeyStoreName := "KeyStoreDdbTable",
+      grantTokens := None,
+      ddbTableName := "KeyStoreDdbTable",
+      ddbClient := Some(ddbClient),
+      kmsClient := Some(kmsClient)
+    );
+
+    var store :- expect KeyStore.KeyStore(keyStoreConfig);
+    return store;
+  }
+
+
   method GetEmptyBeacons() returns (output : BeaconVersion)
     ensures output.keyStore.ValidState()
     ensures fresh(output.keyStore.Modifies)
@@ -177,6 +200,24 @@ module BeaconTestFixtures {
       );
   }
 
+  method GetLotsaBeaconsMulti() returns (output : BeaconVersion)
+    ensures output.keyStore.ValidState()
+    ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
+  {
+    var store := GetMultiKeyStore();
+    return BeaconVersion (
+        version := 1,
+        keyStore := store,
+        keySource := multi(MultiKeyStore(keyFieldName := "TheKeyField", cacheTTL := 42)),
+        standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
+        compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
+        virtualFields := Some([NameTitleField]),
+        encryptedParts := None,
+        signedParts := None
+      );
+  }
+
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
                               logicalTableName := "Foo",
                               partitionKeyName := "foo",
@@ -200,7 +241,8 @@ module BeaconTestFixtures {
                              "Title" := SE.ENCRYPT_AND_SIGN,
                              "TooBad" := SE.ENCRYPT_AND_SIGN,
                              "Year" := SE.SIGN_ONLY,
-                             "Date" := SE.SIGN_ONLY
+                             "Date" := SE.SIGN_ONLY,
+                             "TheKeyField" := SE.SIGN_ONLY
                            ]
                            )
 
@@ -221,6 +263,26 @@ module BeaconTestFixtures {
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);
+  }
+
+  datatype KeyLocation =
+    | LiteralLoc (keys: HmacKeyMap)
+    | SingleLoc (keyId: string)
+    | MultiLoc (keyName : string, deleteKey : bool)
+
+  method GetMultiSource(keyName : string, version : BeaconVersion) returns (output : SI.KeySource)
+    requires version.keyStore.ValidState()
+    ensures output.ValidState()
+    ensures version.keyStore == output.store
+    ensures fresh(output.client.Modifies)
+  {
+    var client :- expect Primitives.AtomicPrimitives();
+    var mpl :- expect MaterialProviders.MaterialProviders();
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      cache := MPT.Default(Default := MPT.DefaultCache(entryCapacity := 3))
+    );
+    var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
+    return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0);
   }
 
   const SimpleItem : DDB.AttributeMap := map[
