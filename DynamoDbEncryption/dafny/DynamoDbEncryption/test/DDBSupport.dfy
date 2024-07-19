@@ -52,6 +52,7 @@ module TestDDBSupport {
     );
     var result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
 
+    // Verify Success with branch key id plus beacon
     expressionAttributeValues := map[
       ":value" := DS("0ad21413-51aa-42e1-9c3d-6a4b1edf7e10"),
       ":other" := DS("junk")
@@ -63,6 +64,7 @@ module TestDDBSupport {
     );
     result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
 
+    // Verify Failure with beacon but no branch key id
     queryInput := DDB.QueryInput (
       TableName := "foo",
       ExpressionAttributeValues := Some(expressionAttributeValues),
@@ -72,6 +74,7 @@ module TestDDBSupport {
     expect result2 == Failure(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.DynamoDbEncryptionException(
                                 message := "Need KeyId because of beacon std2 but no KeyId found in query"));
 
+    // Verify Success, even when field names are indirect via ExpressionAttributeNames
     var expressionAttributeNames := map[
       "#beacon" := "std2",
       "#keyfield" := "TheKeyField"
@@ -85,16 +88,3 @@ module TestDDBSupport {
     result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
   }
 }
-// Map<String, String> expressionAttributesNames = new HashMap<>();
-// expressionAttributesNames.put("#compound", "firstNameCompound");
-
-// Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-// expressionAttributeValues.put(":value", AttributeValue.builder().s("f1-l.f2-li.f3-lil.f4-lily.s-Placeholder - 3afba703-6345-4a25-b28a-ec22b1b79a35").build());
- 
-// QueryRequest queryRequest = QueryRequest.builder()
-//                 .tableName(tableName)
-//                 .indexName("aws_dbe_b_firstNameCompound-index")
-//                 .keyConditionExpression("#compound = :value")
-//                 .expressionAttributeNames(expressionAttributesNames)
-//                 .expressionAttributeValues(expressionAttributeValues)
-//                 .build();

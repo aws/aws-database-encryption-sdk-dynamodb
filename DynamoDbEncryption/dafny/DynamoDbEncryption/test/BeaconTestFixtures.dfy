@@ -265,11 +265,6 @@ module BeaconTestFixtures {
     return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);
   }
 
-  datatype KeyLocation =
-    | LiteralLoc (keys: HmacKeyMap)
-    | SingleLoc (keyId: string)
-    | MultiLoc (keyName : string, deleteKey : bool)
-
   method GetMultiSource(keyName : string, version : BeaconVersion) returns (output : SI.KeySource)
     requires version.keyStore.ValidState()
     ensures output.ValidState()
