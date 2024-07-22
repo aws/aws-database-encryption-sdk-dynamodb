@@ -32,4 +32,60 @@ module TestDDBSupport {
     expect newItem == SimpleItem + expectedNew;
   }
 
+  // DynamoDB String :: cast string to DDB.AttributeValue.S
+  function method DS(x : string) : DDB.AttributeValue
+  {
+    DDB.AttributeValue.S(x)
+  }
+
+  method {:test} TestMulti() {
+    var version := GetLotsaBeaconsMulti();
+    var src := GetMultiSource("TheKeyField", version);
+    var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
+    var search := SI.SearchInfo([bv], 0);
+    var expressionAttributeValues : map<string, AttributeValue> := map[
+      ":value" := DS("0ad21413-51aa-42e1-9c3d-6a4b1edf7e10")
+    ];
+    var queryInput := DDB.QueryInput (
+      TableName := "SomeTable",
+      ExpressionAttributeValues := Some(expressionAttributeValues),
+      KeyConditionExpression := Some("TheKeyField = :value")
+    );
+    var result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+
+    // Verify Success with branch key id plus beacon
+    expressionAttributeValues := map[
+      ":value" := DS("0ad21413-51aa-42e1-9c3d-6a4b1edf7e10"),
+      ":other" := DS("junk")
+    ];
+    queryInput := DDB.QueryInput (
+      TableName := "foo",
+      ExpressionAttributeValues := Some(expressionAttributeValues),
+      KeyConditionExpression := Some("TheKeyField = :value AND std2 = :other")
+    );
+    result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+
+    // Verify Failure with beacon but no branch key id
+    queryInput := DDB.QueryInput (
+      TableName := "foo",
+      ExpressionAttributeValues := Some(expressionAttributeValues),
+      KeyConditionExpression := Some("std2 = :other")
+    );
+    var result2 := QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+    expect result2 == Failure(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.DynamoDbEncryptionException(
+                                message := "Need KeyId because of beacon std2 but no KeyId found in query"));
+
+    // Verify Success, even when field names are indirect via ExpressionAttributeNames
+    var expressionAttributeNames := map[
+      "#beacon" := "std2",
+      "#keyfield" := "TheKeyField"
+    ];
+    queryInput := DDB.QueryInput (
+      TableName := "foo",
+      ExpressionAttributeNames := Some(expressionAttributeNames),
+      ExpressionAttributeValues := Some(expressionAttributeValues),
+      KeyConditionExpression := Some("#keyfield = :value AND #beacon = :other")
+    );
+    result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+  }
 }
