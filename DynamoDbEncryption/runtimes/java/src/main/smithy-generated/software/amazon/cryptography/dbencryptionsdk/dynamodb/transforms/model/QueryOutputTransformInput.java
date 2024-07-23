@@ -9,8 +9,14 @@ import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 public class QueryOutputTransformInput {
 
+  /**
+   * <p>Represents the output of a <code>Query</code> operation.</p>
+   */
   private final QueryResponse sdkOutput;
 
+  /**
+   * <p>Represents the input of a <code>Query</code> operation.</p>
+   */
   private final QueryRequest originalInput;
 
   protected QueryOutputTransformInput(BuilderImpl builder) {
@@ -18,10 +24,16 @@ public class QueryOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>Query</code> operation.</p>
+   */
   public QueryResponse sdkOutput() {
     return this.sdkOutput;
   }
 
+  /**
+   * @return <p>Represents the input of a <code>Query</code> operation.</p>
+   */
   public QueryRequest originalInput() {
     return this.originalInput;
   }
@@ -35,12 +47,24 @@ public class QueryOutputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkOutput <p>Represents the output of a <code>Query</code> operation.</p>
+     */
     Builder sdkOutput(QueryResponse sdkOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>Query</code> operation.</p>
+     */
     QueryResponse sdkOutput();
 
+    /**
+     * @param originalInput <p>Represents the input of a <code>Query</code> operation.</p>
+     */
     Builder originalInput(QueryRequest originalInput);
 
+    /**
+     * @return <p>Represents the input of a <code>Query</code> operation.</p>
+     */
     QueryRequest originalInput();
 
     QueryOutputTransformInput build();

@@ -9,8 +9,14 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
 public class PutItemOutputTransformInput {
 
+  /**
+   * <p>Represents the output of a <code>PutItem</code> operation.</p>
+   */
   private final PutItemResponse sdkOutput;
 
+  /**
+   * <p>Represents the input of a <code>PutItem</code> operation.</p>
+   */
   private final PutItemRequest originalInput;
 
   protected PutItemOutputTransformInput(BuilderImpl builder) {
@@ -18,10 +24,16 @@ public class PutItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>PutItem</code> operation.</p>
+   */
   public PutItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
+  /**
+   * @return <p>Represents the input of a <code>PutItem</code> operation.</p>
+   */
   public PutItemRequest originalInput() {
     return this.originalInput;
   }
@@ -35,12 +47,24 @@ public class PutItemOutputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkOutput <p>Represents the output of a <code>PutItem</code> operation.</p>
+     */
     Builder sdkOutput(PutItemResponse sdkOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>PutItem</code> operation.</p>
+     */
     PutItemResponse sdkOutput();
 
+    /**
+     * @param originalInput <p>Represents the input of a <code>PutItem</code> operation.</p>
+     */
     Builder originalInput(PutItemRequest originalInput);
 
+    /**
+     * @return <p>Represents the input of a <code>PutItem</code> operation.</p>
+     */
     PutItemRequest originalInput();
 
     PutItemOutputTransformInput build();

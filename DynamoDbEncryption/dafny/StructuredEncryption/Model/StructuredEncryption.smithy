@@ -405,7 +405,6 @@ list AuthList {
 @aws.polymorph#reference(service: aws.cryptography.primitives#AwsCryptographicPrimitives)
 structure AtomicPrimitivesReference {}
 
-/////////////
 // Errors
 
 @error("client")

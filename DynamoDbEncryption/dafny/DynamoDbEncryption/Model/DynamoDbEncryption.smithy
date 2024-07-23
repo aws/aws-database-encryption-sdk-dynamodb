@@ -873,7 +873,6 @@ structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
   branchKeyIdSupplier: BranchKeyIdSupplierReference 
 }
 
-/////////////
 // Errors
 
 @error("client")
