@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.6.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.5.0...v3.6.0) (2024-07-23)
+
+### Features
+
+* allow indirect attribute names with MultiKeyStore ([#1208](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1208)) ([4ab97bc](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/4ab97bcc43d0b906e45c487920bc7ef5ba66e505))
+
+### Maintenance
+
+* bump dafny verification version to 4.7 ([#1181](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1181)) ([e7801ec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/e7801ec42b1bb212af68f9dc0c8037eed9876b5c))
+* **CI/CD:** use latest conventional-changelog-conventionalcommits ([#1195](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1195)) ([510227e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/510227eabb958ff4a17d55fc2eac83f964d6a945))
+* Fix nightly build (aside from verification) ([#1029](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1029)) ([862420e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/862420ef12ef1e764327671d839be451a7579bda))
+* **GHA:** add action for testing against MPL HEAD ([#1187](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1187)) ([b2f70ca](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b2f70ca6733ac522f622014ae6c93bd1a1c15d28))
+* **GHA:** fix daily ci ([#1194](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1194)) ([a1427e0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/a1427e0f7febc10cddd2eccb08385afb2b964367))
+* **MPL:** Bump MPL to 1.5.1 ([#1201](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1201)) ([808a5b4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/808a5b4ad1143ffb8c0bb223fde1e3770c7abe62))
+* Sonatype Migration to User Tokens ([#1216](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1216)) ([a3b4ef9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/a3b4ef9aac11f4a1e1048d938d554c669befc0a6))
+* Try to update existing issues ([31c6b98](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/31c6b9806920d500861154eccca07bd8a5ac4454))
+* Try to update existing issues ([4471295](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/4471295aa2b7f10e88c3742a41c947d9ad9f4cd2))
+* update project.properties to be SNAPSHOT ([#1087](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1087)) ([6f2825e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6f2825e198c84a5b20d50e49188b5d9004a1b71a))
+
 ## [3.5.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.4.0...v3.5.0) (2024-05-30)
 
 ### Features
