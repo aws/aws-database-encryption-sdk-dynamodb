@@ -203,3 +203,4 @@ See: https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/tree/v3.1.
 - Initial release of the AWS Database Encryption SDK.
   This release is considered a [developer preview](https://docs.aws.amazon.com/sdkref/latest/guide/maint-policy.html#version-life-cycle)
   and is not intended for production use cases.
+
