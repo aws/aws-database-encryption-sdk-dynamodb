@@ -190,7 +190,7 @@ structure DynamoDbTableEncryptionConfig {
     allowedUnsignedAttributes: AttributeNameList,
     @javadoc("A prefix such that, if during decryption any attribute has a name with this prefix, it is treated as unsigned.")
     allowedUnsignedAttributePrefix: String,
-    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suit
+    //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#algorithm-suite
     //= type=implication
     //# This algorithm suite MUST be a [Structured Encryption Library Supported algorithm suite](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/algorithm-suites.md).
     @javadoc("An ID for the algorithm suite to use during encryption and decryption.")
