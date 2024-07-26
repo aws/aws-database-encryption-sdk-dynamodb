@@ -43,7 +43,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.0
+        uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -64,7 +64,7 @@ jobs:
       # dafny-reportgenerator requires next6
       # but only 7.0 is installed on macos-12-large
       - name: Setup .NET Core SDK '6.0.x'
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
 

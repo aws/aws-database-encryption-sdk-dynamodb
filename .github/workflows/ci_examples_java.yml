@@ -53,7 +53,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.0
+        uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dafny }}
 
