@@ -32,7 +32,7 @@ module BatchWriteItemTransform {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
       //# If the table name does not refer to an [encrypted-table](#encrypted-table),
       //# the list of operations MUST be unchanged.
-      if tableName in config.tableEncryptionConfigs {
+      if !IsPlainWrite(config, tableName) {
         var tableConfig := config.tableEncryptionConfigs[tableName];
         var encryptedItems : seq<DDB.WriteRequest> := [];
         for x := 0 to |writeRequests|

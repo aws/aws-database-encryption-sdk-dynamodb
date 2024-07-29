@@ -16,8 +16,16 @@ module DdbMiddlewareConfig {
     partitionKeyName: string,
     sortKeyName: Option<string>,
     itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
-    search : Option<SearchableEncryptionInfo.ValidSearchInfo>
+    search : Option<SearchableEncryptionInfo.ValidSearchInfo>,
+    plaintextOverride: AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride
   )
+
+  // return true if records written to the table should NOT be encrypted or otherwise modified
+  predicate method IsPlainWrite(config : Config, tableName : string)
+  {
+    || tableName !in config.tableEncryptionConfigs
+    || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+  }
 
   predicate ValidTableConfig?(config: TableConfig) {
     var encryptorConfig := config.itemEncryptor.config;

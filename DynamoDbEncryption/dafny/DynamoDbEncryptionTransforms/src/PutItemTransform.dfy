@@ -26,7 +26,7 @@ module PutItemTransform {
     ensures output.Success? && input.sdkInput.TableName !in config.tableEncryptionConfigs ==>
               output.value.transformedInput == input.sdkInput
 
-    ensures output.Success? && input.sdkInput.TableName in config.tableEncryptionConfigs ==>
+    ensures output.Success? && !IsPlainWrite(config, input.sdkInput.TableName) ==>
               && var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
               //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
               //= type=implication
@@ -55,7 +55,7 @@ module PutItemTransform {
                                          input.sdkInput.ExpressionAttributeValues).Success?
 
   {
-    if input.sdkInput.TableName !in config.tableEncryptionConfigs {
+    if IsPlainWrite(config, input.sdkInput.TableName) {
       return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput));
     }
     var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];

@@ -75,7 +75,7 @@ module TransactWriteItemsTransform {
                                          item.Update.value.ExpressionAttributeValues);
       }
 
-      if item.Put.Some? && item.Put.value.TableName in config.tableEncryptionConfigs {
+      if item.Put.Some? && !IsPlainWrite(config, item.Put.value.TableName) {
         var tableConfig := config.tableEncryptionConfigs[item.Put.value.TableName];
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems

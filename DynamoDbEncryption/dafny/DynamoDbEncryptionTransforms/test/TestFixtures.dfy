@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../src/Index.dfy"
+include "../../DynamoDbEncryption/test/BeaconTestFixtures.dfy"
 
 module TestFixtures {
   import opened Wrappers
@@ -9,6 +10,7 @@ module TestFixtures {
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
+  import opened BeaconTestFixtures
   import DynamoDbEncryptionTransforms
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
@@ -122,11 +124,7 @@ module TestFixtures {
       attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
       allowedUnsignedAttributes := config.allowedUnsignedAttributes,
       allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
-      keyring := Some(keyring),
-      cmm := None(),
-      algorithmSuiteId := None(),
-      legacyOverride := None(),
-      plaintextOverride := None()
+      keyring := Some(keyring)
     );
     var encryptor2 : IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
     assert encryptor2 is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
@@ -184,10 +182,7 @@ module TestFixtures {
   {
     var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
     var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(
-      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY),
-      kmsKeyIds := None(),
-      clientSupplier := None(),
-      grantTokens := None()
+      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY)
     );
     keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
   }
@@ -216,7 +211,7 @@ module TestFixtures {
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetKmsKeyring();
-    var encryption2 : IDynamoDbEncryptionTransformsClient :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
@@ -232,17 +227,59 @@ module TestFixtures {
             allowedUnsignedAttributes := Some(["plain"]),
             allowedUnsignedAttributePrefix := None(),
             algorithmSuiteId := None(),
-            keyring := Some(keyring),
-            cmm := None(),
-            search := None,
-            legacyOverride := None,
-            plaintextOverride := None
+            keyring := Some(keyring)
           )
         ]
       )
     );
-    assert encryption2 is DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
-    encryption := encryption2 as DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
     assume {:axiom} fresh(encryption.Modifies);
   }
+
+  // type AttributeActions = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
+
+  const MultiActions : AttributeActions :=
+    map[
+      "bar" := SE.SIGN_ONLY,
+      "std2" := SE.ENCRYPT_AND_SIGN,
+      "std4" := SE.ENCRYPT_AND_SIGN,
+      "std6" := SE.ENCRYPT_AND_SIGN,
+      "Name" := SE.ENCRYPT_AND_SIGN,
+      "Title" := SE.ENCRYPT_AND_SIGN,
+      "TooBad" := SE.ENCRYPT_AND_SIGN,
+      "Year" := SE.SIGN_ONLY,
+      "Date" := SE.SIGN_ONLY,
+      "TheKeyField" := SE.SIGN_ONLY
+    ]
+
+  method GetDynamoDbEncryptionTransformsMutli(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
+    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+    ensures encryption.ValidState()
+    ensures fresh(encryption)
+    ensures fresh(encryption.Modifies)
+  {
+    var keyring := GetKmsKeyring();
+    var beacons := GetLotsaBeaconsMulti();
+    var search := SearchConfig (
+      versions := [beacons],
+      writeVersion := 1
+    );
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+      DynamoDbTablesEncryptionConfig(
+        tableEncryptionConfigs := map[
+          "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
+            partitionKeyName := "bar",
+            sortKeyName := None(),
+            attributeActionsOnEncrypt := MultiActions,
+            allowedUnsignedAttributes := Some(["plain"]),
+            keyring := Some(keyring),
+            search := Some(search),
+            plaintextOverride := plaintextOverride
+          )
+        ]
+      )
+    );
+    assume {:axiom} fresh(encryption.Modifies);
+  }
+
 }

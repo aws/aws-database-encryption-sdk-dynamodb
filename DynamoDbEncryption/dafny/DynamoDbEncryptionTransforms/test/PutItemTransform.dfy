@@ -9,21 +9,14 @@ module PutItemTransformTest {
   import opened TestFixtures
   import DDB = ComAmazonawsDynamodbTypes
   import AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
 
   method {:test} TestPutItemInputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var tableName := GetTableName("no_such_table");
     var input := DDB.PutItemInput(
       TableName := tableName,
-      Item := map[],
-      Expected := None(),
-      ReturnValues := None(),
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
-      ConditionExpression := None(),
-      ExpressionAttributeNames := None(),
-      ExpressionAttributeValues := None()
+      Item := map[]
     );
     var transformed := middlewareUnderTest.PutItemInputTransform(
       AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
@@ -33,6 +26,48 @@ module PutItemTransformTest {
 
     expect_ok("PutItemInput", transformed);
     expect_equal("PutItemInput", transformed.value.transformedInput, input);
+  }
+
+  const BasicItem : DDB.AttributeMap := map["bar" := DDB.AttributeValue.S("baz")]
+
+  method TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(plaintextOverride);
+    var tableName := GetTableName("foo");
+    var input := DDB.PutItemInput(
+      TableName := tableName,
+      Item := BasicItem
+    );
+    var transformed := middlewareUnderTest.PutItemInputTransform(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+    expect transformed.Failure?;
+    expect transformed.error == AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DynamoDbEncryptionTransformsException(
+                                  message := "In multi-tenant mode, keyProviderId must be aws-kms-hierarchy");
+  }
+
+  method {:test} TestPutItemInputMulti() {
+    TestPutItemInputMultiFail(None);
+    TestPutItemInputMultiFail(Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ));
+    TestPutItemInputMultiFail(Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ));
+  }
+
+  method {:test} TestPutItemInputMultiForceAllow() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(
+      Some(PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
+    );
+    var tableName := GetTableName("foo");
+    var input := DDB.PutItemInput(
+      TableName := tableName,
+      Item := BasicItem
+    );
+    var transformed := middlewareUnderTest.PutItemInputTransform(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+    expect transformed.Success?;
   }
 
   method {:test} TestPutItemOutputPassthrough() {
@@ -45,15 +80,7 @@ module PutItemTransformTest {
     var tableName := GetTableName("no_such_table");
     var input := DDB.PutItemInput(
       TableName := tableName,
-      Item := map[],
-      Expected := None(),
-      ReturnValues := None(),
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
-      ConditionExpression := None(),
-      ExpressionAttributeNames := None(),
-      ExpressionAttributeValues := None()
+      Item := map[]
     );
     var transformed := middlewareUnderTest.PutItemOutputTransform(
       AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemOutputTransformInput(
