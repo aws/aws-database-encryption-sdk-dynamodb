@@ -1,6 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 include "../src/Index.dfy"
+include "../../DynamoDbEncryption/test/BeaconTestFixtures.dfy"
 
 module TestFixtures {
   import opened Wrappers
@@ -9,6 +10,7 @@ module TestFixtures {
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
+  import opened BeaconTestFixtures
   import DynamoDbEncryptionTransforms
   import DynamoDbItemEncryptor
   import AwsCryptographyMaterialProvidersTypes
@@ -216,7 +218,7 @@ module TestFixtures {
     ensures fresh(encryption.Modifies)
   {
     var keyring := GetKmsKeyring();
-    var encryption2 : IDynamoDbEncryptionTransformsClient :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
       DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs := map[
           "foo" := DynamoDbTableEncryptionConfig(
@@ -241,8 +243,60 @@ module TestFixtures {
         ]
       )
     );
-    assert encryption2 is DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
-    encryption := encryption2 as DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient;
     assume {:axiom} fresh(encryption.Modifies);
   }
+
+  // type AttributeActions = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
+
+  function method GetMultiActions() : AttributeActions
+  {
+    map[
+      "bar" := SE.SIGN_ONLY,
+      "std2" := SE.ENCRYPT_AND_SIGN,
+      "std4" := SE.ENCRYPT_AND_SIGN,
+      "std6" := SE.ENCRYPT_AND_SIGN,
+      "Name" := SE.ENCRYPT_AND_SIGN,
+      "Title" := SE.ENCRYPT_AND_SIGN,
+      "TooBad" := SE.ENCRYPT_AND_SIGN,
+      "Year" := SE.SIGN_ONLY,
+      "Date" := SE.SIGN_ONLY,
+      "TheKeyField" := SE.SIGN_ONLY
+    ]
+  }
+
+  method GetDynamoDbEncryptionTransformsMutli(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
+    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+    ensures encryption.ValidState()
+    ensures fresh(encryption)
+    ensures fresh(encryption.Modifies)
+  {
+    var keyring := GetKmsKeyring();
+    var beacons := GetLotsaBeaconsMulti();
+    var search := SearchConfig (
+      versions := [beacons],
+      writeVersion := 1
+    );
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+      DynamoDbTablesEncryptionConfig(
+        tableEncryptionConfigs := map[
+          "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
+            partitionKeyName := "bar",
+            sortKeyName := None(),
+            attributeActionsOnEncrypt := GetMultiActions(),
+            allowedUnsignedAttributes := Some(["plain"]),
+            allowedUnsignedAttributePrefix := None(),
+            algorithmSuiteId := None(),
+            keyring := Some(keyring),
+            cmm := None(),
+            search := Some(search),
+            legacyOverride := None,
+            plaintextOverride := plaintextOverride
+          )
+        ]
+      )
+    );
+    assume {:axiom} fresh(encryption.Modifies);
+  }
+
 }
