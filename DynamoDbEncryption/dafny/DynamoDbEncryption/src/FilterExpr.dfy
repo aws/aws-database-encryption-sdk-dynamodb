@@ -1533,7 +1533,7 @@ module DynamoDBFilterExpr {
     else
       var name := if names.Some? && attr.value.s in names.value then names.value[attr.value.s] else attr.value.s;
       var keyIdField := bv.keySource.keyLoc.keyName;
-      if keyIdField == attr.value.s then
+      if keyIdField == name then
         Some(value)
       else
         KeyIdFromPart(bv, keyIdField, attr.value.s, value)

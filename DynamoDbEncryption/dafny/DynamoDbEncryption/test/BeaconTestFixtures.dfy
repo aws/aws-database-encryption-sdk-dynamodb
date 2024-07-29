@@ -130,9 +130,9 @@ module BeaconTestFixtures {
     var keyStoreConfig := KTypes.KeyStoreConfig(
       id := None,
       kmsConfiguration := kmsConfig,
-      logicalKeyStoreName := "foo",
+      logicalKeyStoreName := "KeyStoreDdbTable",
       grantTokens := None,
-      ddbTableName := "foo",
+      ddbTableName := "KeyStoreDdbTable",
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
@@ -177,6 +177,24 @@ module BeaconTestFixtures {
       );
   }
 
+  method GetLotsaBeaconsMulti() returns (output : BeaconVersion)
+    ensures output.keyStore.ValidState()
+    ensures fresh(output.keyStore.Modifies)
+    ensures output.version == 1
+  {
+    var store := GetKeyStore();
+    return BeaconVersion (
+        version := 1,
+        keyStore := store,
+        keySource := multi(MultiKeyStore(keyFieldName := "TheKeyField", cacheTTL := 42)),
+        standardBeacons := [std2, std4, std6, NameTitleBeacon, NameB, TitleB],
+        compoundBeacons := Some([NameTitle, YearName, Mixed, JustSigned]),
+        virtualFields := Some([NameTitleField]),
+        encryptedParts := None,
+        signedParts := None
+      );
+  }
+
   const EmptyTableConfig := DynamoDbTableEncryptionConfig (
                               logicalTableName := "Foo",
                               partitionKeyName := "foo",
@@ -200,7 +218,8 @@ module BeaconTestFixtures {
                              "Title" := SE.ENCRYPT_AND_SIGN,
                              "TooBad" := SE.ENCRYPT_AND_SIGN,
                              "Year" := SE.SIGN_ONLY,
-                             "Date" := SE.SIGN_ONLY
+                             "Date" := SE.SIGN_ONLY,
+                             "TheKeyField" := SE.SIGN_ONLY
                            ]
                            )
 
@@ -221,6 +240,21 @@ module BeaconTestFixtures {
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);
+  }
+
+  method GetMultiSource(keyName : string, version : BeaconVersion) returns (output : SI.KeySource)
+    requires version.keyStore.ValidState()
+    ensures output.ValidState()
+    ensures version.keyStore == output.store
+    ensures fresh(output.client.Modifies)
+  {
+    var client :- expect Primitives.AtomicPrimitives();
+    var mpl :- expect MaterialProviders.MaterialProviders();
+    var input := MPT.CreateCryptographicMaterialsCacheInput(
+      cache := MPT.Default(Default := MPT.DefaultCache(entryCapacity := 3))
+    );
+    var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
+    return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0);
   }
 
   const SimpleItem : DDB.AttributeMap := map[
