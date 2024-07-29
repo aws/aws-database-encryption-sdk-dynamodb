@@ -41,6 +41,7 @@ module PutItemTransformTest {
   {
     DDB.AttributeValue.S(x)
   }
+
   function method BasicItem() : DDB.AttributeMap
   {
     map[
@@ -48,7 +49,7 @@ module PutItemTransformTest {
     ]
   }
 
-  method {:test} TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
+  method TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(plaintextOverride);
     var tableName := GetTableName("foo");
     var input := DDB.PutItemInput(
@@ -63,8 +64,8 @@ module PutItemTransformTest {
     expect transformed.Failure?;
     expect transformed.error == AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DynamoDbEncryptionTransformsException(
                                   message := "In multi-tenant mode, keyProviderId must be aws-kms-hierarchy");
-
   }
+
   method {:test} TestPutItemInputMulti() {
     TestPutItemInputMultiFail(None);
     TestPutItemInputMultiFail(Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ));
