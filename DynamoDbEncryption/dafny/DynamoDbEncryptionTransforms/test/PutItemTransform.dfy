@@ -47,27 +47,9 @@ module PutItemTransformTest {
       "bar" := DS("baz")
     ]
   }
-  method {:test} TestPutItemInputMultiNone() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(None);
-    var tableName := GetTableName("foo");
-    var input := DDB.PutItemInput(
-      TableName := tableName,
-      Item := BasicItem()
-    );
-    var transformed := middlewareUnderTest.PutItemInputTransform(
-      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
-        sdkInput := input
-      )
-    );
-    expect transformed.Failure?;
-    expect transformed.error == AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DynamoDbEncryptionTransformsException(
-                                  message := "In multi-tenant mode, keyProviderId must be aws-kms-hierarchy");
-  }
 
-  method {:test} TestPutItemInputMultiForbidForbid() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(
-      Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ)
-    );
+  method {:test} TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(plaintextOverride);
     var tableName := GetTableName("foo");
     var input := DDB.PutItemInput(
       TableName := tableName,
@@ -81,25 +63,12 @@ module PutItemTransformTest {
     expect transformed.Failure?;
     expect transformed.error == AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DynamoDbEncryptionTransformsException(
                                   message := "In multi-tenant mode, keyProviderId must be aws-kms-hierarchy");
-  }
 
-  method {:test} TestPutItemInputMultiForbidAllow() {
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(
-      Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
-    );
-    var tableName := GetTableName("foo");
-    var input := DDB.PutItemInput(
-      TableName := tableName,
-      Item := BasicItem()
-    );
-    var transformed := middlewareUnderTest.PutItemInputTransform(
-      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
-        sdkInput := input
-      )
-    );
-    expect transformed.Failure?;
-    expect transformed.error == AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.DynamoDbEncryptionTransformsException(
-                                  message := "In multi-tenant mode, keyProviderId must be aws-kms-hierarchy");
+  }
+  method {:test} TestPutItemInputMulti() {
+    TestPutItemInputMultiFail(None);
+    TestPutItemInputMultiFail(Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ));
+    TestPutItemInputMultiFail(Some(PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ));
   }
 
   method {:test} TestPutItemInputMultiForceAllow() {
