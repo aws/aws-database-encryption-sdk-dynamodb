@@ -124,11 +124,7 @@ module TestFixtures {
       attributeActionsOnEncrypt := config.attributeActionsOnEncrypt,
       allowedUnsignedAttributes := config.allowedUnsignedAttributes,
       allowedUnsignedAttributePrefix := config.allowedUnsignedAttributePrefix,
-      keyring := Some(keyring),
-      cmm := None(),
-      algorithmSuiteId := None(),
-      legacyOverride := None(),
-      plaintextOverride := None()
+      keyring := Some(keyring)
     );
     var encryptor2 : IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
     assert encryptor2 is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
@@ -186,10 +182,7 @@ module TestFixtures {
   {
     var matProv :- expect MaterialProviders.MaterialProviders(MaterialProviders.DefaultMaterialProvidersConfig());
     var keyringInput := AwsCryptographyMaterialProvidersTypes.CreateAwsKmsMultiKeyringInput(
-      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY),
-      kmsKeyIds := None(),
-      clientSupplier := None(),
-      grantTokens := None()
+      generator := Some(PUBLIC_US_WEST_2_KMS_TEST_KEY)
     );
     keyring :- expect matProv.CreateAwsKmsMultiKeyring(keyringInput);
   }
@@ -234,11 +227,7 @@ module TestFixtures {
             allowedUnsignedAttributes := Some(["plain"]),
             allowedUnsignedAttributePrefix := None(),
             algorithmSuiteId := None(),
-            keyring := Some(keyring),
-            cmm := None(),
-            search := None,
-            legacyOverride := None,
-            plaintextOverride := None
+            keyring := Some(keyring)
           )
         ]
       )
@@ -248,8 +237,7 @@ module TestFixtures {
 
   // type AttributeActions = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
 
-  function method GetMultiActions() : AttributeActions
-  {
+  const MultiActions : AttributeActions :=
     map[
       "bar" := SE.SIGN_ONLY,
       "std2" := SE.ENCRYPT_AND_SIGN,
@@ -262,7 +250,6 @@ module TestFixtures {
       "Date" := SE.SIGN_ONLY,
       "TheKeyField" := SE.SIGN_ONLY
     ]
-  }
 
   method GetDynamoDbEncryptionTransformsMutli(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
     returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
@@ -283,14 +270,10 @@ module TestFixtures {
             logicalTableName := "foo",
             partitionKeyName := "bar",
             sortKeyName := None(),
-            attributeActionsOnEncrypt := GetMultiActions(),
+            attributeActionsOnEncrypt := MultiActions,
             allowedUnsignedAttributes := Some(["plain"]),
-            allowedUnsignedAttributePrefix := None(),
-            algorithmSuiteId := None(),
             keyring := Some(keyring),
-            cmm := None(),
             search := Some(search),
-            legacyOverride := None,
             plaintextOverride := plaintextOverride
           )
         ]

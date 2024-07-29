@@ -16,15 +16,7 @@ module PutItemTransformTest {
     var tableName := GetTableName("no_such_table");
     var input := DDB.PutItemInput(
       TableName := tableName,
-      Item := map[],
-      Expected := None(),
-      ReturnValues := None(),
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
-      ConditionExpression := None(),
-      ExpressionAttributeNames := None(),
-      ExpressionAttributeValues := None()
+      Item := map[]
     );
     var transformed := middlewareUnderTest.PutItemInputTransform(
       AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
@@ -36,25 +28,14 @@ module PutItemTransformTest {
     expect_equal("PutItemInput", transformed.value.transformedInput, input);
   }
 
-  // DynamoDB String :: cast string to DDB.AttributeValue.S
-  function method DS(x : string) : DDB.AttributeValue
-  {
-    DDB.AttributeValue.S(x)
-  }
-
-  function method BasicItem() : DDB.AttributeMap
-  {
-    map[
-      "bar" := DS("baz")
-    ]
-  }
+  const BasicItem : DDB.AttributeMap := map["bar" := DDB.AttributeValue.S("baz")]
 
   method TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(plaintextOverride);
     var tableName := GetTableName("foo");
     var input := DDB.PutItemInput(
       TableName := tableName,
-      Item := BasicItem()
+      Item := BasicItem
     );
     var transformed := middlewareUnderTest.PutItemInputTransform(
       AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
@@ -79,7 +60,7 @@ module PutItemTransformTest {
     var tableName := GetTableName("foo");
     var input := DDB.PutItemInput(
       TableName := tableName,
-      Item := BasicItem()
+      Item := BasicItem
     );
     var transformed := middlewareUnderTest.PutItemInputTransform(
       AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
@@ -99,15 +80,7 @@ module PutItemTransformTest {
     var tableName := GetTableName("no_such_table");
     var input := DDB.PutItemInput(
       TableName := tableName,
-      Item := map[],
-      Expected := None(),
-      ReturnValues := None(),
-      ReturnConsumedCapacity := None(),
-      ReturnItemCollectionMetrics := None(),
-      ConditionalOperator := None(),
-      ConditionExpression := None(),
-      ExpressionAttributeNames := None(),
-      ExpressionAttributeValues := None()
+      Item := map[]
     );
     var transformed := middlewareUnderTest.PutItemOutputTransform(
       AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemOutputTransformInput(
