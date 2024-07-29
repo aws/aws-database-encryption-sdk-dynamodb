@@ -8,6 +8,7 @@
     <LangVersion>10</LangVersion>
     <TargetFramework>net6.0</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <StartupObject>DbEsdkTestVectors.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
