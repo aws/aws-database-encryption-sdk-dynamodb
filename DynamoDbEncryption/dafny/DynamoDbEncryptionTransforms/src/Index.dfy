@@ -199,7 +199,8 @@ module
         partitionKeyName := inputConfig.partitionKeyName,
         sortKeyName := inputConfig.sortKeyName,
         itemEncryptor := itemEncryptor,
-        search := search
+        search := search,
+        plaintextOverride := inputConfig.plaintextOverride.UnwrapOr(AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ)
       );
 
       internalConfigs := internalConfigs[tableName := internalConfig];
