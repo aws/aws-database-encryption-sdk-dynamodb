@@ -117,8 +117,8 @@ dependencies {
     // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
     testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    testImplementation("org.projectlombok:lombok:1.18.32")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
+    testImplementation("org.projectlombok:lombok:1.18.34")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 
 publishing {
