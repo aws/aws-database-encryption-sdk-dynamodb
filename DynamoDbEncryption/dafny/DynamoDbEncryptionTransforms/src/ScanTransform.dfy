@@ -90,19 +90,17 @@ module ScanTransform {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
       var decrypted :- MapError(decryptRes);
 
-      if decrypted.parsedHeader.None? {
-        :- Need(
+      // If the decrypted result was plaintext, i.e. has no parsedHeader
+      // then this is expected IFF the table config allows plaintext read
+      assert decrypted.parsedHeader.None? ==>
           && EncOps.IsPlaintextItem(encryptedItems[x])
+          && !tableConfig.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
           && (
                || tableConfig.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
                || tableConfig.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
-             ),
-          E("Unexpected lack of parsed header.")
-        );
-      }
+             );
 
       if keyId.KeyId? && decrypted.parsedHeader.Some? {
-        :- Need(decrypted.parsedHeader.Some?, E("Decrypted scan result has no parsed header."));
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Scan result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {
           decryptedItems := decryptedItems + [decrypted.plaintextItem];
