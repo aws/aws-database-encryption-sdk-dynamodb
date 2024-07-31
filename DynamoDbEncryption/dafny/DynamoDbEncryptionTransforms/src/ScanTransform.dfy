@@ -10,7 +10,7 @@ module ScanTransform {
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
-  import Seq
+  import EncOps = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
   method Input(config: Config, input: ScanInputTransformInput)
     returns (output: Result<ScanInputTransformOutput, Error>)
@@ -90,7 +90,17 @@ module ScanTransform {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
       var decrypted :- MapError(decryptRes);
 
-      // No parsed header is ok, because it means ALLOW_PLAINTEXT_READ and a plain text item
+      if decrypted.parsedHeader.None? {
+        :- Need(
+          && EncOps.IsPlaintextItem(encryptedItems[x])
+          && (
+               || tableConfig.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+               || tableConfig.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+             ),
+          E("Unexpected lack of parsed header.")
+        );
+      }
+
       if keyId.KeyId? && decrypted.parsedHeader.Some? {
         :- Need(decrypted.parsedHeader.Some?, E("Decrypted scan result has no parsed header."));
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Scan result has more than one Encrypted Data Key"));

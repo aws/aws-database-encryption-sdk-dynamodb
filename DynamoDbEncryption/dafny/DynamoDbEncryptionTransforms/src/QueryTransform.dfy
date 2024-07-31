@@ -10,7 +10,7 @@ module QueryTransform {
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
-  import Seq
+  import EncOps = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
   method Input(config: Config, input: QueryInputTransformInput)
     returns (output: Result<QueryInputTransformOutput, Error>)
@@ -92,7 +92,17 @@ module QueryTransform {
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
       var decrypted :- MapError(decryptRes);
 
-      // No parsed header is ok, because it means ALLOW_PLAINTEXT_READ and a plain text item
+      if decrypted.parsedHeader.None? {
+        :- Need(
+          && EncOps.IsPlaintextItem(encryptedItems[x])
+          && (
+               || tableConfig.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+               || tableConfig.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+             ),
+          E("Unexpected lack of parsed header.")
+        );
+      }
+
       if keyId.KeyId? && decrypted.parsedHeader.Some? {
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Query result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {
