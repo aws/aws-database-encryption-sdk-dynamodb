@@ -10,7 +10,7 @@ module QueryTransform {
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
-  import Seq
+  import EncOps = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
   method Input(config: Config, input: QueryInputTransformInput)
     returns (output: Result<QueryInputTransformOutput, Error>)
@@ -90,10 +90,19 @@ module QueryTransform {
       //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
       var decryptInput := EncTypes.DecryptItemInput(encryptedItem := encryptedItems[x]);
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
-
       var decrypted :- MapError(decryptRes);
-      if keyId.KeyId? {
-        :- Need(decrypted.parsedHeader.Some?, E("Decrypted query result has no parsed header."));
+
+      // If the decrypted result was plaintext, i.e. has no parsedHeader
+      // then this is expected IFF the table config allows plaintext read
+      assert decrypted.parsedHeader.None? ==>
+          && EncOps.IsPlaintextItem(encryptedItems[x])
+          && !tableConfig.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
+          && (
+               || tableConfig.plaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+               || tableConfig.plaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ?
+             );
+
+      if keyId.KeyId? && decrypted.parsedHeader.Some? {
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Query result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {
           decryptedItems := decryptedItems + [decrypted.plaintextItem];
