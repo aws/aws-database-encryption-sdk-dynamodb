@@ -90,10 +90,10 @@ module QueryTransform {
       //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
       var decryptInput := EncTypes.DecryptItemInput(encryptedItem := encryptedItems[x]);
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
-
       var decrypted :- MapError(decryptRes);
-      if keyId.KeyId? {
-        :- Need(decrypted.parsedHeader.Some?, E("Decrypted query result has no parsed header."));
+
+      // No parsed header is ok, because it means ALLOW_PLAINTEXT_READ and a plain text item
+      if keyId.KeyId? && decrypted.parsedHeader.Some? {
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Query result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {
           decryptedItems := decryptedItems + [decrypted.plaintextItem];

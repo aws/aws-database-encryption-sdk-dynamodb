@@ -88,9 +88,10 @@ module ScanTransform {
 
       var decryptInput := EncTypes.DecryptItemInput(encryptedItem := encryptedItems[x]);
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
-
       var decrypted :- MapError(decryptRes);
-      if keyId.KeyId? {
+
+      // No parsed header is ok, because it means ALLOW_PLAINTEXT_READ and a plain text item
+      if keyId.KeyId? && decrypted.parsedHeader.Some? {
         :- Need(decrypted.parsedHeader.Some?, E("Decrypted scan result has no parsed header."));
         :- Need(|decrypted.parsedHeader.value.encryptedDataKeys| == 1, E("Scan result has more than one Encrypted Data Key"));
         if decrypted.parsedHeader.value.encryptedDataKeys[0].keyProviderInfo == keyIdUtf8 {
