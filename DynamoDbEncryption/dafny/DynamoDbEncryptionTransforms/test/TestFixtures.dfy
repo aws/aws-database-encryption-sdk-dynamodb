@@ -23,10 +23,12 @@ module TestFixtures {
     expect DDB.IsValid_TableName(s);
     return s;
   }
-  method GetAttrName(s : string) returns (output : DDB.AttributeName)
+  function method GetAttrName(s : string)  : DDB.AttributeName
   {
-    expect DDB.IsValid_AttributeName(s);
-    return s;
+    if DDB.IsValid_AttributeName(s) then
+      s
+    else
+      "abc"
   }
   method GetStatement(s : string) returns (output : DDB.PartiQLStatement)
   {
@@ -224,6 +226,32 @@ module TestFixtures {
               "encrypt" := CSE.ENCRYPT_AND_SIGN,
               "plain" := CSE.DO_NOTHING
             ],
+            allowedUnsignedAttributes := Some(["plain"]),
+            allowedUnsignedAttributePrefix := None(),
+            algorithmSuiteId := None(),
+            keyring := Some(keyring)
+          )
+        ]
+      )
+    );
+    assume {:axiom} fresh(encryption.Modifies);
+  }
+
+  method GetDynamoDbEncryptionTransforms2(actions : AttributeActions, sortKey : Option<string>)
+    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+    ensures encryption.ValidState()
+    ensures fresh(encryption)
+    ensures fresh(encryption.Modifies)
+  {
+    var keyring := GetKmsKeyring();
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+      DynamoDbTablesEncryptionConfig(
+        tableEncryptionConfigs := map[
+          "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
+            partitionKeyName := "bar",
+            sortKeyName := sortKey,
+            attributeActionsOnEncrypt := actions,
             allowedUnsignedAttributes := Some(["plain"]),
             allowedUnsignedAttributePrefix := None(),
             algorithmSuiteId := None(),
