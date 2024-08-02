@@ -9,6 +9,8 @@ module DdbMiddlewareConfig {
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
+  import DDB = ComAmazonawsDynamodbTypes
+  import HexStrings
 
   datatype TableConfig = TableConfig(
     physicalTableName: ComAmazonawsDynamodbTypes.TableName,
@@ -85,6 +87,35 @@ module DdbMiddlewareConfig {
   datatype Config = Config(
     tableEncryptionConfigs: map<string, ValidTableConfig>
   )
+
+  function method AttrToString(attr : DDB.AttributeValue) : string
+  {
+    if attr.S? then
+      attr.S
+    else if attr.N? then
+      attr.N
+    else if attr.B? then
+      HexStrings.ToHexString(attr.B)
+    else
+      "unexpected key type"
+  }
+
+  // return human readable string containing primary keys
+  function method KeyString(config : ValidTableConfig, item : DDB.AttributeMap) : string
+  {
+    var partition :=
+      if config.partitionKeyName in item then
+        config.partitionKeyName + " = " + AttrToString(item[config.partitionKeyName])
+      else
+        "";
+    var sort :=
+      if config.sortKeyName.Some? && config.sortKeyName.value in item then
+        "\n" + config.sortKeyName.value + " = " + AttrToString(item[config.sortKeyName.value])
+      else
+        "";
+
+    partition + sort
+  }
 
   function method MapError<T>(r : Result<T, EncTypes.Error>) : Result<T, Error> {
     r.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(e))
