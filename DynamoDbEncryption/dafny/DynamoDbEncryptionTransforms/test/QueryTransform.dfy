@@ -197,5 +197,23 @@ module QueryTransformTest {
              ],
              message := "Error(s) found decrypting Query results."
            );
+
+    var transformed_scan := middlewareUnderTest.ScanOutputTransform(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.ScanOutputTransformInput(
+        sdkOutput := DDB.ScanOutput(Items := Some([item1, item2, item3])),
+        originalInput := DDB.ScanInput(TableName := tableName)
+      )
+    );
+    expect transformed_scan.Failure?;
+    print "\n", transformed_scan.error, "\n";
+    expect transformed_scan.error ==
+           AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
+             [
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234\nsortKey = 01020304"),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890\nsortKey = 030104")
+             ],
+             message := "Error(s) found decrypting Scan results."
+           );
   }
 }
