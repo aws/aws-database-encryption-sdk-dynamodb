@@ -81,16 +81,29 @@ module QueryTransform {
     if keyId.KeyId? {
       keyIdUtf8 :- UTF8.Encode(keyId.value).MapFailure(e => E(e));
     }
-    ghost var originalHistory := tableConfig.itemEncryptor.History.DecryptItem;
-    ghost var historySize := |originalHistory|;
+
+    var decryptErrors : seq<Error> := [];
+    var lastRealError := -1;
+
     for x := 0 to |encryptedItems|
+      invariant lastRealError == -1 || lastRealError < |decryptErrors|
     {
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
       //# Each of these entries on the original response MUST be replaced
       //# with the resulting decrypted [DynamoDB Item](./decrypt-item.md#dynamodb-item-1).
       var decryptInput := EncTypes.DecryptItemInput(encryptedItem := encryptedItems[x]);
       var decryptRes := tableConfig.itemEncryptor.DecryptItem(decryptInput);
-      var decrypted :- MapError(decryptRes);
+      if decryptRes.Failure? {
+        var error := AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(decryptRes.error);
+        var context := E(KeyString(tableConfig, encryptedItems[x]));
+        if lastRealError == -1 || error != decryptErrors[lastRealError] {
+          lastRealError := |decryptErrors|;
+          decryptErrors := decryptErrors + [error];
+        }
+        decryptErrors := decryptErrors + [context];
+        continue;
+      }
+      var decrypted := decryptRes.value;
 
       // If the decrypted result was plaintext, i.e. has no parsedHeader
       // then this is expected IFF the table config allows plaintext read
@@ -111,7 +124,9 @@ module QueryTransform {
         decryptedItems := decryptedItems + [decrypted.plaintextItem];
       }
     }
-
+    if |decryptErrors| != 0 {
+      return Failure(CollectionOfErrors(decryptErrors, message := "Error(s) found decrypting Query results."));
+    }
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
     //# The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
     var decryptedOutput := input.sdkOutput.(Items := Some(decryptedItems));
