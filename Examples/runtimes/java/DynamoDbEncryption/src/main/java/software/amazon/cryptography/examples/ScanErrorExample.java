@@ -157,10 +157,23 @@ public class ScanErrorExample {
       final ScanResponse scanResponse = ddb.scan(scanRequest);
       assert false;
     } catch (Exception e) {
-      System.err.println(e.getMessage());
-      System.err.println(e.getCause());
+      print_exception(e, "");
+    }
+  }
+
+  public static void print_exception(Exception e, String indent) {
+    System.err.println(indent + e.getMessage());
+    if (e.getCause() instanceof CollectionOfErrors) {
+      System.err.println(indent + e.getCause().getMessage());
       for (RuntimeException err : ((CollectionOfErrors) e.getCause()).list()) {
-        System.err.println("   " + err.getMessage());
+        print_exception(err, indent + "   ");
+      }
+    } else if (
+      e instanceof
+      software.amazon.cryptography.materialproviders.model.CollectionOfErrors
+    ) {
+      for (RuntimeException err : ((software.amazon.cryptography.materialproviders.model.CollectionOfErrors) e).list()) {
+        print_exception(err, indent + "   ");
       }
     }
   }

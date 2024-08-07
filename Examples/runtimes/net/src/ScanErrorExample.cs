@@ -125,18 +125,30 @@ public class ScanErrorExample
             var scanResponse = await ddb.ScanAsync(scanRequest);
             Debug.Assert(false);
         }
-        catch (AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.CollectionOfErrors e)
-        {
-            Console.Error.WriteLine("Decryption Errors : ");
-            Console.Error.WriteLine(e.Message);
-            foreach (Exception element in e.list)
-            {
-                Console.WriteLine(element);
-            }
-        }
         catch (Exception e)
         {
-            Debug.Assert(false);
+            PrintException(e, "");
+        }
+    }
+
+    public static void PrintException(Exception e, String indent)
+    {
+        Console.Error.WriteLine(indent + e.Message);
+        if (e is AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.CollectionOfErrors)
+        {
+            var ee = e as AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.CollectionOfErrors;
+            foreach (Exception element in ee.list)
+            {
+                PrintException(element, "   " + indent);
+            }
+        }
+        else if (e is AWS.Cryptography.MaterialProviders.CollectionOfErrors)
+        {
+            var ee = e as AWS.Cryptography.MaterialProviders.CollectionOfErrors;
+            foreach (Exception element in ee.list)
+            {
+                PrintException(element, "   " + indent);
+            }
         }
     }
 }
