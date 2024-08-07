@@ -20,9 +20,9 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
-  and uses the low level PutItem and GetItem DDB APIs to demonstrate
-  putting a client-side encrypted item into DynamoDb
-  and then retrieving and decrypting that item from DynamoDb. 
+  and uses the low level Scan operation to demonstrate
+  retrieving the error messages from the returned CollectionOfErrors
+  when some of the Scan results do not decrypt successfully.
 
   Running this example requires access to the DDB Table whose name
   is provided in CLI arguments.
@@ -155,12 +155,13 @@ public class ScanErrorExample {
 
     try {
       final ScanResponse scanResponse = ddb.scan(scanRequest);
+      assert false;
     } catch (Exception e) {
-      System.err.println("Other Error : ");
-      System.err.println(e);
       System.err.println(e.getMessage());
       System.err.println(e.getCause());
-      System.err.println(((CollectionOfErrors) e.getCause()).list());
+      for (RuntimeException err : ((CollectionOfErrors) e.getCause()).list()) {
+        System.err.println("   " + err.getMessage());
+      }
     }
   }
 
