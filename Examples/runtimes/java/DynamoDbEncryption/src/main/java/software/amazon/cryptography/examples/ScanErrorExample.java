@@ -5,18 +5,18 @@ import java.util.Map;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CollectionOfErrors;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
@@ -139,7 +139,7 @@ public class ScanErrorExample {
       )
       .build();
 
-        // 7. Perform a Scan for which some records will not decrypt
+    // 7. Perform a Scan for which some records will not decrypt
     Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
     expressionAttributeValues.put(
       ":prefix",
@@ -153,32 +153,16 @@ public class ScanErrorExample {
       .expressionAttributeValues(expressionAttributeValues)
       .build();
 
-        try
-        {
-            final ScanResponse scanResponse = ddb.scan(scanRequest);
-        }
-        // catch (DynamoDbEncryptionException e)
-        // {
-        //     System.err.println("Encryptor Error : " + e.Message);
-        // }
-        catch (CollectionOfErrors e)
-        {
-            System.err.println("Decryption Errors : ");
-            System.err.println(e.message());
-            for (Exception element : e.list())
-            {
-                System.err.println(element);
-            }
-        }
-        catch (Exception e)
-        {
-            System.err.println("Other Error : ");
-            System.err.println(e);
-            System.err.println(e.getMessage());
-            System.err.println(e.getCause());
-            System.err.println(((CollectionOfErrors) e.getCause()).list());
-        }
+    try {
+      final ScanResponse scanResponse = ddb.scan(scanRequest);
+    } catch (Exception e) {
+      System.err.println("Other Error : ");
+      System.err.println(e);
+      System.err.println(e.getMessage());
+      System.err.println(e.getCause());
+      System.err.println(((CollectionOfErrors) e.getCause()).list());
     }
+  }
 
   public static void main(final String[] args) {
     if (args.length < 2) {
