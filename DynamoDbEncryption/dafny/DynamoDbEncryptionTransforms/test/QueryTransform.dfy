@@ -173,7 +173,7 @@ module QueryTransformTest {
            AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
              [
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234\nsortKey = 01020304")
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234; sortKey = 01020304")
              ],
              message := "Error(s) found decrypting Query results."
            );
@@ -192,8 +192,8 @@ module QueryTransformTest {
            AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
              [
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234\nsortKey = 01020304"),
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890\nsortKey = 030104")
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234; sortKey = 01020304"),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890; sortKey = 030104")
              ],
              message := "Error(s) found decrypting Query results."
            );
@@ -210,8 +210,8 @@ module QueryTransformTest {
            AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
              [
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234\nsortKey = 01020304"),
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890\nsortKey = 030104")
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234; sortKey = 01020304"),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890; sortKey = 030104")
              ],
              message := "Error(s) found decrypting Scan results."
            );

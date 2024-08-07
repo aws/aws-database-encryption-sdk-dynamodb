@@ -12,6 +12,7 @@ namespace Examples
             ItemEncryptDecryptExample.PutItemGetItem();
 
             await BasicPutGetExample.PutItemGetItem();
+            await ScanErrorExample.ScanError();
             await GetEncryptedDataKeyDescriptionExample.GetEncryptedDataKeyDescription();
             await MultiPutGetExample.MultiPutGet();
             await ClientSupplierExample.ClientSupplierPutItemGetItem();

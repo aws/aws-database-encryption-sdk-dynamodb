@@ -110,7 +110,7 @@ module DdbMiddlewareConfig {
         "";
     var sort :=
       if config.sortKeyName.Some? && config.sortKeyName.value in item then
-        "\n" + config.sortKeyName.value + " = " + AttrToString(item[config.sortKeyName.value])
+        "; " + config.sortKeyName.value + " = " + AttrToString(item[config.sortKeyName.value])
       else
         "";
 
