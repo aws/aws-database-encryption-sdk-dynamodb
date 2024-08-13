@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.6.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.6.0...v3.6.1) (2024-08-12)
+
+### Fixes
+
+- allow multi-tenant queries with allow_plaintext ([#1240](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1240)) ([1487d7e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/1487d7efe740920b5d8c7b30579947b6b3d26d12))
+- **TestVectors:** define StartUpObject in csproj ([#1231](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1231)) ([2f97bf3](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/2f97bf365e2d027103cd9eb2b1951752a3687e3c))
+
+### Maintenance
+
+- Add examples to examine contents of query error list ([#1251](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1251)) ([b5705ee](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b5705ee12257fb18f867478bf17ba31f50c26c8b))
+- **CI:** add smithy diff checker GHA ([#1226](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1226)) ([86406f5](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/86406f5cdcdf2067a27d35f370c5844eab2e23f3))
+- **deps:** bump actions/setup-dotnet from 3 to 4 in /.github/workflows ([#1191](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1191)) ([c3b736e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/c3b736ee714199b15738defd9e37c0f6dcee15ed))
+- **deps:** bump aws-actions/configure-aws-credentials ([#1190](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1190)) ([becbd0a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/becbd0a498830758bc29c86af94790740bc0a93c))
+- **deps:** bump com.amazonaws:aws-java-sdk-dynamodb ([#1230](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1230)) ([3aa25d0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3aa25d0a93ef5269d9d90efbc1f64de6987064c4))
+- **deps:** bump dafny-lang/setup-dafny-action in /.github/workflows ([#1200](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1200)) ([5284f0b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/5284f0ba413d8ee90289387ca55ea02e6d6d8a08))
+- **deps:** bump software.amazon.awssdk:bom ([#1227](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1227)) ([abd1727](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/abd17276a3c8d8bd071edefa709903423c1af8f6))
+- **deps:** bump software.amazon.awssdk:bom ([#1229](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1229)) ([bf3e1c3](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/bf3e1c368d562035fc2a093b57f648f69f7f69e8))
+- **deps:** bump software.amazon.awssdk:core ([#1228](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1228)) ([9c67729](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/9c67729c58f544dd6e2bd1bf4fabf9cf080d448d))
+- do not add beacons when FORCE_PLAINTEXT_WRITE is used. ([#1232](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1232)) ([23c8a18](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/23c8a18ff8d9a49d5ecebf578b3c01d03567620f))
+- include bad item keys in query errors ([#1244](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1244)) ([07bba8b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/07bba8b0415531f4d6eb6c689c6c9c173d870b3e))
+- update version to snapshot ([#1225](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1225)) ([c817b5b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/c817b5bb9bc3b4815a5d0b22939edaa06792123a))
+
 ## [3.6.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.5.0...v3.6.0) (2024-07-23)
 
 ### Features
