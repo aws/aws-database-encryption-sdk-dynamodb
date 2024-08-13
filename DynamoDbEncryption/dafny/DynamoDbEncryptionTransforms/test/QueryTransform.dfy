@@ -172,7 +172,7 @@ module QueryTransformTest {
     expect transformed.error ==
            AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
              [
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "Signature of record does not match the signature computed when the record was encrypted.")))),
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234; sortKey = 01020304")
              ],
              message := "Error(s) found decrypting Query results."
@@ -191,7 +191,7 @@ module QueryTransformTest {
     expect transformed.error ==
            AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
              [
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "Signature of record does not match the signature computed when the record was encrypted.")))),
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234; sortKey = 01020304"),
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890; sortKey = 030104")
              ],
@@ -209,7 +209,7 @@ module QueryTransformTest {
     expect transformed_scan.error ==
            AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.CollectionOfErrors(
              [
-               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "No recipient tag matched.")))),
+               AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.Error.AwsCryptographyDbEncryptionSdkDynamoDb(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.AwsCryptographyDbEncryptionSdkStructuredEncryption(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error.StructuredEncryptionException(message := "Signature of record does not match the signature computed when the record was encrypted.")))),
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 1234; sortKey = 01020304"),
                AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error.DynamoDbEncryptionTransformsException(message := "bar = 890; sortKey = 030104")
              ],
