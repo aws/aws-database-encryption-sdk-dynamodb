@@ -118,7 +118,7 @@ module StructuredEncryptionFooter {
       //= specification/structured-encryption/footer.md#recipient-tag-verification
       //# Verification MUST fail unless at least one of the [Recipient Tags](#recipient-tags)
       //# matches a calculated recipient tag using the provided symmetricSigningKey.
-      :- Need(foundTag, E("No recipient tag matched."));
+      :- Need(foundTag, E("Signature of record does not match the signature computed when the record was encrypted."));
 
       :- Need(sig.Some? == mat.algorithmSuite.signature.ECDSA?, E("Internal error. Signature both does and does not exist."));
       //= specification/structured-encryption/footer.md#signature-verification
