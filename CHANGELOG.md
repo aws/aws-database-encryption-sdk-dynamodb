@@ -6,6 +6,7 @@
 
 - allow multi-tenant queries with allow_plaintext ([#1240](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1240)) ([1487d7e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/1487d7efe740920b5d8c7b30579947b6b3d26d12))
 - **TestVectors:** define StartUpObject in csproj ([#1231](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1231)) ([2f97bf3](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/2f97bf365e2d027103cd9eb2b1951752a3687e3c))
+- update error message ([#1270](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1270)) ([7157e4d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/7157e4d24eb7cc164b3028ec2017074b3397e0d5))
 
 ### Maintenance
 
