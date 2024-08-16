@@ -7,16 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       mpl-dafny:
-        description: "The Dafny version to compile the MPL with (4.2.0, dafny-nightly, etc..)"
+        description: "The Dafny version to compile the MPL with (4.2.0, nightly-latest, etc..)"
         required: true
         type: string
       mpl-commit:
-        description: "The MPL commit to use"
+        description: "The MPL branch/commit to use"
         required: false
-        default: "HEAD"
+        default: "main"
         type: string
       dbesdk-dafny:
-        description: "The Dafny version to compile the DBESDK with (4.2.0, dafny-nightly, etc..)"
+        description: "The Dafny version to compile the DBESDK with (4.2.0, nightly-latest, etc..)"
         required: true
         type: string
 
