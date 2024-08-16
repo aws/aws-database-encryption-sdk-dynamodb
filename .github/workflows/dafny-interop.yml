@@ -1,7 +1,6 @@
-
 # This workflow is for testing backwards compatibility of a dafny version
 # and tests if a project that consumes the mpl will be backwards compatible with
-# a newer version of Dafny 
+# a newer version of Dafny
 name: Dafny Interoperability Test
 
 on:
@@ -20,7 +19,7 @@ on:
         description: "The Dafny version to compile the DBESDK with (4.2.0, dafny-nightly, etc..)"
         required: true
         type: string
-  
+
 jobs:
   dafny-interop-java:
     uses: ./.github/workflows/dafny_interop_java.yml
