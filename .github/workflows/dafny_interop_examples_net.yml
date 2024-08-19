@@ -1,5 +1,5 @@
-# This workflow performs tests in Java with MPL nightly latest.
-name: Library Java Backwards Interop Tests
+# This workflow performs tests in DotNet with MPL nightly latest.
+name: Library DotNet Backwards Interop Example Tests
 
 on:
   workflow_call:
@@ -19,28 +19,32 @@ on:
         type: string
 
 jobs:
-  testJava:
+  dotNetExamples:
     strategy:
       matrix:
         library: [DynamoDbEncryption]
-        java-version: [8, 11, 16, 17]
+        dotnet-version: ["6.0.x"]
         os: [macos-12]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
     steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
-          role-session-name: DDBEC-Dafny-Java-Tests
-
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
       - uses: actions/checkout@v3
         with:
           submodules: recursive
           fetch-depth: 0
+
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup MPL Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.2
@@ -56,32 +60,41 @@ jobs:
           git submodule update --init --recursive
           git rev-parse HEAD
 
-      - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: "corretto"
-          java-version: ${{ matrix.java-version }}
+      - name: Download Dependencies
+        working-directory: ./${{ matrix.library }}
+        run: make setup_net
 
-      - name: Build MPL with Dafny ${{inputs.mpl-dafny}}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Net-Tests
+
+      - name: Compile MPL with Dafny ${{inputs.mpl-dafny}}
+        shell: bash
         working-directory: submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders
         run: |
+          make setup_net
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make build_java CORES=$CORES
+          make transpile_net CORES=$CORES
 
       - name: Setup DBESDK Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 
-      - name: Build ${{ matrix.library }} implementation
+      - name: Compile ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
-          make transpile_implementation_java
-          make transpile_test_java
-
-      - name: Test ${{ matrix.library }}
-        working-directory: ./${{ matrix.library }}
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_implementation_net CORES=$CORES
+          make transpile_test_net CORES=$CORES
+      - name: Run Examples
+        working-directory: ./Examples/runtimes/net
+        shell: bash
         run: |
-          make test_java
+          dotnet run

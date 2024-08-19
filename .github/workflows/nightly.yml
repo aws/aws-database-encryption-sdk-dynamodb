@@ -11,6 +11,8 @@ on:
     - cron: "30 16 * * *"
 
 jobs:
+  getVersion:
+    uses: ./.github/workflows/dafny_version.yml
   dafny-nightly-format:
     # Don't run the cron builds on forks
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
@@ -56,6 +58,40 @@ jobs:
     with:
       dafny: "nightly-latest"
       regenerate-code: true
+
+  # Interop nightly tests use nighly tests and the current dafnyversion for the DBESDK.
+  dafny-nightly-java-interop:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    needs: getVersion
+    uses: ./.github/workflows/dafny_interop_java.yml
+    with:
+      mpl-dafny: "nightly-latest"
+      mpl-commit: main
+      dbesdk-dafny: ${{needs.getVersion.outputs.version}}
+  dafny-nightly-test-vectors-java-interop:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    needs: getVersion
+    uses: ./.github/workflows/dafny_interop_test_vector_java.yml
+    with:
+      mpl-dafny: "nightly-latest"
+      mpl-commit: main
+      dbesdk-dafny: ${{needs.getVersion.outputs.version}}
+  dafny-nightly-net-interop:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    needs: getVersion
+    uses: ./.github/workflows/dafny_interop_test_net.yml
+    with:
+      mpl-dafny: "nightly-latest"
+      mpl-commit: main
+      dbesdk-dafny: ${{needs.getVersion.outputs.version}}
+  dafny-nightly-test-vectors-net-interop:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    needs: getVersion
+    uses: ./.github/workflows/dafny_interop_test_vector_net.yml
+    with:
+      mpl-dafny: "nightly-latest"
+      mpl-commit: main
+      dbesdk-dafny: ${{needs.getVersion.outputs.version}}
 
   cut-issue-on-failure:
     runs-on: ubuntu-latest
