@@ -90,8 +90,8 @@ jobs:
         working-directory: ${{matrix.library}}
         run: |
           # This works because `node` is installed by default on GHA runners
-          make transpile_implementation_net CORES=$CORES
-          make transpile_test_net CORES=$CORES
+          make transpile_implementation_net 
+          make transpile_test_net
 
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net
