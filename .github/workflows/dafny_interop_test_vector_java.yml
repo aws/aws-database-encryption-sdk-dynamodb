@@ -1,5 +1,5 @@
-# This workflow performs tests in Java with MPL nightly latest.
-name: Library Java Backwards Interop Tests
+# This workflow performs test vectors in Java with MPL nightly latest.
+name: Library Java Test Vectors Backwards Interop Tests
 
 on:
   workflow_call:
@@ -22,14 +22,23 @@ jobs:
   testJava:
     strategy:
       matrix:
-        library: [DynamoDbEncryption]
+        library: [DynamoDbEncryption, TestVectors]
         java-version: [8, 11, 16, 17]
-        os: [macos-12]
+        os: [
+            # Run on ubuntu image that comes pre-configured with docker
+            ubuntu-latest,
+          ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v4.0.0
+        with:
+          port: 8000
+          cors: "*"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -46,6 +55,11 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.mpl-dafny }}
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.7.2
+        with:
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Update MPL submodule
         working-directory: submodules/MaterialProviders
@@ -74,14 +88,14 @@ jobs:
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 
-      - name: Build ${{ matrix.library }} implementation
+      - name: Build TestVectors implementation
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: ${{matrix.library}}
         run: |
           make transpile_implementation_java
           make transpile_test_java
 
-      - name: Test ${{ matrix.library }}
-        working-directory: ./${{ matrix.library }}
+      - name: Test TestVectors
+        working-directory: ./TestVectors
         run: |
           make test_java
