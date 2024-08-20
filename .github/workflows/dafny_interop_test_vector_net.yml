@@ -84,6 +84,14 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
+      
+      - name: Build DynamoDbEncryption implementation
+        shell: bash
+        working-directory: ./DyanmoDbEncryption
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          make transpile_implementation_net 
+          make transpile_test_net
 
       - name: Build TestVectors implementation
         shell: bash

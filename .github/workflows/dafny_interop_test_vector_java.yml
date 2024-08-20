@@ -83,6 +83,14 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
+      
+      - name: Build DynamoDbEncrytpion implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make transpile_implementation_java
+          make transpile_test_java
+          make mvn_local_deploy
 
       - name: Build TestVectors implementation
         shell: bash
