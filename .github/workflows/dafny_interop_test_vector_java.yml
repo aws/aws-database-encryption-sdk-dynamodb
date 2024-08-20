@@ -56,11 +56,6 @@ jobs:
         with:
           dafny-version: ${{ inputs.mpl-dafny }}
 
-      - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.2
-        with:
-          dafny-version: ${{ inputs.dafny }}
-
       - name: Update MPL submodule
         working-directory: submodules/MaterialProviders
         run: |
