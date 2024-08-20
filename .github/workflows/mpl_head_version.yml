@@ -25,7 +25,7 @@ jobs:
         with:
           submodules: recursive
       - name: Update MPL submodule locally if requested
-        if: ${{inputs.mpl-head}} == 'true'
+        if: ${{inputs.mpl-head}} == true
         working-directory: submodules/MaterialProviders
         shell: bash
         run: |
