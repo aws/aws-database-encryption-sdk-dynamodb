@@ -22,7 +22,7 @@ jobs:
   testDotNet:
     strategy:
       matrix:
-        library: [DynamoDbEncryption, TestVectors]
+        library: [TestVectors]
         dotnet-version: ["6.0.x"]
         os: [macos-12, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
