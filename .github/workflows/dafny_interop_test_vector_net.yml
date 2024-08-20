@@ -87,7 +87,7 @@ jobs:
 
       - name: Build DynamoDbEncryption implementation
         shell: bash
-        working-directory: ../DyanmoDbEncryption
+        working-directory: DynamoDbEncryption
         run: |
           # This works because `node` is installed by default on GHA runners
           make transpile_implementation_net 
