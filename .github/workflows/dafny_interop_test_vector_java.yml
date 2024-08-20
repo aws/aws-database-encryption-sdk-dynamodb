@@ -22,7 +22,7 @@ jobs:
   testJava:
     strategy:
       matrix:
-        library: [DynamoDbEncryption, TestVectors]
+        library: [TestVectors]
         java-version: [8, 11, 16, 17]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
@@ -84,9 +84,9 @@ jobs:
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 
-      - name: Build DynamoDbEncrytpion implementation
+      - name: Build DynamoDbEncryption implementation
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: DynamoDbEncryption
         run: |
           make transpile_implementation_java
           make transpile_test_java
