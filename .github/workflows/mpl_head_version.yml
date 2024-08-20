@@ -9,7 +9,8 @@ on:
       mpl-head:
         description: "Using MPL HEAD?"
         required: true
-        type: boolean
+        default: main
+        type: string
     outputs:
       version:
         description: "The dafny version for verify"
@@ -25,11 +26,10 @@ jobs:
         with:
           submodules: recursive
       - name: Update MPL submodule locally if requested
-        if: ${{inputs.mpl-head == true }}
         working-directory: submodules/MaterialProviders
         shell: bash
         run: |
-          git checkout main
+          git checkout ${{inputs.mpl-head}}
           git pull
           git submodule update --init --recursive
           git rev-parse HEAD
