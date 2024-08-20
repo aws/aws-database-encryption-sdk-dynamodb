@@ -5,6 +5,11 @@ name: MPL HEAD Version
 
 on:
   workflow_call:
+    inputs:
+      mpl-head:
+        description: "Using MPL HEAD?"
+        required: true
+        type: boolean
     outputs:
       version:
         description: "The dafny version for verify"
@@ -20,6 +25,7 @@ jobs:
         with:
           submodules: recursive
       - name: Update MPL submodule locally if requested
+        if: ${{inputs.mpl-head}} == 'true'
         working-directory: submodules/MaterialProviders
         shell: bash
         run: |
