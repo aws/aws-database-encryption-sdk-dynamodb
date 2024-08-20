@@ -83,7 +83,7 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
-      
+
       - name: Build DynamoDbEncrytpion implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
