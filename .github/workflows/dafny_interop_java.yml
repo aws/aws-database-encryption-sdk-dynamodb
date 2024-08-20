@@ -13,6 +13,10 @@ on:
         required: false
         default: "main"
         type: string
+      mpl-version:
+        description: "The MPL version to use"
+        required: true
+        type: string
       dbesdk-dafny:
         description: "The Dafny version to compile the DBESDK with (4.2.0, dafny-nightly, etc..)"
         required: true
@@ -73,6 +77,10 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.7.2
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
+
+      - name: Update project.properties if using MPL HEAD
+        run: |
+          sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
       - name: Build ${{ matrix.library }} implementation
         shell: bash
