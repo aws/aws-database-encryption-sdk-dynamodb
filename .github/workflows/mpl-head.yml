@@ -16,6 +16,8 @@ jobs:
   getMplHeadVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/mpl_head_version.yml
+    with:
+      mpl-head: true
   mpl-head-ci-format:
     needs: getVersion
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
