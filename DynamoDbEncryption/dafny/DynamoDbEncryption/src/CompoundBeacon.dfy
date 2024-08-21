@@ -16,7 +16,7 @@ module CompoundBeacon {
   import opened DdbVirtualFields
 
   import Prim = AwsCryptographyPrimitivesTypes
-  import Aws.Cryptography.Primitives
+  import AtomicPrimitives as Primitives
   import UTF8
   import Seq
   import SortedSets
