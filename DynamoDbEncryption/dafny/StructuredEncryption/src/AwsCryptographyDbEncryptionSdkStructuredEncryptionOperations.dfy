@@ -19,7 +19,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   import Prim = AwsCryptographyPrimitivesTypes
   import StructuredEncryptionHeader
   import Random
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import Header = StructuredEncryptionHeader
   import Footer = StructuredEncryptionFooter
   import MaterialProviders

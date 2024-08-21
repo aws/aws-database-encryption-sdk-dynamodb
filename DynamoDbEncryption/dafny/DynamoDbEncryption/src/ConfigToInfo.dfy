@@ -32,7 +32,7 @@ module SearchConfigToInfo {
   import CB = CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
 
   // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbTableEncryptionConfig)

@@ -9,7 +9,7 @@ module
 {
 
   import Operations = AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import MaterialProviders
 
   function method DefaultStructuredEncryptionConfig(): StructuredEncryptionConfig

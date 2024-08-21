@@ -17,7 +17,7 @@ module BeaconTestFixtures {
   import DDBC = Com.Amazonaws.Dynamodb
   import KTypes = AwsCryptographyKeyStoreTypes
   import SI = SearchableEncryptionInfo
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import MaterialProviders
   import MPT = AwsCryptographyMaterialProvidersTypes
   import SortedSets

@@ -19,7 +19,7 @@ module BaseBeacon {
 
   import DDB = ComAmazonawsDynamodbTypes
   import Prim = AwsCryptographyPrimitivesTypes
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import UTF8
   import SortedSets
   import TermLoc

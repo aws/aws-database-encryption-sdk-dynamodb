@@ -21,7 +21,7 @@ module SearchableEncryptionInfo {
   import UTF8
   import opened Time
   import KeyStore = AwsCryptographyKeyStoreTypes
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import Prim = AwsCryptographyPrimitivesTypes
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes

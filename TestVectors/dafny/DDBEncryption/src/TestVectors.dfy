@@ -39,7 +39,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import SI = SearchableEncryptionInfo
   import MaterialProviders
   import MPT = AwsCryptographyMaterialProvidersTypes
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import ParseJsonManifests
 
 

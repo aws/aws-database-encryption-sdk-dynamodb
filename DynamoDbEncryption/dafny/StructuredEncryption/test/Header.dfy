@@ -17,7 +17,7 @@ module TestHeader {
   import opened StructuredEncryptionHeader
   import opened StructuredEncryptionPaths
   import opened UTF8
-  import AtomicPrimitives as Primitives
+  import Primitives = AtomicPrimitives
   import AlgorithmSuites
   import Canonize
 
