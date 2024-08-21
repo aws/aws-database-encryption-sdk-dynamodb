@@ -24,7 +24,7 @@ jobs:
       matrix:
         library: [TestVectors]
         dotnet-version: ["6.0.x"]
-        os: [macos-12, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -85,13 +85,21 @@ jobs:
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 
+      - name: Build DynamoDbEncryption implementation
+        shell: bash
+        working-directory: DynamoDbEncryption
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          make transpile_implementation_net 
+          make transpile_test_net
+
       - name: Build TestVectors implementation
         shell: bash
         working-directory: ${{matrix.library}}
         run: |
           # This works because `node` is installed by default on GHA runners
-          make transpile_implementation_net CORES=$CORES
-          make transpile_test_net CORES=$CORES
+          make transpile_implementation_net 
+          make transpile_test_net
 
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net

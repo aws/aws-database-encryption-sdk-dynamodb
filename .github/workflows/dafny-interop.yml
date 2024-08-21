@@ -21,23 +21,33 @@ on:
         type: string
 
 jobs:
+  getMplHeadVersion:
+    uses: ./.github/workflows/mpl_head_version.yml
+    with:
+      mpl-head: ${{inputs.mpl-commit}}
   dafny-interop-java:
+    needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_java.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-java-test-vectors:
+    needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_test_vector_java.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-java-examples:
+    needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_examples_java.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-net:
     uses: ./.github/workflows/dafny_interop_test_net.yml
