@@ -11,6 +11,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   import opened StandardLibrary.UInt
   import opened JSON.Values
   import opened WriteManifest
+  import Time
   import JSON.API
   import JSON.Errors
   import DdbItemJson
@@ -98,10 +99,15 @@ module {:options "-functionSyntax:4"} DecryptManifest {
 
   method Decrypt(inFile : string) returns (output : Result<bool, string>)
   {
-    print "Decrypt : ", inFile, "\n";
+    var timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " Decrypt : ", inFile, "\n";
     var configBv :- expect FileIO.ReadBytesFromFile(inFile);
     var configBytes := BvToBytes(configBv);
+    timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " File Read.\n";
     var json :- expect API.Deserialize(configBytes);
+    timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " JSON Parsed.\n";
 
     :- Need(json.Object?, "Decrypt file must contain a JSON object.");
     var keys : Option<string> := None;
@@ -151,6 +157,8 @@ module {:options "-functionSyntax:4"} DecryptManifest {
       var _ :- OneTest(obj.0, obj.1);
     }
 
+    timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " Tests Complete.\n";
     return Success(true);
   }
 
