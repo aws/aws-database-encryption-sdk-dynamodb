@@ -4,11 +4,11 @@
 
 ### Fixes
 
-- ...the nightly build. Again. ([#1297](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1297)) ([b7a91c9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b7a91c91fe5b52cbd9dbec9c3953770ed02fd0bf))
 - revert change in error type ([#1304](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1304)) ([33d7ee4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/33d7ee4ad73f621a5fb247693981af0d35f40d54))
 
 ### Maintenance
 
+- ...the nightly build. Again. ([#1297](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1297)) ([b7a91c9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b7a91c91fe5b52cbd9dbec9c3953770ed02fd0bf))
 - add timing output to test vectors ([#1298](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1298)) ([30dfaa8](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/30dfaa8dad218c48b115f6244b8125dbc4dad1ea))
 - Enable local testing ([#1278](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1278)) ([7093266](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/709326688b84e5255ad8758e7e5c6c25db976e12))
 - fix ci mpl head gha ([#1306](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1306)) ([c572d6a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/c572d6adbebe23ceca2097f1080940583535d286))
