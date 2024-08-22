@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.6.2](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.6.1...v3.6.2) (2024-08-22)
+
+### Fixes
+
+* ...the nightly build. Again. ([#1297](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1297)) ([b7a91c9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b7a91c91fe5b52cbd9dbec9c3953770ed02fd0bf))
+* revert change in error type ([#1304](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1304)) ([33d7ee4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/33d7ee4ad73f621a5fb247693981af0d35f40d54))
+
+### Maintenance
+
+* add timing output to test vectors ([#1298](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1298)) ([30dfaa8](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/30dfaa8dad218c48b115f6244b8125dbc4dad1ea))
+* Enable local testing ([#1278](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1278)) ([7093266](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/709326688b84e5255ad8758e7e5c6c25db976e12))
+* fix ci mpl head gha ([#1306](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1306)) ([c572d6a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/c572d6adbebe23ceca2097f1080940583535d286))
+* fix dafny interop build steps ([#1293](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1293)) ([c6ce809](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/c6ce809e40032a864e3596ca640ef9225177f98d))
+* fix nightly ([#1300](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1300)) ([a445eff](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/a445eff3ac39c4221ef60f59b6386950c06f77a7))
+* **GHA:** add backwards interop dafny tests ([#1279](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1279)) ([1e6be80](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/1e6be8056083eb943830729498d55251a2ffde4b))
+* **GHA:** another gha fix ([#1292](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1292)) ([df64b30](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/df64b3036d02491801cefd8950d4eda313f3e37a))
+* **GHA:** fix dafny_interop_java ([#1283](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1283)) ([5a1c921](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/5a1c92180d24949932f97e9acc0bbe6797306e6e))
+* **GHA:** fix test vector dafny interop ([#1291](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1291)) ([fdefaff](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/fdefaff8a66eaf134f9369f9726b4c59ab19364d))
+* **GHA:** update nightlies for interop and interop action ([#1287](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1287)) ([8bec538](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8bec538da1472aca11e06926043919a947b47dcc))
+
 ## [3.6.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.6.0...v3.6.1) (2024-08-12)
 
 ### Fixes
