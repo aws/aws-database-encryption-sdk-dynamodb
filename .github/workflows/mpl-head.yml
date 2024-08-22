@@ -2,6 +2,7 @@
 name: CI MPL HEAD
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "00 14 * * 1-5"
 
