@@ -243,7 +243,7 @@ module TestFixtures {
     ensures fresh(encryption)
     ensures fresh(encryption.Modifies)
   {
-    expect sortKey.None? || IsValid_KeySchemaAttributeName(sortKey.value);
+    expect sortKey.None? || DDB.IsValid_KeySchemaAttributeName(sortKey.value);
     var keyring := GetKmsKeyring();
     encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
       DynamoDbTablesEncryptionConfig(
