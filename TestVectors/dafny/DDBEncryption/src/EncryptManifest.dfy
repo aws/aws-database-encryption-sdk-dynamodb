@@ -11,6 +11,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   import opened StandardLibrary.UInt
   import opened JSON.Values
   import opened WriteManifest
+  import Time
   import JSON.API
   import JSON.Errors
   import opened DynamoDbEncryptionUtil
@@ -131,10 +132,15 @@ module {:options "-functionSyntax:4"} EncryptManifest {
 
   method Encrypt(inFile : string, outFile : string, lang : string, version : string) returns (output : Result<bool, string>)
   {
-    print "Encrypt : ", inFile, "\n";
+    var timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " Encrypt : ", inFile, "\n";
     var configBv :- expect FileIO.ReadBytesFromFile(inFile);
     var configBytes := BvToBytes(configBv);
+    timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " File Read.\n";
     var json :- expect API.Deserialize(configBytes);
+    timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " JSON Parsed.\n";
 
     :- Need(json.Object?, "Encrypt file must contain a JSON object.");
     var keys : Option<string> := None;
@@ -191,6 +197,9 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     var jsonBytes :- expect API.Serialize(final);
     var jsonBv := BytesBv(jsonBytes);
     var x :- expect FileIO.WriteBytesToFile(outFile, jsonBv);
+
+    timeStamp :- expect Time.GetCurrentTimeStamp();
+    print timeStamp + " Tests Complete.\n";
     return Success(true);
   }
 
