@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup MPL Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.2
+        uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
           dafny-version: ${{ inputs.mpl-dafny }}
 
@@ -74,7 +74,7 @@ jobs:
           make build_java CORES=$CORES
 
       - name: Setup DBESDK Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.2
+        uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 
