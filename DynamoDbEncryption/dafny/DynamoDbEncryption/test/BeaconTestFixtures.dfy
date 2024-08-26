@@ -132,7 +132,7 @@ module BeaconTestFixtures {
       kmsConfiguration := kmsConfig,
       logicalKeyStoreName := "KeyStoreDdbTable",
       grantTokens := None,
-      ddbTableName := "KeyStoreDdbTable",
+      ddbTableName := Some("KeyStoreDdbTable"),
       ddbClient := Some(ddbClient),
       kmsClient := Some(kmsClient)
     );
