@@ -16,6 +16,7 @@ module
   import DynamoDbItemEncryptor
   import SearchConfigToInfo
   import Seq
+  import SortedSets
   import ET = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import DDB = ComAmazonawsDynamodbTypes
@@ -119,6 +120,9 @@ module
     //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
     //# per configured table, using these table encryption configs.
     var m' := config.tableEncryptionConfigs;
+    var mKeys := m'.Keys;
+    var tableNamesSeq := SortedSets.ComputeSetToSequence(mKeys);
+    ghost var mKeysSet := mKeys;
 
     ghost var inputConfigsModifies: set<object> := set
       tableConfig <- config.tableEncryptionConfigs.Values,
@@ -130,8 +134,9 @@ module
       :: o;
 
     var allLogicalTableNames := {};
-
-    while m'.Keys != {}
+    var i := 0;
+    
+    while i < |tableNamesSeq|
       invariant m'.Keys <= config.tableEncryptionConfigs.Keys
       invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
       invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
@@ -140,10 +145,10 @@ module
       invariant AllTableConfigsValid?(internalConfigs)
       invariant ValidConfig?(Config(internalConfigs))
 
-      decreases m'.Keys
       modifies inputConfigsModifies
     {
-      var tableName: string :| tableName in m';
+      var tableName: string := tableNamesSeq[i];
+
       var inputConfig := config.tableEncryptionConfigs[tableName];
       :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
 
@@ -223,8 +228,7 @@ module
         assert ConfigsMatch(tableName, internalConfig, inputConfig);
       }
 
-      // Pop 'tableName' off the map, so that we may continue iterating
-      m' := map k' | k' in m' && k' != tableName :: m'[k'];
+      i := i + 1;
     }
     assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
 
