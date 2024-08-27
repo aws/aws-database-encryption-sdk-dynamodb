@@ -135,7 +135,7 @@ module
 
     var allLogicalTableNames := {};
     var i := 0;
-    
+
     while i < |tableNamesSeq|
       invariant m'.Keys <= config.tableEncryptionConfigs.Keys
       invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]

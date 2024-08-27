@@ -27,8 +27,8 @@ module BatchWriteItemTransform {
     var i := 0;
     while i < |tableNamesSeq|
       invariant Seq.HasNoDuplicates(tableNamesSeq)
-          invariant forall j | i <= j < |tableNamesSeq| :: tableNamesSeq[j] in tableNamesSet'
-          invariant |tableNamesSet'| == |tableNamesSeq| - i
+      invariant forall j | i <= j < |tableNamesSeq| :: tableNamesSeq[j] in tableNamesSet'
+      invariant |tableNamesSet'| == |tableNamesSeq| - i
       invariant tableNamesSet' <= input.sdkInput.RequestItems.Keys
     {
       var tableName := tableNamesSeq[i];
@@ -72,8 +72,8 @@ module BatchWriteItemTransform {
       tableNamesSet' := tableNamesSet' - {tableName};
       i := i + 1;
       assert forall j | i <= j < |tableNamesSeq| :: tableNamesSeq[j] in tableNamesSet' by {
-            reveal Seq.HasNoDuplicates();
-          }
+        reveal Seq.HasNoDuplicates();
+      }
       result := result[tableName := writeRequests];
     }
     :- Need(|result| ==  |input.sdkInput.RequestItems|, E("Internal Error")); // Dafny gets too confused
