@@ -90,7 +90,8 @@ TRANSLATION_RECORD_PYTHON := \
     --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/standard_library/internaldafny/generated/dafny_src-py.dtr \
     --translation-record ../submodules/MaterialProviders/ComAmazonawsKms/runtimes/python/src/com_amazonaws_kms/internaldafny/generated/dafny_src-py.dtr \
     --translation-record ../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/python/src/com_amazonaws_dynamodb/internaldafny/generated/dafny_src-py.dtr \
-    --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr
+    --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr \
+	--translation-record ../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptographic_materialproviders/internaldafny/generated/dafny_src-py.dtr
 
 PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.primitives=aws_cryptography_primitives \
@@ -121,6 +122,10 @@ ITEMENCRYPTOR_INDEX_FILE_PATH=dafny/DynamoDbItemEncryptor/src/Index.dfy
 ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny\" } DynamoDbItemEncryptor"
 ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING="module DynamoDbItemEncryptor"
 
+ITEMENCRYPTOR_LEGACY_FILE_PATH=dafny/DynamoDbItemEncryptor/src/InternalLegacyOverride.dfy
+ITEMENCRYPTOR_LEGACY_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy\"} InternalLegacyOverride {"
+ITEMENCRYPTOR_LEGACY_FILE_WITHOUT_EXTERN_STRING="module InternalLegacyOverride {"
+
 TRANSFORMS_TYPES_FILE_PATH=dafny/DynamoDbEncryptionTransforms/Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy
 TRANSFORMS_TYPES_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types\" } AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes"
 TRANSFORMS_TYPES_FILE_WITHOUT_EXTERN_STRING="module AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes"
@@ -146,6 +151,7 @@ _sed_types_file_remove_extern:
 _sed_index_file_remove_extern:
 	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_INDEX_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_INDEX_FILE_WITHOUT_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_LEGACY_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITHOUT_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING)
 
@@ -158,5 +164,6 @@ _sed_types_file_add_extern:
 _sed_index_file_add_extern:
 	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_INDEX_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_INDEX_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_LEGACY_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING)
