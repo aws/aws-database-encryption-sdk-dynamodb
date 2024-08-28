@@ -7,7 +7,7 @@ include "../../DynamoDbItemEncryptor/src/Index.dfy"
 include "../../StructuredEncryption/src/Index.dfy"
 include "../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders/src/Index.dfy"
 include "../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/src/Index.dfy"
-module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types" } AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+module AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
 {
   import opened Wrappers
   import opened StandardLibrary.UInt

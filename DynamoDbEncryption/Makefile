@@ -3,6 +3,8 @@
 
 CORES=2
 
+ENABLE_EXTERN_PROCESSING=1
+
 include ../SharedMakefile.mk
 
 DIR_STRUCTURE_V2=V2
@@ -79,3 +81,82 @@ polymorph:
 	export DAFNY_VERSION=4.2
 	npm i --no-save prettier@3 prettier-plugin-java@2.5
 	make polymorph_code_gen PROJECT_DEPENDENCIES=
+
+# Python
+
+PYTHON_MODULE_NAME=aws_database_encryption_sdk
+
+TRANSLATION_RECORD_PYTHON := \
+    --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/standard_library/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/ComAmazonawsKms/runtimes/python/src/com_amazonaws_kms/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/python/src/com_amazonaws_dynamodb/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr
+
+PYTHON_DEPENDENCY_MODULE_NAMES := \
+	--dependency-library-name=aws.cryptography.primitives=aws_cryptography_primitives \
+	--dependency-library-name=com.amazonaws.kms=com_amazonaws_kms \
+	--dependency-library-name=com.amazonaws.dynamodb=com_amazonaws_dynamodb \
+	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_materialproviders \
+	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_materialproviders \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_database_encryption_sdk \
+
+# Constants for languages that drop extern names (Python, Go)
+
+DYNAMODB_TYPES_FILE_PATH=dafny/DynamoDbEncryption/Model/AwsCryptographyDbEncryptionSdkDynamoDbTypes.dfy
+DYNAMODB_TYPES_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types\" } AwsCryptographyDbEncryptionSdkDynamoDbTypes"
+DYNAMODB_TYPES_FILE_WITHOUT_EXTERN_STRING="module AwsCryptographyDbEncryptionSdkDynamoDbTypes"
+
+DYNAMODB_INDEX_FILE_PATH=dafny/DynamoDbEncryption/src/Index.dfy
+DYNAMODB_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny\" } DynamoDbEncryption"
+DYNAMODB_INDEX_FILE_WITHOUT_EXTERN_STRING="module DynamoDbEncryption"
+
+ITEMENCRYPTOR_TYPES_FILE_PATH=dafny/DynamoDbItemEncryptor/Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.dfy
+ITEMENCRYPTOR_TYPES_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types\" } AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes"
+ITEMENCRYPTOR_TYPES_FILE_WITHOUT_EXTERN_STRING="module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes"
+
+ITEMENCRYPTOR_INDEX_FILE_PATH=dafny/DynamoDbItemEncryptor/src/Index.dfy
+ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny\" } DynamoDbItemEncryptor"
+ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING="module DynamoDbItemEncryptor"
+
+TRANSFORMS_TYPES_FILE_PATH=dafny/DynamoDbEncryptionTransforms/Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy
+TRANSFORMS_TYPES_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types\" } AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes"
+TRANSFORMS_TYPES_FILE_WITHOUT_EXTERN_STRING="module AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes"
+
+TRANSFORMS_INDEX_FILE_PATH=dafny/DynamoDbEncryptionTransforms/src/Index.dfy
+TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny\" } DynamoDbEncryptionTransforms"
+TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING="module DynamoDbEncryptionTransforms"
+
+STRUCTUREDENCRYPTION_TYPES_FILE_PATH=dafny/StructuredEncryption/Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy
+STRUCTUREDENCRYPTION_TYPES_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types\" } AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes"
+STRUCTUREDENCRYPTION_TYPES_FILE_WITHOUT_EXTERN_STRING="module AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes"
+
+STRUCTUREDENCRYPTION_INDEX_FILE_PATH=dafny/StructuredEncryption/src/Index.dfy
+STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny\" } StructuredEncryption"
+STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING="module StructuredEncryption"
+
+_sed_types_file_remove_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_TYPES_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_TYPES_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_TYPES_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_TYPES_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_TYPES_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_TYPES_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_TYPES_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_TYPES_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_TYPES_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_TYPES_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_TYPES_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_TYPES_FILE_WITHOUT_EXTERN_STRING)
+
+_sed_index_file_remove_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_INDEX_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_INDEX_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING)
+
+_sed_types_file_add_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_TYPES_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_TYPES_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_TYPES_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_TYPES_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_TYPES_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_TYPES_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_TYPES_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_TYPES_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_TYPES_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_TYPES_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_TYPES_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_TYPES_FILE_WITH_EXTERN_STRING)
+
+_sed_index_file_add_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_INDEX_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_INDEX_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING)
