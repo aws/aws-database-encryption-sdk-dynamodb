@@ -11,9 +11,10 @@ module BatchWriteItemTransform {
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import Seq
+  import SortedSets
   import Util = DynamoDbEncryptionUtil
 
-  method Input(config: Config, input: BatchWriteItemInputTransformInput)
+  method {:vcs_split_on_every_assert} Input(config: Config, input: BatchWriteItemInputTransformInput)
     returns (output: Result<BatchWriteItemInputTransformOutput, Error>)
     requires ValidConfig?(config)
     ensures ValidConfig?(config)
@@ -21,12 +22,16 @@ module BatchWriteItemTransform {
   {
     var tableNames := input.sdkInput.RequestItems.Keys;
     var result : map<DDB.TableName, DDB.WriteRequests> := map[];
-    while tableNames != {}
-      decreases |tableNames|
-      invariant tableNames <= input.sdkInput.RequestItems.Keys
+    var tableNamesSeq := SortedSets.ComputeSetToSequence(tableNames);
+    ghost var tableNamesSet' := tableNames;
+    var i := 0;
+    while i < |tableNamesSeq|
+      invariant Seq.HasNoDuplicates(tableNamesSeq)
+      invariant forall j | i <= j < |tableNamesSeq| :: tableNamesSeq[j] in tableNamesSet'
+      invariant |tableNamesSet'| == |tableNamesSeq| - i
+      invariant tableNamesSet' <= input.sdkInput.RequestItems.Keys
     {
-      var tableName :| tableName in tableNames;
-      tableNames := tableNames - { tableName };
+      var tableName := tableNamesSeq[i];
 
       var writeRequests : DDB.WriteRequests := input.sdkInput.RequestItems[tableName];
       //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
@@ -63,6 +68,11 @@ module BatchWriteItemTransform {
           }
         }
         writeRequests := encryptedItems;
+      }
+      tableNamesSet' := tableNamesSet' - {tableName};
+      i := i + 1;
+      assert forall j | i <= j < |tableNamesSeq| :: tableNamesSeq[j] in tableNamesSet' by {
+        reveal Seq.HasNoDuplicates();
       }
       result := result[tableName := writeRequests];
     }
