@@ -67,7 +67,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
       kmsConfiguration := kmsConfig,
       logicalKeyStoreName := logicalKeyStoreName,
       grantTokens := None,
-      ddbTableName := branchKeyStoreName,
+      ddbTableName := Some(branchKeyStoreName),
       ddbClient := Some(dynamodbClient),
       kmsClient := Some(kmsClient)
     );

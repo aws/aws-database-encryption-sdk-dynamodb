@@ -237,7 +237,7 @@ module TestFixtures {
     assume {:axiom} fresh(encryption.Modifies);
   }
 
-  method GetDynamoDbEncryptionTransforms2(actions : AttributeActions, sortKey : Option<string>)
+  method GetDynamoDbEncryptionTransforms2(actions : AttributeActions, sortKey : Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName>)
     returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
