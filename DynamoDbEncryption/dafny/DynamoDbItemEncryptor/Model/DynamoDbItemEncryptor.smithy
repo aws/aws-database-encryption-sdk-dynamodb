@@ -224,7 +224,6 @@ structure AtomicPrimitivesReference {}
 @aws.polymorph#reference(service: aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption)
 structure StructuredEncryptionReference {}
 
-/////////////
 // Errors
 
 @error("client")
