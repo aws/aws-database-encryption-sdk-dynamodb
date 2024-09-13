@@ -237,31 +237,31 @@ module TestFixtures {
     assume {:axiom} fresh(encryption.Modifies);
   }
 
-  method GetDynamoDbEncryptionTransforms2(actions : AttributeActions, sortKey : Option<string>)
-    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
-    ensures encryption.ValidState()
-    ensures fresh(encryption)
-    ensures fresh(encryption.Modifies)
-  {
-    var keyring := GetKmsKeyring();
-    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
-      DynamoDbTablesEncryptionConfig(
-        tableEncryptionConfigs := map[
-          "foo" := DynamoDbTableEncryptionConfig(
-            logicalTableName := "foo",
-            partitionKeyName := "bar",
-            sortKeyName := sortKey,
-            attributeActionsOnEncrypt := actions,
-            allowedUnsignedAttributes := Some(["plain"]),
-            allowedUnsignedAttributePrefix := None(),
-            algorithmSuiteId := None(),
-            keyring := Some(keyring)
-          )
-        ]
-      )
-    );
-    assume {:axiom} fresh(encryption.Modifies);
-  }
+  // method GetDynamoDbEncryptionTransforms2(actions : AttributeActions, sortKey : Option<string>)
+  //   returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+  //   ensures encryption.ValidState()
+  //   ensures fresh(encryption)
+  //   ensures fresh(encryption.Modifies)
+  // {
+  //   var keyring := GetKmsKeyring();
+  //   encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+  //     DynamoDbTablesEncryptionConfig(
+  //       tableEncryptionConfigs := map[
+  //         "foo" := DynamoDbTableEncryptionConfig(
+  //           logicalTableName := "foo",
+  //           partitionKeyName := "bar",
+  //           sortKeyName := sortKey,
+  //           attributeActionsOnEncrypt := actions,
+  //           allowedUnsignedAttributes := Some(["plain"]),
+  //           allowedUnsignedAttributePrefix := None(),
+  //           algorithmSuiteId := None(),
+  //           keyring := Some(keyring)
+  //         )
+  //       ]
+  //     )
+  //   );
+  //   assume {:axiom} fresh(encryption.Modifies);
+  // }
 
   // type AttributeActions = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
 
