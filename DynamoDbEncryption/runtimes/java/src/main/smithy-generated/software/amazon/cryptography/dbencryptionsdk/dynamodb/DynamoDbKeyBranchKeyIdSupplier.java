@@ -103,9 +103,17 @@ public final class DynamoDbKeyBranchKeyIdSupplier
           this._impl.GetBranchKeyIdFromDdbKey(nativeInput);
         software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput dafnyOutput =
           ToDafny.GetBranchKeyIdFromDdbKeyOutput(nativeOutput);
-        return Result.create_Success(dafnyOutput);
+        return Result.create_Success(
+          software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput._typeDescriptor(),
+          Error._typeDescriptor(),
+          dafnyOutput
+        );
       } catch (RuntimeException ex) {
-        return Result.create_Failure(ToDafny.Error(ex));
+        return Result.create_Failure(
+          software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput._typeDescriptor(),
+          Error._typeDescriptor(),
+          ToDafny.Error(ex)
+        );
       }
     }
 
