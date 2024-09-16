@@ -9,8 +9,14 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 
 public class UpdateItemOutputTransformInput {
 
+  /**
+   * <p>Represents the output of an <code>UpdateItem</code> operation.</p>
+   */
   private final UpdateItemResponse sdkOutput;
 
+  /**
+   * <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+   */
   private final UpdateItemRequest originalInput;
 
   protected UpdateItemOutputTransformInput(BuilderImpl builder) {
@@ -18,10 +24,16 @@ public class UpdateItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
+  /**
+   * @return <p>Represents the output of an <code>UpdateItem</code> operation.</p>
+   */
   public UpdateItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
+  /**
+   * @return <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+   */
   public UpdateItemRequest originalInput() {
     return this.originalInput;
   }
@@ -35,12 +47,24 @@ public class UpdateItemOutputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkOutput <p>Represents the output of an <code>UpdateItem</code> operation.</p>
+     */
     Builder sdkOutput(UpdateItemResponse sdkOutput);
 
+    /**
+     * @return <p>Represents the output of an <code>UpdateItem</code> operation.</p>
+     */
     UpdateItemResponse sdkOutput();
 
+    /**
+     * @param originalInput <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+     */
     Builder originalInput(UpdateItemRequest originalInput);
 
+    /**
+     * @return <p>Represents the input of an <code>UpdateItem</code> operation.</p>
+     */
     UpdateItemRequest originalInput();
 
     UpdateItemOutputTransformInput build();
