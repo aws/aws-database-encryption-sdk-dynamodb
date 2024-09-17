@@ -7,16 +7,8 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
       ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
       >
     > {
-      let region = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(region);
-      let rt_result = tokio::runtime::Builder::new_current_thread()
-      .enable_all()
-      .build();
-    if rt_result.is_err() {
-      return conversions::error::to_opaque_error_result(rt_result.err());
-    }
-    let rt = rt_result.unwrap();
-
-    let shared_config = rt.block_on(aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()));
+    let region = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(region);
+    let shared_config = dafny_tokio_runtime.block_on(aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()));
     let shared_config = shared_config.to_builder().region(Region::new(region)).build();
     let inner = aws_sdk_dynamodb::Client::new(&shared_config);
     let client = Client { inner };
