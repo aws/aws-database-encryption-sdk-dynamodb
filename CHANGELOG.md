@@ -4,19 +4,19 @@
 
 ### Features
 
-* bump to dafny 4.8.0 and mpl 1.6.0 ([#1356](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1356)) ([fedc0ad](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/fedc0ad2d490eaa853c103cae2cb7406c526a550))
+- bump to dafny 4.8.0 and mpl 1.6.0 ([#1356](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1356)) ([fedc0ad](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/fedc0ad2d490eaa853c103cae2cb7406c526a550))
 
 ### Fixes
 
-* remove usage of `:|` ([#1320](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1320)) ([eeb3f51](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/eeb3f513ab7a27c62a97529a0a94c1933da1422c))
+- remove usage of `:|` ([#1320](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1320)) ([eeb3f51](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/eeb3f513ab7a27c62a97529a0a94c1933da1422c))
 
 ### Maintenance
 
-* add check only keyword action ([#1327](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1327)) ([5d777d6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/5d777d6aa975831ef0ce3faeb0b848a1eb108981))
-* add ddb local to dafny interop test vectors ([#1316](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1316)) ([6128a39](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6128a39f13fbd28d25682d8cbf3d6655f1e41fb5))
-* allow local testing ([#1311](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1311)) ([e758e97](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/e758e97cafdb32b911737ac73a43091b12d98e31))
-* remove /// from smithy files ([#1349](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1349)) ([303a8bd](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/303a8bd4ed2d0bd1b9fd763030c7742058fb6f9f))
-* remove assert to fix verification ([#1360](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1360)) ([8849c1e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8849c1e5d32f6580ac00cbe3ff6de065a88ca9d2))
+- add check only keyword action ([#1327](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1327)) ([5d777d6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/5d777d6aa975831ef0ce3faeb0b848a1eb108981))
+- add ddb local to dafny interop test vectors ([#1316](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1316)) ([6128a39](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6128a39f13fbd28d25682d8cbf3d6655f1e41fb5))
+- allow local testing ([#1311](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1311)) ([e758e97](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/e758e97cafdb32b911737ac73a43091b12d98e31))
+- remove /// from smithy files ([#1349](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1349)) ([303a8bd](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/303a8bd4ed2d0bd1b9fd763030c7742058fb6f9f))
+- remove assert to fix verification ([#1360](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1360)) ([8849c1e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8849c1e5d32f6580ac00cbe3ff6de065a88ca9d2))
 
 ## [3.6.2](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.6.1...v3.6.2) (2024-08-22)
 
