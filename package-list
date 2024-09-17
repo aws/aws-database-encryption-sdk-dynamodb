@@ -42,7 +42,6 @@ TermLoc_Compile
 TransactGetItemsTransform_Compile
 TransactWriteItemsTransform_Compile
 UpdateItemTransform_Compile
-_System
 com.amazonaws.services.dynamodbv2.datamodeling
 com.amazonaws.services.dynamodbv2.datamodeling.encryption
 com.amazonaws.services.dynamodbv2.datamodeling.encryption.materials
@@ -50,7 +49,6 @@ com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers
 com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.store
 com.amazonaws.services.dynamodbv2.datamodeling.encryption.utils
 com.amazonaws.services.dynamodbv2.datamodeling.internal
-dafny
 software.amazon.cryptography.dbencryptionsdk.dynamodb
 software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient
 software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny
