@@ -13,6 +13,7 @@ pub mod RSAEncryption {
         use crate::*;
         use ::std::rc::Rc;
         use aws_lc_rs::encoding::{AsDer, Pkcs8V1Der, PublicKeyX509Der};
+        use crate::_Wrappers_Compile as Wrappers;
 
         use aws_lc_rs::rsa::KeySize;
         use aws_lc_rs::rsa::OaepAlgorithm;
@@ -20,6 +21,8 @@ pub mod RSAEncryption {
         use aws_lc_rs::rsa::OaepPublicEncryptingKey;
         use aws_lc_rs::rsa::PrivateDecryptingKey;
         use aws_lc_rs::rsa::PublicEncryptingKey;
+        use aws_lc_rs::rsa::Pkcs1PublicEncryptingKey;
+        use aws_lc_rs::rsa::Pkcs1PrivateDecryptingKey;
         use pem;
         use software::amazon::cryptography::primitives::internaldafny::types::Error as DafnyError;
 
@@ -98,11 +101,11 @@ pub mod RSAEncryption {
         #[allow(non_snake_case)]
         pub fn GetRSAKeyModulusLengthExtern(
             public_key: &::dafny_runtime::Sequence<u8>,
-        ) -> Rc<_Wrappers_Compile::Result<u32, Rc<DafnyError>>> {
+        ) -> Rc<Wrappers::Result<u32, Rc<DafnyError>>> {
             let public_key: Vec<u8> = public_key.iter().collect();
             match get_modulus(&public_key) {
-                Ok(v) => Rc::new(_Wrappers_Compile::Result::Success { value: v }),
-                Err(e) => Rc::new(_Wrappers_Compile::Result::Failure { error: error(&e) }),
+                Ok(v) => Rc::new(Wrappers::Result::Success { value: v }),
+                Err(e) => Rc::new(Wrappers::Result::Failure { error: error(&e) }),
             }
         }
 
@@ -136,16 +139,16 @@ pub mod RSAEncryption {
             mode: &RSAPaddingMode,
             private_key: &::dafny_runtime::Sequence<u8>,
             cipher_text: &::dafny_runtime::Sequence<u8>,
-        ) -> Rc<_Wrappers_Compile::Result<::dafny_runtime::Sequence<u8>, Rc<DafnyError>>> {
+        ) -> Rc<Wrappers::Result<::dafny_runtime::Sequence<u8>, Rc<DafnyError>>> {
             let private_key: Vec<u8> = private_key.iter().collect();
             let cipher_text: Vec<u8> = cipher_text.iter().collect();
             match decrypt_extern(mode, &private_key, &cipher_text) {
-                Ok(x) => Rc::new(_Wrappers_Compile::Result::Success {
+                Ok(x) => Rc::new(Wrappers::Result::Success {
                     value: x.iter().cloned().collect(),
                 }),
                 Err(e) => {
                     let msg = format!("RSA Decrypt : {}", e);
-                    Rc::new(_Wrappers_Compile::Result::Failure { error: error(&msg) })
+                    Rc::new(Wrappers::Result::Failure { error: error(&msg) })
                 }
             }
         }
@@ -178,117 +181,40 @@ pub mod RSAEncryption {
             mode: &RSAPaddingMode,
             public_key: &::dafny_runtime::Sequence<u8>,
             message: &::dafny_runtime::Sequence<u8>,
-        ) -> Rc<_Wrappers_Compile::Result<::dafny_runtime::Sequence<u8>, Rc<DafnyError>>> {
+        ) -> Rc<Wrappers::Result<::dafny_runtime::Sequence<u8>, Rc<DafnyError>>> {
             let public_key: Vec<u8> = public_key.iter().collect();
             let message: Vec<u8> = message.iter().collect();
             match encrypt_extern(mode, &public_key, &message) {
-                Ok(x) => Rc::new(_Wrappers_Compile::Result::Success {
+                Ok(x) => Rc::new(Wrappers::Result::Success {
                     value: x.iter().cloned().collect(),
                 }),
                 Err(e) => {
                     let msg = format!("RSA Encrypt : {}", e);
-                    Rc::new(_Wrappers_Compile::Result::Failure { error: error(&msg) })
+                    Rc::new(Wrappers::Result::Failure { error: error(&msg) })
                 }
             }
         }
 
-        use aws_lc_sys::EVP_PKEY_CTX_free;
-        use aws_lc_sys::EVP_PKEY_CTX_new;
-        use aws_lc_sys::EVP_PKEY_decrypt;
-        use aws_lc_sys::EVP_PKEY_decrypt_init;
-        use aws_lc_sys::EVP_PKEY_encrypt;
-        use aws_lc_sys::EVP_PKEY_encrypt_init;
-        use aws_lc_sys::EVP_PKEY_free;
-        use aws_lc_sys::EVP_PKEY_size;
-        use aws_lc_sys::EVP_parse_private_key;
-        use aws_lc_sys::EVP_parse_public_key;
-        use aws_lc_sys::CBS;
-        use std::ptr::null_mut;
-
         pub fn encrypt_pkcs1(public_key: &[u8], plain_text: &[u8]) -> Result<Vec<u8>, String> {
-            let mut cbs = CBS {
-                data: public_key.as_ptr(),
-                len: public_key.len(),
-            };
-
-            let key = unsafe { EVP_parse_public_key(&mut cbs) };
-            if key.is_null() {
-                return Err("Invalid X509 Public Key in RSA PKCS1 Encrypt.".to_string());
-            }
-
-            let pkey_ctx = unsafe { EVP_PKEY_CTX_new(key, null_mut()) };
-            if pkey_ctx.is_null() {
-                return Err("Error in EVP_PKEY_CTX_new in encrypt_pkcs1.".to_string());
-            }
-
-            if 1 != unsafe { EVP_PKEY_encrypt_init(pkey_ctx) } {
-                return Err("Error in EVP_PKEY_encrypt_init in encrypt_pkcs1.".to_string());
-            }
-
-            let size: usize = unsafe { EVP_PKEY_size(key) }.try_into().unwrap();
-            let mut cipher_text: Vec<u8> = vec![0; size];
-
-            let mut out_len = cipher_text.len();
-
-            if 1 != unsafe {
-                EVP_PKEY_encrypt(
-                    pkey_ctx,
-                    cipher_text.as_mut_ptr(),
-                    &mut out_len,
-                    plain_text.as_ptr(),
-                    plain_text.len(),
-                )
-            } {
-                return Err("Error in EVP_PKEY_encrypt in encrypt_pkcs1.".to_string());
-            };
-
-            unsafe { EVP_PKEY_CTX_free(pkey_ctx) };
-            unsafe { EVP_PKEY_free(key) };
-            cipher_text.resize(out_len, 0);
-            Ok(cipher_text)
+            let public_key = PublicEncryptingKey::from_der(public_key)
+                .map_err(|e| format!("{:?}", e))?;
+            let public_key = Pkcs1PublicEncryptingKey::new(public_key).map_err(|e| format!("{:?}", e))?;
+            let mut ciphertext: Vec<u8> = vec![0; plain_text.len() + public_key.key_size_bytes()];
+            let cipher_text = public_key
+                .encrypt(plain_text, &mut ciphertext)
+                .map_err(|e| format!("{:?}", e))?;
+            Ok(cipher_text.to_vec())
         }
 
         pub fn decrypt_pkcs1(private_key: &[u8], cipher_text: &[u8]) -> Result<Vec<u8>, String> {
-            let mut cbs = CBS {
-                data: private_key.as_ptr(),
-                len: private_key.len(),
-            };
-
-            let key = unsafe { EVP_parse_private_key(&mut cbs) };
-            if key.is_null() {
-                return Err("Invalid Private Key in RSA PKCS1 Decrypt.".to_string());
-            }
-
-            let pkey_ctx = unsafe { EVP_PKEY_CTX_new(key, null_mut()) };
-            if pkey_ctx.is_null() {
-                return Err("Error in EVP_PKEY_CTX_new in decrypt_pkcs1.".to_string());
-            }
-
-            if 1 != unsafe { EVP_PKEY_decrypt_init(pkey_ctx) } {
-                return Err("Error in EVP_PKEY_decrypt_init in decrypt_pkcs1.".to_string());
-            }
-
-            let size: usize = unsafe { EVP_PKEY_size(key) }.try_into().unwrap();
-            let mut plain_text: Vec<u8> = vec![0; size];
-
-            let mut out_len = cipher_text.len();
-
-            if 1 != unsafe {
-                EVP_PKEY_decrypt(
-                    pkey_ctx,
-                    plain_text.as_mut_ptr(),
-                    &mut out_len,
-                    cipher_text.as_ptr(),
-                    cipher_text.len(),
-                )
-            } {
-                return Err("Error in EVP_PKEY_decrypt in decrypt_pkcs1.".to_string());
-            };
-
-            unsafe { EVP_PKEY_CTX_free(pkey_ctx) };
-            unsafe { EVP_PKEY_free(key) };
-            plain_text.resize(out_len, 0);
-            Ok(plain_text)
+            let private_key = PrivateDecryptingKey::from_pkcs8(private_key)
+                .map_err(|e| format!("from_pkcs8 : {:?}", e))?;
+            let private_key = Pkcs1PrivateDecryptingKey::new(private_key).map_err(|e| format!("new : {:?}", e))?;
+            let mut message: Vec<u8> = vec![0; cipher_text.len()];
+            let message = private_key
+                .decrypt(cipher_text, &mut message)
+                .map_err(|e| format!("decrypt {:?}", e))?;
+            Ok(message.to_vec())
         }
 
         #[cfg(test)]
@@ -299,8 +225,8 @@ pub mod RSAEncryption {
                 let (public_key, private_key) = GenerateKeyPairExtern(2048);
 
                 let modulus: u32 = match &*GetRSAKeyModulusLengthExtern(&public_key) {
-                    _Wrappers_Compile::Result::Success { value } => *value,
-                    _Wrappers_Compile::Result::Failure { error } => panic!("{:?}", error),
+                    Wrappers::Result::Success { value } => *value,
+                    Wrappers::Result::Failure { error } => panic!("{:?}", error),
                 };
                 assert_eq!(modulus, 2048);
 
@@ -311,14 +237,14 @@ pub mod RSAEncryption {
 
                 let cipher: ::dafny_runtime::Sequence<u8> =
                     match &*EncryptExtern(&mode, &public_key, &plain_text) {
-                        _Wrappers_Compile::Result::Success { value } => value.clone(),
-                        _Wrappers_Compile::Result::Failure { error } => panic!("{:?}", error),
+                        Wrappers::Result::Success { value } => value.clone(),
+                        Wrappers::Result::Failure { error } => panic!("{:?}", error),
                     };
 
                 let message: ::dafny_runtime::Sequence<u8> =
                     match &*DecryptExtern(&mode, &private_key, &cipher) {
-                        _Wrappers_Compile::Result::Success { value } => value.clone(),
-                        _Wrappers_Compile::Result::Failure { error } => panic!("{:?}", error),
+                        Wrappers::Result::Success { value } => value.clone(),
+                        Wrappers::Result::Failure { error } => panic!("{:?}", error),
                     };
 
                 assert_eq!(plain_text, message);
