@@ -25,7 +25,7 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
     std::rc::Rc::new(crate::r#_Wrappers_Compile::Result::Success { value: dafny_client })
   }
 
-  pub fn DDBClient() -> ::std::rc::Rc<
+  pub fn DynamoDBClient() -> ::std::rc::Rc<
   crate::r#_Wrappers_Compile::Result<
     ::dafny_runtime::Object<dyn crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::IDynamoDBClient>,
     ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
