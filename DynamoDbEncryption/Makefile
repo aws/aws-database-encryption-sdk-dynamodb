@@ -24,7 +24,6 @@ RUST_OTHER_FILES := \
 	runtimes/rust/src/digest.rs \
 	runtimes/rust/src/ecdh.rs \
 	runtimes/rust/src/ecdsa.rs \
-	runtimes/rust/src/externs_utf8.rs \
 	runtimes/rust/src/hmac.rs \
 	runtimes/rust/src/kms.rs \
 	runtimes/rust/src/local_cmc.rs \
