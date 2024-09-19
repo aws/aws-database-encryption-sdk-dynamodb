@@ -129,6 +129,11 @@ public class ToNative {
         dafnyValue.dtor_AwsCryptographyDbEncryptionSdkStructuredEncryption()
       );
     }
+    if (dafnyValue.is_AwsCryptographyKeyStore()) {
+      return software.amazon.cryptography.keystore.ToNative.Error(
+        dafnyValue.dtor_AwsCryptographyKeyStore()
+      );
+    }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);
     return nativeBuilder.build();
