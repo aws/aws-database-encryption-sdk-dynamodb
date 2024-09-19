@@ -27,16 +27,23 @@ macro_rules! modify_request {
             $cfg.interceptor_state().store_put(OriginalRequest(Input::erase($request.clone())));
 
             // transform the request
-            *$request = tokio::task::block_in_place(|| {
-                tokio::runtime::Handle::current().block_on(async {
+            // *$request = tokio::task::block_in_place(|| {
+            let result = tokio::task::block_in_place(|| {
+                    tokio::runtime::Handle::current().block_on(async {
                     $self.client
                     .$transform()
                     .sdk_input($request.clone())
                     .send()
                     .await
-                    .unwrap().transformed_input.unwrap()
                 })
-              })
+              });
+            match result {
+                Ok(x) => *$request = x.transformed_input.unwrap(),
+                Err(x) => {
+                    let s = format!("{:?}", x);
+                    return Err(s.into());
+                }
+            };
         }
     };
 }
@@ -58,7 +65,7 @@ macro_rules! modify_response {
                 .expect("we know this type corresponds to the output type");
 
             // transform the response
-            *$response = tokio::task::block_in_place(|| {
+            let result = tokio::task::block_in_place(|| {
                 tokio::runtime::Handle::current().block_on(async {
                     $self.client
                     .$transform()
@@ -66,9 +73,15 @@ macro_rules! modify_response {
                     .sdk_output($response.clone())
                     .send()
                     .await
-                    .unwrap().transformed_output.unwrap()
                 })
-              })
+              });
+            match result {
+                Ok(x) => *$response = x.transformed_output.unwrap(),
+                Err(x) => {
+                    let s = format!("{:?}", x);
+                    return Err(s.into());
+                }
+            };
         }
     };
 }
