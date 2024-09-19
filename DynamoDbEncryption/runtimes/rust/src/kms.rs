@@ -13,13 +13,28 @@ impl crate::r#software::amazon::cryptography::services::kms::internaldafny::_def
   #[allow(non_snake_case)]
   pub fn KMSClientForRegion(region: &::dafny_runtime::Sequence<::dafny_runtime::DafnyCharUTF16>) -> ::std::rc::Rc<crate::r#_Wrappers_Compile::Result<::dafny_runtime::Object<dyn crate::software::amazon::cryptography::services::kms::internaldafny::types::IKMSClient>, ::std::rc::Rc<crate::software::amazon::cryptography::services::kms::internaldafny::types::Error>>>{
     let region = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(region);
-    let shared_config = dafny_tokio_runtime().block_on(aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()));
+    // let shared_config = dafny_tokio_runtime().block_on(aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()));
+    let shared_config = tokio::task::block_in_place(|| {
+      tokio::runtime::Handle::current().block_on(async {
+        aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()).await
+      })
+    });
+
     let shared_config = shared_config.to_builder().region(Region::new(region)).build();
     let inner = aws_sdk_kms::Client::new(&shared_config);
     let client = crate::deps::com_amazonaws_kms::client::Client { inner };
     let dafny_client = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(client));
     std::rc::Rc::new(crate::r#_Wrappers_Compile::Result::Success { value: dafny_client })
   }
+/*
+let res = task::spawn_blocking(move || {
+    // Stand-in for compute-heavy work or using synchronous APIs
+    v.push_str("world");
+    // Pass ownership of the value back to the asynchronous context
+    v
+}).await?;
+
+*/
 
   #[allow(non_snake_case)]
   pub fn KMSClient() -> ::std::rc::Rc<crate::r#_Wrappers_Compile::Result<::dafny_runtime::Object<dyn crate::software::amazon::cryptography::services::kms::internaldafny::types::IKMSClient>, ::std::rc::Rc<crate::software::amazon::cryptography::services::kms::internaldafny::types::Error>>>{

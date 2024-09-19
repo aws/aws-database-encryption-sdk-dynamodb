@@ -18,6 +18,7 @@ static dafny_tokio_runtime: LazyLock<tokio::runtime::Runtime> = LazyLock::new(||
           .unwrap()
 });
 
+
 #[macro_export]
 macro_rules! modify_request {
     ($cfg:ident,$request:ident,$self:ident,$transform:ident) => {
@@ -26,13 +27,22 @@ macro_rules! modify_request {
             $cfg.interceptor_state().store_put(OriginalRequest(Input::erase($request.clone())));
 
             // transform the request
-            *$request = dafny_tokio_runtime.block_on($self.client
-                .$transform()
-                .sdk_input($request.clone())
-                .send()).unwrap().transformed_input.unwrap();
+            *$request = tokio::task::block_in_place(|| {
+                tokio::runtime::Handle::current().block_on(async {
+                    $self.client
+                    .$transform()
+                    .sdk_input($request.clone())
+                    .send()
+                    .await
+                    .unwrap().transformed_input.unwrap()
+                })
+              })
         }
     };
 }
+
+
+
 
 #[macro_export]
 macro_rules! modify_response {
@@ -48,11 +58,17 @@ macro_rules! modify_response {
                 .expect("we know this type corresponds to the output type");
 
             // transform the response
-            *$response = dafny_tokio_runtime.block_on($self.client
-                .$transform()
-                .original_input(original.clone())
-                .sdk_output($response.clone())
-                .send()).unwrap().transformed_output.unwrap();
+            *$response = tokio::task::block_in_place(|| {
+                tokio::runtime::Handle::current().block_on(async {
+                    $self.client
+                    .$transform()
+                    .original_input(original.clone())
+                    .sdk_output($response.clone())
+                    .send()
+                    .await
+                    .unwrap().transformed_output.unwrap()
+                })
+              })
         }
     };
 }
