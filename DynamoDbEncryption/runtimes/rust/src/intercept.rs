@@ -23,13 +23,13 @@ macro_rules! modify_request {
     ($cfg:ident,$request:ident,$self:ident,$transform:ident) => {
         {
             // store the original request
-            $cfg.interceptor_state().store_put(OriginalRequest(Input::erase($request)));
+            $cfg.interceptor_state().store_put(OriginalRequest(Input::erase($request.clone())));
 
             // transform the request
             *$request = dafny_tokio_runtime.block_on($self.client
                 .$transform()
-                .sdk_input($request)
-                .send());
+                .sdk_input($request.clone())
+                .send()).unwrap().transformed_input.unwrap();
         }
     };
 }
@@ -45,14 +45,14 @@ macro_rules! modify_response {
             let original = original
                 .0
                 .downcast_ref::<$type>()
-                .expect("we know this type corresponds to the output type")
+                .expect("we know this type corresponds to the output type");
 
             // transform the response
             *$response = dafny_tokio_runtime.block_on($self.client
                 .$transform()
-                .original_input(original)
-                .sdk_output($response)
-                .send());
+                .original_input(original.clone())
+                .sdk_output($response.clone())
+                .send()).unwrap().transformed_output.unwrap();
         }
     };
 }
