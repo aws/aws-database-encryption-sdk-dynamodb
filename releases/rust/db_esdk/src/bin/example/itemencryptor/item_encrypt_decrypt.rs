@@ -5,13 +5,13 @@ use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
-use db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
-use db_esdk::aws_cryptography_materialProviders::client as mpl_client;
-use db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
+use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
+use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client as enc_client;
-use db_esdk::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client as enc_client;
+use aws_db_esdk::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
 
 /*
  This example sets up a DynamoDb Item Encryptor and uses

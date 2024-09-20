@@ -5,21 +5,21 @@ use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
-use db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
-use db_esdk::aws_cryptography_materialProviders::client;
-use db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
+use aws_db_esdk::aws_cryptography_materialProviders::client;
+use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SearchConfig;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon;
-use db_esdk::aws_cryptography_keyStore::client as keystore_client;
-use db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
-use db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
-use db_esdk::intercept::DbEsdkInterceptor;
-use db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SearchConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon;
+use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
+use aws_db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
+use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
+use aws_db_esdk::intercept::DbEsdkInterceptor;
+use aws_db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
 
 /*
  This example demonstrates how to set up a beacon on an encrypted attribute,

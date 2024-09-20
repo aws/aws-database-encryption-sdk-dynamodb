@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::test_utils;
-use db_esdk::aws_cryptography_keyStore::client as keystore_client;
-use db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
-use db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
+use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
+use aws_db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
+use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
 
 /*
  The Hierarchical Keyring Example and Searchable Encryption Examples

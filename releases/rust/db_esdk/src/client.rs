@@ -22,7 +22,6 @@ impl Client {
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            // TODO: convert error - the potential types are not modeled!
             return Err(BuildError::other(
                 ::aws_smithy_types::error::metadata::ErrorMetadata::builder()
                     .message("Invalid client config")
