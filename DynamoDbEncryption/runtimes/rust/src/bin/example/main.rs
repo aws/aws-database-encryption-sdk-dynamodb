@@ -6,12 +6,13 @@
 #![deny(clippy::all)]
 
 pub mod basic_get_put_example;
-pub mod test_utils;
-pub mod itemencryptor;
-pub mod searchableencryption;
 pub mod create_keystore_key;
 pub mod get_encrypted_data_key_description;
+pub mod itemencryptor;
+pub mod keyring;
 pub mod multi_get_put_example;
+pub mod searchableencryption;
+pub mod test_utils;
 
 #[tokio::main]
 pub async fn main() {
@@ -19,6 +20,7 @@ pub async fn main() {
     itemencryptor::item_encrypt_decrypt::encrypt_decrypt().await;
     get_encrypted_data_key_description::get_encrypted_data_key_description().await;
     multi_get_put_example::multi_put_get().await;
+    keyring::raw_rsa_keyring::put_item_get_item().await;
 
     // let key_id = create_keystore_key::keystore_create_key().await;
     // // let key_id2 = create_keystore_key::keystore_create_key().await;
@@ -29,22 +31,21 @@ pub async fn main() {
     // searchableencryption::basic_searchable_encryption::put_and_query_with_beacon(&key_id).await;
     // // FIXME : ScanError will have to wait until we have a reasonable error message strategy
 
-/*
-            await MultiPutGetExample.MultiPutGet();
-            await ClientSupplierExample.ClientSupplierPutItemGetItem();
-            await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
-            await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
-            await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
-            await MultiKeyringExample.MultiKeyringGetItemPutItem();
-            await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
-            await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
+    /*
+                await ClientSupplierExample.ClientSupplierPutItemGetItem();
+                await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
+                await RawAesKeyringExample.RawAesKeyringGetItemPutItem();
+                await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
+                await MultiKeyringExample.MultiKeyringGetItemPutItem();
+                await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
+                await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
 
 
-            await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
-            await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
-            await VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(keyId);
-            await BeaconStylesSearchableEncryptionExample.PutItemQueryItemWithBeaconStyles(keyId);
-            await ComplexSearchableEncryptionExample.RunExample(keyId);
-*/
+                await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
+                await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
+                await VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(keyId);
+                await BeaconStylesSearchableEncryptionExample.PutItemQueryItemWithBeaconStyles(keyId);
+                await ComplexSearchableEncryptionExample.RunExample(keyId);
+    */
     println!("All examples completed successfully.\n");
 }

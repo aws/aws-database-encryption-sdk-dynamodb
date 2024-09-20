@@ -94,10 +94,8 @@ pub mod ECDH {
             if ec_group.is_null() {
                 return Err("Error in EC_KEY_get0_group in X509_to_X962.".to_string());
             }
-            if nid.is_some() {
-                if nid.unwrap() != unsafe { EC_GROUP_get_curve_name(ec_group) } {
-                    return Err("Curve type mismatch in X509_to_X962.".to_string());
-                }
+            if nid.is_some() && nid.unwrap() != unsafe { EC_GROUP_get_curve_name(ec_group) } {
+                return Err("Curve type mismatch in X509_to_X962.".to_string());
             }
             let ec_point = unsafe { EC_KEY_get0_public_key(ec_key) };
             if ec_point.is_null() {

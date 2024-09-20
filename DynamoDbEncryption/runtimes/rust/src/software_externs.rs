@@ -25,6 +25,7 @@ pub mod software {
                                 use crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::Error as DafnyError;
                                 use crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyPolicy;
                                 use ::std::rc::Rc;
+                                type Legacy = ::dafny_runtime::Object<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::legacy::InternalLegacyOverride>;
 
                                 fn error(s: &str) -> Rc<DafnyError> {
                                     Rc::new(DafnyError::DynamoDbItemEncryptorException {
@@ -35,19 +36,36 @@ pub mod software {
                                 pub struct InternalLegacyOverride {
                                     pub r#__i_policy: Rc<LegacyPolicy>,
                                 }
-                                fn fail_override() -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Object<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::legacy::InternalLegacyOverride>>>, Rc<DafnyError>>>{
+                                fn fail_override() -> Rc<
+                                    crate::_Wrappers_Compile::Result<
+                                        Rc<crate::_Wrappers_Compile::Option<Legacy>>,
+                                        Rc<DafnyError>,
+                                    >,
+                                > {
                                     Rc::new(crate::_Wrappers_Compile::Result::Failure {
                                         error: error("Legacy configuration unsupported."),
                                     })
                                 }
-                                fn success_override() -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Object<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::legacy::InternalLegacyOverride>>>, Rc<DafnyError>>>{
+                                fn success_override() -> Rc<
+                                    crate::_Wrappers_Compile::Result<
+                                        Rc<crate::_Wrappers_Compile::Option<Legacy>>,
+                                        Rc<DafnyError>,
+                                    >,
+                                > {
                                     Rc::new(crate::_Wrappers_Compile::Result::Success {
                                         value: Rc::new(crate::_Wrappers_Compile::Option::None {}),
                                     })
                                 }
 
                                 impl InternalLegacyOverride {
-                                    pub fn Build(config: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DynamoDbItemEncryptorConfig>) -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Object<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::legacy::InternalLegacyOverride>>>, Rc<DafnyError>>>{
+                                    pub fn Build(
+                                        config: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DynamoDbItemEncryptorConfig>,
+                                    ) -> Rc<
+                                        crate::_Wrappers_Compile::Result<
+                                            Rc<crate::_Wrappers_Compile::Option<Legacy>>,
+                                            Rc<DafnyError>,
+                                        >,
+                                    > {
                                         match &**config.legacyOverride() {
                                             crate::_Wrappers_Compile::Option::Some{value} => {
                                                 match &**value.policy() {

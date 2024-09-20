@@ -1,3 +1,10 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+#![deny(warnings, unconditional_panic)]
+#![deny(nonstandard_style)]
+#![deny(clippy::all)]
+
 use aws_sdk_dynamodb::{
     config::{
         interceptors::{BeforeSerializationInterceptorContextMut, FinalizerInterceptorContextMut},
@@ -7,94 +14,81 @@ use aws_sdk_dynamodb::{
 };
 use aws_smithy_runtime_api::client::interceptors::context::Input;
 use aws_smithy_types::config_bag::{Storable, StoreReplace};
-use std::sync::LazyLock;
-
-/// A runtime for executing operations on the asynchronous client in a blocking manner.
-/// Necessary because Dafny only generates synchronous code.
-static dafny_tokio_runtime: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
-    tokio::runtime::Builder::new_multi_thread()
-          .enable_all()
-          .build()
-          .unwrap()
-});
-
 
 #[macro_export]
 macro_rules! modify_request {
-    ($cfg:ident,$request:ident,$self:ident,$transform:ident) => {
-        {
-            // store the original request
-            $cfg.interceptor_state().store_put(OriginalRequest(Input::erase($request.clone())));
+    ($cfg:ident,$request:ident,$self:ident,$transform:ident) => {{
+        // store the original request
+        $cfg.interceptor_state()
+            .store_put(OriginalRequest(Input::erase($request.clone())));
 
-            // transform the request
-            // *$request = tokio::task::block_in_place(|| {
-            let result = tokio::task::block_in_place(|| {
-                    tokio::runtime::Handle::current().block_on(async {
-                    $self.client
+        // transform the request
+        // *$request = tokio::task::block_in_place(|| {
+        let result = tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async {
+                $self
+                    .client
                     .$transform()
                     .sdk_input($request.clone())
                     .send()
                     .await
-                })
-              });
-            match result {
-                Ok(x) => *$request = x.transformed_input.unwrap(),
-                Err(x) => {
-                    let s = format!("{:?}", x);
-                    return Err(s.into());
-                }
-            };
-        }
-    };
+            })
+        });
+        match result {
+            Ok(x) => *$request = x.transformed_input.unwrap(),
+            Err(x) => {
+                let s = format!("{:?}", x);
+                return Err(s.into());
+            }
+        };
+    }};
 }
-
-
-
 
 #[macro_export]
 macro_rules! modify_response {
-    ($cfg:ident,$type:ty,$response:ident,$self:ident,$transform:ident) => {
-        {
-            // retrieve the original request
-            let original = $cfg
-                .load::<OriginalRequest>()
-                .expect("we put this in ourselves");
-            let original = original
-                .0
-                .downcast_ref::<$type>()
-                .expect("we know this type corresponds to the output type");
+    ($cfg:ident,$type:ty,$response:ident,$self:ident,$transform:ident) => {{
+        // retrieve the original request
+        let original = $cfg
+            .load::<OriginalRequest>()
+            .expect("we put this in ourselves");
+        let original = original
+            .0
+            .downcast_ref::<$type>()
+            .expect("we know this type corresponds to the output type");
 
-            // transform the response
-            let result = tokio::task::block_in_place(|| {
-                tokio::runtime::Handle::current().block_on(async {
-                    $self.client
+        // transform the response
+        let result = tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async {
+                $self
+                    .client
                     .$transform()
                     .original_input(original.clone())
                     .sdk_output($response.clone())
                     .send()
                     .await
-                })
-              });
-            match result {
-                Ok(x) => *$response = x.transformed_output.unwrap(),
-                Err(x) => {
-                    let s = format!("{:?}", x);
-                    return Err(s.into());
-                }
-            };
-        }
-    };
+            })
+        });
+        match result {
+            Ok(x) => *$response = x.transformed_output.unwrap(),
+            Err(x) => {
+                let s = format!("{:?}", x);
+                return Err(s.into());
+            }
+        };
+    }};
 }
 
 #[derive(Debug)]
 pub struct DbEsdkInterceptor {
-    client : crate::client::Client
+    client: crate::client::Client,
 }
 
 impl DbEsdkInterceptor {
-    pub fn new(config : crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig) -> Self {
+    pub fn new(
+        config: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
+    ) -> Self {
         let client = crate::client::Client::from_conf(config).unwrap(); // FIXME
-        DbEsdkInterceptor {client}
+        DbEsdkInterceptor { client }
     }
 }
 
@@ -152,7 +146,7 @@ impl Intercept for DbEsdkInterceptor {
 
     // macro_rules! modify_response {
     //     ($cfg:ident,$type:ty,$output:ident,$self:ident,$transform:ident) => {
-    
+
     fn modify_before_attempt_completion(
         &self,
         context: &mut FinalizerInterceptorContextMut,

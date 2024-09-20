@@ -9,20 +9,20 @@
 #[allow(non_snake_case)]
 pub mod RSAEncryption {
     pub mod RSA {
+        use crate::_Wrappers_Compile as Wrappers;
         use crate::software::amazon::cryptography::primitives::internaldafny::types::RSAPaddingMode;
         use crate::*;
         use ::std::rc::Rc;
         use aws_lc_rs::encoding::{AsDer, Pkcs8V1Der, PublicKeyX509Der};
-        use crate::_Wrappers_Compile as Wrappers;
 
         use aws_lc_rs::rsa::KeySize;
         use aws_lc_rs::rsa::OaepAlgorithm;
         use aws_lc_rs::rsa::OaepPrivateDecryptingKey;
         use aws_lc_rs::rsa::OaepPublicEncryptingKey;
+        use aws_lc_rs::rsa::Pkcs1PrivateDecryptingKey;
+        use aws_lc_rs::rsa::Pkcs1PublicEncryptingKey;
         use aws_lc_rs::rsa::PrivateDecryptingKey;
         use aws_lc_rs::rsa::PublicEncryptingKey;
-        use aws_lc_rs::rsa::Pkcs1PublicEncryptingKey;
-        use aws_lc_rs::rsa::Pkcs1PrivateDecryptingKey;
         use pem;
         use software::amazon::cryptography::primitives::internaldafny::types::Error as DafnyError;
 
@@ -196,9 +196,10 @@ pub mod RSAEncryption {
         }
 
         pub fn encrypt_pkcs1(public_key: &[u8], plain_text: &[u8]) -> Result<Vec<u8>, String> {
-            let public_key = PublicEncryptingKey::from_der(public_key)
-                .map_err(|e| format!("{:?}", e))?;
-            let public_key = Pkcs1PublicEncryptingKey::new(public_key).map_err(|e| format!("{:?}", e))?;
+            let public_key =
+                PublicEncryptingKey::from_der(public_key).map_err(|e| format!("{:?}", e))?;
+            let public_key =
+                Pkcs1PublicEncryptingKey::new(public_key).map_err(|e| format!("{:?}", e))?;
             let mut ciphertext: Vec<u8> = vec![0; plain_text.len() + public_key.key_size_bytes()];
             let cipher_text = public_key
                 .encrypt(plain_text, &mut ciphertext)
@@ -209,7 +210,8 @@ pub mod RSAEncryption {
         pub fn decrypt_pkcs1(private_key: &[u8], cipher_text: &[u8]) -> Result<Vec<u8>, String> {
             let private_key = PrivateDecryptingKey::from_pkcs8(private_key)
                 .map_err(|e| format!("from_pkcs8 : {:?}", e))?;
-            let private_key = Pkcs1PrivateDecryptingKey::new(private_key).map_err(|e| format!("new : {:?}", e))?;
+            let private_key = Pkcs1PrivateDecryptingKey::new(private_key)
+                .map_err(|e| format!("new : {:?}", e))?;
             let mut message: Vec<u8> = vec![0; cipher_text.len()];
             let message = private_key
                 .decrypt(cipher_text, &mut message)
