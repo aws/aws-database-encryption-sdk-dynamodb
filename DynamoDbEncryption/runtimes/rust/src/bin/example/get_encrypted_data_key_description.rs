@@ -3,9 +3,9 @@
 
 use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::client as dbesdk_client;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
-use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetEncryptedDataKeyDescriptionUnion;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::client as dbesdk_client;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetEncryptedDataKeyDescriptionUnion;
 use std::collections::HashMap;
 
 pub async fn get_encrypted_data_key_description() {
