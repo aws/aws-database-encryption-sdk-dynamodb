@@ -1,4 +1,9 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
+#![deny(warnings, unconditional_panic)]
+#![deny(nonstandard_style)]
+#![deny(clippy::all)]
 
 use std::collections::HashMap;
 use crate::test_utils;
@@ -158,6 +163,6 @@ pub async fn put_item_get_item()
       .unwrap();
 
       assert_eq!(resp.item, Some(item));
-      println!("put_item_get_item Successful.");
+      println!("put_item_get_item successful.");
   }
   

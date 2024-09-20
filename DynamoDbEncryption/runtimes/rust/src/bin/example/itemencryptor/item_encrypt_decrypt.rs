@@ -1,3 +1,10 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+#![deny(warnings, unconditional_panic)]
+#![deny(nonstandard_style)]
+#![deny(clippy::all)]
+
 use std::collections::HashMap;
 use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;

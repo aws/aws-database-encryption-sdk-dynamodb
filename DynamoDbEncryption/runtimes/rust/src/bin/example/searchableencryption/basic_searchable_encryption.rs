@@ -1,3 +1,10 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+#![deny(warnings, unconditional_panic)]
+#![deny(nonstandard_style)]
+#![deny(clippy::all)]
+
 use std::collections::HashMap;
 use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
@@ -8,12 +15,15 @@ use db_esdk::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types:
 
 use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
 use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon;
-use db_esdk::deps::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
 use db_esdk::intercept::DbEsdkInterceptor;
 use db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
-// use db_esdk::deps::aws_cryptography_keyStore::types::KeyStore;
 use db_esdk::deps::aws_cryptography_keyStore::client as keystore_client;
 use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
+use db_esdk::deps::aws_cryptography_keyStore::types::KmsConfiguration;
+use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion;
+use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore;
+use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
+use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SearchConfig;
 
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
@@ -56,7 +66,6 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         //    The `length` parameter dictates how many bits are in the beacon attribute value.
         //    The following link provides guidance on choosing a beacon length:
         //        https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
-        let mut standard_beacon_list = Vec::new();
 
         // The configured DDB table has a GSI on the `aws_dbe_b_inspector_id_last4` AttributeName.
         // This field holds the last 4 digits of an inspector ID.
@@ -105,8 +114,7 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10,000/1,024) ~= 9.8 4-digit inspector ID suffixes
         //    sharing that beacon value.
-        let last4_beacon = StandardBeacon::builder().name("inspector_id_last4").length(10).build();
-        standard_beacon_list.push(last4_beacon);
+        let last4_beacon = StandardBeacon::builder().name("inspector_id_last4").length(10).build().unwrap();
 
         // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
         // This field holds a unit serial number.
@@ -134,8 +142,9 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        let unit_beacon = StandardBeacon::builder().name("unit").length(30).build();
-        standard_beacon_list.push(unit_beacon);
+        let unit_beacon = StandardBeacon::builder().name("unit").length(30).build().unwrap();
+
+        let standard_beacon_list = vec![last4_beacon, unit_beacon];
 
         // 2. Configure Keystore.
         //    The keystore is a separate DDB table where the client stores encryption and decryption materials.
@@ -150,11 +159,13 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
             .ddb_client(aws_sdk_dynamodb::Client::new(&sdk_config))
             .ddb_table_name(branch_key_ddb_table_name)
             .logical_key_store_name(branch_key_ddb_table_name)
-            .kms_configuration(KMSConfiguration.builder().kms_key_arn(branch_key_wrapping_kms_key_arn).build().unwrap())
+            .kms_configuration(KmsConfiguration::KmsKeyArn(branch_key_wrapping_kms_key_arn.to_string()))
             .build()
             .unwrap();
+          
+          let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
 
-/*
+
         // 3. Create BeaconVersion.
         //    The BeaconVersion inside the list holds the list of beacons on the table.
         //    The BeaconVersion also stores information about the keystore.
@@ -167,41 +178,38 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         //        (for example if your table holds data for multiple tenants, and you want to use
         //        a different beacon key per tenant), look into configuring a MultiKeyStore:
         //          https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption-multitenant.html
-        var beaconVersions = new List<BeaconVersion>
-        {
-            new BeaconVersion
-            {
-                StandardBeacons = standardBeaconList,
-                Version = 1, // MUST be 1
-                KeyStore = keyStore,
-                KeySource = new BeaconKeySource
-                {
-                    Single = new SingleKeyStore
-                    {
-                        // `keyId` references a beacon key.
-                        // For every branch key we create in the keystore,
-                        // we also create a beacon key.
-                        // This beacon key is not the same as the branch key,
-                        // but is created with the same ID as the branch key.
-                        KeyId = branchKeyId,
-                        CacheTTL = 6000
-                    }
-                }
-            }
-        };
+
+        let beacon_version = BeaconVersion::builder()
+          .standard_beacons(standard_beacon_list)
+          .version(1) // MUST be 1
+          .key_store(key_store.clone())
+          .key_source(BeaconKeySource::Single(
+            SingleKeyStore::builder()
+              // `keyId` references a beacon key.
+              // For every branch key we create in the keystore,
+              // we also create a beacon key.
+              // This beacon key is not the same as the branch key,
+              // but is created with the same ID as the branch key.
+              .key_id(branch_key_id)
+              .cache_ttl(6000)
+              .build()
+              .unwrap()
+          ))
+          .build().unwrap();
+        let beacon_versions = vec![beacon_version];
+
 
         // 4. Create a Hierarchical Keyring
         //    This is a KMS keyring that utilizes the keystore table.
         //    This config defines how items are encrypted and decrypted.
         //    NOTE: You should configure this to use the same keystore as your search config.
-        var matProv = new MaterialProviders(new MaterialProvidersConfig());
-        var keyringInput = new CreateAwsKmsHierarchicalKeyringInput
-        {
-            BranchKeyId = branchKeyId,
-            KeyStore = keyStore,
-            TtlSeconds = 6000L
-        };
-        var kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+        let provider_config = MaterialProvidersConfig::builder().build().unwrap();
+        let mat_prov = client::Client::from_conf(provider_config).unwrap();
+        let kms_keyring = mat_prov.create_aws_kms_hierarchical_keyring()
+          .branch_key_id(branch_key_id)
+          .key_store(key_store)
+          .ttl_seconds(6000)
+          .send().await.unwrap();
 
         // 5. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -210,36 +218,39 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
         //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
-        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>
-        {
-            ["work_id"] = CryptoAction.SIGN_ONLY, // Our partition attribute must be SIGN_ONLY
-            ["inspection_date"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
-            ["inspector_id_last4"] = CryptoAction.ENCRYPT_AND_SIGN, // Beaconized attributes must be encrypted
-            ["unit"] = CryptoAction.ENCRYPT_AND_SIGN // Beaconized attributes must be encrypted
-        };
-
+        let attribute_actions_on_encrypt = HashMap::from([
+          ("work_id".to_string(), CryptoAction::SignOnly), // Our partition attribute must be SIGN_ONLY
+          ("inspection_date".to_string(), CryptoAction::SignOnly), // Our sort attribute must be SIGN_ONLY
+          ("inspector_id_last4".to_string(), CryptoAction::EncryptAndSign), // Beaconized attributes must be encrypted
+          ("unit".to_string(), CryptoAction::EncryptAndSign), // Beaconized attributes must be encrypted
+        ]);
+      
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
         //    The beaconVersions are added to the search configuration.
-        var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>
-        {
-            [ddbTableName] = new DynamoDbTableEncryptionConfig
-            {
-                LogicalTableName = ddbTableName,
-                PartitionKeyName = "work_id",
-                SortKeyName = "inspection_date",
-                AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
-                Keyring = kmsKeyring,
-                Search = new SearchConfig
-                {
-                    WriteVersion = 1, // MUST be 1
-                    Versions = beaconVersions
-                }
-            }
-        };
+        let table_config = DynamoDbTableEncryptionConfig::builder()
+                .logical_table_name(ddb_table_name)
+                .partition_key_name("work_id")
+                .sort_key_name("inspection_date")
+                .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
+                .keyring(kms_keyring)
+                .search(SearchConfig::builder()
+                  .write_version(1) // MUST be 1
+                  .versions(beacon_versions)
+                  .build().unwrap()
+                )
+                .build().unwrap();
 
+          let table_configs = DynamoDbTablesEncryptionConfig::builder()
+                .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
+                .build()
+                .unwrap();
+            
         // 7. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
-        var ddb = new Client.DynamoDbClient(
-            new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
+        let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
+        let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
+            .interceptor(DbEsdkInterceptor::new(table_configs))
+            .build();
+        let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
         // 8. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
@@ -250,22 +261,21 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         //        truncated to as many bits as the beacon's `length` parameter; e.g.
         //    aws_dbe_b_inspector_id_last4 = truncate(HMAC("4321"), 10)
         //    aws_dbe_b_unit = truncate(HMAC("123456789012"), 30)
-        var item = new Dictionary<String, AttributeValue>
-        {
-            ["work_id"] = new AttributeValue("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d"),
-            ["inspection_date"] = new AttributeValue("2023-06-13"),
-            ["inspector_id_last4"] = new AttributeValue("4321"),
-            ["unit"] = new AttributeValue("123456789012")
-        };
 
-        var putRequest = new PutItemRequest
-        {
-            TableName = ddbTableName,
-            Item = item
-        };
-
-        var putResponse = await ddb.PutItemAsync(putRequest);
-        Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
+        let item = HashMap::from([
+          ("work_id".to_string(), AttributeValue::S("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d".to_string())),
+          ("inspection_date".to_string(), AttributeValue::S("2023-06-13".to_string())),
+          ("inspector_id_last4".to_string(), AttributeValue::S("4321".to_string())),
+          ("unit".to_string(), AttributeValue::S("123456789012".to_string())),
+        ]);
+      
+        let _resp = ddb
+        .put_item()
+        .table_name(ddb_table_name)
+        .set_item(Some(item.clone()))
+        .send()
+        .await
+        .unwrap();
 
         // 10. Query for the item we just put.
         //     Note that we are constructing the query as if we were querying on plaintext values.
@@ -282,51 +292,46 @@ use db_esdk::deps::aws_cryptography_keyStore::types::key_store_config::KeyStoreC
         //     This procedure is internal to the client and is abstracted away from the user;
         //     e.g. the user will only see "123456789012" and never
         //        "098765432109", though the actual query returned both.
-        var expressionAttributesNames = new Dictionary<String, String>
-        {
-            ["#last4"] = "inspector_id_last4",
-            ["#unit"] = "unit"
-        };
+        let expression_attributes_names = HashMap::from([
+            ("#last4".to_string(), "inspector_id_last4".to_string()),
+            ("#unit".to_string(), "unit".to_string())
+        ]);
 
-        var expressionAttributeValues = new Dictionary<String, AttributeValue>
-        {
-            [":last4"] = new AttributeValue("4321"),
-            [":unit"] = new AttributeValue("123456789012")
-        };
-
-        var queryRequest = new QueryRequest
-        {
-            TableName = ddbTableName,
-            IndexName = GSI_NAME,
-            KeyConditionExpression = "#last4 = :last4 and #unit = :unit",
-            ExpressionAttributeNames = expressionAttributesNames,
-            ExpressionAttributeValues = expressionAttributeValues
-        };
+        let expression_attribute_values = HashMap::from([
+            (":last4".to_string(), AttributeValue::S("4321".to_string())),
+            (":unit".to_string(),AttributeValue::S("123456789012".to_string()))
+        ]);
 
         // GSIs do not update instantly
         // so if the results come back empty
         // we retry after a short sleep
-        for (int i = 0; i < 10; ++i)
-        {
-            var queryResponse = await ddb.QueryAsync(queryRequest);
-            var attributeValues = queryResponse.Items;
-            // Validate query was returned successfully
-            Debug.Assert(queryResponse.HttpStatusCode == HttpStatusCode.OK);
+        for _i in 0..10 {
+          let query_response = ddb
+          .query()
+          .table_name(ddb_table_name)
+          .index_name(GSI_NAME)
+          .key_condition_expression("#last4 = :last4 and #unit = :unit")
+          .set_expression_attribute_names(Some(expression_attributes_names.clone()))
+          .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+          .send()
+          .await
+          .unwrap();
 
             // if no results, sleep and try again
-            if (attributeValues.Count == 0)
+            if query_response.items.is_none() || query_response.items.as_ref().unwrap().len() == 0
             {
-                Thread.Sleep(20);
+                std::thread::sleep(std::time::Duration::from_millis(20));
                 continue;
             }
 
+            let attribute_values = query_response.items.unwrap();
             // Validate only 1 item was returned: the item we just put
-            Debug.Assert(attributeValues.Count == 1);
-            var returnedItem = attributeValues[0];
+            assert_eq!(attribute_values.len(), 1);
+            let returned_item = &attribute_values[0];
             // Validate the item has the expected attributes
-            Debug.Assert(returnedItem["inspector_id_last4"].S.Equals("4321"));
-            Debug.Assert(returnedItem["unit"].S.Equals("123456789012"));
+            assert_eq!(returned_item["inspector_id_last4"], AttributeValue::S("4321".to_string()));
+            assert_eq!(returned_item["unit"], AttributeValue::S("123456789012".to_string()));
             break;
         }
-            */
+        println!("put_and_query_with_beacon successful.");
     }
