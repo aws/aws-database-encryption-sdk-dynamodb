@@ -11,21 +11,23 @@ pub mod itemencryptor;
 pub mod searchableencryption;
 pub mod create_keystore_key;
 pub mod get_encrypted_data_key_description;
+pub mod multi_get_put_example;
 
 #[tokio::main]
 pub async fn main() {
     basic_get_put_example::put_item_get_item().await;
     itemencryptor::item_encrypt_decrypt::encrypt_decrypt().await;
     get_encrypted_data_key_description::get_encrypted_data_key_description().await;
+    multi_get_put_example::multi_put_get().await;
 
-    let key_id = create_keystore_key::keystore_create_key().await;
-    // let key_id2 = create_keystore_key::keystore_create_key().await;
-    // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
-    // our test fails due to eventual consistency issues.
-    std::thread::sleep(std::time::Duration::from_secs(5));
+    // let key_id = create_keystore_key::keystore_create_key().await;
+    // // let key_id2 = create_keystore_key::keystore_create_key().await;
+    // // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
+    // // our test fails due to eventual consistency issues.
+    // std::thread::sleep(std::time::Duration::from_secs(5));
 
-    searchableencryption::basic_searchable_encryption::put_and_query_with_beacon(&key_id).await;
-    // FIXME : ScanError will have to wait until we have a reasonable error message strategy
+    // searchableencryption::basic_searchable_encryption::put_and_query_with_beacon(&key_id).await;
+    // // FIXME : ScanError will have to wait until we have a reasonable error message strategy
 
 /*
             await MultiPutGetExample.MultiPutGet();
