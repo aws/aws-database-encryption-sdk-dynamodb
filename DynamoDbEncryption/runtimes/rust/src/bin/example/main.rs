@@ -10,11 +10,13 @@ pub mod test_utils;
 pub mod itemencryptor;
 pub mod searchableencryption;
 pub mod create_keystore_key;
+pub mod get_encrypted_data_key_description;
 
 #[tokio::main]
 pub async fn main() {
     basic_get_put_example::put_item_get_item().await;
     itemencryptor::item_encrypt_decrypt::encrypt_decrypt().await;
+    get_encrypted_data_key_description::get_encrypted_data_key_description().await;
 
     let key_id = create_keystore_key::keystore_create_key().await;
     // let key_id2 = create_keystore_key::keystore_create_key().await;
@@ -23,10 +25,9 @@ pub async fn main() {
     std::thread::sleep(std::time::Duration::from_secs(5));
 
     searchableencryption::basic_searchable_encryption::put_and_query_with_beacon(&key_id).await;
-/*
+    // FIXME : ScanError will have to wait until we have a reasonable error message strategy
 
-            await ScanErrorExample.ScanError();
-            await GetEncryptedDataKeyDescriptionExample.GetEncryptedDataKeyDescription();
+/*
             await MultiPutGetExample.MultiPutGet();
             await ClientSupplierExample.ClientSupplierPutItemGetItem();
             await MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem();
@@ -42,6 +43,6 @@ pub async fn main() {
             await VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(keyId);
             await BeaconStylesSearchableEncryptionExample.PutItemQueryItemWithBeaconStyles(keyId);
             await ComplexSearchableEncryptionExample.RunExample(keyId);
-            Console.Write("All examples completed successfully.\n");
 */
+    println!("All examples completed successfully.\n");
 }

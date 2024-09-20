@@ -1,21 +1,17 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-#![deny(warnings, unconditional_panic)]
-#![deny(nonstandard_style)]
-#![deny(clippy::all)]
-
 use std::collections::HashMap;
 use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
 
-use db_esdk::deps::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
-use db_esdk::deps::aws_cryptography_materialProviders::client as mpl_client;
-use db_esdk::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
+use db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
+use db_esdk::aws_cryptography_materialProviders::client as mpl_client;
+use db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 
-use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig;
-use db_esdk::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client as enc_client;
-use db_esdk::deps::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
+use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig;
+use db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client as enc_client;
+use db_esdk::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
 
 /*
   This example sets up a DynamoDb Item Encryptor and uses
