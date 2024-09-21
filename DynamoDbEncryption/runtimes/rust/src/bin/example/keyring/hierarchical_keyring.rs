@@ -2,19 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::test_utils;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
+use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
+use aws_db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
 use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::client as dbesdk_client;
+use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
+use super::branch_key_id_supplier::ExampleBranchKeyIdSupplier;
 use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
-use aws_db_esdk::aws_cryptography_materialProviders::types::PaddingScheme;
-use aws_db_esdk::intercept::DbEsdkInterceptor;
-use aws_db_esdk::DynamoDbTablesEncryptionConfig;
-use aws_sdk_dynamodb::types::AttributeValue;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-use std::io::Write;
-use std::path::Path;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
+use aws_db_esdk::DynamoDbTablesEncryptionConfig;
+use aws_db_esdk::intercept::DbEsdkInterceptor;
+use aws_sdk_dynamodb::types::AttributeValue;
 
 /*
   This example sets up DynamoDb Encryption for the AWS SDK client
@@ -59,13 +61,13 @@ use std::path::Path;
     - GenerateDataKeyWithoutPlaintext
     - Decrypt
  */
- pub async fn HierarchicalKeyringGetItemPutItem(String tenant1BranchKeyId, String tenant2BranchKeyId)
+ pub async fn put_item_get_item(tenant1_branch_key_id : &str, tenant2_branch_key_id : &str)
     {
-      /*
-        var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
-        var keyStoreTableName = TestUtils.TEST_KEYSTORE_NAME;
-        var logicalKeyStoreName = TestUtils.TEST_LOGICAL_KEYSTORE_NAME;
-        var kmsKeyId = TestUtils.TEST_KEYSTORE_KMS_KEY_ID;
+      let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
+
+      let keystore_table_name = test_utils::TEST_KEYSTORE_NAME;
+      let logical_keystore_name = test_utils::TEST_LOGICAL_KEYSTORE_NAME;
+      let kms_key_id = test_utils::TEST_KEYSTORE_KMS_KEY_ID;
 
         // Initial KeyStore Setup: This example requires that you have already
         // created your KeyStore, and have populated it with two new branch keys.
@@ -75,23 +77,34 @@ use std::path::Path;
         // 1. Configure your KeyStore resource.
         //    This SHOULD be the same configuration that you used
         //    to initially create and populate your KeyStore.
-        var keystore = new KeyStore(new KeyStoreConfig
-        {
-            DdbClient = new AmazonDynamoDBClient(),
-            DdbTableName = keyStoreTableName,
-            LogicalKeyStoreName = logicalKeyStoreName,
-            KmsClient = new AmazonKeyManagementServiceClient(),
-            KmsConfiguration = new KMSConfiguration { KmsKeyArn = kmsKeyId }
-        });
-
+        let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
+        let key_store_config = KeyStoreConfig::builder()
+            .kms_client(aws_sdk_kms::Client::new(&sdk_config))
+            .ddb_client(aws_sdk_dynamodb::Client::new(&sdk_config))
+            .ddb_table_name(keystore_table_name)
+            .logical_key_store_name(logical_keystore_name)
+            .kms_configuration(KmsConfiguration::KmsKeyArn(
+              kms_key_id.to_string(),
+            ))
+            .build()
+            .unwrap();
+          
+            let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
 
         // 2. Create a Branch Key ID Supplier. See ExampleBranchKeyIdSupplier in this directory.
-        var ddbEnc = new DynamoDbEncryption(new DynamoDbEncryptionConfig());
-        var branchKeyIdSupplier = ddbEnc.CreateDynamoDbEncryptionBranchKeyIdSupplier(
-            new CreateDynamoDbEncryptionBranchKeyIdSupplierInput
-            {
-                DdbKeyBranchKeyIdSupplier = new ExampleBranchKeyIdSupplier(tenant1BranchKeyId, tenant2BranchKeyId)
-            }).BranchKeyIdSupplier;
+        let dbesdk_config = DynamoDbEncryptionConfig::builder().build().unwrap();
+        let dbesdk = dbesdk_client::Client::from_conf(dbesdk_config).unwrap();
+        let supplier = ExampleBranchKeyIdSupplier::new(tenant1_branch_key_id, tenant2_branch_key_id);
+        let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
+          inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier))
+        };
+        let branch_key_id_supplier = dbesdk.create_dynamo_db_encryption_branch_key_id_supplier()
+            .ddb_key_branch_key_id_supplier(supplier_ref)
+            .send()
+            .await
+            .unwrap()
+            .branch_key_id_supplier.unwrap();
+
 
         // 3. Create the Hierarchical Keyring, using the Branch Key ID Supplier above.
         //    With this configuration, the AWS SDK Client ultimately configured will be capable
@@ -99,18 +112,17 @@ use std::path::Path;
         //    If you want to restrict the client to only encrypt or decrypt for a single tenant,
         //    configure this Hierarchical Keyring using `.branchKeyId(tenant1BranchKeyId)` instead
         //    of `.branchKeyIdSupplier(branchKeyIdSupplier)`.
-        var matProv = new MaterialProviders(new MaterialProvidersConfig());
-        var keyringInput = new CreateAwsKmsHierarchicalKeyringInput
-        {
-            KeyStore = keystore,
-            BranchKeyIdSupplier = branchKeyIdSupplier,
-            TtlSeconds = 600, // This dictates how often we call back to KMS to authorize use of the branch keys
-            Cache = new CacheType
-            {
-                Default = new DefaultCache { EntryCapacity = 100 }
-            }
-        };
-        var hierarchicalKeyring = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput);
+    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
+    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+
+    let hierarchical_keyring = mpl
+        .create_aws_kms_hierarchical_keyring()
+        .branch_key_id_supplier(branch_key_id_supplier)
+        .key_store(key_store)
+        .ttl_seconds(600)
+        .send()
+        .await
+        .unwrap();
 
         // 4. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -118,12 +130,11 @@ use std::path::Path;
         //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
         //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
         //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
-        var attributeActionsOnEncrypt = new Dictionary<String, CryptoAction>
-        {
-            ["partition_key"] = CryptoAction.SIGN_ONLY, // Our partition attribute must be SIGN_ONLY
-            ["sort_key"] = CryptoAction.SIGN_ONLY, // Our sort attribute must be SIGN_ONLY
-            ["tenant_sensitive_data"] = CryptoAction.ENCRYPT_AND_SIGN
-        };
+        let attribute_actions_on_encrypt = HashMap::from([
+          ("partition_key".to_string(), CryptoAction::SignOnly), // Our partition attribute must be SIGN_ONLY
+          ("sort_key".to_string(), CryptoAction::SignOnly), // Our sort attribute must be SIGN_ONLY
+          ("tenant_sensitive_data".to_string(), CryptoAction::EncryptAndSign),
+      ]);
 
         // 5. Configure which attributes we expect to be included in the signature
         //    when reading items. There are two options for configuring this:
@@ -153,25 +164,30 @@ use std::path::Path;
         //
         //   For this example, we currently authenticate all attributes. To make it easier to
         //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
-        const String unsignAttrPrefix = ":";
+        const UNSIGNED_ATTR_PREFIX: &str = ":";
 
         // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
-        var tableConfigs = new Dictionary<String, DynamoDbTableEncryptionConfig>
-        {
-            [ddbTableName] = new DynamoDbTableEncryptionConfig
-            {
-                LogicalTableName = ddbTableName,
-                PartitionKeyName = "partition_key",
-                SortKeyName = "sort_key",
-                AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
-                Keyring = hierarchicalKeyring,
-                AllowedUnsignedAttributePrefix = unsignAttrPrefix
-            }
-        };
+        let table_config = DynamoDbTableEncryptionConfig::builder()
+        .logical_table_name(ddb_table_name)
+        .partition_key_name("partition_key")
+        .sort_key_name("sort_key")
+        .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
+        .keyring(hierarchical_keyring)
+        .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
+        .build()
+        .unwrap();
+
+    let table_configs = DynamoDbTablesEncryptionConfig::builder()
+        .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
+        .build()
+        .unwrap();
 
         // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-        var ddb = new Client.DynamoDbClient(
-            new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs });
+        let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
+        let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
+            .interceptor(DbEsdkInterceptor::new(table_configs))
+            .build();
+        let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
         // 8. Put an item into our table using the above client.
         //    Before the item gets sent to DynamoDb, it will be encrypted
@@ -179,22 +195,26 @@ use std::path::Path;
         //    Because the item we are writing uses "tenantId1" as our partition value,
         //    based on the code we wrote in the ExampleBranchKeySupplier,
         //    `tenant1BranchKeyId` will be used to encrypt this item.
-        var item = new Dictionary<String, AttributeValue>
-        {
-            ["partition_key"] = new AttributeValue("tenant1Id"),
-            ["sort_key"] = new AttributeValue { N = "0" },
-            ["tenant_sensitive_data"] = new AttributeValue("encrypt and sign me!")
-        };
-        var putRequest = new PutItemRequest
-        {
-            TableName = ddbTableName,
-            Item = item
-        };
+    let item = HashMap::from([
+        (
+            "partition_key".to_string(),
+            AttributeValue::S("tenant1Id".to_string()),
+        ),
+        ("sort_key".to_string(), AttributeValue::N("0".to_string())),
+        (
+            "tenant_sensitive_data".to_string(),
+            AttributeValue::S("encrypt and sign me!".to_string()),
+        ),
+    ]);
 
-        var putResponse = await ddb.PutItemAsync(putRequest);
+    let _resp = ddb
+        .put_item()
+        .table_name(ddb_table_name)
+        .set_item(Some(item.clone()))
+        .send()
+        .await
+        .unwrap();
 
-        // Demonstrate that PutItem succeeded
-        Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
 
         // 10. Get the item back from our table using the same client.
         //     The client will decrypt the item client-side, and return
@@ -202,23 +222,24 @@ use std::path::Path;
         //     Because the returned item's partition value is "tenantId1",
         //     based on the code we wrote in the ExampleBranchKeySupplier,
         //     `tenant1BranchKeyId` will be used to decrypt this item.
-        var keyToGet = new Dictionary<String, AttributeValue>
-        {
-            ["partition_key"] = new AttributeValue("tenant1Id"),
-            ["sort_key"] = new AttributeValue { N = "0" }
-        };
-        var getRequest = new GetItemRequest
-        {
-            Key = keyToGet,
-            TableName = ddbTableName
-        };
-        var getResponse = await ddb.GetItemAsync(getRequest);
+    let key_to_get = HashMap::from([
+        (
+            "partition_key".to_string(),
+            AttributeValue::S("tenant1Id".to_string()),
+        ),
+        ("sort_key".to_string(), AttributeValue::N("0".to_string())),
+    ]);
 
-        // Demonstrate that GetItem succeeded and returned the decrypted item
-        Debug.Assert(getResponse.HttpStatusCode == HttpStatusCode.OK);
-        var returnedItem = getResponse.Item;
-        Debug.Assert(returnedItem["tenant_sensitive_data"].S.Equals("encrypt and sign me!"));
-*/
+    let resp = ddb
+        .get_item()
+        .table_name(ddb_table_name)
+        .set_key(Some(key_to_get))
+        .consistent_read(true)
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(resp.item, Some(item));
 println!("hierarchical_keyring successful.");
 
         }

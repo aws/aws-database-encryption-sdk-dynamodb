@@ -1,5 +1,5 @@
 pub mod branch_key_id_supplier;
-// pub mod hierarchical_keyring;
+pub mod hierarchical_keyring;
 // pub mod kms_rsa_keyring;
 // pub mod mrk_discovery_multi_keyring;
 // pub mod multi_keyring;
