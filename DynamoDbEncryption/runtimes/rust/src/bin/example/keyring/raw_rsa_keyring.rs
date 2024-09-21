@@ -80,8 +80,8 @@ pub async fn put_item_get_item() {
 
     // 2. Create the keyring.
     //    The DynamoDb encryption client uses this to encrypt and decrypt items.
-    let provider_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(provider_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
+    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
     let raw_rsa_keyring = mpl
         .create_raw_rsa_keyring()
         .key_name("my-rsa-key-name")
