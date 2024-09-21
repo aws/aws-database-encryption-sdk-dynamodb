@@ -21,7 +21,8 @@ pub async fn main() {
     get_encrypted_data_key_description::get_encrypted_data_key_description().await;
     multi_get_put_example::multi_put_get().await;
     keyring::raw_rsa_keyring::put_item_get_item().await;
-    
+    keyring::kms_rsa_keyring::put_item_get_item().await;
+
     let key_id = create_keystore_key::keystore_create_key().await;
     let key_id2 = create_keystore_key::keystore_create_key().await;
     // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
@@ -40,7 +41,6 @@ pub async fn main() {
     await MrkDiscoveryMultiKeyringExample.MultiMrkDiscoveryKeyringGetItemPutItem();
     await MultiKeyringExample.MultiKeyringGetItemPutItem();
     await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
-    await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
 
     await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
     await VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(keyId);
