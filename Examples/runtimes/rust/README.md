@@ -1,1 +1,1 @@
-For Rust examples, see /DynamoDbEncryption/runtimes/rust/src/bin/example/
+For Rust examples, see /DynamoDbEncryption/runtimes/rust/examples/
