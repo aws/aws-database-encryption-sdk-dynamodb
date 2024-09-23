@@ -24,3 +24,6 @@ uuid = { version = "1.10.0", features = ["v4"] }
 
 [lib]
 path = "src/implementation_from_dafny.rs"
+
+[dev-dependencies]
+aws-sdk-sts = "1.43.0"
