@@ -208,7 +208,7 @@ pub async fn put_item_get_item() {
         .unwrap();
 
     assert_eq!(resp.item, Some(item));
-    println!("raw_rsa_keyring::put_item_get_item successful.");
+    println!("raw_rsa_keyring successful.");
 }
 
 fn exists(f: &str) -> bool {
