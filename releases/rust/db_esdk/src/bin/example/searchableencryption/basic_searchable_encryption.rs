@@ -366,5 +366,5 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         );
         break;
     }
-    println!("put_and_query_with_beacon successful.");
+    println!("basic_searchable_encryption successful.");
 }

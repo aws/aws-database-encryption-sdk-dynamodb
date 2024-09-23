@@ -13,7 +13,10 @@ impl Client {
     #[track_caller]
     pub fn from_conf(
         conf: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig,
-    ) -> Result<Self, BuildError> {
+    ) -> Result<
+        Self,
+        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error,
+    > {
         let inner =
             crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::_default::DynamoDbItemEncryptor(
                 &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::dynamo_db_item_encryptor_config::_dynamo_db_item_encryptor_config::to_dafny(conf),
@@ -22,11 +25,7 @@ impl Client {
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            return Err(BuildError::other(
-                ::aws_smithy_types::error::metadata::ErrorMetadata::builder()
-                    .message("Invalid client config")
-                    .build(),
-            ));
+            return Err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::error::from_dafny(inner.as_ref().error().clone()));
         }
         Ok(Self {
             dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),

@@ -13,7 +13,10 @@ impl Client {
     #[track_caller]
     pub fn from_conf(
         conf: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::structured_encryption_config::StructuredEncryptionConfig,
-    ) -> Result<Self, BuildError> {
+    ) -> Result<
+        Self,
+        crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
+    > {
         let inner =
             crate::software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::_default::StructuredEncryption(
                 &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::structured_encryption_config::_structured_encryption_config::to_dafny(conf),
@@ -22,11 +25,7 @@ impl Client {
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            return Err(BuildError::other(
-                ::aws_smithy_types::error::metadata::ErrorMetadata::builder()
-                    .message("Invalid client config")
-                    .build(),
-            ));
+            return Err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::error::from_dafny(inner.as_ref().error().clone()));
         }
         Ok(Self {
             dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),
