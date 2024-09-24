@@ -55,7 +55,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     // Note: RegionalRoleClientSupplier will internally use the key_arn's region
     // to retrieve the correct IAM role.
     let supplier_ref = ClientSupplierRef {
-        inner: std::rc::Rc::new(std::cell::RefCell::new(RegionalRoleClientSupplier::new())),
+        inner: std::rc::Rc::new(std::cell::RefCell::new(RegionalRoleClientSupplier {})),
     };
 
     let mrk_keyring_with_client_supplier = mpl
