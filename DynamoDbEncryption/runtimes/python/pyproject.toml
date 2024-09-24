@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "aws-database-encryption-sdk"
+version = "0.1.0"
+description = ""
+authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
+packages = [
+    { include = "aws_database_encryption_sdk", from = "src" },
+]
+# Include all of the following .gitignored files in package distributions,
+# even though it is not included in version control
+include = ["**/internaldafny/generated/*.py"]
+
+[tool.poetry.dependencies]
+python = "^3.11.0"
+aws-cryptographic-materialproviders = { path = "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python", develop = false}
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

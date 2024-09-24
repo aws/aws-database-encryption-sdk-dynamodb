@@ -87,16 +87,16 @@ polymorph:
 PYTHON_MODULE_NAME=aws_database_encryption_sdk
 
 TRANSLATION_RECORD_PYTHON := \
-    --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/standard_library/internaldafny/generated/dafny_src-py.dtr \
-    --translation-record ../submodules/MaterialProviders/ComAmazonawsKms/runtimes/python/src/com_amazonaws_kms/internaldafny/generated/dafny_src-py.dtr \
-    --translation-record ../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/python/src/com_amazonaws_dynamodb/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/smithy_dafny_standard_library/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/ComAmazonawsKms/runtimes/python/src/aws_cryptography_internal_kms/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/python/src/aws_cryptography_internal_dynamodb/internaldafny/generated/dafny_src-py.dtr \
     --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr \
 	--translation-record ../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptographic_materialproviders/internaldafny/generated/dafny_src-py.dtr
 
 PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.primitives=aws_cryptography_primitives \
-	--dependency-library-name=com.amazonaws.kms=com_amazonaws_kms \
-	--dependency-library-name=com.amazonaws.dynamodb=com_amazonaws_dynamodb \
+	--dependency-library-name=com.amazonaws.kms=aws_cryptography_internal_kms \
+	--dependency-library-name=com.amazonaws.dynamodb=aws_cryptography_internal_dynamodb \
 	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_materialproviders \
 	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_materialproviders \
 	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_database_encryption_sdk \

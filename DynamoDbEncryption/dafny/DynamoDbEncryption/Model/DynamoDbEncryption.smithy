@@ -44,7 +44,7 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 )
 service DynamoDbEncryption {
     version: "2024-04-02",
-    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription, Temp],
     errors: [ DynamoDbEncryptionException ]
 }
 
@@ -52,6 +52,11 @@ service DynamoDbEncryption {
 operation GetEncryptedDataKeyDescription {
     input: GetEncryptedDataKeyDescriptionInput,
     output: GetEncryptedDataKeyDescriptionOutput,
+}
+
+operation Temp {
+    input: DynamoDbTablesEncryptionConfig,
+    output: DynamoDbTablesEncryptionConfig,
 }
 
 @javadoc("Input for getting encrypted data key description.")
