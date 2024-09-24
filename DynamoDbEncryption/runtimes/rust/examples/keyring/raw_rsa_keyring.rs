@@ -54,15 +54,15 @@ use std::path::Path;
 const EXAMPLE_RSA_PRIVATE_KEY_FILENAME: &str = "RawRsaKeyringExamplePrivateKey.pem";
 const EXAMPLE_RSA_PUBLIC_KEY_FILENAME: &str = "RawRsaKeyringExamplePublicKey.pem";
 
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
 
     // You may provide your own RSA key pair in the files located at
     //  - EXAMPLE_RSA_PRIVATE_KEY_FILENAME
     //  - EXAMPLE_RSA_PUBLIC_KEY_FILENAME
     // If these files are not present, this will generate a pair for you
-    if should_generate_new_rsa_key_pair().unwrap() {
-        generate_rsa_key_pair().unwrap();
+    if should_generate_new_rsa_key_pair()? {
+        generate_rsa_key_pair()?;
     }
 
     // 1. Load key pair from UTF-8 encoded PEM files.
@@ -70,18 +70,18 @@ pub async fn put_item_get_item() {
     //    If you do not, the main method in this class will generate PEM
     //    files for example use. Do not use these files for any other purpose.
 
-    let mut file = File::open(Path::new(EXAMPLE_RSA_PUBLIC_KEY_FILENAME)).unwrap();
+    let mut file = File::open(Path::new(EXAMPLE_RSA_PUBLIC_KEY_FILENAME))?;
     let mut public_key_utf8_bytes = Vec::new();
-    file.read_to_end(&mut public_key_utf8_bytes).unwrap();
+    file.read_to_end(&mut public_key_utf8_bytes)?;
 
-    let mut file = File::open(Path::new(EXAMPLE_RSA_PRIVATE_KEY_FILENAME)).unwrap();
+    let mut file = File::open(Path::new(EXAMPLE_RSA_PRIVATE_KEY_FILENAME))?;
     let mut private_key_utf8_bytes = Vec::new();
-    file.read_to_end(&mut private_key_utf8_bytes).unwrap();
+    file.read_to_end(&mut private_key_utf8_bytes)?;
 
     // 2. Create the keyring.
     //    The DynamoDb encryption client uses this to encrypt and decrypt items.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let raw_rsa_keyring = mpl
         .create_raw_rsa_keyring()
         .key_name("my-rsa-key-name")
@@ -90,8 +90,7 @@ pub async fn put_item_get_item() {
         .public_key(aws_smithy_types::Blob::new(public_key_utf8_bytes))
         .private_key(aws_smithy_types::Blob::new(private_key_utf8_bytes))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 3. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -143,13 +142,11 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
         .keyring(raw_rsa_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 6. Create a new AWS SDK DynamoDb client using the config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -173,13 +170,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 8. Get the item back from our table using the same client.
     //    The client will decrypt the item client-side, and return
@@ -204,11 +199,11 @@ pub async fn put_item_get_item() {
         // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item));
     println!("raw_rsa_keyring successful.");
+    Ok(())
 }
 
 fn exists(f: &str) -> bool {
@@ -233,7 +228,7 @@ fn should_generate_new_rsa_key_pair() -> Result<bool, String> {
     }
 }
 
-fn generate_rsa_key_pair() -> Result<(), String> {
+fn generate_rsa_key_pair() -> Result<(), crate::BoxError> {
     use aws_lc_rs::encoding::AsDer;
     use aws_lc_rs::encoding::Pkcs8V1Der;
     use aws_lc_rs::encoding::PublicKeyX509Der;
@@ -242,7 +237,9 @@ fn generate_rsa_key_pair() -> Result<(), String> {
 
     // Safety check: Validate neither file is present
     if exists(EXAMPLE_RSA_PRIVATE_KEY_FILENAME) || exists(EXAMPLE_RSA_PUBLIC_KEY_FILENAME) {
-        return Err("generate_rsa_key_pair will not overwrite existing PEM files".to_string());
+        return Err(crate::BoxError(
+            "generate_rsa_key_pair will not overwrite existing PEM files".to_string(),
+        ));
     }
 
     // This code will generate a new RSA key pair for example use.
@@ -254,14 +251,14 @@ fn generate_rsa_key_pair() -> Result<(), String> {
     // retrieve this key from a secure key management system (e.g. HSM)
     // This key is created here for example purposes only.
 
-    let private_key = PrivateDecryptingKey::generate(KeySize::Rsa2048).unwrap();
+    let private_key = PrivateDecryptingKey::generate(KeySize::Rsa2048)?;
     let public_key = private_key.public_key();
 
-    let public_key = AsDer::<PublicKeyX509Der>::as_der(&public_key).unwrap();
+    let public_key = AsDer::<PublicKeyX509Der>::as_der(&public_key)?;
     let public_key = pem::Pem::new("RSA PUBLIC KEY", public_key.as_ref());
     let public_key = pem::encode(&public_key);
 
-    let private_key = AsDer::<Pkcs8V1Der>::as_der(&private_key).unwrap();
+    let private_key = AsDer::<Pkcs8V1Der>::as_der(&private_key)?;
     let private_key = pem::Pem::new("RSA PRIVATE KEY", private_key.as_ref());
     let private_key = pem::encode(&private_key);
 
@@ -269,19 +266,15 @@ fn generate_rsa_key_pair() -> Result<(), String> {
         .write(true)
         .create(true)
         .truncate(true)
-        .open(Path::new(EXAMPLE_RSA_PRIVATE_KEY_FILENAME))
-        .unwrap()
-        .write_all(private_key.as_bytes())
-        .unwrap();
+        .open(Path::new(EXAMPLE_RSA_PRIVATE_KEY_FILENAME))?
+        .write_all(private_key.as_bytes())?;
 
     std::fs::OpenOptions::new()
         .write(true)
         .create(true)
         .truncate(true)
-        .open(Path::new(EXAMPLE_RSA_PUBLIC_KEY_FILENAME))
-        .unwrap()
-        .write_all(public_key.as_bytes())
-        .unwrap();
+        .open(Path::new(EXAMPLE_RSA_PUBLIC_KEY_FILENAME))?
+        .write_all(public_key.as_bytes())?;
 
     Ok(())
 }

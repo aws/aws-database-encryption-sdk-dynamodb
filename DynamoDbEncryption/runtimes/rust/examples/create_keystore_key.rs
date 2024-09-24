@@ -22,7 +22,7 @@ use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
 
  This key creation should occur within your control plane.
 */
-pub async fn keystore_create_key() -> String {
+pub async fn keystore_create_key() -> Result<String, crate::BoxError> {
     let key_store_table_name = test_utils::TEST_KEYSTORE_NAME;
     let logical_key_store_name = test_utils::TEST_LOGICAL_KEYSTORE_NAME;
     let kms_key_arn = test_utils::TEST_KEYSTORE_KMS_KEY_ID;
@@ -37,15 +37,14 @@ pub async fn keystore_create_key() -> String {
         .ddb_table_name(key_store_table_name)
         .logical_key_store_name(logical_key_store_name)
         .kms_configuration(KmsConfiguration::KmsKeyArn(kms_key_arn.to_string()))
-        .build()
-        .unwrap();
+        .build()?;
 
-    let keystore = keystore_client::Client::from_conf(key_store_config).unwrap();
+    let keystore = keystore_client::Client::from_conf(key_store_config)?;
 
     // 2. Create a new branch key and beacon key in our KeyStore.
     //    Both the branch key and the beacon key will share an Id.
     //    This creation is eventually consistent.
 
-    let new_key = keystore.create_key().send().await.unwrap();
-    new_key.branch_key_identifier.unwrap()
+    let new_key = keystore.create_key().send().await?;
+    Ok(new_key.branch_key_identifier.unwrap())
 }

@@ -50,7 +50,7 @@ use std::collections::HashMap;
    4. Branch key DDB table ARN for the DDB table representing the branch key store
 */
 
-pub async fn put_and_query_with_beacon(branch_key_id: &str) {
+pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::UNIT_INSPECTION_TEST_DDB_TABLE_NAME;
     let branch_key_wrapping_kms_key_arn = test_utils::TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN;
     let branch_key_ddb_table_name = test_utils::TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME;
@@ -61,11 +61,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         // We have selected 30 as an example beacon length, but you should go to
         // https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/choosing-beacon-length.html
         // when creating your beacons.
-        StandardBeacon::builder()
-            .name("fruit")
-            .length(30)
-            .build()
-            .unwrap(),
+        StandardBeacon::builder().name("fruit").length(30).build()?,
         // The basket beacon allows searching on the encrypted basket attribute
         // Basket is used as a Set, and therefore needs a beacon style to reflect that.
         // Further, we need to be able to compare the items in basket to the fruit attribute
@@ -75,10 +71,9 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             .name("basket")
             .length(30)
             .style(BeaconStyle::SharedSet(
-                SharedSet::builder().other("fruit").build().unwrap(),
+                SharedSet::builder().other("fruit").build()?,
             ))
-            .build()
-            .unwrap(),
+            .build()?,
         // The dessert beacon allows searching on the encrypted dessert attribute
         // We need to be able to compare the dessert attribute to the fruit attribute
         // so we `share` this beacon with `fruit`.
@@ -86,27 +81,24 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             .name("dessert")
             .length(30)
             .style(BeaconStyle::Shared(
-                Shared::builder().other("fruit").build().unwrap(),
+                Shared::builder().other("fruit").build()?,
             ))
-            .build()
-            .unwrap(),
+            .build()?,
         // The veggieBeacon allows searching on the encrypted veggies attribute
         // veggies is used as a Set, and therefore needs a beacon style to reflect that.
         StandardBeacon::builder()
             .name("veggies")
             .length(30)
-            .style(BeaconStyle::AsSet(AsSet::builder().build().unwrap()))
-            .build()
-            .unwrap(),
+            .style(BeaconStyle::AsSet(AsSet::builder().build()?))
+            .build()?,
         // The work_typeBeacon allows searching on the encrypted work_type attribute
         // We only use it as part of the compound work_unit beacon,
         // so we disable its use as a standalone beacon
         StandardBeacon::builder()
             .name("work_type")
             .length(30)
-            .style(BeaconStyle::PartOnly(PartOnly::builder().build().unwrap()))
-            .build()
-            .unwrap(),
+            .style(BeaconStyle::PartOnly(PartOnly::builder().build()?))
+            .build()?,
     ];
 
     // Here we build a compound beacon from work_id and work_type
@@ -115,22 +107,16 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     let encrypted_part_list = vec![EncryptedPart::builder()
         .name("work_type")
         .prefix("T-")
-        .build()
-        .unwrap()];
+        .build()?];
 
-    let signed_part_list = vec![SignedPart::builder()
-        .name("work_id")
-        .prefix("I-")
-        .build()
-        .unwrap()];
+    let signed_part_list = vec![SignedPart::builder().name("work_id").prefix("I-").build()?];
 
     let compound_beacon_list = vec![CompoundBeacon::builder()
         .name("work_unit")
         .split(".")
         .encrypted(encrypted_part_list)
         .signed(signed_part_list)
-        .build()
-        .unwrap()];
+        .build()?];
 
     // 2. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -143,10 +129,9 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .kms_configuration(KmsConfiguration::KmsKeyArn(
             branch_key_wrapping_kms_key_arn.to_string(),
         ))
-        .build()
-        .unwrap();
+        .build()?;
 
-    let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
+    let key_store = keystore_client::Client::from_conf(key_store_config)?;
 
     // 3. Create BeaconVersion.
     //    This is similar to the Basic example
@@ -164,25 +149,22 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
                 // but is created with the same ID as the branch key.
                 .key_id(branch_key_id)
                 .cache_ttl(6000)
-                .build()
-                .unwrap(),
+                .build()?,
         ))
-        .build()
-        .unwrap();
+        .build()?;
     let beacon_versions = vec![beacon_version];
 
     // 4. Create a Hierarchical Keyring
     //    This is the same configuration as in the Basic example.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let kms_keyring = mpl
         .create_aws_kms_hierarchical_keyring()
         .branch_key_id(branch_key_id)
         .key_store(key_store)
         .ttl_seconds(6000)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 5. Configure which attributes are encrypted and/or signed when writing new items.
     let attribute_actions_on_encrypt = HashMap::from([
@@ -207,17 +189,14 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             SearchConfig::builder()
                 .write_version(1) // MUST be 1
                 .versions(beacon_versions)
-                .build()
-                .unwrap(),
+                .build()?,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     // 7. Create config
     let encryption_config = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
     let item1 = HashMap::from([
@@ -291,21 +270,17 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
     // 11. Add the two items
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item1.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item2.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 12. Test the first type of Set operation :
     // Select records where the basket attribute holds a particular value
@@ -320,8 +295,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .filter_expression("contains(basket, :value)")
         .set_expression_attribute_values(Some(expression_attribute_values.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
@@ -337,8 +311,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .table_name(ddb_table_name)
         .filter_expression("contains(basket, fruit)")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
@@ -363,8 +336,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .filter_expression("contains(:value, fruit)")
         .set_expression_attribute_values(Some(expression_attribute_values.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
@@ -379,8 +351,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .table_name(ddb_table_name)
         .filter_expression("dessert = fruit")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
@@ -400,8 +371,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .filter_expression("contains(veggies, :value)")
         .set_expression_attribute_values(Some(expression_attribute_values.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
@@ -422,8 +392,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .filter_expression("work_unit = :value")
         .set_expression_attribute_values(Some(expression_attribute_values.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
@@ -433,4 +402,5 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     assert_eq!(returned_item["work_id"], item1["work_id"]);
 
     println!("beacon_styles_searchable_encryption successful.");
+    Ok(())
 }

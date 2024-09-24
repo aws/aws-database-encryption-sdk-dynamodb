@@ -34,7 +34,7 @@ use std::collections::HashMap;
    - Sort key is named "sort_key" with type (S)
 */
 
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
     let key_arn = test_utils::TEST_MRK_KEY_ID;
     let account_ids = vec![test_utils::TEST_AWS_ACCOUNT_ID.to_string()];
@@ -48,14 +48,13 @@ pub async fn put_item_get_item() {
     //    Though this is an "MRK multi-keyring", we do not need to provide multiple keys,
     //    and can use single-region KMS keys. We will provide a single key here; this
     //    can be either an MRK or a single-region key.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let encrypt_keyring = mpl
         .create_aws_kms_mrk_multi_keyring()
         .generator(key_arn)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -107,13 +106,11 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt.clone())
         .keyring(encrypt_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create a new AWS SDK DynamoDb client using the config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -137,13 +134,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 8. Construct a discovery filter.
     //    A discovery filter limits the set of encrypted data keys
@@ -155,8 +150,7 @@ pub async fn put_item_get_item() {
     let discovery_filter = DiscoveryFilter::builder()
         .partition("aws")
         .account_ids(account_ids)
-        .build()
-        .unwrap();
+        .build()?;
 
     // 9. Construct a discovery keyring.
     //    Note that we choose to use the MRK discovery multi-keyring, even though
@@ -167,8 +161,7 @@ pub async fn put_item_get_item() {
         .discovery_filter(discovery_filter)
         .regions(regions)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 10. Create new DDB config and client using the decrypt discovery keyring.
     //     This is the same as the above config, except we pass in the decrypt keyring.
@@ -179,16 +172,14 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
         .keyring(decrypt_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs_for_decrypt = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(
             ddb_table_name.to_string(),
             table_config_for_decrypt,
         )]))
-        .build()
-        .unwrap();
+        .build()?;
 
     let dynamo_config_for_decrypt = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
         .interceptor(DbEsdkInterceptor::new(table_configs_for_decrypt))
@@ -216,10 +207,10 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item));
 
     println!("mrk_discovery_multi_keyring successful.");
+    Ok(())
 }

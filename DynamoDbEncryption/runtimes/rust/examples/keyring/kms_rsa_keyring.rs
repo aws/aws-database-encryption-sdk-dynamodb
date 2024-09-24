@@ -44,7 +44,7 @@ use std::path::Path;
 
 const DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME: &str = "KmsRsaKeyringExamplePublicKey.pem";
 
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
     let rsa_key_arn = test_utils::TEST_KMS_RSA_KEY_ID;
 
@@ -56,8 +56,7 @@ pub async fn put_item_get_item() {
             test_utils::TEST_KMS_RSA_KEY_ID,
             DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME,
         )
-        .await
-        .unwrap();
+        .await?;
     }
 
     // 1. Load UTF-8 encoded public key PEM file.
@@ -65,9 +64,9 @@ pub async fn put_item_get_item() {
     //    If not, the main method in this class will call
     //    the KMS RSA key, retrieve its public key, and store it
     //    in a PEM file for example use.
-    let mut file = File::open(Path::new(DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME)).unwrap();
+    let mut file = File::open(Path::new(DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME))?;
     let mut public_key_utf8_bytes = Vec::new();
-    file.read_to_end(&mut public_key_utf8_bytes).unwrap();
+    file.read_to_end(&mut public_key_utf8_bytes)?;
 
     // 2. Create a KMS RSA keyring.
     //    This keyring takes in:
@@ -76,8 +75,8 @@ pub async fn put_item_get_item() {
     //     - publicKey: A ByteBuffer of a UTF-8 encoded PEM file representing the public
     //                  key for the key passed into kmsKeyId
     //     - encryptionAlgorithm: Must be either RSAES_OAEP_SHA_256 or RSAES_OAEP_SHA_1
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let kms_rsa_keyring = mpl
         .create_aws_kms_rsa_keyring()
@@ -86,8 +85,7 @@ pub async fn put_item_get_item() {
         .encryption_algorithm(aws_sdk_kms::types::EncryptionAlgorithmSpec::RsaesOaepSha256)
         .kms_client(aws_sdk_kms::Client::new(&sdk_config))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 3. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -145,13 +143,11 @@ pub async fn put_item_get_item() {
         // As of v3.0.0, the only supported algorithmSuite without asymmetric signing is
         // ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384.
         .algorithm_suite_id(DbeAlgorithmSuiteId::AlgAes256GcmHkdfSha512CommitKeySymsigHmacSha384)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
@@ -174,13 +170,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 9. Get the item back from our table using the client.
     //    The client will decrypt the item client-side using the RSA keyring
@@ -199,11 +193,11 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item));
     println!("kms_rsa_keyring successful.");
+    Ok(())
 }
 
 fn should_get_new_public_key(rsa_public_key_filename: &str) -> bool {
@@ -214,12 +208,12 @@ fn should_get_new_public_key(rsa_public_key_filename: &str) -> bool {
 async fn write_public_key_pem_for_rsa_key(
     rsa_key_arn: &str,
     rsa_public_key_filename: &str,
-) -> Result<(), String> {
+) -> Result<(), crate::BoxError> {
     // Safety check: Validate file is not present
     if Path::new(rsa_public_key_filename).exists() {
-        return Err(
+        return Err(crate::BoxError(
             "write_public_key_pem_for_rsa_key will not overwrite existing PEM files.".to_string(),
-        );
+        ));
     }
 
     // This code will call KMS to get the public key for the KMS RSA key.
@@ -232,8 +226,8 @@ async fn write_public_key_pem_for_rsa_key(
         .get_public_key()
         .key_id(rsa_key_arn)
         .send()
-        .await
-        .unwrap();
+        .await?;
+
     let public_key_bytes = response.public_key.unwrap().into_inner();
 
     let public_key = pem::Pem::new("PUBLIC KEY", public_key_bytes);
@@ -243,10 +237,8 @@ async fn write_public_key_pem_for_rsa_key(
         .write(true)
         .create(true)
         .truncate(true)
-        .open(Path::new(rsa_public_key_filename))
-        .unwrap()
-        .write_all(public_key.as_bytes())
-        .unwrap();
+        .open(Path::new(rsa_public_key_filename))?
+        .write_all(public_key.as_bytes())?;
 
     Ok(())
 }

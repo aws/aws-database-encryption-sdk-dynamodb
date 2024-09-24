@@ -43,14 +43,14 @@ use std::collections::HashMap;
    - Sort key is named "sort_key" with type (S)
 */
 
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
     let key_arn = test_utils::TEST_KMS_KEY_ID;
     let aes_key_bytes = generate_aes_key_bytes();
 
     // 1. Create the raw AES keyring.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let raw_aes_keyring = mpl
         .create_raw_aes_keyring()
         .key_name("my-aes-key-name")
@@ -58,8 +58,7 @@ pub async fn put_item_get_item() {
         .wrapping_key(aws_smithy_types::Blob::new(aes_key_bytes))
         .wrapping_alg(AesWrappingAlg::AlgAes256GcmIv12Tag16)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Create the AWS KMS keyring.
     //    We create a MRK multi keyring, as this interface also supports
@@ -69,8 +68,7 @@ pub async fn put_item_get_item() {
         .create_aws_kms_mrk_multi_keyring()
         .generator(key_arn)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 3. Create the multi-keyring.
     //    We will label the AWS KMS keyring as the generator and the raw AES keyring as the
@@ -85,8 +83,7 @@ pub async fn put_item_get_item() {
         .generator(aws_kms_mrk_multi_keyring)
         .child_keyrings(vec![raw_aes_keyring.clone()])
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 4. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -142,13 +139,11 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt.clone())
         .keyring(multi_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 7. Create a new AWS SDK DynamoDb client using the config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -174,13 +169,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 10. Get the item back from our table using the above client.
     //     The client will decrypt the item client-side using the AWS KMS
@@ -201,8 +194,7 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get.clone()))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item.clone()));
 
@@ -215,16 +207,14 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
         .keyring(raw_aes_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_aes_table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(
             ddb_table_name.to_string(),
             only_aes_table_config,
         )]))
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_aes_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
         .interceptor(DbEsdkInterceptor::new(only_aes_table_configs))
@@ -241,12 +231,12 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get.clone()))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item.clone()));
 
     println!("multi_keyring successful.");
+    Ok(())
 }
 
 fn generate_aes_key_bytes() -> Vec<u8> {

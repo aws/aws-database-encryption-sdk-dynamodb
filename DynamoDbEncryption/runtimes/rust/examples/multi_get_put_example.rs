@@ -28,7 +28,7 @@ use aws_db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryp
    - Sort key is named "sort_key" with type (N)
 */
 
-pub async fn multi_put_get() {
+pub async fn multi_put_get() -> Result<(), crate::BoxError> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
 
@@ -36,14 +36,13 @@ pub async fn multi_put_get() {
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
     //    as it will correctly handle both single region and Multi-Region KMS Keys.
-    let provider_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mat_prov = client::Client::from_conf(provider_config).unwrap();
+    let provider_config = MaterialProvidersConfig::builder().build()?;
+    let mat_prov = client::Client::from_conf(provider_config)?;
     let kms_keyring = mat_prov
         .create_aws_kms_mrk_multi_keyring()
         .generator(kms_key_id)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -108,13 +107,11 @@ pub async fn multi_put_get() {
         .algorithm_suite_id(
             DbeAlgorithmSuiteId::AlgAes256GcmHkdfSha512CommitKeyEcdsaP384SymsigHmacSha384,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -147,8 +144,8 @@ pub async fn multi_put_get() {
     ]);
     let put_request = aws_sdk_dynamodb::types::PutRequest::builder()
         .set_item(Some(batch_write_item))
-        .build()
-        .unwrap();
+        .build()?;
+
     let batch_write_request = aws_sdk_dynamodb::types::WriteRequest::builder()
         .put_request(put_request)
         .build();
@@ -175,25 +172,21 @@ pub async fn multi_put_get() {
     let transact_put = aws_sdk_dynamodb::types::Put::builder()
         .table_name(ddb_table_name)
         .set_item(Some(transact_write_item))
-        .build()
-        .unwrap();
+        .build()?;
+
     let transact_item = aws_sdk_dynamodb::types::TransactWriteItem::builder()
         .put(transact_put)
         .build();
 
-    let _batch_write_response = ddb
-        .batch_write_item()
+    ddb.batch_write_item()
         .request_items(ddb_table_name, vec![batch_write_request])
         .send()
-        .await
-        .unwrap();
+        .await?;
 
-    let _transact_write_response = ddb
-        .transact_write_items()
+    ddb.transact_write_items()
         .transact_items(transact_item)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 7. Get the item back from our table using the same client.
     //    The client will decrypt the item client-side, and return
@@ -208,15 +201,13 @@ pub async fn multi_put_get() {
     let keys_and_attr = aws_sdk_dynamodb::types::KeysAndAttributes::builder()
         .keys(batch_get_keys)
         .consistent_read(true)
-        .build()
-        .unwrap();
+        .build()?;
 
     let batch_get_response = ddb
         .batch_get_item()
         .request_items(ddb_table_name, keys_and_attr)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let returned_item = &batch_get_response.responses.unwrap()[ddb_table_name][0];
     assert_eq!(
@@ -234,17 +225,17 @@ pub async fn multi_put_get() {
     let transact_get = aws_sdk_dynamodb::types::Get::builder()
         .table_name(ddb_table_name)
         .set_key(Some(transact_get_keys))
-        .build()
-        .unwrap();
+        .build()?;
+
     let transact_get_item = aws_sdk_dynamodb::types::TransactGetItem::builder()
         .get(transact_get)
         .build();
+
     let transact_get_response = ddb
         .transact_get_items()
         .transact_items(transact_get_item)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let the_item = transact_get_response.responses.as_ref().unwrap()[0]
         .item
@@ -256,4 +247,5 @@ pub async fn multi_put_get() {
     );
 
     println!("multi_put_get successful.");
+    Ok(())
 }

@@ -54,15 +54,15 @@ use std::collections::HashMap;
  For more information on using AWS CLI to set config, see
  https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configure/set.html
 */
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
     let mrk_key_arn = test_utils::TEST_MRK_KEY_ID;
     let key_arn = test_utils::TEST_KMS_KEY_ID;
     let mrk_replica_key_arn = test_utils::TEST_MRK_REPLICA_KEY_ID_US_EAST_1;
 
     // 1. Create a single MRK multi-keyring using the MRK arn and the single-region key arn.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     // Create the multi-keyring, using the MRK as the generator key,
     //   and the single-region key as a child key.
     // Note that the generator key will generate and encrypt a plaintext data key
@@ -75,8 +75,7 @@ pub async fn put_item_get_item() {
         .generator(mrk_key_arn)
         .kms_key_ids(vec![key_arn.to_string()])
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -128,13 +127,11 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt.clone())
         .keyring(aws_kms_mrk_multi_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create the DynamoDb Encryption Interceptor
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -161,13 +158,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 8. Get the item back from our table using the client.
     //    The client will decrypt the item client-side using the MRK
@@ -188,8 +183,7 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get.clone()))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item.clone()));
 
@@ -202,8 +196,7 @@ pub async fn put_item_get_item() {
         .create_aws_kms_mrk_multi_keyring()
         .kms_key_ids(vec![mrk_replica_key_arn.to_string()])
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 10. Create a new config and client using the MRK keyring.
     //     This is the same setup as above, except we provide the MRK keyring to the config.
@@ -215,16 +208,14 @@ pub async fn put_item_get_item() {
         // Only replica keyring added here
         .keyring(only_replica_key_mrk_multi_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_replica_table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(
             ddb_table_name.to_string(),
             only_replica_table_config,
         )]))
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_replica_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
         .interceptor(DbEsdkInterceptor::new(only_replica_table_configs))
@@ -241,8 +232,7 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get.clone()))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(only_replica_resp.item, Some(item.clone()));
 
@@ -254,8 +244,7 @@ pub async fn put_item_get_item() {
         .create_aws_kms_mrk_multi_keyring()
         .kms_key_ids(vec![key_arn.to_string()])
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 13. Create a new config and client using the AWS KMS keyring.
     //     This is the same setup as above, except we provide the AWS KMS keyring to the config.
@@ -267,16 +256,14 @@ pub async fn put_item_get_item() {
         // Only srk keyring added here
         .keyring(only_srk_key_mrk_multi_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_srk_table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(
             ddb_table_name.to_string(),
             only_srk_table_config,
         )]))
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_srk_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
         .interceptor(DbEsdkInterceptor::new(only_srk_table_configs))
@@ -293,10 +280,10 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(only_srk_resp.item, Some(item));
 
     println!("multi_mrk_keyring successful.");
+    Ok(())
 }

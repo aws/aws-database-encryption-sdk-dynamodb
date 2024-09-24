@@ -28,7 +28,7 @@ use aws_db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryp
    - Sort key is named "sort_key" with type (N)
 */
 
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
 
@@ -36,14 +36,13 @@ pub async fn put_item_get_item() {
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
     //    as it will correctly handle both single region and Multi-Region KMS Keys.
-    let provider_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mat_prov = client::Client::from_conf(provider_config).unwrap();
+    let provider_config = MaterialProvidersConfig::builder().build()?;
+    let mat_prov = client::Client::from_conf(provider_config)?;
     let kms_keyring = mat_prov
         .create_aws_kms_mrk_multi_keyring()
         .generator(kms_key_id)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -108,13 +107,11 @@ pub async fn put_item_get_item() {
         .algorithm_suite_id(
             DbeAlgorithmSuiteId::AlgAes256GcmHkdfSha512CommitKeyEcdsaP384SymsigHmacSha384,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -146,13 +143,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 7. Get the item back from our table using the same client.
     //    The client will decrypt the item client-side, and return
@@ -176,9 +171,9 @@ pub async fn put_item_get_item() {
         // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item));
     println!("put_item_get_item successful.");
+    Ok(())
 }

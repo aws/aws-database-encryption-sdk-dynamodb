@@ -37,14 +37,14 @@ use std::collections::HashMap;
    - Sort key is named "sort_key" with type (S)
 */
 
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
     let aes_key_bytes = generate_aes_key_bytes();
 
     // 1. Create the keyring.
     //    The DynamoDb encryption client uses this to encrypt and decrypt items.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let raw_aes_keyring = mpl
         .create_raw_aes_keyring()
         .key_name("my-aes-key-name")
@@ -52,8 +52,7 @@ pub async fn put_item_get_item() {
         .wrapping_key(aws_smithy_types::Blob::new(aes_key_bytes))
         .wrapping_alg(AesWrappingAlg::AlgAes256GcmIv12Tag16)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -105,13 +104,11 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
         .keyring(raw_aes_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create a new AWS SDK DynamoDb client using the Config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -135,13 +132,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 7. Get the item back from our table using the same client.
     //    The client will decrypt the item client-side, and return
@@ -165,12 +160,12 @@ pub async fn put_item_get_item() {
         // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item));
 
     println!("raw_aes_keyring successful.");
+    Ok(())
 }
 
 fn generate_aes_key_bytes() -> Vec<u8> {

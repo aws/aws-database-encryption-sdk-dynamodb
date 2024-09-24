@@ -326,7 +326,7 @@ pub mod ECDH {
 
         // for the moment, it's valid if we can use it to generate a shared secret
         fn valid_public_key(alg: &ECDHCurveSpec, public_key: &[u8]) -> Result<(), String> {
-            let _ = X509_to_X962(public_key, false, Some(get_nid(alg)))?;
+            X509_to_X962(public_key, false, Some(get_nid(alg)))?;
             Ok(())
         }
 
