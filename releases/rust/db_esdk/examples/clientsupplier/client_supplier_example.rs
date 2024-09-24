@@ -32,7 +32,7 @@ use std::collections::HashMap;
    - Partition key is named "partition_key" with type (S)
    - Sort key is named "sort_key" with type (S)
 */
-pub async fn put_item_get_item() {
+pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
     // Note that we pass in an MRK in us-east-1...
     let key_arn = test_utils::TEST_MRK_REPLICA_KEY_ID_US_EAST_1.to_string();
@@ -47,15 +47,15 @@ pub async fn put_item_get_item() {
     //    2) the key must be an MRK with a replica defined
     //    in a region in the regions list, and the client
     //    must have the correct permissions to access the replica.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
 
     // Create the multi-keyring using our custom client supplier
     // defined in the RegionalRoleClientSupplier class in this directory.
     // Note: RegionalRoleClientSupplier will internally use the key_arn's region
     // to retrieve the correct IAM role.
     let supplier_ref = ClientSupplierRef {
-        inner: std::rc::Rc::new(std::cell::RefCell::new(RegionalRoleClientSupplier::new())),
+        inner: std::rc::Rc::new(std::cell::RefCell::new(RegionalRoleClientSupplier {})),
     };
 
     let mrk_keyring_with_client_supplier = mpl
@@ -63,8 +63,7 @@ pub async fn put_item_get_item() {
         .client_supplier(supplier_ref.clone())
         .generator(key_arn)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -116,13 +115,11 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt.clone())
         .keyring(mrk_keyring_with_client_supplier)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -149,13 +146,11 @@ pub async fn put_item_get_item() {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 7. Get the item back from our table using the same keyring.
     //    The client will decrypt the item client-side using the MRK
@@ -174,8 +169,7 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get.clone()))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(
         resp.item.unwrap()["sensitive_data"],
@@ -193,8 +187,7 @@ pub async fn put_item_get_item() {
     let discovery_filter = DiscoveryFilter::builder()
         .partition("aws")
         .account_ids(account_ids)
-        .build()
-        .unwrap();
+        .build()?;
 
     let mrk_discovery_client_supplier_keyring = mpl
         .create_aws_kms_mrk_discovery_multi_keyring()
@@ -202,8 +195,7 @@ pub async fn put_item_get_item() {
         .discovery_filter(discovery_filter)
         .regions(regions)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 9. Create a new config and client using the discovery keyring.
     //     This is the same setup as above, except we provide the discovery keyring to the config.
@@ -214,16 +206,14 @@ pub async fn put_item_get_item() {
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
         .keyring(mrk_discovery_client_supplier_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_replica_table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(
             ddb_table_name.to_string(),
             only_replica_table_config,
         )]))
-        .build()
-        .unwrap();
+        .build()?;
 
     let only_replica_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
         .interceptor(DbEsdkInterceptor::new(only_replica_table_configs))
@@ -245,8 +235,7 @@ pub async fn put_item_get_item() {
         .set_key(Some(key_to_get))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(
         resp.item.unwrap()["sensitive_data"],
@@ -254,4 +243,5 @@ pub async fn put_item_get_item() {
     );
 
     println!("client_supplier_example successful.");
+    Ok(())
 }

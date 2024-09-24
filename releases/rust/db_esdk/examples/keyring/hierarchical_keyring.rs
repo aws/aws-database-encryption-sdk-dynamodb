@@ -61,7 +61,10 @@ use aws_sdk_dynamodb::types::AttributeValue;
    - GenerateDataKeyWithoutPlaintext
    - Decrypt
 */
-pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_id: &str) {
+pub async fn put_item_get_item(
+    tenant1_branch_key_id: &str,
+    tenant2_branch_key_id: &str,
+) -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
 
     let keystore_table_name = test_utils::TEST_KEYSTORE_NAME;
@@ -83,14 +86,13 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
         .ddb_table_name(keystore_table_name)
         .logical_key_store_name(logical_keystore_name)
         .kms_configuration(KmsConfiguration::KmsKeyArn(kms_key_id.to_string()))
-        .build()
-        .unwrap();
+        .build()?;
 
-    let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
+    let key_store = keystore_client::Client::from_conf(key_store_config)?;
 
     // 2. Create a Branch Key ID Supplier. See ExampleBranchKeyIdSupplier in this directory.
-    let dbesdk_config = DynamoDbEncryptionConfig::builder().build().unwrap();
-    let dbesdk = dbesdk_client::Client::from_conf(dbesdk_config).unwrap();
+    let dbesdk_config = DynamoDbEncryptionConfig::builder().build()?;
+    let dbesdk = dbesdk_client::Client::from_conf(dbesdk_config)?;
     let supplier = ExampleBranchKeyIdSupplier::new(tenant1_branch_key_id, tenant2_branch_key_id);
     let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
         inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier)),
@@ -99,8 +101,7 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
         .create_dynamo_db_encryption_branch_key_id_supplier()
         .ddb_key_branch_key_id_supplier(supplier_ref)
         .send()
-        .await
-        .unwrap()
+        .await?
         .branch_key_id_supplier
         .unwrap();
 
@@ -110,8 +111,8 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
     //    If you want to restrict the client to only encrypt or decrypt for a single tenant,
     //    configure this Hierarchical Keyring using `.branchKeyId(tenant1BranchKeyId)` instead
     //    of `.branchKeyIdSupplier(branchKeyIdSupplier)`.
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
 
     let hierarchical_keyring = mpl
         .create_aws_kms_hierarchical_keyring()
@@ -119,8 +120,7 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
         .key_store(key_store)
         .ttl_seconds(600)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 4. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -175,13 +175,11 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
         .attribute_actions_on_encrypt(attribute_actions_on_encrypt)
         .keyring(hierarchical_keyring)
         .allowed_unsigned_attribute_prefix(UNSIGNED_ATTR_PREFIX)
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -208,13 +206,11 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 10. Get the item back from our table using the same client.
     //     The client will decrypt the item client-side, and return
@@ -236,9 +232,9 @@ pub async fn put_item_get_item(tenant1_branch_key_id: &str, tenant2_branch_key_i
         .set_key(Some(key_to_get))
         .consistent_read(true)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     assert_eq!(resp.item, Some(item));
     println!("hierarchical_keyring successful.");
+    Ok(())
 }

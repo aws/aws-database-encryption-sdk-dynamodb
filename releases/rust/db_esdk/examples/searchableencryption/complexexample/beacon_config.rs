@@ -38,7 +38,7 @@ pub async fn setup_beacon_config(
     branch_key_id: &str,
     branch_key_wrapping_kms_key_arn: &str,
     branch_key_ddb_table_name: &str,
-) -> aws_sdk_dynamodb::Client {
+) -> Result<aws_sdk_dynamodb::Client, crate::BoxError> {
     // 1. Create keystore and branch key
     //    These are the same constructions as in the Basic examples, which describe this in more detail.
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -50,10 +50,9 @@ pub async fn setup_beacon_config(
         .kms_configuration(KmsConfiguration::KmsKeyArn(
             branch_key_wrapping_kms_key_arn.to_string(),
         ))
-        .build()
-        .unwrap();
+        .build()?;
 
-    let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
+    let key_store = keystore_client::Client::from_conf(key_store_config)?;
 
     // 2. Create standard beacons
     //    For this example, we use a standard beacon length of 4.
@@ -64,83 +63,68 @@ pub async fn setup_beacon_config(
         StandardBeacon::builder()
             .name("EmployeeID")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("TicketNumber")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("ProjectName")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("EmployeeEmail")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("CreatorEmail")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("ProjectStatus")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("OrganizerEmail")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("ManagerEmail")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("AssigneeEmail")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("Severity")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("City")
             .loc("Location.City")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("Building")
             .loc("Location.Building")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("Floor")
             .loc("Location.Floor")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("Room")
             .loc("Location.Room")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
         StandardBeacon::builder()
             .name("Desk")
             .loc("Location.Desk")
             .length(4)
-            .build()
-            .unwrap(),
+            .build()?,
     ];
 
     // 3. Define encrypted parts
@@ -151,78 +135,54 @@ pub async fn setup_beacon_config(
         EncryptedPart::builder()
             .name("EmployeeID")
             .prefix("E-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("TicketNumber")
             .prefix("T-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("ProjectName")
             .prefix("P-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("EmployeeEmail")
             .prefix("EE-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("CreatorEmail")
             .prefix("CE-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("OrganizerEmail")
             .prefix("OE-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("ManagerEmail")
             .prefix("ME-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("AssigneeEmail")
             .prefix("AE-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("ProjectStatus")
             .prefix("PSts-")
-            .build()
-            .unwrap(),
-        EncryptedPart::builder()
-            .name("City")
-            .prefix("C-")
-            .build()
-            .unwrap(),
+            .build()?,
+        EncryptedPart::builder().name("City").prefix("C-").build()?,
         EncryptedPart::builder()
             .name("Severity")
             .prefix("S-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("Building")
             .prefix("B-")
-            .build()
-            .unwrap(),
+            .build()?,
         EncryptedPart::builder()
             .name("Floor")
             .prefix("F-")
-            .build()
-            .unwrap(),
-        EncryptedPart::builder()
-            .name("Room")
-            .prefix("R-")
-            .build()
-            .unwrap(),
-        EncryptedPart::builder()
-            .name("Desk")
-            .prefix("D-")
-            .build()
-            .unwrap(),
+            .build()?,
+        EncryptedPart::builder().name("Room").prefix("R-").build()?,
+        EncryptedPart::builder().name("Desk").prefix("D-").build()?,
     ];
 
     // 4. Define signed parts
@@ -234,23 +194,19 @@ pub async fn setup_beacon_config(
         SignedPart::builder()
             .name("TicketModTime")
             .prefix("M-")
-            .build()
-            .unwrap(),
+            .build()?,
         SignedPart::builder()
             .name("MeetingStart")
             .prefix("MS-")
-            .build()
-            .unwrap(),
+            .build()?,
         SignedPart::builder()
             .name("TimeCardStart")
             .prefix("TC-")
-            .build()
-            .unwrap(),
+            .build()?,
         SignedPart::builder()
             .name("ProjectStart")
             .prefix("PS-")
-            .build()
-            .unwrap(),
+            .build()?,
     ];
 
     // 6. Create constructor parts
@@ -265,98 +221,79 @@ pub async fn setup_beacon_config(
     let employee_id_constructor_part = ConstructorPart::builder()
         .name("EmployeeID")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let ticket_number_constructor_part = ConstructorPart::builder()
         .name("TicketNumber")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let project_name_constructor_part = ConstructorPart::builder()
         .name("ProjectName")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let ticket_mod_time_constructor_part = ConstructorPart::builder()
         .name("TicketModTime")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let meeting_start_constructor_part = ConstructorPart::builder()
         .name("MeetingStart")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let timecard_start_constructor_part = ConstructorPart::builder()
         .name("TimeCardStart")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let employee_email_constructor_part = ConstructorPart::builder()
         .name("EmployeeEmail")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let creator_email_constructor_part = ConstructorPart::builder()
         .name("CreatorEmail")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let project_status_constructor_part = ConstructorPart::builder()
         .name("ProjectStatus")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let organizer_email_constructor_part = ConstructorPart::builder()
         .name("OrganizerEmail")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let project_start_constructor_part = ConstructorPart::builder()
         .name("ProjectStart")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let manager_email_constructor_part = ConstructorPart::builder()
         .name("ManagerEmail")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let assignee_email_constructor_part = ConstructorPart::builder()
         .name("AssigneeEmail")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let city_constructor_part = ConstructorPart::builder()
         .name("City")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let severity_constructor_part = ConstructorPart::builder()
         .name("Severity")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let building_constructor_part = ConstructorPart::builder()
         .name("Building")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let floor_constructor_part = ConstructorPart::builder()
         .name("Floor")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let room_constructor_part = ConstructorPart::builder()
         .name("Room")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
     let desk_constructor_part = ConstructorPart::builder()
         .name("Desk")
         .required(true)
-        .build()
-        .unwrap();
+        .build()?;
 
     // 7. Define constructors
     //    Constructors define how encrypted and signed parts are assembled into compound beacons.
@@ -369,24 +306,19 @@ pub async fn setup_beacon_config(
 
     let employee_id_constructor = Constructor::builder()
         .parts(vec![employee_id_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let ticket_number_constructor = Constructor::builder()
         .parts(vec![ticket_number_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let project_name_constructor = Constructor::builder()
         .parts(vec![project_name_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let ticket_mod_time_constructor = Constructor::builder()
         .parts(vec![ticket_mod_time_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let building_constructor = Constructor::builder()
         .parts(vec![building_constructor_part.clone()])
-        .build()
-        .unwrap();
+        .build()?;
 
     // This constructor requires all of "MeetingStart", "Location.Floor", and "Location.Room" attributes.
     // If an item has all of these attributes, it will match this constructor.
@@ -401,64 +333,51 @@ pub async fn setup_beacon_config(
             floor_constructor_part.clone(),
             room_constructor_part,
         ])
-        .build()
-        .unwrap();
+        .build()?;
 
     let timecard_start_constructor = Constructor::builder()
         .parts(vec![timecard_start_constructor_part.clone()])
-        .build()
-        .unwrap();
+        .build()?;
     let timecard_start_employee_email_constructor = Constructor::builder()
         .parts(vec![
             timecard_start_constructor_part,
             employee_email_constructor_part.clone(),
         ])
-        .build()
-        .unwrap();
+        .build()?;
     let creator_email_constructor = Constructor::builder()
         .parts(vec![creator_email_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let project_status_constructor = Constructor::builder()
         .parts(vec![project_status_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let employee_email_constructor = Constructor::builder()
         .parts(vec![employee_email_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let organizer_email_constructor = Constructor::builder()
         .parts(vec![organizer_email_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let project_start_constructor = Constructor::builder()
         .parts(vec![project_start_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let manager_email_constructor = Constructor::builder()
         .parts(vec![manager_email_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let assignee_email_constructor = Constructor::builder()
         .parts(vec![assignee_email_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let city_constructor = Constructor::builder()
         .parts(vec![city_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let severity_constructor = Constructor::builder()
         .parts(vec![severity_constructor_part])
-        .build()
-        .unwrap();
+        .build()?;
     let building_floor_desk_constructor = Constructor::builder()
         .parts(vec![
             building_constructor_part,
             floor_constructor_part,
             desk_constructor_part,
         ])
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Add constructors to the compound beacon constructor list in desired construction order
     //    In a compound beacon with multiple constructors, the order the constructors are added to
@@ -507,44 +426,37 @@ pub async fn setup_beacon_config(
             .name("PK")
             .split("~")
             .constructors(pk0_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
         CompoundBeacon::builder()
             .name("SK")
             .split("~")
             .constructors(sk0_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
         CompoundBeacon::builder()
             .name("PK1")
             .split("~")
             .constructors(pk1_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
         CompoundBeacon::builder()
             .name("SK1")
             .split("~")
             .constructors(sk1_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
         CompoundBeacon::builder()
             .name("PK2")
             .split("~")
             .constructors(pk2_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
         CompoundBeacon::builder()
             .name("PK3")
             .split("~")
             .constructors(pk3_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
         CompoundBeacon::builder()
             .name("SK3")
             .split("~")
             .constructors(sk3_constructor_list)
-            .build()
-            .unwrap(),
+            .build()?,
     ];
 
     // 10. Create BeaconVersion
@@ -559,24 +471,21 @@ pub async fn setup_beacon_config(
             SingleKeyStore::builder()
                 .key_id(branch_key_id)
                 .cache_ttl(6000)
-                .build()
-                .unwrap(),
+                .build()?,
         ))
-        .build()
-        .unwrap();
+        .build()?;
     let beacon_versions = vec![beacon_versions];
 
     // 11. Create a Hierarchical Keyring
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let kms_keyring = mpl
         .create_aws_kms_hierarchical_keyring()
         .branch_key_id(branch_key_id)
         .key_store(key_store)
         .ttl_seconds(600)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 12. Define crypto actions
     let attribute_actions_on_encrypt = HashMap::from([
@@ -624,16 +533,13 @@ pub async fn setup_beacon_config(
             SearchConfig::builder()
                 .write_version(1)
                 .versions(beacon_versions)
-                .build()
-                .unwrap(),
+                .build()?,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 15. Create a new AWS SDK DynamoDb client using the config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -641,5 +547,5 @@ pub async fn setup_beacon_config(
         .interceptor(DbEsdkInterceptor::new(table_configs))
         .build();
 
-    aws_sdk_dynamodb::Client::from_conf(dynamo_config)
+    Ok(aws_sdk_dynamodb::Client::from_conf(dynamo_config))
 }

@@ -31,7 +31,7 @@ use aws_db_esdk::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
    - Partition key is named "partition_key" with type (S)
    - Sort key is named "sort_key" with type (S)
 */
-pub async fn encrypt_decrypt() {
+pub async fn encrypt_decrypt() -> Result<(), crate::BoxError> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
 
@@ -39,14 +39,13 @@ pub async fn encrypt_decrypt() {
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
     //    as it will correctly handle both single region and Multi-Region KMS Keys.
-    let provider_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mat_prov = mpl_client::Client::from_conf(provider_config).unwrap();
+    let provider_config = MaterialProvidersConfig::builder().build()?;
+    let mat_prov = mpl_client::Client::from_conf(provider_config)?;
     let kms_keyring = mat_prov
         .create_aws_kms_mrk_multi_keyring()
         .generator(kms_key_id)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 2. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -111,11 +110,10 @@ pub async fn encrypt_decrypt() {
         .algorithm_suite_id(
             DbeAlgorithmSuiteId::AlgAes256GcmHkdfSha512CommitKeyEcdsaP384SymsigHmacSha384,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     // 5. Create the DynamoDb Item Encryptor
-    let item_encryptor = enc_client::Client::from_conf(config).unwrap();
+    let item_encryptor = enc_client::Client::from_conf(config)?;
 
     // 6. Directly encrypt a DynamoDb item using the DynamoDb Item Encryptor
     let original_item = HashMap::from([
@@ -142,8 +140,7 @@ pub async fn encrypt_decrypt() {
         .encrypt_item()
         .plaintext_item(original_item.clone())
         .send()
-        .await
-        .unwrap()
+        .await?
         .encrypted_item
         .unwrap();
 
@@ -164,12 +161,12 @@ pub async fn encrypt_decrypt() {
         .decrypt_item()
         .encrypted_item(encrypted_item)
         .send()
-        .await
-        .unwrap()
+        .await?
         .plaintext_item
         .unwrap();
 
     // Demonstrate that GetItem succeeded and returned the decrypted item
     assert_eq!(decrypted_item, original_item);
     println!("encrypt_decrypt successful.");
+    Ok(())
 }

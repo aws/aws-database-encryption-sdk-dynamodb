@@ -51,7 +51,7 @@ use aws_db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryp
 
 const GSI_NAME: &str = "last4-unit-index";
 
-pub async fn put_and_query_with_beacon(branch_key_id: &str) {
+pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::UNIT_INSPECTION_TEST_DDB_TABLE_NAME;
     let branch_key_wrapping_kms_key_arn = test_utils::TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN;
     let branch_key_ddb_table_name = test_utils::TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME;
@@ -112,8 +112,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     let last4_beacon = StandardBeacon::builder()
         .name("inspector_id_last4")
         .length(10)
-        .build()
-        .unwrap();
+        .build()?;
 
     // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
     // This field holds a unit serial number.
@@ -141,11 +140,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     // With a sufficiently large number of well-distributed inspector IDs,
     //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
     //    sharing that beacon value.
-    let unit_beacon = StandardBeacon::builder()
-        .name("unit")
-        .length(30)
-        .build()
-        .unwrap();
+    let unit_beacon = StandardBeacon::builder().name("unit").length(30).build()?;
 
     let standard_beacon_list = vec![last4_beacon, unit_beacon];
 
@@ -165,10 +160,9 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .kms_configuration(KmsConfiguration::KmsKeyArn(
             branch_key_wrapping_kms_key_arn.to_string(),
         ))
-        .build()
-        .unwrap();
+        .build()?;
 
-    let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
+    let key_store = keystore_client::Client::from_conf(key_store_config)?;
 
     // 3. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
@@ -196,27 +190,24 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
                 // but is created with the same ID as the branch key.
                 .key_id(branch_key_id)
                 .cache_ttl(6000)
-                .build()
-                .unwrap(),
+                .build()?,
         ))
-        .build()
-        .unwrap();
+        .build()?;
     let beacon_versions = vec![beacon_version];
 
     // 4. Create a Hierarchical Keyring
     //    This is a KMS keyring that utilizes the keystore table.
     //    This config defines how items are encrypted and decrypted.
     //    NOTE: You should configure this to use the same keystore as your search config.
-    let provider_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mat_prov = client::Client::from_conf(provider_config).unwrap();
+    let provider_config = MaterialProvidersConfig::builder().build()?;
+    let mat_prov = client::Client::from_conf(provider_config)?;
     let kms_keyring = mat_prov
         .create_aws_kms_hierarchical_keyring()
         .branch_key_id(branch_key_id)
         .key_store(key_store)
         .ttl_seconds(6000)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 5. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -247,16 +238,13 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             SearchConfig::builder()
                 .write_version(1) // MUST be 1
                 .versions(beacon_versions)
-                .build()
-                .unwrap(),
+                .build()?,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     let table_configs = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 7. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
@@ -294,13 +282,11 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         ),
     ]);
 
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 10. Query for the item we just put.
     //     Note that we are constructing the query as if we were querying on plaintext values.
@@ -342,8 +328,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             .set_expression_attribute_names(Some(expression_attributes_names.clone()))
             .set_expression_attribute_values(Some(expression_attribute_values.clone()))
             .send()
-            .await
-            .unwrap();
+            .await?;
 
         // if no results, sleep and try again
         if query_response.items.is_none() || query_response.items.as_ref().unwrap().is_empty() {
@@ -367,4 +352,5 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         break;
     }
     println!("basic_searchable_encryption successful.");
+    Ok(())
 }

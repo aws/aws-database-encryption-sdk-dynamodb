@@ -54,7 +54,7 @@ use std::collections::HashMap;
 
 const GSI_NAME: &str = "last4UnitCompound-index";
 
-pub async fn put_and_query_with_beacon(branch_key_id: &str) {
+pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::UNIT_INSPECTION_TEST_DDB_TABLE_NAME;
     let branch_key_wrapping_kms_key_arn = test_utils::TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN;
     let branch_key_ddb_table_name = test_utils::TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME;
@@ -68,14 +68,9 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     let last4_beacon = StandardBeacon::builder()
         .name("inspector_id_last4")
         .length(10)
-        .build()
-        .unwrap();
+        .build()?;
 
-    let unit_beacon = StandardBeacon::builder()
-        .name("unit")
-        .length(30)
-        .build()
-        .unwrap();
+    let unit_beacon = StandardBeacon::builder().name("unit").length(30).build()?;
 
     let standard_beacon_list = vec![last4_beacon, unit_beacon];
 
@@ -101,13 +96,8 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         EncryptedPart::builder()
             .name("inspector_id_last4")
             .prefix("L-")
-            .build()
-            .unwrap(),
-        EncryptedPart::builder()
-            .name("unit")
-            .prefix("U-")
-            .build()
-            .unwrap(),
+            .build()?,
+        EncryptedPart::builder().name("unit").prefix("U-").build()?,
     ];
 
     // 3. Define compound beacon.
@@ -133,8 +123,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .name("last4UnitCompound")
         .split(".")
         .encrypted(encrypted_parts_list)
-        .build()
-        .unwrap()];
+        .build()?];
 
     // 4. Configure the Keystore
     //    These are the same constructions as in the Basic example, which describes these in more detail.
@@ -148,10 +137,9 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         .kms_configuration(KmsConfiguration::KmsKeyArn(
             branch_key_wrapping_kms_key_arn.to_string(),
         ))
-        .build()
-        .unwrap();
+        .build()?;
 
-    let key_store = keystore_client::Client::from_conf(key_store_config).unwrap();
+    let key_store = keystore_client::Client::from_conf(key_store_config)?;
 
     // 5. Create BeaconVersion.
     //    This is similar to the Basic example, except we have also provided a compoundBeaconList.
@@ -170,26 +158,23 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
                 // but is created with the same ID as the branch key.
                 .key_id(branch_key_id)
                 .cache_ttl(6000)
-                .build()
-                .unwrap(),
+                .build()?,
         ))
-        .build()
-        .unwrap();
+        .build()?;
     let beacon_versions = vec![beacon_version];
 
     // 6. Create a Hierarchical Keyring
     //    This is the same configuration as in the Basic example.
 
-    let mpl_config = MaterialProvidersConfig::builder().build().unwrap();
-    let mpl = mpl_client::Client::from_conf(mpl_config).unwrap();
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let kms_keyring = mpl
         .create_aws_kms_hierarchical_keyring()
         .branch_key_id(branch_key_id)
         .key_store(key_store)
         .ttl_seconds(6000)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 7. Configure which attributes are encrypted and/or signed when writing new items.
     let attribute_actions_on_encrypt = HashMap::from([
@@ -217,17 +202,14 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             SearchConfig::builder()
                 .write_version(1) // MUST be 1
                 .versions(beacon_versions)
-                .build()
-                .unwrap(),
+                .build()?,
         )
-        .build()
-        .unwrap();
+        .build()?;
 
     // 9. Create config
     let encryption_config = DynamoDbTablesEncryptionConfig::builder()
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
-        .build()
-        .unwrap();
+        .build()?;
 
     // 10. Create an item with both attributes used in the compound beacon.
     let item = HashMap::from([
@@ -250,15 +232,14 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     ]);
 
     // 11. If developing or debugging, verify config by checking compound beacon values directly
-    let trans = transform_client::Client::from_conf(encryption_config.clone()).unwrap();
+    let trans = transform_client::Client::from_conf(encryption_config.clone())?;
     let resolve_output = trans
         .resolve_attributes()
         .table_name(ddb_table_name)
         .item(item.clone())
         .version(1)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Verify that there are no virtual fields
     assert_eq!(resolve_output.virtual_fields.unwrap().len(), 0);
@@ -281,13 +262,11 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
     // 13. Write the item to the table
-    let _resp = ddb
-        .put_item()
+    ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item.clone()))
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 15. Query for the item we just put.
     let expression_attribute_values = HashMap::from([
@@ -318,8 +297,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
             .key_condition_expression("last4UnitCompound = :value")
             .set_expression_attribute_values(Some(expression_attribute_values.clone()))
             .send()
-            .await
-            .unwrap();
+            .await?;
 
         // if no results, sleep and try again
         if query_response.items.is_none() || query_response.items.as_ref().unwrap().is_empty() {
@@ -343,4 +321,5 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) {
         break;
     }
     println!("compound_beacon_searchable_encryption successful.");
+    Ok(())
 }

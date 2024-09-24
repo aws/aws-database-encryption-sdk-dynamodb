@@ -16,30 +16,34 @@ use std::collections::HashMap;
  *   and should demonstrate how one can structure queries on beacons in a broader variety of applications.
  */
 
-pub async fn run_queries(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
-    run_query1(ddb_table_name, ddb).await;
-    run_query2(ddb_table_name, ddb).await;
-    run_query3(ddb_table_name, ddb).await;
-    run_query4(ddb_table_name, ddb).await;
-    run_query5(ddb_table_name, ddb).await;
-    run_query6(ddb_table_name, ddb).await;
-    run_query7(ddb_table_name, ddb).await;
-    run_query8(ddb_table_name, ddb).await;
-    run_query9(ddb_table_name, ddb).await;
-    run_query10(ddb_table_name, ddb).await;
-    run_query11(ddb_table_name, ddb).await;
-    run_query12(ddb_table_name, ddb).await;
-    run_query13(ddb_table_name, ddb).await;
-    run_query14(ddb_table_name, ddb).await;
-    run_query15(ddb_table_name, ddb).await;
-    run_query16(ddb_table_name, ddb).await;
-    run_query17(ddb_table_name, ddb).await;
-    run_query18(ddb_table_name, ddb).await;
-    run_query19(ddb_table_name, ddb).await;
-    run_query20(ddb_table_name, ddb).await;
-    run_query21(ddb_table_name, ddb).await;
-    run_query22(ddb_table_name, ddb).await;
-    run_query23(ddb_table_name, ddb).await;
+pub async fn run_queries(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
+    run_query1(ddb_table_name, ddb).await?;
+    run_query2(ddb_table_name, ddb).await?;
+    run_query3(ddb_table_name, ddb).await?;
+    run_query4(ddb_table_name, ddb).await?;
+    run_query5(ddb_table_name, ddb).await?;
+    run_query6(ddb_table_name, ddb).await?;
+    run_query7(ddb_table_name, ddb).await?;
+    run_query8(ddb_table_name, ddb).await?;
+    run_query9(ddb_table_name, ddb).await?;
+    run_query10(ddb_table_name, ddb).await?;
+    run_query11(ddb_table_name, ddb).await?;
+    run_query12(ddb_table_name, ddb).await?;
+    run_query13(ddb_table_name, ddb).await?;
+    run_query14(ddb_table_name, ddb).await?;
+    run_query15(ddb_table_name, ddb).await?;
+    run_query16(ddb_table_name, ddb).await?;
+    run_query17(ddb_table_name, ddb).await?;
+    run_query18(ddb_table_name, ddb).await?;
+    run_query19(ddb_table_name, ddb).await?;
+    run_query20(ddb_table_name, ddb).await?;
+    run_query21(ddb_table_name, ddb).await?;
+    run_query22(ddb_table_name, ddb).await?;
+    run_query23(ddb_table_name, ddb).await?;
+    Ok(())
 }
 
 fn ss(s: &str) -> AttributeValue {
@@ -50,7 +54,10 @@ fn entry(name: &str, value: &str) -> (String, AttributeValue) {
     (name.to_string(), ss(value))
 }
 
-async fn run_query1(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query1(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 1: Get meetings by date and email
     // Key condition: PK1=email SK1 between(date1, date2)
     // Filter condition: duration > 0
@@ -75,8 +82,7 @@ async fn run_query1(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK1 = :e AND SK1 BETWEEN :date1 AND :date2")
         .filter_expression("#duration > :zero")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query1_response.items.unwrap();
@@ -90,9 +96,13 @@ async fn run_query1(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .as_l()
         .unwrap()
         .contains(&ss("zorro@gmail.com")));
+    Ok(())
 }
 
-async fn run_query2(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query2(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 2: Get meetings by date and employeeID
     // Key condition: PK=employeeID SK between(date1, date2)
     // Filter condition: duration > 0
@@ -117,8 +127,7 @@ async fn run_query2(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK = :employee AND SK BETWEEN :date1 AND :date2")
         .filter_expression("#duration > :zero")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query2_response.items.unwrap();
@@ -132,9 +141,13 @@ async fn run_query2(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .as_l()
         .unwrap()
         .contains(&ss("zorro@gmail.com")));
+    Ok(())
 }
 
-async fn run_query3(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query3(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 3: Get meetings by date and building/floor/room
     // Key condition: PK=employeeID SK between(date1, date2)
     // Filter condition: SK contains building.floor.room (see NOTE)
@@ -160,8 +173,7 @@ async fn run_query3(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK = :buildingbeacon AND SK BETWEEN :date1 AND :date2")
         .filter_expression("Building = :building AND Floor = :floor AND Room = :room")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query3_response.items.unwrap();
@@ -178,9 +190,13 @@ async fn run_query3(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .as_l()
         .unwrap()
         .contains(&ss("barney@gmail.com")));
+    Ok(())
 }
 
-async fn run_query4(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query4(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 4: Get employee data by email
     // Key condition: PK1=email SK1=employee ID
 
@@ -196,8 +212,7 @@ async fn run_query4(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query4_values))
         .key_condition_expression("PK1 = :email AND SK1 = :employee")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query4_response.items.unwrap();
@@ -207,9 +222,13 @@ async fn run_query4(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     assert_eq!(items[0]["partition_key"], ss("employee1"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Desk"], ss("3"));
+    Ok(())
 }
 
-async fn run_query5(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query5(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 5: Get meetings by email
     // Key condition: PK1=email SK1 > 30 days ago
 
@@ -226,8 +245,7 @@ async fn run_query5(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query5_values))
         .key_condition_expression("PK1 = :email AND SK1 BETWEEN :prefix AND :thirtydaysago")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query5_response.items.unwrap();
@@ -241,9 +259,13 @@ async fn run_query5(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .as_l()
         .unwrap()
         .contains(&ss("zorro@gmail.com")));
+    Ok(())
 }
 
-async fn run_query6(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query6(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 6: Get tickets by email
     // Key condition: PK1=email SK1 > 30 days ago
 
@@ -259,8 +281,7 @@ async fn run_query6(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query6_values))
         .key_condition_expression("PK1 = :creatoremail AND SK1 < :thirtydaysago")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 2 items were returned
     let items = query6_response.items.unwrap();
@@ -272,10 +293,14 @@ async fn run_query6(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
             && (items[1]["partition_key"] == ss("ticket3")))
             || ((items[0]["partition_key"] == ss("ticket3"))
                 && (items[1]["partition_key"] == ss("ticket1")))
-    )
+    );
+    Ok(())
 }
 
-async fn run_query7(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query7(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 7: Get reservations by email
     // Key condition: PK1=organizeremail SK1 > 30 days ago
 
@@ -291,8 +316,7 @@ async fn run_query7(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query7_values))
         .key_condition_expression("PK1 = :organizeremail AND SK1 < :thirtydaysago")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query7_response.items.unwrap();
@@ -306,9 +330,13 @@ async fn run_query7(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .as_l()
         .unwrap()
         .contains(&ss("barney@gmail.com")));
+    Ok(())
 }
 
-async fn run_query8(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query8(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 8: Get time cards by email
     // Key condition: PK1=employeeemail SK1 > 30 days ago
 
@@ -325,8 +353,7 @@ async fn run_query8(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query8_values))
         .key_condition_expression("PK1 = :email AND SK1 BETWEEN :prefix AND :thirtydaysago")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query8_response.items.unwrap();
@@ -335,9 +362,13 @@ async fn run_query8(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("timecard1"));
     assert_eq!(items[0]["ProjectName"], ss("project_002"));
+    Ok(())
 }
 
-async fn run_query9(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query9(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 9: Get employee info by employee ID
     // Key condition: PK1=employeeID SK starts with "E-"
 
@@ -350,8 +381,7 @@ async fn run_query9(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query9_values))
         .key_condition_expression("PK = :employee AND begins_with(SK, :prefix)")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query9_response.items.unwrap();
@@ -360,9 +390,13 @@ async fn run_query9(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("employee1"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
+    Ok(())
 }
 
-async fn run_query10(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query10(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 10: Get employee info by email
     // Key condition: PK1=email
     // Filter condition: SK starts with "E-"
@@ -377,8 +411,7 @@ async fn run_query10(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query10_values))
         .key_condition_expression("PK1 = :email AND begins_with(SK1, :prefix)")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query10_response.items.unwrap();
@@ -387,9 +420,13 @@ async fn run_query10(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("employee1"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
+    Ok(())
 }
 
-async fn run_query11(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query11(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 11: Get ticket history by ticket number
     // Key condition: PK=TicketNumber
 
@@ -402,8 +439,7 @@ async fn run_query11(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query11_values))
         .key_condition_expression("PK = :ticket")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 2 items were returned
     let items = query11_response.items.unwrap();
@@ -415,10 +451,14 @@ async fn run_query11(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
             && (items[1]["partition_key"] == ss("ticket2")))
             || ((items[0]["partition_key"] == ss("ticket2"))
                 && (items[1]["partition_key"] == ss("ticket1")))
-    )
+    );
+    Ok(())
 }
 
-async fn run_query12(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query12(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 12: Get Ticket History by employee email
     // Key condition: PK1=CreatorEmail
     // Filter condition: PK=TicketNumber
@@ -436,8 +476,7 @@ async fn run_query12(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK1 = :email")
         .filter_expression("PK = :ticket")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query12_response.items.unwrap();
@@ -446,9 +485,13 @@ async fn run_query12(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("ticket1"));
     assert_eq!(items[0]["TicketNumber"], ss("ticket_001"));
+    Ok(())
 }
 
-async fn run_query13(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query13(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 13: Get ticket history by assignee email
     // Key condition: PK=AssigneeEmail
     // Filter condition: PK=ticketNumber
@@ -465,8 +508,7 @@ async fn run_query13(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK2 = :assigneeemail")
         .filter_expression("PK = :ticket")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query13_response.items.unwrap();
@@ -475,9 +517,13 @@ async fn run_query13(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("ticket1"));
     assert_eq!(items[0]["Subject"], ss("Bad bug"));
+    Ok(())
 }
 
-async fn run_query14(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query14(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 14: Get employees by city.building.floor.desk
     // Key condition: PK3=city SK3 begins_with(building.floor.desk)
 
@@ -493,8 +539,7 @@ async fn run_query14(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query14_values))
         .key_condition_expression("PK3 = :city AND begins_with(SK3, :location)")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query14_response.items.unwrap();
@@ -504,9 +549,13 @@ async fn run_query14(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     assert_eq!(items[0]["partition_key"], ss("employee1"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Desk"], ss("3"));
+    Ok(())
 }
 
-async fn run_query15(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query15(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 15: Get employees by manager email
     // Key condition: PK2 = ManagerEmail
 
@@ -519,8 +568,7 @@ async fn run_query15(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query15_values))
         .key_condition_expression("PK2 = :manageremail")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 4 items returned:
     // Expected to be `employee1`, `employee2`, `employee3`, and `employee4`
@@ -537,9 +585,13 @@ async fn run_query15(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     }
 
     assert!(found_known_value_item_query15);
+    Ok(())
 }
 
-async fn run_query16(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query16(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 16: Get assigned tickets by assignee email
     // Key condition: PK2 = AssigneeEmail
 
@@ -552,8 +604,7 @@ async fn run_query16(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query16_values))
         .key_condition_expression("PK2 = :assigneeemail")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 2 items were returned
     let items = query16_response.items.unwrap();
@@ -565,10 +616,14 @@ async fn run_query16(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
             && (items[1]["partition_key"] == ss("ticket4")))
             || ((items[0]["partition_key"] == ss("ticket4"))
                 && (items[1]["partition_key"] == ss("ticket1")))
-    )
+    );
+    Ok(())
 }
 
-async fn run_query17(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query17(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 17: Get tickets updated within the last 24 hours
     // Key condition: PK3 = Severity, SK3 > 24 hours ago
     // (For the sake of this example, we will assume
@@ -588,8 +643,7 @@ async fn run_query17(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query17_values))
         .key_condition_expression("PK3 = :severity AND SK3 > :yesterday")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 3 items returned:
     // Expected to be `ticket1`, `ticket2`, and `ticket4`
@@ -606,9 +660,13 @@ async fn run_query17(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     }
 
     assert!(found_known_value_item_query17);
+    Ok(())
 }
 
-async fn run_query18(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query18(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 18: Get projects by status, start and target date
     // Key condition: PK1 = Status, SK1 > StartDate
     // Filter condition: TargetDelivery < TargetDate
@@ -627,8 +685,7 @@ async fn run_query18(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK1 = :status AND SK1 > :startdate")
         .filter_expression("ProjectTarget < :target")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query18_response.items.unwrap();
@@ -637,9 +694,13 @@ async fn run_query18(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("project1"));
     assert_eq!(items[0]["ProjectName"], ss("project_001"));
+    Ok(())
 }
 
-async fn run_query19(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query19(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 19: Get projects by name
     // Key condition: PK = ProjectName, SK = ProjectName
 
@@ -652,8 +713,7 @@ async fn run_query19(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query19_values))
         .key_condition_expression("PK = :projectname AND SK = :projectname")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned
     let items = query19_response.items.unwrap();
@@ -662,9 +722,13 @@ async fn run_query19(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("project1"));
     assert_eq!(items[0]["ProjectName"], ss("project_001"));
+    Ok(())
 }
 
-async fn run_query20(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query20(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 20: Get Project History by date range (against timecard record)
     // Key condition: PK = ProjectName, SK between(date1, date2)
 
@@ -681,8 +745,7 @@ async fn run_query20(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query20_values))
         .key_condition_expression("PK = :projectname AND SK BETWEEN :date1 AND :date2")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 2 items returned:
     // Expected to be `timecard1` and `timecard2`
@@ -694,10 +757,14 @@ async fn run_query20(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
             && (items[1]["partition_key"] == ss("timecard2")))
             || ((items[0]["partition_key"] == ss("timecard2"))
                 && (items[1]["partition_key"] == ss("timecard1")))
-    )
+    );
+    Ok(())
 }
 
-async fn run_query21(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query21(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 21: Get Project History by role
     // Key condition: PK = ProjectName
     // Filter condition: role=rolename
@@ -720,8 +787,7 @@ async fn run_query21(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK = :projectname")
         .filter_expression("#role = :role")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 1 item was returned: `timecard1`
     let items = query21_response.items.unwrap();
@@ -730,9 +796,13 @@ async fn run_query21(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
     // Known value test: Assert some properties the item
     assert_eq!(items[0]["partition_key"], ss("timecard1"));
     assert_eq!(items[0]["ProjectName"], ss("project_002"));
+    Ok(())
 }
 
-async fn run_query22(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query22(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 22: Get reservations by building ID
     // Key condition: PK = Building ID
 
@@ -745,8 +815,7 @@ async fn run_query22(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .set_expression_attribute_values(Some(query22_values))
         .key_condition_expression("PK = :building")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 2 items returned:
     // Expected to be `reservation1` and `reservation2`
@@ -758,10 +827,14 @@ async fn run_query22(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
             && (items[1]["partition_key"] == ss("reservation2")))
             || ((items[0]["partition_key"] == ss("reservation2"))
                 && (items[1]["partition_key"] == ss("reservation1")))
-    )
+    );
+    Ok(())
 }
 
-async fn run_query23(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn run_query23(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     // Query 23: Get reservations by building ID and time range
     // Key condition: PK = Building ID, SK between(date1, date2)
     // Filter condition: Duration > 0
@@ -786,8 +859,7 @@ async fn run_query23(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
         .key_condition_expression("PK = :building AND SK BETWEEN :date1 AND :date2")
         .filter_expression("#duration > :zero")
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // Assert 2 items returned:
     // Expected to be `reservation1` and `reservation2`
@@ -799,5 +871,6 @@ async fn run_query23(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
             && (items[1]["partition_key"] == ss("reservation2")))
             || ((items[0]["partition_key"] == ss("reservation2"))
                 && (items[1]["partition_key"] == ss("reservation1")))
-    )
+    );
+    Ok(())
 }

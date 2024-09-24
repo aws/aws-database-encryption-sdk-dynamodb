@@ -18,13 +18,17 @@ use std::collections::HashMap;
  *   items would extend the test and example coverage.
  */
 
-pub async fn put_all_items_to_table(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
-    put_all_meeting_items(ddb_table_name, ddb).await;
-    put_all_employee_items(ddb_table_name, ddb).await;
-    put_all_project_items(ddb_table_name, ddb).await;
-    put_all_reservation_items(ddb_table_name, ddb).await;
-    put_all_ticket_items(ddb_table_name, ddb).await;
-    put_all_timecard_items(ddb_table_name, ddb).await;
+pub async fn put_all_items_to_table(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
+    put_all_meeting_items(ddb_table_name, ddb).await?;
+    put_all_employee_items(ddb_table_name, ddb).await?;
+    put_all_project_items(ddb_table_name, ddb).await?;
+    put_all_reservation_items(ddb_table_name, ddb).await?;
+    put_all_ticket_items(ddb_table_name, ddb).await?;
+    put_all_timecard_items(ddb_table_name, ddb).await?;
+    Ok(())
 }
 
 fn ss(s: &str) -> AttributeValue {
@@ -38,17 +42,20 @@ async fn put_item(
     ddb_table_name: &str,
     ddb: &mut aws_sdk_dynamodb::Client,
     item: HashMap<String, AttributeValue>,
-) {
+) -> Result<(), crate::BoxError> {
     ddb.put_item()
         .table_name(ddb_table_name)
         .set_item(Some(item))
         .send()
-        .await
-        .unwrap();
+        .await?;
+    Ok(())
 }
 
 // emeeting.json
-async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn put_all_meeting_items(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     let meeting1_attendee_list = vec![ss("able@gmail.com"), ss("zorro@gmail.com")];
     let meeting1_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
     let meeting1 = HashMap::from([
@@ -64,7 +71,7 @@ async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
             AttributeValue::L(meeting1_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, meeting1).await;
+    put_item(ddb_table_name, ddb, meeting1).await?;
 
     let meeting2_attendee_list = vec![ss("barney@gmail.com"), ss("zorro@gmail.com")];
     let meeting2_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
@@ -81,7 +88,7 @@ async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
             AttributeValue::L(meeting2_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, meeting2).await;
+    put_item(ddb_table_name, ddb, meeting2).await?;
 
     let meeting3_attendee_list = vec![ss("charlie@gmail.com"), ss("zorro@gmail.com")];
     let meeting3_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
@@ -98,7 +105,7 @@ async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
             AttributeValue::L(meeting3_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, meeting3).await;
+    put_item(ddb_table_name, ddb, meeting3).await?;
 
     let meeting4_attendee_list = vec![ss("david@gmail.com"), ss("zorro@gmail.com")];
     let meeting4_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
@@ -115,7 +122,7 @@ async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
             AttributeValue::L(meeting4_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, meeting4).await;
+    put_item(ddb_table_name, ddb, meeting4).await?;
 
     let meeting5_attendee_list = vec![ss("barney@gmail.com"), ss("zorro@gmail.com")];
     let meeting5_location = HashMap::from([entry("Floor", "12"), entry("Room", "407")]);
@@ -132,7 +139,7 @@ async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
             AttributeValue::L(meeting5_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, meeting5).await;
+    put_item(ddb_table_name, ddb, meeting5).await?;
 
     let meeting6_attendee_list = vec![ss("charlie@gmail.com"), ss("zorro@gmail.com")];
     let meeting6_location = HashMap::from([entry("Floor", "12"), entry("Room", "407")]);
@@ -149,11 +156,15 @@ async fn put_all_meeting_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
             AttributeValue::L(meeting6_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, meeting6).await;
+    put_item(ddb_table_name, ddb, meeting6).await?;
+    Ok(())
 }
 
 // employee.json
-async fn put_all_employee_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn put_all_employee_items(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     let employee1_location = HashMap::from([
         entry("Building", "44"),
         entry("Floor", "12"),
@@ -172,7 +183,7 @@ async fn put_all_employee_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
             AttributeValue::M(employee1_location),
         ),
     ]);
-    put_item(ddb_table_name, ddb, employee1).await;
+    put_item(ddb_table_name, ddb, employee1).await?;
 
     let employee2_location = HashMap::from([
         entry("Building", "44"),
@@ -192,7 +203,7 @@ async fn put_all_employee_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
             AttributeValue::M(employee2_location),
         ),
     ]);
-    put_item(ddb_table_name, ddb, employee2).await;
+    put_item(ddb_table_name, ddb, employee2).await?;
 
     let employee3_location = HashMap::from([
         entry("Building", "44"),
@@ -212,7 +223,7 @@ async fn put_all_employee_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
             AttributeValue::M(employee3_location),
         ),
     ]);
-    put_item(ddb_table_name, ddb, employee3).await;
+    put_item(ddb_table_name, ddb, employee3).await?;
 
     let employee4_location = HashMap::from([
         entry("Building", "22"),
@@ -232,11 +243,15 @@ async fn put_all_employee_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
             AttributeValue::M(employee4_location),
         ),
     ]);
-    put_item(ddb_table_name, ddb, employee4).await;
+    put_item(ddb_table_name, ddb, employee4).await?;
+    Ok(())
 }
 
 // project.json
-async fn put_all_project_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn put_all_project_items(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     let project1 = HashMap::from([
         entry("partition_key", "project1"),
         entry("ProjectName", "project_001"),
@@ -245,7 +260,7 @@ async fn put_all_project_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
         entry("Description", "Turbo Crypto"),
         entry("ProjectTarget", "2024-01-01"),
     ]);
-    put_item(ddb_table_name, ddb, project1).await;
+    put_item(ddb_table_name, ddb, project1).await?;
 
     let project2 = HashMap::from([
         entry("partition_key", "project2"),
@@ -255,7 +270,7 @@ async fn put_all_project_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
         entry("Description", "Scan Beacons"),
         entry("ProjectTarget", "2024-01-01"),
     ]);
-    put_item(ddb_table_name, ddb, project2).await;
+    put_item(ddb_table_name, ddb, project2).await?;
 
     let project3 = HashMap::from([
         entry("partition_key", "project3"),
@@ -265,7 +280,7 @@ async fn put_all_project_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
         entry("Description", "DB ESDK"),
         entry("ProjectTarget", "2023-02-27"),
     ]);
-    put_item(ddb_table_name, ddb, project3).await;
+    put_item(ddb_table_name, ddb, project3).await?;
 
     let project4 = HashMap::from([
         entry("partition_key", "project4"),
@@ -275,11 +290,15 @@ async fn put_all_project_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb:
         entry("Description", "S3EC"),
         entry("ProjectTarget", "2021-09-05"),
     ]);
-    put_item(ddb_table_name, ddb, project4).await;
+    put_item(ddb_table_name, ddb, project4).await?;
+    Ok(())
 }
 
 // reservation.json
-async fn put_all_reservation_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn put_all_reservation_items(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     let reservation1_attendee_list = vec![ss("able@gmail.com"), ss("barney@gmail.com")];
     let reservation1_location = HashMap::from([
         entry("Building", "SEA33"),
@@ -301,7 +320,7 @@ async fn put_all_reservation_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynam
             AttributeValue::L(reservation1_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, reservation1).await;
+    put_item(ddb_table_name, ddb, reservation1).await?;
 
     let reservation2_attendee_list = vec![ss("able@gmail.com"), ss("barney@gmail.com")];
     let reservation2_location = HashMap::from([
@@ -324,11 +343,15 @@ async fn put_all_reservation_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynam
             AttributeValue::L(reservation2_attendee_list),
         ),
     ]);
-    put_item(ddb_table_name, ddb, reservation2).await;
+    put_item(ddb_table_name, ddb, reservation2).await?;
+    Ok(())
 }
 
 // ticket.json
-async fn put_all_ticket_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn put_all_ticket_items(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     let ticket1 = HashMap::from([
         entry("partition_key", "ticket1"),
         entry("TicketNumber", "ticket_001"),
@@ -339,7 +362,7 @@ async fn put_all_ticket_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::
         entry("Subject", "Bad bug"),
         entry("Message", "This bug looks pretty bad"),
     ]);
-    put_item(ddb_table_name, ddb, ticket1).await;
+    put_item(ddb_table_name, ddb, ticket1).await?;
 
     let ticket2 = HashMap::from([
         entry("partition_key", "ticket2"),
@@ -351,7 +374,7 @@ async fn put_all_ticket_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::
         entry("Subject", "Bad bug"),
         entry("Message", "Charlie should handle this"),
     ]);
-    put_item(ddb_table_name, ddb, ticket2).await;
+    put_item(ddb_table_name, ddb, ticket2).await?;
 
     let ticket3 = HashMap::from([
         entry("partition_key", "ticket3"),
@@ -363,7 +386,7 @@ async fn put_all_ticket_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::
         entry("Subject", "Easy bug"),
         entry("Message", "This seems simple enough"),
     ]);
-    put_item(ddb_table_name, ddb, ticket3).await;
+    put_item(ddb_table_name, ddb, ticket3).await?;
 
     let ticket4 = HashMap::from([
         entry("partition_key", "ticket4"),
@@ -375,11 +398,15 @@ async fn put_all_ticket_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::
         entry("Subject", "Easy bug"),
         entry("Message", "that's in able's code"),
     ]);
-    put_item(ddb_table_name, ddb, ticket4).await;
+    put_item(ddb_table_name, ddb, ticket4).await?;
+    Ok(())
 }
 
 // timecard.json
-async fn put_all_timecard_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb::Client) {
+async fn put_all_timecard_items(
+    ddb_table_name: &str,
+    ddb: &mut aws_sdk_dynamodb::Client,
+) -> Result<(), crate::BoxError> {
     let timecard1 = HashMap::from([
         entry("partition_key", "timecard1"),
         entry("ProjectName", "project_002"),
@@ -388,7 +415,7 @@ async fn put_all_timecard_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
         entry("Hours", "40"),
         entry("Role", "SDE3"),
     ]);
-    put_item(ddb_table_name, ddb, timecard1).await;
+    put_item(ddb_table_name, ddb, timecard1).await?;
 
     let timecard2 = HashMap::from([
         entry("partition_key", "timecard2"),
@@ -398,7 +425,7 @@ async fn put_all_timecard_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
         entry("Hours", "20"),
         entry("Role", "PM"),
     ]);
-    put_item(ddb_table_name, ddb, timecard2).await;
+    put_item(ddb_table_name, ddb, timecard2).await?;
 
     let timecard3 = HashMap::from([
         entry("partition_key", "timecard3"),
@@ -408,7 +435,7 @@ async fn put_all_timecard_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
         entry("Hours", "40"),
         entry("Role", "SDE3"),
     ]);
-    put_item(ddb_table_name, ddb, timecard3).await;
+    put_item(ddb_table_name, ddb, timecard3).await?;
 
     let timecard4 = HashMap::from([
         entry("partition_key", "timecard4"),
@@ -418,5 +445,6 @@ async fn put_all_timecard_items(ddb_table_name: &str, ddb: &mut aws_sdk_dynamodb
         entry("Hours", "20"),
         entry("Role", "PM"),
     ]);
-    put_item(ddb_table_name, ddb, timecard4).await;
+    put_item(ddb_table_name, ddb, timecard4).await?;
+    Ok(())
 }

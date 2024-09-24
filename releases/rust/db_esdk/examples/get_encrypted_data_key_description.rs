@@ -8,11 +8,11 @@ use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetEncryptedD
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
-pub async fn get_encrypted_data_key_description() {
+pub async fn get_encrypted_data_key_description() -> Result<(), crate::BoxError> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let ddb_table_name = test_utils::TEST_DDB_TABLE_NAME;
-    let config = DynamoDbEncryptionConfig::builder().build().unwrap();
-    let ddb_enc = dbesdk_client::Client::from_conf(config).unwrap();
+    let config = DynamoDbEncryptionConfig::builder().build()?;
+    let ddb_enc = dbesdk_client::Client::from_conf(config)?;
 
     // 1. Define keys that will be used to retrieve item from the DynamoDB table.
     let key_to_get = HashMap::from([
@@ -31,8 +31,7 @@ pub async fn get_encrypted_data_key_description() {
         .set_key(Some(key_to_get))
         .table_name(ddb_table_name)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // 3. Extract the item from the dynamoDB table and prepare input for the GetEncryptedDataKeyDescription method.
     // Here, we are sending dynamodb item but you can also input the header itself by extracting the header from
@@ -43,8 +42,7 @@ pub async fn get_encrypted_data_key_description() {
         .get_encrypted_data_key_description()
         .input(input_union)
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     // The code below shows how we can send header as the input to the DynamoDB. This code is written to demo the
     // alternative approach. So, it is commented.
@@ -62,4 +60,5 @@ pub async fn get_encrypted_data_key_description() {
     );
 
     println!("get_encrypted_data_key_description successful.");
+    Ok(())
 }

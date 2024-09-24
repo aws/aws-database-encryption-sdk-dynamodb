@@ -10,7 +10,7 @@ use crate::test_utils;
  * right for your particular data set:
  * https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
  */
-pub async fn run_example(branch_key_id: &str) {
+pub async fn run_example(branch_key_id: &str) -> Result<(), crate::BoxError> {
     let ddb_table_name = test_utils::TEST_COMPLEX_DDB_TABLE_NAME;
     let branch_key_wrapping_kms_key_arn = test_utils::TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN;
     let branch_key_ddb_table_name = test_utils::TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME;
@@ -21,8 +21,9 @@ pub async fn run_example(branch_key_id: &str) {
         branch_key_wrapping_kms_key_arn,
         branch_key_ddb_table_name,
     )
-    .await;
-    super::put_requests::put_all_items_to_table(ddb_table_name, &mut ddb).await;
-    super::query_requests::run_queries(ddb_table_name, &mut ddb).await;
+    .await?;
+    super::put_requests::put_all_items_to_table(ddb_table_name, &mut ddb).await?;
+    super::query_requests::run_queries(ddb_table_name, &mut ddb).await?;
     println!("complex searchable encryption example successful.");
+    Ok(())
 }
