@@ -104,7 +104,6 @@ runs:
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        dotnet --version
         make polymorph_dafny ${{ steps.dependencies.outputs.PROJECT_DEPENDENCIES }}
 
     - name: Set up prettier in MPL
