@@ -62,6 +62,7 @@ runs:
       working-directory: submodules/MaterialProviders
       shell: bash
       run: |
+        dotnet --version
         git checkout main
         git pull
         git submodule update --init --recursive
