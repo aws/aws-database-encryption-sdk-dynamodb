@@ -782,13 +782,13 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                obj <- tmps9.Modifies | obj in tmps9.Modifies :: obj
     modifies set tmps10 <- set t10 <- config.tableEncryptionConfigs.Values | true
                                                                              && t10.search.Some?
-                             , t11 <- t10.search.value.versions :: t11.keyStore,
+                             , t11 <- t10.search.value.versions | true :: t11.keyStore,
                obj <- tmps10.Modifies | obj in tmps10.Modifies :: obj
     modifies set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values | true
                                                                              && t12.search.Some?
-                             , t13 <- t12.search.value.versions && t13.keySource.multi?
-                                      && t13.keySource.multi.cache.Some?
-                                      && t13.keySource.multi.cache.value.Shared?
+                             , t13 <- t12.search.value.versions | true && t13.keySource.multi?
+                                                                  && t13.keySource.multi.cache.Some?
+                                                                  && t13.keySource.multi.cache.value.Shared?
                              :: t13.keySource.multi.cache.value.Shared,
                obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
     ensures res.Success? ==>
@@ -808,13 +808,13 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                obj <- tmps16.Modifies | obj in tmps16.Modifies :: obj
                        ) - ( set tmps17 <- set t17 <- config.tableEncryptionConfigs.Values | true
                                                                                              && t17.search.Some?
-                                             , t18 <- t17.search.value.versions :: t18.keyStore,
+                                             , t18 <- t17.search.value.versions | true :: t18.keyStore,
                                obj <- tmps17.Modifies | obj in tmps17.Modifies :: obj
                        ) - ( set tmps19 <- set t19 <- config.tableEncryptionConfigs.Values | true
                                                                                              && t19.search.Some?
-                                             , t20 <- t19.search.value.versions && t20.keySource.multi?
-                                                      && t20.keySource.multi.cache.Some?
-                                                      && t20.keySource.multi.cache.value.Shared?
+                                             , t20 <- t19.search.value.versions | true && t20.keySource.multi?
+                                                                                  && t20.keySource.multi.cache.Some?
+                                                                                  && t20.keySource.multi.cache.value.Shared?
                                              :: t20.keySource.multi.cache.value.Shared,
                                obj <- tmps19.Modifies | obj in tmps19.Modifies :: obj
                        ) )
