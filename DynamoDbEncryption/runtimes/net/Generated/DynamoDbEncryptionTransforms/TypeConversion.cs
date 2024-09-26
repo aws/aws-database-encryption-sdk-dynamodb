@@ -7,6 +7,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
 {
   public static class TypeConversion
   {
+    private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+
+    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
+
     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.DynamoDbTablesEncryptionConfig FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S30_DynamoDbTablesEncryptionConfig(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IDynamoDbTablesEncryptionConfig value)
     {
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTablesEncryptionConfig concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbTablesEncryptionConfig)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.DynamoDbTablesEncryptionConfig converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.DynamoDbTablesEncryptionConfig(); converted.TableEncryptionConfigs = (System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.DynamoDbTableEncryptionConfig>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S30_DynamoDbTablesEncryptionConfig__M22_tableEncryptionConfigs(concrete._tableEncryptionConfigs); return converted;
@@ -5774,6 +5778,11 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
         converted.StormTracking = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType__M13_StormTracking(concrete.dtor_StormTracking);
         return converted;
       }
+      if (value.is_Shared)
+      {
+        converted.Shared = FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType__M6_Shared(concrete.dtor_Shared);
+        return converted;
+      }
       throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.CacheType state");
     }
     public static software.amazon.cryptography.materialproviders.internaldafny.types._ICacheType ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType(AWS.Cryptography.MaterialProviders.CacheType value)
@@ -5797,6 +5806,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       if (value.IsSetStormTracking())
       {
         return software.amazon.cryptography.materialproviders.internaldafny.types.CacheType.create_StormTracking(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType__M13_StormTracking(value.StormTracking));
+      }
+      if (value.IsSetShared())
+      {
+        return software.amazon.cryptography.materialproviders.internaldafny.types.CacheType.create_Shared(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType__M6_Shared(value.Shared));
       }
       throw new System.ArgumentException("Invalid AWS.Cryptography.MaterialProviders.CacheType state");
     }
@@ -5933,6 +5946,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     {
       return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache(value);
     }
+    public static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType__M6_Shared(software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
+    }
+    public static software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S9_CacheType__M6_Shared(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
+    }
     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.PartOnly FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BeaconStyle__M8_partOnly(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IPartOnly value)
     {
       return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S8_PartOnly(value);
@@ -6038,6 +6059,18 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       value.Validate();
       int? var_entryPruningTailSize = value.IsSetEntryPruningTailSize() ? value.EntryPruningTailSize : (int?)null;
       return new software.amazon.cryptography.materialproviders.internaldafny.types.StormTrackingCache(ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M13_entryCapacity(value.EntryCapacity), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M20_entryPruningTailSize(var_entryPruningTailSize), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M11_gracePeriod(value.GracePeriod), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M13_graceInterval(value.GraceInterval), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M6_fanOut(value.FanOut), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M11_inFlightTTL(value.InFlightTTL), ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S18_StormTrackingCache__M10_sleepMilli(value.SleepMilli));
+    }
+    public static AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache value)
+    {
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
+    }
+    public static software.amazon.cryptography.materialproviders.internaldafny.types.ICryptographicMaterialsCache ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(AWS.Cryptography.MaterialProviders.ICryptographicMaterialsCache value)
+    {
+      // This is converting a reference type in a dependant module.
+      // Therefore it defers to the dependant module for conversion
+      return AWS.Cryptography.MaterialProviders.TypeConversion.ToDafny_N3_aws__N12_cryptography__N17_materialProviders__S36_CryptographicMaterialsCacheReference(value);
     }
     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.PartOnly FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S8_PartOnly(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IPartOnly value)
     {

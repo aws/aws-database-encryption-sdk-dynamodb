@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
-index da904fc3..c5b0bedd 100644
+index da904fc..c5b0bed 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
 @@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor

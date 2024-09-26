@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
-index d0a4e585..4e9890cf 100644
+index d0a4e58..4e9890c 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
 @@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
