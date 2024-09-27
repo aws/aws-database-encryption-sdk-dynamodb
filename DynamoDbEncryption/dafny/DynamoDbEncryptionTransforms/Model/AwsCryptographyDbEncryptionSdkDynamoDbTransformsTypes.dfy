@@ -759,15 +759,15 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 var tmps4 := set t4 | t4 in tmp3.search.value.versions;
                                 forall tmp4 :: tmp4 in tmps4 ==>
                                                  tmp4.keyStore.ValidState()
-    // requires var tmps5 := set t5 | t5 in config.tableEncryptionConfigs.Values;
-    //          forall tmp5 :: tmp5 in tmps5 ==>
-    //                           tmp5.search.Some? ==>
-    //                             var tmps6 := set t6 | t6 in tmp5.search.value.versions;
-    //                             forall tmp6 :: tmp6 in tmps6 ==>
-    //                                              tmp6.keySource.multi? ==>
-    //                                                tmp6.keySource.multi.cache.Some? ==>
-    //                                                  tmp6.keySource.multi.cache.value.Shared? ==>
-    //                                                    tmp6.keySource.multi.cache.value.Shared.ValidState()
+    requires var tmps5 := set t5 | t5 in config.tableEncryptionConfigs.Values;
+             forall tmp5 :: tmp5 in tmps5 ==>
+                              tmp5.search.Some? ==>
+                                var tmps6 := set t6 | t6 in tmp5.search.value.versions;
+                                forall tmp6 :: tmp6 in tmps6 ==>
+                                                 tmp6.keySource.multi? ==>
+                                                   tmp6.keySource.multi.cache.Some? ==>
+                                                     tmp6.keySource.multi.cache.value.Shared? ==>
+                                                       tmp6.keySource.multi.cache.value.Shared.ValidState()
     modifies set tmps7 <- set t7 <- config.tableEncryptionConfigs.Values | true
                                                                            && t7.keyring.Some?
                             :: t7.keyring.value,
@@ -785,14 +785,14 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                              , t11 <- t10.search.value.versions | true
                              :: t11.keyStore,
                obj <- tmps10.Modifies | obj in tmps10.Modifies :: obj
-    // modifies set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values | true
-    //                                                                          && t12.search.Some?
-    //                          , t13 <- t12.search.value.versions | true
-    //                                                               && t13.keySource.multi?
-    //                                                               && t13.keySource.multi.cache.Some?
-    //                                                               && t13.keySource.multi.cache.value.Shared?
-    //                          :: t13.keySource.multi.cache.value.Shared,
-    //            obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
+    modifies set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values | true
+                                                                             && t12.search.Some?
+                             , t13 <- t12.search.value.versions | true
+                                                                  && t13.keySource.multi?
+                                                                  && t13.keySource.multi.cache.Some?
+                                                                  && t13.keySource.multi.cache.value.Shared?
+                             :: t13.keySource.multi.cache.value.Shared,
+               obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies
@@ -813,14 +813,14 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                              , t18 <- t17.search.value.versions | true
                                              :: t18.keyStore,
                                obj <- tmps17.Modifies | obj in tmps17.Modifies :: obj
-                                                                                  //  ) - ( set tmps19 <- set t19 <- config.tableEncryptionConfigs.Values | true
-                                                                                  //                                                                        && t19.search.Some?
-                                                                                  //                        , t20 <- t19.search.value.versions | true
-                                                                                  //                                                             && t20.keySource.multi?
-                                                                                  //                                                             && t20.keySource.multi.cache.Some?
-                                                                                  //                                                             && t20.keySource.multi.cache.value.Shared?
-                                                                                  //                        :: t20.keySource.multi.cache.value.Shared,
-                                                                                  //          obj <- tmps19.Modifies | obj in tmps19.Modifies :: obj
+                       ) - ( set tmps19 <- set t19 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t19.search.Some?
+                                             , t20 <- t19.search.value.versions | true
+                                                                                  && t20.keySource.multi?
+                                                                                  && t20.keySource.multi.cache.Some?
+                                                                                  && t20.keySource.multi.cache.value.Shared?
+                                             :: t20.keySource.multi.cache.value.Shared,
+                               obj <- tmps19.Modifies | obj in tmps19.Modifies :: obj
                        ) )
               && fresh(res.value.History)
               && res.value.ValidState()
@@ -842,15 +842,15 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 var tmps25 := set t25 | t25 in tmp24.search.value.versions;
                                 forall tmp25 :: tmp25 in tmps25 ==>
                                                   tmp25.keyStore.ValidState()
-  // ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
-  //         forall tmp26 :: tmp26 in tmps26 ==>
-  //                           tmp26.search.Some? ==>
-  //                             var tmps27 := set t27 | t27 in tmp26.search.value.versions;
-  //                             forall tmp27 :: tmp27 in tmps27 ==>
-  //                                               tmp27.keySource.multi? ==>
-  //                                                 tmp27.keySource.multi.cache.Some? ==>
-  //                                                   tmp27.keySource.multi.cache.value.Shared? ==>
-  //                                                     tmp27.keySource.multi.cache.value.Shared.ValidState()
+    ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
+            forall tmp26 :: tmp26 in tmps26 ==>
+                              tmp26.search.Some? ==>
+                                var tmps27 := set t27 | t27 in tmp26.search.value.versions;
+                                forall tmp27 :: tmp27 in tmps27 ==>
+                                                  tmp27.keySource.multi? ==>
+                                                    tmp27.keySource.multi.cache.Some? ==>
+                                                      tmp27.keySource.multi.cache.value.Shared? ==>
+                                                        tmp27.keySource.multi.cache.value.Shared.ValidState()
 
   // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbEncryptionTransformsClient): Result<IDynamoDbEncryptionTransformsClient, Error> {
