@@ -813,14 +813,14 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                              , t18 <- t17.search.value.versions | true
                                              :: t18.keyStore,
                                obj <- tmps17.Modifies | obj in tmps17.Modifies :: obj
-                      //  ) - ( set tmps19 <- set t19 <- config.tableEncryptionConfigs.Values | true
-                      //                                                                        && t19.search.Some?
-                      //                        , t20 <- t19.search.value.versions | true
-                      //                                                             && t20.keySource.multi?
-                      //                                                             && t20.keySource.multi.cache.Some?
-                      //                                                             && t20.keySource.multi.cache.value.Shared?
-                      //                        :: t20.keySource.multi.cache.value.Shared,
-                      //          obj <- tmps19.Modifies | obj in tmps19.Modifies :: obj
+                                                                                  //  ) - ( set tmps19 <- set t19 <- config.tableEncryptionConfigs.Values | true
+                                                                                  //                                                                        && t19.search.Some?
+                                                                                  //                        , t20 <- t19.search.value.versions | true
+                                                                                  //                                                             && t20.keySource.multi?
+                                                                                  //                                                             && t20.keySource.multi.cache.Some?
+                                                                                  //                                                             && t20.keySource.multi.cache.value.Shared?
+                                                                                  //                        :: t20.keySource.multi.cache.value.Shared,
+                                                                                  //          obj <- tmps19.Modifies | obj in tmps19.Modifies :: obj
                        ) )
               && fresh(res.value.History)
               && res.value.ValidState()
