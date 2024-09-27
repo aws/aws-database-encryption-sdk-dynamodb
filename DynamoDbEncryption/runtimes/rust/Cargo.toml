@@ -11,6 +11,7 @@ repository = "https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/m
 authors = ["AWS-CryptoTools"]
 documentation = "https://docs.rs/crate/aws-db-esdk"
 autoexamples = false
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
