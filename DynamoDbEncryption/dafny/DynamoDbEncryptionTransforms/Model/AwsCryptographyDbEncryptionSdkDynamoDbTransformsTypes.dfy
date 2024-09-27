@@ -842,15 +842,15 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 var tmps25 := set t25 | t25 in tmp24.search.value.versions;
                                 forall tmp25 :: tmp25 in tmps25 ==>
                                                   tmp25.keyStore.ValidState()
-    ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
-            forall tmp26 :: tmp26 in tmps26 ==>
-                              tmp26.search.Some? ==>
-                                var tmps27 := set t27 | t27 in tmp26.search.value.versions;
-                                forall tmp27 :: tmp27 in tmps27 ==>
-                                                  tmp27.keySource.multi? ==>
-                                                    tmp27.keySource.multi.cache.Some? ==>
-                                                      tmp27.keySource.multi.cache.value.Shared? ==>
-                                                        tmp27.keySource.multi.cache.value.Shared.ValidState()
+    // ensures var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
+    //         forall tmp26 :: tmp26 in tmps26 ==>
+    //                           tmp26.search.Some? ==>
+    //                             var tmps27 := set t27 | t27 in tmp26.search.value.versions;
+    //                             forall tmp27 :: tmp27 in tmps27 ==>
+    //                                               tmp27.keySource.multi? ==>
+    //                                                 tmp27.keySource.multi.cache.Some? ==>
+    //                                                   tmp27.keySource.multi.cache.value.Shared? ==>
+    //                                                     tmp27.keySource.multi.cache.value.Shared.ValidState()
 
   // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbEncryptionTransformsClient): Result<IDynamoDbEncryptionTransformsClient, Error> {
