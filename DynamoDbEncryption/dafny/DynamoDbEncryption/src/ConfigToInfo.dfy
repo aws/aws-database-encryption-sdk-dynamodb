@@ -63,10 +63,43 @@ module SearchConfigToInfo {
   }
 
   predicate ValidBeaconVersion(config : BeaconVersion)
+    reads
+      if
+        && config.keySource.multi?
+        && config.keySource.multi.cache.Some?
+        && config.keySource.multi.cache.value.Shared?
+      then
+        {config.keySource.multi.cache.value.Shared as object} + config.keySource.multi.cache.value.Shared.Modifies
+      else {}
   {
-    config.keyStore.ValidState()
+    && config.keyStore.ValidState()
+    && (
+         && config.keySource.multi?
+         && config.keySource.multi.cache.Some?
+         && config.keySource.multi.cache.value.Shared?
+         ==>
+           && config.keySource.multi.cache.value.Shared.ValidState()
+       )
   }
   predicate ValidSearchConfig(config : Option<SearchConfig>)
+  reads
+  if config.Some? then
+    set
+      c <- config.value.versions |
+        && c.keySource.multi?
+        && c.keySource.multi.cache.Some?
+        && c.keySource.multi.cache.value.Shared?
+      :: c.keySource.multi.cache.value.Shared
+  else {},
+  if config.Some? then
+    set
+      c <- config.value.versions |
+        && c.keySource.multi?
+        && c.keySource.multi.cache.Some?
+        && c.keySource.multi.cache.value.Shared?,
+      o <- c.keySource.multi.cache.value.Shared.Modifies
+      :: o
+  else {}
   {
     if config.None? then
       true
