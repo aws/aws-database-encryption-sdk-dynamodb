@@ -30,6 +30,24 @@ module
   }
 
   predicate ValidWholeSearchConfig(config : ET.DynamoDbTablesEncryptionConfig)
+    reads
+      set
+        t <- config.tableEncryptionConfigs |
+          config.tableEncryptionConfigs[t].search.Some?,
+        c <- config.tableEncryptionConfigs[t].search.value.versions |
+          && c.keySource.multi?
+          && c.keySource.multi.cache.Some?
+          && c.keySource.multi.cache.value.Shared?
+        :: c.keySource.multi.cache.value.Shared,
+      set
+        t <- config.tableEncryptionConfigs |
+          config.tableEncryptionConfigs[t].search.Some?,
+        f <- config.tableEncryptionConfigs[t].search.value.versions |
+          && f.keySource.multi?
+          && f.keySource.multi.cache.Some?
+          && f.keySource.multi.cache.value.Shared?,
+        o <- f.keySource.multi.cache.value.Shared.Modifies
+        :: o
   {
     forall t <- config.tableEncryptionConfigs
       ::
@@ -148,7 +166,54 @@ module
   //                         tmp27.keySource.multi.cache.value.Shared.ValidState()
   // }
 
-  method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
+
+  //   //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
+  //   //# During initialization, this client MUST construct a
+  //   //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
+  //   //# per configured table, using these table encryption configs.
+  //   var m' := config.tableEncryptionConfigs;
+  //   var mKeys := m'.Keys;
+  //   var tableNamesSeq := SortedSets.ComputeSetToSequence(mKeys);
+  //   ghost var mKeysSet := mKeys;
+
+  //   ghost var inputConfigsModifies: set<object> := set
+  //     tableConfig <- config.tableEncryptionConfigs.Values,
+  //     o <- (
+  //            (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
+  //            + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
+  //            + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
+  //          )
+  //     :: o;
+
+  //   var allLogicalTableNames := {};
+  //   var i := 0;
+
+  //   while i < |tableNamesSeq|
+  //     invariant m'.Keys <= config.tableEncryptionConfigs.Keys
+  //     invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
+  //     invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
+
+  //     invariant CorrectlyTransferedStructure?(internalConfigs, config)
+  //     invariant AllTableConfigsValid?(internalConfigs)
+  //     invariant ValidConfig?(Config(internalConfigs))
+
+  //     // invariant BiteMe(config)
+
+  //     modifies inputConfigsModifies
+  //   {
+  //     var tableName: string := tableNamesSeq[i];
+
+  //     var inputConfig := config.tableEncryptionConfigs[tableName];
+  //     :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
+
+  //     assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search) by {
+  //       assert ValidWholeSearchConfig(config);
+  //       assert inputConfig in config.tableEncryptionConfigs.Values;
+  //     }
+  //   }
+  // }
+
+  method {:vcs_split_on_every_assert} {:only} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
     //= type=implication
@@ -196,7 +261,7 @@ module
       invariant AllTableConfigsValid?(internalConfigs)
       invariant ValidConfig?(Config(internalConfigs))
 
-      // invariant BiteMe(config)
+      invariant ValidWholeSearchConfig(config)
 
       modifies inputConfigsModifies
     {
@@ -282,6 +347,7 @@ module
       }
 
       i := i + 1;
+      assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
     }
     assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
 

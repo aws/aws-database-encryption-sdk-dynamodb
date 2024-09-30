@@ -50,6 +50,8 @@ module SearchConfigToInfo {
     //= type=implication
     //# Initialization MUST fail if the length of the list of [beacon versions](#beacon-version-initialization) is not 1.
     ensures outer.search.Some? && |outer.search.value.versions| != 1 ==> output.Failure?
+
+    ensures ValidSearchConfig(outer.search)
   {
     if outer.search.None? {
       return Success(None);
