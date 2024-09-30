@@ -96,6 +96,8 @@ runs:
       shell: bash
       run: |
         echo "PROJECT_DEPENDENCIES=${{ inputs.update-and-regenerate-mpl != 'true' && 'PROJECT_DEPENDENCIES=' || '' }}" >> $GITHUB_OUTPUT
+      run: |
+        dotnet --version
 
     - name: Regenerate Dafny code using smithy-dafny
       # Unfortunately Dafny codegen doesn't work on Windows:
