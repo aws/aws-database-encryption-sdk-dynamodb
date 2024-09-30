@@ -98,6 +98,7 @@ runs:
         echo "PROJECT_DEPENDENCIES=${{ inputs.update-and-regenerate-mpl != 'true' && 'PROJECT_DEPENDENCIES=' || '' }}" >> $GITHUB_OUTPUT
 
     - name: Print dotnet version
+      shell: bash
       run: |
         dotnet --version
 
