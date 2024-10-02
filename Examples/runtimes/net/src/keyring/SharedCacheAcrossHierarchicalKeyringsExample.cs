@@ -87,17 +87,17 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
         var logicalKeyStoreName = TestUtils.TEST_LOGICAL_KEYSTORE_NAME;
         var partitionId = TestUtils.TEST_PARTITION_ID;
         var kmsKeyId = TestUtils.TEST_KEYSTORE_KMS_KEY_ID;
-        
+
         // 1. Create the CryptographicMaterialsCache (CMC) to share across multiple Hierarchical Keyrings
         //    using the Material Providers Library
         //      This CMC takes in:
         //      - CacheType
         var materialProviders = new MaterialProviders(new MaterialProvidersConfig());
 
-        var cache = new CacheType { Default = new DefaultCache{EntryCapacity = 100} };
+        var cache = new CacheType { Default = new DefaultCache { EntryCapacity = 100 } };
 
-        var cryptographicMaterialsCacheInput = new CreateCryptographicMaterialsCacheInput {Cache = cache};
-        
+        var cryptographicMaterialsCacheInput = new CreateCryptographicMaterialsCacheInput { Cache = cache };
+
         var sharedCryptographicMaterialsCache = materialProviders.CreateCryptographicMaterialsCache(cryptographicMaterialsCacheInput);
 
         // 2. Create a CacheType object for the sharedCryptographicMaterialsCache
