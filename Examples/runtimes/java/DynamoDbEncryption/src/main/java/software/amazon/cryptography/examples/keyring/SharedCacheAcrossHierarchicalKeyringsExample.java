@@ -2,7 +2,6 @@ package software.amazon.cryptography.examples.keyring;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -107,31 +106,28 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     //    using the Material Providers Library
     //      This CMC takes in:
     //      - CacheType
-    final MaterialProviders matProv =
-      MaterialProviders.builder()
-        .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
-        .build();
+    final MaterialProviders matProv = MaterialProviders.builder()
+      .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+      .build();
 
-    final CacheType cache =
-      CacheType.builder() 
-        .Default(DefaultCache.builder().entryCapacity(100).build())
-        .build();
+    final CacheType cache = CacheType.builder()
+      .Default(DefaultCache.builder().entryCapacity(100).build())
+      .build();
 
     final CreateCryptographicMaterialsCacheInput cryptographicMaterialsCacheInput =
-      CreateCryptographicMaterialsCacheInput.builder()
-        .cache(cache)
-        .build();
+      CreateCryptographicMaterialsCacheInput.builder().cache(cache).build();
 
     final ICryptographicMaterialsCache sharedCryptographicMaterialsCache =
-      matProv.CreateCryptographicMaterialsCache(cryptographicMaterialsCacheInput);
+      matProv.CreateCryptographicMaterialsCache(
+        cryptographicMaterialsCacheInput
+      );
 
     // 2. Create a CacheType object for the sharedCryptographicMaterialsCache
     //    Note that the `cache` parameter in the Hierarchical Keyring Input takes a `CacheType` as input
-    final CacheType sharedCache =
-      CacheType.builder()
-        // This is the `Shared` CacheType that passes an already initialized shared cache
-        .Shared(sharedCryptographicMaterialsCache)
-        .build();
+    final CacheType sharedCache = CacheType.builder()
+      // This is the `Shared` CacheType that passes an already initialized shared cache
+      .Shared(sharedCryptographicMaterialsCache)
+      .build();
 
     // Initial KeyStore Setup: This example requires that you have already
     // created your KeyStore, and have populated it with a new branch key.
@@ -141,11 +137,9 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     //    to initially create and populate your KeyStore.
     // Note that keyStoreTableName is the physical Key Store,
     // and keystore1 is instances of this physical Key Store.
-    final KeyStore keystore1 = KeyStore
-      .builder()
+    final KeyStore keystore1 = KeyStore.builder()
       .KeyStoreConfig(
-        KeyStoreConfig
-          .builder()
+        KeyStoreConfig.builder()
           .ddbClient(DynamoDbClient.create())
           .ddbTableName(keyStoreTableName)
           .logicalKeyStoreName(logicalKeyStoreName)
@@ -161,7 +155,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     //    the shared Cache and the BranchKeyId.
     //    Note that we are now providing an already initialized shared cache instead of just mentioning
     //    the cache type and the Hierarchical Keyring initializing a cache at initialization.
-    
+
     // This example creates a Hierarchical Keyring for a single BranchKeyId. You can, however, use a
     // BranchKeyIdSupplier as per your use-case. See the HierarchicalKeyringsExample.java for more
     // information.
@@ -170,8 +164,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // Branch Key ID at the top of this example before creating Hierarchical Keyrings with a Shared Cache.
     // partitionId for this example is a random UUID
     final CreateAwsKmsHierarchicalKeyringInput keyringInput1 =
-      CreateAwsKmsHierarchicalKeyringInput
-        .builder()
+      CreateAwsKmsHierarchicalKeyringInput.builder()
         .keyStore(keystore1)
         .branchKeyId(branchKeyId)
         .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
@@ -180,7 +173,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
         .build();
     final IKeyring hierarchicalKeyring1 =
       matProv.CreateAwsKmsHierarchicalKeyring(keyringInput1);
-    
+
     // 4. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
     //    we must explicitly configure how they should be treated during item encryption:
@@ -196,7 +189,11 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     );
 
     // 5. Get the DDB Client for Hierarchical Keyring 1.
-    final DynamoDbClient ddbClient1 = GetDDBClient(ddbTableName, hierarchicalKeyring1, attributeActionsOnEncrypt);
+    final DynamoDbClient ddbClient1 = GetDDBClient(
+      ddbTableName,
+      hierarchicalKeyring1,
+      attributeActionsOnEncrypt
+    );
 
     // 6. Encrypt Decrypt roundtrip with ddbClient1
     PutGetItems(ddbTableName, ddbClient1);
@@ -204,7 +201,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // Through the above encrypt and decrypt roundtrip, the cache will be populated and
     // the cache entries can be used by another Hierarchical Keyring with the
     // - Same Partition ID
-    // - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring 
+    // - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring
     // - Same Branch Key ID
 
     // 7. Configure your KeyStore resource keystore2.
@@ -212,7 +209,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     //       to initially create and populate your physical KeyStore.
     //    Note that keyStoreTableName is the physical Key Store,
     //    and keystore2 is instances of this physical Key Store.
-    
+
     // Note that for this example, keystore2 is identical to keystore1.
     // You can optionally change configurations like KMS Client or KMS Key ID based
     // on your use-case.
@@ -224,11 +221,9 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // - If you set the Logical Key Store Names for K1 and K2 to be different,
     //   HK1 (which uses Key Store instance K1) and HK2 (which uses Key Store
     //   instance K2) will NOT be able to share cache entries.
-    final KeyStore keystore2 = KeyStore
-      .builder()
+    final KeyStore keystore2 = KeyStore.builder()
       .KeyStoreConfig(
-        KeyStoreConfig
-          .builder()
+        KeyStoreConfig.builder()
           .ddbClient(DynamoDbClient.create())
           .ddbTableName(keyStoreTableName)
           .logicalKeyStoreName(logicalKeyStoreName)
@@ -248,8 +243,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // Branch Key ID at the top of this example before creating Hierarchical Keyrings with a Shared Cache.
     // partitionId for this example is a random UUID
     final CreateAwsKmsHierarchicalKeyringInput keyringInput2 =
-      CreateAwsKmsHierarchicalKeyringInput
-        .builder()
+      CreateAwsKmsHierarchicalKeyringInput.builder()
         .keyStore(keystore2)
         .branchKeyId(branchKeyId)
         .ttlSeconds(600) // This dictates how often we call back to KMS to authorize use of the branch keys
@@ -260,7 +254,11 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
       matProv.CreateAwsKmsHierarchicalKeyring(keyringInput2);
 
     // 9. Get the DDB Client for Hierarchical Keyring 2.
-    final DynamoDbClient ddbClient2 = GetDDBClient(ddbTableName, hierarchicalKeyring2, attributeActionsOnEncrypt);
+    final DynamoDbClient ddbClient2 = GetDDBClient(
+      ddbTableName,
+      hierarchicalKeyring2,
+      attributeActionsOnEncrypt
+    );
 
     // 10. Encrypt Decrypt roundtrip with ddbClient2
     PutGetItems(ddbTableName, ddbClient2);
@@ -304,41 +302,37 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // Create the DynamoDb Encryption configuration for the table we will be writing to.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs =
       new HashMap<>();
-    final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig
-      .builder()
-      .logicalTableName(ddbTableName)
-      .partitionKeyName("partition_key")
-      .sortKeyName("sort_key")
-      .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
-      .keyring(hierarchicalKeyring)
-      .allowedUnsignedAttributePrefix(unsignAttrPrefix)
-      .build();
+    final DynamoDbTableEncryptionConfig config =
+      DynamoDbTableEncryptionConfig.builder()
+        .logicalTableName(ddbTableName)
+        .partitionKeyName("partition_key")
+        .sortKeyName("sort_key")
+        .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
+        .keyring(hierarchicalKeyring)
+        .allowedUnsignedAttributePrefix(unsignAttrPrefix)
+        .build();
     tableConfigs.put(ddbTableName, config);
 
     // Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor =
-      DynamoDbEncryptionInterceptor
-        .builder()
+      DynamoDbEncryptionInterceptor.builder()
         .config(
-          DynamoDbTablesEncryptionConfig
-            .builder()
+          DynamoDbTablesEncryptionConfig.builder()
             .tableEncryptionConfigs(tableConfigs)
             .build()
         )
         .build();
 
     // Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
-    final DynamoDbClient ddbClient = DynamoDbClient
-      .builder()
+    final DynamoDbClient ddbClient = DynamoDbClient.builder()
       .overrideConfiguration(
-        ClientOverrideConfiguration
-          .builder()
+        ClientOverrideConfiguration.builder()
           .addExecutionInterceptor(encryptionInterceptor)
           .build()
       )
       .build();
-    
-      return ddbClient;
+
+    return ddbClient;
   }
 
   public static void PutGetItems(
@@ -359,8 +353,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
       AttributeValue.builder().s("encrypt and sign me!").build()
     );
 
-    final PutItemRequest putRequest = PutItemRequest
-      .builder()
+    final PutItemRequest putRequest = PutItemRequest.builder()
       .tableName(ddbTableName)
       .item(item)
       .build();
@@ -377,14 +370,10 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // BranchKeyIdSupplier as per your use-case. See the HierarchicalKeyringsExample.java for more
     // information.
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put(
-      "partition_key",
-      AttributeValue.builder().s("id").build()
-    );
+    keyToGet.put("partition_key", AttributeValue.builder().s("id").build());
     keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
-    final GetItemRequest getRequest = GetItemRequest
-      .builder()
+    final GetItemRequest getRequest = GetItemRequest.builder()
       .key(keyToGet)
       .tableName(ddbTableName)
       .build();
