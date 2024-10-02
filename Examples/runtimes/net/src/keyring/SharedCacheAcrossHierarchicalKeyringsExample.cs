@@ -142,7 +142,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
             Cache = sharedCache,
             PartitionId = partitionId
         };
-        var hierarchicalKeyring1 = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput1);
+        IKeyring hierarchicalKeyring1 = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput1);
 
         // 4. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -214,7 +214,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
             Cache = sharedCache,
             PartitionId = partitionId
         };
-        var hierarchicalKeyring2 = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput2);
+        IKeyring hierarchicalKeyring2 = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput2);
 
         // 9. Get the DDB Client for Hierarchical Keyring 2.
         var ddbClient2 = GetDdbClient(
@@ -229,7 +229,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
 
     public static Client.DynamoDbClient GetDdbClient(
         String ddbTableName,
-        MaterialProviders.IKeyring hierarchicalKeyring,
+        IKeyring hierarchicalKeyring,
         Dictionary<String, CryptoAction> attributeActionsOnEncrypt
     )
     {
