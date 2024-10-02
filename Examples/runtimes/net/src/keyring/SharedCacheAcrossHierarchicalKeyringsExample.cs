@@ -137,12 +137,12 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
         var keyringInput1 = new CreateAwsKmsHierarchicalKeyringInput
         {
             KeyStore = keystore1,
-            branchKeyId = branchKeyId,
+            BranchKeyId = branchKeyId,
             TtlSeconds = 600, // This dictates how often we call back to KMS to authorize use of the branch keys
             Cache = sharedCache,
             PartitionId = partitionId
         };
-        IKeyring hierarchicalKeyring1 = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput1);
+        IKeyring hierarchicalKeyring1 = materialProviders.CreateAwsKmsHierarchicalKeyring(keyringInput1);
 
         // 4. Configure which attributes are encrypted and/or signed when writing new items.
         //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -209,12 +209,12 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
         var keyringInput2 = new CreateAwsKmsHierarchicalKeyringInput
         {
             KeyStore = keystore2,
-            branchKeyId = branchKeyId,
+            BranchKeyId = branchKeyId,
             TtlSeconds = 600, // This dictates how often we call back to KMS to authorize use of the branch keys
             Cache = sharedCache,
             PartitionId = partitionId
         };
-        IKeyring hierarchicalKeyring2 = matProv.CreateAwsKmsHierarchicalKeyring(keyringInput2);
+        IKeyring hierarchicalKeyring2 = materialProviders.CreateAwsKmsHierarchicalKeyring(keyringInput2);
 
         // 9. Get the DDB Client for Hierarchical Keyring 2.
         var ddbClient2 = GetDdbClient(
@@ -284,7 +284,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample
         return ddbClient;
     }
 
-    public static void PutGetItems(
+    public static async void PutGetItems(
         String ddbTableName,
         Client.DynamoDbClient ddbClient
     )
