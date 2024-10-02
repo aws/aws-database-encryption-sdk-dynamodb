@@ -189,7 +189,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     );
 
     // 5. Get the DDB Client for Hierarchical Keyring 1.
-    final DynamoDbClient ddbClient1 = GetDDBClient(
+    final DynamoDbClient ddbClient1 = GetDdbClient(
       ddbTableName,
       hierarchicalKeyring1,
       attributeActionsOnEncrypt
@@ -254,7 +254,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
       matProv.CreateAwsKmsHierarchicalKeyring(keyringInput2);
 
     // 9. Get the DDB Client for Hierarchical Keyring 2.
-    final DynamoDbClient ddbClient2 = GetDDBClient(
+    final DynamoDbClient ddbClient2 = GetDdbClient(
       ddbTableName,
       hierarchicalKeyring2,
       attributeActionsOnEncrypt
@@ -264,7 +264,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     PutGetItems(ddbTableName, ddbClient2);
   }
 
-  public static DynamoDbClient GetDDBClient(
+  public static DynamoDbClient GetDdbClient(
     String ddbTableName,
     IKeyring hierarchicalKeyring,
     Map<String, CryptoAction> attributeActionsOnEncrypt
