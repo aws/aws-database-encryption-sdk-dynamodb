@@ -728,7 +728,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
     // || (!exit(A(I)) && !access(B(I)))
     | CollectionOfErrors(list: seq<Error>, nameonly message: string)
       // The Opaque error, used for native, extern, wrapped or unknown errors
-    | Opaque(obj: object)
+    | Opaque(obj: object, alt_text : string)
   type OpaqueError = e: Error | e.Opaque? witness *
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
@@ -773,7 +773,8 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                obj <- tmps7.Modifies | obj in tmps7.Modifies :: obj
     modifies set tmps8 <- set t8 <- config.tableEncryptionConfigs.Values | true
                                                                            && t8.search.Some?
-                            , t9 <- t8.search.value.versions :: t9.keyStore,
+                            , t9 <- t8.search.value.versions | true
+                            :: t9.keyStore,
                obj <- tmps8.Modifies | obj in tmps8.Modifies :: obj
     ensures res.Success? ==>
               && fresh(res.value)
@@ -792,7 +793,8 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
                        ) - ( set tmps13 <- set t13 <- config.tableEncryptionConfigs.Values | true
                                                                                              && t13.search.Some?
-                                             , t14 <- t13.search.value.versions :: t14.keyStore,
+                                             , t14 <- t13.search.value.versions | true
+                                             :: t14.keyStore,
                                obj <- tmps13.Modifies | obj in tmps13.Modifies :: obj
                        ) )
               && fresh(res.value.History)

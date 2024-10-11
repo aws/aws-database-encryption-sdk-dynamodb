@@ -23,7 +23,6 @@ macro_rules! modify_request {
             .store_put(OriginalRequest(Input::erase($request.clone())));
 
         // transform the request
-        // *$request = tokio::task::block_in_place(|| {
         let result = tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
                 $self
