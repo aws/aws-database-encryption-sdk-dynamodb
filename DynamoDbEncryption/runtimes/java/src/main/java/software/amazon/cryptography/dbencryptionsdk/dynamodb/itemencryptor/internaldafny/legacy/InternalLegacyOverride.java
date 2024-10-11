@@ -28,10 +28,9 @@ import java.util.stream.Collectors;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy._ExternBase___default;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
-
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy._ExternBase___default;
 
 public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
@@ -130,7 +129,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
         );
       return _ExternBase___default.CreateEncryptItemSuccess(dafnyOutput);
     } catch (Exception ex) {
-      return _ExternBase___default.CreateEncryptItemFailure(Error.create_Opaque(ex));
+      return _ExternBase___default.CreateEncryptItemFailure(
+        Error.create_Opaque(ex)
+      );
     }
   }
 
@@ -183,7 +184,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
         );
       return _ExternBase___default.CreateDecryptItemSuccess(dafnyOutput);
     } catch (Exception ex) {
-      return _ExternBase___default.CreateDecryptItemFailure(Error.create_Opaque(ex));
+      return _ExternBase___default.CreateDecryptItemFailure(
+        Error.create_Opaque(ex)
+      );
     }
   }
 
@@ -192,7 +195,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   ) {
     // Check for early return (Postcondition): If there is no legacyOverride there is nothing to do.
     if (encryptorConfig.dtor_legacyOverride().is_None()) {
-      return _ExternBase___default.CreateBuildSuccess(_ExternBase___default.CreateInternalLegacyOverrideNone());
+      return _ExternBase___default.CreateBuildSuccess(
+        _ExternBase___default.CreateInternalLegacyOverrideNone()
+      );
     }
     final software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyOverride legacyOverride =
       encryptorConfig.dtor_legacyOverride().dtor_value();
@@ -212,7 +217,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     final InternalResult<EncryptionContext, Error> maybeEncryptionContext =
       legacyEncryptionContext(encryptorConfig);
     if (maybeEncryptionContext.isFailure()) {
-      return _ExternBase___default.CreateBuildFailure(maybeEncryptionContext.error());
+      return _ExternBase___default.CreateBuildFailure(
+        maybeEncryptionContext.error()
+      );
     }
     // Precondition: All actions MUST be supported types
     final InternalResult<
@@ -222,7 +229,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       legacyOverride.dtor_attributeActionsOnEncrypt()
     );
     if (maybeActions.isFailure()) {
-      return _ExternBase___default.CreateBuildFailure(maybeEncryptionContext.error());
+      return _ExternBase___default.CreateBuildFailure(
+        maybeEncryptionContext.error()
+      );
     }
 
     final InternalLegacyOverride internalLegacyOverride =
@@ -234,7 +243,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       );
 
     return _ExternBase___default.CreateBuildSuccess(
-            _ExternBase___default.CreateInternalLegacyOverrideSome(internalLegacyOverride)
+      _ExternBase___default.CreateInternalLegacyOverrideSome(
+        internalLegacyOverride
+      )
     );
   }
 
