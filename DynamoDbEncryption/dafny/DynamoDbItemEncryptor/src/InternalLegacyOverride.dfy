@@ -22,43 +22,43 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencry
 
     predicate method {:extern} IsLegacyInput(input: Types.DecryptItemInput)
 
-    // The following functions are for the benefit of the extern implementation to call,
-    // avoiding direct references to generic datatype constructors
-    // since their calling pattern is different between different versions of Dafny
-    // (i.e. after 4.2, explicit type descriptors are required).
+  }
 
-    static function method CreateBuildSuccess(value: Option<InternalLegacyOverride>): Result<Option<InternalLegacyOverride>, Types.Error> {
-      Success(value)
-    }
+  // The following functions are for the benefit of the extern implementation to call,
+  // avoiding direct references to generic datatype constructors
+  // since their calling pattern is different between different versions of Dafny
+  // (i.e. after 4.2, explicit type descriptors are required).
 
-    static function method CreateBuildFailure(error: Types.Error): Result<Option<InternalLegacyOverride>, Types.Error> {
-      Failure(error)
-    }
+  function method CreateBuildSuccess(value: Option<InternalLegacyOverride>): Result<Option<InternalLegacyOverride>, Types.Error> {
+    Success(value)
+  }
 
-    static function method CreateInternalLegacyOverrideSome(value: InternalLegacyOverride): Option<InternalLegacyOverride> {
-      Some(value)
-    }
+  function method CreateBuildFailure(error: Types.Error): Result<Option<InternalLegacyOverride>, Types.Error> {
+    Failure(error)
+  }
 
-    static function method CreateInternalLegacyOverrideNone(): Option<InternalLegacyOverride> {
-      None
-    }
+  function method CreateInternalLegacyOverrideSome(value: InternalLegacyOverride): Option<InternalLegacyOverride> {
+    Some(value)
+  }
 
-    function method CreateEncryptItemSuccess(value: Types.EncryptItemOutput): Result<Types.EncryptItemOutput, Types.Error> {
-      Success(value)
-    }
+  function method CreateInternalLegacyOverrideNone(): Option<InternalLegacyOverride> {
+    None
+  }
 
-    function method CreateEncryptItemFailure(error: Types.Error): Result<Types.EncryptItemOutput, Types.Error> {
-      Failure(error)
-    }
+  function method CreateEncryptItemSuccess(value: Types.EncryptItemOutput): Result<Types.EncryptItemOutput, Types.Error> {
+    Success(value)
+  }
 
-    function method CreateDecryptItemSuccess(value: Types.DecryptItemOutput): Result<Types.DecryptItemOutput, Types.Error> {
-      Success(value)
-    }
+  function method CreateEncryptItemFailure(error: Types.Error): Result<Types.EncryptItemOutput, Types.Error> {
+    Failure(error)
+  }
 
-    function method CreateDecryptItemFailure(error: Types.Error): Result<Types.DecryptItemOutput, Types.Error> {
-      Failure(error)
-    }
+  function method CreateDecryptItemSuccess(value: Types.DecryptItemOutput): Result<Types.DecryptItemOutput, Types.Error> {
+    Success(value)
+  }
 
+  function method CreateDecryptItemFailure(error: Types.Error): Result<Types.DecryptItemOutput, Types.Error> {
+    Failure(error)
   }
 
 }
