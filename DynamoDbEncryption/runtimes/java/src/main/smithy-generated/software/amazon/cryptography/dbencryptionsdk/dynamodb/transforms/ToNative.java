@@ -141,6 +141,11 @@ public class ToNative {
         dafnyValue.dtor_AwsCryptographyDbEncryptionSdkStructuredEncryption()
       );
     }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialproviders.ToNative.Error(
+        dafnyValue.dtor_AwsCryptographyMaterialProviders()
+      );
+    }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue);
     return nativeBuilder.build();
