@@ -248,6 +248,11 @@ module SearchableEncryptionInfo {
       assume {:axiom} cache.Modifies == {};
       var getCacheOutput := cache.GetCacheEntry(getCacheInput);
 
+      // If error is not EntryDoesNotExist, return failure
+      if (getCacheOutput.Failure? && !getCacheOutput.error.EntryDoesNotExist?) {
+        return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=getCacheOutput.error));
+      }
+
       if getCacheOutput.Failure? {
         //= specification/searchable-encryption/search-config.md#beacon-keys
         //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
@@ -280,7 +285,11 @@ module SearchableEncryptionInfo {
 
         verifyValidStateCache(cache);
         assume {:axiom} cache.Modifies == {};
-        var _ := cache.PutCacheEntry(putCacheEntryInput);
+
+        var putResult := cache.PutCacheEntry(putCacheEntryInput);
+        if (putResult.Failure? && !putResult.error.EntryAlreadyExists?) {
+          return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=putResult.error));
+        }
         return Success(keyMap);
       } else {
         :- Need(
