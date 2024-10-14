@@ -30,8 +30,28 @@ module
   }
 
   predicate ValidWholeSearchConfig(config : ET.DynamoDbTablesEncryptionConfig)
+    reads
+      set
+        t <- config.tableEncryptionConfigs |
+          config.tableEncryptionConfigs[t].search.Some?,
+        c <- config.tableEncryptionConfigs[t].search.value.versions |
+          && c.keySource.multi?
+          && c.keySource.multi.cache.Some?
+          && c.keySource.multi.cache.value.Shared?
+        :: c.keySource.multi.cache.value.Shared,
+      set
+        t <- config.tableEncryptionConfigs |
+          config.tableEncryptionConfigs[t].search.Some?,
+        f <- config.tableEncryptionConfigs[t].search.value.versions |
+          && f.keySource.multi?
+          && f.keySource.multi.cache.Some?
+          && f.keySource.multi.cache.value.Shared?,
+        o <- f.keySource.multi.cache.value.Shared.Modifies
+        :: o
   {
-    forall t <- config.tableEncryptionConfigs :: SearchConfigToInfo.ValidSearchConfig(config.tableEncryptionConfigs[t].search)
+    forall t <- config.tableEncryptionConfigs
+      ::
+        && SearchConfigToInfo.ValidSearchConfig(config.tableEncryptionConfigs[t].search)
   }
 
   function TheModifies(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig) : set<object>
@@ -102,7 +122,98 @@ module
     && inputConfig.sortKeyName == internalConfig.sortKeyName
   }
 
-  method {:vcs_split_on_every_assert} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
+
+  // predicate BiteMe(
+  //   config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
+  // )
+  //   reads
+  //     // var tmps27 := set t27 | t27 in config.search.value.versions;
+
+  //     set
+  //       m <- config.tableEncryptionConfigs.Values | m.search.Some?,
+  //       sv <- m.search.value.versions |
+  //       && sv.keySource.multi?
+  //       && sv.keySource.multi.cache.Some?
+  //       && sv.keySource.multi.cache.value.Shared?
+  //       ::
+  //         sv.keySource.multi.cache.value.Shared,
+  //   set
+  //     m <- config.tableEncryptionConfigs.Values | m.search.Some?,
+  //     sv <- m.search.value.versions |
+  //     && sv.keySource.multi?
+  //     && sv.keySource.multi.cache.Some?
+  //     && sv.keySource.multi.cache.value.Shared?,
+  //     o <- sv.keySource.multi.cache.value.Shared.Modifies
+  //     ::
+  //       o
+  //   // s <- m.search.value | m.search.value.keySource.multi?,
+  //   // c <- s.keySource.multi.cache | s.keySource.multi.cache.Some? && s.keySource.multi.cache.value.Shared?
+  //   // ::
+  //   // c.keySource.multi.cache.value.Shared.Modifies
+
+  // {
+  //   var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
+  //   forall tmp26
+  //     :: tmp26 in tmps26
+  //        ==>
+  //          tmp26.search.Some? ==>
+  //            var tmps27 := set t27 | t27 in tmp26.search.value.versions;
+  //            forall tmp27
+  //              :: tmp27 in tmps27 ==>
+  //                   tmp27.keySource.multi? ==>
+  //                     tmp27.keySource.multi.cache.Some? ==>
+  //                       tmp27.keySource.multi.cache.value.Shared? ==>
+  //                         tmp27.keySource.multi.cache.value.Shared.ValidState()
+  // }
+
+
+  //   //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
+  //   //# During initialization, this client MUST construct a
+  //   //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
+  //   //# per configured table, using these table encryption configs.
+  //   var m' := config.tableEncryptionConfigs;
+  //   var mKeys := m'.Keys;
+  //   var tableNamesSeq := SortedSets.ComputeSetToSequence(mKeys);
+  //   ghost var mKeysSet := mKeys;
+
+  //   ghost var inputConfigsModifies: set<object> := set
+  //     tableConfig <- config.tableEncryptionConfigs.Values,
+  //     o <- (
+  //            (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
+  //            + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
+  //            + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
+  //          )
+  //     :: o;
+
+  //   var allLogicalTableNames := {};
+  //   var i := 0;
+
+  //   while i < |tableNamesSeq|
+  //     invariant m'.Keys <= config.tableEncryptionConfigs.Keys
+  //     invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
+  //     invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
+
+  //     invariant CorrectlyTransferedStructure?(internalConfigs, config)
+  //     invariant AllTableConfigsValid?(internalConfigs)
+  //     invariant ValidConfig?(Config(internalConfigs))
+
+  //     // invariant BiteMe(config)
+
+  //     modifies inputConfigsModifies
+  //   {
+  //     var tableName: string := tableNamesSeq[i];
+
+  //     var inputConfig := config.tableEncryptionConfigs[tableName];
+  //     :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
+
+  //     assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search) by {
+  //       assert ValidWholeSearchConfig(config);
+  //       assert inputConfig in config.tableEncryptionConfigs.Values;
+  //     }
+  //   }
+  // }
+
+  method {:vcs_split_on_every_assert} {:only} DynamoDbEncryptionTransforms(config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig)
     returns (res: Result<DynamoDbEncryptionTransformsClient, Error>)
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#logical-table-name
     //= type=implication
@@ -115,6 +226,11 @@ module
   {
     var internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig> := map[];
     assert ValidWholeSearchConfig(config);
+
+    // assert BiteMe(config) by {
+
+    // }
+
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#dynamodb-table-encryption-configs
     //# During initialization, this client MUST construct a
     //# [DynamoDb Item Encryptor](./ddb-table-encryption-config.md)
@@ -144,6 +260,8 @@ module
       invariant CorrectlyTransferedStructure?(internalConfigs, config)
       invariant AllTableConfigsValid?(internalConfigs)
       invariant ValidConfig?(Config(internalConfigs))
+
+      invariant ValidWholeSearchConfig(config)
 
       modifies inputConfigsModifies
     {
@@ -229,6 +347,7 @@ module
       }
 
       i := i + 1;
+      assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
     }
     assert SearchValidState(DdbMiddlewareConfig.Config(tableEncryptionConfigs := internalConfigs));
 
@@ -236,49 +355,61 @@ module
     assert Operations.ValidInternalConfig?(newConfig);
     var client := new DynamoDbEncryptionTransformsClient(newConfig);
 
+    // assert BiteMe(config);
+
     // I'm really sorry, but I can't get the freshness to verify
     // and my time box has run out of time.
     assume {:axiom} fresh(
-        client.Modifies
-        - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
-                                    && t14.keyring.Some?
-                            :: t14.keyring.value;
-            var tmps14FlattenedModifiesSet: set<set<object>> := set t0
-                                                                  | t0 in tmps14 :: t0.Modifies;
-            (set tmp15ModifyEntry, tmp15Modifies |
-               tmp15Modifies in tmps14FlattenedModifiesSet
-               && tmp15ModifyEntry in tmp15Modifies
-               :: tmp15ModifyEntry)
-        ) - ( var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values
-                                      && t16.cmm.Some?
-                              :: t16.cmm.value;
-              var tmps16FlattenedModifiesSet: set<set<object>> := set t0
-                                                                    | t0 in tmps16 :: t0.Modifies;
-              (set tmp17ModifyEntry, tmp17Modifies |
-                 tmp17Modifies in tmps16FlattenedModifiesSet
-                 && tmp17ModifyEntry in tmp17Modifies
-                 :: tmp17ModifyEntry)
-        ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
-                                      && t18.legacyOverride.Some?
-                              :: t18.legacyOverride.value.encryptor;
-              var tmps18FlattenedModifiesSet: set<set<object>> := set t0
-                                                                    | t0 in tmps18 :: t0.Modifies;
-              (set tmp19ModifyEntry, tmp19Modifies |
-                 tmp19Modifies in tmps18FlattenedModifiesSet
-                 && tmp19ModifyEntry in tmp19Modifies
-                 :: tmp19ModifyEntry)
-        ) - ( var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values
-                                      && t20.search.Some?
-                              :: set t21 | t21 in t20.search.value.versions :: t21.keyStore;
-              var tmps20FlattenedModifiesSet: set<set<object>> := set t0
-                                                                    , t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
-              (set tmp22ModifyEntry, tmp22Modifies |
-                 tmp22Modifies in tmps20FlattenedModifiesSet
-                 && tmp22ModifyEntry in tmp22Modifies
-                 :: tmp22ModifyEntry)
-        ) );
+      client.Modifies
+      - ( var tmps14 := set t14 | t14 in config.tableEncryptionConfigs.Values
+                                  && t14.keyring.Some?
+                          :: t14.keyring.value;
+          var tmps14FlattenedModifiesSet: set<set<object>> := set t0
+                                                                | t0 in tmps14 :: t0.Modifies;
+          (set tmp15ModifyEntry, tmp15Modifies |
+             tmp15Modifies in tmps14FlattenedModifiesSet
+             && tmp15ModifyEntry in tmp15Modifies
+             :: tmp15ModifyEntry)
+      ) - ( var tmps16 := set t16 | t16 in config.tableEncryptionConfigs.Values
+                                    && t16.cmm.Some?
+                            :: t16.cmm.value;
+            var tmps16FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  | t0 in tmps16 :: t0.Modifies;
+            (set tmp17ModifyEntry, tmp17Modifies |
+               tmp17Modifies in tmps16FlattenedModifiesSet
+               && tmp17ModifyEntry in tmp17Modifies
+               :: tmp17ModifyEntry)
+      ) - ( var tmps18 := set t18 | t18 in config.tableEncryptionConfigs.Values
+                                    && t18.legacyOverride.Some?
+                            :: t18.legacyOverride.value.encryptor;
+            var tmps18FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  | t0 in tmps18 :: t0.Modifies;
+            (set tmp19ModifyEntry, tmp19Modifies |
+               tmp19Modifies in tmps18FlattenedModifiesSet
+               && tmp19ModifyEntry in tmp19Modifies
+               :: tmp19ModifyEntry)
+      ) - ( var tmps20 := set t20 | t20 in config.tableEncryptionConfigs.Values
+                                    && t20.search.Some?
+                            :: set t21 | t21 in t20.search.value.versions :: t21.keyStore;
+            var tmps20FlattenedModifiesSet: set<set<object>> := set t0
+                                                                  , t1 | t0 in tmps20 && t1 in t0 :: t1.Modifies;
+            (set tmp22ModifyEntry, tmp22Modifies |
+               tmp22Modifies in tmps20FlattenedModifiesSet
+               && tmp22ModifyEntry in tmp22Modifies
+               :: tmp22ModifyEntry)
+      ) );
 
-    return Success(client);
+    res := Success(client);
+
+    // var tmps26 := set t26 | t26 in config.tableEncryptionConfigs.Values;
+    // assert forall tmp26 :: tmp26 in tmps26 ==>
+    //                          tmp26.search.Some? ==>
+    //                            var tmps27 := set t27 | t27 in tmp26.search.value.versions;
+    //                            forall tmp27 :: tmp27 in tmps27 ==>
+    //                                              tmp27.keySource.multi? ==>
+    //                                                tmp27.keySource.multi.cache.Some? ==>
+    //                                                  tmp27.keySource.multi.cache.value.Shared? ==>
+    //                                                    tmp27.keySource.multi.cache.value.Shared.ValidState();
   }
 
   // lemma ConstructionOK(config : DdbMiddlewareConfig.Config)
