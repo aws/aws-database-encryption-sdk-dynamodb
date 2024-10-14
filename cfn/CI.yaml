@@ -513,6 +513,11 @@ Resources:
             },
             {
               "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2" },
+              "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
               "Principal": { "Federated": "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com" },
               "Action": "sts:AssumeRoleWithWebIdentity",
               "Condition": {
@@ -564,6 +569,11 @@ Resources:
             {
               "Effect": "Allow",
               "Principal": { "AWS": "arn:aws:iam::${AWS::AccountId}:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2" },
+              "Action": "sts:AssumeRole"
+            },
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": "arn:aws:iam::370957321024:role/GitHub-CI-ESDK-Dafny-Role-us-west-2" },
               "Action": "sts:AssumeRole"
             },
             {
