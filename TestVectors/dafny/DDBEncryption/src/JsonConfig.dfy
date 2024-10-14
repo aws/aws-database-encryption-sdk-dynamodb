@@ -27,7 +27,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
   import KeyMaterial
   import UTF8
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import ParseJsonManifests
   import CreateInterceptedDDBClient
   import DynamoDbItemEncryptor
