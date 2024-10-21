@@ -17,6 +17,12 @@ pub struct ClientSupplierRef {
     pub inner: ::std::rc::Rc<std::cell::RefCell<dyn ClientSupplier>>,
 }
 
+impl<T : ClientSupplier + 'static> From<T> for ClientSupplierRef {
+    fn from(value: T) -> Self {
+        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
+    }
+}
+
 impl ::std::cmp::PartialEq for ClientSupplierRef {
     fn eq(&self, other: &ClientSupplierRef) -> bool {
         ::std::rc::Rc::ptr_eq(&self.inner, &other.inner)

@@ -10,7 +10,7 @@ use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
 use super::branch_key_id_supplier::ExampleBranchKeyIdSupplier;
 use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef;
+//use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 use std::collections::HashMap;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
@@ -94,12 +94,12 @@ pub async fn put_item_get_item(
     let dbesdk_config = DynamoDbEncryptionConfig::builder().build()?;
     let dbesdk = dbesdk_client::Client::from_conf(dbesdk_config)?;
     let supplier = ExampleBranchKeyIdSupplier::new(tenant1_branch_key_id, tenant2_branch_key_id);
-    let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
-        inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier)),
-    };
+//    let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
+//        inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier)),
+//    };
     let branch_key_id_supplier = dbesdk
         .create_dynamo_db_encryption_branch_key_id_supplier()
-        .ddb_key_branch_key_id_supplier(supplier_ref)
+        .ddb_key_branch_key_id_supplier(supplier)
         .send()
         .await?
         .branch_key_id_supplier
