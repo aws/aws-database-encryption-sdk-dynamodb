@@ -53,6 +53,10 @@ pub mod HMAC {
         context: Option<hmac::Context>,
         key: Option<hmac::Key>,
     }
+    impl dafny_runtime::UpcastObject<dyn std::any::Any> for HMac {
+        dafny_runtime::UpcastObjectFn!(dyn std::any::Any);
+    }
+
     impl HMac {
         pub fn Init(&mut self, salt: &::dafny_runtime::Sequence<u8>) {
             let salt: Vec<u8> = salt.iter().collect();
