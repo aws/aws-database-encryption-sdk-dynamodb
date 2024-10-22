@@ -70,7 +70,7 @@ module DynamoDbEncryptionBranchKeyIdSupplier {
     // We expect this interface to be implemented in the native language,
     // so any errors thrown by the native implementation will appear as Opaque errors
     if err.Opaque? then
-      MPL.Opaque(obj:=err.obj)
+      MPL.Opaque(obj:=err.obj, alt_text:=err.alt_text)
     else
       MPL.AwsCryptographicMaterialProvidersException(message:="Unexpected error while getting Branch Key ID.")
   }

@@ -7,11 +7,35 @@ include ../SharedMakefile.mk
 
 DIR_STRUCTURE_V2=V2
 
+TRANSPILE_TESTS_IN_RUST=1
+
 PROJECT_SERVICES := \
 	DynamoDbEncryption \
 	DynamoDbItemEncryptor \
 	DynamoDbEncryptionTransforms \
 	StructuredEncryption
+
+MAIN_SERVICE_FOR_RUST := DynamoDbEncryptionTransforms
+
+RUST_OTHER_FILES := \
+	runtimes/rust/src/aes_gcm.rs \
+	runtimes/rust/src/aes_kdf_ctr.rs \
+	runtimes/rust/src/ddb.rs \
+	runtimes/rust/src/concurrent_call.rs \
+	runtimes/rust/src/dafny_libraries.rs \
+	runtimes/rust/src/digest.rs \
+	runtimes/rust/src/ecdh.rs \
+	runtimes/rust/src/ecdsa.rs \
+	runtimes/rust/src/hmac.rs \
+	runtimes/rust/src/kms.rs \
+	runtimes/rust/src/local_cmc.rs \
+	runtimes/rust/src/random.rs \
+	runtimes/rust/src/rsa.rs \
+	runtimes/rust/src/sets.rs \
+	runtimes/rust/src/software_externs.rs \
+	runtimes/rust/src/storm_tracker.rs \
+	runtimes/rust/src/time.rs \
+	runtimes/rust/src/uuid.rs
 
 # Namespace for each local service
 # Currently our build relies on local services and namespaces being 1:1

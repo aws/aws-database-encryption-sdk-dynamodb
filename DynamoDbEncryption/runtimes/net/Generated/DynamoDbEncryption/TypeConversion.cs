@@ -1571,6 +1571,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
           return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyDbEncryptionSdkStructuredEncryption
           );
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_AwsCryptographyKeyStore dafnyVal:
+          return AWS.Cryptography.KeyStore.TypeConversion.FromDafny_CommonError(
+            dafnyVal._AwsCryptographyKeyStore
+          );
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_AwsCryptographyMaterialProviders dafnyVal:
           return AWS.Cryptography.MaterialProviders.TypeConversion.FromDafny_CommonError(
             dafnyVal._AwsCryptographyMaterialProviders
