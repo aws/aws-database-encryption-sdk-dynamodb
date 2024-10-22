@@ -2,34 +2,51 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
+#[allow(missing_docs)]
 pub trait CryptographicMaterialsCache {
     fn put_cache_entry(
-        &mut self,
-        input: crate::deps::aws_cryptography_materialProviders::operation::put_cache_entry::PutCacheEntryInput,
-    ) -> Result<(), crate::deps::aws_cryptography_materialProviders::types::error::Error>;
+    &self,
+    input: crate::deps::aws_cryptography_materialProviders::operation::put_cache_entry::PutCacheEntryInput,
+  ) -> Result<
+    (),
+    crate::deps::aws_cryptography_materialProviders::types::error::Error,
+  >;
 
-    fn update_usage_metadata(
-        &mut self,
-        input: crate::deps::aws_cryptography_materialProviders::operation::update_usage_metadata::UpdateUsageMetadataInput,
-    ) -> Result<(), crate::deps::aws_cryptography_materialProviders::types::error::Error>;
+  fn update_usage_metadata(
+    &self,
+    input: crate::deps::aws_cryptography_materialProviders::operation::update_usage_metadata::UpdateUsageMetadataInput,
+  ) -> Result<
+    (),
+    crate::deps::aws_cryptography_materialProviders::types::error::Error,
+  >;
 
-    fn get_cache_entry(
-    &mut self,
+  fn get_cache_entry(
+    &self,
     input: crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryInput,
   ) -> Result<
     crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryOutput,
     crate::deps::aws_cryptography_materialProviders::types::error::Error,
   >;
 
-    fn delete_cache_entry(
-        &mut self,
-        input: crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntryInput,
-    ) -> Result<(), crate::deps::aws_cryptography_materialProviders::types::error::Error>;
+  fn delete_cache_entry(
+    &self,
+    input: crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntryInput,
+  ) -> Result<
+    (),
+    crate::deps::aws_cryptography_materialProviders::types::error::Error,
+  >;
 }
 
 #[derive(::std::clone::Clone)]
+/// A reference to a CryptographicMaterialsCache
 pub struct CryptographicMaterialsCacheRef {
-    pub inner: ::std::rc::Rc<std::cell::RefCell<dyn CryptographicMaterialsCache>>,
+  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn CryptographicMaterialsCache>>
+}
+
+impl<T : CryptographicMaterialsCache + 'static> From<T> for CryptographicMaterialsCacheRef {
+    fn from(value: T) -> Self {
+        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
+    }
 }
 
 impl ::std::cmp::PartialEq for CryptographicMaterialsCacheRef {

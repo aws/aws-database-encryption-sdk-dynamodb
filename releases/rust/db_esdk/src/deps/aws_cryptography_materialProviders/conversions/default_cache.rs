@@ -13,8 +13,7 @@ pub fn to_dafny(
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::DefaultCache,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DefaultCache
-{
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DefaultCache {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DefaultCache::DefaultCache {
         entryCapacity: value.entry_capacity.clone().unwrap(),
     }

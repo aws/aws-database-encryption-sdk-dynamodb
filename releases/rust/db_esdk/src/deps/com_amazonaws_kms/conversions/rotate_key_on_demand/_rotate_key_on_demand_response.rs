@@ -11,15 +11,15 @@ pub fn to_dafny(
         KeyId: crate::standard_library_conversions::ostring_to_dafny(&value.key_id),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::RotateKeyOnDemandResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::rotate_key_on_demand::RotateKeyOnDemandOutput {
     aws_sdk_kms::operation::rotate_key_on_demand::RotateKeyOnDemandOutput::builder()
-        .set_key_id(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.KeyId().clone(),
-        ))
-        .build()
+          .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
+          .build()
+
+
 }

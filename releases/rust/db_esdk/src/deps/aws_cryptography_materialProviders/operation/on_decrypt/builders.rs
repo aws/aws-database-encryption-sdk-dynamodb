@@ -28,16 +28,14 @@ pub struct OnDecryptFluentBuilder {
 }
 impl OnDecryptFluentBuilder {
     /// Creates a new `OnDecrypt`.
-    pub(crate) fn new(
-        keyring: crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
-    ) -> Self {
+    pub(crate) fn new(keyring: crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef) -> Self {
         Self {
             keyring,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the OnDecrypt as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::on_decrypt::builders::OnDecryptInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::on_decrypt::builders::OnDecryptInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -54,76 +52,39 @@ impl OnDecryptFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                }
+            .map_err(|mut e| crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
-        crate::deps::aws_cryptography_materialProviders::operation::on_decrypt::OnDecrypt::send(
-            &self.keyring,
-            input,
-        )
-        .await
+        crate::deps::aws_cryptography_materialProviders::operation::on_decrypt::OnDecrypt::send(&self.keyring, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn encrypted_data_keys(
-        mut self,
-        input: impl ::std::convert::Into<
-            ::std::vec::Vec<
-                crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey,
-            >,
-        >,
-    ) -> Self {
-        self.inner = self.inner.encrypted_data_keys(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_encrypted_data_keys(
-        mut self,
-        input: ::std::option::Option<
-            ::std::vec::Vec<
-                crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey,
-            >,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_encrypted_data_keys(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_encrypted_data_keys(
-        &self,
-    ) -> &::std::option::Option<
-        ::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>,
-    > {
-        self.inner.get_encrypted_data_keys()
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn materials(
-        mut self,
-        input: impl ::std::convert::Into<
-            crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials,
-        >,
-    ) -> Self {
-        self.inner = self.inner.materials(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_materials(
-        mut self,
-        input: ::std::option::Option<
-            crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_materials(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_materials(
-        &self,
-    ) -> &::std::option::Option<
-        crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials,
-    > {
-        self.inner.get_materials()
-    }
+    #[allow(missing_docs)]
+pub fn encrypted_data_keys(mut self, input: impl ::std::convert::Into<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>) -> Self {
+    self.inner = self.inner.encrypted_data_keys(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_encrypted_data_keys(mut self, input: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>>) -> Self {
+    self.inner = self.inner.set_encrypted_data_keys(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_encrypted_data_keys(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_materialProviders::types::EncryptedDataKey>> {
+    self.inner.get_encrypted_data_keys()
+}
+#[allow(missing_docs)]
+pub fn materials(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>) -> Self {
+    self.inner = self.inner.materials(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_materials(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials>) -> Self {
+    self.inner = self.inner.set_materials(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_materials(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DecryptionMaterials> {
+    self.inner.get_materials()
+}
 }

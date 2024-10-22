@@ -6,10 +6,12 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::legacy_dynamo_db_encryptor::LegacyDynamoDbEncryptorRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::ILegacyDynamoDbEncryptor,
->{
-    let wrap = LegacyDynamoDbEncryptorWrapper { obj: value.clone() };
-    let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-    ::dafny_runtime::Object(Some(inner))
+> {
+  let wrap = LegacyDynamoDbEncryptorWrapper {
+      obj: value.clone(),
+  };
+  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
+  ::dafny_runtime::Object (Some(inner) )
 }
 
 pub struct LegacyDynamoDbEncryptorWrapper {
@@ -17,7 +19,7 @@ pub struct LegacyDynamoDbEncryptorWrapper {
 }
 
 impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for LegacyDynamoDbEncryptorWrapper {
-    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 #[allow(dead_code)]
@@ -25,7 +27,7 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::ILegacyDynamoDbEncryptor,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::legacy_dynamo_db_encryptor::LegacyDynamoDbEncryptorRef{
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::legacy_dynamo_db_encryptor::LegacyDynamoDbEncryptorRef {
     let wrap = ILegacyDynamoDbEncryptorDafnyWrapper {
         obj: dafny_value.clone(),
     };

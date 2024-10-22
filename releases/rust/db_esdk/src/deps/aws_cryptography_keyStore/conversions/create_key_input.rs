@@ -32,14 +32,10 @@ pub fn to_dafny_plain(
 
 #[allow(dead_code)]
 pub fn option_to_dafny(
-    value: ::std::option::Option<crate::deps::aws_cryptography_keyStore::types::CreateKeyInput>,
-) -> ::std::rc::Rc<
-    crate::_Wrappers_Compile::Option<
-        ::std::rc::Rc<
-            crate::r#software::amazon::cryptography::keystore::internaldafny::types::CreateKeyInput,
-        >,
-    >,
-> {
+  value: ::std::option::Option<crate::deps::aws_cryptography_keyStore::types::CreateKeyInput>,
+) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+  crate::r#software::amazon::cryptography::keystore::internaldafny::types::CreateKeyInput,
+>>>{
     ::std::rc::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {
@@ -69,8 +65,8 @@ pub fn plain_from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(
             ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(value,
-                |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&k, |b| *b)).unwrap(),
-                |v: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&v, |b| *b)).unwrap(),
+                |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(k), |b| *b)).unwrap(),
+                |v: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(v), |b| *b)).unwrap(),
             )
         ),
     _ => None

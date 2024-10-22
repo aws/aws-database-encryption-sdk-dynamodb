@@ -13,7 +13,7 @@ impl DecryptItemInputBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::decrypt_item::DecryptItemOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error,
-    >{
+    > {
         let mut fluent_builder = client.decrypt_item();
         fluent_builder.inner = self;
         fluent_builder.send().await
@@ -21,6 +21,7 @@ impl DecryptItemInputBuilder {
 }
 /// Fluent builder constructing a request to `DecryptItem`.
 ///
+/// Decrypt a DynamoDB Item.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct DecryptItemFluentBuilder {
     client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client::Client,
@@ -28,16 +29,14 @@ pub struct DecryptItemFluentBuilder {
 }
 impl DecryptItemFluentBuilder {
     /// Creates a new `DecryptItem`.
-    pub(crate) fn new(
-        client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client::Client,
-    ) -> Self {
+    pub(crate) fn new(client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client::Client) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the DecryptItem as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::decrypt_item::builders::DecryptItemInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::decrypt_item::builders::DecryptItemInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -46,7 +45,7 @@ impl DecryptItemFluentBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::decrypt_item::DecryptItemOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error,
-    >{
+    > {
         let input = self
             .inner
             .build()
@@ -55,43 +54,24 @@ impl DecryptItemFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error::Opaque {
-                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any)
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::decrypt_item::DecryptItem::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn encrypted_item(
-        mut self,
-        input: impl ::std::convert::Into<
-            ::std::collections::HashMap<
-                ::std::string::String,
-                aws_sdk_dynamodb::types::AttributeValue,
-            >,
-        >,
-    ) -> Self {
-        self.inner = self.inner.encrypted_item(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_encrypted_item(
-        mut self,
-        input: ::std::option::Option<
-            ::std::collections::HashMap<
-                ::std::string::String,
-                aws_sdk_dynamodb::types::AttributeValue,
-            >,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_encrypted_item(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_encrypted_item(
-        &self,
-    ) -> &::std::option::Option<
-        ::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>,
-    > {
-        self.inner.get_encrypted_item()
-    }
+    /// The encrypted DynamoDB item to decrypt.
+pub fn encrypted_item(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>) -> Self {
+    self.inner = self.inner.encrypted_item(input.into());
+    self
+}
+/// The encrypted DynamoDB item to decrypt.
+pub fn set_encrypted_item(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>) -> Self {
+    self.inner = self.inner.set_encrypted_item(input);
+    self
+}
+/// The encrypted DynamoDB item to decrypt.
+pub fn get_encrypted_item(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>> {
+    self.inner.get_encrypted_item()
+}
 }

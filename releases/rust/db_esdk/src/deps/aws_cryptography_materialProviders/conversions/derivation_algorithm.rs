@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DerivationAlgorithm,
->{
+> {
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_materialProviders::types::DerivationAlgorithm::Hkdf(x) =>
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DerivationAlgorithm::HKDF {

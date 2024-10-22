@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsHierarchicalKeyringInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsHierarchicalKeyringInput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsHierarchicalKeyringInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsHierarchicalKeyringInput{
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsHierarchicalKeyringInput {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsHierarchicalKeyringInput::CreateAwsKmsHierarchicalKeyringInput {
         branchKeyId: crate::standard_library_conversions::ostring_to_dafny(&value.branch_key_id),
  branchKeyIdSupplier: ::std::rc::Rc::new(match &value.branch_key_id_supplier {
@@ -29,6 +29,7 @@ pub fn to_dafny_plain(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ partitionId: crate::standard_library_conversions::ostring_to_dafny(&value.partition_id),
     }
 }
 
@@ -78,6 +79,7 @@ pub fn plain_from_dafny(
     _ => None,
 }
 )
+ .set_partition_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.partitionId().clone()))
                 .build()
                 .unwrap()
     }
@@ -88,9 +90,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsHierarchicalKeyringInput,
     >>>,
-) -> ::std::option::Option<
-    crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsHierarchicalKeyringInput,
-> {
+) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsHierarchicalKeyringInput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

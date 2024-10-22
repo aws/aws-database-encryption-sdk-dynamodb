@@ -10,17 +10,21 @@ impl GetBranchKeyId {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         branch_key_id_supplier: &crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef,
         input: crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyIdInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyIdOutput,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
-        branch_key_id_supplier
-            .inner
-            .borrow_mut()
-            .get_branch_key_id(input)
+    > {
+        if input.encryption_context.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "encryption_context",
+        "encryption_context was not specified but it is required when building GetBranchKeyIdInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+        branch_key_id_supplier.inner.borrow_mut().get_branch_key_id(input)
     }
 }
 

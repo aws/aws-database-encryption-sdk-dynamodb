@@ -10,17 +10,21 @@ impl GetCacheEntry {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         cryptographic_materials_cache: &crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef,
         input: crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryOutput,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
-        cryptographic_materials_cache
-            .inner
-            .borrow_mut()
-            .get_cache_entry(input)
+    > {
+        if input.identifier.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "identifier",
+        "identifier was not specified but it is required when building GetCacheEntryInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+        cryptographic_materials_cache.inner.borrow_mut().get_cache_entry(input)
     }
 }
 

@@ -76,10 +76,10 @@ pub mod software {
                                             crate::_Wrappers_Compile::Option::None{} => success_override()
                                         }
                                     }
-                                    pub fn EncryptItem(&mut self, _input: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::EncryptItemInput>) -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::EncryptItemOutput>, Rc<DafnyError>>>{
+                                    pub fn EncryptItem(&self, _input: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::EncryptItemInput>) -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::EncryptItemOutput>, Rc<DafnyError>>>{
                                         todo!("InternalLLegacyOverride::EncryptItem")
                                     }
-                                    pub fn DecryptItem(&mut self, _input: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemInput>) -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput>, Rc<DafnyError>>>{
+                                    pub fn DecryptItem(&self, _input: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemInput>) -> Rc<crate::_Wrappers_Compile::Result<Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput>, Rc<DafnyError>>>{
                                         todo!("InternalLLegacyOverride::DecryptItem")
                                     }
                                     pub fn IsLegacyInput(

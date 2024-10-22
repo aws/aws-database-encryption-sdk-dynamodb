@@ -87,11 +87,11 @@ pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_legacy_p
 mod _plaintext_override;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_plaintext_override::PlaintextOverride;
 
-mod _virtual_transform;
-pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_virtual_transform::VirtualTransform;
-mod _get_encrypted_data_key_description_union;
-pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_encrypted_data_key_description_union::GetEncryptedDataKeyDescriptionUnion;
 mod _beacon_style;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_beacon_style::BeaconStyle;
+mod _get_encrypted_data_key_description_union;
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_encrypted_data_key_description_union::GetEncryptedDataKeyDescriptionUnion;
+mod _virtual_transform;
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_virtual_transform::VirtualTransform;
 mod _beacon_key_source;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_beacon_key_source::BeaconKeySource;

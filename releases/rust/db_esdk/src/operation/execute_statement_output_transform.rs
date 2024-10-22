@@ -10,6 +10,7 @@ impl ExecuteStatementOutputTransform {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::client::Client,
         input: crate::operation::execute_statement_output_transform::ExecuteStatementOutputTransformInput,
@@ -17,9 +18,21 @@ impl ExecuteStatementOutputTransform {
         crate::operation::execute_statement_output_transform::ExecuteStatementOutputTransformOutput,
         crate::types::error::Error,
     > {
-        let inner_input = crate::conversions::execute_statement_output_transform::_execute_statement_output_transform_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .ExecuteStatementOutputTransform(&inner_input);
+        if input.sdk_output.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "sdk_output",
+        "sdk_output was not specified but it is required when building ExecuteStatementOutputTransformInput",
+    )).map_err(crate::types::error::Error::wrap_validation_err);
+}
+if input.original_input.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "original_input",
+        "original_input was not specified but it is required when building ExecuteStatementOutputTransformInput",
+    )).map_err(crate::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::conversions::execute_statement_output_transform::_execute_statement_output_transform_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).ExecuteStatementOutputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

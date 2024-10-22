@@ -6,10 +6,12 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::IBranchKeyIdSupplier,
->{
-    let wrap = BranchKeyIdSupplierWrapper { obj: value.clone() };
-    let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-    ::dafny_runtime::Object(Some(inner))
+> {
+  let wrap = BranchKeyIdSupplierWrapper {
+      obj: value.clone(),
+  };
+  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
+  ::dafny_runtime::Object (Some(inner) )
 }
 
 pub struct BranchKeyIdSupplierWrapper {
@@ -17,7 +19,7 @@ pub struct BranchKeyIdSupplierWrapper {
 }
 
 impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for BranchKeyIdSupplierWrapper {
-    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 #[allow(dead_code)]
@@ -25,7 +27,7 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::IBranchKeyIdSupplier,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef{
+) -> crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef {
     let wrap = IBranchKeyIdSupplierDafnyWrapper {
         obj: dafny_value.clone(),
     };
@@ -45,7 +47,7 @@ impl crate::software::amazon::cryptography::materialproviders::internaldafny::ty
   for BranchKeyIdSupplierWrapper
 {
   fn r#_GetBranchKeyId_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetBranchKeyIdInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -71,7 +73,7 @@ impl crate::software::amazon::cryptography::materialproviders::internaldafny::ty
 impl crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplier for IBranchKeyIdSupplierDafnyWrapper
 {
   fn get_branch_key_id(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyIdInput,
 ) -> Result<
   crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyIdOutput,

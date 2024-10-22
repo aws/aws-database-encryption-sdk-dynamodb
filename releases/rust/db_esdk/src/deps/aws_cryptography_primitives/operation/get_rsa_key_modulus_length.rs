@@ -10,14 +10,21 @@ impl GetRsaKeyModulusLength {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_primitives::client::Client,
         input: crate::deps::aws_cryptography_primitives::operation::get_rsa_key_modulus_length::GetRsaKeyModulusLengthInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_primitives::operation::get_rsa_key_modulus_length::GetRsaKeyModulusLengthOutput,
         crate::deps::aws_cryptography_primitives::types::error::Error,
-    >{
-        let inner_input = crate::deps::aws_cryptography_primitives::conversions::get_rsa_key_modulus_length::_get_rsa_key_modulus_length_input::to_dafny(input);
+    > {
+        if input.public_key.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "public_key",
+        "public_key was not specified but it is required when building GetRsaKeyModulusLengthInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_primitives::conversions::get_rsa_key_modulus_length::_get_rsa_key_modulus_length_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).GetRSAKeyModulusLength(&inner_input);
         if matches!(
@@ -28,11 +35,9 @@ impl GetRsaKeyModulusLength {
                 crate::deps::aws_cryptography_primitives::conversions::get_rsa_key_modulus_length::_get_rsa_key_modulus_length_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

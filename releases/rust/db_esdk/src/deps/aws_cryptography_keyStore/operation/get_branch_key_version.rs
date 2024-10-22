@@ -10,14 +10,27 @@ impl GetBranchKeyVersion {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_keyStore::client::Client,
         input: crate::deps::aws_cryptography_keyStore::operation::get_branch_key_version::GetBranchKeyVersionInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_keyStore::operation::get_branch_key_version::GetBranchKeyVersionOutput,
         crate::deps::aws_cryptography_keyStore::types::error::Error,
-    >{
-        let inner_input = crate::deps::aws_cryptography_keyStore::conversions::get_branch_key_version::_get_branch_key_version_input::to_dafny(input);
+    > {
+        if input.branch_key_identifier.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "branch_key_identifier",
+        "branch_key_identifier was not specified but it is required when building GetBranchKeyVersionInput",
+    )).map_err(crate::deps::aws_cryptography_keyStore::types::error::Error::wrap_validation_err);
+}
+if input.branch_key_version.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "branch_key_version",
+        "branch_key_version was not specified but it is required when building GetBranchKeyVersionInput",
+    )).map_err(crate::deps::aws_cryptography_keyStore::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_keyStore::conversions::get_branch_key_version::_get_branch_key_version_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).GetBranchKeyVersion(&inner_input);
         if matches!(
@@ -28,11 +41,9 @@ impl GetBranchKeyVersion {
                 crate::deps::aws_cryptography_keyStore::conversions::get_branch_key_version::_get_branch_key_version_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

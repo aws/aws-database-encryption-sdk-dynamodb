@@ -24,8 +24,7 @@ impl DigestInputBuilder {
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct DigestFluentBuilder {
     client: crate::deps::aws_cryptography_primitives::client::Client,
-    pub(crate) inner:
-        crate::deps::aws_cryptography_primitives::operation::digest::builders::DigestInputBuilder,
+    pub(crate) inner: crate::deps::aws_cryptography_primitives::operation::digest::builders::DigestInputBuilder,
 }
 impl DigestFluentBuilder {
     /// Creates a new `Digest`.
@@ -36,10 +35,7 @@ impl DigestFluentBuilder {
         }
     }
     /// Access the Digest as a reference.
-    pub fn as_input(
-        &self,
-    ) -> &crate::deps::aws_cryptography_primitives::operation::digest::builders::DigestInputBuilder
-    {
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_primitives::operation::digest::builders::DigestInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -56,57 +52,39 @@ impl DigestFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| {
-                crate::deps::aws_cryptography_primitives::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                }
+            .map_err(|mut e| crate::deps::aws_cryptography_primitives::types::error::Error::Opaque {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
-        crate::deps::aws_cryptography_primitives::operation::digest::Digest::send(
-            &self.client,
-            input,
-        )
-        .await
+        crate::deps::aws_cryptography_primitives::operation::digest::Digest::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn digest_algorithm(
-        mut self,
-        input: impl ::std::convert::Into<
-            crate::deps::aws_cryptography_primitives::types::DigestAlgorithm,
-        >,
-    ) -> Self {
-        self.inner = self.inner.digest_algorithm(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_digest_algorithm(
-        mut self,
-        input: ::std::option::Option<
-            crate::deps::aws_cryptography_primitives::types::DigestAlgorithm,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_digest_algorithm(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_digest_algorithm(
-        &self,
-    ) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>
-    {
-        self.inner.get_digest_algorithm()
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn message(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
-        self.inner = self.inner.message(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_message(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
-        self.inner = self.inner.set_message(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_message(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
-        self.inner.get_message()
-    }
+    #[allow(missing_docs)]
+pub fn digest_algorithm(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>) -> Self {
+    self.inner = self.inner.digest_algorithm(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_digest_algorithm(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm>) -> Self {
+    self.inner = self.inner.set_digest_algorithm(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_digest_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_primitives::types::DigestAlgorithm> {
+    self.inner.get_digest_algorithm()
+}
+#[allow(missing_docs)]
+pub fn message(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.message(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_message(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.set_message(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_message(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
+    self.inner.get_message()
+}
 }

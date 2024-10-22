@@ -21,6 +21,7 @@ impl CreateAwsKmsMrkMultiKeyringInputBuilder {
 }
 /// Fluent builder constructing a request to `CreateAwsKmsMrkMultiKeyring`.
 ///
+/// Creates an AWS KMS MRK Multi-Keyring, which wraps and unwraps data keys using one or more symmetric AWS KMS Keys or AWS KMS Multi-Region Keys.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct CreateAwsKmsMrkMultiKeyringFluentBuilder {
     client: crate::deps::aws_cryptography_materialProviders::client::Client,
@@ -28,16 +29,14 @@ pub struct CreateAwsKmsMrkMultiKeyringFluentBuilder {
 }
 impl CreateAwsKmsMrkMultiKeyringFluentBuilder {
     /// Creates a new `CreateAwsKmsMrkMultiKeyring`.
-    pub(crate) fn new(
-        client: crate::deps::aws_cryptography_materialProviders::client::Client,
-    ) -> Self {
+    pub(crate) fn new(client: crate::deps::aws_cryptography_materialProviders::client::Client) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the CreateAwsKmsMrkMultiKeyring as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_mrk_multi_keyring::builders::CreateAwsKmsMrkMultiKeyringInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_mrk_multi_keyring::builders::CreateAwsKmsMrkMultiKeyringInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -54,94 +53,67 @@ impl CreateAwsKmsMrkMultiKeyringFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                }
+            .map_err(|mut e| crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
         crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_mrk_multi_keyring::CreateAwsKmsMrkMultiKeyring::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn client_supplier(
-        mut self,
-        input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef>,
-    ) -> Self {
-        self.inner = self.inner.client_supplier(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_client_supplier(
-        mut self,
-        input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef>,
-    ) -> Self {
-        self.inner = self.inner.set_client_supplier(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_client_supplier(
-        &self,
-    ) -> &::std::option::Option<
-        crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef,
-    > {
-        self.inner.get_client_supplier()
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn generator(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-        self.inner = self.inner.generator(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_generator(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-        self.inner = self.inner.set_generator(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_generator(&self) -> &::std::option::Option<::std::string::String> {
-        self.inner.get_generator()
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn grant_tokens(
-        mut self,
-        input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>,
-    ) -> Self {
-        self.inner = self.inner.grant_tokens(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_grant_tokens(
-        mut self,
-        input: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-    ) -> Self {
-        self.inner = self.inner.set_grant_tokens(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_grant_tokens(
-        &self,
-    ) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
-        self.inner.get_grant_tokens()
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn kms_key_ids(
-        mut self,
-        input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>,
-    ) -> Self {
-        self.inner = self.inner.kms_key_ids(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_kms_key_ids(
-        mut self,
-        input: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-    ) -> Self {
-        self.inner = self.inner.set_kms_key_ids(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_kms_key_ids(
-        &self,
-    ) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
-        self.inner.get_kms_key_ids()
-    }
+    /// The Client Supplier which will be used to get KMS Clients for use with this Keyring. The Client Supplier will create a client for each region specified in the generator and kmsKeyIds ARNs. If not specified on input, the Default Client Supplier is used.
+pub fn client_supplier(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef>) -> Self {
+    self.inner = self.inner.client_supplier(input.into());
+    self
+}
+/// The Client Supplier which will be used to get KMS Clients for use with this Keyring. The Client Supplier will create a client for each region specified in the generator and kmsKeyIds ARNs. If not specified on input, the Default Client Supplier is used.
+pub fn set_client_supplier(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef>) -> Self {
+    self.inner = self.inner.set_client_supplier(input);
+    self
+}
+/// The Client Supplier which will be used to get KMS Clients for use with this Keyring. The Client Supplier will create a client for each region specified in the generator and kmsKeyIds ARNs. If not specified on input, the Default Client Supplier is used.
+pub fn get_client_supplier(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef> {
+    self.inner.get_client_supplier()
+}
+/// A symmetric AWS KMS Key or AWS KMS Multi-Region Key responsible for wrapping and unwrapping data keys. KMS.GenerateDataKey may be called with this key if the data key has not already been generated by another Keyring.
+pub fn generator(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+    self.inner = self.inner.generator(input.into());
+    self
+}
+/// A symmetric AWS KMS Key or AWS KMS Multi-Region Key responsible for wrapping and unwrapping data keys. KMS.GenerateDataKey may be called with this key if the data key has not already been generated by another Keyring.
+pub fn set_generator(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+    self.inner = self.inner.set_generator(input);
+    self
+}
+/// A symmetric AWS KMS Key or AWS KMS Multi-Region Key responsible for wrapping and unwrapping data keys. KMS.GenerateDataKey may be called with this key if the data key has not already been generated by another Keyring.
+pub fn get_generator(&self) -> &::std::option::Option<::std::string::String> {
+    self.inner.get_generator()
+}
+/// A list of grant tokens to be used when calling KMS.
+pub fn grant_tokens(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
+    self.inner = self.inner.grant_tokens(input.into());
+    self
+}
+/// A list of grant tokens to be used when calling KMS.
+pub fn set_grant_tokens(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
+    self.inner = self.inner.set_grant_tokens(input);
+    self
+}
+/// A list of grant tokens to be used when calling KMS.
+pub fn get_grant_tokens(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
+    self.inner.get_grant_tokens()
+}
+/// A list of identifiers for the symmetric AWS KMS Keys and/or AWS KMS Multi-Region Keys (other than the generator) responsible for wrapping and unwrapping data keys.
+pub fn kms_key_ids(mut self, input: impl ::std::convert::Into<::std::vec::Vec<::std::string::String>>) -> Self {
+    self.inner = self.inner.kms_key_ids(input.into());
+    self
+}
+/// A list of identifiers for the symmetric AWS KMS Keys and/or AWS KMS Multi-Region Keys (other than the generator) responsible for wrapping and unwrapping data keys.
+pub fn set_kms_key_ids(mut self, input: ::std::option::Option<::std::vec::Vec<::std::string::String>>) -> Self {
+    self.inner = self.inner.set_kms_key_ids(input);
+    self
+}
+/// A list of identifiers for the symmetric AWS KMS Keys and/or AWS KMS Multi-Region Keys (other than the generator) responsible for wrapping and unwrapping data keys.
+pub fn get_kms_key_ids(&self) -> &::std::option::Option<::std::vec::Vec<::std::string::String>> {
+    self.inner.get_kms_key_ids()
+}
 }

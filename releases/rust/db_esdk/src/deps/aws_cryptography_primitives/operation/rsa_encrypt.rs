@@ -10,6 +10,7 @@ impl RsaEncrypt {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_primitives::client::Client,
         input: crate::deps::aws_cryptography_primitives::operation::rsa_encrypt::RsaEncryptInput,
@@ -17,22 +18,38 @@ impl RsaEncrypt {
         ::aws_smithy_types::Blob,
         crate::deps::aws_cryptography_primitives::types::error::Error,
     > {
-        let inner_input = crate::deps::aws_cryptography_primitives::conversions::rsa_encrypt::_rsa_encrypt_input::to_dafny(input);
+        if input.padding.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "padding",
+        "padding was not specified but it is required when building RsaEncryptInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+if input.public_key.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "public_key",
+        "public_key was not specified but it is required when building RsaEncryptInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+if input.plaintext.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "plaintext",
+        "plaintext was not specified but it is required when building RsaEncryptInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_primitives::conversions::rsa_encrypt::_rsa_encrypt_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).RSAEncrypt(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
-            Ok(crate::standard_library_conversions::blob_from_dafny(
-                inner_result.value().clone(),
-            ))
-        } else {
-            Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
+            Ok(
+                crate::standard_library_conversions::blob_from_dafny(inner_result.value().clone()),
             )
+        } else {
+            Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

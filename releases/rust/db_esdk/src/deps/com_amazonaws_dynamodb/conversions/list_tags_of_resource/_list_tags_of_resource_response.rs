@@ -21,11 +21,11 @@ pub fn to_dafny(
  NextToken: crate::standard_library_conversions::ostring_to_dafny(&value.next_token),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ListTagsOfResourceOutput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::list_tags_of_resource::ListTagsOfResourceOutput {
     aws_sdk_dynamodb::operation::list_tags_of_resource::ListTagsOfResourceOutput::builder()
           .set_tags(match (*dafny_value.Tags()).as_ref() {
@@ -41,4 +41,6 @@ pub fn from_dafny(
 )
  .set_next_token(crate::standard_library_conversions::ostring_from_dafny(dafny_value.NextToken().clone()))
           .build()
+
+
 }

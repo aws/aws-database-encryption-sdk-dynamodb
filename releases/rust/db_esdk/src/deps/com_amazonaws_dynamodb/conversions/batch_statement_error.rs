@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::BatchStatementError,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchStatementError>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchStatementError::BatchStatementError {
         Code: ::std::rc::Rc::new(match &value.code {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::batch_statement_error_code_enum::to_dafny(x.clone()) },
@@ -15,8 +15,7 @@ pub fn to_dafny(
  Message: crate::standard_library_conversions::ostring_to_dafny(&value.message),
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchStatementError,
@@ -32,4 +31,5 @@ pub fn from_dafny(
 )
  .set_message(crate::standard_library_conversions::ostring_from_dafny(dafny_value.Message().clone()))
           .build()
+
 }

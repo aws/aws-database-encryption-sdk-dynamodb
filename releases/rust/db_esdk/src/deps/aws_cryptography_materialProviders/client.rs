@@ -4,6 +4,7 @@
 use aws_smithy_types::error::operation::BuildError;
 
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
+#[allow(missing_docs)]
 pub struct Client {
     pub(crate) dafny_client: ::dafny_runtime::Object<dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::IAwsCryptographicMaterialProvidersClient>
 }
@@ -22,14 +23,10 @@ impl Client {
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            return Err(
-                crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
-                    inner.as_ref().error().clone(),
-                ),
-            );
+            return Err(crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(inner.as_ref().error().clone()));
         }
         Ok(Self {
-            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),
+            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract())
         })
     }
 }

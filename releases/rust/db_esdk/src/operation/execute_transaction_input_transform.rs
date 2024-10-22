@@ -10,16 +10,23 @@ impl ExecuteTransactionInputTransform {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::client::Client,
         input: crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformInput,
     ) -> ::std::result::Result<
         crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformOutput,
         crate::types::error::Error,
-    >{
-        let inner_input = crate::conversions::execute_transaction_input_transform::_execute_transaction_input_transform_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .ExecuteTransactionInputTransform(&inner_input);
+    > {
+        if input.sdk_input.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "sdk_input",
+        "sdk_input was not specified but it is required when building ExecuteTransactionInputTransformInput",
+    )).map_err(crate::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::conversions::execute_transaction_input_transform::_execute_transaction_input_transform_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).ExecuteTransactionInputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

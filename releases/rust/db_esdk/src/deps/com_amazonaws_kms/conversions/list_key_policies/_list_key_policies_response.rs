@@ -21,11 +21,11 @@ pub fn to_dafny(
  Truncated: crate::standard_library_conversions::obool_to_dafny(&Some(value.truncated)),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ListKeyPoliciesResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::list_key_policies::ListKeyPoliciesOutput {
     aws_sdk_kms::operation::list_key_policies::ListKeyPoliciesOutput::builder()
           .set_policy_names(match (*dafny_value.PolicyNames()).as_ref() {
@@ -41,4 +41,6 @@ pub fn from_dafny(
  .set_next_marker(crate::standard_library_conversions::ostring_from_dafny(dafny_value.NextMarker().clone()))
  .set_truncated(crate::standard_library_conversions::obool_from_dafny(dafny_value.Truncated().clone()))
           .build()
+
+
 }

@@ -2,19 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
+#[allow(missing_docs)]
 pub trait ClientSupplier {
     fn get_client(
-        &mut self,
-        input: crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClientInput,
-    ) -> Result<
-        crate::deps::com_amazonaws_kms::client::Client,
-        crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >;
+    &self,
+    input: crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClientInput,
+  ) -> Result<
+    crate::deps::com_amazonaws_kms::client::Client,
+    crate::deps::aws_cryptography_materialProviders::types::error::Error,
+  >;
 }
 
 #[derive(::std::clone::Clone)]
+/// A reference to a ClientSupplier
 pub struct ClientSupplierRef {
-    pub inner: ::std::rc::Rc<std::cell::RefCell<dyn ClientSupplier>>,
+  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn ClientSupplier>>
 }
 
 impl<T : ClientSupplier + 'static> From<T> for ClientSupplierRef {

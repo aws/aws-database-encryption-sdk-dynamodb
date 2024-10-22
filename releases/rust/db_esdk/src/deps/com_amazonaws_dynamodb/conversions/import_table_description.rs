@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ImportTableDescription,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportTableDescription>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportTableDescription::ImportTableDescription {
         ImportArn: crate::standard_library_conversions::ostring_to_dafny(&value.import_arn),
  ImportStatus: ::std::rc::Rc::new(match &value.import_status {
@@ -52,8 +52,7 @@ pub fn to_dafny(
  FailureMessage: crate::standard_library_conversions::ostring_to_dafny(&value.failure_message),
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportTableDescription,
@@ -113,4 +112,5 @@ pub fn from_dafny(
  .set_failure_code(crate::standard_library_conversions::ostring_from_dafny(dafny_value.FailureCode().clone()))
  .set_failure_message(crate::standard_library_conversions::ostring_from_dafny(dafny_value.FailureMessage().clone()))
           .build()
+
 }

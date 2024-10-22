@@ -20,6 +20,7 @@ pub fn from_dafny(
     plain_from_dafny(&*dafny_value)
 }
 
+
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_primitives::types::crypto_config::CryptoConfig,

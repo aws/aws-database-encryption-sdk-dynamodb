@@ -6,10 +6,12 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsManager,
->{
-    let wrap = CryptographicMaterialsManagerWrapper { obj: value.clone() };
-    let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-    ::dafny_runtime::Object(Some(inner))
+> {
+  let wrap = CryptographicMaterialsManagerWrapper {
+      obj: value.clone(),
+  };
+  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
+  ::dafny_runtime::Object (Some(inner) )
 }
 
 pub struct CryptographicMaterialsManagerWrapper {
@@ -17,7 +19,7 @@ pub struct CryptographicMaterialsManagerWrapper {
 }
 
 impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for CryptographicMaterialsManagerWrapper {
-    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 #[allow(dead_code)]
@@ -25,7 +27,7 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsManager,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef{
+) -> crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef {
     let wrap = ICryptographicMaterialsManagerDafnyWrapper {
         obj: dafny_value.clone(),
     };
@@ -45,7 +47,7 @@ impl crate::software::amazon::cryptography::materialproviders::internaldafny::ty
   for CryptographicMaterialsManagerWrapper
 {
   fn r#_GetEncryptionMaterials_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetEncryptionMaterialsInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -68,7 +70,7 @@ impl crate::software::amazon::cryptography::materialproviders::internaldafny::ty
 }
 
 fn r#_DecryptMaterials_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::DecryptMaterialsInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -94,7 +96,7 @@ fn r#_DecryptMaterials_k(
 impl crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManager for ICryptographicMaterialsManagerDafnyWrapper
 {
   fn get_encryption_materials(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::get_encryption_materials::GetEncryptionMaterialsInput,
 ) -> Result<
   crate::deps::aws_cryptography_materialProviders::operation::get_encryption_materials::GetEncryptionMaterialsOutput,
@@ -117,7 +119,7 @@ impl crate::deps::aws_cryptography_materialProviders::types::cryptographic_mater
 }
 
 fn decrypt_materials(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::decrypt_materials::DecryptMaterialsInput,
 ) -> Result<
   crate::deps::aws_cryptography_materialProviders::operation::decrypt_materials::DecryptMaterialsOutput,

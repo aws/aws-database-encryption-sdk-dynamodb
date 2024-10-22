@@ -5,20 +5,19 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::PointInTimeRecoverySpecification,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PointInTimeRecoverySpecification>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PointInTimeRecoverySpecification::PointInTimeRecoverySpecification {
         PointInTimeRecoveryEnabled: value.point_in_time_recovery_enabled.clone(),
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PointInTimeRecoverySpecification,
     >,
 ) -> aws_sdk_dynamodb::types::PointInTimeRecoverySpecification {
     aws_sdk_dynamodb::types::PointInTimeRecoverySpecification::builder()
-        .set_point_in_time_recovery_enabled(Some(dafny_value.PointInTimeRecoveryEnabled().clone()))
-        .build()
-        .unwrap()
+          .set_point_in_time_recovery_enabled(Some( dafny_value.PointInTimeRecoveryEnabled() .clone() ))
+          .build()
+          .unwrap()
 }

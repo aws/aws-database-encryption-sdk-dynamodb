@@ -26,11 +26,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ReplicateKeyResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::replicate_key::ReplicateKeyOutput {
     aws_sdk_kms::operation::replicate_key::ReplicateKeyOutput::builder()
           .set_replica_key_metadata(match (*dafny_value.ReplicaKeyMetadata()).as_ref() {
@@ -52,4 +52,6 @@ pub fn from_dafny(
 }
 )
           .build()
+
+
 }

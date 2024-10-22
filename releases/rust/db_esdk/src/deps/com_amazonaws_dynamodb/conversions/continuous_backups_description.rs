@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ContinuousBackupsDescription,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ContinuousBackupsDescription>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ContinuousBackupsDescription::ContinuousBackupsDescription {
         ContinuousBackupsStatus: crate::deps::com_amazonaws_dynamodb::conversions::continuous_backups_status::to_dafny(value.continuous_backups_status.clone()),
  PointInTimeRecoveryDescription: ::std::rc::Rc::new(match &value.point_in_time_recovery_description {
@@ -15,8 +15,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ContinuousBackupsDescription,

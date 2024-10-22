@@ -21,6 +21,7 @@ impl GetBeaconKeyInputBuilder {
 }
 /// Fluent builder constructing a request to `GetBeaconKey`.
 ///
+/// Get a Beacon Key from the Key Store.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct GetBeaconKeyFluentBuilder {
     client: crate::deps::aws_cryptography_keyStore::client::Client,
@@ -35,7 +36,7 @@ impl GetBeaconKeyFluentBuilder {
         }
     }
     /// Access the GetBeaconKey as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_keyStore::operation::get_beacon_key::builders::GetBeaconKeyInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_keyStore::operation::get_beacon_key::builders::GetBeaconKeyInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -52,36 +53,25 @@ impl GetBeaconKeyFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| {
-                crate::deps::aws_cryptography_keyStore::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                }
+            .map_err(|mut e| crate::deps::aws_cryptography_keyStore::types::error::Error::Opaque {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
-        crate::deps::aws_cryptography_keyStore::operation::get_beacon_key::GetBeaconKey::send(
-            &self.client,
-            input,
-        )
-        .await
+        crate::deps::aws_cryptography_keyStore::operation::get_beacon_key::GetBeaconKey::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn branch_key_identifier(
-        mut self,
-        input: impl ::std::convert::Into<::std::string::String>,
-    ) -> Self {
-        self.inner = self.inner.branch_key_identifier(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_branch_key_identifier(
-        mut self,
-        input: ::std::option::Option<::std::string::String>,
-    ) -> Self {
-        self.inner = self.inner.set_branch_key_identifier(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
-        self.inner.get_branch_key_identifier()
-    }
+    /// The identifier of the Branch Key the Beacon Key is associated with.
+pub fn branch_key_identifier(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+    self.inner = self.inner.branch_key_identifier(input.into());
+    self
+}
+/// The identifier of the Branch Key the Beacon Key is associated with.
+pub fn set_branch_key_identifier(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+    self.inner = self.inner.set_branch_key_identifier(input);
+    self
+}
+/// The identifier of the Branch Key the Beacon Key is associated with.
+pub fn get_branch_key_identifier(&self) -> &::std::option::Option<::std::string::String> {
+    self.inner.get_branch_key_identifier()
+}
 }

@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ReplicationGroupUpdate,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicationGroupUpdate>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicationGroupUpdate::ReplicationGroupUpdate {
         Create: ::std::rc::Rc::new(match &value.create {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::create_replication_group_member_action::to_dafny(x) },
@@ -24,8 +24,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicationGroupUpdate,
@@ -51,4 +50,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

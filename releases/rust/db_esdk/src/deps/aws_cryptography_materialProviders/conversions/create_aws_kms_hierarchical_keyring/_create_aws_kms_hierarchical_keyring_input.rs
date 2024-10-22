@@ -22,14 +22,15 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ partitionId: crate::standard_library_conversions::ostring_to_dafny(&value.partition_id),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsHierarchicalKeyringInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_hierarchical_keyring::CreateAwsKmsHierarchicalKeyringInput{
+) -> crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_hierarchical_keyring::CreateAwsKmsHierarchicalKeyringInput {
     crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_hierarchical_keyring::CreateAwsKmsHierarchicalKeyringInput::builder()
         .set_branch_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.branchKeyId().clone()))
  .set_branch_key_id_supplier(match (*dafny_value.branchKeyIdSupplier()).as_ref() {
@@ -47,6 +48,7 @@ pub fn from_dafny(
     _ => None,
 }
 )
+ .set_partition_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.partitionId().clone()))
         .build()
         .unwrap()
 }

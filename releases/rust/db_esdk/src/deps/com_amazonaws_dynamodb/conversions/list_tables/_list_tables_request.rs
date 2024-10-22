@@ -12,19 +12,15 @@ pub fn to_dafny(
  Limit: crate::standard_library_conversions::oint_to_dafny(value.limit),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ListTablesInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::list_tables::ListTablesInput {
     aws_sdk_dynamodb::operation::list_tables::ListTablesInput::builder()
-        .set_exclusive_start_table_name(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.ExclusiveStartTableName().clone(),
-        ))
-        .set_limit(crate::standard_library_conversions::oint_from_dafny(
-            dafny_value.Limit().clone(),
-        ))
-        .build()
-        .unwrap()
+          .set_exclusive_start_table_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ExclusiveStartTableName().clone()))
+ .set_limit(crate::standard_library_conversions::oint_from_dafny(dafny_value.Limit().clone()))
+          .build()
+          .unwrap()
 }

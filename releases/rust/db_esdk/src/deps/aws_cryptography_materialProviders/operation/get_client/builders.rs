@@ -21,6 +21,7 @@ impl GetClientInputBuilder {
 }
 /// Fluent builder constructing a request to `GetClient`.
 ///
+/// Returns an AWS KMS Client.
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct GetClientFluentBuilder {
     client_supplier: crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef,
@@ -28,16 +29,14 @@ pub struct GetClientFluentBuilder {
 }
 impl GetClientFluentBuilder {
     /// Creates a new `GetClient`.
-    pub(crate) fn new(
-        client_supplier: crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef,
-    ) -> Self {
+    pub(crate) fn new(client_supplier: crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef) -> Self {
         Self {
             client_supplier,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the GetClient as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::get_client::builders::GetClientInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::get_client::builders::GetClientInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -54,30 +53,25 @@ impl GetClientFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                }
+            .map_err(|mut e| crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
-        crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClient::send(
-            &self.client_supplier,
-            input,
-        )
-        .await
+        crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClient::send(&self.client_supplier, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn region(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-        self.inner = self.inner.region(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_region(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-        self.inner = self.inner.set_region(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_region(&self) -> &::std::option::Option<::std::string::String> {
-        self.inner.get_region()
-    }
+    /// The region the client should be created in.
+pub fn region(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+    self.inner = self.inner.region(input.into());
+    self
+}
+/// The region the client should be created in.
+pub fn set_region(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+    self.inner = self.inner.set_region(input);
+    self
+}
+/// The region the client should be created in.
+pub fn get_region(&self) -> &::std::option::Option<::std::string::String> {
+    self.inner.get_region()
+}
 }

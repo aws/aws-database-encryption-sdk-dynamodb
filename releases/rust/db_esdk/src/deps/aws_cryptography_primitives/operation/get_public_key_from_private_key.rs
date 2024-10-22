@@ -10,16 +10,29 @@ impl GetPublicKeyFromPrivateKey {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_primitives::client::Client,
         input: crate::deps::aws_cryptography_primitives::operation::get_public_key_from_private_key::GetPublicKeyFromPrivateKeyInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_primitives::operation::get_public_key_from_private_key::GetPublicKeyFromPrivateKeyOutput,
         crate::deps::aws_cryptography_primitives::types::error::Error,
-    >{
-        let inner_input = crate::deps::aws_cryptography_primitives::conversions::get_public_key_from_private_key::_get_public_key_from_private_key_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .GetPublicKeyFromPrivateKey(&inner_input);
+    > {
+        if input.ecc_curve.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "ecc_curve",
+        "ecc_curve was not specified but it is required when building GetPublicKeyFromPrivateKeyInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+if input.private_key.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "private_key",
+        "private_key was not specified but it is required when building GetPublicKeyFromPrivateKeyInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_primitives::conversions::get_public_key_from_private_key::_get_public_key_from_private_key_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).GetPublicKeyFromPrivateKey(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
@@ -28,11 +41,9 @@ impl GetPublicKeyFromPrivateKey {
                 crate::deps::aws_cryptography_primitives::conversions::get_public_key_from_private_key::_get_public_key_from_private_key_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

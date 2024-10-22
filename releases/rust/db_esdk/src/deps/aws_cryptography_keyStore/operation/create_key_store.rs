@@ -10,6 +10,7 @@ impl CreateKeyStore {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_keyStore::client::Client,
         input: crate::deps::aws_cryptography_keyStore::operation::create_key_store::CreateKeyStoreInput,
@@ -17,7 +18,8 @@ impl CreateKeyStore {
         crate::deps::aws_cryptography_keyStore::operation::create_key_store::CreateKeyStoreOutput,
         crate::deps::aws_cryptography_keyStore::types::error::Error,
     > {
-        let inner_input = crate::deps::aws_cryptography_keyStore::conversions::create_key_store::_create_key_store_input::to_dafny(input);
+
+                let inner_input = crate::deps::aws_cryptography_keyStore::conversions::create_key_store::_create_key_store_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).CreateKeyStore(&inner_input);
         if matches!(
@@ -28,11 +30,9 @@ impl CreateKeyStore {
                 crate::deps::aws_cryptography_keyStore::conversions::create_key_store::_create_key_store_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

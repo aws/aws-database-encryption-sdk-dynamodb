@@ -6,10 +6,12 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsCache,
->{
-    let wrap = CryptographicMaterialsCacheWrapper { obj: value.clone() };
-    let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-    ::dafny_runtime::Object(Some(inner))
+> {
+  let wrap = CryptographicMaterialsCacheWrapper {
+      obj: value.clone(),
+  };
+  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
+  ::dafny_runtime::Object (Some(inner) )
 }
 
 pub struct CryptographicMaterialsCacheWrapper {
@@ -17,7 +19,7 @@ pub struct CryptographicMaterialsCacheWrapper {
 }
 
 impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for CryptographicMaterialsCacheWrapper {
-    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 #[allow(dead_code)]
@@ -25,7 +27,7 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsCache,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef{
+) -> crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef {
     let wrap = ICryptographicMaterialsCacheDafnyWrapper {
         obj: dafny_value.clone(),
     };
@@ -45,7 +47,7 @@ impl crate::software::amazon::cryptography::materialproviders::internaldafny::ty
   for CryptographicMaterialsCacheWrapper
 {
   fn r#_PutCacheEntry_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::PutCacheEntryInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -68,7 +70,7 @@ impl crate::software::amazon::cryptography::materialproviders::internaldafny::ty
 }
 
 fn r#_UpdateUsageMetadata_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::UpdateUsageMetadataInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -91,7 +93,7 @@ fn r#_UpdateUsageMetadata_k(
 }
 
 fn r#_GetCacheEntry_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -114,7 +116,7 @@ fn r#_GetCacheEntry_k(
 }
 
 fn r#_DeleteCacheEntry_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::DeleteCacheEntryInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -140,7 +142,7 @@ fn r#_DeleteCacheEntry_k(
 impl crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCache for ICryptographicMaterialsCacheDafnyWrapper
 {
   fn put_cache_entry(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::put_cache_entry::PutCacheEntryInput,
 ) -> Result<
   (),
@@ -163,7 +165,7 @@ impl crate::deps::aws_cryptography_materialProviders::types::cryptographic_mater
 }
 
 fn update_usage_metadata(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::update_usage_metadata::UpdateUsageMetadataInput,
 ) -> Result<
   (),
@@ -186,7 +188,7 @@ fn update_usage_metadata(
 }
 
 fn get_cache_entry(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryInput,
 ) -> Result<
   crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryOutput,
@@ -209,7 +211,7 @@ fn get_cache_entry(
 }
 
 fn delete_cache_entry(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntryInput,
 ) -> Result<
   (),

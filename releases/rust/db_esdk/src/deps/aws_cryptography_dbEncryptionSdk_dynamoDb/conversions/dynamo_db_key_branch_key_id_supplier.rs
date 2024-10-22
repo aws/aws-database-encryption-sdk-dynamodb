@@ -6,10 +6,12 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::IDynamoDbKeyBranchKeyIdSupplier,
->{
-    let wrap = DynamoDbKeyBranchKeyIdSupplierWrapper { obj: value.clone() };
-    let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-    ::dafny_runtime::Object(Some(inner))
+> {
+  let wrap = DynamoDbKeyBranchKeyIdSupplierWrapper {
+      obj: value.clone(),
+  };
+  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
+  ::dafny_runtime::Object (Some(inner) )
 }
 
 pub struct DynamoDbKeyBranchKeyIdSupplierWrapper {
@@ -17,7 +19,7 @@ pub struct DynamoDbKeyBranchKeyIdSupplierWrapper {
 }
 
 impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for DynamoDbKeyBranchKeyIdSupplierWrapper {
-    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 #[allow(dead_code)]
@@ -25,7 +27,7 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::IDynamoDbKeyBranchKeyIdSupplier,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef{
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef {
     let wrap = IDynamoDbKeyBranchKeyIdSupplierDafnyWrapper {
         obj: dafny_value.clone(),
     };
@@ -45,7 +47,7 @@ impl crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internald
   for DynamoDbKeyBranchKeyIdSupplierWrapper
 {
   fn r#_GetBranchKeyIdFromDdbKey_k(
-    &mut self,
+    &self,
     input: &::std::rc::Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::GetBranchKeyIdFromDdbKeyInput>,
 ) -> ::std::rc::Rc<
     crate::r#_Wrappers_Compile::Result<
@@ -71,7 +73,7 @@ impl crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internald
 impl crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplier for IDynamoDbKeyBranchKeyIdSupplierDafnyWrapper
 {
   fn get_branch_key_id_from_ddb_key(
-  &mut self,
+  &self,
   input: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyInput,
 ) -> Result<
   crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyOutput,

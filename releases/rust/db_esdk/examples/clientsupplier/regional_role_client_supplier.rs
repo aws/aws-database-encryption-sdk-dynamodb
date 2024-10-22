@@ -1,7 +1,7 @@
 use aws_config::Region;
 use aws_db_esdk::aws_cryptography_materialProviders::types::ClientSupplier;
-use aws_db_esdk::deps::aws_cryptography_materialProviders::operation::get_client::GetClientInput;
-use aws_db_esdk::deps::aws_cryptography_materialProviders::types::error::Error;
+use aws_db_esdk::aws_cryptography_materialProviders::operation::get_client::GetClientInput;
+use aws_db_esdk::aws_cryptography_materialProviders::types::error::Error;
 use aws_db_esdk::deps::com_amazonaws_kms::client::Client as kms_client;
 
 /*
@@ -13,7 +13,7 @@ use aws_db_esdk::deps::com_amazonaws_kms::client::Client as kms_client;
 pub struct RegionalRoleClientSupplier {}
 
 impl ClientSupplier for RegionalRoleClientSupplier {
-    fn get_client(&mut self, input: GetClientInput) -> Result<kms_client, Error> {
+    fn get_client(&self, input: GetClientInput) -> Result<kms_client, Error> {
         let region = input.region.unwrap();
         let arn =
             super::regional_role_client_supplier_config::region_iam_role_map()[&region].clone();

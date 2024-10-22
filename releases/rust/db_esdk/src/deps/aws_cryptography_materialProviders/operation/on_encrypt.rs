@@ -10,6 +10,7 @@ impl OnEncrypt {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         keyring: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
         input: crate::deps::aws_cryptography_materialProviders::operation::on_encrypt::OnEncryptInput,
@@ -17,6 +18,12 @@ impl OnEncrypt {
         crate::deps::aws_cryptography_materialProviders::operation::on_encrypt::OnEncryptOutput,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
     > {
+        if input.materials.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "materials",
+        "materials was not specified but it is required when building OnEncryptInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
         keyring.inner.borrow_mut().on_encrypt(input)
     }
 }

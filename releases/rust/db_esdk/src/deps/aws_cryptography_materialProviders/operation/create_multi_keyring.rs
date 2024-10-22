@@ -10,6 +10,7 @@ impl CreateMultiKeyring {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_materialProviders::client::Client,
         input: crate::deps::aws_cryptography_materialProviders::operation::create_multi_keyring::CreateMultiKeyringInput,
@@ -17,7 +18,13 @@ impl CreateMultiKeyring {
         crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
     > {
-        let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_multi_keyring::_create_multi_keyring_input::to_dafny(input);
+        if input.child_keyrings.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "child_keyrings",
+        "child_keyrings was not specified but it is required when building CreateMultiKeyringInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_multi_keyring::_create_multi_keyring_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).CreateMultiKeyring(&inner_input);
         if matches!(
@@ -25,16 +32,13 @@ impl CreateMultiKeyring {
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
             Ok(
-                crate::deps::aws_cryptography_materialProviders::conversions::keyring::from_dafny(
-                    inner_result.value().clone(),
-                ),
+                crate::deps::aws_cryptography_materialProviders::conversions::keyring::from_dafny(inner_result.value().clone())
+,
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

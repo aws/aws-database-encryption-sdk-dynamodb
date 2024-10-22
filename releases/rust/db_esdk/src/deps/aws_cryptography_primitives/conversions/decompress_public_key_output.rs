@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_primitives::types::DecompressPublicKeyOutput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyOutput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_primitives::types::DecompressPublicKeyOutput,
-) -> crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyOutput{
+) -> crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyOutput {
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyOutput::DecompressPublicKeyOutput {
         publicKey: crate::deps::aws_cryptography_primitives::conversions::ecc_public_key::to_dafny(&value.public_key.clone().unwrap())
 ,
@@ -62,8 +62,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyOutput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_primitives::types::DecompressPublicKeyOutput>
-{
+) -> ::std::option::Option<crate::deps::aws_cryptography_primitives::types::DecompressPublicKeyOutput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

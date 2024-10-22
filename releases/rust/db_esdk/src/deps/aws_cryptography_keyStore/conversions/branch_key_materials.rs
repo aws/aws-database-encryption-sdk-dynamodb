@@ -16,10 +16,10 @@ pub fn to_dafny_plain(
 ) -> crate::r#software::amazon::cryptography::keystore::internaldafny::types::BranchKeyMaterials {
     crate::r#software::amazon::cryptography::keystore::internaldafny::types::BranchKeyMaterials::BranchKeyMaterials {
         branchKeyIdentifier: crate::standard_library_conversions::ostring_to_dafny(&value.branch_key_identifier) .Extract(),
- branchKeyVersion: (::std::rc::Rc::new(match value.branch_key_version {
+ branchKeyVersion: std::rc::Rc::new(match value.branch_key_version {
   Some(s) => crate::_Wrappers_Compile::Option::Some { value: dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&s.as_bytes().to_vec(), |b| *b) },
   None => crate::_Wrappers_Compile::Option::None {},
-})).Extract(),
+}).Extract(),
  encryptionContext: ::dafny_runtime::dafny_runtime_conversions::hashmap_to_dafny_map(&value.encryption_context.clone().unwrap(),
     |k| dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&k.as_bytes().to_vec(), |b| *b),
     |v| dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&v.as_bytes().to_vec(), |b| *b),
@@ -60,10 +60,10 @@ pub fn plain_from_dafny(
         crate::r#software::amazon::cryptography::keystore::internaldafny::types::BranchKeyMaterials::BranchKeyMaterials {..} =>
             crate::deps::aws_cryptography_keyStore::types::BranchKeyMaterials::builder()
                 .set_branch_key_identifier(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.branchKeyIdentifier()) ))
- .set_branch_key_version(Some(::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&dafny_value.branchKeyVersion(), |b| *b)).unwrap()))
+ .set_branch_key_version(Some(::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(dafny_value.branchKeyVersion()), |b| *b)).unwrap()))
  .set_encryption_context(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(&dafny_value.encryptionContext(),
-    |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&k, |b| *b)).unwrap(),
-    |v: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&v, |b| *b)).unwrap(),
+    |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(k), |b| *b)).unwrap(),
+    |v: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(v), |b| *b)).unwrap(),
 )
  ))
  .set_branch_key(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.branchKey().clone())))

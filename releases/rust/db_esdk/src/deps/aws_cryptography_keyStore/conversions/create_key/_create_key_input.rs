@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: crate::deps::aws_cryptography_keyStore::operation::create_key::CreateKeyInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::keystore::internaldafny::types::CreateKeyInput,
-> {
+>{
     ::std::rc::Rc::new(crate::r#software::amazon::cryptography::keystore::internaldafny::types::CreateKeyInput::CreateKeyInput {
         branchKeyIdentifier: crate::standard_library_conversions::ostring_to_dafny(&value.branch_key_identifier),
  encryptionContext:
@@ -22,42 +22,25 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::keystore::internaldafny::types::CreateKeyInput,
     >,
 ) -> crate::deps::aws_cryptography_keyStore::operation::create_key::CreateKeyInput {
     crate::deps::aws_cryptography_keyStore::operation::create_key::CreateKeyInput::builder()
-        .set_branch_key_identifier(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.branchKeyIdentifier().clone(),
-        ))
-        .set_encryption_context(match (*dafny_value.encryptionContext()).as_ref() {
-            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-                ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(
-                    value,
-                    |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| {
-                        ::std::string::String::from_utf8(
-                            dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(
-                                &k,
-                                |b| *b,
-                            ),
-                        )
-                        .unwrap()
-                    },
-                    |v: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| {
-                        ::std::string::String::from_utf8(
-                            dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(
-                                &v,
-                                |b| *b,
-                            ),
-                        )
-                        .unwrap()
-                    },
-                ),
-            ),
-            _ => None,
-        })
+        .set_branch_key_identifier(crate::standard_library_conversions::ostring_from_dafny(dafny_value.branchKeyIdentifier().clone()))
+ .set_encryption_context(match (*dafny_value.encryptionContext()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(
+            ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(value,
+                |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(k), |b| *b)).unwrap(),
+                |v: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<u8>| ::std::string::String::from_utf8(dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(&::std::borrow::Borrow::borrow(v), |b| *b)).unwrap(),
+            )
+        ),
+    _ => None
+}
+)
         .build()
         .unwrap()
 }

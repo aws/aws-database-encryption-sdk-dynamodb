@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::SymmetricSignatureAlgorithm,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::SymmetricSignatureAlgorithm,
->{
+> {
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_materialProviders::types::SymmetricSignatureAlgorithm::Hmac(x) =>
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::SymmetricSignatureAlgorithm::HMAC {

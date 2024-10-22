@@ -10,17 +10,27 @@ impl GetEncryptionMaterials {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         cryptographic_materials_manager: &crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef,
         input: crate::deps::aws_cryptography_materialProviders::operation::get_encryption_materials::GetEncryptionMaterialsInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::operation::get_encryption_materials::GetEncryptionMaterialsOutput,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
-        cryptographic_materials_manager
-            .inner
-            .borrow_mut()
-            .get_encryption_materials(input)
+    > {
+        if input.encryption_context.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "encryption_context",
+        "encryption_context was not specified but it is required when building GetEncryptionMaterialsInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+if input.commitment_policy.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "commitment_policy",
+        "commitment_policy was not specified but it is required when building GetEncryptionMaterialsInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+        cryptographic_materials_manager.inner.borrow_mut().get_encryption_materials(input)
     }
 }
 

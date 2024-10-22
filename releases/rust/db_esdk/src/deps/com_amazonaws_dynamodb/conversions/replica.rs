@@ -4,24 +4,20 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::Replica,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Replica,
-> {
-    ::std::rc::Rc::new(
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Replica>{
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Replica::Replica {
         RegionName: crate::standard_library_conversions::ostring_to_dafny(&value.region_name),
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Replica,
     >,
 ) -> aws_sdk_dynamodb::types::Replica {
     aws_sdk_dynamodb::types::Replica::builder()
-        .set_region_name(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.RegionName().clone(),
-        ))
-        .build()
+          .set_region_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.RegionName().clone()))
+          .build()
+
 }

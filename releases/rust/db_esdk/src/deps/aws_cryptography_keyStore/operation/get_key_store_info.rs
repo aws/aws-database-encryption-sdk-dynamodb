@@ -10,15 +10,18 @@ impl GetKeyStoreInfo {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_keyStore::client::Client,
         input: crate::deps::aws_cryptography_keyStore::operation::get_key_store_info::Unit,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_keyStore::operation::get_key_store_info::GetKeyStoreInfoOutput,
         crate::deps::aws_cryptography_keyStore::types::error::Error,
-    >{
-        let inner_input = ();
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone()).GetKeyStoreInfo();
+    > {
+
+                let inner_input = ();
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).GetKeyStoreInfo();
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
@@ -27,11 +30,9 @@ impl GetKeyStoreInfo {
                 crate::deps::aws_cryptography_keyStore::conversions::get_key_store_info::_get_key_store_info_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

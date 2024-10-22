@@ -21,11 +21,11 @@ pub fn to_dafny(
  NextToken: crate::standard_library_conversions::ostring_to_dafny(&value.next_token),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ListImportsOutput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::list_imports::ListImportsOutput {
     aws_sdk_dynamodb::operation::list_imports::ListImportsOutput::builder()
           .set_import_summary_list(match (*dafny_value.ImportSummaryList()).as_ref() {
@@ -41,4 +41,6 @@ pub fn from_dafny(
 )
  .set_next_token(crate::standard_library_conversions::ostring_from_dafny(dafny_value.NextToken().clone()))
           .build()
+
+
 }

@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
+#[allow(missing_docs)]
 pub trait BranchKeyIdSupplier {
     fn get_branch_key_id(
-    &mut self,
+    &self,
     input: crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyIdInput,
   ) -> Result<
     crate::deps::aws_cryptography_materialProviders::operation::get_branch_key_id::GetBranchKeyIdOutput,
@@ -13,8 +14,15 @@ pub trait BranchKeyIdSupplier {
 }
 
 #[derive(::std::clone::Clone)]
+/// A reference to a BranchKeyIdSupplier
 pub struct BranchKeyIdSupplierRef {
-    pub inner: ::std::rc::Rc<std::cell::RefCell<dyn BranchKeyIdSupplier>>,
+  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn BranchKeyIdSupplier>>
+}
+
+impl<T : BranchKeyIdSupplier + 'static> From<T> for BranchKeyIdSupplierRef {
+    fn from(value: T) -> Self {
+        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
+    }
 }
 
 impl ::std::cmp::PartialEq for BranchKeyIdSupplierRef {

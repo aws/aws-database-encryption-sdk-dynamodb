@@ -10,16 +10,29 @@ impl TransactGetItemsOutputTransform {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::client::Client,
         input: crate::operation::transact_get_items_output_transform::TransactGetItemsOutputTransformInput,
     ) -> ::std::result::Result<
         crate::operation::transact_get_items_output_transform::TransactGetItemsOutputTransformOutput,
         crate::types::error::Error,
-    >{
-        let inner_input = crate::conversions::transact_get_items_output_transform::_transact_get_items_output_transform_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .TransactGetItemsOutputTransform(&inner_input);
+    > {
+        if input.sdk_output.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "sdk_output",
+        "sdk_output was not specified but it is required when building TransactGetItemsOutputTransformInput",
+    )).map_err(crate::types::error::Error::wrap_validation_err);
+}
+if input.original_input.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "original_input",
+        "original_input was not specified but it is required when building TransactGetItemsOutputTransformInput",
+    )).map_err(crate::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::conversions::transact_get_items_output_transform::_transact_get_items_output_transform_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).TransactGetItemsOutputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

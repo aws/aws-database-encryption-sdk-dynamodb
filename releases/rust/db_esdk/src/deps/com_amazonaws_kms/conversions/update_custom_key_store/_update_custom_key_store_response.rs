@@ -11,11 +11,15 @@ pub fn to_dafny(
 
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::UpdateCustomKeyStoreResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::update_custom_key_store::UpdateCustomKeyStoreOutput {
-    aws_sdk_kms::operation::update_custom_key_store::UpdateCustomKeyStoreOutput::builder().build()
+    aws_sdk_kms::operation::update_custom_key_store::UpdateCustomKeyStoreOutput::builder()
+
+          .build()
+
+
 }

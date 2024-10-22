@@ -10,16 +10,23 @@ impl CreateCryptographicMaterialsCache {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_materialProviders::client::Client,
         input: crate::deps::aws_cryptography_materialProviders::operation::create_cryptographic_materials_cache::CreateCryptographicMaterialsCacheInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
-        let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_cryptographic_materials_cache::_create_cryptographic_materials_cache_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .CreateCryptographicMaterialsCache(&inner_input);
+    > {
+        if input.cache.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "cache",
+        "cache was not specified but it is required when building CreateCryptographicMaterialsCacheInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_cryptographic_materials_cache::_create_cryptographic_materials_cache_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).CreateCryptographicMaterialsCache(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
@@ -29,11 +36,9 @@ impl CreateCryptographicMaterialsCache {
 ,
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

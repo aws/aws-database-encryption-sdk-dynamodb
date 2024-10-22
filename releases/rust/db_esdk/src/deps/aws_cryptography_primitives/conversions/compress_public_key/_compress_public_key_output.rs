@@ -11,13 +11,12 @@ pub fn to_dafny(
         compressedPublicKey: crate::standard_library_conversions::blob_to_dafny(&value.compressed_public_key.unwrap()),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::CompressPublicKeyOutput,
     >,
-) -> crate::deps::aws_cryptography_primitives::operation::compress_public_key::CompressPublicKeyOutput
-{
+) -> crate::deps::aws_cryptography_primitives::operation::compress_public_key::CompressPublicKeyOutput {
     crate::deps::aws_cryptography_primitives::operation::compress_public_key::CompressPublicKeyOutput::builder()
         .set_compressed_public_key(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.compressedPublicKey().clone())))
         .build()

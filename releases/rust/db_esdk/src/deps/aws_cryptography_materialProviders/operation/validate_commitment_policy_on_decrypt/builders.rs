@@ -28,16 +28,14 @@ pub struct ValidateCommitmentPolicyOnDecryptFluentBuilder {
 }
 impl ValidateCommitmentPolicyOnDecryptFluentBuilder {
     /// Creates a new `ValidateCommitmentPolicyOnDecrypt`.
-    pub(crate) fn new(
-        client: crate::deps::aws_cryptography_materialProviders::client::Client,
-    ) -> Self {
+    pub(crate) fn new(client: crate::deps::aws_cryptography_materialProviders::client::Client) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the ValidateCommitmentPolicyOnDecrypt as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::validate_commitment_policy_on_decrypt::builders::ValidateCommitmentPolicyOnDecryptInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::validate_commitment_policy_on_decrypt::builders::ValidateCommitmentPolicyOnDecryptInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -54,68 +52,39 @@ impl ValidateCommitmentPolicyOnDecryptFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                }
+            .map_err(|mut e| crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		alt_text : format!("{:?}", e)
             })?;
         crate::deps::aws_cryptography_materialProviders::operation::validate_commitment_policy_on_decrypt::ValidateCommitmentPolicyOnDecrypt::send(&self.client, input).await
     }
 
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn algorithm(
-        mut self,
-        input: impl ::std::convert::Into<
-            crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId,
-        >,
-    ) -> Self {
-        self.inner = self.inner.algorithm(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_algorithm(
-        mut self,
-        input: ::std::option::Option<
-            crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_algorithm(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_algorithm(
-        &self,
-    ) -> &::std::option::Option<
-        crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId,
-    > {
-        self.inner.get_algorithm()
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn commitment_policy(
-        mut self,
-        input: impl ::std::convert::Into<
-            crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy,
-        >,
-    ) -> Self {
-        self.inner = self.inner.commitment_policy(input.into());
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn set_commitment_policy(
-        mut self,
-        input: ::std::option::Option<
-            crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_commitment_policy(input);
-        self
-    }
-    #[allow(missing_docs)] // documentation missing in model
-    pub fn get_commitment_policy(
-        &self,
-    ) -> &::std::option::Option<
-        crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy,
-    > {
-        self.inner.get_commitment_policy()
-    }
+    #[allow(missing_docs)]
+pub fn algorithm(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>) -> Self {
+    self.inner = self.inner.algorithm(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_algorithm(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId>) -> Self {
+    self.inner = self.inner.set_algorithm(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_algorithm(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::AlgorithmSuiteId> {
+    self.inner.get_algorithm()
+}
+#[allow(missing_docs)]
+pub fn commitment_policy(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>) -> Self {
+    self.inner = self.inner.commitment_policy(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_commitment_policy(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy>) -> Self {
+    self.inner = self.inner.set_commitment_policy(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_commitment_policy(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy> {
+    self.inner.get_commitment_policy()
+}
 }

@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::AttributeValueUpdate,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValueUpdate>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValueUpdate::AttributeValueUpdate {
         Value: ::std::rc::Rc::new(match &value.value {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::to_dafny(x) },
@@ -19,29 +19,26 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValueUpdate,
     >,
 ) -> aws_sdk_dynamodb::types::AttributeValueUpdate {
     aws_sdk_dynamodb::types::AttributeValueUpdate::builder()
-        .set_value(match (*dafny_value.Value()).as_ref() {
-            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-                crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::from_dafny(
-                    value.clone(),
-                ),
-            ),
-            _ => None,
-        })
-        .set_action(match &**dafny_value.Action() {
-            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-                crate::deps::com_amazonaws_dynamodb::conversions::attribute_action::from_dafny(
-                    value,
-                ),
-            ),
-            _ => None,
-        })
-        .build()
+          .set_value(match (*dafny_value.Value()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::from_dafny(value.clone())),
+    _ => None,
+}
+)
+ .set_action(match &**dafny_value.Action() {
+    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+        crate::deps::com_amazonaws_dynamodb::conversions::attribute_action::from_dafny(value)
+    ),
+    _ => None,
+}
+)
+          .build()
+
 }

@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::update_custom_key_store::UpdateCustomKeyStoreError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::update_custom_key_store::UpdateCustomKeyStoreError::CloudHsmClusterInvalidConfigurationException(e) =>
@@ -46,14 +44,14 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_kms::conversions::error::xks_proxy_vpc_endpoint_service_invalid_configuration_exception::to_dafny(e.clone()),
          aws_sdk_kms::operation::update_custom_key_store::UpdateCustomKeyStoreError::XksProxyVpcEndpointServiceNotFoundException(e) =>
             crate::deps::com_amazonaws_kms::conversions::error::xks_proxy_vpc_endpoint_service_not_found_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(e.to_string()),
+        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", e)),
       },
       _ => {
-        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(value.to_string())
+        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", value))
       }
    }
 }
 
-pub mod _update_custom_key_store_request;
+ pub mod _update_custom_key_store_request;
 
-pub mod _update_custom_key_store_response;
+ pub mod _update_custom_key_store_response;

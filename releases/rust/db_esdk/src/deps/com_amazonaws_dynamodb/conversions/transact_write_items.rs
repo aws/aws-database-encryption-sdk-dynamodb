@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
     match value {
       aws_sdk_dynamodb::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsError::IdempotentParameterMismatchException(e) =>
@@ -28,14 +26,14 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_dynamodb::conversions::error::transaction_canceled_exception::to_dafny(e.clone()),
          aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsError::TransactionInProgressException(e) =>
             crate::deps::com_amazonaws_dynamodb::conversions::error::transaction_in_progress_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(e.to_string()),
+        e => crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", e)),
       },
       _ => {
-        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(value.to_string())
+        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", value))
       }
    }
 }
 
-pub mod _transact_write_items_request;
+ pub mod _transact_write_items_request;
 
-pub mod _transact_write_items_response;
+ pub mod _transact_write_items_response;

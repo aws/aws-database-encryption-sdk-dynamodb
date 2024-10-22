@@ -10,6 +10,7 @@ impl DeleteItemInputTransform {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::client::Client,
         input: crate::operation::delete_item_input_transform::DeleteItemInputTransformInput,
@@ -17,9 +18,15 @@ impl DeleteItemInputTransform {
         crate::operation::delete_item_input_transform::DeleteItemInputTransformOutput,
         crate::types::error::Error,
     > {
-        let inner_input = crate::conversions::delete_item_input_transform::_delete_item_input_transform_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .DeleteItemInputTransform(&inner_input);
+        if input.sdk_input.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "sdk_input",
+        "sdk_input was not specified but it is required when building DeleteItemInputTransformInput",
+    )).map_err(crate::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::conversions::delete_item_input_transform::_delete_item_input_transform_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).DeleteItemInputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

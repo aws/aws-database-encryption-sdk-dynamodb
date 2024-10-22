@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::put_key_policy::PutKeyPolicyError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::put_key_policy::PutKeyPolicyError::DependencyTimeoutException(e) =>
@@ -28,12 +26,12 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_kms::conversions::error::not_found_exception::to_dafny(e.clone()),
          aws_sdk_kms::operation::put_key_policy::PutKeyPolicyError::UnsupportedOperationException(e) =>
             crate::deps::com_amazonaws_kms::conversions::error::unsupported_operation_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(e.to_string()),
+        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", e)),
       },
       _ => {
-        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(value.to_string())
+        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", value))
       }
    }
 }
 
-pub mod _put_key_policy_request;
+ pub mod _put_key_policy_request;

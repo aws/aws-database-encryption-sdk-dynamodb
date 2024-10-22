@@ -12,23 +12,15 @@ pub fn to_dafny(
  BackupName: crate::standard_library_conversions::ostring_to_dafny(&value.backup_name) .Extract(),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::CreateBackupInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::create_backup::CreateBackupInput {
     aws_sdk_dynamodb::operation::create_backup::CreateBackupInput::builder()
-        .set_table_name(Some(
-            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
-                dafny_value.TableName(),
-            ),
-        ))
-        .set_backup_name(Some(
-            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
-                dafny_value.BackupName(),
-            ),
-        ))
-        .build()
-        .unwrap()
+          .set_table_name(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.TableName()) ))
+ .set_backup_name(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.BackupName()) ))
+          .build()
+          .unwrap()
 }

@@ -6,15 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DiscoveryFilter,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DiscoveryFilter
-{
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DiscoveryFilter {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DiscoveryFilter::DiscoveryFilter {
         accountIds: ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&value.account_ids.clone().unwrap(),
     |e| dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&e),
@@ -69,8 +68,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DiscoveryFilter,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter>
-{
+) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::DiscoveryFilter> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

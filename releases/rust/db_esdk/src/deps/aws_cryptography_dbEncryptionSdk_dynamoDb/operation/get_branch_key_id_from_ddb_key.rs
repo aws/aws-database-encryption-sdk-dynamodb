@@ -10,17 +10,21 @@ impl GetBranchKeyIdFromDdbKey {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         dynamo_db_key_branch_key_id_supplier: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef,
         input: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
-    >{
-        dynamo_db_key_branch_key_id_supplier
-            .inner
-            .borrow_mut()
-            .get_branch_key_id_from_ddb_key(input)
+    > {
+        if input.ddb_key.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "ddb_key",
+        "ddb_key was not specified but it is required when building GetBranchKeyIdFromDdbKeyInput",
+    )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::wrap_validation_err);
+}
+        dynamo_db_key_branch_key_id_supplier.inner.borrow_mut().get_branch_key_id_from_ddb_key(input)
     }
 }
 

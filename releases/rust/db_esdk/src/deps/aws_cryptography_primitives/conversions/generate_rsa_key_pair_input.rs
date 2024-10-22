@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_primitives::types::GenerateRsaKeyPairInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::GenerateRSAKeyPairInput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_primitives::types::GenerateRsaKeyPairInput,
-) -> crate::r#software::amazon::cryptography::primitives::internaldafny::types::GenerateRSAKeyPairInput{
+) -> crate::r#software::amazon::cryptography::primitives::internaldafny::types::GenerateRSAKeyPairInput {
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::GenerateRSAKeyPairInput::GenerateRSAKeyPairInput {
         lengthBits: value.length_bits.clone().unwrap(),
     }
@@ -60,8 +60,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::GenerateRSAKeyPairInput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_primitives::types::GenerateRsaKeyPairInput>
-{
+) -> ::std::option::Option<crate::deps::aws_cryptography_primitives::types::GenerateRsaKeyPairInput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

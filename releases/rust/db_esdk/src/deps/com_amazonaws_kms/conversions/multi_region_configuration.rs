@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_kms::types::MultiRegionConfiguration,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::MultiRegionConfiguration>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::MultiRegionConfiguration::MultiRegionConfiguration {
         MultiRegionKeyType: ::std::rc::Rc::new(match &value.multi_region_key_type {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_kms::conversions::multi_region_key_type::to_dafny(x.clone()) },
@@ -29,8 +29,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::MultiRegionConfiguration,
@@ -62,4 +61,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

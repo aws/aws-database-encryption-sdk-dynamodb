@@ -10,16 +10,23 @@ impl CreateRequiredEncryptionContextCmm {
     pub fn new() -> Self {
         Self
     }
+
     pub(crate) async fn send(
         client: &crate::deps::aws_cryptography_materialProviders::client::Client,
         input: crate::deps::aws_cryptography_materialProviders::operation::create_required_encryption_context_cmm::CreateRequiredEncryptionContextCmmInput,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_manager::CryptographicMaterialsManagerRef,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
-        let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_required_encryption_context_cmm::_create_required_encryption_context_cmm_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .CreateRequiredEncryptionContextCMM(&inner_input);
+    > {
+        if input.required_encryption_context_keys.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "required_encryption_context_keys",
+        "required_encryption_context_keys was not specified but it is required when building CreateRequiredEncryptionContextCmmInput",
+    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_required_encryption_context_cmm::_create_required_encryption_context_cmm_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).CreateRequiredEncryptionContextCMM(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
@@ -29,11 +36,9 @@ impl CreateRequiredEncryptionContextCmm {
 ,
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

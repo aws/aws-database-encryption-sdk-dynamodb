@@ -66,11 +66,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::UpdateTableInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::update_table::UpdateTableInput {
     aws_sdk_dynamodb::operation::update_table::UpdateTableInput::builder()
           .set_attribute_definitions(match (*dafny_value.AttributeDefinitions()).as_ref() {

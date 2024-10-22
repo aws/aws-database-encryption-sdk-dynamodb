@@ -15,11 +15,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DescribeTimeToLiveOutput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::describe_time_to_live::DescribeTimeToLiveOutput {
     aws_sdk_dynamodb::operation::describe_time_to_live::DescribeTimeToLiveOutput::builder()
           .set_time_to_live_description(match (*dafny_value.TimeToLiveDescription()).as_ref() {
@@ -29,4 +29,6 @@ pub fn from_dafny(
 }
 )
           .build()
+
+
 }

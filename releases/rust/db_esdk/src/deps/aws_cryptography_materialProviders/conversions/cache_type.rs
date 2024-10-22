@@ -33,6 +33,11 @@ crate::deps::aws_cryptography_materialProviders::types::CacheType::StormTracking
         StormTracking: crate::deps::aws_cryptography_materialProviders::conversions::storm_tracking_cache::to_dafny(&x.clone())
 ,
     },
+crate::deps::aws_cryptography_materialProviders::types::CacheType::Shared(x) =>
+    crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CacheType::Shared {
+        Shared: crate::deps::aws_cryptography_materialProviders::conversions::cryptographic_materials_cache::to_dafny(&x.clone())
+,
+    },
         _ => panic!("Unknown union variant: {:?}", value),
     })
 }
@@ -63,6 +68,10 @@ crate::r#software::amazon::cryptography::materialproviders::internaldafny::types
 crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CacheType::StormTracking {
     StormTracking: x @ _,
 } => crate::deps::aws_cryptography_materialProviders::types::CacheType::StormTracking(crate::deps::aws_cryptography_materialProviders::conversions::storm_tracking_cache::from_dafny(x.clone())
+),
+crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CacheType::Shared {
+    Shared: x @ _,
+} => crate::deps::aws_cryptography_materialProviders::types::CacheType::Shared(crate::deps::aws_cryptography_materialProviders::conversions::cryptographic_materials_cache::from_dafny(x.clone())
 ),
     }
 }
