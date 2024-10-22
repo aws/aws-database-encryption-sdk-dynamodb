@@ -1,22 +1,22 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::test_utils;
-use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
-use aws_db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
-use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::client as dbesdk_client;
-use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
 use super::branch_key_id_supplier::ExampleBranchKeyIdSupplier;
+use crate::test_utils;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::client as dbesdk_client;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
+use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
+use aws_db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreConfig;
+use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
+use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
 use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 //use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
-use std::collections::HashMap;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
-use aws_db_esdk::DynamoDbTablesEncryptionConfig;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
+use aws_db_esdk::DynamoDbTablesEncryptionConfig;
 use aws_sdk_dynamodb::types::AttributeValue;
+use std::collections::HashMap;
 
 /*
  This example sets up DynamoDb Encryption for the AWS SDK client
@@ -94,9 +94,9 @@ pub async fn put_item_get_item(
     let dbesdk_config = DynamoDbEncryptionConfig::builder().build()?;
     let dbesdk = dbesdk_client::Client::from_conf(dbesdk_config)?;
     let supplier = ExampleBranchKeyIdSupplier::new(tenant1_branch_key_id, tenant2_branch_key_id);
-//    let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
-//        inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier)),
-//    };
+    //    let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
+    //        inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier)),
+    //    };
     let branch_key_id_supplier = dbesdk
         .create_dynamo_db_encryption_branch_key_id_supplier()
         .ddb_key_branch_key_id_supplier(supplier)

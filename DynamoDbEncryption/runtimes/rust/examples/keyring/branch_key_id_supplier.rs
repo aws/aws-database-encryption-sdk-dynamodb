@@ -30,7 +30,7 @@ impl ExampleBranchKeyIdSupplier {
 
 impl DynamoDbKeyBranchKeyIdSupplier for ExampleBranchKeyIdSupplier {
     fn get_branch_key_id_from_ddb_key(
-        &mut self,
+        &self,
         input: GetBranchKeyIdFromDdbKeyInput,
     ) -> Result<GetBranchKeyIdFromDdbKeyOutput, Error> {
         let key = input.ddb_key.unwrap();

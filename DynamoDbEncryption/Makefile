@@ -7,6 +7,8 @@ include ../SharedMakefile.mk
 
 DIR_STRUCTURE_V2=V2
 
+TRANSPILE_TESTS_IN_RUST=1
+
 PROJECT_SERVICES := \
 	DynamoDbEncryption \
 	DynamoDbItemEncryptor \
