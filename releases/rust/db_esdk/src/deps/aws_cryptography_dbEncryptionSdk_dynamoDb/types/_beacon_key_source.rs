@@ -6,9 +6,9 @@
 #[allow(missing_docs)]
 pub enum BeaconKeySource {
     #[allow(missing_docs)]
-Single(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore),
-#[allow(missing_docs)]
-Multi(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore),
+    Single(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore),
+    #[allow(missing_docs)]
+    Multi(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore),
     /// The `Unknown` variant represents cases where new union variant was received. Consider upgrading the SDK to the latest available version.
     /// An unknown enum variant
     ///
@@ -21,31 +21,41 @@ Multi(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeySto
 }
 impl BeaconKeySource {
     /// Tries to convert the enum instance into [`Single`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Single), extracting the inner [`crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore).
-/// Returns `Err(&Self)` if it can't be converted.
-pub fn as_single(&self) -> ::std::result::Result<&crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore, &Self> {
-    if let crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Single(val) = &self {
+    /// Returns `Err(&Self)` if it can't be converted.
+    pub fn as_single(
+        &self,
+    ) -> ::std::result::Result<
+        &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore,
+        &Self,
+    > {
+        if let crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Single(val) = &self {
         ::std::result::Result::Ok(val)
     } else {
         ::std::result::Result::Err(self)
     }
-}
-/// Tries to convert the enum instance into [`Multi`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Multi), extracting the inner [`crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore).
-/// Returns `Err(&Self)` if it can't be converted.
-pub fn as_multi(&self) -> ::std::result::Result<&crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore, &Self> {
-    if let crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Multi(val) = &self {
+    }
+    /// Tries to convert the enum instance into [`Multi`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Multi), extracting the inner [`crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore).
+    /// Returns `Err(&Self)` if it can't be converted.
+    pub fn as_multi(
+        &self,
+    ) -> ::std::result::Result<
+        &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore,
+        &Self,
+    > {
+        if let crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Multi(val) = &self {
         ::std::result::Result::Ok(val)
     } else {
         ::std::result::Result::Err(self)
     }
-}
+    }
     /// Returns true if this is a [`Single`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Single).
-pub fn is_single(&self) -> ::std::primitive::bool {
-    self.as_single().is_ok()
-}
-/// Returns true if this is a [`Multi`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Multi).
-pub fn is_multi(&self) -> ::std::primitive::bool {
-    self.as_multi().is_ok()
-}
+    pub fn is_single(&self) -> ::std::primitive::bool {
+        self.as_single().is_ok()
+    }
+    /// Returns true if this is a [`Multi`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Multi).
+    pub fn is_multi(&self) -> ::std::primitive::bool {
+        self.as_multi().is_ok()
+    }
     /// Returns true if the enum instance is the `Unknown` variant.
     pub fn is_unknown(&self) -> ::std::primitive::bool {
         matches!(self, Self::Unknown)

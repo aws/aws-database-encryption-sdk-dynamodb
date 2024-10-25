@@ -5,7 +5,9 @@
 
 pub fn to_dafny(
     value: crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec>{
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec,
+> {
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec::EccNistP256 => crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec::ECC_NIST_P256 {},
 crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec::EccNistP384 => crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec::ECC_NIST_P384 {},
@@ -14,7 +16,7 @@ crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec::Sm2 => crate::r#
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec,
 ) -> crate::deps::aws_cryptography_primitives::types::EcdhCurveSpec {

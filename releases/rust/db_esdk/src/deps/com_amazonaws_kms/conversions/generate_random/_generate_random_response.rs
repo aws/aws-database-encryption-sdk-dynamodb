@@ -12,16 +12,18 @@ pub fn to_dafny(
  CiphertextForRecipient: crate::standard_library_conversions::oblob_to_dafny(&value.ciphertext_for_recipient),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GenerateRandomResponse,
-    >
+    >,
 ) -> aws_sdk_kms::operation::generate_random::GenerateRandomOutput {
     aws_sdk_kms::operation::generate_random::GenerateRandomOutput::builder()
-          .set_plaintext(crate::standard_library_conversions::oblob_from_dafny(dafny_value.Plaintext().clone()))
- .set_ciphertext_for_recipient(crate::standard_library_conversions::oblob_from_dafny(dafny_value.CiphertextForRecipient().clone()))
-          .build()
-
-
+        .set_plaintext(crate::standard_library_conversions::oblob_from_dafny(
+            dafny_value.Plaintext().clone(),
+        ))
+        .set_ciphertext_for_recipient(crate::standard_library_conversions::oblob_from_dafny(
+            dafny_value.CiphertextForRecipient().clone(),
+        ))
+        .build()
 }

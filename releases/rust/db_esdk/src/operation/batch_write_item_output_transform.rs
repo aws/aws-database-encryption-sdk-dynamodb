@@ -19,20 +19,20 @@ impl BatchWriteItemOutputTransform {
         crate::types::error::Error,
     > {
         if input.sdk_output.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "sdk_output",
         "sdk_output was not specified but it is required when building BatchWriteItemOutputTransformInput",
     )).map_err(crate::types::error::Error::wrap_validation_err);
-}
-if input.original_input.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        }
+        if input.original_input.is_none() {
+            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "original_input",
         "original_input was not specified but it is required when building BatchWriteItemOutputTransformInput",
     )).map_err(crate::types::error::Error::wrap_validation_err);
-}
-                let inner_input = crate::conversions::batch_write_item_output_transform::_batch_write_item_output_transform_input::to_dafny(input);
-        let inner_result =
-            ::dafny_runtime::md!(client.dafny_client.clone()).BatchWriteItemOutputTransform(&inner_input);
+        }
+        let inner_input = crate::conversions::batch_write_item_output_transform::_batch_write_item_output_transform_input::to_dafny(input);
+        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
+            .BatchWriteItemOutputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

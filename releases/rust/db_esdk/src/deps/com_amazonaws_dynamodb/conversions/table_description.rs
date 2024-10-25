@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::TableDescription,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::TableDescription>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::TableDescription::TableDescription {
         AttributeDefinitions: ::std::rc::Rc::new(match &value.attribute_definitions {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
@@ -108,7 +108,8 @@ pub fn to_dafny(
 ,
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::TableDescription,
@@ -229,5 +230,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
 }

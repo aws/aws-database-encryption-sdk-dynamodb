@@ -13,16 +13,22 @@ pub fn to_dafny(
  Marker: crate::standard_library_conversions::ostring_to_dafny(&value.marker),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ListAliasesRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::list_aliases::ListAliasesInput {
     aws_sdk_kms::operation::list_aliases::ListAliasesInput::builder()
-          .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
- .set_limit(crate::standard_library_conversions::oint_from_dafny(dafny_value.Limit().clone()))
- .set_marker(crate::standard_library_conversions::ostring_from_dafny(dafny_value.Marker().clone()))
-          .build()
-          .unwrap()
+        .set_key_id(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.KeyId().clone(),
+        ))
+        .set_limit(crate::standard_library_conversions::oint_from_dafny(
+            dafny_value.Limit().clone(),
+        ))
+        .set_marker(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.Marker().clone(),
+        ))
+        .build()
+        .unwrap()
 }

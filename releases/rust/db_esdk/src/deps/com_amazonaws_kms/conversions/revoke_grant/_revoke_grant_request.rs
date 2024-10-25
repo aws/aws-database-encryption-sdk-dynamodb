@@ -13,16 +13,26 @@ pub fn to_dafny(
  DryRun: crate::standard_library_conversions::obool_to_dafny(&value.dry_run),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::RevokeGrantRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::revoke_grant::RevokeGrantInput {
     aws_sdk_kms::operation::revoke_grant::RevokeGrantInput::builder()
-          .set_key_id(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.KeyId()) ))
- .set_grant_id(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.GrantId()) ))
- .set_dry_run(crate::standard_library_conversions::obool_from_dafny(dafny_value.DryRun().clone()))
-          .build()
-          .unwrap()
+        .set_key_id(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.KeyId(),
+            ),
+        ))
+        .set_grant_id(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.GrantId(),
+            ),
+        ))
+        .set_dry_run(crate::standard_library_conversions::obool_from_dafny(
+            dafny_value.DryRun().clone(),
+        ))
+        .build()
+        .unwrap()
 }

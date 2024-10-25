@@ -15,19 +15,25 @@ pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::Hkdf,
 ) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::HKDF {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::HKDF::HKDF {
-        hmac: crate::deps::aws_cryptography_primitives::conversions::digest_algorithm::to_dafny(value.hmac.clone().unwrap()),
- saltLength: value.salt_length.clone().unwrap(),
- inputKeyLength: value.input_key_length.clone().unwrap(),
- outputKeyLength: value.output_key_length.clone().unwrap(),
+        hmac: crate::deps::aws_cryptography_primitives::conversions::digest_algorithm::to_dafny(
+            value.hmac.clone().unwrap(),
+        ),
+        saltLength: value.salt_length.clone().unwrap(),
+        inputKeyLength: value.input_key_length.clone().unwrap(),
+        outputKeyLength: value.output_key_length.clone().unwrap(),
     }
 }
 
 #[allow(dead_code)]
 pub fn option_to_dafny(
-  value: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Hkdf>,
-) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
-  crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::HKDF,
->>>{
+    value: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::Hkdf>,
+) -> ::std::rc::Rc<
+    crate::_Wrappers_Compile::Option<
+        ::std::rc::Rc<
+            crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::HKDF,
+        >,
+    >,
+> {
     ::std::rc::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {

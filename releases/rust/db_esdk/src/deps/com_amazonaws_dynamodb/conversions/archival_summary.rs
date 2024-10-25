@@ -5,23 +5,29 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ArchivalSummary,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ArchivalSummary>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ArchivalSummary::ArchivalSummary {
         ArchivalDateTime: crate::standard_library_conversions::otimestamp_to_dafny(&value.archival_date_time),
  ArchivalReason: crate::standard_library_conversions::ostring_to_dafny(&value.archival_reason),
  ArchivalBackupArn: crate::standard_library_conversions::ostring_to_dafny(&value.archival_backup_arn),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ArchivalSummary,
     >,
 ) -> aws_sdk_dynamodb::types::ArchivalSummary {
     aws_sdk_dynamodb::types::ArchivalSummary::builder()
-          .set_archival_date_time(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.ArchivalDateTime().clone()))
- .set_archival_reason(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ArchivalReason().clone()))
- .set_archival_backup_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ArchivalBackupArn().clone()))
-          .build()
-
+        .set_archival_date_time(crate::standard_library_conversions::otimestamp_from_dafny(
+            dafny_value.ArchivalDateTime().clone(),
+        ))
+        .set_archival_reason(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.ArchivalReason().clone(),
+        ))
+        .set_archival_backup_arn(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.ArchivalBackupArn().clone(),
+        ))
+        .build()
 }

@@ -13,7 +13,7 @@ crate::deps::aws_cryptography_materialProviders::types::EsdkCommitmentPolicy::Re
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ESDKCommitmentPolicy,
 ) -> crate::deps::aws_cryptography_materialProviders::types::EsdkCommitmentPolicy {

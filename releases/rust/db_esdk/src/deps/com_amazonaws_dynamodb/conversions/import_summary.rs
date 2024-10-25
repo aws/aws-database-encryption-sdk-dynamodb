@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ImportSummary,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportSummary>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportSummary::ImportSummary {
         ImportArn: crate::standard_library_conversions::ostring_to_dafny(&value.import_arn),
  ImportStatus: ::std::rc::Rc::new(match &value.import_status {
@@ -29,38 +29,48 @@ pub fn to_dafny(
  EndTime: crate::standard_library_conversions::otimestamp_to_dafny(&value.end_time),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportSummary,
     >,
 ) -> aws_sdk_dynamodb::types::ImportSummary {
     aws_sdk_dynamodb::types::ImportSummary::builder()
-          .set_import_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ImportArn().clone()))
- .set_import_status(match &**dafny_value.ImportStatus() {
-    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-        crate::deps::com_amazonaws_dynamodb::conversions::import_status::from_dafny(value)
-    ),
-    _ => None,
-}
-)
- .set_table_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.TableArn().clone()))
- .set_s3_bucket_source(match (*dafny_value.S3BucketSource()).as_ref() {
-    crate::r#_Wrappers_Compile::Option::Some { value } =>
-        Some(crate::deps::com_amazonaws_dynamodb::conversions::s3_bucket_source::from_dafny(value.clone())),
-    _ => None,
-}
-)
- .set_cloud_watch_log_group_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.CloudWatchLogGroupArn().clone()))
- .set_input_format(match &**dafny_value.InputFormat() {
-    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-        crate::deps::com_amazonaws_dynamodb::conversions::input_format::from_dafny(value)
-    ),
-    _ => None,
-}
-)
- .set_start_time(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.StartTime().clone()))
- .set_end_time(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.EndTime().clone()))
-          .build()
-
+        .set_import_arn(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.ImportArn().clone(),
+        ))
+        .set_import_status(match &**dafny_value.ImportStatus() {
+            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+                crate::deps::com_amazonaws_dynamodb::conversions::import_status::from_dafny(value),
+            ),
+            _ => None,
+        })
+        .set_table_arn(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.TableArn().clone(),
+        ))
+        .set_s3_bucket_source(match (*dafny_value.S3BucketSource()).as_ref() {
+            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+                crate::deps::com_amazonaws_dynamodb::conversions::s3_bucket_source::from_dafny(
+                    value.clone(),
+                ),
+            ),
+            _ => None,
+        })
+        .set_cloud_watch_log_group_arn(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.CloudWatchLogGroupArn().clone(),
+        ))
+        .set_input_format(match &**dafny_value.InputFormat() {
+            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+                crate::deps::com_amazonaws_dynamodb::conversions::input_format::from_dafny(value),
+            ),
+            _ => None,
+        })
+        .set_start_time(crate::standard_library_conversions::otimestamp_from_dafny(
+            dafny_value.StartTime().clone(),
+        ))
+        .set_end_time(crate::standard_library_conversions::otimestamp_from_dafny(
+            dafny_value.EndTime().clone(),
+        ))
+        .build()
 }

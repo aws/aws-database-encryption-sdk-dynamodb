@@ -12,12 +12,12 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyOutput,
     >,
-) -> crate::deps::aws_cryptography_primitives::operation::decompress_public_key::DecompressPublicKeyOutput {
+) -> crate::deps::aws_cryptography_primitives::operation::decompress_public_key::DecompressPublicKeyOutput{
     crate::deps::aws_cryptography_primitives::operation::decompress_public_key::DecompressPublicKeyOutput::builder()
         .set_public_key(Some( crate::deps::aws_cryptography_primitives::conversions::ecc_public_key::from_dafny(dafny_value.publicKey().clone())
  ))

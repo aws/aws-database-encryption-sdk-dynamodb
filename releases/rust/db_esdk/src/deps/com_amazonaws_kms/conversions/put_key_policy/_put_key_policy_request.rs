@@ -14,17 +14,31 @@ pub fn to_dafny(
  BypassPolicyLockoutSafetyCheck: crate::standard_library_conversions::obool_to_dafny(&value.bypass_policy_lockout_safety_check),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::PutKeyPolicyRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::put_key_policy::PutKeyPolicyInput {
     aws_sdk_kms::operation::put_key_policy::PutKeyPolicyInput::builder()
-          .set_key_id(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.KeyId()) ))
- .set_policy_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.PolicyName().clone()))
- .set_policy(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.Policy()) ))
- .set_bypass_policy_lockout_safety_check(crate::standard_library_conversions::obool_from_dafny(dafny_value.BypassPolicyLockoutSafetyCheck().clone()))
-          .build()
-          .unwrap()
+        .set_key_id(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.KeyId(),
+            ),
+        ))
+        .set_policy_name(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.PolicyName().clone(),
+        ))
+        .set_policy(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.Policy(),
+            ),
+        ))
+        .set_bypass_policy_lockout_safety_check(
+            crate::standard_library_conversions::obool_from_dafny(
+                dafny_value.BypassPolicyLockoutSafetyCheck().clone(),
+            ),
+        )
+        .build()
+        .unwrap()
 }

@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &aws_sdk_kms::operation::create_key::CreateKeyInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CreateKeyRequest,
->{
+> {
     ::std::rc::Rc::new(crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CreateKeyRequest::CreateKeyRequest {
         Policy: crate::standard_library_conversions::ostring_to_dafny(&value.policy),
  Description: crate::standard_library_conversions::ostring_to_dafny(&value.description),
@@ -46,11 +46,11 @@ pub fn to_dafny(
  XksKeyId: crate::standard_library_conversions::ostring_to_dafny(&value.xks_key_id),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CreateKeyRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::create_key::CreateKeyInput {
     aws_sdk_kms::operation::create_key::CreateKeyInput::builder()
           .set_policy(crate::standard_library_conversions::ostring_from_dafny(dafny_value.Policy().clone()))

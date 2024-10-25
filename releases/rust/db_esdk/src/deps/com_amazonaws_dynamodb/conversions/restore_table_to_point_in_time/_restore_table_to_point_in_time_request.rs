@@ -50,11 +50,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::RestoreTableToPointInTimeInput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::restore_table_to_point_in_time::RestoreTableToPointInTimeInput {
     aws_sdk_dynamodb::operation::restore_table_to_point_in_time::RestoreTableToPointInTimeInput::builder()
           .set_source_table_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.SourceTableArn().clone()))

@@ -13,7 +13,8 @@ pub fn to_dafny(
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_primitives::types::ParsePublicKeyOutput,
-) -> crate::r#software::amazon::cryptography::primitives::internaldafny::types::ParsePublicKeyOutput {
+) -> crate::r#software::amazon::cryptography::primitives::internaldafny::types::ParsePublicKeyOutput
+{
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::ParsePublicKeyOutput::ParsePublicKeyOutput {
         publicKey: crate::deps::aws_cryptography_primitives::conversions::ecc_public_key::to_dafny(&value.public_key.clone().unwrap())
 ,

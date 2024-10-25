@@ -47,11 +47,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::RestoreTableFromBackupInput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::restore_table_from_backup::RestoreTableFromBackupInput {
     aws_sdk_dynamodb::operation::restore_table_from_backup::RestoreTableFromBackupInput::builder()
           .set_target_table_name(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.TargetTableName()) ))

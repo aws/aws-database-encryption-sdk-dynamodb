@@ -7,7 +7,9 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::decrypt::DecryptError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
+> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::decrypt::DecryptError::DependencyTimeoutException(e) =>
@@ -40,6 +42,6 @@ pub fn to_dafny_error(
    }
 }
 
- pub mod _decrypt_request;
+pub mod _decrypt_request;
 
- pub mod _decrypt_response;
+pub mod _decrypt_response;

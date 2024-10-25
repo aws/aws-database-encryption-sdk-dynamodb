@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::LegacyOverride,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyOverride,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::LegacyOverride,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyOverride {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyOverride{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyOverride::LegacyOverride {
         policy: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::legacy_policy::to_dafny(value.policy.clone().unwrap()),
  encryptor: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::legacy_dynamo_db_encryptor::to_dafny(&value.encryptor.clone().unwrap())
@@ -86,7 +86,9 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyOverride,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::LegacyOverride> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::LegacyOverride,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

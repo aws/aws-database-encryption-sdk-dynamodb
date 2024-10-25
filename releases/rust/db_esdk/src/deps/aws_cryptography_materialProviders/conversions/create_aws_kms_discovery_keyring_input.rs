@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsDiscoveryKeyringInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsDiscoveryKeyringInput,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsDiscoveryKeyringInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsDiscoveryKeyringInput {
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsDiscoveryKeyringInput{
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsDiscoveryKeyringInput::CreateAwsKmsDiscoveryKeyringInput {
         kmsClient: crate::deps::com_amazonaws_kms::conversions::client::to_dafny(&value.kms_client.clone().unwrap())
 ,
@@ -92,7 +92,9 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsDiscoveryKeyringInput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsDiscoveryKeyringInput> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_materialProviders::types::CreateAwsKmsDiscoveryKeyringInput,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

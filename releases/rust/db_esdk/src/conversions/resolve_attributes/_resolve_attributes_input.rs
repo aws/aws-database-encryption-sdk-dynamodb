@@ -18,7 +18,7 @@ pub fn to_dafny(
  Version: crate::standard_library_conversions::oint_to_dafny(value.version),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput,

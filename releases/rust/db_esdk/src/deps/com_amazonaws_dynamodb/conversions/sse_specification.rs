@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::SseSpecification,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::SSESpecification>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::SSESpecification::SSESpecification {
         Enabled: crate::standard_library_conversions::obool_to_dafny(&value.enabled),
  SSEType: ::std::rc::Rc::new(match &value.sse_type {
@@ -16,22 +16,25 @@ pub fn to_dafny(
  KMSMasterKeyId: crate::standard_library_conversions::ostring_to_dafny(&value.kms_master_key_id),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::SSESpecification,
     >,
 ) -> aws_sdk_dynamodb::types::SseSpecification {
     aws_sdk_dynamodb::types::SseSpecification::builder()
-          .set_enabled(crate::standard_library_conversions::obool_from_dafny(dafny_value.Enabled().clone()))
- .set_sse_type(match &**dafny_value.SSEType() {
-    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-        crate::deps::com_amazonaws_dynamodb::conversions::sse_type::from_dafny(value)
-    ),
-    _ => None,
-}
-)
- .set_kms_master_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KMSMasterKeyId().clone()))
-          .build()
-
+        .set_enabled(crate::standard_library_conversions::obool_from_dafny(
+            dafny_value.Enabled().clone(),
+        ))
+        .set_sse_type(match &**dafny_value.SSEType() {
+            crate::r#_Wrappers_Compile::Option::Some { value } => {
+                Some(crate::deps::com_amazonaws_dynamodb::conversions::sse_type::from_dafny(value))
+            }
+            _ => None,
+        })
+        .set_kms_master_key_id(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.KMSMasterKeyId().clone(),
+        ))
+        .build()
 }

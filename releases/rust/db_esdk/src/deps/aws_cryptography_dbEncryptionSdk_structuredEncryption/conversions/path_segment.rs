@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::PathSegment,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::PathSegment,
-> {
+>{
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::PathSegment::Member(x) =>
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::PathSegment::member {

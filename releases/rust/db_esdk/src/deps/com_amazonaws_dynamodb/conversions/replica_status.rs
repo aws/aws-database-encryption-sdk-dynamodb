@@ -17,7 +17,7 @@ aws_sdk_dynamodb::types::ReplicaStatus::InaccessibleEncryptionCredentials => cra
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicaStatus,
 ) -> aws_sdk_dynamodb::types::ReplicaStatus {

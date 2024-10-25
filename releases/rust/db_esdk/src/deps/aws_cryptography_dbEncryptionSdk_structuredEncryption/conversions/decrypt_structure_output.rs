@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput{
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput::DecryptStructureOutput {
         plaintextStructure: ::dafny_runtime::dafny_runtime_conversions::hashmap_to_dafny_map(&value.plaintext_structure.clone().unwrap(),
     |k| dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&k),
@@ -50,14 +50,16 @@ pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput
+{
     plain_from_dafny(&*dafny_value)
 }
 
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput
+{
     match dafny_value {
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput::DecryptStructureOutput {..} =>
             crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput::builder()
@@ -84,7 +86,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptStructureOutput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput> {
+) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptStructureOutput>{
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

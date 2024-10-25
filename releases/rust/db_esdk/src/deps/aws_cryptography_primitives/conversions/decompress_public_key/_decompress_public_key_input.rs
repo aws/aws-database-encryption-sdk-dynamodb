@@ -12,12 +12,12 @@ pub fn to_dafny(
  eccCurve: crate::deps::aws_cryptography_primitives::conversions::ecdh_curve_spec::to_dafny(value.ecc_curve.clone().unwrap()),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::DecompressPublicKeyInput,
     >,
-) -> crate::deps::aws_cryptography_primitives::operation::decompress_public_key::DecompressPublicKeyInput {
+) -> crate::deps::aws_cryptography_primitives::operation::decompress_public_key::DecompressPublicKeyInput{
     crate::deps::aws_cryptography_primitives::operation::decompress_public_key::DecompressPublicKeyInput::builder()
         .set_compressed_public_key(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.compressedPublicKey().clone())))
  .set_ecc_curve(Some( crate::deps::aws_cryptography_primitives::conversions::ecdh_curve_spec::from_dafny(dafny_value.eccCurve()) ))

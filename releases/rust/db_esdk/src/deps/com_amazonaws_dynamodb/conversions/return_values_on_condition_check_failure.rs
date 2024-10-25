@@ -12,7 +12,7 @@ aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure::None => crate::r#s
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReturnValuesOnConditionCheckFailure,
 ) -> aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure {

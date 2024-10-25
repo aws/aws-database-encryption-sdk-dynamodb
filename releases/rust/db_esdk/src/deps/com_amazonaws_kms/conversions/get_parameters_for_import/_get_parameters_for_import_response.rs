@@ -14,18 +14,24 @@ pub fn to_dafny(
  ParametersValidTo: crate::standard_library_conversions::otimestamp_to_dafny(&value.parameters_valid_to),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GetParametersForImportResponse,
-    >
+    >,
 ) -> aws_sdk_kms::operation::get_parameters_for_import::GetParametersForImportOutput {
     aws_sdk_kms::operation::get_parameters_for_import::GetParametersForImportOutput::builder()
-          .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
- .set_import_token(crate::standard_library_conversions::oblob_from_dafny(dafny_value.ImportToken().clone()))
- .set_public_key(crate::standard_library_conversions::oblob_from_dafny(dafny_value.PublicKey().clone()))
- .set_parameters_valid_to(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.ParametersValidTo().clone()))
-          .build()
-
-
+        .set_key_id(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.KeyId().clone(),
+        ))
+        .set_import_token(crate::standard_library_conversions::oblob_from_dafny(
+            dafny_value.ImportToken().clone(),
+        ))
+        .set_public_key(crate::standard_library_conversions::oblob_from_dafny(
+            dafny_value.PublicKey().clone(),
+        ))
+        .set_parameters_valid_to(crate::standard_library_conversions::otimestamp_from_dafny(
+            dafny_value.ParametersValidTo().clone(),
+        ))
+        .build()
 }

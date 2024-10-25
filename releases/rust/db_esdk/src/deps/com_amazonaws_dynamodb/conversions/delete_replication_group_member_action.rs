@@ -5,19 +5,24 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::DeleteReplicationGroupMemberAction,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DeleteReplicationGroupMemberAction>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DeleteReplicationGroupMemberAction::DeleteReplicationGroupMemberAction {
         RegionName: dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&value.region_name),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DeleteReplicationGroupMemberAction,
     >,
 ) -> aws_sdk_dynamodb::types::DeleteReplicationGroupMemberAction {
     aws_sdk_dynamodb::types::DeleteReplicationGroupMemberAction::builder()
-          .set_region_name(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.RegionName()) ))
-          .build()
-          .unwrap()
+        .set_region_name(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.RegionName(),
+            ),
+        ))
+        .build()
+        .unwrap()
 }

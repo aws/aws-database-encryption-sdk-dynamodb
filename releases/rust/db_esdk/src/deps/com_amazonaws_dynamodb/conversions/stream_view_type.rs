@@ -14,7 +14,7 @@ aws_sdk_dynamodb::types::StreamViewType::KeysOnly => crate::r#software::amazon::
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::StreamViewType,
 ) -> aws_sdk_dynamodb::types::StreamViewType {

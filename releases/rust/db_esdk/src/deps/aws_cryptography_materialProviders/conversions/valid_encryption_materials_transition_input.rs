@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput {
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput{
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput::ValidEncryptionMaterialsTransitionInput {
         start: crate::deps::aws_cryptography_materialProviders::conversions::encryption_materials::to_dafny(&value.start.clone().unwrap())
 ,
@@ -41,14 +41,16 @@ pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput {
+) -> crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput
+{
     plain_from_dafny(&*dafny_value)
 }
 
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput,
-) -> crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput {
+) -> crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput
+{
     match dafny_value {
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput::ValidEncryptionMaterialsTransitionInput {..} =>
             crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput::builder()
@@ -66,7 +68,9 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ValidEncryptionMaterialsTransitionInput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_materialProviders::types::ValidEncryptionMaterialsTransitionInput,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

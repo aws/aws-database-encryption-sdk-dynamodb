@@ -81,7 +81,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     let kms_rsa_keyring = mpl
         .create_aws_kms_rsa_keyring()
         .kms_key_id(rsa_key_arn)
-        .public_key(aws_smithy_types::Blob::new(public_key_utf8_bytes))
+        .public_key(public_key_utf8_bytes)
         .encryption_algorithm(aws_sdk_kms::types::EncryptionAlgorithmSpec::RsaesOaepSha256)
         .kms_client(aws_sdk_kms::Client::new(&sdk_config))
         .send()

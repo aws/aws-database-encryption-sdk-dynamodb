@@ -7,7 +7,9 @@ pub fn to_dafny_error(
         aws_sdk_dynamodb::operation::update_time_to_live::UpdateTimeToLiveError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
+> {
     match value {
       aws_sdk_dynamodb::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_dynamodb::operation::update_time_to_live::UpdateTimeToLiveError::InternalServerError(e) =>
@@ -28,6 +30,6 @@ pub fn to_dafny_error(
    }
 }
 
- pub mod _update_time_to_live_request;
+pub mod _update_time_to_live_request;
 
- pub mod _update_time_to_live_response;
+pub mod _update_time_to_live_response;

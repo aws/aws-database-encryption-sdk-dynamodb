@@ -12,16 +12,18 @@ pub fn to_dafny(
  PolicyName: crate::standard_library_conversions::ostring_to_dafny(&value.policy_name),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GetKeyPolicyResponse,
-    >
+    >,
 ) -> aws_sdk_kms::operation::get_key_policy::GetKeyPolicyOutput {
     aws_sdk_kms::operation::get_key_policy::GetKeyPolicyOutput::builder()
-          .set_policy(crate::standard_library_conversions::ostring_from_dafny(dafny_value.Policy().clone()))
- .set_policy_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.PolicyName().clone()))
-          .build()
-
-
+        .set_policy(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.Policy().clone(),
+        ))
+        .set_policy_name(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.PolicyName().clone(),
+        ))
+        .build()
 }

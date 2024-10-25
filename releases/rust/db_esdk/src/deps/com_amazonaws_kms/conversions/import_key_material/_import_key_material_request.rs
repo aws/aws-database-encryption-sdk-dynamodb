@@ -19,24 +19,35 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ImportKeyMaterialRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::import_key_material::ImportKeyMaterialInput {
     aws_sdk_kms::operation::import_key_material::ImportKeyMaterialInput::builder()
-          .set_key_id(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.KeyId()) ))
- .set_import_token(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.ImportToken().clone())))
- .set_encrypted_key_material(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.EncryptedKeyMaterial().clone())))
- .set_valid_to(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.ValidTo().clone()))
- .set_expiration_model(match &**dafny_value.ExpirationModel() {
-    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-        crate::deps::com_amazonaws_kms::conversions::expiration_model_type::from_dafny(value)
-    ),
-    _ => None,
-}
-)
-          .build()
-          .unwrap()
+        .set_key_id(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.KeyId(),
+            ),
+        ))
+        .set_import_token(Some(crate::standard_library_conversions::blob_from_dafny(
+            dafny_value.ImportToken().clone(),
+        )))
+        .set_encrypted_key_material(Some(crate::standard_library_conversions::blob_from_dafny(
+            dafny_value.EncryptedKeyMaterial().clone(),
+        )))
+        .set_valid_to(crate::standard_library_conversions::otimestamp_from_dafny(
+            dafny_value.ValidTo().clone(),
+        ))
+        .set_expiration_model(match &**dafny_value.ExpirationModel() {
+            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+                crate::deps::com_amazonaws_kms::conversions::expiration_model_type::from_dafny(
+                    value,
+                ),
+            ),
+            _ => None,
+        })
+        .build()
+        .unwrap()
 }

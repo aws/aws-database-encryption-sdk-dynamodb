@@ -6,8 +6,6 @@ pub mod key_store_config;
 
 pub mod builders;
 
-
-
 mod _beacon_key_materials;
 pub use crate::deps::aws_cryptography_keyStore::types::_beacon_key_materials::BeaconKeyMaterials;
 mod _branch_key_materials;
@@ -44,8 +42,6 @@ mod _version_key_output;
 pub use crate::deps::aws_cryptography_keyStore::types::_version_key_output::VersionKeyOutput;
 
 pub mod error;
-
-
 
 mod _kms_configuration;
 pub use crate::deps::aws_cryptography_keyStore::types::_kms_configuration::KmsConfiguration;

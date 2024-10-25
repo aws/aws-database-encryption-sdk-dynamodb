@@ -17,21 +17,27 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GenerateRandomRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::generate_random::GenerateRandomInput {
     aws_sdk_kms::operation::generate_random::GenerateRandomInput::builder()
-          .set_number_of_bytes(crate::standard_library_conversions::oint_from_dafny(dafny_value.NumberOfBytes().clone()))
- .set_custom_key_store_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.CustomKeyStoreId().clone()))
- .set_recipient(match (*dafny_value.Recipient()).as_ref() {
-    crate::r#_Wrappers_Compile::Option::Some { value } =>
-        Some(crate::deps::com_amazonaws_kms::conversions::recipient_info::from_dafny(value.clone())),
-    _ => None,
-}
-)
-          .build()
-          .unwrap()
+        .set_number_of_bytes(crate::standard_library_conversions::oint_from_dafny(
+            dafny_value.NumberOfBytes().clone(),
+        ))
+        .set_custom_key_store_id(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.CustomKeyStoreId().clone(),
+        ))
+        .set_recipient(match (*dafny_value.Recipient()).as_ref() {
+            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+                crate::deps::com_amazonaws_kms::conversions::recipient_info::from_dafny(
+                    value.clone(),
+                ),
+            ),
+            _ => None,
+        })
+        .build()
+        .unwrap()
 }

@@ -6,8 +6,11 @@ pub fn to_opaque_error<E: std::fmt::Debug + 'static>(value: E) ->
     ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::Error>
 {
     let error_str = format!("{:?}", value);
-    let error_str = ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&error_str);
-    let error_obj: ::dafny_runtime::Object<dyn::std::any::Any> = ::dafny_runtime::Object(Some(
+    let error_str =
+        ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(
+            &error_str,
+        );
+    let error_obj: ::dafny_runtime::Object<dyn ::std::any::Any> = ::dafny_runtime::Object(Some(
         ::std::rc::Rc::new(::std::cell::UnsafeCell::new(value)),
     ));
     ::std::rc::Rc::new(
@@ -33,7 +36,7 @@ pub fn to_opaque_error_result<T: ::dafny_runtime::DafnyType, E: std::fmt::Debug 
 }
 pub fn to_dafny(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::Error> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::Error>{
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::StructuredEncryptionException { message } =>
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::Error::StructuredEncryptionException {

@@ -1,18 +1,18 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-use std::sync::LazyLock;
 use crate::deps::com_amazonaws_dynamodb::conversions;
+use std::sync::LazyLock;
 
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
 pub struct Client {
-    pub inner: aws_sdk_dynamodb::Client
+    pub inner: aws_sdk_dynamodb::Client,
 }
 
 impl ::std::cmp::PartialEq for Client {
-  fn eq(&self, other: &Self) -> bool {
-    false
-  }
+    fn eq(&self, other: &Self) -> bool {
+        false
+    }
 }
 
 impl ::std::convert::Into<Client> for aws_sdk_dynamodb::Client {
@@ -25,13 +25,13 @@ impl ::std::convert::Into<Client> for aws_sdk_dynamodb::Client {
 /// Necessary because Dafny only generates synchronous code.
 static dafny_tokio_runtime: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
     tokio::runtime::Builder::new_multi_thread()
-          .enable_all()
-          .build()
-          .unwrap()
+        .enable_all()
+        .build()
+        .unwrap()
 });
 
 impl dafny_runtime::UpcastObject<dyn std::any::Any> for Client {
-    ::dafny_runtime::UpcastObjectFn!(dyn::std::any::Any);
+    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 impl dafny_runtime::UpcastObject<dyn crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::IDynamoDBClient> for Client {
@@ -1209,4 +1209,4 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
     crate::deps::com_amazonaws_dynamodb::conversions::update_time_to_live::_update_time_to_live_response::to_dafny,
     crate::deps::com_amazonaws_dynamodb::conversions::update_time_to_live::to_dafny_error)
 }
-} 
+}

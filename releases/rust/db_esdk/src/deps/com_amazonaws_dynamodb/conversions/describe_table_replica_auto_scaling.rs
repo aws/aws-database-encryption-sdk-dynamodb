@@ -7,7 +7,9 @@ pub fn to_dafny_error(
         aws_sdk_dynamodb::operation::describe_table_replica_auto_scaling::DescribeTableReplicaAutoScalingError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
+> {
     match value {
       aws_sdk_dynamodb::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_dynamodb::operation::describe_table_replica_auto_scaling::DescribeTableReplicaAutoScalingError::InternalServerError(e) =>
@@ -22,6 +24,6 @@ pub fn to_dafny_error(
    }
 }
 
- pub mod _describe_table_replica_auto_scaling_request;
+pub mod _describe_table_replica_auto_scaling_request;
 
- pub mod _describe_table_replica_auto_scaling_response;
+pub mod _describe_table_replica_auto_scaling_response;

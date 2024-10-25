@@ -4,17 +4,17 @@
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
     #[allow(missing_docs)]
-StructuredEncryptionException {
-    message: ::std::string::String,
-},
+    StructuredEncryptionException {
+        message: ::std::string::String,
+    },
 
-AwsCryptographicPrimitivesError {
-    error: crate::deps::aws_cryptography_primitives::types::error::Error,
-},
+    AwsCryptographicPrimitivesError {
+        error: crate::deps::aws_cryptography_primitives::types::error::Error,
+    },
 
-AwsCryptographicMaterialProvidersError {
-    error: crate::deps::aws_cryptography_materialProviders::types::error::Error,
-},
+    AwsCryptographicMaterialProvidersError {
+        error: crate::deps::aws_cryptography_materialProviders::types::error::Error,
+    },
     CollectionOfErrors {
         list: ::std::vec::Vec<Self>,
         message: ::std::string::String,
@@ -22,7 +22,7 @@ AwsCryptographicMaterialProvidersError {
     ValidationError(ValidationError),
     Opaque {
         obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
-	alt_text : ::std::string::String
+        alt_text: ::std::string::String,
     },
 }
 
@@ -32,7 +32,7 @@ impl ::std::fmt::Display for Error {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             Self::ValidationError(err) => ::std::fmt::Display::fmt(err, f),
-            Self::Opaque{obj, alt_text} => ::std::fmt::Debug::fmt(alt_text, f),
+            Self::Opaque { obj, alt_text } => ::std::fmt::Debug::fmt(alt_text, f),
             _ => ::std::fmt::Debug::fmt(self, f),
         }
     }

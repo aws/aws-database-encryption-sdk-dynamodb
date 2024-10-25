@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_kms::types::CustomKeyStoresListEntry,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CustomKeyStoresListEntry>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CustomKeyStoresListEntry::CustomKeyStoresListEntry {
         CustomKeyStoreId: crate::standard_library_conversions::ostring_to_dafny(&value.custom_key_store_id),
  CustomKeyStoreName: crate::standard_library_conversions::ostring_to_dafny(&value.custom_key_store_name),
@@ -34,7 +34,8 @@ pub fn to_dafny(
 ,
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CustomKeyStoresListEntry,
@@ -74,5 +75,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
 }

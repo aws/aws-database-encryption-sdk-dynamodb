@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::EdkWrappingAlgorithm,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::EdkWrappingAlgorithm,
-> {
+>{
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_materialProviders::types::EdkWrappingAlgorithm::DirectKeyWrapping(x) =>
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::EdkWrappingAlgorithm::DIRECT_KEY_WRAPPING {

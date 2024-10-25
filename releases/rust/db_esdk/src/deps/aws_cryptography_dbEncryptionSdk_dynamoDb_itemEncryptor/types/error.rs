@@ -4,29 +4,30 @@
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
     #[allow(missing_docs)]
-DynamoDbItemEncryptorException {
-    message: ::std::string::String,
-},
+    DynamoDbItemEncryptorException {
+        message: ::std::string::String,
+    },
 
-AwsCryptographicPrimitivesError {
-    error: crate::deps::aws_cryptography_primitives::types::error::Error,
-},
+    AwsCryptographicPrimitivesError {
+        error: crate::deps::aws_cryptography_primitives::types::error::Error,
+    },
 
-DynamoDB_20120810Error {
-    error: crate::deps::com_amazonaws_dynamodb::types::error::Error,
-},
+    DynamoDB_20120810Error {
+        error: crate::deps::com_amazonaws_dynamodb::types::error::Error,
+    },
 
-AwsCryptographicMaterialProvidersError {
-    error: crate::deps::aws_cryptography_materialProviders::types::error::Error,
-},
+    AwsCryptographicMaterialProvidersError {
+        error: crate::deps::aws_cryptography_materialProviders::types::error::Error,
+    },
 
-StructuredEncryptionError {
-    error: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-},
+    StructuredEncryptionError {
+        error:
+            crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
+    },
 
-DynamoDbEncryptionError {
-    error: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
-},
+    DynamoDbEncryptionError {
+        error: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
+    },
     CollectionOfErrors {
         list: ::std::vec::Vec<Self>,
         message: ::std::string::String,
@@ -34,7 +35,7 @@ DynamoDbEncryptionError {
     ValidationError(ValidationError),
     Opaque {
         obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
-	alt_text : ::std::string::String
+        alt_text: ::std::string::String,
     },
 }
 
@@ -44,7 +45,7 @@ impl ::std::fmt::Display for Error {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             Self::ValidationError(err) => ::std::fmt::Display::fmt(err, f),
-            Self::Opaque{obj, alt_text} => ::std::fmt::Debug::fmt(alt_text, f),
+            Self::Opaque { obj, alt_text } => ::std::fmt::Debug::fmt(alt_text, f),
             _ => ::std::fmt::Debug::fmt(self, f),
         }
     }

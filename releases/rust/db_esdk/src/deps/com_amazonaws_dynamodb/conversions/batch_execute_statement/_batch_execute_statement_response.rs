@@ -30,11 +30,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchExecuteStatementOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput {
     aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput::builder()
           .set_responses(match (*dafny_value.Responses()).as_ref() {
@@ -60,6 +60,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

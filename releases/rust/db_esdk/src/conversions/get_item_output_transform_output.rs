@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::types::GetItemOutputTransformOutput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::GetItemOutputTransformOutput,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::types::GetItemOutputTransformOutput,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::GetItemOutputTransformOutput {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::GetItemOutputTransformOutput{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::GetItemOutputTransformOutput::GetItemOutputTransformOutput {
         transformedOutput: crate::deps::com_amazonaws_dynamodb::conversions::get_item::_get_item_response::to_dafny(&value.transformed_output.clone().unwrap())
 ,

@@ -6,12 +6,12 @@ pub fn to_dafny(
     value: crate::deps::aws_cryptography_primitives::operation::parse_public_key::ParsePublicKeyInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::ParsePublicKeyInput,
->{
+> {
     ::std::rc::Rc::new(crate::r#software::amazon::cryptography::primitives::internaldafny::types::ParsePublicKeyInput::ParsePublicKeyInput {
         publicKey: crate::standard_library_conversions::blob_to_dafny(&value.public_key.unwrap()),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::ParsePublicKeyInput,

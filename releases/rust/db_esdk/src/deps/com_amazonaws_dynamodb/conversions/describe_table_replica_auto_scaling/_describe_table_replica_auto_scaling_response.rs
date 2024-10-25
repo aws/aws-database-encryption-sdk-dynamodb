@@ -15,12 +15,12 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DescribeTableReplicaAutoScalingOutput,
     >
-) -> aws_sdk_dynamodb::operation::describe_table_replica_auto_scaling::DescribeTableReplicaAutoScalingOutput {
+) -> aws_sdk_dynamodb::operation::describe_table_replica_auto_scaling::DescribeTableReplicaAutoScalingOutput{
     aws_sdk_dynamodb::operation::describe_table_replica_auto_scaling::DescribeTableReplicaAutoScalingOutput::builder()
           .set_table_auto_scaling_description(match (*dafny_value.TableAutoScalingDescription()).as_ref() {
     crate::r#_Wrappers_Compile::Option::Some { value } =>
@@ -29,6 +29,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

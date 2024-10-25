@@ -15,11 +15,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::CreateGlobalTableOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::create_global_table::CreateGlobalTableOutput {
     aws_sdk_dynamodb::operation::create_global_table::CreateGlobalTableOutput::builder()
           .set_global_table_description(match (*dafny_value.GlobalTableDescription()).as_ref() {
@@ -29,6 +29,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

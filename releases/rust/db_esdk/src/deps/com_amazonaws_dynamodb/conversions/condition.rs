@@ -4,8 +4,10 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::Condition,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Condition>{
-  ::std::rc::Rc::new(
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Condition,
+> {
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Condition::Condition {
         AttributeValueList: ::std::rc::Rc::new(match &value.attribute_value_list {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
@@ -20,7 +22,8 @@ pub fn to_dafny(
  ComparisonOperator: crate::deps::com_amazonaws_dynamodb::conversions::comparison_operator::to_dafny(value.comparison_operator.clone()),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Condition,

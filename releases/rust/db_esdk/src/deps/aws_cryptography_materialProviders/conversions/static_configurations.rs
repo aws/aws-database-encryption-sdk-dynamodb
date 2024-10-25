@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::StaticConfigurations,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::StaticConfigurations,
-> {
+>{
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_materialProviders::types::StaticConfigurations::AwsKmsEcdh(x) =>
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::StaticConfigurations::AWS_KMS_ECDH {

@@ -20,11 +20,11 @@ pub fn to_dafny(
  LastEvaluatedTableName: crate::standard_library_conversions::ostring_to_dafny(&value.last_evaluated_table_name),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ListTablesOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::list_tables::ListTablesOutput {
     aws_sdk_dynamodb::operation::list_tables::ListTablesOutput::builder()
           .set_table_names(match (*dafny_value.TableNames()).as_ref() {
@@ -39,6 +39,4 @@ pub fn from_dafny(
 )
  .set_last_evaluated_table_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.LastEvaluatedTableName().clone()))
           .build()
-
-
 }

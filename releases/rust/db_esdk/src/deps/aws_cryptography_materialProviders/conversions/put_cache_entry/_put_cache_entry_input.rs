@@ -17,12 +17,13 @@ pub fn to_dafny(
  bytesUsed: crate::standard_library_conversions::oint_to_dafny(value.bytes_used),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::PutCacheEntryInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::put_cache_entry::PutCacheEntryInput {
+) -> crate::deps::aws_cryptography_materialProviders::operation::put_cache_entry::PutCacheEntryInput
+{
     crate::deps::aws_cryptography_materialProviders::operation::put_cache_entry::PutCacheEntryInput::builder()
         .set_identifier(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.identifier().clone())))
  .set_materials(Some( crate::deps::aws_cryptography_materialProviders::conversions::materials::from_dafny(dafny_value.materials().clone())

@@ -306,7 +306,6 @@ mod tests {
         array::update_usize(v2, 1, 10);
         assert_eq!(array::get_usize(v2, 1), 10);
 
-
         let v3 = array::initialize(&int!(3), Rc::new(|i| i.clone() + int!(1)));
         assert_eq!(array::length_usize(v3), 3);
         assert_eq!(array::get_usize(v3, 0), int!(1));
@@ -333,10 +332,14 @@ mod tests {
         assert_eq!(read!(p).length1_usize(), 4);
         let v = read!(p).to_vec();
         assert_eq!(v.len(), 3);
-        assert_eq!(v, vec![
-            vec![int!(0), int!(1), int!(2), int!(3)],
-              vec![int!(1), int!(2), int!(3), int!(4)],
-              vec![int!(2), int!(3), int!(4), int!(5)]]);
+        assert_eq!(
+            v,
+            vec![
+                vec![int!(0), int!(1), int!(2), int!(3)],
+                vec![int!(1), int!(2), int!(3), int!(4)],
+                vec![int!(2), int!(3), int!(4), int!(5)]
+            ]
+        );
 
         deallocate(p);
         // Allocate an array whose first dimension is zero
@@ -407,7 +410,7 @@ mod tests {
             update_field_mut_uninit!(this, x, x_assigned, int!(2));
             update_field_mut_uninit!(this, x, x_assigned, int!(1));
             // If we can prove that x is assigned, we can even write this
-            modify_field!(read!(this).x,int!(0));
+            modify_field!(read!(this).x, int!(0));
             update_field_nodrop!(this, constant, int!(42));
             update_field_mut_if_uninit!(this, x, x_assigned, int!(0));
             assert_eq!(x_assigned, true);
@@ -427,21 +430,26 @@ mod tests {
             update_field_mut_uninit_object!(this, x, x_assigned, int!(2));
             update_field_mut_uninit_object!(this, x, x_assigned, int!(1));
             // If we can prove that x is assigned, we can even write this
-            modify_field!(rd!(this).x,int!(0));
+            modify_field!(rd!(this).x, int!(0));
             update_field_nodrop_object!(this, constant, int!(42));
             update_field_mut_if_uninit_object!(this, x, x_assigned, int!(0));
             assert_eq!(x_assigned, true);
             let mut next_assigned = true;
-            update_field_if_uninit_object!(this, next, next_assigned, Ptr::from_raw_nonnull(this.as_mut()));
+            update_field_if_uninit_object!(
+                this,
+                next,
+                next_assigned,
+                Ptr::from_raw_nonnull(this.as_mut())
+            );
             assert_eq!(next_assigned, true);
             this
         }
     }
 
-    impl <T: DafnyType> Upcast<dyn Any> for ClassWrapper<T> {
+    impl<T: DafnyType> Upcast<dyn Any> for ClassWrapper<T> {
         UpcastFn!(dyn Any);
     }
-    impl <T: DafnyType> UpcastObject<dyn Any> for ClassWrapper<T> {
+    impl<T: DafnyType> UpcastObject<dyn Any> for ClassWrapper<T> {
         UpcastObjectFn!(dyn Any);
     }
 
@@ -456,16 +464,15 @@ mod tests {
         assert_eq!(read!(c).constant_plus_x(), int!(42));
         modify!(c).increment_x();
         assert_eq!(read!(c).constant_plus_x(), int!(43));
-        modify_field!(read!(c).x,int!(40));
+        modify_field!(read!(c).x, int!(40));
         assert_eq!(read!(c).constant_plus_x(), int!(82));
-        modify_field!(read!(c).t,54);
+        modify_field!(read!(c).t, 54);
         assert_eq!(read_field!(read!(c).t), 54);
         let x_copy = read_field!(read!(c).x);
         assert_eq!(Rc::strong_count(&x_copy.data), 2);
         deallocate(c);
         assert_eq!(Rc::strong_count(&x_copy.data), 1);
     }
-
 
     #[test]
     #[allow(unused_unsafe)]
@@ -479,10 +486,10 @@ mod tests {
         md!(c).increment_x();
         assert_eq!(rd!(c).constant_plus_x(), int!(43));
         if true {
-          modify_field!(rd!(c).x,int!(40))
+            modify_field!(rd!(c).x, int!(40))
         }
         assert_eq!(rd!(c).constant_plus_x(), int!(82));
-        modify_field!(rd!(c).t,54);
+        modify_field!(rd!(c).t, 54);
         assert_eq!(read_field!(rd!(c).t), 54);
     }
 
@@ -547,16 +554,24 @@ mod tests {
         let a: Ptr<dyn Any> = Upcast::<dyn Any>::upcast(read!(o));
         assert_eq!(cast!(a, ClassWrapper<i32>), o);
         let seq_o = seq![o];
-        let seq_a = Sequence::<Ptr<ClassWrapper<i32>>>::coerce(upcast::<ClassWrapper<i32>, dyn Any>())(seq_o);
+        let seq_a = Sequence::<Ptr<ClassWrapper<i32>>>::coerce(
+            upcast::<ClassWrapper<i32>, dyn Any>(),
+        )(seq_o);
         assert_eq!(cast!(seq_a.get_usize(0), ClassWrapper<i32>), o);
         let set_o = set! {o};
-        let set_a = Set::<Ptr<ClassWrapper<i32>>>::coerce(upcast::<ClassWrapper<i32>, dyn Any>())(set_o);
+        let set_a =
+            Set::<Ptr<ClassWrapper<i32>>>::coerce(upcast::<ClassWrapper<i32>, dyn Any>())(set_o);
         assert_eq!(cast!(set_a.peek(), ClassWrapper<i32>), o);
         let multiset_o = multiset! {o, o};
-        let multiset_a = Multiset::<Ptr<ClassWrapper<i32>>>::coerce(upcast::<ClassWrapper<i32>, dyn Any>())(multiset_o);
+        let multiset_a = Multiset::<Ptr<ClassWrapper<i32>>>::coerce(upcast::<
+            ClassWrapper<i32>,
+            dyn Any,
+        >())(multiset_o);
         assert_eq!(cast!(multiset_a.peek(), ClassWrapper<i32>), o);
         let map_o = map![1 => o, 2 => o];
-        let map_a = Map::<i32, Ptr<ClassWrapper<i32>>>::coerce(upcast::<ClassWrapper<i32>, dyn Any>())(map_o);
+        let map_a = Map::<i32, Ptr<ClassWrapper<i32>>>::coerce(
+            upcast::<ClassWrapper<i32>, dyn Any>(),
+        )(map_o);
         assert_eq!(cast!(map_a.get(&1), ClassWrapper<i32>), o);
         deallocate(o);
     }
@@ -681,11 +696,10 @@ mod tests {
             .any(Rc::new(|i: u32| i % 2 == 0).as_ref()));
         let count = Rc::new(RefCell::new(0));
         let count_inner = count.clone();
-        multiset!{1, 1, 5, 7, 8}
-            .iter().for_each(move |_i: u32| {
-                let c: i32 = *count_inner.as_ref().borrow();
-                *count_inner.borrow_mut() = c + 1;
-             });
+        multiset! {1, 1, 5, 7, 8}.iter().for_each(move |_i: u32| {
+            let c: i32 = *count_inner.as_ref().borrow();
+            *count_inner.borrow_mut() = c + 1;
+        });
         assert_eq!(*count.as_ref().borrow(), 5);
 
         let m = map![1 => 4, 3 => 6, 5 => 8];
@@ -743,11 +757,9 @@ mod tests {
         assert_eq!(sum, 55);
     }
 
-    trait SuperTrait: Upcast<dyn Any> + UpcastObject<dyn Any> {
-    }
+    trait SuperTrait: Upcast<dyn Any> + UpcastObject<dyn Any> {}
 
-    trait NodeRcMutTrait: SuperTrait + Upcast<dyn SuperTrait> + UpcastObject<dyn SuperTrait>{
-    }
+    trait NodeRcMutTrait: SuperTrait + Upcast<dyn SuperTrait> + UpcastObject<dyn SuperTrait> {}
 
     pub struct NodeRcMut {
         val: DafnyInt,
@@ -805,13 +817,16 @@ mod tests {
         assert_eq!(rd!(a3).val, int!(42));
 
         // Other way to create objects
-        let direct: Object<NodeRcMut> = Object::<NodeRcMut>::new(NodeRcMut {val: int!(1), next: Object::<NodeRcMut>::null()});
+        let direct: Object<NodeRcMut> = Object::<NodeRcMut>::new(NodeRcMut {
+            val: int!(1),
+            next: Object::<NodeRcMut>::null(),
+        });
         assert_eq!(rd!(direct).val, int!(1));
         let tail: Object<NodeRcMut> = Object::<NodeRcMut>::null();
         assert_eq!(tail, rd!(direct).next);
         assert!(tail.is_null());
         assert!(!direct.is_null());
-        
+
         let a: Object<[i32]> = rcmut::array_object_from_rc(Rc::new([42, 43, 44]));
         assert_eq!(rd!(a).len(), 3);
         assert_eq!(rd!(a)[0], 42);
@@ -829,7 +844,8 @@ mod tests {
         }
         assert_eq!(refcount!(x), previous_count);
 
-        let objects: Set<Object<dyn ::std::any::Any>> = crate::set!{y.clone(), cast_any_object!(x.clone())};
+        let objects: Set<Object<dyn ::std::any::Any>> =
+            crate::set! {y.clone(), cast_any_object!(x.clone())};
         assert_eq!(objects.cardinality_usize(), 1);
         test_dafny_type(a.clone());
     }
@@ -891,11 +907,9 @@ mod tests {
     }
 
     // Tests that we can compose Dafny types, like a sequence of maps
-    fn _test<X: DafnyTypeEq, Y: DafnyType>(_input: Sequence<Map<X, Y>>) {
-    }
+    fn _test<X: DafnyTypeEq, Y: DafnyType>(_input: Sequence<Map<X, Y>>) {}
     // Tests that the input type is a DafnyType
-    fn test_dafny_type<X: DafnyType>(_input: X) {
-    }
+    fn test_dafny_type<X: DafnyType>(_input: X) {}
 
     #[derive(Clone)]
     pub struct InternalOpaqueError {
@@ -906,9 +920,12 @@ mod tests {
 
     #[test]
     fn test_native_string_upcast() {
-        let s = InternalOpaqueError { message: "Hello, World!".to_string() };
+        let s = InternalOpaqueError {
+            message: "Hello, World!".to_string(),
+        };
         let o: Object<InternalOpaqueError> = Object::new(s);
-        let n: Object<dyn ::std::any::Any> = upcast_object::<InternalOpaqueError, dyn ::std::any::Any>()(o);
+        let n: Object<dyn ::std::any::Any> =
+            upcast_object::<InternalOpaqueError, dyn ::std::any::Any>()(o);
         let x = cast_object!(n, InternalOpaqueError);
         let s2 = crate::dafny_runtime_conversions::object::dafny_class_to_struct(x);
         assert_eq!(s2.message, "Hello, World!");

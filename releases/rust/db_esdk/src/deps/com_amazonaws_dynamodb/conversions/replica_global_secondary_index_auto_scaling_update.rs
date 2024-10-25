@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ReplicaGlobalSecondaryIndexAutoScalingUpdate,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicaGlobalSecondaryIndexAutoScalingUpdate>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicaGlobalSecondaryIndexAutoScalingUpdate::ReplicaGlobalSecondaryIndexAutoScalingUpdate {
         IndexName: crate::standard_library_conversions::ostring_to_dafny(&value.index_name),
  ProvisionedReadCapacityAutoScalingUpdate: ::std::rc::Rc::new(match &value.provisioned_read_capacity_auto_scaling_update {
@@ -15,7 +15,8 @@ pub fn to_dafny(
 ,
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ReplicaGlobalSecondaryIndexAutoScalingUpdate,
@@ -30,5 +31,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
 }

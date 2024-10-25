@@ -25,10 +25,14 @@ pub fn to_dafny_plain(
 
 #[allow(dead_code)]
 pub fn option_to_dafny(
-  value: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::HkdfInput>,
-) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
-  crate::r#software::amazon::cryptography::primitives::internaldafny::types::HkdfInput,
->>>{
+    value: ::std::option::Option<crate::deps::aws_cryptography_primitives::types::HkdfInput>,
+) -> ::std::rc::Rc<
+    crate::_Wrappers_Compile::Option<
+        ::std::rc::Rc<
+            crate::r#software::amazon::cryptography::primitives::internaldafny::types::HkdfInput,
+        >,
+    >,
+> {
     ::std::rc::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {

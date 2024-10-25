@@ -6,12 +6,10 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsCache,
-> {
-  let wrap = CryptographicMaterialsCacheWrapper {
-      obj: value.clone(),
-  };
-  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-  ::dafny_runtime::Object (Some(inner) )
+>{
+    let wrap = CryptographicMaterialsCacheWrapper { obj: value.clone() };
+    let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
+    ::dafny_runtime::Object(Some(inner))
 }
 
 pub struct CryptographicMaterialsCacheWrapper {
@@ -19,7 +17,7 @@ pub struct CryptographicMaterialsCacheWrapper {
 }
 
 impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for CryptographicMaterialsCacheWrapper {
-  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+    ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
 }
 
 #[allow(dead_code)]
@@ -27,7 +25,7 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsCache,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef {
+) -> crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef{
     let wrap = ICryptographicMaterialsCacheDafnyWrapper {
         obj: dafny_value.clone(),
     };

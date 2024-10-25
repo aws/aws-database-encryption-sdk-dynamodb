@@ -11,12 +11,12 @@ pub fn to_dafny(
         identifier: crate::standard_library_conversions::blob_to_dafny(&value.identifier.unwrap()),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DeleteCacheEntryInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntryInput {
+) -> crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntryInput{
     crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntryInput::builder()
         .set_identifier(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.identifier().clone())))
         .build()

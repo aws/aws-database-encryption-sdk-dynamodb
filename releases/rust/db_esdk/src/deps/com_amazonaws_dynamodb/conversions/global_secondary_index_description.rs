@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::GlobalSecondaryIndexDescription,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexDescription>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexDescription::GlobalSecondaryIndexDescription {
         IndexName: crate::standard_library_conversions::ostring_to_dafny(&value.index_name),
  KeySchema: ::std::rc::Rc::new(match &value.key_schema {
@@ -39,7 +39,8 @@ pub fn to_dafny(
  IndexArn: crate::standard_library_conversions::ostring_to_dafny(&value.index_arn),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexDescription,
@@ -82,5 +83,4 @@ pub fn from_dafny(
  .set_item_count(crate::standard_library_conversions::olong_from_dafny(dafny_value.ItemCount().clone()))
  .set_index_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.IndexArn().clone()))
           .build()
-
 }

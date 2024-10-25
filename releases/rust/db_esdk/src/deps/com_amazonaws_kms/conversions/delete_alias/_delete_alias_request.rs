@@ -11,14 +11,18 @@ pub fn to_dafny(
         AliasName: crate::standard_library_conversions::ostring_to_dafny(&value.alias_name) .Extract(),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::DeleteAliasRequest,
-    >
+    >,
 ) -> aws_sdk_kms::operation::delete_alias::DeleteAliasInput {
     aws_sdk_kms::operation::delete_alias::DeleteAliasInput::builder()
-          .set_alias_name(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.AliasName()) ))
-          .build()
-          .unwrap()
+        .set_alias_name(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.AliasName(),
+            ),
+        ))
+        .build()
+        .unwrap()
 }

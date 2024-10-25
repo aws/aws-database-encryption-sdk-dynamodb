@@ -18,12 +18,12 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GenerateDataKeyPairWithoutPlaintextResponse,
     >
-) -> aws_sdk_kms::operation::generate_data_key_pair_without_plaintext::GenerateDataKeyPairWithoutPlaintextOutput {
+) -> aws_sdk_kms::operation::generate_data_key_pair_without_plaintext::GenerateDataKeyPairWithoutPlaintextOutput{
     aws_sdk_kms::operation::generate_data_key_pair_without_plaintext::GenerateDataKeyPairWithoutPlaintextOutput::builder()
           .set_private_key_ciphertext_blob(crate::standard_library_conversions::oblob_from_dafny(dafny_value.PrivateKeyCiphertextBlob().clone()))
  .set_public_key(crate::standard_library_conversions::oblob_from_dafny(dafny_value.PublicKey().clone()))
@@ -36,6 +36,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

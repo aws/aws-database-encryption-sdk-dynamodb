@@ -9,7 +9,7 @@ impl crate::client::Client {
     /// - On success, responds with [`ExecuteTransactionInputTransformOutput`](crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformOutput) with field(s):
     ///   - [`transformed_input(Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>)`](crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformOutput::transformed_input): (undocumented)
     /// - On failure, responds with [`SdkError<ExecuteTransactionInputTransformError>`](crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformError)
-    pub fn execute_transaction_input_transform(&self) -> crate::operation::execute_transaction_input_transform::builders::ExecuteTransactionInputTransformFluentBuilder {
+    pub fn execute_transaction_input_transform(&self) -> crate::operation::execute_transaction_input_transform::builders::ExecuteTransactionInputTransformFluentBuilder{
         crate::operation::execute_transaction_input_transform::builders::ExecuteTransactionInputTransformFluentBuilder::new(self.clone())
     }
 }

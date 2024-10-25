@@ -13,7 +13,8 @@ pub fn to_dafny(
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::AsSet,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::AsSet {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::AsSet
+{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::AsSet::AsSet {
 
     }

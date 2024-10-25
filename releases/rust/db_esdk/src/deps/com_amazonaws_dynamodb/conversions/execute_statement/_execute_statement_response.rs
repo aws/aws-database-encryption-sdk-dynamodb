@@ -42,11 +42,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ExecuteStatementOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput {
     aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput::builder()
           .set_items(match (*dafny_value.Items()).as_ref() {
@@ -84,6 +84,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

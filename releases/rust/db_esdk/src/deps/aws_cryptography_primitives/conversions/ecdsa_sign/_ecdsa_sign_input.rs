@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: crate::deps::aws_cryptography_primitives::operation::ecdsa_sign::EcdsaSignInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDSASignInput,
->{
+> {
     ::std::rc::Rc::new(crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDSASignInput::ECDSASignInput {
         signatureAlgorithm: crate::deps::aws_cryptography_primitives::conversions::ecdsa_signature_algorithm::to_dafny(value.signature_algorithm.clone().unwrap()),
  signingKey: crate::standard_library_conversions::blob_to_dafny(&value.signing_key.unwrap()),
  message: crate::standard_library_conversions::blob_to_dafny(&value.message.unwrap()),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDSASignInput,

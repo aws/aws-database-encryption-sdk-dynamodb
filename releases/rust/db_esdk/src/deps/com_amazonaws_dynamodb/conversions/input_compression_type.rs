@@ -13,7 +13,7 @@ aws_sdk_dynamodb::types::InputCompressionType::None => crate::r#software::amazon
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::InputCompressionType,
 ) -> aws_sdk_dynamodb::types::InputCompressionType {

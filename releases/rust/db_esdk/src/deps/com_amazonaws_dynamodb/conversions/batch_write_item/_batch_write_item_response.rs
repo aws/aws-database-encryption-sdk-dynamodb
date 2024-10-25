@@ -50,11 +50,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchWriteItemOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::batch_write_item::BatchWriteItemOutput {
     aws_sdk_dynamodb::operation::batch_write_item::BatchWriteItemOutput::builder()
           .set_unprocessed_items(match (*dafny_value.UnprocessedItems()).as_ref() {
@@ -99,6 +99,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

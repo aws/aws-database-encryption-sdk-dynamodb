@@ -4,70 +4,70 @@
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
     #[allow(missing_docs)]
-InvalidEncryptionMaterialsTransition {
-    message: ::std::string::String,
-},
+    InvalidEncryptionMaterialsTransition {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-EntryAlreadyExists {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    EntryAlreadyExists {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-InvalidEncryptionMaterials {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    InvalidEncryptionMaterials {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-InvalidDecryptionMaterials {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    InvalidDecryptionMaterials {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-AwsCryptographicMaterialProvidersException {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    AwsCryptographicMaterialProvidersException {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-EntryDoesNotExist {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    EntryDoesNotExist {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-InvalidAlgorithmSuiteInfoOnEncrypt {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    InvalidAlgorithmSuiteInfoOnEncrypt {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-InvalidAlgorithmSuiteInfo {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    InvalidAlgorithmSuiteInfo {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-InvalidDecryptionMaterialsTransition {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    InvalidDecryptionMaterialsTransition {
+        message: ::std::string::String,
+    },
 
-#[allow(missing_docs)]
-InvalidAlgorithmSuiteInfoOnDecrypt {
-    message: ::std::string::String,
-},
+    #[allow(missing_docs)]
+    InvalidAlgorithmSuiteInfoOnDecrypt {
+        message: ::std::string::String,
+    },
 
-AwsCryptographicPrimitivesError {
-    error: crate::deps::aws_cryptography_primitives::types::error::Error,
-},
+    AwsCryptographicPrimitivesError {
+        error: crate::deps::aws_cryptography_primitives::types::error::Error,
+    },
 
-DynamoDB_20120810Error {
-    error: crate::deps::com_amazonaws_dynamodb::types::error::Error,
-},
+    DynamoDB_20120810Error {
+        error: crate::deps::com_amazonaws_dynamodb::types::error::Error,
+    },
 
-TrentServiceError {
-    error: crate::deps::com_amazonaws_kms::types::error::Error,
-},
+    TrentServiceError {
+        error: crate::deps::com_amazonaws_kms::types::error::Error,
+    },
 
-KeyStoreError {
-    error: crate::deps::aws_cryptography_keyStore::types::error::Error,
-},
+    KeyStoreError {
+        error: crate::deps::aws_cryptography_keyStore::types::error::Error,
+    },
     CollectionOfErrors {
         list: ::std::vec::Vec<Self>,
         message: ::std::string::String,
@@ -75,7 +75,7 @@ KeyStoreError {
     ValidationError(ValidationError),
     Opaque {
         obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
-	alt_text : ::std::string::String
+        alt_text: ::std::string::String,
     },
 }
 
@@ -85,7 +85,7 @@ impl ::std::fmt::Display for Error {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             Self::ValidationError(err) => ::std::fmt::Display::fmt(err, f),
-            Self::Opaque{obj, alt_text} => ::std::fmt::Debug::fmt(alt_text, f),
+            Self::Opaque { obj, alt_text } => ::std::fmt::Debug::fmt(alt_text, f),
             _ => ::std::fmt::Debug::fmt(self, f),
         }
     }

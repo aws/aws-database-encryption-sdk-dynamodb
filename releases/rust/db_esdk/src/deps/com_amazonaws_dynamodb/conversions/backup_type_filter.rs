@@ -14,7 +14,7 @@ aws_sdk_dynamodb::types::BackupTypeFilter::All => crate::r#software::amazon::cry
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BackupTypeFilter,
 ) -> aws_sdk_dynamodb::types::BackupTypeFilter {

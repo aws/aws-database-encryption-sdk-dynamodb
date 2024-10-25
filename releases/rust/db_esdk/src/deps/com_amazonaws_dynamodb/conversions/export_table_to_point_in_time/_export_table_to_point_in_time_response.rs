@@ -15,11 +15,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ExportTableToPointInTimeOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::export_table_to_point_in_time::ExportTableToPointInTimeOutput {
     aws_sdk_dynamodb::operation::export_table_to_point_in_time::ExportTableToPointInTimeOutput::builder()
           .set_export_description(match (*dafny_value.ExportDescription()).as_ref() {
@@ -29,6 +29,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

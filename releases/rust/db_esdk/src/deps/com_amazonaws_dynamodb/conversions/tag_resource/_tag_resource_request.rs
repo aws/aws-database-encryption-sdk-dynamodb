@@ -16,11 +16,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::TagResourceInput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::tag_resource::TagResourceInput {
     aws_sdk_dynamodb::operation::tag_resource::TagResourceInput::builder()
           .set_resource_arn(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.ResourceArn()) ))

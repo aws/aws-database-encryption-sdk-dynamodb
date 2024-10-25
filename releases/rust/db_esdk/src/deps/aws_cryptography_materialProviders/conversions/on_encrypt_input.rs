@@ -6,14 +6,15 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::OnEncryptInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::OnEncryptInput,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::OnEncryptInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::OnEncryptInput {
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::OnEncryptInput
+{
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::OnEncryptInput::OnEncryptInput {
         materials: crate::deps::aws_cryptography_materialProviders::conversions::encryption_materials::to_dafny(&value.materials.clone().unwrap())
 ,

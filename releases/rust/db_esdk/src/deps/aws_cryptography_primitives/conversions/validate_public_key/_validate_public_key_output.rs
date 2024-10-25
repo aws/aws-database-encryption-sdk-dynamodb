@@ -11,12 +11,13 @@ pub fn to_dafny(
         success: value.success.clone().unwrap(),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::ValidatePublicKeyOutput,
     >,
-) -> crate::deps::aws_cryptography_primitives::operation::validate_public_key::ValidatePublicKeyOutput {
+) -> crate::deps::aws_cryptography_primitives::operation::validate_public_key::ValidatePublicKeyOutput
+{
     crate::deps::aws_cryptography_primitives::operation::validate_public_key::ValidatePublicKeyOutput::builder()
         .set_success(Some( dafny_value.success() .clone() ))
         .build()

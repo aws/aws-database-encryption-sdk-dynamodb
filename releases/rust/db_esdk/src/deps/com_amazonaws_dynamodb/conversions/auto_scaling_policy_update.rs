@@ -5,14 +5,15 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::AutoScalingPolicyUpdate,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AutoScalingPolicyUpdate>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AutoScalingPolicyUpdate::AutoScalingPolicyUpdate {
         PolicyName: crate::standard_library_conversions::ostring_to_dafny(&value.policy_name),
  TargetTrackingScalingPolicyConfiguration: crate::deps::com_amazonaws_dynamodb::conversions::auto_scaling_target_tracking_scaling_policy_configuration_update::to_dafny(&value.target_tracking_scaling_policy_configuration.clone().unwrap())
 ,
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AutoScalingPolicyUpdate,
@@ -23,5 +24,4 @@ pub fn from_dafny(
  .set_target_tracking_scaling_policy_configuration(Some( crate::deps::com_amazonaws_dynamodb::conversions::auto_scaling_target_tracking_scaling_policy_configuration_update::from_dafny(dafny_value.TargetTrackingScalingPolicyConfiguration().clone())
  ))
           .build()
-
 }

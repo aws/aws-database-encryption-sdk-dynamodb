@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::AttributeValue,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValue,
-> {
+>{
     ::std::rc::Rc::new(match value {
         aws_sdk_dynamodb::types::AttributeValue::S(x) =>
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValue::S {

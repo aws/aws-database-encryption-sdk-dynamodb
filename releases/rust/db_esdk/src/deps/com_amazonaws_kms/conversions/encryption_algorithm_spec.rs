@@ -13,7 +13,7 @@ aws_sdk_kms::types::EncryptionAlgorithmSpec::RsaesOaepSha256 => crate::r#softwar
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::kms::internaldafny::types::EncryptionAlgorithmSpec,
 ) -> aws_sdk_kms::types::EncryptionAlgorithmSpec {

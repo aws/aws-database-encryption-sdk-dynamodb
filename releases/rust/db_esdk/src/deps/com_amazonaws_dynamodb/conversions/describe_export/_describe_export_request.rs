@@ -11,14 +11,18 @@ pub fn to_dafny(
         ExportArn: crate::standard_library_conversions::ostring_to_dafny(&value.export_arn) .Extract(),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DescribeExportInput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::describe_export::DescribeExportInput {
     aws_sdk_dynamodb::operation::describe_export::DescribeExportInput::builder()
-          .set_export_arn(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.ExportArn()) ))
-          .build()
-          .unwrap()
+        .set_export_arn(Some(
+            dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(
+                dafny_value.ExportArn(),
+            ),
+        ))
+        .build()
+        .unwrap()
 }

@@ -3,74 +3,79 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 pub mod backup_in_use_exception;
 
- pub mod backup_not_found_exception;
+pub mod backup_not_found_exception;
 
- pub mod conditional_check_failed_exception;
+pub mod conditional_check_failed_exception;
 
- pub mod continuous_backups_unavailable_exception;
+pub mod continuous_backups_unavailable_exception;
 
- pub mod duplicate_item_exception;
+pub mod duplicate_item_exception;
 
- pub mod export_conflict_exception;
+pub mod export_conflict_exception;
 
- pub mod export_not_found_exception;
+pub mod export_not_found_exception;
 
- pub mod global_table_already_exists_exception;
+pub mod global_table_already_exists_exception;
 
- pub mod global_table_not_found_exception;
+pub mod global_table_not_found_exception;
 
- pub mod idempotent_parameter_mismatch_exception;
+pub mod idempotent_parameter_mismatch_exception;
 
- pub mod import_conflict_exception;
+pub mod import_conflict_exception;
 
- pub mod import_not_found_exception;
+pub mod import_not_found_exception;
 
- pub mod index_not_found_exception;
+pub mod index_not_found_exception;
 
- pub mod internal_server_error;
+pub mod internal_server_error;
 
- pub mod invalid_endpoint_exception;
+pub mod invalid_endpoint_exception;
 
- pub mod invalid_export_time_exception;
+pub mod invalid_export_time_exception;
 
- pub mod invalid_restore_time_exception;
+pub mod invalid_restore_time_exception;
 
- pub mod item_collection_size_limit_exceeded_exception;
+pub mod item_collection_size_limit_exceeded_exception;
 
- pub mod limit_exceeded_exception;
+pub mod limit_exceeded_exception;
 
- pub mod point_in_time_recovery_unavailable_exception;
+pub mod point_in_time_recovery_unavailable_exception;
 
- pub mod provisioned_throughput_exceeded_exception;
+pub mod provisioned_throughput_exceeded_exception;
 
- pub mod replica_already_exists_exception;
+pub mod replica_already_exists_exception;
 
- pub mod replica_not_found_exception;
+pub mod replica_not_found_exception;
 
- pub mod request_limit_exceeded;
+pub mod request_limit_exceeded;
 
- pub mod resource_in_use_exception;
+pub mod resource_in_use_exception;
 
- pub mod resource_not_found_exception;
+pub mod resource_not_found_exception;
 
- pub mod table_already_exists_exception;
+pub mod table_already_exists_exception;
 
- pub mod table_in_use_exception;
+pub mod table_in_use_exception;
 
- pub mod table_not_found_exception;
+pub mod table_not_found_exception;
 
- pub mod transaction_canceled_exception;
+pub mod transaction_canceled_exception;
 
- pub mod transaction_conflict_exception;
+pub mod transaction_conflict_exception;
 
- pub mod transaction_in_progress_exception;
- /// Wraps up an arbitrary Rust Error value as a Dafny Error
-pub fn to_opaque_error<E: std::fmt::Debug + 'static>(value: E) ->
-    ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
-{
+pub mod transaction_in_progress_exception;
+/// Wraps up an arbitrary Rust Error value as a Dafny Error
+pub fn to_opaque_error<E: std::fmt::Debug + 'static>(
+    value: E,
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
+> {
     let error_str = format!("{:?}", value);
-    let error_str = ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&error_str);
-    let error_obj: ::dafny_runtime::Object<dyn::std::any::Any> = ::dafny_runtime::Object(Some(
+    let error_str =
+        ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(
+            &error_str,
+        );
+    let error_obj: ::dafny_runtime::Object<dyn ::std::any::Any> = ::dafny_runtime::Object(Some(
         ::std::rc::Rc::new(::std::cell::UnsafeCell::new(value)),
     ));
     ::std::rc::Rc::new(
@@ -96,7 +101,9 @@ pub fn to_opaque_error_result<T: ::dafny_runtime::DafnyType, E: std::fmt::Debug 
 }
 pub fn to_dafny(
     value: crate::deps::com_amazonaws_dynamodb::types::error::Error,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
+) -> ::std::rc::Rc<
+    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
+> {
     match value {
         crate::deps::com_amazonaws_dynamodb::types::error::Error::LimitExceededException { error } =>
     crate::deps::com_amazonaws_dynamodb::conversions::error::limit_exceeded_exception::to_dafny(error),

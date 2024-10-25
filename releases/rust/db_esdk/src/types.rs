@@ -6,8 +6,6 @@ pub mod dynamo_db_tables_encryption_config;
 
 pub mod builders;
 
-
-
 mod _batch_execute_statement_input_transform_input;
 pub use crate::types::_batch_execute_statement_input_transform_input::BatchExecuteStatementInputTransformInput;
 mod _batch_execute_statement_input_transform_output;
@@ -118,6 +116,3 @@ mod _update_item_output_transform_output;
 pub use crate::types::_update_item_output_transform_output::UpdateItemOutputTransformOutput;
 
 pub mod error;
-
-
-

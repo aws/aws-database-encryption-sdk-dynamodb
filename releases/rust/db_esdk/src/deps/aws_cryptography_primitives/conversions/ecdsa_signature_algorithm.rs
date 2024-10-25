@@ -12,7 +12,7 @@ crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm::EcdsaP
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::primitives::internaldafny::types::ECDSASignatureAlgorithm,
 ) -> crate::deps::aws_cryptography_primitives::types::EcdsaSignatureAlgorithm {

@@ -17,14 +17,14 @@ impl GetActiveBranchKey {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_keyStore::operation::get_active_branch_key::GetActiveBranchKeyOutput,
         crate::deps::aws_cryptography_keyStore::types::error::Error,
-    > {
+    >{
         if input.branch_key_identifier.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "branch_key_identifier",
         "branch_key_identifier was not specified but it is required when building GetActiveBranchKeyInput",
     )).map_err(crate::deps::aws_cryptography_keyStore::types::error::Error::wrap_validation_err);
-}
-                let inner_input = crate::deps::aws_cryptography_keyStore::conversions::get_active_branch_key::_get_active_branch_key_input::to_dafny(input);
+        }
+        let inner_input = crate::deps::aws_cryptography_keyStore::conversions::get_active_branch_key::_get_active_branch_key_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).GetActiveBranchKey(&inner_input);
         if matches!(
@@ -35,9 +35,11 @@ impl GetActiveBranchKey {
                 crate::deps::aws_cryptography_keyStore::conversions::get_active_branch_key::_get_active_branch_key_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
-                inner_result.error().clone(),
-            ))
+            Err(
+                crate::deps::aws_cryptography_keyStore::conversions::error::from_dafny(
+                    inner_result.error().clone(),
+                ),
+            )
         }
     }
 }

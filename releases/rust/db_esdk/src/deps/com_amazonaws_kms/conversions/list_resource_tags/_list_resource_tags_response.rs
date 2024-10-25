@@ -22,11 +22,11 @@ pub fn to_dafny(
  Truncated: crate::standard_library_conversions::obool_to_dafny(&Some(value.truncated)),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ListResourceTagsResponse,
-    >
+    >,
 ) -> aws_sdk_kms::operation::list_resource_tags::ListResourceTagsOutput {
     aws_sdk_kms::operation::list_resource_tags::ListResourceTagsOutput::builder()
           .set_tags(match (*dafny_value.Tags()).as_ref() {
@@ -43,6 +43,4 @@ pub fn from_dafny(
  .set_next_marker(crate::standard_library_conversions::ostring_from_dafny(dafny_value.NextMarker().clone()))
  .set_truncated(crate::standard_library_conversions::obool_from_dafny(dafny_value.Truncated().clone()))
           .build()
-
-
 }

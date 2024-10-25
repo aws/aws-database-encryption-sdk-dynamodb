@@ -21,11 +21,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchGetItemInput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput {
     aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput::builder()
           .set_request_items(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(&dafny_value.RequestItems(),

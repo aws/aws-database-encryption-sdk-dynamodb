@@ -15,19 +15,29 @@ pub fn to_dafny(
  OnDemandRotationStartDate: crate::standard_library_conversions::otimestamp_to_dafny(&value.on_demand_rotation_start_date),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GetKeyRotationStatusResponse,
-    >
+    >,
 ) -> aws_sdk_kms::operation::get_key_rotation_status::GetKeyRotationStatusOutput {
     aws_sdk_kms::operation::get_key_rotation_status::GetKeyRotationStatusOutput::builder()
-          .set_key_rotation_enabled(crate::standard_library_conversions::obool_from_dafny(dafny_value.KeyRotationEnabled().clone()))
- .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
- .set_rotation_period_in_days(crate::standard_library_conversions::oint_from_dafny(dafny_value.RotationPeriodInDays().clone()))
- .set_next_rotation_date(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.NextRotationDate().clone()))
- .set_on_demand_rotation_start_date(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.OnDemandRotationStartDate().clone()))
-          .build()
-
-
+        .set_key_rotation_enabled(crate::standard_library_conversions::obool_from_dafny(
+            dafny_value.KeyRotationEnabled().clone(),
+        ))
+        .set_key_id(crate::standard_library_conversions::ostring_from_dafny(
+            dafny_value.KeyId().clone(),
+        ))
+        .set_rotation_period_in_days(crate::standard_library_conversions::oint_from_dafny(
+            dafny_value.RotationPeriodInDays().clone(),
+        ))
+        .set_next_rotation_date(crate::standard_library_conversions::otimestamp_from_dafny(
+            dafny_value.NextRotationDate().clone(),
+        ))
+        .set_on_demand_rotation_start_date(
+            crate::standard_library_conversions::otimestamp_from_dafny(
+                dafny_value.OnDemandRotationStartDate().clone(),
+            ),
+        )
+        .build()
 }

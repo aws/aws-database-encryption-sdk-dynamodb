@@ -12,7 +12,7 @@ aws_sdk_kms::types::CustomKeyStoreType::ExternalKeyStore => crate::r#software::a
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CustomKeyStoreType,
 ) -> aws_sdk_kms::types::CustomKeyStoreType {

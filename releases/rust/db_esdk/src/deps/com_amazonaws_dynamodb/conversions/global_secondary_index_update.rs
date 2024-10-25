@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::GlobalSecondaryIndexUpdate,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexUpdate>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexUpdate::GlobalSecondaryIndexUpdate {
         Update: ::std::rc::Rc::new(match &value.update {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::update_global_secondary_index_action::to_dafny(x) },
@@ -24,7 +24,8 @@ pub fn to_dafny(
 ,
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexUpdate,
@@ -50,5 +51,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
 }

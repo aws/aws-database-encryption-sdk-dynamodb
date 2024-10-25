@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::GlobalSecondaryIndexInfo,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexInfo>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexInfo::GlobalSecondaryIndexInfo {
         IndexName: crate::standard_library_conversions::ostring_to_dafny(&value.index_name),
  KeySchema: ::std::rc::Rc::new(match &value.key_schema {
@@ -30,7 +30,8 @@ pub fn to_dafny(
 ,
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalSecondaryIndexInfo,
@@ -62,5 +63,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
 }

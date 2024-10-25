@@ -15,11 +15,11 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::UpdateContinuousBackupsOutput,
-    >
+    >,
 ) -> aws_sdk_dynamodb::operation::update_continuous_backups::UpdateContinuousBackupsOutput {
     aws_sdk_dynamodb::operation::update_continuous_backups::UpdateContinuousBackupsOutput::builder()
           .set_continuous_backups_description(match (*dafny_value.ContinuousBackupsDescription()).as_ref() {
@@ -29,6 +29,4 @@ pub fn from_dafny(
 }
 )
           .build()
-
-
 }

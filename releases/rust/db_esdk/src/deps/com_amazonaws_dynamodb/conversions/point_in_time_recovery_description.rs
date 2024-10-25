@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::PointInTimeRecoveryDescription,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PointInTimeRecoveryDescription>{
-  ::std::rc::Rc::new(
+    ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PointInTimeRecoveryDescription::PointInTimeRecoveryDescription {
         PointInTimeRecoveryStatus: ::std::rc::Rc::new(match &value.point_in_time_recovery_status {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::point_in_time_recovery_status::to_dafny(x.clone()) },
@@ -16,7 +16,8 @@ pub fn to_dafny(
  LatestRestorableDateTime: crate::standard_library_conversions::otimestamp_to_dafny(&value.latest_restorable_date_time),
     }
   )
-} #[allow(dead_code)]
+}
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PointInTimeRecoveryDescription,
@@ -33,5 +34,4 @@ pub fn from_dafny(
  .set_earliest_restorable_date_time(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.EarliestRestorableDateTime().clone()))
  .set_latest_restorable_date_time(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.LatestRestorableDateTime().clone()))
           .build()
-
 }

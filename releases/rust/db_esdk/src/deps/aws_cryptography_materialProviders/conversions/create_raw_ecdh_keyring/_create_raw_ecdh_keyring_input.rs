@@ -13,12 +13,12 @@ pub fn to_dafny(
  curveSpec: crate::deps::aws_cryptography_primitives::conversions::ecdh_curve_spec::to_dafny(value.curve_spec.clone().unwrap()),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRawEcdhKeyringInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::create_raw_ecdh_keyring::CreateRawEcdhKeyringInput {
+) -> crate::deps::aws_cryptography_materialProviders::operation::create_raw_ecdh_keyring::CreateRawEcdhKeyringInput{
     crate::deps::aws_cryptography_materialProviders::operation::create_raw_ecdh_keyring::CreateRawEcdhKeyringInput::builder()
         .set_key_agreement_scheme(Some( crate::deps::aws_cryptography_materialProviders::conversions::raw_ecdh_static_configurations::from_dafny(dafny_value.KeyAgreementScheme().clone())
  ))

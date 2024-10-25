@@ -13,7 +13,8 @@ pub fn to_dafny(
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::Upper,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Upper {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Upper
+{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Upper::Upper {
 
     }

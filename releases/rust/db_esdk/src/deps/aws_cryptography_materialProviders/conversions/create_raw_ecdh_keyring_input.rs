@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::CreateRawEcdhKeyringInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRawEcdhKeyringInput,
-> {
+>{
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::CreateRawEcdhKeyringInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRawEcdhKeyringInput {
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRawEcdhKeyringInput{
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRawEcdhKeyringInput::CreateRawEcdhKeyringInput {
         KeyAgreementScheme: crate::deps::aws_cryptography_materialProviders::conversions::raw_ecdh_static_configurations::to_dafny(&value.key_agreement_scheme.clone().unwrap())
 ,
@@ -64,7 +64,9 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRawEcdhKeyringInput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CreateRawEcdhKeyringInput> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_materialProviders::types::CreateRawEcdhKeyringInput,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))
