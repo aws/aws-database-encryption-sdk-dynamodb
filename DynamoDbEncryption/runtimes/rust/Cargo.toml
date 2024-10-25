@@ -22,7 +22,7 @@ aws-lc-sys = "0.22.0"
 aws-sdk-dynamodb = "1.50.0"
 aws-sdk-kms = "1.47.0"
 aws-smithy-runtime-api = {version = "1.7.2", features = ["client"] }
-aws-smithy-types = "1.2.7"
+aws-smithy-types = "1.2.8"
 chrono = "0.4.38"
 dafny_runtime = { path = "dafny_runtime_rust"}
 dashmap = "6.1.0"

@@ -49,7 +49,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .create_raw_aes_keyring()
         .key_name("my-aes-key-name")
         .key_namespace("my-key-namespace")
-        .wrapping_key(aws_smithy_types::Blob::new(aes_key_bytes))
+        .wrapping_key(aes_key_bytes)
         .wrapping_alg(AesWrappingAlg::AlgAes256GcmIv12Tag16)
         .send()
         .await?;

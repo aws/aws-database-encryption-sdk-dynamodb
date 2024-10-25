@@ -87,8 +87,8 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .key_name("my-rsa-key-name")
         .key_namespace("my-key-namespace")
         .padding_scheme(PaddingScheme::OaepSha256Mgf1)
-        .public_key(aws_smithy_types::Blob::new(public_key_utf8_bytes))
-        .private_key(aws_smithy_types::Blob::new(private_key_utf8_bytes))
+        .public_key(public_key_utf8_bytes)
+        .private_key(private_key_utf8_bytes)
         .send()
         .await?;
 
