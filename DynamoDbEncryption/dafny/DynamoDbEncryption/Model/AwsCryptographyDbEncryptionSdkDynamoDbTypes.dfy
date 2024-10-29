@@ -143,7 +143,9 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
                && output.value.branchKeyIdSupplier.ValidState()
                && output.value.branchKeyIdSupplier.Modifies !! {History}
                && fresh(output.value.branchKeyIdSupplier)
-               && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+               && fresh ( output.value.branchKeyIdSupplier.Modifies
+                          - Modifies - {History}
+                          - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
 
@@ -474,7 +476,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     // || (!exit(A(I)) && !access(B(I)))
     | CollectionOfErrors(list: seq<Error>, nameonly message: string)
       // The Opaque error, used for native, extern, wrapped or unknown errors
-    | Opaque(obj: object)
+    | Opaque(obj: object, alt_text : string := "")
   type OpaqueError = e: Error | e.Opaque? witness *
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
@@ -535,7 +537,9 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
                && output.value.branchKeyIdSupplier.ValidState()
                && output.value.branchKeyIdSupplier.Modifies !! {History}
                && fresh(output.value.branchKeyIdSupplier)
-               && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+               && fresh ( output.value.branchKeyIdSupplier.Modifies
+                          - Modifies - {History}
+                          - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
     {
@@ -592,7 +596,9 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
       && ( output.Success? ==>
              && output.value.branchKeyIdSupplier.ValidState()
              && fresh(output.value.branchKeyIdSupplier)
-             && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+             && fresh ( output.value.branchKeyIdSupplier.Modifies
+                        - ModifiesInternalConfig(config)
+                        - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
     ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
 
 

@@ -6719,12 +6719,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
           );
         // OpaqueError is redundant, but listed for completeness.
         case OpaqueError exception:
-          return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque(exception);
+          return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque(exception, Dafny.Sequence<char>.FromString(exception.ToString()));
         case System.Exception exception:
-          return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque(exception);
+          return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque(exception, Dafny.Sequence<char>.FromString(exception.ToString()));
         default:
           // The switch MUST be complete for System.Exception, so `value` MUST NOT be an System.Exception. (How did you get here?)
-          return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque(value);
+          return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque(value, Dafny.Sequence<char>.FromString(value.ToString()));
       }
     }
   }
