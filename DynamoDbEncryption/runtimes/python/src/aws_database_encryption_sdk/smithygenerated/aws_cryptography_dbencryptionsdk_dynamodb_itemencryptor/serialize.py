@@ -10,7 +10,18 @@ from .config import Config
 
 
 def _serialize_encrypt_item(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="EncryptItem", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemInput(input))
+    return DafnyRequest(
+        operation_name="EncryptItem",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemInput(
+            input
+        ),
+    )
+
 
 def _serialize_decrypt_item(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="DecryptItem", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemInput(input))
+    return DafnyRequest(
+        operation_name="DecryptItem",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemInput(
+            input
+        ),
+    )

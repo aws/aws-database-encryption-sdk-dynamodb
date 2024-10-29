@@ -66,21 +66,61 @@ import aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb
 def com_amazonaws_dynamodb_AttributeValue(dafny_input):
     # Convert AttributeValue
     if isinstance(dafny_input, AttributeValue_S):
-        AttributeValue_union_value = {"S": b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.S).decode('utf-16-be')}
+        AttributeValue_union_value = {
+            "S": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.S).decode(
+                "utf-16-be"
+            )
+        }
     elif isinstance(dafny_input, AttributeValue_N):
-        AttributeValue_union_value = {"N": b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.N).decode('utf-16-be')}
+        AttributeValue_union_value = {
+            "N": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.N).decode(
+                "utf-16-be"
+            )
+        }
     elif isinstance(dafny_input, AttributeValue_B):
         AttributeValue_union_value = {"B": bytes(dafny_input.B)}
     elif isinstance(dafny_input, AttributeValue_SS):
-        AttributeValue_union_value = {"SS": [b''.join(ord(c).to_bytes(2, 'big') for c in list_element).decode('utf-16-be') for list_element in dafny_input.SS]}
+        AttributeValue_union_value = {
+            "SS": [
+                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
+                    "utf-16-be"
+                )
+                for list_element in dafny_input.SS
+            ]
+        }
     elif isinstance(dafny_input, AttributeValue_NS):
-        AttributeValue_union_value = {"NS": [b''.join(ord(c).to_bytes(2, 'big') for c in list_element).decode('utf-16-be') for list_element in dafny_input.NS]}
+        AttributeValue_union_value = {
+            "NS": [
+                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
+                    "utf-16-be"
+                )
+                for list_element in dafny_input.NS
+            ]
+        }
     elif isinstance(dafny_input, AttributeValue_BS):
-        AttributeValue_union_value = {"BS": [bytes(list_element) for list_element in dafny_input.BS]}
+        AttributeValue_union_value = {
+            "BS": [bytes(list_element) for list_element in dafny_input.BS]
+        }
     elif isinstance(dafny_input, AttributeValue_M):
-        AttributeValue_union_value = {"M": {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.M.items }}
+        AttributeValue_union_value = {
+            "M": {
+                b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                    "utf-16-be"
+                ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                    value
+                )
+                for (key, value) in dafny_input.M.items
+            }
+        }
     elif isinstance(dafny_input, AttributeValue_L):
-        AttributeValue_union_value = {"L": [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in dafny_input.L]}
+        AttributeValue_union_value = {
+            "L": [
+                aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                    list_element
+                )
+                for list_element in dafny_input.L
+            ]
+        }
     elif isinstance(dafny_input, AttributeValue_NULL):
         AttributeValue_union_value = {"NULL": dafny_input.NULL}
     elif isinstance(dafny_input, AttributeValue_BOOL):
@@ -90,21 +130,36 @@ def com_amazonaws_dynamodb_AttributeValue(dafny_input):
 
     return AttributeValue_union_value
 
+
 def com_amazonaws_dynamodb_ExpectedAttributeValue(dafny_input):
     output = {}
     if dafny_input.Value.is_Some:
-        output["Value"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(dafny_input.Value.value)
+        output["Value"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                dafny_input.Value.value
+            )
+        )
 
     if dafny_input.Exists.is_Some:
         output["Exists"] = dafny_input.Exists.value
 
     if dafny_input.ComparisonOperator.is_Some:
-        output["ComparisonOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ComparisonOperator(dafny_input.ComparisonOperator.value)
+        output["ComparisonOperator"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ComparisonOperator(
+                dafny_input.ComparisonOperator.value
+            )
+        )
 
     if dafny_input.AttributeValueList.is_Some:
-        output["AttributeValueList"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in dafny_input.AttributeValueList.value]
+        output["AttributeValueList"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                list_element
+            )
+            for list_element in dafny_input.AttributeValueList.value
+        ]
 
     return output
+
 
 def com_amazonaws_dynamodb_ComparisonOperator(dafny_input):
     # Convert ComparisonOperator
@@ -150,6 +205,7 @@ def com_amazonaws_dynamodb_ComparisonOperator(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_ReturnValue(dafny_input):
     # Convert ReturnValue
     if isinstance(dafny_input, ReturnValue_NONE):
@@ -170,6 +226,7 @@ def com_amazonaws_dynamodb_ReturnValue(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input):
     # Convert ReturnConsumedCapacity
     if isinstance(dafny_input, ReturnConsumedCapacity_INDEXES):
@@ -184,6 +241,7 @@ def com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input):
     # Convert ReturnItemCollectionMetrics
     if isinstance(dafny_input, ReturnItemCollectionMetrics_SIZE):
@@ -194,6 +252,7 @@ def com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input):
 
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
+
 
 def com_amazonaws_dynamodb_ConditionalOperator(dafny_input):
     # Convert ConditionalOperator
@@ -206,40 +265,90 @@ def com_amazonaws_dynamodb_ConditionalOperator(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_PutItemInput(dafny_input):
     output = {}
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
-    output["Item"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Item.items }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
+    output["Item"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Item.items
+    }
     if dafny_input.Expected.is_Some:
-        output["Expected"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ExpectedAttributeValue(value) for (key, value) in dafny_input.Expected.value.items }
+        output["Expected"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ExpectedAttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Expected.value.items
+        }
 
     if dafny_input.ReturnValues.is_Some:
-        output["ReturnValues"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValue(dafny_input.ReturnValues.value)
+        output["ReturnValues"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValue(
+                dafny_input.ReturnValues.value
+            )
+        )
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ReturnItemCollectionMetrics.is_Some:
-        output["ReturnItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input.ReturnItemCollectionMetrics.value)
+        output["ReturnItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(
+                dafny_input.ReturnItemCollectionMetrics.value
+            )
+        )
 
     if dafny_input.ConditionalOperator.is_Some:
-        output["ConditionalOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(dafny_input.ConditionalOperator.value)
+        output["ConditionalOperator"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(
+                dafny_input.ConditionalOperator.value
+            )
+        )
 
     if dafny_input.ConditionExpression.is_Some:
-        output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression.value).decode('utf-16-be')
+        output["ConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_ConsumedCapacity(dafny_input):
     output = {}
     if dafny_input.TableName.is_Some:
-        output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName.value).decode('utf-16-be')
+        output["TableName"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.TableName.value
+        ).decode("utf-16-be")
 
     if dafny_input.CapacityUnits.is_Some:
         output["CapacityUnits"] = dafny_input.CapacityUnits.value
@@ -251,15 +360,34 @@ def com_amazonaws_dynamodb_ConsumedCapacity(dafny_input):
         output["WriteCapacityUnits"] = dafny_input.WriteCapacityUnits.value
 
     if dafny_input.Table.is_Some:
-        output["Table"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Capacity(dafny_input.Table.value)
+        output["Table"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Capacity(
+                dafny_input.Table.value
+            )
+        )
 
     if dafny_input.LocalSecondaryIndexes.is_Some:
-        output["LocalSecondaryIndexes"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Capacity(value) for (key, value) in dafny_input.LocalSecondaryIndexes.value.items }
+        output["LocalSecondaryIndexes"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Capacity(
+                value
+            )
+            for (key, value) in dafny_input.LocalSecondaryIndexes.value.items
+        }
 
     if dafny_input.GlobalSecondaryIndexes.is_Some:
-        output["GlobalSecondaryIndexes"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Capacity(value) for (key, value) in dafny_input.GlobalSecondaryIndexes.value.items }
+        output["GlobalSecondaryIndexes"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Capacity(
+                value
+            )
+            for (key, value) in dafny_input.GlobalSecondaryIndexes.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_Capacity(dafny_input):
     output = {}
@@ -274,141 +402,331 @@ def com_amazonaws_dynamodb_Capacity(dafny_input):
 
     return output
 
+
 def com_amazonaws_dynamodb_ItemCollectionMetrics(dafny_input):
     output = {}
     if dafny_input.ItemCollectionKey.is_Some:
-        output["ItemCollectionKey"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ItemCollectionKey.value.items }
+        output["ItemCollectionKey"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ItemCollectionKey.value.items
+        }
 
     if dafny_input.SizeEstimateRangeGB.is_Some:
-        output["SizeEstimateRangeGB"] = [list_element for list_element in dafny_input.SizeEstimateRangeGB.value]
+        output["SizeEstimateRangeGB"] = [
+            list_element for list_element in dafny_input.SizeEstimateRangeGB.value
+        ]
 
     return output
+
 
 def com_amazonaws_dynamodb_PutItemOutput(dafny_input):
     output = {}
     if dafny_input.Attributes.is_Some:
-        output["Attributes"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Attributes.value.items }
+        output["Attributes"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Attributes.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ItemCollectionMetrics.is_Some:
-        output["ItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(dafny_input.ItemCollectionMetrics.value)
+        output["ItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(
+                dafny_input.ItemCollectionMetrics.value
+            )
+        )
 
     return output
 
+
 def com_amazonaws_dynamodb_GetItemInput(dafny_input):
     output = {}
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
     if dafny_input.AttributesToGet.is_Some:
-        output["AttributesToGet"] = [b''.join(ord(c).to_bytes(2, 'big') for c in list_element).decode('utf-16-be') for list_element in dafny_input.AttributesToGet.value]
+        output["AttributesToGet"] = [
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
+                "utf-16-be"
+            )
+            for list_element in dafny_input.AttributesToGet.value
+        ]
 
     if dafny_input.ConsistentRead.is_Some:
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ProjectionExpression.is_Some:
-        output["ProjectionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ProjectionExpression.value).decode('utf-16-be')
+        output["ProjectionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ProjectionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_GetItemOutput(dafny_input):
     output = {}
     if dafny_input.Item.is_Some:
-        output["Item"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Item.value.items }
+        output["Item"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Item.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_WriteRequest(dafny_input):
     output = {}
     if dafny_input.PutRequest.is_Some:
-        output["PutRequest"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_PutRequest(dafny_input.PutRequest.value)
+        output["PutRequest"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_PutRequest(
+                dafny_input.PutRequest.value
+            )
+        )
 
     if dafny_input.DeleteRequest.is_Some:
-        output["DeleteRequest"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_DeleteRequest(dafny_input.DeleteRequest.value)
+        output["DeleteRequest"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_DeleteRequest(
+                dafny_input.DeleteRequest.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_PutRequest(dafny_input):
     output = {}
-    output["Item"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Item.items }
+    output["Item"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Item.items
+    }
     return output
+
 
 def com_amazonaws_dynamodb_DeleteRequest(dafny_input):
     output = {}
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
     return output
+
 
 def com_amazonaws_dynamodb_BatchWriteItemInput(dafny_input):
     output = {}
-    output["RequestItems"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_WriteRequest(list_element) for list_element in value] for (key, value) in dafny_input.RequestItems.items }
+    output["RequestItems"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode("utf-16-be"): [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_WriteRequest(
+                list_element
+            )
+            for list_element in value
+        ]
+        for (key, value) in dafny_input.RequestItems.items
+    }
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ReturnItemCollectionMetrics.is_Some:
-        output["ReturnItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input.ReturnItemCollectionMetrics.value)
+        output["ReturnItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(
+                dafny_input.ReturnItemCollectionMetrics.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_BatchWriteItemOutput(dafny_input):
     output = {}
     if dafny_input.UnprocessedItems.is_Some:
-        output["UnprocessedItems"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_WriteRequest(list_element) for list_element in value] for (key, value) in dafny_input.UnprocessedItems.value.items }
+        output["UnprocessedItems"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode("utf-16-be"): [
+                aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_WriteRequest(
+                    list_element
+                )
+                for list_element in value
+            ]
+            for (key, value) in dafny_input.UnprocessedItems.value.items
+        }
 
     if dafny_input.ItemCollectionMetrics.is_Some:
-        output["ItemCollectionMetrics"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(list_element) for list_element in value] for (key, value) in dafny_input.ItemCollectionMetrics.value.items }
+        output["ItemCollectionMetrics"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode("utf-16-be"): [
+                aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(
+                    list_element
+                )
+                for list_element in value
+            ]
+            for (key, value) in dafny_input.ItemCollectionMetrics.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(list_element) for list_element in dafny_input.ConsumedCapacity.value]
+        output["ConsumedCapacity"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                list_element
+            )
+            for list_element in dafny_input.ConsumedCapacity.value
+        ]
 
     return output
 
+
 def com_amazonaws_dynamodb_KeysAndAttributes(dafny_input):
     output = {}
-    output["Keys"] = [{b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in list_element.items } for list_element in dafny_input.Keys]
+    output["Keys"] = [
+        {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in list_element.items
+        }
+        for list_element in dafny_input.Keys
+    ]
     if dafny_input.AttributesToGet.is_Some:
-        output["AttributesToGet"] = [b''.join(ord(c).to_bytes(2, 'big') for c in list_element).decode('utf-16-be') for list_element in dafny_input.AttributesToGet.value]
+        output["AttributesToGet"] = [
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
+                "utf-16-be"
+            )
+            for list_element in dafny_input.AttributesToGet.value
+        ]
 
     if dafny_input.ConsistentRead.is_Some:
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     if dafny_input.ProjectionExpression.is_Some:
-        output["ProjectionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ProjectionExpression.value).decode('utf-16-be')
+        output["ProjectionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ProjectionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_BatchGetItemInput(dafny_input):
     output = {}
-    output["RequestItems"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_KeysAndAttributes(value) for (key, value) in dafny_input.RequestItems.items }
+    output["RequestItems"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_KeysAndAttributes(
+            value
+        )
+        for (key, value) in dafny_input.RequestItems.items
+    }
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_BatchGetItemOutput(dafny_input):
     output = {}
     if dafny_input.Responses.is_Some:
-        output["Responses"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): [{b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in list_element.items } for list_element in value] for (key, value) in dafny_input.Responses.value.items }
+        output["Responses"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode("utf-16-be"): [
+                {
+                    b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                        "utf-16-be"
+                    ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                        value
+                    )
+                    for (key, value) in list_element.items
+                }
+                for list_element in value
+            ]
+            for (key, value) in dafny_input.Responses.value.items
+        }
 
     if dafny_input.UnprocessedKeys.is_Some:
-        output["UnprocessedKeys"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_KeysAndAttributes(value) for (key, value) in dafny_input.UnprocessedKeys.value.items }
+        output["UnprocessedKeys"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_KeysAndAttributes(
+                value
+            )
+            for (key, value) in dafny_input.UnprocessedKeys.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(list_element) for list_element in dafny_input.ConsumedCapacity.value]
+        output["ConsumedCapacity"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                list_element
+            )
+            for list_element in dafny_input.ConsumedCapacity.value
+        ]
 
     return output
+
 
 def com_amazonaws_dynamodb_Select(dafny_input):
     # Convert Select
@@ -427,40 +745,86 @@ def com_amazonaws_dynamodb_Select(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_Condition(dafny_input):
     output = {}
     if dafny_input.AttributeValueList.is_Some:
-        output["AttributeValueList"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in dafny_input.AttributeValueList.value]
+        output["AttributeValueList"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                list_element
+            )
+            for list_element in dafny_input.AttributeValueList.value
+        ]
 
-    output["ComparisonOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ComparisonOperator(dafny_input.ComparisonOperator)
+    output["ComparisonOperator"] = (
+        aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ComparisonOperator(
+            dafny_input.ComparisonOperator
+        )
+    )
     return output
+
 
 def com_amazonaws_dynamodb_ScanInput(dafny_input):
     output = {}
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
     if dafny_input.IndexName.is_Some:
-        output["IndexName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.IndexName.value).decode('utf-16-be')
+        output["IndexName"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.IndexName.value
+        ).decode("utf-16-be")
 
     if dafny_input.AttributesToGet.is_Some:
-        output["AttributesToGet"] = [b''.join(ord(c).to_bytes(2, 'big') for c in list_element).decode('utf-16-be') for list_element in dafny_input.AttributesToGet.value]
+        output["AttributesToGet"] = [
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
+                "utf-16-be"
+            )
+            for list_element in dafny_input.AttributesToGet.value
+        ]
 
     if dafny_input.Limit.is_Some:
         output["Limit"] = dafny_input.Limit.value
 
     if dafny_input.Select.is_Some:
-        output["Select"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Select(dafny_input.Select.value)
+        output["Select"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Select(
+                dafny_input.Select.value
+            )
+        )
 
     if dafny_input.ScanFilter.is_Some:
-        output["ScanFilter"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Condition(value) for (key, value) in dafny_input.ScanFilter.value.items }
+        output["ScanFilter"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Condition(
+                value
+            )
+            for (key, value) in dafny_input.ScanFilter.value.items
+        }
 
     if dafny_input.ConditionalOperator.is_Some:
-        output["ConditionalOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(dafny_input.ConditionalOperator.value)
+        output["ConditionalOperator"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(
+                dafny_input.ConditionalOperator.value
+            )
+        )
 
     if dafny_input.ExclusiveStartKey.is_Some:
-        output["ExclusiveStartKey"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExclusiveStartKey.value.items }
+        output["ExclusiveStartKey"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExclusiveStartKey.value.items
+        }
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.TotalSegments.is_Some:
         output["TotalSegments"] = dafny_input.TotalSegments.value
@@ -469,26 +833,53 @@ def com_amazonaws_dynamodb_ScanInput(dafny_input):
         output["Segment"] = dafny_input.Segment.value
 
     if dafny_input.ProjectionExpression.is_Some:
-        output["ProjectionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ProjectionExpression.value).decode('utf-16-be')
+        output["ProjectionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ProjectionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.FilterExpression.is_Some:
-        output["FilterExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.FilterExpression.value).decode('utf-16-be')
+        output["FilterExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.FilterExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     if dafny_input.ConsistentRead.is_Some:
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     return output
 
+
 def com_amazonaws_dynamodb_ScanOutput(dafny_input):
     output = {}
     if dafny_input.Items.is_Some:
-        output["Items"] = [{b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in list_element.items } for list_element in dafny_input.Items.value]
+        output["Items"] = [
+            {
+                b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                    "utf-16-be"
+                ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                    value
+                )
+                for (key, value) in list_element.items
+            }
+            for list_element in dafny_input.Items.value
+        ]
 
     if dafny_input.Count.is_Some:
         output["Count"] = dafny_input.Count.value
@@ -497,24 +888,49 @@ def com_amazonaws_dynamodb_ScanOutput(dafny_input):
         output["ScannedCount"] = dafny_input.ScannedCount.value
 
     if dafny_input.LastEvaluatedKey.is_Some:
-        output["LastEvaluatedKey"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.LastEvaluatedKey.value.items }
+        output["LastEvaluatedKey"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.LastEvaluatedKey.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     return output
 
+
 def com_amazonaws_dynamodb_QueryInput(dafny_input):
     output = {}
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
     if dafny_input.IndexName.is_Some:
-        output["IndexName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.IndexName.value).decode('utf-16-be')
+        output["IndexName"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.IndexName.value
+        ).decode("utf-16-be")
 
     if dafny_input.Select.is_Some:
-        output["Select"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Select(dafny_input.Select.value)
+        output["Select"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Select(
+                dafny_input.Select.value
+            )
+        )
 
     if dafny_input.AttributesToGet.is_Some:
-        output["AttributesToGet"] = [b''.join(ord(c).to_bytes(2, 'big') for c in list_element).decode('utf-16-be') for list_element in dafny_input.AttributesToGet.value]
+        output["AttributesToGet"] = [
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
+                "utf-16-be"
+            )
+            for list_element in dafny_input.AttributesToGet.value
+        ]
 
     if dafny_input.Limit.is_Some:
         output["Limit"] = dafny_input.Limit.value
@@ -523,44 +939,102 @@ def com_amazonaws_dynamodb_QueryInput(dafny_input):
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     if dafny_input.KeyConditions.is_Some:
-        output["KeyConditions"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Condition(value) for (key, value) in dafny_input.KeyConditions.value.items }
+        output["KeyConditions"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Condition(
+                value
+            )
+            for (key, value) in dafny_input.KeyConditions.value.items
+        }
 
     if dafny_input.QueryFilter.is_Some:
-        output["QueryFilter"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Condition(value) for (key, value) in dafny_input.QueryFilter.value.items }
+        output["QueryFilter"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Condition(
+                value
+            )
+            for (key, value) in dafny_input.QueryFilter.value.items
+        }
 
     if dafny_input.ConditionalOperator.is_Some:
-        output["ConditionalOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(dafny_input.ConditionalOperator.value)
+        output["ConditionalOperator"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(
+                dafny_input.ConditionalOperator.value
+            )
+        )
 
     if dafny_input.ScanIndexForward.is_Some:
         output["ScanIndexForward"] = dafny_input.ScanIndexForward.value
 
     if dafny_input.ExclusiveStartKey.is_Some:
-        output["ExclusiveStartKey"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExclusiveStartKey.value.items }
+        output["ExclusiveStartKey"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExclusiveStartKey.value.items
+        }
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ProjectionExpression.is_Some:
-        output["ProjectionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ProjectionExpression.value).decode('utf-16-be')
+        output["ProjectionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ProjectionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.FilterExpression.is_Some:
-        output["FilterExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.FilterExpression.value).decode('utf-16-be')
+        output["FilterExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.FilterExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.KeyConditionExpression.is_Some:
-        output["KeyConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.KeyConditionExpression.value).decode('utf-16-be')
+        output["KeyConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.KeyConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_QueryOutput(dafny_input):
     output = {}
     if dafny_input.Items.is_Some:
-        output["Items"] = [{b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in list_element.items } for list_element in dafny_input.Items.value]
+        output["Items"] = [
+            {
+                b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                    "utf-16-be"
+                ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                    value
+                )
+                for (key, value) in list_element.items
+            }
+            for list_element in dafny_input.Items.value
+        ]
 
     if dafny_input.Count.is_Some:
         output["Count"] = dafny_input.Count.value
@@ -569,99 +1043,242 @@ def com_amazonaws_dynamodb_QueryOutput(dafny_input):
         output["ScannedCount"] = dafny_input.ScannedCount.value
 
     if dafny_input.LastEvaluatedKey.is_Some:
-        output["LastEvaluatedKey"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.LastEvaluatedKey.value.items }
+        output["LastEvaluatedKey"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.LastEvaluatedKey.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_TransactWriteItem(dafny_input):
     output = {}
     if dafny_input.ConditionCheck.is_Some:
-        output["ConditionCheck"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionCheck(dafny_input.ConditionCheck.value)
+        output["ConditionCheck"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionCheck(
+                dafny_input.ConditionCheck.value
+            )
+        )
 
     if dafny_input.Put.is_Some:
-        output["Put"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Put(dafny_input.Put.value)
+        output["Put"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Put(
+                dafny_input.Put.value
+            )
+        )
 
     if dafny_input.Delete.is_Some:
-        output["Delete"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Delete(dafny_input.Delete.value)
+        output["Delete"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Delete(
+                dafny_input.Delete.value
+            )
+        )
 
     if dafny_input.Update.is_Some:
-        output["Update"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Update(dafny_input.Update.value)
+        output["Update"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Update(
+                dafny_input.Update.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_ConditionCheck(dafny_input):
     output = {}
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
-    output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression).decode('utf-16-be')
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
+    output["ConditionExpression"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression
+    ).decode("utf-16-be")
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
-        output["ReturnValuesOnConditionCheckFailure"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input.ReturnValuesOnConditionCheckFailure.value)
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_Put(dafny_input):
     output = {}
-    output["Item"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Item.items }
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
+    output["Item"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Item.items
+    }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
     if dafny_input.ConditionExpression.is_Some:
-        output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression.value).decode('utf-16-be')
+        output["ConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
-        output["ReturnValuesOnConditionCheckFailure"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input.ReturnValuesOnConditionCheckFailure.value)
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_Delete(dafny_input):
     output = {}
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
     if dafny_input.ConditionExpression.is_Some:
-        output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression.value).decode('utf-16-be')
+        output["ConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
-        output["ReturnValuesOnConditionCheckFailure"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input.ReturnValuesOnConditionCheckFailure.value)
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_Update(dafny_input):
     output = {}
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
-    output["UpdateExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.UpdateExpression).decode('utf-16-be')
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
+    output["UpdateExpression"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.UpdateExpression
+    ).decode("utf-16-be")
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
     if dafny_input.ConditionExpression.is_Some:
-        output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression.value).decode('utf-16-be')
+        output["ConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
-        output["ReturnValuesOnConditionCheckFailure"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input.ReturnValuesOnConditionCheckFailure.value)
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input):
     # Convert ReturnValuesOnConditionCheckFailure
@@ -674,39 +1291,79 @@ def com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_TransactWriteItemsInput(dafny_input):
     output = {}
-    output["TransactItems"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_TransactWriteItem(list_element) for list_element in dafny_input.TransactItems]
+    output["TransactItems"] = [
+        aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_TransactWriteItem(
+            list_element
+        )
+        for list_element in dafny_input.TransactItems
+    ]
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ReturnItemCollectionMetrics.is_Some:
-        output["ReturnItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input.ReturnItemCollectionMetrics.value)
+        output["ReturnItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(
+                dafny_input.ReturnItemCollectionMetrics.value
+            )
+        )
 
     if dafny_input.ClientRequestToken.is_Some:
-        output["ClientRequestToken"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ClientRequestToken.value).decode('utf-16-be')
+        output["ClientRequestToken"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ClientRequestToken.value
+        ).decode("utf-16-be")
 
     return output
+
 
 def com_amazonaws_dynamodb_TransactWriteItemsOutput(dafny_input):
     output = {}
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(list_element) for list_element in dafny_input.ConsumedCapacity.value]
+        output["ConsumedCapacity"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                list_element
+            )
+            for list_element in dafny_input.ConsumedCapacity.value
+        ]
 
     if dafny_input.ItemCollectionMetrics.is_Some:
-        output["ItemCollectionMetrics"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(list_element) for list_element in value] for (key, value) in dafny_input.ItemCollectionMetrics.value.items }
+        output["ItemCollectionMetrics"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode("utf-16-be"): [
+                aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(
+                    list_element
+                )
+                for list_element in value
+            ]
+            for (key, value) in dafny_input.ItemCollectionMetrics.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_AttributeValueUpdate(dafny_input):
     output = {}
     if dafny_input.Value.is_Some:
-        output["Value"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(dafny_input.Value.value)
+        output["Value"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                dafny_input.Value.value
+            )
+        )
 
     if dafny_input.Action.is_Some:
-        output["Action"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeAction(dafny_input.Action.value)
+        output["Action"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeAction(
+                dafny_input.Action.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_AttributeAction(dafny_input):
     # Convert AttributeAction
@@ -722,224 +1379,490 @@ def com_amazonaws_dynamodb_AttributeAction(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_UpdateItemInput(dafny_input):
     output = {}
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
     if dafny_input.AttributeUpdates.is_Some:
-        output["AttributeUpdates"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValueUpdate(value) for (key, value) in dafny_input.AttributeUpdates.value.items }
+        output["AttributeUpdates"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValueUpdate(
+                value
+            )
+            for (key, value) in dafny_input.AttributeUpdates.value.items
+        }
 
     if dafny_input.Expected.is_Some:
-        output["Expected"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ExpectedAttributeValue(value) for (key, value) in dafny_input.Expected.value.items }
+        output["Expected"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ExpectedAttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Expected.value.items
+        }
 
     if dafny_input.ConditionalOperator.is_Some:
-        output["ConditionalOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(dafny_input.ConditionalOperator.value)
+        output["ConditionalOperator"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(
+                dafny_input.ConditionalOperator.value
+            )
+        )
 
     if dafny_input.ReturnValues.is_Some:
-        output["ReturnValues"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValue(dafny_input.ReturnValues.value)
+        output["ReturnValues"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValue(
+                dafny_input.ReturnValues.value
+            )
+        )
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ReturnItemCollectionMetrics.is_Some:
-        output["ReturnItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input.ReturnItemCollectionMetrics.value)
+        output["ReturnItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(
+                dafny_input.ReturnItemCollectionMetrics.value
+            )
+        )
 
     if dafny_input.UpdateExpression.is_Some:
-        output["UpdateExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.UpdateExpression.value).decode('utf-16-be')
+        output["UpdateExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.UpdateExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ConditionExpression.is_Some:
-        output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression.value).decode('utf-16-be')
+        output["ConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_UpdateItemOutput(dafny_input):
     output = {}
     if dafny_input.Attributes.is_Some:
-        output["Attributes"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Attributes.value.items }
+        output["Attributes"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Attributes.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ItemCollectionMetrics.is_Some:
-        output["ItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(dafny_input.ItemCollectionMetrics.value)
+        output["ItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(
+                dafny_input.ItemCollectionMetrics.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_DeleteItemInput(dafny_input):
     output = {}
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
     if dafny_input.Expected.is_Some:
-        output["Expected"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ExpectedAttributeValue(value) for (key, value) in dafny_input.Expected.value.items }
+        output["Expected"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ExpectedAttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Expected.value.items
+        }
 
     if dafny_input.ConditionalOperator.is_Some:
-        output["ConditionalOperator"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(dafny_input.ConditionalOperator.value)
+        output["ConditionalOperator"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConditionalOperator(
+                dafny_input.ConditionalOperator.value
+            )
+        )
 
     if dafny_input.ReturnValues.is_Some:
-        output["ReturnValues"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValue(dafny_input.ReturnValues.value)
+        output["ReturnValues"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValue(
+                dafny_input.ReturnValues.value
+            )
+        )
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ReturnItemCollectionMetrics.is_Some:
-        output["ReturnItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(dafny_input.ReturnItemCollectionMetrics.value)
+        output["ReturnItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnItemCollectionMetrics(
+                dafny_input.ReturnItemCollectionMetrics.value
+            )
+        )
 
     if dafny_input.ConditionExpression.is_Some:
-        output["ConditionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ConditionExpression.value).decode('utf-16-be')
+        output["ConditionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     if dafny_input.ExpressionAttributeValues.is_Some:
-        output["ExpressionAttributeValues"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.ExpressionAttributeValues.value.items }
+        output["ExpressionAttributeValues"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.ExpressionAttributeValues.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_DeleteItemOutput(dafny_input):
     output = {}
     if dafny_input.Attributes.is_Some:
-        output["Attributes"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Attributes.value.items }
+        output["Attributes"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Attributes.value.items
+        }
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     if dafny_input.ItemCollectionMetrics.is_Some:
-        output["ItemCollectionMetrics"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(dafny_input.ItemCollectionMetrics.value)
+        output["ItemCollectionMetrics"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemCollectionMetrics(
+                dafny_input.ItemCollectionMetrics.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_TransactGetItem(dafny_input):
     output = {}
-    output["Get"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Get(dafny_input.Get)
+    output["Get"] = (
+        aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_Get(
+            dafny_input.Get
+        )
+    )
     return output
+
 
 def com_amazonaws_dynamodb_Get(dafny_input):
     output = {}
-    output["Key"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Key.items }
-    output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName).decode('utf-16-be')
+    output["Key"] = {
+        b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+            "utf-16-be"
+        ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+            value
+        )
+        for (key, value) in dafny_input.Key.items
+    }
+    output["TableName"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
+    ).decode("utf-16-be")
     if dafny_input.ProjectionExpression.is_Some:
-        output["ProjectionExpression"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ProjectionExpression.value).decode('utf-16-be')
+        output["ProjectionExpression"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ProjectionExpression.value
+        ).decode("utf-16-be")
 
     if dafny_input.ExpressionAttributeNames.is_Some:
-        output["ExpressionAttributeNames"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): b''.join(ord(c).to_bytes(2, 'big') for c in value).decode('utf-16-be') for (key, value) in dafny_input.ExpressionAttributeNames.value.items }
+        output["ExpressionAttributeNames"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key)
+            .decode("utf-16-be"): b"".join(ord(c).to_bytes(2, "big") for c in value)
+            .decode("utf-16-be")
+            for (key, value) in dafny_input.ExpressionAttributeNames.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_TransactGetItemsInput(dafny_input):
     output = {}
-    output["TransactItems"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_TransactGetItem(list_element) for list_element in dafny_input.TransactItems]
+    output["TransactItems"] = [
+        aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_TransactGetItem(
+            list_element
+        )
+        for list_element in dafny_input.TransactItems
+    ]
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_ItemResponse(dafny_input):
     output = {}
     if dafny_input.Item.is_Some:
-        output["Item"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Item.value.items }
+        output["Item"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Item.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_TransactGetItemsOutput(dafny_input):
     output = {}
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(list_element) for list_element in dafny_input.ConsumedCapacity.value]
+        output["ConsumedCapacity"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                list_element
+            )
+            for list_element in dafny_input.ConsumedCapacity.value
+        ]
 
     if dafny_input.Responses.is_Some:
-        output["Responses"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemResponse(list_element) for list_element in dafny_input.Responses.value]
+        output["Responses"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemResponse(
+                list_element
+            )
+            for list_element in dafny_input.Responses.value
+        ]
 
     return output
 
+
 def com_amazonaws_dynamodb_ExecuteStatementInput(dafny_input):
     output = {}
-    output["Statement"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.Statement).decode('utf-16-be')
+    output["Statement"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.Statement
+    ).decode("utf-16-be")
     if dafny_input.Parameters.is_Some:
-        output["Parameters"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in dafny_input.Parameters.value]
+        output["Parameters"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                list_element
+            )
+            for list_element in dafny_input.Parameters.value
+        ]
 
     if dafny_input.ConsistentRead.is_Some:
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     if dafny_input.NextToken.is_Some:
-        output["NextToken"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.NextToken.value).decode('utf-16-be')
+        output["NextToken"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.NextToken.value
+        ).decode("utf-16-be")
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     if dafny_input.Limit.is_Some:
         output["Limit"] = dafny_input.Limit.value
 
     return output
 
+
 def com_amazonaws_dynamodb_ExecuteStatementOutput(dafny_input):
     output = {}
     if dafny_input.Items.is_Some:
-        output["Items"] = [{b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in list_element.items } for list_element in dafny_input.Items.value]
+        output["Items"] = [
+            {
+                b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                    "utf-16-be"
+                ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                    value
+                )
+                for (key, value) in list_element.items
+            }
+            for list_element in dafny_input.Items.value
+        ]
 
     if dafny_input.NextToken.is_Some:
-        output["NextToken"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.NextToken.value).decode('utf-16-be')
+        output["NextToken"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.NextToken.value
+        ).decode("utf-16-be")
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(dafny_input.ConsumedCapacity.value)
+        output["ConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                dafny_input.ConsumedCapacity.value
+            )
+        )
 
     if dafny_input.LastEvaluatedKey.is_Some:
-        output["LastEvaluatedKey"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.LastEvaluatedKey.value.items }
+        output["LastEvaluatedKey"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.LastEvaluatedKey.value.items
+        }
 
     return output
 
+
 def com_amazonaws_dynamodb_BatchStatementRequest(dafny_input):
     output = {}
-    output["Statement"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.Statement).decode('utf-16-be')
+    output["Statement"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.Statement
+    ).decode("utf-16-be")
     if dafny_input.Parameters.is_Some:
-        output["Parameters"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in dafny_input.Parameters.value]
+        output["Parameters"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                list_element
+            )
+            for list_element in dafny_input.Parameters.value
+        ]
 
     if dafny_input.ConsistentRead.is_Some:
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     return output
 
+
 def com_amazonaws_dynamodb_BatchExecuteStatementInput(dafny_input):
     output = {}
-    output["Statements"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementRequest(list_element) for list_element in dafny_input.Statements]
+    output["Statements"] = [
+        aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementRequest(
+            list_element
+        )
+        for list_element in dafny_input.Statements
+    ]
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_BatchStatementResponse(dafny_input):
     output = {}
     if dafny_input.Error.is_Some:
-        output["Error"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementError(dafny_input.Error.value)
+        output["Error"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementError(
+                dafny_input.Error.value
+            )
+        )
 
     if dafny_input.TableName.is_Some:
-        output["TableName"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.TableName.value).decode('utf-16-be')
+        output["TableName"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.TableName.value
+        ).decode("utf-16-be")
 
     if dafny_input.Item.is_Some:
-        output["Item"] = {b''.join(ord(c).to_bytes(2, 'big') for c in key).decode('utf-16-be'): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in dafny_input.Item.value.items }
+        output["Item"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Item.value.items
+        }
 
     return output
+
 
 def com_amazonaws_dynamodb_BatchStatementError(dafny_input):
     output = {}
     if dafny_input.Code.is_Some:
-        output["Code"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(dafny_input.Code.value)
+        output["Code"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(
+                dafny_input.Code.value
+            )
+        )
 
     if dafny_input.Message.is_Some:
-        output["Message"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.Message.value).decode('utf-16-be')
+        output["Message"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.Message.value
+        ).decode("utf-16-be")
 
     return output
+
 
 def com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(dafny_input):
     # Convert BatchStatementErrorCodeEnum
     if isinstance(dafny_input, BatchStatementErrorCodeEnum_ConditionalCheckFailed):
         return "ConditionalCheckFailed"
 
-    elif isinstance(dafny_input, BatchStatementErrorCodeEnum_ItemCollectionSizeLimitExceeded):
+    elif isinstance(
+        dafny_input, BatchStatementErrorCodeEnum_ItemCollectionSizeLimitExceeded
+    ):
         return "ItemCollectionSizeLimitExceeded"
 
     elif isinstance(dafny_input, BatchStatementErrorCodeEnum_RequestLimitExceeded):
@@ -948,7 +1871,9 @@ def com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(dafny_input):
     elif isinstance(dafny_input, BatchStatementErrorCodeEnum_ValidationError):
         return "ValidationError"
 
-    elif isinstance(dafny_input, BatchStatementErrorCodeEnum_ProvisionedThroughputExceeded):
+    elif isinstance(
+        dafny_input, BatchStatementErrorCodeEnum_ProvisionedThroughputExceeded
+    ):
         return "ProvisionedThroughputExceeded"
 
     elif isinstance(dafny_input, BatchStatementErrorCodeEnum_TransactionConflict):
@@ -972,41 +1897,83 @@ def com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(dafny_input):
     else:
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
+
 def com_amazonaws_dynamodb_BatchExecuteStatementOutput(dafny_input):
     output = {}
     if dafny_input.Responses.is_Some:
-        output["Responses"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementResponse(list_element) for list_element in dafny_input.Responses.value]
+        output["Responses"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_BatchStatementResponse(
+                list_element
+            )
+            for list_element in dafny_input.Responses.value
+        ]
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(list_element) for list_element in dafny_input.ConsumedCapacity.value]
+        output["ConsumedCapacity"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                list_element
+            )
+            for list_element in dafny_input.ConsumedCapacity.value
+        ]
 
     return output
+
 
 def com_amazonaws_dynamodb_ParameterizedStatement(dafny_input):
     output = {}
-    output["Statement"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.Statement).decode('utf-16-be')
+    output["Statement"] = b"".join(
+        ord(c).to_bytes(2, "big") for c in dafny_input.Statement
+    ).decode("utf-16-be")
     if dafny_input.Parameters.is_Some:
-        output["Parameters"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in dafny_input.Parameters.value]
+        output["Parameters"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                list_element
+            )
+            for list_element in dafny_input.Parameters.value
+        ]
 
     return output
+
 
 def com_amazonaws_dynamodb_ExecuteTransactionInput(dafny_input):
     output = {}
-    output["TransactStatements"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ParameterizedStatement(list_element) for list_element in dafny_input.TransactStatements]
+    output["TransactStatements"] = [
+        aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ParameterizedStatement(
+            list_element
+        )
+        for list_element in dafny_input.TransactStatements
+    ]
     if dafny_input.ClientRequestToken.is_Some:
-        output["ClientRequestToken"] = b''.join(ord(c).to_bytes(2, 'big') for c in dafny_input.ClientRequestToken.value).decode('utf-16-be')
+        output["ClientRequestToken"] = b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.ClientRequestToken.value
+        ).decode("utf-16-be")
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
-        output["ReturnConsumedCapacity"] = aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(dafny_input.ReturnConsumedCapacity.value)
+        output["ReturnConsumedCapacity"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnConsumedCapacity(
+                dafny_input.ReturnConsumedCapacity.value
+            )
+        )
 
     return output
+
 
 def com_amazonaws_dynamodb_ExecuteTransactionOutput(dafny_input):
     output = {}
     if dafny_input.Responses.is_Some:
-        output["Responses"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemResponse(list_element) for list_element in dafny_input.Responses.value]
+        output["Responses"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ItemResponse(
+                list_element
+            )
+            for list_element in dafny_input.Responses.value
+        ]
 
     if dafny_input.ConsumedCapacity.is_Some:
-        output["ConsumedCapacity"] = [aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(list_element) for list_element in dafny_input.ConsumedCapacity.value]
+        output["ConsumedCapacity"] = [
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ConsumedCapacity(
+                list_element
+            )
+            for list_element in dafny_input.ConsumedCapacity.value
+        ]
 
     return output

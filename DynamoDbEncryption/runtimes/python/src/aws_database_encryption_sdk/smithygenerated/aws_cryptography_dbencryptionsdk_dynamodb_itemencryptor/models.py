@@ -13,11 +13,12 @@ from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.m
 
 
 class DecryptItemInput:
-    encrypted_item: 'dict[str, AttributeValue]'
+    encrypted_item: "dict[str, AttributeValue]"
+
     def __init__(
         self,
         *,
-        encrypted_item: 'dict[str, AttributeValue]',
+        encrypted_item: "dict[str, AttributeValue]",
     ):
         """Inputs for decrypting a DynamoDB Item.
 
@@ -26,18 +27,14 @@ class DecryptItemInput:
         self.encrypted_item = encrypted_item
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DecryptItemInput to a dictionary.
-
-        """
+        """Converts the DecryptItemInput to a dictionary."""
         return {
             "encrypted_item": self.encrypted_item,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptItemInput":
-        """Creates a DecryptItemInput from a dictionary.
-
-        """
+        """Creates a DecryptItemInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "encrypted_item": d["encrypted_item"],
         }
@@ -54,18 +51,19 @@ class DecryptItemInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecryptItemInput):
             return False
-        attributes: list[str] = ['encrypted_item',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "encrypted_item",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptItemInput:
-    plaintext_item: 'dict[str, AttributeValue]'
+    plaintext_item: "dict[str, AttributeValue]"
+
     def __init__(
         self,
         *,
-        plaintext_item: 'dict[str, AttributeValue]',
+        plaintext_item: "dict[str, AttributeValue]",
     ):
         """Inputs for encrypting a DynamoDB Item.
 
@@ -74,18 +72,14 @@ class EncryptItemInput:
         self.plaintext_item = plaintext_item
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptItemInput to a dictionary.
-
-        """
+        """Converts the EncryptItemInput to a dictionary."""
         return {
             "plaintext_item": self.plaintext_item,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptItemInput":
-        """Creates a EncryptItemInput from a dictionary.
-
-        """
+        """Creates a EncryptItemInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "plaintext_item": d["plaintext_item"],
         }
@@ -102,11 +96,11 @@ class EncryptItemInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptItemInput):
             return False
-        attributes: list[str] = ['plaintext_item',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "plaintext_item",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ParsedHeader:
     attribute_actions_on_encrypt: dict[str, str]
@@ -114,7 +108,8 @@ class ParsedHeader:
     encrypted_data_keys: list[EncryptedDataKey]
     stored_encryption_context: dict[str, str]
     encryption_context: dict[str, str]
-    selector_context: 'dict[str, AttributeValue]'
+    selector_context: "dict[str, AttributeValue]"
+
     def __init__(
         self,
         *,
@@ -123,22 +118,23 @@ class ParsedHeader:
         encrypted_data_keys: list[EncryptedDataKey],
         stored_encryption_context: dict[str, str],
         encryption_context: dict[str, str],
-        selector_context: 'dict[str, AttributeValue]',
+        selector_context: "dict[str, AttributeValue]",
     ):
-        """A parsed version of the header that was written with or read on an encrypted
-        DynamoDB item.
+        """A parsed version of the header that was written with or read on an
+        encrypted DynamoDB item.
 
-        :param attribute_actions_on_encrypt: The non-DO_NOTHING Crypto Actions that were
-        configured when this item was originally encrypted.
-        :param algorithm_suite_id: The ID of the algorithm suite that was used to
-        encrypt this item.
-        :param encrypted_data_keys: The encrypted data keys that are stored in the
-        header of this item.
-        :param stored_encryption_context: The portion of the encryption context that was
-        stored in the header of this item.
+        :param attribute_actions_on_encrypt: The non-DO_NOTHING Crypto
+            Actions that were configured when this item was originally
+            encrypted.
+        :param algorithm_suite_id: The ID of the algorithm suite that
+            was used to encrypt this item.
+        :param encrypted_data_keys: The encrypted data keys that are
+            stored in the header of this item.
+        :param stored_encryption_context: The portion of the encryption
+            context that was stored in the header of this item.
         :param encryption_context: The full encryption context.
-        :param selector_context: The encryption context as presented to the branch key
-        selector.
+        :param selector_context: The encryption context as presented to
+            the branch key selector.
         """
         self.attribute_actions_on_encrypt = attribute_actions_on_encrypt
         self.algorithm_suite_id = algorithm_suite_id
@@ -148,9 +144,7 @@ class ParsedHeader:
         self.selector_context = selector_context
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ParsedHeader to a dictionary.
-
-        """
+        """Converts the ParsedHeader to a dictionary."""
         return {
             "attribute_actions_on_encrypt": self.attribute_actions_on_encrypt,
             "algorithm_suite_id": self.algorithm_suite_id,
@@ -162,9 +156,7 @@ class ParsedHeader:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ParsedHeader":
-        """Creates a ParsedHeader from a dictionary.
-
-        """
+        """Creates a ParsedHeader from a dictionary."""
         kwargs: Dict[str, Any] = {
             "attribute_actions_on_encrypt": d["attribute_actions_on_encrypt"],
             "algorithm_suite_id": d["algorithm_suite_id"],
@@ -188,7 +180,9 @@ class ParsedHeader:
             result += f"encrypted_data_keys={repr(self.encrypted_data_keys)}, "
 
         if self.stored_encryption_context is not None:
-            result += f"stored_encryption_context={repr(self.stored_encryption_context)}, "
+            result += (
+                f"stored_encryption_context={repr(self.stored_encryption_context)}, "
+            )
 
         if self.encryption_context is not None:
             result += f"encryption_context={repr(self.encryption_context)}, "
@@ -201,34 +195,38 @@ class ParsedHeader:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ParsedHeader):
             return False
-        attributes: list[str] = ['attribute_actions_on_encrypt','algorithm_suite_id','encrypted_data_keys','stored_encryption_context','encryption_context','selector_context',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "attribute_actions_on_encrypt",
+            "algorithm_suite_id",
+            "encrypted_data_keys",
+            "stored_encryption_context",
+            "encryption_context",
+            "selector_context",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DecryptItemOutput:
-    plaintext_item: 'dict[str, AttributeValue]'
-    parsed_header: Optional['ParsedHeader']
+    plaintext_item: "dict[str, AttributeValue]"
+    parsed_header: Optional["ParsedHeader"]
+
     def __init__(
         self,
         *,
-        plaintext_item: 'dict[str, AttributeValue]',
-        parsed_header: Optional['ParsedHeader'] = None,
+        plaintext_item: "dict[str, AttributeValue]",
+        parsed_header: Optional["ParsedHeader"] = None,
     ):
         """Outputs for decrypting a DynamoDB Item.
 
         :param plaintext_item: The decrypted DynamoDB item.
-        :param parsed_header: A parsed version of the header on the encrypted DynamoDB
-        item.
+        :param parsed_header: A parsed version of the header on the
+            encrypted DynamoDB item.
         """
         self.plaintext_item = plaintext_item
         self.parsed_header = parsed_header
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DecryptItemOutput to a dictionary.
-
-        """
+        """Converts the DecryptItemOutput to a dictionary."""
         d: Dict[str, Any] = {
             "plaintext_item": self.plaintext_item,
         }
@@ -240,9 +238,7 @@ class DecryptItemOutput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptItemOutput":
-        """Creates a DecryptItemOutput from a dictionary.
-
-        """
+        """Creates a DecryptItemOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "plaintext_item": d["plaintext_item"],
         }
@@ -265,34 +261,34 @@ class DecryptItemOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecryptItemOutput):
             return False
-        attributes: list[str] = ['plaintext_item','parsed_header',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "plaintext_item",
+            "parsed_header",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptItemOutput:
-    encrypted_item: 'dict[str, AttributeValue]'
-    parsed_header: Optional['ParsedHeader']
+    encrypted_item: "dict[str, AttributeValue]"
+    parsed_header: Optional["ParsedHeader"]
+
     def __init__(
         self,
         *,
-        encrypted_item: 'dict[str, AttributeValue]',
-        parsed_header: Optional['ParsedHeader'] = None,
+        encrypted_item: "dict[str, AttributeValue]",
+        parsed_header: Optional["ParsedHeader"] = None,
     ):
         """Outputs for encrypting a DynamoDB Item.
 
         :param encrypted_item: The encrypted DynamoDB item.
-        :param parsed_header: A parsed version of the header written with the encrypted
-        DynamoDB item.
+        :param parsed_header: A parsed version of the header written
+            with the encrypted DynamoDB item.
         """
         self.encrypted_item = encrypted_item
         self.parsed_header = parsed_header
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptItemOutput to a dictionary.
-
-        """
+        """Converts the EncryptItemOutput to a dictionary."""
         d: Dict[str, Any] = {
             "encrypted_item": self.encrypted_item,
         }
@@ -304,9 +300,7 @@ class EncryptItemOutput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptItemOutput":
-        """Creates a EncryptItemOutput from a dictionary.
-
-        """
+        """Creates a EncryptItemOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "encrypted_item": d["encrypted_item"],
         }
@@ -329,11 +323,12 @@ class EncryptItemOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptItemOutput):
             return False
-        attributes: list[str] = ['encrypted_item','parsed_header',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "encrypted_item",
+            "parsed_header",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class Unit:
     pass

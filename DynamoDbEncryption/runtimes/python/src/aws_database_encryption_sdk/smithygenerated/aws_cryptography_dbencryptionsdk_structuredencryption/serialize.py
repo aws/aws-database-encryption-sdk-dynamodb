@@ -10,16 +10,45 @@ from .config import Config
 
 
 def _serialize_encrypt_structure(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="EncryptStructure", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(input))
+    return DafnyRequest(
+        operation_name="EncryptStructure",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(
+            input
+        ),
+    )
+
 
 def _serialize_decrypt_structure(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="DecryptStructure", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(input))
+    return DafnyRequest(
+        operation_name="DecryptStructure",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(
+            input
+        ),
+    )
+
 
 def _serialize_encrypt_path_structure(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="EncryptPathStructure", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureInput(input))
+    return DafnyRequest(
+        operation_name="EncryptPathStructure",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureInput(
+            input
+        ),
+    )
+
 
 def _serialize_decrypt_path_structure(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="DecryptPathStructure", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureInput(input))
+    return DafnyRequest(
+        operation_name="DecryptPathStructure",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureInput(
+            input
+        ),
+    )
+
 
 def _serialize_resolve_auth_actions(input, config: Config) -> DafnyRequest:
-    return DafnyRequest(operation_name="ResolveAuthActions", dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsInput(input))
+    return DafnyRequest(
+        operation_name="ResolveAuthActions",
+        dafny_operation_input=aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsInput(
+            input
+        ),
+    )

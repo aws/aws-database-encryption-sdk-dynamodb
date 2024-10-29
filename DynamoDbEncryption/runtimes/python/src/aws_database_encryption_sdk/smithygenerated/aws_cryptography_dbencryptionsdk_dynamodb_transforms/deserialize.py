@@ -67,165 +67,268 @@ from .config import Config
 
 def _deserialize_put_item_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_PutItemInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_PutItemInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_put_item_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_PutItemOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_PutItemOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_get_item_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_GetItemInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_GetItemInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_get_item_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_GetItemOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_GetItemOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_batch_write_item_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchWriteItemInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchWriteItemInputTransformOutput(
+        input.value
+    )
 
-def _deserialize_batch_write_item_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchWriteItemOutputTransformOutput(input.value)
+def _deserialize_batch_write_item_output_transform(
+    input: DafnyResponse, config: Config
+):
+
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchWriteItemOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_batch_get_item_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchGetItemInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchGetItemInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_batch_get_item_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchGetItemOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchGetItemOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_scan_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ScanInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ScanInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_scan_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ScanOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ScanOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_query_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_QueryInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_QueryInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_query_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_QueryOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_QueryOutputTransformOutput(
+        input.value
+    )
 
-def _deserialize_transact_write_items_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactWriteItemsInputTransformOutput(input.value)
+def _deserialize_transact_write_items_input_transform(
+    input: DafnyResponse, config: Config
+):
 
-def _deserialize_transact_write_items_output_transform(input: DafnyResponse, config: Config):
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactWriteItemsInputTransformOutput(
+        input.value
+    )
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactWriteItemsOutputTransformOutput(input.value)
+
+def _deserialize_transact_write_items_output_transform(
+    input: DafnyResponse, config: Config
+):
+
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactWriteItemsOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_update_item_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_UpdateItemInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_UpdateItemInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_update_item_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_UpdateItemOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_UpdateItemOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_delete_item_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_DeleteItemInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_DeleteItemInputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_delete_item_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_DeleteItemOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_DeleteItemOutputTransformOutput(
+        input.value
+    )
 
-def _deserialize_transact_get_items_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactGetItemsInputTransformOutput(input.value)
+def _deserialize_transact_get_items_input_transform(
+    input: DafnyResponse, config: Config
+):
 
-def _deserialize_transact_get_items_output_transform(input: DafnyResponse, config: Config):
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactGetItemsInputTransformOutput(
+        input.value
+    )
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactGetItemsOutputTransformOutput(input.value)
 
-def _deserialize_execute_statement_input_transform(input: DafnyResponse, config: Config):
+def _deserialize_transact_get_items_output_transform(
+    input: DafnyResponse, config: Config
+):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteStatementInputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactGetItemsOutputTransformOutput(
+        input.value
+    )
 
-def _deserialize_execute_statement_output_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteStatementOutputTransformOutput(input.value)
+def _deserialize_execute_statement_input_transform(
+    input: DafnyResponse, config: Config
+):
 
-def _deserialize_batch_execute_statement_input_transform(input: DafnyResponse, config: Config):
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteStatementInputTransformOutput(
+        input.value
+    )
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchExecuteStatementInputTransformOutput(input.value)
 
-def _deserialize_batch_execute_statement_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_execute_statement_output_transform(
+    input: DafnyResponse, config: Config
+):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchExecuteStatementOutputTransformOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteStatementOutputTransformOutput(
+        input.value
+    )
 
-def _deserialize_execute_transaction_input_transform(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteTransactionInputTransformOutput(input.value)
+def _deserialize_batch_execute_statement_input_transform(
+    input: DafnyResponse, config: Config
+):
 
-def _deserialize_execute_transaction_output_transform(input: DafnyResponse, config: Config):
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchExecuteStatementInputTransformOutput(
+        input.value
+    )
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteTransactionOutputTransformOutput(input.value)
+
+def _deserialize_batch_execute_statement_output_transform(
+    input: DafnyResponse, config: Config
+):
+
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchExecuteStatementOutputTransformOutput(
+        input.value
+    )
+
+
+def _deserialize_execute_transaction_input_transform(
+    input: DafnyResponse, config: Config
+):
+
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteTransactionInputTransformOutput(
+        input.value
+    )
+
+
+def _deserialize_execute_transaction_output_transform(
+    input: DafnyResponse, config: Config
+):
+
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteTransactionOutputTransformOutput(
+        input.value
+    )
+
 
 def _deserialize_resolve_attributes(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesOutput(
+        input.value
+    )
+
 
 def _deserialize_error(error: Error) -> ServiceError:
     if error.is_Opaque:
@@ -236,14 +339,30 @@ def _deserialize_error(error: Error) -> ServiceError:
             list=[_deserialize_error(dafny_e) for dafny_e in error.list],
         )
     elif error.is_DynamoDbEncryptionTransformsException:
-      return DynamoDbEncryptionTransformsException(message=_dafny.string_of(error.message))
+        return DynamoDbEncryptionTransformsException(
+            message=_dafny.string_of(error.message)
+        )
     elif error.is_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor:
-        return DynamoDbItemEncryptor(aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_deserialize_error(error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor))
+        return DynamoDbItemEncryptor(
+            aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor
+            )
+        )
     elif error.is_AwsCryptographyDbEncryptionSdkStructuredEncryption:
-        return StructuredEncryption(aws_cryptography_dbencryptionsdk_structuredencryption_deserialize_error(error.AwsCryptographyDbEncryptionSdkStructuredEncryption))
+        return StructuredEncryption(
+            aws_cryptography_dbencryptionsdk_structuredencryption_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkStructuredEncryption
+            )
+        )
     elif error.is_AwsCryptographyDbEncryptionSdkDynamoDb:
-        return DynamoDbEncryption(aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(error.AwsCryptographyDbEncryptionSdkDynamoDb))
+        return DynamoDbEncryption(
+            aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkDynamoDb
+            )
+        )
     elif error.is_ComAmazonawsDynamodb:
-        return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
+        return ComAmazonawsDynamodb(
+            message=_dafny.string_of(error.ComAmazonawsDynamodb.message)
+        )
     else:
         return OpaqueError(obj=error)

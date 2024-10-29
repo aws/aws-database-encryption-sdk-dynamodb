@@ -18,35 +18,34 @@ from .config import Plugin
 from .deserialize import (
     _deserialize_create_dynamo_db_encryption_branch_key_id_supplier,
     _deserialize_get_encrypted_data_key_description,
-    _deserialize_temp,
 )
 from .errors import ServiceError
 from .models import (
     CreateDynamoDbEncryptionBranchKeyIdSupplierInput,
     CreateDynamoDbEncryptionBranchKeyIdSupplierOutput,
-    DynamoDbTablesEncryptionConfig,
     GetEncryptedDataKeyDescriptionInput,
     GetEncryptedDataKeyDescriptionOutput,
 )
 from .serialize import (
     _serialize_create_dynamo_db_encryption_branch_key_id_supplier,
     _serialize_get_encrypted_data_key_description,
-    _serialize_temp,
 )
 
 
 Input = TypeVar("Input")
 Output = TypeVar("Output")
 
+
 class DynamoDbEncryption:
-    """Client for DynamoDbEncryption
+    """Client for DynamoDbEncryption.
 
     :param config: Configuration for the client.
     """
+
     def __init__(
         self,
         config: DynamoDbEncryptionConfig | None = None,
-        dafny_client: IDynamoDbEncryptionClient | None = None
+        dafny_client: IDynamoDbEncryptionClient | None = None,
     ):
         if config is None:
             self._config = Config()
@@ -63,10 +62,15 @@ class DynamoDbEncryption:
         if dafny_client is not None:
             self._config.dafnyImplInterface.impl = dafny_client
 
-    def create_dynamo_db_encryption_branch_key_id_supplier(self, input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput) -> CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
-        """Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.
+    def create_dynamo_db_encryption_branch_key_id_supplier(
+        self, input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput
+    ) -> CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
+        """Create a Branch Key Supplier for use with the Hierarchical Keyring
+        that decides what Branch Key to use based on the primary key of the
+        DynamoDB item being read or written.
 
-        :param input: Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+        :param input: Inputs for creating a Branch Key Supplier from a
+            DynamoDB Key Branch Key Id Supplier
         """
         return self._execute_operation(
             input=input,
@@ -77,7 +81,9 @@ class DynamoDbEncryption:
             operation_name="CreateDynamoDbEncryptionBranchKeyIdSupplier",
         )
 
-    def get_encrypted_data_key_description(self, input: GetEncryptedDataKeyDescriptionInput) -> GetEncryptedDataKeyDescriptionOutput:
+    def get_encrypted_data_key_description(
+        self, input: GetEncryptedDataKeyDescriptionInput
+    ) -> GetEncryptedDataKeyDescriptionOutput:
         """Returns encrypted data key description.
 
         :param input: Input for getting encrypted data key description.
@@ -89,20 +95,6 @@ class DynamoDbEncryption:
             deserialize=_deserialize_get_encrypted_data_key_description,
             config=self._config,
             operation_name="GetEncryptedDataKeyDescription",
-        )
-
-    def temp(self, input: DynamoDbTablesEncryptionConfig) -> DynamoDbTablesEncryptionConfig:
-        """Invokes the Temp operation.
-
-        :param input: The configuration for client-side encryption with multiple DynamoDB table.
-        """
-        return self._execute_operation(
-            input=input,
-            plugins=[],
-            serialize=_serialize_temp,
-            deserialize=_deserialize_temp,
-            config=self._config,
-            operation_name="Temp",
         )
 
     def _execute_operation(
@@ -142,7 +134,8 @@ class DynamoDbEncryption:
         )
         _client_interceptors = config.interceptors
         client_interceptors = cast(
-            list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]], _client_interceptors
+            list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]],
+            _client_interceptors,
         )
         interceptors = client_interceptors
 
@@ -225,7 +218,7 @@ class DynamoDbEncryption:
                             error_info=RetryErrorInfo(
                                 # TODO: Determine the error type.
                                 error_type=RetryErrorType.CLIENT_ERROR,
-                            )
+                            ),
                         )
                     except SmithyRetryException:
                         raise context_with_response.response
@@ -240,7 +233,10 @@ class DynamoDbEncryption:
         # The response will be set either with the modeled output or an exception. The
         # transport_request and transport_response may be set or None.
         execution_context = cast(
-            InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None], context
+            InterceptorContext[
+                Input, Output, DafnyRequest | None, DafnyResponse | None
+            ],
+            context,
         )
         return self._finalize_execution(interceptors, execution_context)
 
@@ -265,8 +261,10 @@ class DynamoDbEncryption:
                 InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context
             )
 
-            context_with_response._transport_response = config.dafnyImplInterface.handle_request(
-                input=context_with_response.transport_request
+            context_with_response._transport_response = (
+                config.dafnyImplInterface.handle_request(
+                    input=context_with_response.transport_request
+                )
             )
 
             # Step 7n: Invoke read_after_transmit
@@ -303,7 +301,8 @@ class DynamoDbEncryption:
         # None. This will also be true after _finalize_attempt because there is no opportunity
         # there to set the transport_response.
         attempt_context = cast(
-            InterceptorContext[Input, Output, DafnyRequest, DafnyResponse | None], context
+            InterceptorContext[Input, Output, DafnyRequest, DafnyResponse | None],
+            context,
         )
         return self._finalize_attempt(interceptors, attempt_context)
 
@@ -333,7 +332,9 @@ class DynamoDbEncryption:
     def _finalize_execution(
         self,
         interceptors: list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]],
-        context: InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
+        context: InterceptorContext[
+            Input, Output, DafnyRequest | None, DafnyResponse | None
+        ],
     ) -> Output:
         try:
             # Step 9: Invoke modify_before_completion

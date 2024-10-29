@@ -19,9 +19,11 @@ class AuthenticateAction:
     # values may be added in the future.
     values = frozenset({"SIGN", "DO_NOT_SIGN"})
 
+
 class StructuredDataTerminal:
     value: bytes | bytearray
     type_id: bytes | bytearray
+
     def __init__(
         self,
         *,
@@ -38,9 +40,7 @@ class StructuredDataTerminal:
         self.type_id = type_id
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the StructuredDataTerminal to a dictionary.
-
-        """
+        """Converts the StructuredDataTerminal to a dictionary."""
         return {
             "value": self.value,
             "type_id": self.type_id,
@@ -48,9 +48,7 @@ class StructuredDataTerminal:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "StructuredDataTerminal":
-        """Creates a StructuredDataTerminal from a dictionary.
-
-        """
+        """Creates a StructuredDataTerminal from a dictionary."""
         kwargs: Dict[str, Any] = {
             "value": d["value"],
             "type_id": d["type_id"],
@@ -71,14 +69,16 @@ class StructuredDataTerminal:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, StructuredDataTerminal):
             return False
-        attributes: list[str] = ['value','type_id',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "value",
+            "type_id",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class StructureSegment:
     key: str
+
     def __init__(
         self,
         *,
@@ -87,18 +87,14 @@ class StructureSegment:
         self.key = key
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the StructureSegment to a dictionary.
-
-        """
+        """Converts the StructureSegment to a dictionary."""
         return {
             "key": self.key,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "StructureSegment":
-        """Creates a StructureSegment from a dictionary.
-
-        """
+        """Creates a StructureSegment from a dictionary."""
         kwargs: Dict[str, Any] = {
             "key": d["key"],
         }
@@ -115,13 +111,13 @@ class StructureSegment:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, StructureSegment):
             return False
-        attributes: list[str] = ['key',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "key",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
-class PathSegmentMember():
+
+class PathSegmentMember:
     def __init__(self, value: StructureSegment):
         self.value = value
 
@@ -130,7 +126,7 @@ class PathSegmentMember():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PathSegmentMember":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return PathSegmentMember(StructureSegment.from_dict(d["member"]))
@@ -143,11 +139,12 @@ class PathSegmentMember():
             return False
         return self.value == other.value
 
-class PathSegmentUnknown():
+
+class PathSegmentUnknown:
     """Represents an unknown variant.
 
-    If you receive this value, you will need to update your library to receive the
-    parsed value.
+    If you receive this value, you will need to update your library to
+    receive the parsed value.
 
     This value may not be deliberately sent.
     """
@@ -160,24 +157,29 @@ class PathSegmentUnknown():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PathSegmentUnknown":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
         return PathSegmentUnknown(d["SDK_UNKNOWN_MEMBER"]["name"])
 
     def __repr__(self) -> str:
         return f"PathSegmentUnknown(tag={self.tag})"
 
+
 PathSegment = Union[PathSegmentMember, PathSegmentUnknown]
+
+
 def _path_segment_from_dict(d: Dict[str, Any]) -> PathSegment:
     if "member" in d:
         return PathSegmentMember.from_dict(d)
 
-    raise TypeError(f'Unions may have exactly 1 value, but found {len(d)}')
+    raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
+
 
 class AuthItem:
     key: list[PathSegment]
     data: StructuredDataTerminal
     action: str
+
     def __init__(
         self,
         *,
@@ -190,9 +192,7 @@ class AuthItem:
         self.action = action
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the AuthItem to a dictionary.
-
-        """
+        """Converts the AuthItem to a dictionary."""
         return {
             "key": _path_as_dict(self.key),
             "data": self.data.as_dict(),
@@ -201,9 +201,7 @@ class AuthItem:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "AuthItem":
-        """Creates a AuthItem from a dictionary.
-
-        """
+        """Creates a AuthItem from a dictionary."""
         kwargs: Dict[str, Any] = {
             "key": _path_from_dict(d["key"]),
             "data": StructuredDataTerminal.from_dict(d["data"]),
@@ -228,11 +226,13 @@ class AuthItem:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, AuthItem):
             return False
-        attributes: list[str] = ['key','data','action',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "key",
+            "data",
+            "action",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class CryptoAction:
     ENCRYPT_AND_SIGN = "ENCRYPT_AND_SIGN"
@@ -245,12 +245,21 @@ class CryptoAction:
 
     # This set contains every possible value known at the time this was generated. New
     # values may be added in the future.
-    values = frozenset({"ENCRYPT_AND_SIGN", "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT", "SIGN_ONLY", "DO_NOTHING"})
+    values = frozenset(
+        {
+            "ENCRYPT_AND_SIGN",
+            "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT",
+            "SIGN_ONLY",
+            "DO_NOTHING",
+        }
+    )
+
 
 class CryptoItem:
     key: list[PathSegment]
     data: StructuredDataTerminal
     action: str
+
     def __init__(
         self,
         *,
@@ -263,9 +272,7 @@ class CryptoItem:
         self.action = action
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the CryptoItem to a dictionary.
-
-        """
+        """Converts the CryptoItem to a dictionary."""
         return {
             "key": _path_as_dict(self.key),
             "data": self.data.as_dict(),
@@ -274,9 +281,7 @@ class CryptoItem:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "CryptoItem":
-        """Creates a CryptoItem from a dictionary.
-
-        """
+        """Creates a CryptoItem from a dictionary."""
         kwargs: Dict[str, Any] = {
             "key": _path_from_dict(d["key"]),
             "data": StructuredDataTerminal.from_dict(d["data"]),
@@ -301,23 +306,26 @@ class CryptoItem:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CryptoItem):
             return False
-        attributes: list[str] = ['key','data','action',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "key",
+            "data",
+            "action",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DecryptPathStructureInput:
     table_name: str
     encrypted_structure: list[AuthItem]
-    cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager'
+    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     encryption_context: Optional[dict[str, str]]
+
     def __init__(
         self,
         *,
         table_name: str,
         encrypted_structure: list[AuthItem],
-        cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager',
+        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         encryption_context: Optional[dict[str, str]] = None,
     ):
         self.table_name = table_name
@@ -326,9 +334,7 @@ class DecryptPathStructureInput:
         self.encryption_context = encryption_context
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DecryptPathStructureInput to a dictionary.
-
-        """
+        """Converts the DecryptPathStructureInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
             "encrypted_structure": _auth_list_as_dict(self.encrypted_structure),
@@ -342,10 +348,11 @@ class DecryptPathStructureInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptPathStructureInput":
-        """Creates a DecryptPathStructureInput from a dictionary.
+        """Creates a DecryptPathStructureInput from a dictionary."""
+        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+            CryptographicMaterialsManager,
+        )
 
-        """
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import CryptographicMaterialsManager
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
             "encrypted_structure": _auth_list_from_dict(d["encrypted_structure"]),
@@ -376,17 +383,21 @@ class DecryptPathStructureInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecryptPathStructureInput):
             return False
-        attributes: list[str] = ['table_name','encrypted_structure','cmm','encryption_context',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_name",
+            "encrypted_structure",
+            "cmm",
+            "encryption_context",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ParsedHeader:
     algorithm_suite_id: str
     encrypted_data_keys: list[EncryptedDataKey]
     stored_encryption_context: dict[str, str]
     encryption_context: dict[str, str]
+
     def __init__(
         self,
         *,
@@ -401,9 +412,7 @@ class ParsedHeader:
         self.encryption_context = encryption_context
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ParsedHeader to a dictionary.
-
-        """
+        """Converts the ParsedHeader to a dictionary."""
         return {
             "algorithm_suite_id": self.algorithm_suite_id,
             "encrypted_data_keys": self.encrypted_data_keys,
@@ -413,9 +422,7 @@ class ParsedHeader:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ParsedHeader":
-        """Creates a ParsedHeader from a dictionary.
-
-        """
+        """Creates a ParsedHeader from a dictionary."""
         kwargs: Dict[str, Any] = {
             "algorithm_suite_id": d["algorithm_suite_id"],
             "encrypted_data_keys": d["encrypted_data_keys"],
@@ -434,7 +441,9 @@ class ParsedHeader:
             result += f"encrypted_data_keys={repr(self.encrypted_data_keys)}, "
 
         if self.stored_encryption_context is not None:
-            result += f"stored_encryption_context={repr(self.stored_encryption_context)}, "
+            result += (
+                f"stored_encryption_context={repr(self.stored_encryption_context)}, "
+            )
 
         if self.encryption_context is not None:
             result += f"encryption_context={repr(self.encryption_context)}"
@@ -444,15 +453,19 @@ class ParsedHeader:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ParsedHeader):
             return False
-        attributes: list[str] = ['algorithm_suite_id','encrypted_data_keys','stored_encryption_context','encryption_context',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "algorithm_suite_id",
+            "encrypted_data_keys",
+            "stored_encryption_context",
+            "encryption_context",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DecryptPathStructureOutput:
     plaintext_structure: list[CryptoItem]
     parsed_header: ParsedHeader
+
     def __init__(
         self,
         *,
@@ -463,9 +476,7 @@ class DecryptPathStructureOutput:
         self.parsed_header = parsed_header
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DecryptPathStructureOutput to a dictionary.
-
-        """
+        """Converts the DecryptPathStructureOutput to a dictionary."""
         return {
             "plaintext_structure": _crypto_list_as_dict(self.plaintext_structure),
             "parsed_header": self.parsed_header.as_dict(),
@@ -473,9 +484,7 @@ class DecryptPathStructureOutput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptPathStructureOutput":
-        """Creates a DecryptPathStructureOutput from a dictionary.
-
-        """
+        """Creates a DecryptPathStructureOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "plaintext_structure": _crypto_list_from_dict(d["plaintext_structure"]),
             "parsed_header": ParsedHeader.from_dict(d["parsed_header"]),
@@ -496,25 +505,27 @@ class DecryptPathStructureOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecryptPathStructureOutput):
             return False
-        attributes: list[str] = ['plaintext_structure','parsed_header',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "plaintext_structure",
+            "parsed_header",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DecryptStructureInput:
     table_name: str
     encrypted_structure: dict[str, StructuredDataTerminal]
     authenticate_schema: dict[str, str]
-    cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager'
+    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     encryption_context: Optional[dict[str, str]]
+
     def __init__(
         self,
         *,
         table_name: str,
         encrypted_structure: dict[str, StructuredDataTerminal],
         authenticate_schema: dict[str, str],
-        cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager',
+        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         encryption_context: Optional[dict[str, str]] = None,
     ):
         self.table_name = table_name
@@ -524,12 +535,12 @@ class DecryptStructureInput:
         self.encryption_context = encryption_context
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DecryptStructureInput to a dictionary.
-
-        """
+        """Converts the DecryptStructureInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
-            "encrypted_structure": _structured_data_map_as_dict(self.encrypted_structure),
+            "encrypted_structure": _structured_data_map_as_dict(
+                self.encrypted_structure
+            ),
             "authenticate_schema": self.authenticate_schema,
             "cmm": self.cmm.as_dict(),
         }
@@ -541,13 +552,16 @@ class DecryptStructureInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptStructureInput":
-        """Creates a DecryptStructureInput from a dictionary.
+        """Creates a DecryptStructureInput from a dictionary."""
+        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+            CryptographicMaterialsManager,
+        )
 
-        """
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import CryptographicMaterialsManager
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
-            "encrypted_structure": _structured_data_map_from_dict(d["encrypted_structure"]),
+            "encrypted_structure": _structured_data_map_from_dict(
+                d["encrypted_structure"]
+            ),
             "authenticate_schema": d["authenticate_schema"],
             "cmm": CryptographicMaterialsManager.from_dict(d["cmm"]),
         }
@@ -579,16 +593,21 @@ class DecryptStructureInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecryptStructureInput):
             return False
-        attributes: list[str] = ['table_name','encrypted_structure','authenticate_schema','cmm','encryption_context',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_name",
+            "encrypted_structure",
+            "authenticate_schema",
+            "cmm",
+            "encryption_context",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DecryptStructureOutput:
     plaintext_structure: dict[str, StructuredDataTerminal]
     crypto_schema: dict[str, str]
     parsed_header: ParsedHeader
+
     def __init__(
         self,
         *,
@@ -601,22 +620,22 @@ class DecryptStructureOutput:
         self.parsed_header = parsed_header
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DecryptStructureOutput to a dictionary.
-
-        """
+        """Converts the DecryptStructureOutput to a dictionary."""
         return {
-            "plaintext_structure": _structured_data_map_as_dict(self.plaintext_structure),
+            "plaintext_structure": _structured_data_map_as_dict(
+                self.plaintext_structure
+            ),
             "crypto_schema": self.crypto_schema,
             "parsed_header": self.parsed_header.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptStructureOutput":
-        """Creates a DecryptStructureOutput from a dictionary.
-
-        """
+        """Creates a DecryptStructureOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "plaintext_structure": _structured_data_map_from_dict(d["plaintext_structure"]),
+            "plaintext_structure": _structured_data_map_from_dict(
+                d["plaintext_structure"]
+            ),
             "crypto_schema": d["crypto_schema"],
             "parsed_header": ParsedHeader.from_dict(d["parsed_header"]),
         }
@@ -639,24 +658,27 @@ class DecryptStructureOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecryptStructureOutput):
             return False
-        attributes: list[str] = ['plaintext_structure','crypto_schema','parsed_header',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "plaintext_structure",
+            "crypto_schema",
+            "parsed_header",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptPathStructureInput:
     table_name: str
     plaintext_structure: list[CryptoItem]
-    cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager'
+    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     algorithm_suite_id: Optional[str]
     encryption_context: Optional[dict[str, str]]
+
     def __init__(
         self,
         *,
         table_name: str,
         plaintext_structure: list[CryptoItem],
-        cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager',
+        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         algorithm_suite_id: Optional[str] = None,
         encryption_context: Optional[dict[str, str]] = None,
     ):
@@ -667,9 +689,7 @@ class EncryptPathStructureInput:
         self.encryption_context = encryption_context
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptPathStructureInput to a dictionary.
-
-        """
+        """Converts the EncryptPathStructureInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
             "plaintext_structure": _crypto_list_as_dict(self.plaintext_structure),
@@ -686,10 +706,11 @@ class EncryptPathStructureInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptPathStructureInput":
-        """Creates a EncryptPathStructureInput from a dictionary.
+        """Creates a EncryptPathStructureInput from a dictionary."""
+        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+            CryptographicMaterialsManager,
+        )
 
-        """
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import CryptographicMaterialsManager
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
             "plaintext_structure": _crypto_list_from_dict(d["plaintext_structure"]),
@@ -726,15 +747,20 @@ class EncryptPathStructureInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptPathStructureInput):
             return False
-        attributes: list[str] = ['table_name','plaintext_structure','cmm','algorithm_suite_id','encryption_context',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_name",
+            "plaintext_structure",
+            "cmm",
+            "algorithm_suite_id",
+            "encryption_context",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptPathStructureOutput:
     encrypted_structure: list[CryptoItem]
     parsed_header: ParsedHeader
+
     def __init__(
         self,
         *,
@@ -745,9 +771,7 @@ class EncryptPathStructureOutput:
         self.parsed_header = parsed_header
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptPathStructureOutput to a dictionary.
-
-        """
+        """Converts the EncryptPathStructureOutput to a dictionary."""
         return {
             "encrypted_structure": _crypto_list_as_dict(self.encrypted_structure),
             "parsed_header": self.parsed_header.as_dict(),
@@ -755,9 +779,7 @@ class EncryptPathStructureOutput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptPathStructureOutput":
-        """Creates a EncryptPathStructureOutput from a dictionary.
-
-        """
+        """Creates a EncryptPathStructureOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "encrypted_structure": _crypto_list_from_dict(d["encrypted_structure"]),
             "parsed_header": ParsedHeader.from_dict(d["parsed_header"]),
@@ -778,26 +800,28 @@ class EncryptPathStructureOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptPathStructureOutput):
             return False
-        attributes: list[str] = ['encrypted_structure','parsed_header',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "encrypted_structure",
+            "parsed_header",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptStructureInput:
     table_name: str
     plaintext_structure: dict[str, StructuredDataTerminal]
     crypto_schema: dict[str, str]
-    cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager'
+    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     algorithm_suite_id: Optional[str]
     encryption_context: Optional[dict[str, str]]
+
     def __init__(
         self,
         *,
         table_name: str,
         plaintext_structure: dict[str, StructuredDataTerminal],
         crypto_schema: dict[str, str],
-        cmm: 'aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager',
+        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         algorithm_suite_id: Optional[str] = None,
         encryption_context: Optional[dict[str, str]] = None,
     ):
@@ -809,12 +833,12 @@ class EncryptStructureInput:
         self.encryption_context = encryption_context
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptStructureInput to a dictionary.
-
-        """
+        """Converts the EncryptStructureInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
-            "plaintext_structure": _structured_data_map_as_dict(self.plaintext_structure),
+            "plaintext_structure": _structured_data_map_as_dict(
+                self.plaintext_structure
+            ),
             "crypto_schema": self.crypto_schema,
             "cmm": self.cmm.as_dict(),
         }
@@ -829,13 +853,16 @@ class EncryptStructureInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptStructureInput":
-        """Creates a EncryptStructureInput from a dictionary.
+        """Creates a EncryptStructureInput from a dictionary."""
+        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+            CryptographicMaterialsManager,
+        )
 
-        """
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import CryptographicMaterialsManager
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
-            "plaintext_structure": _structured_data_map_from_dict(d["plaintext_structure"]),
+            "plaintext_structure": _structured_data_map_from_dict(
+                d["plaintext_structure"]
+            ),
             "crypto_schema": d["crypto_schema"],
             "cmm": CryptographicMaterialsManager.from_dict(d["cmm"]),
         }
@@ -873,16 +900,22 @@ class EncryptStructureInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptStructureInput):
             return False
-        attributes: list[str] = ['table_name','plaintext_structure','crypto_schema','cmm','algorithm_suite_id','encryption_context',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_name",
+            "plaintext_structure",
+            "crypto_schema",
+            "cmm",
+            "algorithm_suite_id",
+            "encryption_context",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptStructureOutput:
     encrypted_structure: dict[str, StructuredDataTerminal]
     crypto_schema: dict[str, str]
     parsed_header: ParsedHeader
+
     def __init__(
         self,
         *,
@@ -895,22 +928,22 @@ class EncryptStructureOutput:
         self.parsed_header = parsed_header
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptStructureOutput to a dictionary.
-
-        """
+        """Converts the EncryptStructureOutput to a dictionary."""
         return {
-            "encrypted_structure": _structured_data_map_as_dict(self.encrypted_structure),
+            "encrypted_structure": _structured_data_map_as_dict(
+                self.encrypted_structure
+            ),
             "crypto_schema": self.crypto_schema,
             "parsed_header": self.parsed_header.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptStructureOutput":
-        """Creates a EncryptStructureOutput from a dictionary.
-
-        """
+        """Creates a EncryptStructureOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "encrypted_structure": _structured_data_map_from_dict(d["encrypted_structure"]),
+            "encrypted_structure": _structured_data_map_from_dict(
+                d["encrypted_structure"]
+            ),
             "crypto_schema": d["crypto_schema"],
             "parsed_header": ParsedHeader.from_dict(d["parsed_header"]),
         }
@@ -933,16 +966,19 @@ class EncryptStructureOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptStructureOutput):
             return False
-        attributes: list[str] = ['encrypted_structure','crypto_schema','parsed_header',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "encrypted_structure",
+            "crypto_schema",
+            "parsed_header",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ResolveAuthActionsInput:
     table_name: str
     auth_actions: list[AuthItem]
     header_bytes: bytes | bytearray
+
     def __init__(
         self,
         *,
@@ -955,9 +991,7 @@ class ResolveAuthActionsInput:
         self.header_bytes = header_bytes
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ResolveAuthActionsInput to a dictionary.
-
-        """
+        """Converts the ResolveAuthActionsInput to a dictionary."""
         return {
             "table_name": self.table_name,
             "auth_actions": _auth_list_as_dict(self.auth_actions),
@@ -966,9 +1000,7 @@ class ResolveAuthActionsInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ResolveAuthActionsInput":
-        """Creates a ResolveAuthActionsInput from a dictionary.
-
-        """
+        """Creates a ResolveAuthActionsInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
             "auth_actions": _auth_list_from_dict(d["auth_actions"]),
@@ -993,14 +1025,17 @@ class ResolveAuthActionsInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ResolveAuthActionsInput):
             return False
-        attributes: list[str] = ['table_name','auth_actions','header_bytes',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_name",
+            "auth_actions",
+            "header_bytes",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ResolveAuthActionsOutput:
     crypto_actions: list[CryptoItem]
+
     def __init__(
         self,
         *,
@@ -1009,18 +1044,14 @@ class ResolveAuthActionsOutput:
         self.crypto_actions = crypto_actions
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ResolveAuthActionsOutput to a dictionary.
-
-        """
+        """Converts the ResolveAuthActionsOutput to a dictionary."""
         return {
             "crypto_actions": _crypto_list_as_dict(self.crypto_actions),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ResolveAuthActionsOutput":
-        """Creates a ResolveAuthActionsOutput from a dictionary.
-
-        """
+        """Creates a ResolveAuthActionsOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "crypto_actions": _crypto_list_from_dict(d["crypto_actions"]),
         }
@@ -1037,35 +1068,47 @@ class ResolveAuthActionsOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ResolveAuthActionsOutput):
             return False
-        attributes: list[str] = ['crypto_actions',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "crypto_actions",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 def _crypto_list_as_dict(given: list[CryptoItem]) -> List[Any]:
     return [v.as_dict() for v in given]
 
+
 def _crypto_list_from_dict(given: List[Any]) -> list[CryptoItem]:
     return [CryptoItem.from_dict(v) for v in given]
+
 
 def _path_as_dict(given: list[PathSegment]) -> List[Any]:
     return [v.as_dict() for v in given]
 
+
 def _path_from_dict(given: List[Any]) -> list[PathSegment]:
     return [PathSegment.from_dict(v) for v in given]
+
 
 def _auth_list_as_dict(given: list[AuthItem]) -> List[Any]:
     return [v.as_dict() for v in given]
 
+
 def _auth_list_from_dict(given: List[Any]) -> list[AuthItem]:
     return [AuthItem.from_dict(v) for v in given]
 
-def _structured_data_map_as_dict(given: dict[str, StructuredDataTerminal]) -> Dict[str, Any]:
+
+def _structured_data_map_as_dict(
+    given: dict[str, StructuredDataTerminal]
+) -> Dict[str, Any]:
     return {k: v.as_dict() for k, v in given.items()}
 
-def _structured_data_map_from_dict(given: Dict[str, Any]) -> dict[str, StructuredDataTerminal]:
+
+def _structured_data_map_from_dict(
+    given: Dict[str, Any]
+) -> dict[str, StructuredDataTerminal]:
     return {k: StructuredDataTerminal.from_dict(v) for k, v in given.items()}
+
 
 class Unit:
     pass

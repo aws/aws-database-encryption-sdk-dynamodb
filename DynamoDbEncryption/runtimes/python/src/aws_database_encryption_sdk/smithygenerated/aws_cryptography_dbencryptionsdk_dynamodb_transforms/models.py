@@ -38,6 +38,7 @@ from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.m
 class ResolveAttributesOutput:
     virtual_fields: dict[str, str]
     compound_beacons: dict[str, str]
+
     def __init__(
         self,
         *,
@@ -52,9 +53,7 @@ class ResolveAttributesOutput:
         self.compound_beacons = compound_beacons
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ResolveAttributesOutput to a dictionary.
-
-        """
+        """Converts the ResolveAttributesOutput to a dictionary."""
         return {
             "virtual_fields": self.virtual_fields,
             "compound_beacons": self.compound_beacons,
@@ -62,9 +61,7 @@ class ResolveAttributesOutput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ResolveAttributesOutput":
-        """Creates a ResolveAttributesOutput from a dictionary.
-
-        """
+        """Creates a ResolveAttributesOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "virtual_fields": d["virtual_fields"],
             "compound_beacons": d["compound_beacons"],
@@ -85,21 +82,23 @@ class ResolveAttributesOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ResolveAttributesOutput):
             return False
-        attributes: list[str] = ['virtual_fields','compound_beacons',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "virtual_fields",
+            "compound_beacons",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ResolveAttributesInput:
     table_name: str
-    item: 'dict[str, AttributeValue]'
+    item: "dict[str, AttributeValue]"
     version: int
+
     def __init__(
         self,
         *,
         table_name: str,
-        item: 'dict[str, AttributeValue]',
+        item: "dict[str, AttributeValue]",
         version: int = 0,
     ):
         """
@@ -108,7 +107,9 @@ class ResolveAttributesInput:
         :param version: The beacon version to use. Defaults to 'writeVersion'.
         """
         if (table_name is not None) and (len(table_name) < 3):
-            raise ValueError("The size of table_name must be greater than or equal to 3")
+            raise ValueError(
+                "The size of table_name must be greater than or equal to 3"
+            )
 
         if (table_name is not None) and (len(table_name) > 255):
             raise ValueError("The size of table_name must be less than or equal to 255")
@@ -121,9 +122,7 @@ class ResolveAttributesInput:
         self.version = version
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ResolveAttributesInput to a dictionary.
-
-        """
+        """Converts the ResolveAttributesInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
             "item": self.item,
@@ -136,9 +135,7 @@ class ResolveAttributesInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ResolveAttributesInput":
-        """Creates a ResolveAttributesInput from a dictionary.
-
-        """
+        """Creates a ResolveAttributesInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
             "item": d["item"],
@@ -165,34 +162,33 @@ class ResolveAttributesInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ResolveAttributesInput):
             return False
-        attributes: list[str] = ['table_name','item','version',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_name",
+            "item",
+            "version",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteStatementInputTransformInput:
-    sdk_input: 'ExecuteStatementInput'
+    sdk_input: "ExecuteStatementInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'ExecuteStatementInput',
+        sdk_input: "ExecuteStatementInput",
     ):
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteStatementInputTransformInput to a dictionary.
-
-        """
+        """Converts the ExecuteStatementInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementInputTransformInput":
-        """Creates a ExecuteStatementInputTransformInput from a dictionary.
-
-        """
+        """Creates a ExecuteStatementInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": ExecuteStatementInput.from_dict(d["sdk_input"]),
         }
@@ -209,36 +205,36 @@ class ExecuteStatementInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteStatementInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteStatementInputTransformOutput:
-    transformed_input: 'ExecuteStatementInput'
+    transformed_input: "ExecuteStatementInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'ExecuteStatementInput',
+        transformed_input: "ExecuteStatementInput",
     ):
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteStatementInputTransformOutput to a dictionary.
-
-        """
+        """Converts the ExecuteStatementInputTransformOutput to a
+        dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementInputTransformOutput":
-        """Creates a ExecuteStatementInputTransformOutput from a dictionary.
-
-        """
+        """Creates a ExecuteStatementInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": ExecuteStatementInput.from_dict(d["transformed_input"]),
+            "transformed_input": ExecuteStatementInput.from_dict(
+                d["transformed_input"]
+            ),
         }
 
         return ExecuteStatementInputTransformOutput(**kwargs)
@@ -253,18 +249,19 @@ class ExecuteStatementInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteStatementInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetItemInputTransformInput:
-    sdk_input: 'GetItemInput'
+    sdk_input: "GetItemInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'GetItemInput',
+        sdk_input: "GetItemInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>GetItem</code>
@@ -273,18 +270,14 @@ class GetItemInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetItemInputTransformInput to a dictionary.
-
-        """
+        """Converts the GetItemInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetItemInputTransformInput":
-        """Creates a GetItemInputTransformInput from a dictionary.
-
-        """
+        """Creates a GetItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": GetItemInput.from_dict(d["sdk_input"]),
         }
@@ -301,18 +294,19 @@ class GetItemInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetItemInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetItemInputTransformOutput:
-    transformed_input: 'GetItemInput'
+    transformed_input: "GetItemInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'GetItemInput',
+        transformed_input: "GetItemInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>GetItem</code>
@@ -321,18 +315,14 @@ class GetItemInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetItemInputTransformOutput to a dictionary.
-
-        """
+        """Converts the GetItemInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetItemInputTransformOutput":
-        """Creates a GetItemInputTransformOutput from a dictionary.
-
-        """
+        """Creates a GetItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": GetItemInput.from_dict(d["transformed_input"]),
         }
@@ -349,18 +339,19 @@ class GetItemInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetItemInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetItemOutputTransformOutput:
-    transformed_output: 'GetItemOutput'
+    transformed_output: "GetItemOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'GetItemOutput',
+        transformed_output: "GetItemOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>GetItem</code>
@@ -369,18 +360,14 @@ class GetItemOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetItemOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the GetItemOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetItemOutputTransformOutput":
-        """Creates a GetItemOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a GetItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": GetItemOutput.from_dict(d["transformed_output"]),
         }
@@ -397,34 +384,33 @@ class GetItemOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetItemOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchExecuteStatementInputTransformInput:
-    sdk_input: 'BatchExecuteStatementInput'
+    sdk_input: "BatchExecuteStatementInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'BatchExecuteStatementInput',
+        sdk_input: "BatchExecuteStatementInput",
     ):
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchExecuteStatementInputTransformInput to a dictionary.
-
-        """
+        """Converts the BatchExecuteStatementInputTransformInput to a
+        dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementInputTransformInput":
-        """Creates a BatchExecuteStatementInputTransformInput from a dictionary.
-
-        """
+        """Creates a BatchExecuteStatementInputTransformInput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": BatchExecuteStatementInput.from_dict(d["sdk_input"]),
         }
@@ -441,36 +427,37 @@ class BatchExecuteStatementInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchExecuteStatementInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchExecuteStatementInputTransformOutput:
-    transformed_input: 'BatchExecuteStatementInput'
+    transformed_input: "BatchExecuteStatementInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'BatchExecuteStatementInput',
+        transformed_input: "BatchExecuteStatementInput",
     ):
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchExecuteStatementInputTransformOutput to a dictionary.
-
-        """
+        """Converts the BatchExecuteStatementInputTransformOutput to a
+        dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementInputTransformOutput":
-        """Creates a BatchExecuteStatementInputTransformOutput from a dictionary.
-
-        """
+        """Creates a BatchExecuteStatementInputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": BatchExecuteStatementInput.from_dict(d["transformed_input"]),
+            "transformed_input": BatchExecuteStatementInput.from_dict(
+                d["transformed_input"]
+            ),
         }
 
         return BatchExecuteStatementInputTransformOutput(**kwargs)
@@ -485,36 +472,37 @@ class BatchExecuteStatementInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchExecuteStatementInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchExecuteStatementOutputTransformOutput:
-    transformed_output: 'BatchExecuteStatementOutput'
+    transformed_output: "BatchExecuteStatementOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'BatchExecuteStatementOutput',
+        transformed_output: "BatchExecuteStatementOutput",
     ):
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchExecuteStatementOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the BatchExecuteStatementOutputTransformOutput to a
+        dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementOutputTransformOutput":
-        """Creates a BatchExecuteStatementOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a BatchExecuteStatementOutputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": BatchExecuteStatementOutput.from_dict(d["transformed_output"]),
+            "transformed_output": BatchExecuteStatementOutput.from_dict(
+                d["transformed_output"]
+            ),
         }
 
         return BatchExecuteStatementOutputTransformOutput(**kwargs)
@@ -529,34 +517,33 @@ class BatchExecuteStatementOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchExecuteStatementOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteTransactionInputTransformInput:
-    sdk_input: 'ExecuteTransactionInput'
+    sdk_input: "ExecuteTransactionInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'ExecuteTransactionInput',
+        sdk_input: "ExecuteTransactionInput",
     ):
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteTransactionInputTransformInput to a dictionary.
-
-        """
+        """Converts the ExecuteTransactionInputTransformInput to a
+        dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteTransactionInputTransformInput":
-        """Creates a ExecuteTransactionInputTransformInput from a dictionary.
-
-        """
+        """Creates a ExecuteTransactionInputTransformInput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": ExecuteTransactionInput.from_dict(d["sdk_input"]),
         }
@@ -573,36 +560,37 @@ class ExecuteTransactionInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteTransactionInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteTransactionInputTransformOutput:
-    transformed_input: 'ExecuteTransactionInput'
+    transformed_input: "ExecuteTransactionInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'ExecuteTransactionInput',
+        transformed_input: "ExecuteTransactionInput",
     ):
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteTransactionInputTransformOutput to a dictionary.
-
-        """
+        """Converts the ExecuteTransactionInputTransformOutput to a
+        dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteTransactionInputTransformOutput":
-        """Creates a ExecuteTransactionInputTransformOutput from a dictionary.
-
-        """
+        """Creates a ExecuteTransactionInputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": ExecuteTransactionInput.from_dict(d["transformed_input"]),
+            "transformed_input": ExecuteTransactionInput.from_dict(
+                d["transformed_input"]
+            ),
         }
 
         return ExecuteTransactionInputTransformOutput(**kwargs)
@@ -617,36 +605,37 @@ class ExecuteTransactionInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteTransactionInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteTransactionOutputTransformOutput:
-    transformed_output: 'ExecuteTransactionOutput'
+    transformed_output: "ExecuteTransactionOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'ExecuteTransactionOutput',
+        transformed_output: "ExecuteTransactionOutput",
     ):
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteTransactionOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the ExecuteTransactionOutputTransformOutput to a
+        dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteTransactionOutputTransformOutput":
-        """Creates a ExecuteTransactionOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a ExecuteTransactionOutputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": ExecuteTransactionOutput.from_dict(d["transformed_output"]),
+            "transformed_output": ExecuteTransactionOutput.from_dict(
+                d["transformed_output"]
+            ),
         }
 
         return ExecuteTransactionOutputTransformOutput(**kwargs)
@@ -661,36 +650,37 @@ class ExecuteTransactionOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteTransactionOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactGetItemsOutputTransformOutput:
-    transformed_output: 'TransactGetItemsOutput'
+    transformed_output: "TransactGetItemsOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'TransactGetItemsOutput',
+        transformed_output: "TransactGetItemsOutput",
     ):
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactGetItemsOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the TransactGetItemsOutputTransformOutput to a
+        dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsOutputTransformOutput":
-        """Creates a TransactGetItemsOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a TransactGetItemsOutputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": TransactGetItemsOutput.from_dict(d["transformed_output"]),
+            "transformed_output": TransactGetItemsOutput.from_dict(
+                d["transformed_output"]
+            ),
         }
 
         return TransactGetItemsOutputTransformOutput(**kwargs)
@@ -705,18 +695,19 @@ class TransactGetItemsOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactGetItemsOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchGetItemInputTransformInput:
-    sdk_input: 'BatchGetItemInput'
+    sdk_input: "BatchGetItemInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'BatchGetItemInput',
+        sdk_input: "BatchGetItemInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>BatchGetItem</code>
@@ -725,18 +716,14 @@ class BatchGetItemInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchGetItemInputTransformInput to a dictionary.
-
-        """
+        """Converts the BatchGetItemInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemInputTransformInput":
-        """Creates a BatchGetItemInputTransformInput from a dictionary.
-
-        """
+        """Creates a BatchGetItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": BatchGetItemInput.from_dict(d["sdk_input"]),
         }
@@ -753,18 +740,19 @@ class BatchGetItemInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchGetItemInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchGetItemInputTransformOutput:
-    transformed_input: 'BatchGetItemInput'
+    transformed_input: "BatchGetItemInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'BatchGetItemInput',
+        transformed_input: "BatchGetItemInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>BatchGetItem</code>
@@ -773,18 +761,14 @@ class BatchGetItemInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchGetItemInputTransformOutput to a dictionary.
-
-        """
+        """Converts the BatchGetItemInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemInputTransformOutput":
-        """Creates a BatchGetItemInputTransformOutput from a dictionary.
-
-        """
+        """Creates a BatchGetItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": BatchGetItemInput.from_dict(d["transformed_input"]),
         }
@@ -801,34 +785,31 @@ class BatchGetItemInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchGetItemInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactGetItemsInputTransformInput:
-    sdk_input: 'TransactGetItemsInput'
+    sdk_input: "TransactGetItemsInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'TransactGetItemsInput',
+        sdk_input: "TransactGetItemsInput",
     ):
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactGetItemsInputTransformInput to a dictionary.
-
-        """
+        """Converts the TransactGetItemsInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsInputTransformInput":
-        """Creates a TransactGetItemsInputTransformInput from a dictionary.
-
-        """
+        """Creates a TransactGetItemsInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": TransactGetItemsInput.from_dict(d["sdk_input"]),
         }
@@ -845,36 +826,36 @@ class TransactGetItemsInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactGetItemsInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactGetItemsInputTransformOutput:
-    transformed_input: 'TransactGetItemsInput'
+    transformed_input: "TransactGetItemsInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'TransactGetItemsInput',
+        transformed_input: "TransactGetItemsInput",
     ):
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactGetItemsInputTransformOutput to a dictionary.
-
-        """
+        """Converts the TransactGetItemsInputTransformOutput to a
+        dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsInputTransformOutput":
-        """Creates a TransactGetItemsInputTransformOutput from a dictionary.
-
-        """
+        """Creates a TransactGetItemsInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": TransactGetItemsInput.from_dict(d["transformed_input"]),
+            "transformed_input": TransactGetItemsInput.from_dict(
+                d["transformed_input"]
+            ),
         }
 
         return TransactGetItemsInputTransformOutput(**kwargs)
@@ -889,36 +870,37 @@ class TransactGetItemsInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactGetItemsInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactWriteItemsOutputTransformOutput:
-    transformed_output: 'TransactWriteItemsOutput'
+    transformed_output: "TransactWriteItemsOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'TransactWriteItemsOutput',
+        transformed_output: "TransactWriteItemsOutput",
     ):
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactWriteItemsOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the TransactWriteItemsOutputTransformOutput to a
+        dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactWriteItemsOutputTransformOutput":
-        """Creates a TransactWriteItemsOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a TransactWriteItemsOutputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": TransactWriteItemsOutput.from_dict(d["transformed_output"]),
+            "transformed_output": TransactWriteItemsOutput.from_dict(
+                d["transformed_output"]
+            ),
         }
 
         return TransactWriteItemsOutputTransformOutput(**kwargs)
@@ -933,20 +915,21 @@ class TransactWriteItemsOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactWriteItemsOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetItemOutputTransformInput:
-    sdk_output: 'GetItemOutput'
-    original_input: 'GetItemInput'
+    sdk_output: "GetItemOutput"
+    original_input: "GetItemInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'GetItemOutput',
-        original_input: 'GetItemInput',
+        sdk_output: "GetItemOutput",
+        original_input: "GetItemInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>GetItem</code>
@@ -958,9 +941,7 @@ class GetItemOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetItemOutputTransformInput to a dictionary.
-
-        """
+        """Converts the GetItemOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -968,9 +949,7 @@ class GetItemOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetItemOutputTransformInput":
-        """Creates a GetItemOutputTransformInput from a dictionary.
-
-        """
+        """Creates a GetItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": GetItemOutput.from_dict(d["sdk_output"]),
             "original_input": GetItemInput.from_dict(d["original_input"]),
@@ -991,18 +970,20 @@ class GetItemOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetItemOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DeleteItemOutputTransformOutput:
-    transformed_output: 'DeleteItemOutput'
+    transformed_output: "DeleteItemOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'DeleteItemOutput',
+        transformed_output: "DeleteItemOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>DeleteItem</code>
@@ -1011,18 +992,14 @@ class DeleteItemOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DeleteItemOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the DeleteItemOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DeleteItemOutputTransformOutput":
-        """Creates a DeleteItemOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a DeleteItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": DeleteItemOutput.from_dict(d["transformed_output"]),
         }
@@ -1039,36 +1016,37 @@ class DeleteItemOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DeleteItemOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteStatementOutputTransformOutput:
-    transformed_output: 'ExecuteStatementOutput'
+    transformed_output: "ExecuteStatementOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'ExecuteStatementOutput',
+        transformed_output: "ExecuteStatementOutput",
     ):
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteStatementOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the ExecuteStatementOutputTransformOutput to a
+        dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementOutputTransformOutput":
-        """Creates a ExecuteStatementOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a ExecuteStatementOutputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": ExecuteStatementOutput.from_dict(d["transformed_output"]),
+            "transformed_output": ExecuteStatementOutput.from_dict(
+                d["transformed_output"]
+            ),
         }
 
         return ExecuteStatementOutputTransformOutput(**kwargs)
@@ -1083,18 +1061,19 @@ class ExecuteStatementOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteStatementOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class PutItemOutputTransformOutput:
-    transformed_output: 'PutItemOutput'
+    transformed_output: "PutItemOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'PutItemOutput',
+        transformed_output: "PutItemOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>PutItem</code>
@@ -1103,18 +1082,14 @@ class PutItemOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the PutItemOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the PutItemOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PutItemOutputTransformOutput":
-        """Creates a PutItemOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a PutItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": PutItemOutput.from_dict(d["transformed_output"]),
         }
@@ -1131,18 +1106,19 @@ class PutItemOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PutItemOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class QueryOutputTransformOutput:
-    transformed_output: 'QueryOutput'
+    transformed_output: "QueryOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'QueryOutput',
+        transformed_output: "QueryOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>Query</code>
@@ -1151,18 +1127,14 @@ class QueryOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the QueryOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the QueryOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "QueryOutputTransformOutput":
-        """Creates a QueryOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a QueryOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": QueryOutput.from_dict(d["transformed_output"]),
         }
@@ -1179,18 +1151,19 @@ class QueryOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ScanOutputTransformOutput:
-    transformed_output: 'ScanOutput'
+    transformed_output: "ScanOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'ScanOutput',
+        transformed_output: "ScanOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>Scan</code>
@@ -1199,18 +1172,14 @@ class ScanOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ScanOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the ScanOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ScanOutputTransformOutput":
-        """Creates a ScanOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a ScanOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": ScanOutput.from_dict(d["transformed_output"]),
         }
@@ -1227,18 +1196,19 @@ class ScanOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ScanOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class UpdateItemOutputTransformOutput:
-    transformed_output: 'UpdateItemOutput'
+    transformed_output: "UpdateItemOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'UpdateItemOutput',
+        transformed_output: "UpdateItemOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of an
@@ -1247,18 +1217,14 @@ class UpdateItemOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the UpdateItemOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the UpdateItemOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "UpdateItemOutputTransformOutput":
-        """Creates a UpdateItemOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a UpdateItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": UpdateItemOutput.from_dict(d["transformed_output"]),
         }
@@ -1275,28 +1241,28 @@ class UpdateItemOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, UpdateItemOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchExecuteStatementOutputTransformInput:
-    sdk_output: 'BatchExecuteStatementOutput'
-    original_input: 'BatchExecuteStatementInput'
+    sdk_output: "BatchExecuteStatementOutput"
+    original_input: "BatchExecuteStatementInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'BatchExecuteStatementOutput',
-        original_input: 'BatchExecuteStatementInput',
+        sdk_output: "BatchExecuteStatementOutput",
+        original_input: "BatchExecuteStatementInput",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchExecuteStatementOutputTransformInput to a dictionary.
-
-        """
+        """Converts the BatchExecuteStatementOutputTransformInput to a
+        dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -1304,9 +1270,8 @@ class BatchExecuteStatementOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementOutputTransformInput":
-        """Creates a BatchExecuteStatementOutputTransformInput from a dictionary.
-
-        """
+        """Creates a BatchExecuteStatementOutputTransformInput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": BatchExecuteStatementOutput.from_dict(d["sdk_output"]),
             "original_input": BatchExecuteStatementInput.from_dict(d["original_input"]),
@@ -1327,28 +1292,29 @@ class BatchExecuteStatementOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchExecuteStatementOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteTransactionOutputTransformInput:
-    sdk_output: 'ExecuteTransactionOutput'
-    original_input: 'ExecuteTransactionInput'
+    sdk_output: "ExecuteTransactionOutput"
+    original_input: "ExecuteTransactionInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'ExecuteTransactionOutput',
-        original_input: 'ExecuteTransactionInput',
+        sdk_output: "ExecuteTransactionOutput",
+        original_input: "ExecuteTransactionInput",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteTransactionOutputTransformInput to a dictionary.
-
-        """
+        """Converts the ExecuteTransactionOutputTransformInput to a
+        dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -1356,9 +1322,8 @@ class ExecuteTransactionOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteTransactionOutputTransformInput":
-        """Creates a ExecuteTransactionOutputTransformInput from a dictionary.
-
-        """
+        """Creates a ExecuteTransactionOutputTransformInput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": ExecuteTransactionOutput.from_dict(d["sdk_output"]),
             "original_input": ExecuteTransactionInput.from_dict(d["original_input"]),
@@ -1379,18 +1344,20 @@ class ExecuteTransactionOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteTransactionOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchGetItemOutputTransformOutput:
-    transformed_output: 'BatchGetItemOutput'
+    transformed_output: "BatchGetItemOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'BatchGetItemOutput',
+        transformed_output: "BatchGetItemOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a
@@ -1399,18 +1366,14 @@ class BatchGetItemOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchGetItemOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the BatchGetItemOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemOutputTransformOutput":
-        """Creates a BatchGetItemOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a BatchGetItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_output": BatchGetItemOutput.from_dict(d["transformed_output"]),
         }
@@ -1427,28 +1390,28 @@ class BatchGetItemOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchGetItemOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactGetItemsOutputTransformInput:
-    sdk_output: 'TransactGetItemsOutput'
-    original_input: 'TransactGetItemsInput'
+    sdk_output: "TransactGetItemsOutput"
+    original_input: "TransactGetItemsInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'TransactGetItemsOutput',
-        original_input: 'TransactGetItemsInput',
+        sdk_output: "TransactGetItemsOutput",
+        original_input: "TransactGetItemsInput",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactGetItemsOutputTransformInput to a dictionary.
-
-        """
+        """Converts the TransactGetItemsOutputTransformInput to a
+        dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -1456,9 +1419,7 @@ class TransactGetItemsOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsOutputTransformInput":
-        """Creates a TransactGetItemsOutputTransformInput from a dictionary.
-
-        """
+        """Creates a TransactGetItemsOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": TransactGetItemsOutput.from_dict(d["sdk_output"]),
             "original_input": TransactGetItemsInput.from_dict(d["original_input"]),
@@ -1479,28 +1440,29 @@ class TransactGetItemsOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactGetItemsOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ExecuteStatementOutputTransformInput:
-    sdk_output: 'ExecuteStatementOutput'
-    original_input: 'ExecuteStatementInput'
+    sdk_output: "ExecuteStatementOutput"
+    original_input: "ExecuteStatementInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'ExecuteStatementOutput',
-        original_input: 'ExecuteStatementInput',
+        sdk_output: "ExecuteStatementOutput",
+        original_input: "ExecuteStatementInput",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ExecuteStatementOutputTransformInput to a dictionary.
-
-        """
+        """Converts the ExecuteStatementOutputTransformInput to a
+        dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -1508,9 +1470,7 @@ class ExecuteStatementOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementOutputTransformInput":
-        """Creates a ExecuteStatementOutputTransformInput from a dictionary.
-
-        """
+        """Creates a ExecuteStatementOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": ExecuteStatementOutput.from_dict(d["sdk_output"]),
             "original_input": ExecuteStatementInput.from_dict(d["original_input"]),
@@ -1531,18 +1491,20 @@ class ExecuteStatementOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ExecuteStatementOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ScanInputTransformInput:
-    sdk_input: 'ScanInput'
+    sdk_input: "ScanInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'ScanInput',
+        sdk_input: "ScanInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>Scan</code> operation.</p>
@@ -1550,18 +1512,14 @@ class ScanInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ScanInputTransformInput to a dictionary.
-
-        """
+        """Converts the ScanInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ScanInputTransformInput":
-        """Creates a ScanInputTransformInput from a dictionary.
-
-        """
+        """Creates a ScanInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": ScanInput.from_dict(d["sdk_input"]),
         }
@@ -1578,18 +1536,19 @@ class ScanInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ScanInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ScanInputTransformOutput:
-    transformed_input: 'ScanInput'
+    transformed_input: "ScanInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'ScanInput',
+        transformed_input: "ScanInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>Scan</code>
@@ -1598,18 +1557,14 @@ class ScanInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ScanInputTransformOutput to a dictionary.
-
-        """
+        """Converts the ScanInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ScanInputTransformOutput":
-        """Creates a ScanInputTransformOutput from a dictionary.
-
-        """
+        """Creates a ScanInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": ScanInput.from_dict(d["transformed_input"]),
         }
@@ -1626,18 +1581,19 @@ class ScanInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ScanInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchWriteItemInputTransformInput:
-    sdk_input: 'BatchWriteItemInput'
+    sdk_input: "BatchWriteItemInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'BatchWriteItemInput',
+        sdk_input: "BatchWriteItemInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>BatchWriteItem</code>
@@ -1646,18 +1602,14 @@ class BatchWriteItemInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchWriteItemInputTransformInput to a dictionary.
-
-        """
+        """Converts the BatchWriteItemInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemInputTransformInput":
-        """Creates a BatchWriteItemInputTransformInput from a dictionary.
-
-        """
+        """Creates a BatchWriteItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": BatchWriteItemInput.from_dict(d["sdk_input"]),
         }
@@ -1674,18 +1626,19 @@ class BatchWriteItemInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchWriteItemInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchWriteItemInputTransformOutput:
-    transformed_input: 'BatchWriteItemInput'
+    transformed_input: "BatchWriteItemInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'BatchWriteItemInput',
+        transformed_input: "BatchWriteItemInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a
@@ -1694,18 +1647,14 @@ class BatchWriteItemInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchWriteItemInputTransformOutput to a dictionary.
-
-        """
+        """Converts the BatchWriteItemInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemInputTransformOutput":
-        """Creates a BatchWriteItemInputTransformOutput from a dictionary.
-
-        """
+        """Creates a BatchWriteItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": BatchWriteItemInput.from_dict(d["transformed_input"]),
         }
@@ -1722,20 +1671,21 @@ class BatchWriteItemInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchWriteItemInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchGetItemOutputTransformInput:
-    sdk_output: 'BatchGetItemOutput'
-    original_input: 'BatchGetItemInput'
+    sdk_output: "BatchGetItemOutput"
+    original_input: "BatchGetItemInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'BatchGetItemOutput',
-        original_input: 'BatchGetItemInput',
+        sdk_output: "BatchGetItemOutput",
+        original_input: "BatchGetItemInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>BatchGetItem</code>
@@ -1747,9 +1697,7 @@ class BatchGetItemOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchGetItemOutputTransformInput to a dictionary.
-
-        """
+        """Converts the BatchGetItemOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -1757,9 +1705,7 @@ class BatchGetItemOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemOutputTransformInput":
-        """Creates a BatchGetItemOutputTransformInput from a dictionary.
-
-        """
+        """Creates a BatchGetItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": BatchGetItemOutput.from_dict(d["sdk_output"]),
             "original_input": BatchGetItemInput.from_dict(d["original_input"]),
@@ -1780,18 +1726,20 @@ class BatchGetItemOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchGetItemOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DeleteItemInputTransformInput:
-    sdk_input: 'DeleteItemInput'
+    sdk_input: "DeleteItemInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'DeleteItemInput',
+        sdk_input: "DeleteItemInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>DeleteItem</code>
@@ -1800,18 +1748,14 @@ class DeleteItemInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DeleteItemInputTransformInput to a dictionary.
-
-        """
+        """Converts the DeleteItemInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DeleteItemInputTransformInput":
-        """Creates a DeleteItemInputTransformInput from a dictionary.
-
-        """
+        """Creates a DeleteItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": DeleteItemInput.from_dict(d["sdk_input"]),
         }
@@ -1828,18 +1772,19 @@ class DeleteItemInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DeleteItemInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DeleteItemInputTransformOutput:
-    transformed_input: 'DeleteItemInput'
+    transformed_input: "DeleteItemInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'DeleteItemInput',
+        transformed_input: "DeleteItemInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>DeleteItem</code>
@@ -1848,18 +1793,14 @@ class DeleteItemInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DeleteItemInputTransformOutput to a dictionary.
-
-        """
+        """Converts the DeleteItemInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DeleteItemInputTransformOutput":
-        """Creates a DeleteItemInputTransformOutput from a dictionary.
-
-        """
+        """Creates a DeleteItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": DeleteItemInput.from_dict(d["transformed_input"]),
         }
@@ -1876,18 +1817,19 @@ class DeleteItemInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DeleteItemInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class PutItemInputTransformInput:
-    sdk_input: 'PutItemInput'
+    sdk_input: "PutItemInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'PutItemInput',
+        sdk_input: "PutItemInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>PutItem</code>
@@ -1896,18 +1838,14 @@ class PutItemInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the PutItemInputTransformInput to a dictionary.
-
-        """
+        """Converts the PutItemInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PutItemInputTransformInput":
-        """Creates a PutItemInputTransformInput from a dictionary.
-
-        """
+        """Creates a PutItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": PutItemInput.from_dict(d["sdk_input"]),
         }
@@ -1924,18 +1862,19 @@ class PutItemInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PutItemInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class PutItemInputTransformOutput:
-    transformed_input: 'PutItemInput'
+    transformed_input: "PutItemInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'PutItemInput',
+        transformed_input: "PutItemInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>PutItem</code>
@@ -1944,18 +1883,14 @@ class PutItemInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the PutItemInputTransformOutput to a dictionary.
-
-        """
+        """Converts the PutItemInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PutItemInputTransformOutput":
-        """Creates a PutItemInputTransformOutput from a dictionary.
-
-        """
+        """Creates a PutItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": PutItemInput.from_dict(d["transformed_input"]),
         }
@@ -1972,18 +1907,19 @@ class PutItemInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PutItemInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class QueryInputTransformInput:
-    sdk_input: 'QueryInput'
+    sdk_input: "QueryInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'QueryInput',
+        sdk_input: "QueryInput",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>Query</code> operation.</p>
@@ -1991,18 +1927,14 @@ class QueryInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the QueryInputTransformInput to a dictionary.
-
-        """
+        """Converts the QueryInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "QueryInputTransformInput":
-        """Creates a QueryInputTransformInput from a dictionary.
-
-        """
+        """Creates a QueryInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": QueryInput.from_dict(d["sdk_input"]),
         }
@@ -2019,18 +1951,19 @@ class QueryInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class QueryInputTransformOutput:
-    transformed_input: 'QueryInput'
+    transformed_input: "QueryInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'QueryInput',
+        transformed_input: "QueryInput",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>Query</code>
@@ -2039,18 +1972,14 @@ class QueryInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the QueryInputTransformOutput to a dictionary.
-
-        """
+        """Converts the QueryInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "QueryInputTransformOutput":
-        """Creates a QueryInputTransformOutput from a dictionary.
-
-        """
+        """Creates a QueryInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": QueryInput.from_dict(d["transformed_input"]),
         }
@@ -2067,18 +1996,19 @@ class QueryInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchWriteItemOutputTransformOutput:
-    transformed_output: 'BatchWriteItemOutput'
+    transformed_output: "BatchWriteItemOutput"
+
     def __init__(
         self,
         *,
-        transformed_output: 'BatchWriteItemOutput',
+        transformed_output: "BatchWriteItemOutput",
     ):
         """
         :param transformed_output: <p>Represents the output of a
@@ -2087,20 +2017,18 @@ class BatchWriteItemOutputTransformOutput:
         self.transformed_output = transformed_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchWriteItemOutputTransformOutput to a dictionary.
-
-        """
+        """Converts the BatchWriteItemOutputTransformOutput to a dictionary."""
         return {
             "transformed_output": self.transformed_output.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemOutputTransformOutput":
-        """Creates a BatchWriteItemOutputTransformOutput from a dictionary.
-
-        """
+        """Creates a BatchWriteItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": BatchWriteItemOutput.from_dict(d["transformed_output"]),
+            "transformed_output": BatchWriteItemOutput.from_dict(
+                d["transformed_output"]
+            ),
         }
 
         return BatchWriteItemOutputTransformOutput(**kwargs)
@@ -2115,20 +2043,21 @@ class BatchWriteItemOutputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchWriteItemOutputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class ScanOutputTransformInput:
-    sdk_output: 'ScanOutput'
-    original_input: 'ScanInput'
+    sdk_output: "ScanOutput"
+    original_input: "ScanInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'ScanOutput',
-        original_input: 'ScanInput',
+        sdk_output: "ScanOutput",
+        original_input: "ScanInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>Scan</code>
@@ -2140,9 +2069,7 @@ class ScanOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ScanOutputTransformInput to a dictionary.
-
-        """
+        """Converts the ScanOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2150,9 +2077,7 @@ class ScanOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ScanOutputTransformInput":
-        """Creates a ScanOutputTransformInput from a dictionary.
-
-        """
+        """Creates a ScanOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": ScanOutput.from_dict(d["sdk_output"]),
             "original_input": ScanInput.from_dict(d["original_input"]),
@@ -2173,18 +2098,20 @@ class ScanOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ScanOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class UpdateItemInputTransformInput:
-    sdk_input: 'UpdateItemInput'
+    sdk_input: "UpdateItemInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'UpdateItemInput',
+        sdk_input: "UpdateItemInput",
     ):
         """
         :param sdk_input: <p>Represents the input of an <code>UpdateItem</code>
@@ -2193,18 +2120,14 @@ class UpdateItemInputTransformInput:
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the UpdateItemInputTransformInput to a dictionary.
-
-        """
+        """Converts the UpdateItemInputTransformInput to a dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "UpdateItemInputTransformInput":
-        """Creates a UpdateItemInputTransformInput from a dictionary.
-
-        """
+        """Creates a UpdateItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": UpdateItemInput.from_dict(d["sdk_input"]),
         }
@@ -2221,18 +2144,19 @@ class UpdateItemInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, UpdateItemInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class UpdateItemInputTransformOutput:
-    transformed_input: 'UpdateItemInput'
+    transformed_input: "UpdateItemInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'UpdateItemInput',
+        transformed_input: "UpdateItemInput",
     ):
         """
         :param transformed_input: <p>Represents the input of an <code>UpdateItem</code>
@@ -2241,18 +2165,14 @@ class UpdateItemInputTransformOutput:
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the UpdateItemInputTransformOutput to a dictionary.
-
-        """
+        """Converts the UpdateItemInputTransformOutput to a dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "UpdateItemInputTransformOutput":
-        """Creates a UpdateItemInputTransformOutput from a dictionary.
-
-        """
+        """Creates a UpdateItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "transformed_input": UpdateItemInput.from_dict(d["transformed_input"]),
         }
@@ -2269,20 +2189,21 @@ class UpdateItemInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, UpdateItemInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DeleteItemOutputTransformInput:
-    sdk_output: 'DeleteItemOutput'
-    original_input: 'DeleteItemInput'
+    sdk_output: "DeleteItemOutput"
+    original_input: "DeleteItemInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'DeleteItemOutput',
-        original_input: 'DeleteItemInput',
+        sdk_output: "DeleteItemOutput",
+        original_input: "DeleteItemInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>DeleteItem</code>
@@ -2294,9 +2215,7 @@ class DeleteItemOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DeleteItemOutputTransformInput to a dictionary.
-
-        """
+        """Converts the DeleteItemOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2304,9 +2223,7 @@ class DeleteItemOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DeleteItemOutputTransformInput":
-        """Creates a DeleteItemOutputTransformInput from a dictionary.
-
-        """
+        """Creates a DeleteItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": DeleteItemOutput.from_dict(d["sdk_output"]),
             "original_input": DeleteItemInput.from_dict(d["original_input"]),
@@ -2327,20 +2244,22 @@ class DeleteItemOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DeleteItemOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class PutItemOutputTransformInput:
-    sdk_output: 'PutItemOutput'
-    original_input: 'PutItemInput'
+    sdk_output: "PutItemOutput"
+    original_input: "PutItemInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'PutItemOutput',
-        original_input: 'PutItemInput',
+        sdk_output: "PutItemOutput",
+        original_input: "PutItemInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>PutItem</code>
@@ -2352,9 +2271,7 @@ class PutItemOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the PutItemOutputTransformInput to a dictionary.
-
-        """
+        """Converts the PutItemOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2362,9 +2279,7 @@ class PutItemOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PutItemOutputTransformInput":
-        """Creates a PutItemOutputTransformInput from a dictionary.
-
-        """
+        """Creates a PutItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": PutItemOutput.from_dict(d["sdk_output"]),
             "original_input": PutItemInput.from_dict(d["original_input"]),
@@ -2385,20 +2300,22 @@ class PutItemOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PutItemOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class QueryOutputTransformInput:
-    sdk_output: 'QueryOutput'
-    original_input: 'QueryInput'
+    sdk_output: "QueryOutput"
+    original_input: "QueryInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'QueryOutput',
-        original_input: 'QueryInput',
+        sdk_output: "QueryOutput",
+        original_input: "QueryInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>Query</code>
@@ -2410,9 +2327,7 @@ class QueryOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the QueryOutputTransformInput to a dictionary.
-
-        """
+        """Converts the QueryOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2420,9 +2335,7 @@ class QueryOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "QueryOutputTransformInput":
-        """Creates a QueryOutputTransformInput from a dictionary.
-
-        """
+        """Creates a QueryOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": QueryOutput.from_dict(d["sdk_output"]),
             "original_input": QueryInput.from_dict(d["original_input"]),
@@ -2443,20 +2356,22 @@ class QueryOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class UpdateItemOutputTransformInput:
-    sdk_output: 'UpdateItemOutput'
-    original_input: 'UpdateItemInput'
+    sdk_output: "UpdateItemOutput"
+    original_input: "UpdateItemInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'UpdateItemOutput',
-        original_input: 'UpdateItemInput',
+        sdk_output: "UpdateItemOutput",
+        original_input: "UpdateItemInput",
     ):
         """
         :param sdk_output: <p>Represents the output of an <code>UpdateItem</code>
@@ -2468,9 +2383,7 @@ class UpdateItemOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the UpdateItemOutputTransformInput to a dictionary.
-
-        """
+        """Converts the UpdateItemOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2478,9 +2391,7 @@ class UpdateItemOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "UpdateItemOutputTransformInput":
-        """Creates a UpdateItemOutputTransformInput from a dictionary.
-
-        """
+        """Creates a UpdateItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": UpdateItemOutput.from_dict(d["sdk_output"]),
             "original_input": UpdateItemInput.from_dict(d["original_input"]),
@@ -2501,20 +2412,22 @@ class UpdateItemOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, UpdateItemOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BatchWriteItemOutputTransformInput:
-    sdk_output: 'BatchWriteItemOutput'
-    original_input: 'BatchWriteItemInput'
+    sdk_output: "BatchWriteItemOutput"
+    original_input: "BatchWriteItemInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'BatchWriteItemOutput',
-        original_input: 'BatchWriteItemInput',
+        sdk_output: "BatchWriteItemOutput",
+        original_input: "BatchWriteItemInput",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>BatchWriteItem</code>
@@ -2526,9 +2439,7 @@ class BatchWriteItemOutputTransformInput:
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchWriteItemOutputTransformInput to a dictionary.
-
-        """
+        """Converts the BatchWriteItemOutputTransformInput to a dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2536,9 +2447,7 @@ class BatchWriteItemOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemOutputTransformInput":
-        """Creates a BatchWriteItemOutputTransformInput from a dictionary.
-
-        """
+        """Creates a BatchWriteItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": BatchWriteItemOutput.from_dict(d["sdk_output"]),
             "original_input": BatchWriteItemInput.from_dict(d["original_input"]),
@@ -2559,34 +2468,34 @@ class BatchWriteItemOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BatchWriteItemOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactWriteItemsInputTransformInput:
-    sdk_input: 'TransactWriteItemsInput'
+    sdk_input: "TransactWriteItemsInput"
+
     def __init__(
         self,
         *,
-        sdk_input: 'TransactWriteItemsInput',
+        sdk_input: "TransactWriteItemsInput",
     ):
         self.sdk_input = sdk_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactWriteItemsInputTransformInput to a dictionary.
-
-        """
+        """Converts the TransactWriteItemsInputTransformInput to a
+        dictionary."""
         return {
             "sdk_input": self.sdk_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactWriteItemsInputTransformInput":
-        """Creates a TransactWriteItemsInputTransformInput from a dictionary.
-
-        """
+        """Creates a TransactWriteItemsInputTransformInput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_input": TransactWriteItemsInput.from_dict(d["sdk_input"]),
         }
@@ -2603,36 +2512,37 @@ class TransactWriteItemsInputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactWriteItemsInputTransformInput):
             return False
-        attributes: list[str] = ['sdk_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactWriteItemsInputTransformOutput:
-    transformed_input: 'TransactWriteItemsInput'
+    transformed_input: "TransactWriteItemsInput"
+
     def __init__(
         self,
         *,
-        transformed_input: 'TransactWriteItemsInput',
+        transformed_input: "TransactWriteItemsInput",
     ):
         self.transformed_input = transformed_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactWriteItemsInputTransformOutput to a dictionary.
-
-        """
+        """Converts the TransactWriteItemsInputTransformOutput to a
+        dictionary."""
         return {
             "transformed_input": self.transformed_input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactWriteItemsInputTransformOutput":
-        """Creates a TransactWriteItemsInputTransformOutput from a dictionary.
-
-        """
+        """Creates a TransactWriteItemsInputTransformOutput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": TransactWriteItemsInput.from_dict(d["transformed_input"]),
+            "transformed_input": TransactWriteItemsInput.from_dict(
+                d["transformed_input"]
+            ),
         }
 
         return TransactWriteItemsInputTransformOutput(**kwargs)
@@ -2647,28 +2557,28 @@ class TransactWriteItemsInputTransformOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactWriteItemsInputTransformOutput):
             return False
-        attributes: list[str] = ['transformed_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class TransactWriteItemsOutputTransformInput:
-    sdk_output: 'TransactWriteItemsOutput'
-    original_input: 'TransactWriteItemsInput'
+    sdk_output: "TransactWriteItemsOutput"
+    original_input: "TransactWriteItemsInput"
+
     def __init__(
         self,
         *,
-        sdk_output: 'TransactWriteItemsOutput',
-        original_input: 'TransactWriteItemsInput',
+        sdk_output: "TransactWriteItemsOutput",
+        original_input: "TransactWriteItemsInput",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the TransactWriteItemsOutputTransformInput to a dictionary.
-
-        """
+        """Converts the TransactWriteItemsOutputTransformInput to a
+        dictionary."""
         return {
             "sdk_output": self.sdk_output.as_dict(),
             "original_input": self.original_input.as_dict(),
@@ -2676,9 +2586,8 @@ class TransactWriteItemsOutputTransformInput:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "TransactWriteItemsOutputTransformInput":
-        """Creates a TransactWriteItemsOutputTransformInput from a dictionary.
-
-        """
+        """Creates a TransactWriteItemsOutputTransformInput from a
+        dictionary."""
         kwargs: Dict[str, Any] = {
             "sdk_output": TransactWriteItemsOutput.from_dict(d["sdk_output"]),
             "original_input": TransactWriteItemsInput.from_dict(d["original_input"]),
@@ -2699,11 +2608,12 @@ class TransactWriteItemsOutputTransformInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TransactWriteItemsOutputTransformInput):
             return False
-        attributes: list[str] = ['sdk_output','original_input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class Unit:
     pass

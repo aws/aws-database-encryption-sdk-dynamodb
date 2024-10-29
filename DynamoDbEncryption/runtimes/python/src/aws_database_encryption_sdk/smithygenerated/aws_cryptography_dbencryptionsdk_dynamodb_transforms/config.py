@@ -15,12 +15,10 @@ from .dafnyImplInterface import DafnyImplInterface
 from smithy_python._private.retries import SimpleRetryStrategy
 from smithy_python.interfaces.retries import RetryStrategy
 
-from ..aws_cryptography_dbencryptionsdk_dynamodb.models import (
-    DynamoDbTableEncryptionConfig,
-)
-
 
 _ServiceInterceptor = Any
+
+
 @dataclass(init=False)
 class Config:
     """Configuration for DynamoDbEncryptionTransforms."""
@@ -38,49 +36,32 @@ class Config:
     ):
         """Constructor.
 
-        :param interceptors: The list of interceptors, which are hooks that are called
-        during the execution of a request.
-
-        :param retry_strategy: The retry strategy for issuing retry tokens and computing
-        retry delays.
-
+        :param interceptors: The list of interceptors, which are hooks
+            that are called during the execution of a request.
+        :param retry_strategy: The retry strategy for issuing retry
+            tokens and computing retry delays.
         :param dafnyImplInterface:
         """
         self.interceptors = interceptors or []
         self.retry_strategy = retry_strategy or SimpleRetryStrategy()
         self.dafnyImplInterface = dafnyImplInterface
 
+
 # A callable that allows customizing the config object on each request.
 Plugin: TypeAlias = Callable[[Config], None]
 
-class DynamoDbTablesEncryptionConfig(Config):
-    """
-    Smithy-modelled localService Config shape for this localService.
-    """
-    table_encryption_configs: dict[str, DynamoDbTableEncryptionConfig]
-
-    def __init__(
-        self,
-        table_encryption_configs: dict[str, DynamoDbTableEncryptionConfig],
-    ):
-        """The configuration for client-side encryption with multiple DynamoDB table.
-
-        :param table_encryption_configs: A map of DynamoDB table name to its
-        configuration for client-side encryption.
-        """
-        super().__init__()
-        self.table_encryption_configs = table_encryption_configs
 
 def dafny_config_to_smithy_config(dafny_config) -> DynamoDbTablesEncryptionConfig:
-    """
-    Converts the provided Dafny shape for this localService's config
-    into the corresponding Smithy-modelled shape.
-    """
-    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(dafny_config)
+    """Converts the provided Dafny shape for this localService's config into
+    the corresponding Smithy-modelled shape."""
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(
+        dafny_config
+    )
+
 
 def smithy_config_to_dafny_config(smithy_config) -> DafnyDynamoDbTablesEncryptionConfig:
-    """
-    Converts the provided Smithy-modelled shape for this localService's config
-    into the corresponding Dafny shape.
-    """
-    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(smithy_config)
+    """Converts the provided Smithy-modelled shape for this localService's
+    config into the corresponding Dafny shape."""
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(
+        smithy_config
+    )

@@ -37,33 +37,48 @@ from .config import Config
 
 def _deserialize_encrypt_structure(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureOutput(
+        input.value
+    )
+
 
 def _deserialize_decrypt_structure(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureOutput(
+        input.value
+    )
+
 
 def _deserialize_encrypt_path_structure(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureOutput(
+        input.value
+    )
+
 
 def _deserialize_decrypt_path_structure(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureOutput(
+        input.value
+    )
+
 
 def _deserialize_resolve_auth_actions(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsOutput(
+        input.value
+    )
+
 
 def _deserialize_error(error: Error) -> ServiceError:
     if error.is_Opaque:
@@ -74,10 +89,18 @@ def _deserialize_error(error: Error) -> ServiceError:
             list=[_deserialize_error(dafny_e) for dafny_e in error.list],
         )
     elif error.is_StructuredEncryptionException:
-      return StructuredEncryptionException(message=_dafny.string_of(error.message))
+        return StructuredEncryptionException(message=_dafny.string_of(error.message))
     elif error.is_AwsCryptographyPrimitives:
-        return AwsCryptographicPrimitives(aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives))
+        return AwsCryptographicPrimitives(
+            aws_cryptography_primitives_deserialize_error(
+                error.AwsCryptographyPrimitives
+            )
+        )
     elif error.is_AwsCryptographyMaterialProviders:
-        return AwsCryptographicMaterialProviders(aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders))
+        return AwsCryptographicMaterialProviders(
+            aws_cryptography_materialproviders_deserialize_error(
+                error.AwsCryptographyMaterialProviders
+            )
+        )
     else:
         return OpaqueError(obj=error)

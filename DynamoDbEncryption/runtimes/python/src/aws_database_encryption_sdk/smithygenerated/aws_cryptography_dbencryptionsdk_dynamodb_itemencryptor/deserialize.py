@@ -46,15 +46,21 @@ from .config import Config
 
 def _deserialize_encrypt_item(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemOutput(
+        input.value
+    )
+
 
 def _deserialize_decrypt_item(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemOutput(
+        input.value
+    )
+
 
 def _deserialize_error(error: Error) -> ServiceError:
     if error.is_Opaque:
@@ -65,16 +71,34 @@ def _deserialize_error(error: Error) -> ServiceError:
             list=[_deserialize_error(dafny_e) for dafny_e in error.list],
         )
     elif error.is_DynamoDbItemEncryptorException:
-      return DynamoDbItemEncryptorException(message=_dafny.string_of(error.message))
+        return DynamoDbItemEncryptorException(message=_dafny.string_of(error.message))
     elif error.is_AwsCryptographyDbEncryptionSdkStructuredEncryption:
-        return StructuredEncryption(aws_cryptography_dbencryptionsdk_structuredencryption_deserialize_error(error.AwsCryptographyDbEncryptionSdkStructuredEncryption))
+        return StructuredEncryption(
+            aws_cryptography_dbencryptionsdk_structuredencryption_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkStructuredEncryption
+            )
+        )
     elif error.is_AwsCryptographyPrimitives:
-        return AwsCryptographicPrimitives(aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives))
+        return AwsCryptographicPrimitives(
+            aws_cryptography_primitives_deserialize_error(
+                error.AwsCryptographyPrimitives
+            )
+        )
     elif error.is_AwsCryptographyDbEncryptionSdkDynamoDb:
-        return DynamoDbEncryption(aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(error.AwsCryptographyDbEncryptionSdkDynamoDb))
+        return DynamoDbEncryption(
+            aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkDynamoDb
+            )
+        )
     elif error.is_AwsCryptographyMaterialProviders:
-        return AwsCryptographicMaterialProviders(aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders))
+        return AwsCryptographicMaterialProviders(
+            aws_cryptography_materialproviders_deserialize_error(
+                error.AwsCryptographyMaterialProviders
+            )
+        )
     elif error.is_ComAmazonawsDynamodb:
-        return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
+        return ComAmazonawsDynamodb(
+            message=_dafny.string_of(error.ComAmazonawsDynamodb.message)
+        )
     else:
         return OpaqueError(obj=error)

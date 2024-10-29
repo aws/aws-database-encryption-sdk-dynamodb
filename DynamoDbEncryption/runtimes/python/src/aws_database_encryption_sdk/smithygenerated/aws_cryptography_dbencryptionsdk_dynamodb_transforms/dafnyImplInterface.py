@@ -2,8 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-from aws_database_encryption_sdk.internaldafny.generated.DynamoDbEncryptionTransforms import DynamoDbEncryptionTransformsClient
+from aws_database_encryption_sdk.internaldafny.generated.DynamoDbEncryptionTransforms import (
+    DynamoDbEncryptionTransformsClient,
+)
 from .dafny_protocol import DafnyRequest
+
 
 class DafnyImplInterface:
     impl: DynamoDbEncryptionTransformsClient | None = None
@@ -47,9 +50,9 @@ class DafnyImplInterface:
                 "ResolveAttributes": self.impl.ResolveAttributes,
             }
 
-         # This logic is where a typical Smithy client would expect the "server" to be.
-         # This code can be thought of as logic our Dafny "server" uses
-         #   to route incoming client requests to the correct request handler code.
+        # This logic is where a typical Smithy client would expect the "server" to be.
+        # This code can be thought of as logic our Dafny "server" uses
+        #   to route incoming client requests to the correct request handler code.
         if input.dafny_operation_input is None:
             return self.operation_map[input.operation_name]()
         else:
