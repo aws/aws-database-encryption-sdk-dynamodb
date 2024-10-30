@@ -181,6 +181,9 @@ module BeaconTestFixtures {
     ensures output.keyStore.ValidState()
     ensures fresh(output.keyStore.Modifies)
     ensures output.version == 1
+    ensures
+    && output.keySource.multi?
+    && output.keySource.multi.cache.None?
   {
     var store := GetKeyStore();
     return BeaconVersion (
