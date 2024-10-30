@@ -15,7 +15,7 @@ VERIFY_TIMEOUT := 250
 
 verify:DAFNY_OPTIONS=--allow-deprecation --allow-external-contracts
 verify_single:DAFNY_OPTIONS=--allow-deprecation --allow-external-contracts
-verify_service:DAFNY_OPTIONS=--allow-deprecation --allow-external-contractsv
+verify_service:DAFNY_OPTIONS=--allow-deprecation --allow-external-contracts
 
 transpile_implementation_net: DAFNY_OPTIONS=--allow-warnings --compile-suffix --legacy-module-names --allow-external-contracts
 transpile_test_net: DAFNY_OPTIONS=--allow-warnings --include-test-runner --compile-suffix --legacy-module-names --allow-external-contracts
