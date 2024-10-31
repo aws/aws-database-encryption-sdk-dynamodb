@@ -62,7 +62,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
                       Dafny.Sequence<char>.FromString(collectionOfErrors.Message)
                     );
                 default:
-                    return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_Opaque(error, Dafny.Sequence<char>.FromString(error.ToString()));
+                    return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_Opaque(error);
 
             }
         }
