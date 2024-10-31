@@ -71,11 +71,11 @@ module SearchableEncryptionInfo {
       //# MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
       var newKey :- GetBeaconKey(client, key, keysLeft[0]);
       reveal Seq.HasNoDuplicates();
-      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-      //# [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
-      //# with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
-      //# and the [HMAC Keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#hmac-keys) equal to a map
-      //# of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
+             //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+             //# [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
+             //# with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
+             //# and the [HMAC Keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#hmac-keys) equal to a map
+             //# of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
       output := GetHmacKeys(client, allKeys, keysLeft[1..], key, acc[keysLeft[0] := newKey]);
     }
   }
