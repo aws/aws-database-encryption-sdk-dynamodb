@@ -3,6 +3,7 @@
 
 include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Util.dfy"
+include "OptimizedMergeSort.dfy"
 
 module SortCanon {
   export
@@ -22,6 +23,7 @@ module SortCanon {
   import opened Relations
   import opened Seq.MergeSort
   import opened StructuredEncryptionUtil
+  import OptimizedMergeSort
 
   predicate method AuthBelow(x: CanonAuthItem, y: CanonAuthItem) {
     Below(x.key, y.key)
@@ -295,7 +297,7 @@ module SortCanon {
   {}
 
 
-  function method AuthSort(x : CanonAuthList) : (result : CanonAuthList)
+  function AuthSort(x : CanonAuthList) : (result : CanonAuthList)
     requires CanonAuthListHasNoDuplicates(x)
     ensures multiset(x) == multiset(result)
     ensures SortedBy(result, AuthBelow)
@@ -307,9 +309,14 @@ module SortCanon {
     CanonAuthListMultiNoDup(x, ret);
     assert CanonAuthListHasNoDuplicates(ret);
     ret
+  } by method {
+    AuthBelowIsTotal();
+    result := OptimizedMergeSort.FastMergeSort(x, AuthBelow);
+    CanonAuthListMultiNoDup(x, result);
+    assert CanonAuthListHasNoDuplicates(result);
   }
 
-  function method CryptoSort(x : CanonCryptoList) : (result : CanonCryptoList)
+  function CryptoSort(x : CanonCryptoList) : (result : CanonCryptoList)
     requires CanonCryptoListHasNoDuplicates(x)
     ensures multiset(x) == multiset(result)
     ensures multiset(result) == multiset(x)
@@ -322,6 +329,11 @@ module SortCanon {
     CanonCryptoListMultiNoDup(x, ret);
     assert CanonCryptoListHasNoDuplicates(ret);
     ret
+  } by method {
+    CryptoBelowIsTotal();
+    result := OptimizedMergeSort.FastMergeSort(x, CryptoBelow);
+    CanonCryptoListMultiNoDup(x, result);
+    assert CanonCryptoListHasNoDuplicates(result);
   }
 
   lemma MultisetHasNoDuplicates(xs: CanonCryptoList)
