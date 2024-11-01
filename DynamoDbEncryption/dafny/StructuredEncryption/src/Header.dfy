@@ -132,7 +132,7 @@ module StructuredEncryptionHeader {
                     + SerializeLegend(legend)
                     + SerializeContext(encContext)
                     + SerializeDataKeys(dataKeys)
-                    )
+                  )
     {
       var context := SerializeContext(encContext);
       var keys := SerializeDataKeys(dataKeys);
@@ -630,7 +630,7 @@ module StructuredEncryptionHeader {
                   + k.keyProviderInfo
                   + UInt16ToSeq(cipherSize)
                   + k.ciphertext
-                  )
+                )
   {
     UInt16ToSeq(|k.keyProviderId| as uint16)
     + k.keyProviderId
