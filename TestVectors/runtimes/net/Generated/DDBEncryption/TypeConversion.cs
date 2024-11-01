@@ -7,6 +7,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
 {
     public static class TypeConversion
     {
+        private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+
+        private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
+
         public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconKeySource FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_BeaconKeySource(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IBeaconKeySource value)
         {
             software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconKeySource concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconKeySource)value;

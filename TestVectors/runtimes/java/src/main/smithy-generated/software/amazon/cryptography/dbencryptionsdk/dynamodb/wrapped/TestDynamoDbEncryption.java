@@ -42,9 +42,17 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
         this._impl.CreateDynamoDbEncryptionBranchKeyIdSupplier(nativeInput);
       CreateDynamoDbEncryptionBranchKeyIdSupplierOutput dafnyOutput =
         ToDafny.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(nativeOutput);
-      return Result.create_Success(dafnyOutput);
+      return Result.create_Success(
+        CreateDynamoDbEncryptionBranchKeyIdSupplierOutput._typeDescriptor(),
+        Error._typeDescriptor(),
+        dafnyOutput
+      );
     } catch (RuntimeException ex) {
-      return Result.create_Failure(ToDafny.Error(ex));
+      return Result.create_Failure(
+        CreateDynamoDbEncryptionBranchKeyIdSupplierOutput._typeDescriptor(),
+        Error._typeDescriptor(),
+        ToDafny.Error(ex)
+      );
     }
   }
 
@@ -61,9 +69,17 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
         this._impl.GetEncryptedDataKeyDescription(nativeInput);
       GetEncryptedDataKeyDescriptionOutput dafnyOutput =
         ToDafny.GetEncryptedDataKeyDescriptionOutput(nativeOutput);
-      return Result.create_Success(dafnyOutput);
+      return Result.create_Success(
+        GetEncryptedDataKeyDescriptionOutput._typeDescriptor(),
+        Error._typeDescriptor(),
+        dafnyOutput
+      );
     } catch (RuntimeException ex) {
-      return Result.create_Failure(ToDafny.Error(ex));
+      return Result.create_Failure(
+        GetEncryptedDataKeyDescriptionOutput._typeDescriptor(),
+        Error._typeDescriptor(),
+        ToDafny.Error(ex)
+      );
     }
   }
 

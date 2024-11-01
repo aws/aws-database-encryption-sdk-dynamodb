@@ -1,0 +1,69 @@
+# This workflow is for testing backwards compatibility of a dafny version
+# and tests if a project that consumes the mpl will be backwards compatible with
+# a newer version of Dafny
+name: Dafny Interoperability Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      mpl-dafny:
+        description: "The Dafny version to compile the MPL with (4.2.0, nightly-latest, etc..)"
+        required: true
+        type: string
+      mpl-commit:
+        description: "The MPL branch/commit to use"
+        required: false
+        default: "main"
+        type: string
+      dbesdk-dafny:
+        description: "The Dafny version to compile the DBESDK with (4.2.0, nightly-latest, etc..)"
+        required: true
+        type: string
+
+jobs:
+  getMplHeadVersion:
+    uses: ./.github/workflows/mpl_head_version.yml
+    with:
+      mpl-head: ${{inputs.mpl-commit}}
+  dafny-interop-java:
+    needs: getMplHeadVersion
+    uses: ./.github/workflows/dafny_interop_java.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}
+  dafny-interop-java-test-vectors:
+    needs: getMplHeadVersion
+    uses: ./.github/workflows/dafny_interop_test_vector_java.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}
+  dafny-interop-java-examples:
+    needs: getMplHeadVersion
+    uses: ./.github/workflows/dafny_interop_examples_java.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}
+  dafny-interop-net:
+    uses: ./.github/workflows/dafny_interop_test_net.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}
+  dafny-interop-net-test-vectors:
+    uses: ./.github/workflows/dafny_interop_test_vector_net.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}
+  dafny-interop-net-examples:
+    uses: ./.github/workflows/dafny_interop_examples_net.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}

@@ -11,6 +11,8 @@ on:
     - cron: "30 16 * * *"
 
 jobs:
+  getVersion:
+    uses: ./.github/workflows/dafny_version.yml
   dafny-nightly-format:
     # Don't run the cron builds on forks
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'

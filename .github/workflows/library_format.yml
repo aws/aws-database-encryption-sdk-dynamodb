@@ -37,7 +37,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.2
+        uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
           dafny-version: ${{ '4.2.0' }}
 

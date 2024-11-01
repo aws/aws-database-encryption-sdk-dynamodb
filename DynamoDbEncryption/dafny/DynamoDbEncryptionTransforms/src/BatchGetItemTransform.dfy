@@ -11,6 +11,7 @@ module BatchGetItemTransform {
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import Seq
+  import SortedSets
 
   method Input(config: Config, input: BatchGetItemInputTransformInput)
     returns (output: Result<BatchGetItemInputTransformOutput, Error>)
@@ -34,14 +35,15 @@ module BatchGetItemTransform {
       return Success(BatchGetItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
     var tableNames := input.sdkOutput.Responses.value.Keys;
+    var tableNamesSeq := SortedSets.ComputeSetToSequence(tableNames);
+    ghost var tableNamesSet' := tableNames;
+    var i := 0;
     var result := map[];
-    while tableNames != {}
-      decreases |tableNames|
-      invariant tableNames <= input.sdkOutput.Responses.value.Keys
+    while i < |tableNamesSeq|
+      invariant tableNamesSet' <= input.sdkOutput.Responses.value.Keys
       // true but expensive -- invariant result.Keys + tableNames == input.sdkOutput.Responses.value.Keys
     {
-      var tableName :| tableName in tableNames;
-      tableNames := tableNames - { tableName };
+      var tableName := tableNamesSeq[i];
       var responses := input.sdkOutput.Responses.value[tableName];
       if tableName in config.tableEncryptionConfigs {
         var tableConfig := config.tableEncryptionConfigs[tableName];
@@ -74,6 +76,7 @@ module BatchGetItemTransform {
       } else {
         result := result + map[tableName := responses];
       }
+      i := i + 1;
     }
     return Success(BatchGetItemOutputTransformOutput(transformedOutput := input.sdkOutput.(Responses := Some(result))));
   }

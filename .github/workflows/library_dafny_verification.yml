@@ -28,6 +28,7 @@ jobs:
     # Don't run the nightly build on forks
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
+      fail-fast: false
       matrix:
         # Break up verification between namespaces over multiple
         # actions to take advantage of parallelization
@@ -52,7 +53,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.7.2
+        uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -82,7 +83,7 @@ jobs:
         uses: ./.github/actions/polymorph_codegen
         with:
           dafny: ${{ env.DAFNY_VERSION }}
-          library: ${{ matrix.library }}
+          library: DynamoDbEncryption
           diff-generated-code: false
 
       - name: Verify ${{ matrix.library }} Dafny code
