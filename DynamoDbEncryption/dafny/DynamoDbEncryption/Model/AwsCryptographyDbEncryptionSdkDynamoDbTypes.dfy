@@ -143,7 +143,9 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
                && output.value.branchKeyIdSupplier.ValidState()
                && output.value.branchKeyIdSupplier.Modifies !! {History}
                && fresh(output.value.branchKeyIdSupplier)
-               && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+               && fresh ( output.value.branchKeyIdSupplier.Modifies
+                          - Modifies - {History}
+                          - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
 
@@ -535,7 +537,9 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
                && output.value.branchKeyIdSupplier.ValidState()
                && output.value.branchKeyIdSupplier.Modifies !! {History}
                && fresh(output.value.branchKeyIdSupplier)
-               && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+               && fresh ( output.value.branchKeyIdSupplier.Modifies
+                          - Modifies - {History}
+                          - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
     {
@@ -592,7 +596,9 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
       && ( output.Success? ==>
              && output.value.branchKeyIdSupplier.ValidState()
              && fresh(output.value.branchKeyIdSupplier)
-             && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+             && fresh ( output.value.branchKeyIdSupplier.Modifies
+                        - ModifiesInternalConfig(config)
+                        - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
     ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
 
 
