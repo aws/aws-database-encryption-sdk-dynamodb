@@ -32,7 +32,7 @@ module SearchConfigToInfo {
   import CB = CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
 
   // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbTableEncryptionConfig)
@@ -137,14 +137,19 @@ module SearchConfigToInfo {
       else
         MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
-    //= specification/searchable-encryption/search-config.md#key-store-cache
-    //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
-    //# MUST be created.
-    var input := MPT.CreateCryptographicMaterialsCacheInput(
-      cache := cacheType
-    );
-    var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
-    var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    var cache;
+    if cacheType.Shared? {
+      cache := cacheType.Shared;
+    } else {
+      //= specification/searchable-encryption/search-config.md#key-store-cache
+      //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
+      //# MUST be created.
+      var input := MPT.CreateCryptographicMaterialsCacheInput(
+        cache := cacheType
+      );
+      var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
+      cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    }
 
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
