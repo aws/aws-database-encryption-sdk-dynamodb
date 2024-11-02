@@ -85,7 +85,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       // This lemma works around this
       // by proving that the outcomes are always deterministic and the same.
       // It does this by proving that given a total ordering,
-      // there is one and only one way to sort a given sequence. 
+      // there is one and only one way to sort a given sequence.
       TotalOrderingImpliesSortingIsUnique(right[..], other, lessThanOrEq);
     }
   }
@@ -412,21 +412,36 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     label BEFORE_RETURN:
     assert left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo]);
     if resultPlacement.Left? && where == Right {
-      forall i | lo <= i < hi {
+      for i := lo to hi
+        modifies right
+        invariant left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo])
+        invariant left[hi..] == old(left[hi..]) && right[hi..] == old(right[hi..])
+        invariant right[lo..i] == left[lo..i]
+      {
         right[i] := left[i];
       }
 
-      assert right[lo..hi] == mergedResult;
+      assert right[lo..hi] == mergedResult by {
+        assert mergedResult == left[lo..hi];
+      }
       assert left[..] == old@BEFORE_RETURN(left[..]);
       assert right[..lo] == old(right[..lo]);
 
       resultPlacement := Right;
     }
     if resultPlacement.Right? && where == Left {
-      forall i | lo <= i < hi {
+      for i := lo to hi
+        modifies left
+        invariant left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo])
+        invariant left[hi..] == old(left[hi..]) && right[hi..] == old(right[hi..])
+        invariant left[lo..i] == right[lo..i]
+      {
         left[i] := right[i];
       }
-      assert left[lo..hi] == mergedResult;
+
+      assert left[lo..hi] == mergedResult by {
+        assert mergedResult == right[lo..hi];
+      }
       assert right[..] == old@BEFORE_RETURN(right[..]);
       assert left[..lo] == old(left[..lo]);
 
