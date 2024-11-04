@@ -98,7 +98,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
-      TableName: !Ref BasicTestDotnetTableName
+      TableName: !Ref BasicTestDotNetTableName
 
   SearchTestJavaTable:
     Type: AWS::DynamoDB::Table
