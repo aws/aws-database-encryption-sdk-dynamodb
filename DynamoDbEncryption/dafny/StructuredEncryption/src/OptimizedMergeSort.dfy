@@ -167,7 +167,12 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     label BEFORE_RETURN:
     assert left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo]);
     if resultPlacement.Left? && where == Right {
-      forall i | lo <= i < hi {
+      for i := lo to hi
+        modifies right
+        invariant left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo])
+        invariant left[hi..] == old(left[hi..]) && right[hi..] == old(right[hi..])
+        invariant right[lo..i] == left[lo..i]
+      {
         right[i] := left[i];
       }
 
@@ -178,7 +183,12 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       resultPlacement := Right;
     }
     if resultPlacement.Right? && where == Left {
-      forall i | lo <= i < hi {
+      for i := lo to hi
+        modifies left
+        invariant left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo])
+        invariant left[hi..] == old(left[hi..]) && right[hi..] == old(right[hi..])
+        invariant left[lo..i] == right[lo..i]
+      {
         left[i] := right[i];
       }
 
@@ -412,6 +422,14 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     label BEFORE_RETURN:
     assert left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo]);
     if resultPlacement.Left? && where == Right {
+      // A forall comprehension might seem like a nice fit here,
+      // however this does not good for two reasons.
+      // First, Dafny currently creates a range fur the full bounds of the bounded number
+      // see: https://github.com/dafny-lang/dafny/issues/5897
+      // Second this would create two loops.
+      // First loop would create the `lo to hi` range of numbers.
+      // The second loop would then loop over these elements.
+      // A single loop with 
       for i := lo to hi
         modifies right
         invariant left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo])
