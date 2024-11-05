@@ -278,9 +278,9 @@ public class RawEcdhKeyringExample {
     }
 
     // 2. Create the keyring.
-    //    This keyring uses an ephemeral configuration. This configuration will always create a new
-    //    key pair as the sender key pair for the key agreement operation. The ephemeral configuration can only
-    //    encrypt data and CANNOT decrypt messages.
+    //    This keyring uses a discovery configuration. This configuration will check on decrypt
+    //    if it is meant to decrypt the message by checking if the configured public key is stored on the message.
+    //    The discovery configuration can only decrypt messages and CANNOT encrypt messages.
     //    The DynamoDb encryption client uses this to encrypt and decrypt items.
     final CreateRawEcdhKeyringInput keyringInput = CreateRawEcdhKeyringInput
       .builder()
