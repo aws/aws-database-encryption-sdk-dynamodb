@@ -66,7 +66,7 @@ import software.amazon.cryptography.primitives.model.ECDHCurveSpec;
   This parameter takes in the sender's private key as a
   UTF8 PEM-encoded (PKCS #8 PrivateKeyInfo structures), the recipient's
   DER-encoded X.509 public key, also known as SubjectPublicKeyInfo (SPKI),
-  and the Curve Specification where the keys lie. If this example
+  and the Curve Specification where the keys lie.
 
   This example encrypts a test item using the provided ECC keys and puts the
   encrypted item to the provided DynamoDb table. Then, it gets the
@@ -726,7 +726,7 @@ public class RawEcdhKeyringExample {
       !privateKeyFileRecipient.exists()
     ) {
       throw new IllegalStateException(
-        "Missing priavet key recipeitn file at " +
+        "Missing private key recipient file at " +
         EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT
       );
     }
