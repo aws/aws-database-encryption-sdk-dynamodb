@@ -23,11 +23,11 @@ public class TestUtils
 
     public static readonly string TEST_KMS_RSA_KEY_ID =
         "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6";
-    
-    public static readonly string  TEST_KMS_ECDH_KEY_ID_P256_SENDER = 
+
+    public static readonly string TEST_KMS_ECDH_KEY_ID_P256_SENDER =
         "arn:aws:kms:us-west-2:370957321024:key/eabdf483-6be2-4d2d-8ee4-8c2583d416e9";
-    
-    public static readonly string TEST_KMS_ECDH_KEY_ID_P256_RECIPIENT = 
+
+    public static readonly string TEST_KMS_ECDH_KEY_ID_P256_RECIPIENT =
         "arn:aws:kms:us-west-2:370957321024:key/0265c8e9-5b6a-4055-8f70-63719e09fda5";
 
     public static readonly string TEST_MRK_REPLICA_KEY_ID_US_EAST_1 =

@@ -62,7 +62,7 @@ public class RawEcdhKeyringExample
     private static async Task RawEcdhKeyringExampleGetItemPutItem()
     {
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
-        
+
         // 1. Load key pair from UTF-8 encoded PEM files.
         //    You may provide your own PEM files to use here.
         //    If you do not, the main method in this class will generate PEM
@@ -77,7 +77,7 @@ public class RawEcdhKeyringExample
         {
             throw new IOException("Exception while reading private key from file", e);
         }
-        
+
         MemoryStream publicKeyRecipientUtf8EncodedByteBuffer;
         try
         {
@@ -89,7 +89,7 @@ public class RawEcdhKeyringExample
         {
             throw new IOException("Exception while reading public key from file", e);
         }
-        
+
         // 2. Create the keyring.
         //    The DynamoDb encryption client uses this to encrypt and decrypt items.
         var keyringInput = new CreateRawEcdhKeyringInput
@@ -108,21 +108,21 @@ public class RawEcdhKeyringExample
                 {
                     // Must be a UTF8 PEM-encoded private key
                     SenderStaticPrivateKey = privateKeySenderUtf8EncodedByteBuffer,
-                   // Must be a UTF8 DER-encoded X.509 public key also known as SubjectPublicKeyInfo.
+                    // Must be a UTF8 DER-encoded X.509 public key also known as SubjectPublicKeyInfo.
                     RecipientPublicKey = publicKeyRecipientUtf8EncodedByteBuffer
                 }
             }
         };
         var matProv = new MaterialProviders(new MaterialProvidersConfig());
         var rawEcdhKeyring = matProv.CreateRawEcdhKeyring(keyringInput);
-        
+
         await PutGetExampleWithKeyring(rawEcdhKeyring, ddbTableName);
     }
 
     private static async Task EphemeralRawEcdhKeyringPutItem()
     {
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
-        
+
         // 1. Load key pair from UTF-8 encoded PEM files.
         //    You may provide your own PEM files to use here.
         //    If you do not, the RawEcdhKeyringExamples method in this class will generate PEM
@@ -138,7 +138,7 @@ public class RawEcdhKeyringExample
         {
             throw new IOException("Exception while reading public key from file", e);
         }
-        
+
         // 2. Create the keyring.
         //    The DynamoDb encryption client uses this to encrypt and decrypt items.
         var keyringInput = new CreateRawEcdhKeyringInput
@@ -161,17 +161,17 @@ public class RawEcdhKeyringExample
         };
         var matProv = new MaterialProviders(new MaterialProvidersConfig());
         var rawEcdhKeyring = matProv.CreateRawEcdhKeyring(keyringInput);
-        
+
         // A raw ecdh keyring with Ephemeral configuration cannot decrypt data since the key pair
         // used as the sender is ephemeral. This means that at decrypt time it does not have
         // the private key that corresponds to the public key that is stored on the message. 
         await PutExampleWithKeyring(rawEcdhKeyring, ddbTableName);
     }
-    
+
     private static async Task DiscoveryRawEcdhKeyringGetItem()
     {
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
-        
+
         // 1. Load key pair from UTF-8 encoded PEM files.
         //    You may provide your own PEM files to use here.
         //    If you do not, the main method in this class will generate PEM
@@ -186,7 +186,7 @@ public class RawEcdhKeyringExample
         {
             throw new IOException("Exception while reading private key from file", e);
         }
-        
+
         // 2. Create the keyring.
         //    The DynamoDb encryption client uses this to encrypt and decrypt items.
         var keyringInput = new CreateRawEcdhKeyringInput
@@ -210,7 +210,7 @@ public class RawEcdhKeyringExample
         };
         var matProv = new MaterialProviders(new MaterialProvidersConfig());
         var rawEcdhKeyring = matProv.CreateRawEcdhKeyring(keyringInput);
-        
+
         await GetExampleWithKeyring(rawEcdhKeyring, ddbTableName);
     }
 
@@ -403,7 +403,7 @@ public class RawEcdhKeyringExample
 
         // Demonstrate that PutItem succeeded
         Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
-        
+
         // 8. Try to get the item and assert that the ephemeral keyring configuration
         // cannot decrypt data.
         var keyToGet = new Dictionary<String, AttributeValue>
@@ -426,9 +426,9 @@ public class RawEcdhKeyringExample
         {
             Debug.Assert(e.Message.Contains("EphemeralPrivateKeyToStaticPublicKey Key Agreement Scheme is forbidden on decrypt."));
         }
-        
+
     }
-    
+
     private static async Task GetExampleWithKeyring(IKeyring rawEcdhKeyring, string ddbTableName)
     {
         // 3. Configure which attributes are encrypted and/or signed when writing new items.
@@ -515,7 +515,7 @@ public class RawEcdhKeyringExample
         {
             Debug.Assert(e.Message.Contains("PublicKeyDiscovery Key Agreement Scheme is forbidden on encrypt."));
         }
-        
+
         // 8. Get the item back from our table using the same client.
         //    The client will decrypt the item client-side, and return
         //    back the original item.
@@ -550,7 +550,7 @@ public class RawEcdhKeyringExample
         {
             GenerateEccKeyPairs();
         }
-        
+
         await RawEcdhKeyringExampleGetItemPutItem();
         await EphemeralRawEcdhKeyringPutItem();
         await DiscoveryRawEcdhKeyringGetItem();
@@ -560,7 +560,7 @@ public class RawEcdhKeyringExample
     private static bool ShouldGenerateNewEccKeys()
     {
         // If keys already exists; do not overwrite existing keys.
-        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER) 
+        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER)
             && File.Exists(EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT)
             && File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT))
         {
@@ -568,36 +568,36 @@ public class RawEcdhKeyringExample
         }
 
         // If only two keys are present; throw exception
-        if (!File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER) 
+        if (!File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER)
                         && File.Exists(EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT)
                         && File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT))
         {
             throw new ApplicationException("Missing private key file at: " + EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER);
         }
-        
+
         // If only two keys are present; throw exception
-        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER) 
+        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER)
                         && File.Exists(EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT)
                         && !File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT))
         {
             throw new ApplicationException("Missing private key file at: " + EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT);
         }
-        
+
         // If only two keys are present; throw exception
-        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER) 
+        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER)
                         && !File.Exists(EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT)
                         && File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT))
         {
             throw new ApplicationException("Missing public key file at: " + EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT);
         }
-        
+
         return true;
     }
-    
+
     private static void GenerateEccKeyPairs()
     {
         // Safety check; Validate neither file is present
-        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER) 
+        if (File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER)
             || File.Exists(EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT)
             || File.Exists(EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT))
         {
@@ -620,7 +620,7 @@ public class RawEcdhKeyringExample
             generator = new ECKeyPairGenerator();
             SecureRandom rng = new SecureRandom();
             X9ECParameters p = ECNamedCurveTable.GetByName("secp256r1");
-            
+
             var domainParameters = new ECDomainParameters(p.Curve, p.G, p.N, p.H);
             generator.Init(new ECKeyGenerationParameters(domainParameters, rng));
 
@@ -630,10 +630,10 @@ public class RawEcdhKeyringExample
             Console.WriteLine(e);
             throw;
         }
-        
+
         AsymmetricCipherKeyPair senderKeyPair = generator.GenerateKeyPair();
         AsymmetricCipherKeyPair recipientKeyPair = generator.GenerateKeyPair();
-        
+
         WritePrivateKey(senderKeyPair.Private, EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER);
         WritePrivateKey(recipientKeyPair.Private, EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT);
         WritePublicKey(recipientKeyPair, "secp256r1", EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT);
@@ -650,19 +650,19 @@ public class RawEcdhKeyringExample
         fc.Write(privateKeyUtf8EncodedBytes);
         fc.Close();
     }
-    
+
     private static void WritePublicKey(AsymmetricCipherKeyPair publicKey, string curveName, string fileName)
     {
         var ecdhCurveSpecFromCurveName = ToEcdhCurveSpec(curveName);
         var spki = KeyGeneration.SerializePublicKey(publicKey, ecdhCurveSpecFromCurveName).CloneAsArray();
-        
+
         var publicKeyStringWriter = new StringWriter();
         var publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
         publicKeyPemWriter.WriteObject(new PemObject("PUBLIC KEY", spki));
         var publicKeyUtf8EncodedBytes = Encoding.UTF8.GetBytes(publicKeyStringWriter.ToString());
         var fc = new FileStream(fileName, FileMode.Create, FileAccess.Write);
         fc.Write(publicKeyUtf8EncodedBytes);
-        fc.Close(); 
+        fc.Close();
     }
 
     private static _IECDHCurveSpec ToEcdhCurveSpec(string curveName)

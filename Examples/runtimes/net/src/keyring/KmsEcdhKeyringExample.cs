@@ -28,8 +28,8 @@ public class KmsEcdhKeyringExample
     {
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
         var ecdhKeyArnSender = TestUtils.TEST_KMS_ECDH_KEY_ID_P256_SENDER;
-        
-        
+
+
         // 1. Load public keys from UTF-8 encoded PEM files.
         //    You may provide your own PEM files to use here.
         //    If you do not, the main method in this class will generate PEM
@@ -45,7 +45,7 @@ public class KmsEcdhKeyringExample
         {
             throw new IOException("Exception while reading private key from file", e);
         }
-        
+
         MemoryStream publicKeyRecipientUtf8EncodedByteBuffer;
         try
         {
@@ -57,7 +57,7 @@ public class KmsEcdhKeyringExample
         {
             throw new IOException("Exception while reading public key from file", e);
         }
-        
+
         // 2. Create the keyring.
         //    The DynamoDb encryption client uses this to encrypt and decrypt items.
         var keyringInput = new CreateAwsKmsEcdhKeyringInput
@@ -88,12 +88,12 @@ public class KmsEcdhKeyringExample
 
         await PutItemGetItemWithKeyring(kmsEcdhKeyring, ddbTableName);
     }
-    
+
     private static async Task KmsEcdhKeyringDiscoveryGetItem()
     {
         var ddbTableName = TestUtils.TEST_DDB_TABLE_NAME;
         var ecdhKeyArnRecipient = TestUtils.TEST_KMS_ECDH_KEY_ID_P256_RECIPIENT;
-        
+
         // 1. Create a KMS ECDH keyring.
         //    This keyring takes in:
         //     - kmsClient
@@ -202,7 +202,7 @@ public class KmsEcdhKeyringExample
         var returnedItem = getResponse.Item;
         Debug.Assert(returnedItem["sensitive_data"].S.Equals("encrypt and sign me!"));
     }
-    
+
     private static async Task PutItemGetItemWithKeyring(IKeyring kmsEcdhKeyring, string ddbTableName)
     {
         // 3. Configure which attributes are encrypted and/or signed when writing new items.
@@ -309,7 +309,7 @@ public class KmsEcdhKeyringExample
         var returnedItem = getResponse.Item;
         Debug.Assert(returnedItem["sensitive_data"].S.Equals("encrypt and sign me!"));
     }
-    
+
     public static async Task KmsEcdhKeyringExamples()
     {
         // You may provide your own ECC Keys in the files located at
@@ -325,7 +325,7 @@ public class KmsEcdhKeyringExample
         await KmsEcdhKeyringGetItemPutItem();
         await KmsEcdhKeyringDiscoveryGetItem();
     }
-    
+
     private static async Task WritePublicKeyPemForEccKey(string kmsEcdhKeyArn, string exampleEccPublicKeySenderFilename)
     {
         // Safety check: Validate file is not present
@@ -341,11 +341,11 @@ public class KmsEcdhKeyringExample
             new GetPublicKeyRequest { KeyId = kmsEcdhKeyArn }
         );
         var publicKeyByteArray = response.PublicKey.ToArray();
-        
+
         StringWriter publicKeyStringWriter = new StringWriter();
         PemWriter publicKeyPemWriter = new PemWriter(publicKeyStringWriter);
         publicKeyPemWriter.WriteObject(new PemObject("PUBLIC KEY", publicKeyByteArray));
-        
+
         var publicKeyUtf8EncodedByteBuffer = Encoding.UTF8.GetBytes(publicKeyStringWriter.ToString());
         var fc = new FileStream(exampleEccPublicKeySenderFilename, FileMode.Create, FileAccess.Write);
         fc.Write(publicKeyUtf8EncodedByteBuffer);
@@ -355,7 +355,7 @@ public class KmsEcdhKeyringExample
     private static bool ShouldGetNewEccKeys()
     {
         // If keys already exists; do not overwrite existing keys.
-        if (File.Exists(EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME) 
+        if (File.Exists(EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME)
             || File.Exists(EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME))
         {
             return false;
@@ -366,13 +366,13 @@ public class KmsEcdhKeyringExample
         {
             throw new ApplicationException("Missing public key file at: " + EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME);
         }
-        
+
         if (File.Exists(EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME)
             && !File.Exists(EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME))
         {
             throw new ApplicationException("Missing public key file at: " + EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME);
         }
-        
+
         return true;
     }
 }
