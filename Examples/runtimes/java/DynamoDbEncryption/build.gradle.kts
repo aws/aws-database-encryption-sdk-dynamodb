@@ -68,17 +68,10 @@ repositories {
 
 dependencies {
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
-
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:arns")
     implementation("software.amazon.awssdk:auth")
-    implementation("software.amazon.awssdk:dynamodb")
-    implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:kms")
     implementation("software.amazon.awssdk:sts")
-
-    implementation("org.bouncycastle:bcprov-jdk18on:1.72")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")

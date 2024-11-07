@@ -86,17 +86,12 @@ repositories {
 val dynamodb by configurations.creating
 
 dependencies {
-    implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
-    implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:${mplVersion}")
 
     implementation(platform("software.amazon.awssdk:bom:2.26.25"))
-    implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:core:2.26.25")
-    implementation("software.amazon.awssdk:kms")
+    implementation("software.amazon.awssdk:core")
     testImplementation("com.amazonaws:DynamoDBLocal:2.+")
     // This is where we gather the SQLLite files to copy over
     dynamodb("com.amazonaws:DynamoDBLocal:2.+")

@@ -79,14 +79,10 @@ repositories {
 val dynamodb by configurations.creating
 
 dependencies {
-    implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
-    implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
     implementation(platform("software.amazon.awssdk:bom:2.26.25"))
-    implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:kms")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
