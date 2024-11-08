@@ -12,8 +12,10 @@ public class TestKmsEcdhKeyringExample {
 
   @Test
   public void TestKmsEcdhKeyringExampleStatic() {
-    // You may provide your own ECC public keys at EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME
-    // and EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME.
+    // You may provide your own ECC public keys at
+    // - EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME
+    // - EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME.
+    // If you provide these, the keys MUST be on curve P256
     // This must be the public key for the ECC key represented at eccKeyArn
     // If this file is not present, this will write a UTF-8 encoded PEM file for you.
     if (shouldGetNewPublicKeys()) {

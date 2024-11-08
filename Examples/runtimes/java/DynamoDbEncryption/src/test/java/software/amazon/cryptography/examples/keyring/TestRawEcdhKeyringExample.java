@@ -13,6 +13,7 @@ public class TestRawEcdhKeyringExample {
     // You may provide your own ECC Key pairs in the files located at
     // - EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER
     // - EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
+    // If you provide this, the keys MUST be on curve P256
     // If these files are not present, this will generate a pair for you.
     // For this example we will use the curve P256.
     if (RawEcdhKeyringExample.shouldGenerateNewEccKeyPairs()) {
@@ -31,6 +32,7 @@ public class TestRawEcdhKeyringExample {
   public void TestEphemeralRawEcdhKeyringExample() {
     // You may provide your own ECC Public Key in the files located at
     // - EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
+    // If you provide this, the keys MUST be on curve P256
     // If these files are not present, this will generate a pair for you.
     // For this example we will use the curve P256.
     if (RawEcdhKeyringExample.shouldGenerateNewEccKeyPairs()) {
@@ -50,6 +52,7 @@ public class TestRawEcdhKeyringExample {
     // You may provide your own ECC Public Key in the files located at
     // - EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
     // - EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT
+    // If you provide this, the keys MUST be on curve P256
     // If these files are not present, this will generate a pair for you.
     // For this example we will use the curve P256.
     if (RawEcdhKeyringExample.shouldGenerateNewEccKeyPairs()) {

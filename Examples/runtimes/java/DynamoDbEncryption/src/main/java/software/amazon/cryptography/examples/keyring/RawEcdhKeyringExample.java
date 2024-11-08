@@ -55,24 +55,14 @@ import software.amazon.cryptography.materialproviders.model.RawPrivateKeyToStati
 import software.amazon.cryptography.primitives.model.ECDHCurveSpec;
 
 /*
-  This example sets up DynamoDb Encryption for the AWS SDK client
-  using the raw ECDH Keyring. This keyring takes in the sender's ECC
-  private key and the recipient's ECC Public Key to derive a shared secret.
+  These examples set up DynamoDb Encryption for the AWS SDK client
+  using the raw ECDH Keyring. This keyring, depending on its KeyAgreement scheme,
+  takes in the sender's ECC private key, and the recipient's ECC Public Key to derive a shared secret.
   The keyring uses the shared secret to derive a data key to protect the
   data keys that encrypt and decrypt DynamoDb table items.
 
-  This example takes in the sender's private key, the recipient's
-  public key, and the algorithm definition where the ECC keys lie.
-  This parameter takes in the sender's private key as a
-  UTF8 PEM-encoded (PKCS #8 PrivateKeyInfo structures), the recipient's
-  DER-encoded X.509 public key, also known as SubjectPublicKeyInfo (SPKI),
-  and the Curve Specification where the keys lie.
 
-  This example encrypts a test item using the provided ECC keys and puts the
-  encrypted item to the provided DynamoDb table. Then, it gets the
-  item from the table and decrypts it.
-
-  Running this example requires access to the DDB Table whose name
+  Running these examples require access to the DDB Table whose name
   is provided in CLI arguments.
   This table must be configured with the following
   primary key configuration:
@@ -88,14 +78,36 @@ public class RawEcdhKeyringExample {
   public static String EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT =
     "RawEcdhKeyringExamplePublicKeyRecipient.pem";
 
+  /*
+    This example takes in the sender's private key as a
+    UTF8 PEM-encoded (PKCS #8 PrivateKeyInfo structures)
+    located at the file location defined in EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER,
+    the recipient's public key as a UTF8 PEM-encoded X.509 public key, also known as SubjectPublicKeyInfo (SPKI),
+    located at the file location defined in EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT,
+    and the Curve Specification where the keys lie.
+
+    This example encrypts a test item using the provided ECC keys and puts the
+    encrypted item to the provided DynamoDb table. Then, it gets the
+    item from the table and decrypts it.
+
+    This examples creates a RawECDH keyring with the RawPrivateKeyToStaticPublicKey key agreement scheme.
+    For more information on this configuration see:
+    https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-raw-ecdh-keyring.html#raw-ecdh-RawPrivateKeyToStaticPublicKey
+
+    On encrypt, the shared secret is derived from the sender's private key and the recipient's public key.
+    On decrypt, the shared secret is derived from the sender's private key and the recipient's public key;
+    however, on decrypt the recipient can construct a keyring such that the shared secret is calculated with
+    the recipient's private key and the sender's public key. In both scenarios the shared secret will be the same.
+   */
   public static void RawEcdhKeyringGetItemPutItem(
     String ddbTableName,
     ECDHCurveSpec curveSpec
   ) {
-    // 1. Load key pair from UTF-8 encoded PEM files.
-    //    You may provide your own PEM files to use here.
-    //    If you do not, the main method in this class will generate PEM
-    //    files for example use. Do not use these files for any other purpose.
+    // Load key pair from UTF-8 encoded PEM files.
+    // You may provide your own PEM files to use here. If you provide this, it MUST
+    // be a key on curve P256.
+    // If you do not, the main method in this class will generate PEM
+    // files for example use. Do not use these files for any other purpose.
     ByteBuffer privateKeyUtf8EncodedByteBuffer;
     try {
       privateKeyUtf8EncodedByteBuffer =
@@ -145,10 +157,14 @@ public class RawEcdhKeyringExample {
       throw new RuntimeException(e);
     }
 
-    // 2. Create the keyring.
-    //    This keyring uses static sender and recipient keys. This configuration calls for the keys
-    //    to be
-    //    The DynamoDb encryption client uses this to encrypt and decrypt items.
+    // Create the keyring.
+    // This keyring uses static sender and recipient keys. This configuration calls for both of
+    // the keys to be on the same curve (P256, P384, P521).
+    // On encrypt, the shared secret is derived from the sender's private key and the recipient's public key.
+    // For this example, on decrypt, the shared secret is derived from the sender's private key and the recipient's public key;
+    // however, on decrypt the recipient can construct a keyring such that the shared secret is calculated with
+    // the recipient's private key and the sender's public key. In both scenarios the shared secret will be the same.
+    // The DynamoDb encryption client uses this to encrypt and decrypt items.
     final CreateRawEcdhKeyringInput keyringInput = CreateRawEcdhKeyringInput
       .builder()
       .curveSpec(curveSpec)
@@ -177,14 +193,25 @@ public class RawEcdhKeyringExample {
     PutGetExampleWithKeyring(rawEcdhKeyring, ddbTableName);
   }
 
+  /*
+    This example takes in the recipient's public key located at EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
+    as a UTF8 PEM-encoded (PKCS #8 PrivateKeyInfo structures), and the Curve Specification where the key lies.
+
+    This examples creates a RawECDH keyring with the EphemeralPrivateKeyToStaticPublicKey key agreement scheme.
+    This configuration will always create a new key pair as the sender key pair for the key agreement operation.
+    The ephemeral configuration can only encrypt data and CANNOT decrypt messages.
+    For more information on this configuration see:
+    https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-raw-ecdh-keyring.html#raw-ecdh-EphemeralPrivateKeyToStaticPublicKey
+   */
   public static void EphemeralRawEcdhKeyringPutItem(
     String ddbTableName,
     ECDHCurveSpec ecdhCurveSpec
   ) {
-    // 1. Load public key from UTF-8 encoded PEM files into a DER encoded public key.
-    //    You may provide your own PEM files to use here.
-    //    If you do not, the main method in this class will generate PEM
-    //    files for example use. Do not use these files for any other purpose.
+    // Load public key from UTF-8 encoded PEM files into a DER encoded public key.
+    // You may provide your own PEM files to use here. If you provide this, it MUST
+    // be a key on curve P256.
+    // If you do not, the main method in this class will generate PEM
+    // files for example use. Do not use these files for any other purpose.
     ByteBuffer publicKeyByteBuffer;
     try {
       ByteBuffer publicKeyUtf8EncodedByteBuffer = ByteBuffer.wrap(
@@ -221,11 +248,11 @@ public class RawEcdhKeyringExample {
       throw new RuntimeException(e);
     }
 
-    // 2. Create the keyring.
-    //    This keyring uses an ephemeral configuration. This configuration will always create a new
-    //    key pair as the sender key pair for the key agreement operation. The ephemeral configuration can only
-    //    encrypt data and CANNOT decrypt messages.
-    //    The DynamoDb encryption client uses this to encrypt and decrypt items.
+    // Create the keyring.
+    // This keyring uses an ephemeral configuration. This configuration will always create a new
+    // key pair as the sender key pair for the key agreement operation. The ephemeral configuration can only
+    // encrypt data and CANNOT decrypt messages.
+    // The DynamoDb encryption client uses this to encrypt and decrypt items.
     final CreateRawEcdhKeyringInput keyringInput = CreateRawEcdhKeyringInput
       .builder()
       .curveSpec(ecdhCurveSpec)
@@ -254,14 +281,25 @@ public class RawEcdhKeyringExample {
     PutExampleWithKeyring(rawEcdhKeyring, ddbTableName);
   }
 
+  /*
+    This example takes in the recipient's private key located at EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT
+    as a UTF8 PEM-encoded X.509 public key, also known as SubjectPublicKeyInfo (SPKI),
+    and the Curve Specification where the key lies.
+
+    This examples creates a RawECDH keyring with the PublicKeyDiscovery key agreement scheme.
+    This scheme is only available on decrypt.
+    For more information on this configuration see:
+    https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-raw-ecdh-keyring.html#raw-ecdh-PublicKeyDiscovery
+   */
   public static void DiscoveryRawEcdhKeyringGetItem(
     String ddbTableName,
     ECDHCurveSpec ecdhCurveSpec
   ) {
-    // 1. Load key pair from UTF-8 encoded PEM files.
-    //    You may provide your own PEM files to use here.
-    //    If you do not, the main method in this class will generate PEM
-    //    files for example use. Do not use these files for any other purpose.
+    // Load key pair from UTF-8 encoded PEM files.
+    // You may provide your own PEM files to use here. If you provide this, it MUST
+    // be a key on curve P256.
+    // If you do not, the main method in this class will generate PEM
+    // files for example use. Do not use these files for any other purpose.
     ByteBuffer privateKeyUtf8EncodedByteBuffer;
     try {
       privateKeyUtf8EncodedByteBuffer =
@@ -277,11 +315,11 @@ public class RawEcdhKeyringExample {
       );
     }
 
-    // 2. Create the keyring.
-    //    This keyring uses a discovery configuration. This configuration will check on decrypt
-    //    if it is meant to decrypt the message by checking if the configured public key is stored on the message.
-    //    The discovery configuration can only decrypt messages and CANNOT encrypt messages.
-    //    The DynamoDb encryption client uses this to encrypt and decrypt items.
+    // Create the keyring.
+    // This keyring uses a discovery configuration. This configuration will check on decrypt
+    // if it is meant to decrypt the message by checking if the configured public key is stored on the message.
+    // The discovery configuration can only decrypt messages and CANNOT encrypt messages.
+    // The DynamoDb encryption client uses this to encrypt and decrypt items.
     final CreateRawEcdhKeyringInput keyringInput = CreateRawEcdhKeyringInput
       .builder()
       .curveSpec(ecdhCurveSpec)
@@ -313,12 +351,12 @@ public class RawEcdhKeyringExample {
     IKeyring rawEcdhKeyring,
     String ddbTableName
   ) {
-    // 3. Configure which attributes are encrypted and/or signed when writing new items.
-    //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
-    //    we must explicitly configure how they should be treated during item encryption:
-    //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
-    //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
-    //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
+    // Configure which attributes are encrypted and/or signed when writing new items.
+    // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
+    // we must explicitly configure how they should be treated during item encryption:
+    //   - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
+    //   - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
+    //   - DO_NOTHING: The attribute is not encrypted and not included in the signature
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
@@ -327,37 +365,37 @@ public class RawEcdhKeyringExample {
       CryptoAction.ENCRYPT_AND_SIGN
     );
 
-    // 4. Configure which attributes we expect to be included in the signature
-    //    when reading items. There are two options for configuring this:
+    // Configure which attributes we expect to be included in the signature
+    // when reading items. There are two options for configuring this:
     //
-    //    - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
-    //      When defining your DynamoDb schema and deciding on attribute names,
-    //      choose a distinguishing prefix (such as ":") for all attributes that
-    //      you do not want to include in the signature.
-    //      This has two main benefits:
-    //      - It is easier to reason about the security and authenticity of data within your item
-    //        when all unauthenticated data is easily distinguishable by their attribute name.
-    //      - If you need to add new unauthenticated attributes in the future,
-    //        you can easily make the corresponding update to your `attributeActionsOnEncrypt`
-    //        and immediately start writing to that new attribute, without
-    //        any other configuration update needed.
-    //      Once you configure this field, it is not safe to update it.
+    // - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
+    //   When defining your DynamoDb schema and deciding on attribute names,
+    //   choose a distinguishing prefix (such as ":") for all attributes that
+    //   you do not want to include in the signature.
+    //   This has two main benefits:
+    //   - It is easier to reason about the security and authenticity of data within your item
+    //     when all unauthenticated data is easily distinguishable by their attribute name.
+    //   - If you need to add new unauthenticated attributes in the future,
+    //     you can easily make the corresponding update to your `attributeActionsOnEncrypt`
+    //     and immediately start writing to that new attribute, without
+    //     any other configuration update needed.
+    //   Once you configure this field, it is not safe to update it.
     //
-    //    - Configure `allowedUnsignedAttributes`: You may also explicitly list
-    //      a set of attributes that should be considered unauthenticated when encountered
-    //      on read. Be careful if you use this configuration. Do not remove an attribute
-    //      name from this configuration, even if you are no longer writing with that attribute,
-    //      as old items may still include this attribute, and our configuration needs to know
-    //      to continue to exclude this attribute from the signature scope.
-    //      If you add new attribute names to this field, you must first deploy the update to this
-    //      field to all readers in your host fleet before deploying the update to start writing
-    //      with that new attribute.
+    // - Configure `allowedUnsignedAttributes`: You may also explicitly list
+    //   a set of attributes that should be considered unauthenticated when encountered
+    //   on read. Be careful if you use this configuration. Do not remove an attribute
+    //   name from this configuration, even if you are no longer writing with that attribute,
+    //   as old items may still include this attribute, and our configuration needs to know
+    //   to continue to exclude this attribute from the signature scope.
+    //   If you add new attribute names to this field, you must first deploy the update to this
+    //   field to all readers in your host fleet before deploying the update to start writing
+    //   with that new attribute.
     //
-    //   For this example, we currently authenticate all attributes. To make it easier to
-    //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
+    // For this example, we currently authenticate all attributes. To make it easier to
+    // add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
     final String unsignAttrPrefix = ":";
 
-    // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // Create the DynamoDb Encryption configuration for the table we will be writing to.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs =
       new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig
@@ -371,7 +409,7 @@ public class RawEcdhKeyringExample {
       .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 6. Create the DynamoDb Encryption Interceptor
+    // Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor =
       DynamoDbEncryptionInterceptor
         .builder()
@@ -383,7 +421,7 @@ public class RawEcdhKeyringExample {
         )
         .build();
 
-    // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient
       .builder()
       .overrideConfiguration(
@@ -394,9 +432,9 @@ public class RawEcdhKeyringExample {
       )
       .build();
 
-    // 8. Put an item into our table using the above client.
-    //    Before the item gets sent to DynamoDb, it will be encrypted
-    //    client-side, according to our configuration.
+    // Put an item into our table using the above client.
+    // Before the item gets sent to DynamoDb, it will be encrypted
+    // client-side, according to our configuration.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
@@ -419,9 +457,9 @@ public class RawEcdhKeyringExample {
     // Demonstrate that PutItem succeeded
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 9. Get the item back from our table using the same client.
-    //    The client will decrypt the item client-side, and return
-    //    back the original item.
+    // Get the item back from our table using the same client.
+    // The client will decrypt the item client-side, and return
+    // back the original item.
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
@@ -450,12 +488,12 @@ public class RawEcdhKeyringExample {
     IKeyring rawEcdhKeyring,
     String ddbTableName
   ) {
-    // 3. Configure which attributes are encrypted and/or signed when writing new items.
-    //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
-    //    we must explicitly configure how they should be treated during item encryption:
-    //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
-    //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
-    //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
+    // Configure which attributes are encrypted and/or signed when writing new items.
+    // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
+    // we must explicitly configure how they should be treated during item encryption:
+    //   - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
+    //   - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
+    //   - DO_NOTHING: The attribute is not encrypted and not included in the signature
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
@@ -464,37 +502,37 @@ public class RawEcdhKeyringExample {
       CryptoAction.ENCRYPT_AND_SIGN
     );
 
-    // 4. Configure which attributes we expect to be included in the signature
-    //    when reading items. There are two options for configuring this:
+    // Configure which attributes we expect to be included in the signature
+    // when reading items. There are two options for configuring this:
     //
-    //    - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
-    //      When defining your DynamoDb schema and deciding on attribute names,
-    //      choose a distinguishing prefix (such as ":") for all attributes that
-    //      you do not want to include in the signature.
-    //      This has two main benefits:
-    //      - It is easier to reason about the security and authenticity of data within your item
-    //        when all unauthenticated data is easily distinguishable by their attribute name.
-    //      - If you need to add new unauthenticated attributes in the future,
-    //        you can easily make the corresponding update to your `attributeActionsOnEncrypt`
-    //        and immediately start writing to that new attribute, without
-    //        any other configuration update needed.
-    //      Once you configure this field, it is not safe to update it.
+    // - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
+    //   When defining your DynamoDb schema and deciding on attribute names,
+    //   choose a distinguishing prefix (such as ":") for all attributes that
+    //   you do not want to include in the signature.
+    //   This has two main benefits:
+    //   - It is easier to reason about the security and authenticity of data within your item
+    //     when all unauthenticated data is easily distinguishable by their attribute name.
+    //   - If you need to add new unauthenticated attributes in the future,
+    //     you can easily make the corresponding update to your `attributeActionsOnEncrypt`
+    //     and immediately start writing to that new attribute, without
+    //     any other configuration update needed.
+    //   Once you configure this field, it is not safe to update it.
     //
-    //    - Configure `allowedUnsignedAttributes`: You may also explicitly list
-    //      a set of attributes that should be considered unauthenticated when encountered
-    //      on read. Be careful if you use this configuration. Do not remove an attribute
-    //      name from this configuration, even if you are no longer writing with that attribute,
-    //      as old items may still include this attribute, and our configuration needs to know
-    //      to continue to exclude this attribute from the signature scope.
-    //      If you add new attribute names to this field, you must first deploy the update to this
-    //      field to all readers in your host fleet before deploying the update to start writing
-    //      with that new attribute.
+    // - Configure `allowedUnsignedAttributes`: You may also explicitly list
+    //   a set of attributes that should be considered unauthenticated when encountered
+    //   on read. Be careful if you use this configuration. Do not remove an attribute
+    //   name from this configuration, even if you are no longer writing with that attribute,
+    //   as old items may still include this attribute, and our configuration needs to know
+    //   to continue to exclude this attribute from the signature scope.
+    //   If you add new attribute names to this field, you must first deploy the update to this
+    //   field to all readers in your host fleet before deploying the update to start writing
+    //   with that new attribute.
     //
-    //   For this example, we currently authenticate all attributes. To make it easier to
-    //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
+    // For this example, we currently authenticate all attributes. To make it easier to
+    // add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
     final String unsignAttrPrefix = ":";
 
-    // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // Create the DynamoDb Encryption configuration for the table we will be writing to.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs =
       new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig
@@ -508,7 +546,7 @@ public class RawEcdhKeyringExample {
       .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 6. Create the DynamoDb Encryption Interceptor
+    // Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor =
       DynamoDbEncryptionInterceptor
         .builder()
@@ -520,7 +558,7 @@ public class RawEcdhKeyringExample {
         )
         .build();
 
-    // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient
       .builder()
       .overrideConfiguration(
@@ -531,9 +569,9 @@ public class RawEcdhKeyringExample {
       )
       .build();
 
-    // 8. Put an item into our table using the above client.
-    //    Before the item gets sent to DynamoDb, it will be encrypted
-    //    client-side, according to our configuration.
+    // Put an item into our table using the above client.
+    // Before the item gets sent to DynamoDb, it will be encrypted
+    // client-side, according to our configuration.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
@@ -561,12 +599,12 @@ public class RawEcdhKeyringExample {
     IKeyring rawEcdhKeyring,
     String ddbTableName
   ) {
-    // 3. Configure which attributes are encrypted and/or signed when writing new items.
-    //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
-    //    we must explicitly configure how they should be treated during item encryption:
-    //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
-    //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
-    //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
+    // Configure which attributes are encrypted and/or signed when writing new items.
+    // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
+    // we must explicitly configure how they should be treated during item encryption:
+    //   - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
+    //   - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
+    //   - DO_NOTHING: The attribute is not encrypted and not included in the signature
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
@@ -574,37 +612,37 @@ public class RawEcdhKeyringExample {
       "sensitive_data",
       CryptoAction.ENCRYPT_AND_SIGN
     );
-    // 4. Configure which attributes we expect to be included in the signature
-    //    when reading items. There are two options for configuring this:
+    // Configure which attributes we expect to be included in the signature
+    // when reading items. There are two options for configuring this:
     //
-    //    - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
-    //      When defining your DynamoDb schema and deciding on attribute names,
-    //      choose a distinguishing prefix (such as ":") for all attributes that
-    //      you do not want to include in the signature.
-    //      This has two main benefits:
-    //      - It is easier to reason about the security and authenticity of data within your item
-    //        when all unauthenticated data is easily distinguishable by their attribute name.
-    //      - If you need to add new unauthenticated attributes in the future,
-    //        you can easily make the corresponding update to your `attributeActionsOnEncrypt`
-    //        and immediately start writing to that new attribute, without
-    //        any other configuration update needed.
-    //      Once you configure this field, it is not safe to update it.
+    // - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
+    //   When defining your DynamoDb schema and deciding on attribute names,
+    //   choose a distinguishing prefix (such as ":") for all attributes that
+    //   you do not want to include in the signature.
+    //   This has two main benefits:
+    //   - It is easier to reason about the security and authenticity of data within your item
+    //     when all unauthenticated data is easily distinguishable by their attribute name.
+    //   - If you need to add new unauthenticated attributes in the future,
+    //     you can easily make the corresponding update to your `attributeActionsOnEncrypt`
+    //     and immediately start writing to that new attribute, without
+    //     any other configuration update needed.
+    //   Once you configure this field, it is not safe to update it.
     //
-    //    - Configure `allowedUnsignedAttributes`: You may also explicitly list
-    //      a set of attributes that should be considered unauthenticated when encountered
-    //      on read. Be careful if you use this configuration. Do not remove an attribute
-    //      name from this configuration, even if you are no longer writing with that attribute,
-    //      as old items may still include this attribute, and our configuration needs to know
-    //      to continue to exclude this attribute from the signature scope.
-    //      If you add new attribute names to this field, you must first deploy the update to this
-    //      field to all readers in your host fleet before deploying the update to start writing
-    //      with that new attribute.
+    // - Configure `allowedUnsignedAttributes`: You may also explicitly list
+    //   a set of attributes that should be considered unauthenticated when encountered
+    //   on read. Be careful if you use this configuration. Do not remove an attribute
+    //   name from this configuration, even if you are no longer writing with that attribute,
+    //   as old items may still include this attribute, and our configuration needs to know
+    //   to continue to exclude this attribute from the signature scope.
+    //   If you add new attribute names to this field, you must first deploy the update to this
+    //   field to all readers in your host fleet before deploying the update to start writing
+    //   with that new attribute.
     //
-    //   For this example, we currently authenticate all attributes. To make it easier to
-    //   add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
+    // For this example, we currently authenticate all attributes. To make it easier to
+    // add unauthenticated attributes in the future, we define a prefix ":" for such attributes.
     final String unsignAttrPrefix = ":";
 
-    // 5. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    // Create the DynamoDb Encryption configuration for the table we will be writing to.
     final Map<String, DynamoDbTableEncryptionConfig> tableConfigs =
       new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig
@@ -618,7 +656,7 @@ public class RawEcdhKeyringExample {
       .build();
     tableConfigs.put(ddbTableName, config);
 
-    // 6. Create the DynamoDb Encryption Interceptor
+    // Create the DynamoDb Encryption Interceptor
     DynamoDbEncryptionInterceptor encryptionInterceptor =
       DynamoDbEncryptionInterceptor
         .builder()
@@ -630,7 +668,7 @@ public class RawEcdhKeyringExample {
         )
         .build();
 
-    // 7. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient
       .builder()
       .overrideConfiguration(
@@ -641,9 +679,9 @@ public class RawEcdhKeyringExample {
       )
       .build();
 
-    // 8. Get the item back from our table using the same client.
-    //    The client will decrypt the item client-side, and return
-    //    back the original item.
+    // Get the item back from our table using the same client.
+    // The client will decrypt the item client-side, and return
+    // back the original item.
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
@@ -668,6 +706,12 @@ public class RawEcdhKeyringExample {
       .equals("encrypt and sign me!");
   }
 
+  /*
+    To run this example standalone, you will need to supply your own ECC keys at:
+    - EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER
+    - EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
+    You will also need to provide the Dynamodb table name as part of the args.
+   */
   public static void main(final String[] args) {
     if (args.length <= 0) {
       throw new IllegalArgumentException(
@@ -691,48 +735,12 @@ public class RawEcdhKeyringExample {
     );
 
     // If keys already exist: do not overwrite existing keys
-    if (
-      privateKeyFileSender.exists() &&
-      publicKeyFileRecipient.exists() &&
-      privateKeyFileRecipient.exists()
-    ) {
-      return false;
-    }
-
-    // If not all three keys are present; throw an exception
-    if (
-      !privateKeyFileSender.exists() &&
-      publicKeyFileRecipient.exists() &&
-      privateKeyFileRecipient.exists()
-    ) {
-      throw new IllegalStateException(
-        "Missing private key sender file at " +
-        EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER
-      );
-    }
-    if (
-      privateKeyFileSender.exists() &&
-      !publicKeyFileRecipient.exists() &&
-      privateKeyFileRecipient.exists()
-    ) {
-      throw new IllegalStateException(
-        "Missing public key recipient file at " +
-        EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
-      );
-    }
-    if (
-      privateKeyFileSender.exists() &&
-      publicKeyFileRecipient.exists() &&
+    return (
+      !privateKeyFileSender.exists() ||
+      !publicKeyFileRecipient.exists() ||
       !privateKeyFileRecipient.exists()
-    ) {
-      throw new IllegalStateException(
-        "Missing private key recipient file at " +
-        EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT
-      );
-    }
-
+    );
     // If no keys are present, generate new keys
-    return true;
   }
 
   public static void generateEccKeyPairs() {
