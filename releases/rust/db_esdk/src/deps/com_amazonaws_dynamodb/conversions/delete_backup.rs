@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_dynamodb::operation::delete_backup::DeleteBackupError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
     match value {
       aws_sdk_dynamodb::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_dynamodb::operation::delete_backup::DeleteBackupError::BackupInUseException(e) =>
@@ -22,14 +20,18 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_dynamodb::conversions::error::invalid_endpoint_exception::to_dafny(e.clone()),
          aws_sdk_dynamodb::operation::delete_backup::DeleteBackupError::LimitExceededException(e) =>
             crate::deps::com_amazonaws_dynamodb::conversions::error::limit_exceeded_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _delete_backup_request;
+ pub mod _delete_backup_request;
 
-pub mod _delete_backup_response;
+ pub mod _delete_backup_response;

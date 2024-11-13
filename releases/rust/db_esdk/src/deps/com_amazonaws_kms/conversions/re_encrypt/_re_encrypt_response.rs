@@ -3,10 +3,10 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[allow(dead_code)]
 pub fn to_dafny(
-    value: &aws_sdk_kms::operation::re_encrypt::ReEncryptOutput,
+    value: &aws_sdk_kms::operation::re_encrypt::ReEncryptOutput
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ReEncryptResponse,
-> {
+>{
     ::std::rc::Rc::new(crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ReEncryptResponse::ReEncryptResponse {
         CiphertextBlob: crate::standard_library_conversions::oblob_to_dafny(&value.ciphertext_blob),
  SourceKeyId: crate::standard_library_conversions::ostring_to_dafny(&value.source_key_id),
@@ -23,11 +23,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::ReEncryptResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::re_encrypt::ReEncryptOutput {
     aws_sdk_kms::operation::re_encrypt::ReEncryptOutput::builder()
           .set_ciphertext_blob(crate::standard_library_conversions::oblob_from_dafny(dafny_value.CiphertextBlob().clone()))
@@ -48,4 +48,6 @@ pub fn from_dafny(
 }
 )
           .build()
+
+
 }

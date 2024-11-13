@@ -23,11 +23,11 @@ pub fn to_dafny(
  DryRun: crate::standard_library_conversions::obool_to_dafny(&value.dry_run),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GenerateMacRequest,
-    >,
+    >
 ) -> aws_sdk_kms::operation::generate_mac::GenerateMacInput {
     aws_sdk_kms::operation::generate_mac::GenerateMacInput::builder()
           .set_message(Some(crate::standard_library_conversions::blob_from_dafny(dafny_value.Message().clone())))

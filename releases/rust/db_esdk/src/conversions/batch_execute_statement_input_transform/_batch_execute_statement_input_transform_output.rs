@@ -12,12 +12,12 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchExecuteStatementInputTransformOutput,
     >,
-) -> crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformOutput{
+) -> crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformOutput {
     crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformOutput::builder()
         .set_transformed_input(Some( crate::deps::com_amazonaws_dynamodb::conversions::batch_execute_statement::_batch_execute_statement_request::from_dafny(dafny_value.transformedInput().clone())
  ))

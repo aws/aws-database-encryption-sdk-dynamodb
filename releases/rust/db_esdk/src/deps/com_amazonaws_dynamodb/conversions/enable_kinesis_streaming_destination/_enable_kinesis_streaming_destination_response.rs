@@ -17,12 +17,12 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::EnableKinesisStreamingDestinationOutput,
     >
-) -> aws_sdk_dynamodb::operation::enable_kinesis_streaming_destination::EnableKinesisStreamingDestinationOutput{
+) -> aws_sdk_dynamodb::operation::enable_kinesis_streaming_destination::EnableKinesisStreamingDestinationOutput {
     aws_sdk_dynamodb::operation::enable_kinesis_streaming_destination::EnableKinesisStreamingDestinationOutput::builder()
           .set_table_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.TableName().clone()))
  .set_stream_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.StreamArn().clone()))
@@ -34,4 +34,6 @@ pub fn from_dafny(
 }
 )
           .build()
+
+
 }

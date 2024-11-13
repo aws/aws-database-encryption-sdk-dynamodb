@@ -89,7 +89,7 @@ pub mod DafnyLibraries {
 
             let mut file = match File::open(path) {
                 Err(why) => {
-                    let err_msg = format!("couldn't open {} for reading: {}", path.display(), why);
+                    let err_msg = format!("couldn't open {} for reading from {}: {}", path.display(), curr_dir(), why);
                     let err_msg = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&err_msg);
                     return (true, dafny_runtime::Sequence::default(), err_msg);
                 }
@@ -111,6 +111,15 @@ pub mod DafnyLibraries {
             }
         }
 
+        fn curr_dir() -> String
+        {
+            let path = std::env::current_dir();
+            match path {
+                Ok(path) => format!("{}", path.display()),
+                Err(_) => "unknown".to_string(),
+            }
+        }
+
         pub fn INTERNAL_WriteBytesToFile(
             path: &::dafny_runtime::Sequence<::dafny_runtime::DafnyCharUTF16>,
             bytes: &::dafny_runtime::Sequence<u8>,
@@ -128,7 +137,7 @@ pub mod DafnyLibraries {
                 .open(path);
             let mut file = match maybe_file {
                 Err(why) => {
-                    let err_msg = format!("couldn't open {} for writing: {}", path.display(), why);
+                    let err_msg = format!("couldn't open {} for writing from {}: {}", path.display(), curr_dir(), why);
                     let err_msg = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&err_msg);
                     return (true, err_msg);
                 }

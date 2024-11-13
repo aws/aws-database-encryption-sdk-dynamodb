@@ -27,12 +27,12 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateAwsKmsRsaKeyringInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_rsa_keyring::CreateAwsKmsRsaKeyringInput{
+) -> crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_rsa_keyring::CreateAwsKmsRsaKeyringInput {
     crate::deps::aws_cryptography_materialProviders::operation::create_aws_kms_rsa_keyring::CreateAwsKmsRsaKeyringInput::builder()
         .set_public_key(crate::standard_library_conversions::oblob_from_dafny(dafny_value.publicKey().clone()))
  .set_kms_key_id(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.kmsKeyId()) ))

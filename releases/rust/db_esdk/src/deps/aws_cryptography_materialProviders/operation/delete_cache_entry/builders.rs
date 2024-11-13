@@ -28,16 +28,14 @@ pub struct DeleteCacheEntryFluentBuilder {
 }
 impl DeleteCacheEntryFluentBuilder {
     /// Creates a new `DeleteCacheEntry`.
-    pub(crate) fn new(
-        cryptographic_materials_cache: crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef,
-    ) -> Self {
+    pub(crate) fn new(cryptographic_materials_cache: crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef) -> Self {
         Self {
             cryptographic_materials_cache,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the DeleteCacheEntry as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::builders::DeleteCacheEntryInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::builders::DeleteCacheEntryInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -55,32 +53,26 @@ impl DeleteCacheEntryFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                    alt_text: format!("{:?}", e),
-                }
-            })?;
+	     let msg = format!("{:?}", e);
+             crate::deps::aws_cryptography_materialProviders::types::error::Error::OpaqueWithText {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		objMessage: msg
+             }})?;
         crate::deps::aws_cryptography_materialProviders::operation::delete_cache_entry::DeleteCacheEntry::send(&self.cryptographic_materials_cache, input).await
     }
 
     #[allow(missing_docs)]
-    pub fn identifier(
-        mut self,
-        input: impl ::std::convert::Into<::aws_smithy_types::Blob>,
-    ) -> Self {
-        self.inner = self.inner.identifier(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_identifier(
-        mut self,
-        input: ::std::option::Option<::aws_smithy_types::Blob>,
-    ) -> Self {
-        self.inner = self.inner.set_identifier(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_identifier(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
-        self.inner.get_identifier()
-    }
+pub fn identifier(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.identifier(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_identifier(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.set_identifier(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_identifier(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
+    self.inner.get_identifier()
+}
 }

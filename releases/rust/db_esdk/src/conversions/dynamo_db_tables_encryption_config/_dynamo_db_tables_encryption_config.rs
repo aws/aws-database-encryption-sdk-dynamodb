@@ -7,7 +7,7 @@ pub fn to_dafny(
     value: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbTablesEncryptionConfig,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value))
 }
 
@@ -20,10 +20,11 @@ pub fn from_dafny(
     plain_from_dafny(&*dafny_value)
 }
 
+
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbTablesEncryptionConfig{
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbTablesEncryptionConfig {
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbTablesEncryptionConfig::DynamoDbTablesEncryptionConfig {
         tableEncryptionConfigs: ::dafny_runtime::dafny_runtime_conversions::hashmap_to_dafny_map(&value.table_encryption_configs.clone().unwrap(),
     |k| dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&k),

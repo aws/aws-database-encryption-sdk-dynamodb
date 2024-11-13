@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::disable_key_rotation::DisableKeyRotationError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::disable_key_rotation::DisableKeyRotationError::DependencyTimeoutException(e) =>
@@ -26,12 +24,16 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_kms::conversions::error::not_found_exception::to_dafny(e.clone()),
          aws_sdk_kms::operation::disable_key_rotation::DisableKeyRotationError::UnsupportedOperationException(e) =>
             crate::deps::com_amazonaws_kms::conversions::error::unsupported_operation_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _disable_key_rotation_request;
+ pub mod _disable_key_rotation_request;

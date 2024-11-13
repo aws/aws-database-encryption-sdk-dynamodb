@@ -20,36 +20,25 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ListBackupsInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::list_backups::ListBackupsInput {
     aws_sdk_dynamodb::operation::list_backups::ListBackupsInput::builder()
-        .set_table_name(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.TableName().clone(),
-        ))
-        .set_limit(crate::standard_library_conversions::oint_from_dafny(
-            dafny_value.Limit().clone(),
-        ))
-        .set_time_range_lower_bound(crate::standard_library_conversions::otimestamp_from_dafny(
-            dafny_value.TimeRangeLowerBound().clone(),
-        ))
-        .set_time_range_upper_bound(crate::standard_library_conversions::otimestamp_from_dafny(
-            dafny_value.TimeRangeUpperBound().clone(),
-        ))
-        .set_exclusive_start_backup_arn(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.ExclusiveStartBackupArn().clone(),
-        ))
-        .set_backup_type(match &**dafny_value.BackupType() {
-            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-                crate::deps::com_amazonaws_dynamodb::conversions::backup_type_filter::from_dafny(
-                    value,
-                ),
-            ),
-            _ => None,
-        })
-        .build()
-        .unwrap()
+          .set_table_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.TableName().clone()))
+ .set_limit(crate::standard_library_conversions::oint_from_dafny(dafny_value.Limit().clone()))
+ .set_time_range_lower_bound(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.TimeRangeLowerBound().clone()))
+ .set_time_range_upper_bound(crate::standard_library_conversions::otimestamp_from_dafny(dafny_value.TimeRangeUpperBound().clone()))
+ .set_exclusive_start_backup_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ExclusiveStartBackupArn().clone()))
+ .set_backup_type(match &**dafny_value.BackupType() {
+    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+        crate::deps::com_amazonaws_dynamodb::conversions::backup_type_filter::from_dafny(value)
+    ),
+    _ => None,
+}
+)
+          .build()
+          .unwrap()
 }

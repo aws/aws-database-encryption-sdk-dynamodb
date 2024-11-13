@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal{
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal {
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal::StructuredDataTerminal {
         value: crate::standard_library_conversions::blob_to_dafny(&value.value.unwrap()),
  typeId: crate::standard_library_conversions::blob_to_dafny(&value.type_id.unwrap()),
@@ -39,16 +39,14 @@ pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal
-{
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal {
     plain_from_dafny(&*dafny_value)
 }
 
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal
-{
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal {
     match dafny_value {
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal::StructuredDataTerminal {..} =>
             crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal::builder()
@@ -64,7 +62,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::StructuredDataTerminal,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>{
+) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

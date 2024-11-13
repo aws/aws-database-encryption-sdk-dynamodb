@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::GlobalTableDescription,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalTableDescription>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalTableDescription::GlobalTableDescription {
         ReplicationGroup: ::std::rc::Rc::new(match &value.replication_group {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
@@ -27,8 +27,7 @@ pub fn to_dafny(
  GlobalTableName: crate::standard_library_conversions::ostring_to_dafny(&value.global_table_name),
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GlobalTableDescription,
@@ -57,4 +56,5 @@ pub fn from_dafny(
 )
  .set_global_table_name(crate::standard_library_conversions::ostring_from_dafny(dafny_value.GlobalTableName().clone()))
           .build()
+
 }

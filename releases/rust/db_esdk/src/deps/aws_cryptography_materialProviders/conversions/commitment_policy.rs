@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CommitmentPolicy,
->{
+> {
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_materialProviders::types::CommitmentPolicy::Esdk(x) =>
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CommitmentPolicy::ESDK {

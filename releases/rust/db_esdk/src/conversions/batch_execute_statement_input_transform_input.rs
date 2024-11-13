@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::types::BatchExecuteStatementInputTransformInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchExecuteStatementInputTransformInput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::types::BatchExecuteStatementInputTransformInput,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchExecuteStatementInputTransformInput{
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchExecuteStatementInputTransformInput {
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchExecuteStatementInputTransformInput::BatchExecuteStatementInputTransformInput {
         sdkInput: crate::deps::com_amazonaws_dynamodb::conversions::batch_execute_statement::_batch_execute_statement_request::to_dafny(&value.sdk_input.clone().unwrap())
 ,

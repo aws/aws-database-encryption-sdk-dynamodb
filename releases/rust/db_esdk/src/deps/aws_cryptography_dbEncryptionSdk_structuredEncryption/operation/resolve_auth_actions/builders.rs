@@ -13,7 +13,7 @@ impl ResolveAuthActionsInputBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-    >{
+    > {
         let mut fluent_builder = client.resolve_auth_actions();
         fluent_builder.inner = self;
         fluent_builder.send().await
@@ -28,16 +28,14 @@ pub struct ResolveAuthActionsFluentBuilder {
 }
 impl ResolveAuthActionsFluentBuilder {
     /// Creates a new `ResolveAuthActions`.
-    pub(crate) fn new(
-        client: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client::Client,
-    ) -> Self {
+    pub(crate) fn new(client: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client::Client) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the ResolveAuthActions as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::builders::ResolveAuthActionsInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::builders::ResolveAuthActionsInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -46,7 +44,7 @@ impl ResolveAuthActionsFluentBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-    >{
+    > {
         let input = self
             .inner
             .build()
@@ -54,79 +52,55 @@ impl ResolveAuthActionsFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::Opaque {
+            .map_err(|mut e| {
+	     let msg = format!("{:?}", e);
+             crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::OpaqueWithText {
                 obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-		alt_text : format!("{:?}", e)
-            })?;
+		objMessage: msg
+             }})?;
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActions::send(&self.client, input).await
     }
 
     #[allow(missing_docs)]
-    pub fn auth_actions(
-        mut self,
-        input: impl ::std::convert::Into<
-            ::std::vec::Vec<
-                crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::AuthItem,
-            >,
-        >,
-    ) -> Self {
-        self.inner = self.inner.auth_actions(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_auth_actions(
-        mut self,
-        input: ::std::option::Option<
-            ::std::vec::Vec<
-                crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::AuthItem,
-            >,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_auth_actions(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_auth_actions(
-        &self,
-    ) -> &::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::AuthItem,
-        >,
-    > {
-        self.inner.get_auth_actions()
-    }
-    #[allow(missing_docs)]
-    pub fn header_bytes(
-        mut self,
-        input: impl ::std::convert::Into<::aws_smithy_types::Blob>,
-    ) -> Self {
-        self.inner = self.inner.header_bytes(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_header_bytes(
-        mut self,
-        input: ::std::option::Option<::aws_smithy_types::Blob>,
-    ) -> Self {
-        self.inner = self.inner.set_header_bytes(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_header_bytes(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
-        self.inner.get_header_bytes()
-    }
-    #[allow(missing_docs)]
-    pub fn table_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-        self.inner = self.inner.table_name(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_table_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-        self.inner = self.inner.set_table_name(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_table_name(&self) -> &::std::option::Option<::std::string::String> {
-        self.inner.get_table_name()
-    }
+pub fn auth_actions(mut self, input: impl ::std::convert::Into<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::AuthItem>>) -> Self {
+    self.inner = self.inner.auth_actions(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_auth_actions(mut self, input: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::AuthItem>>) -> Self {
+    self.inner = self.inner.set_auth_actions(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_auth_actions(&self) -> &::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::AuthItem>> {
+    self.inner.get_auth_actions()
+}
+#[allow(missing_docs)]
+pub fn header_bytes(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.header_bytes(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_header_bytes(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.set_header_bytes(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_header_bytes(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
+    self.inner.get_header_bytes()
+}
+#[allow(missing_docs)]
+pub fn table_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+    self.inner = self.inner.table_name(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_table_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+    self.inner = self.inner.set_table_name(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_table_name(&self) -> &::std::option::Option<::std::string::String> {
+    self.inner.get_table_name()
+}
 }

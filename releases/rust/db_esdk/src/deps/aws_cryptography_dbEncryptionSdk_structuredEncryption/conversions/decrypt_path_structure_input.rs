@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput{
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput {
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput::DecryptPathStructureInput {
         tableName: crate::standard_library_conversions::ostring_to_dafny(&value.table_name) .Extract(),
  encryptedStructure: ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&value.encrypted_structure.clone().unwrap(),
@@ -56,14 +56,14 @@ pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput{
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput {
     plain_from_dafny(&*dafny_value)
 }
 
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput{
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput {
     match dafny_value {
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput::DecryptPathStructureInput {..} =>
             crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput::builder()
@@ -96,7 +96,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::DecryptPathStructureInput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput>{
+) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::DecryptPathStructureInput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

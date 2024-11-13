@@ -11,12 +11,12 @@ pub fn to_dafny(
         length: value.length.clone().unwrap(),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::primitives::internaldafny::types::GenerateRandomBytesInput,
     >,
-) -> crate::deps::aws_cryptography_primitives::operation::generate_random_bytes::GenerateRandomBytesInput{
+) -> crate::deps::aws_cryptography_primitives::operation::generate_random_bytes::GenerateRandomBytesInput {
     crate::deps::aws_cryptography_primitives::operation::generate_random_bytes::GenerateRandomBytesInput::builder()
         .set_length(Some( dafny_value.length() .clone() ))
         .build()

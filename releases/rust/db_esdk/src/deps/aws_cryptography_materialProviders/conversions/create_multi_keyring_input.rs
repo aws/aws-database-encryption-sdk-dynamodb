@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::CreateMultiKeyringInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateMultiKeyringInput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::CreateMultiKeyringInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateMultiKeyringInput{
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateMultiKeyringInput {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateMultiKeyringInput::CreateMultiKeyringInput {
         generator: ::std::rc::Rc::new(match &value.generator {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::aws_cryptography_materialProviders::conversions::keyring::to_dafny(&x.clone()) },
@@ -79,9 +79,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateMultiKeyringInput,
     >>>,
-) -> ::std::option::Option<
-    crate::deps::aws_cryptography_materialProviders::types::CreateMultiKeyringInput,
-> {
+) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CreateMultiKeyringInput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::ContributorInsightsSummary,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ContributorInsightsSummary>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ContributorInsightsSummary::ContributorInsightsSummary {
         TableName: crate::standard_library_conversions::ostring_to_dafny(&value.table_name),
  IndexName: crate::standard_library_conversions::ostring_to_dafny(&value.index_name),
@@ -16,8 +16,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ContributorInsightsSummary,
@@ -34,4 +33,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

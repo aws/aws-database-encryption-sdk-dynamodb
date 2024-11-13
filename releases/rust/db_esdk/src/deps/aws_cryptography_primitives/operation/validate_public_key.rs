@@ -17,20 +17,20 @@ impl ValidatePublicKey {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_primitives::operation::validate_public_key::ValidatePublicKeyOutput,
         crate::deps::aws_cryptography_primitives::types::error::Error,
-    >{
+    > {
         if input.ecc_curve.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "ecc_curve",
         "ecc_curve was not specified but it is required when building ValidatePublicKeyInput",
     )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
-        }
-        if input.public_key.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+}
+if input.public_key.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "public_key",
         "public_key was not specified but it is required when building ValidatePublicKeyInput",
     )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
-        }
-        let inner_input = crate::deps::aws_cryptography_primitives::conversions::validate_public_key::_validate_public_key_input::to_dafny(input);
+}
+                let inner_input = crate::deps::aws_cryptography_primitives::conversions::validate_public_key::_validate_public_key_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ValidatePublicKey(&inner_input);
         if matches!(
@@ -41,11 +41,9 @@ impl ValidatePublicKey {
                 crate::deps::aws_cryptography_primitives::conversions::validate_public_key::_validate_public_key_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

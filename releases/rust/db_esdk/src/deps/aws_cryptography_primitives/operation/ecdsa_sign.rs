@@ -19,49 +19,37 @@ impl EcdsaSign {
         crate::deps::aws_cryptography_primitives::types::error::Error,
     > {
         if input.signature_algorithm.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "signature_algorithm",
         "signature_algorithm was not specified but it is required when building EcdsaSignInput",
     )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
-        }
-        if input.signing_key.is_none() {
-            return ::std::result::Result::Err(
-                ::aws_smithy_types::error::operation::BuildError::missing_field(
-                    "signing_key",
-                    "signing_key was not specified but it is required when building EcdsaSignInput",
-                ),
-            )
-            .map_err(
-                crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err,
-            );
-        }
-        if input.message.is_none() {
-            return ::std::result::Result::Err(
-                ::aws_smithy_types::error::operation::BuildError::missing_field(
-                    "message",
-                    "message was not specified but it is required when building EcdsaSignInput",
-                ),
-            )
-            .map_err(
-                crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err,
-            );
-        }
-        let inner_input = crate::deps::aws_cryptography_primitives::conversions::ecdsa_sign::_ecdsa_sign_input::to_dafny(input);
+}
+if input.signing_key.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "signing_key",
+        "signing_key was not specified but it is required when building EcdsaSignInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+if input.message.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+        "message",
+        "message was not specified but it is required when building EcdsaSignInput",
+    )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
+}
+                let inner_input = crate::deps::aws_cryptography_primitives::conversions::ecdsa_sign::_ecdsa_sign_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ECDSASign(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
-            Ok(crate::standard_library_conversions::blob_from_dafny(
-                inner_result.value().clone(),
-            ))
-        } else {
-            Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
+            Ok(
+                crate::standard_library_conversions::blob_from_dafny(inner_result.value().clone()),
             )
+        } else {
+            Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

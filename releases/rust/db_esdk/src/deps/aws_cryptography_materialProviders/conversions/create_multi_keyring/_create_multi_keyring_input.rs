@@ -20,12 +20,12 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateMultiKeyringInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::create_multi_keyring::CreateMultiKeyringInput{
+) -> crate::deps::aws_cryptography_materialProviders::operation::create_multi_keyring::CreateMultiKeyringInput {
     crate::deps::aws_cryptography_materialProviders::operation::create_multi_keyring::CreateMultiKeyringInput::builder()
         .set_generator(match (*dafny_value.generator()).as_ref() {
     crate::r#_Wrappers_Compile::Option::Some { value } =>

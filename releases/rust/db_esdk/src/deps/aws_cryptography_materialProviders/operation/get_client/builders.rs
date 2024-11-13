@@ -29,16 +29,14 @@ pub struct GetClientFluentBuilder {
 }
 impl GetClientFluentBuilder {
     /// Creates a new `GetClient`.
-    pub(crate) fn new(
-        client_supplier: crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef,
-    ) -> Self {
+    pub(crate) fn new(client_supplier: crate::deps::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef) -> Self {
         Self {
             client_supplier,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the GetClient as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::get_client::builders::GetClientInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::get_client::builders::GetClientInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -56,30 +54,26 @@ impl GetClientFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                    alt_text: format!("{:?}", e),
-                }
-            })?;
-        crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClient::send(
-            &self.client_supplier,
-            input,
-        )
-        .await
+	     let msg = format!("{:?}", e);
+             crate::deps::aws_cryptography_materialProviders::types::error::Error::OpaqueWithText {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		objMessage: msg
+             }})?;
+        crate::deps::aws_cryptography_materialProviders::operation::get_client::GetClient::send(&self.client_supplier, input).await
     }
 
     /// The region the client should be created in.
-    pub fn region(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-        self.inner = self.inner.region(input.into());
-        self
-    }
-    /// The region the client should be created in.
-    pub fn set_region(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-        self.inner = self.inner.set_region(input);
-        self
-    }
-    /// The region the client should be created in.
-    pub fn get_region(&self) -> &::std::option::Option<::std::string::String> {
-        self.inner.get_region()
-    }
+pub fn region(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+    self.inner = self.inner.region(input.into());
+    self
+}
+/// The region the client should be created in.
+pub fn set_region(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+    self.inner = self.inner.set_region(input);
+    self
+}
+/// The region the client should be created in.
+pub fn get_region(&self) -> &::std::option::Option<::std::string::String> {
+    self.inner.get_region()
+}
 }

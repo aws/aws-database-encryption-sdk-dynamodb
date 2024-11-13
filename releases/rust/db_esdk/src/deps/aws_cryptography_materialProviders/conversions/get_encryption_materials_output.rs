@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::GetEncryptionMaterialsOutput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::GetEncryptionMaterialsOutput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::GetEncryptionMaterialsOutput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::GetEncryptionMaterialsOutput{
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::GetEncryptionMaterialsOutput {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::GetEncryptionMaterialsOutput::GetEncryptionMaterialsOutput {
         encryptionMaterials: crate::deps::aws_cryptography_materialProviders::conversions::encryption_materials::to_dafny(&value.encryption_materials.clone().unwrap())
 ,
@@ -62,9 +62,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::GetEncryptionMaterialsOutput,
     >>>,
-) -> ::std::option::Option<
-    crate::deps::aws_cryptography_materialProviders::types::GetEncryptionMaterialsOutput,
-> {
+) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::GetEncryptionMaterialsOutput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

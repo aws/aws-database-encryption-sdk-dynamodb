@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconKeySource,
->{
+> {
     ::std::rc::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource::Single(x) =>
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconKeySource::single {

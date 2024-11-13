@@ -21,11 +21,11 @@ pub fn to_dafny(
  LastEvaluatedBackupArn: crate::standard_library_conversions::ostring_to_dafny(&value.last_evaluated_backup_arn),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ListBackupsOutput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::list_backups::ListBackupsOutput {
     aws_sdk_dynamodb::operation::list_backups::ListBackupsOutput::builder()
           .set_backup_summaries(match (*dafny_value.BackupSummaries()).as_ref() {
@@ -41,4 +41,6 @@ pub fn from_dafny(
 )
  .set_last_evaluated_backup_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.LastEvaluatedBackupArn().clone()))
           .build()
+
+
 }

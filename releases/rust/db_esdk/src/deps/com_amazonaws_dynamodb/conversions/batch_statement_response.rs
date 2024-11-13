@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::BatchStatementResponse,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchStatementResponse>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchStatementResponse::BatchStatementResponse {
         Error: ::std::rc::Rc::new(match &value.error {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::batch_statement_error::to_dafny(x) },
@@ -27,8 +27,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::BatchStatementResponse,
@@ -55,4 +54,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

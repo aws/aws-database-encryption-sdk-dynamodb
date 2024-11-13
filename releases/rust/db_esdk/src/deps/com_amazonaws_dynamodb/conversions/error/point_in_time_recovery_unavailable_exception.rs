@@ -4,10 +4,8 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: aws_sdk_dynamodb::types::error::PointInTimeRecoveryUnavailableException,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
-> {
-    ::std::rc::Rc::new(
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>{
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error::PointInTimeRecoveryUnavailableException {
       message: crate::standard_library_conversions::ostring_to_dafny(&value.message),
     }

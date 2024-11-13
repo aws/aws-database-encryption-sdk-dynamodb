@@ -4,10 +4,8 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &aws_sdk_kms::types::GrantConstraints,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantConstraints,
-> {
-    ::std::rc::Rc::new(
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantConstraints>{
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantConstraints::GrantConstraints {
         EncryptionContextSubset:
 ::std::rc::Rc::new(match &value.encryption_context_subset {
@@ -33,8 +31,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantConstraints,
@@ -64,4 +61,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

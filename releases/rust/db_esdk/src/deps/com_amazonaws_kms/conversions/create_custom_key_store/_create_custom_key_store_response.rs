@@ -11,15 +11,15 @@ pub fn to_dafny(
         CustomKeyStoreId: crate::standard_library_conversions::ostring_to_dafny(&value.custom_key_store_id),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::CreateCustomKeyStoreResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::create_custom_key_store::CreateCustomKeyStoreOutput {
     aws_sdk_kms::operation::create_custom_key_store::CreateCustomKeyStoreOutput::builder()
-        .set_custom_key_store_id(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.CustomKeyStoreId().clone(),
-        ))
-        .build()
+          .set_custom_key_store_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.CustomKeyStoreId().clone()))
+          .build()
+
+
 }

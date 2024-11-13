@@ -14,24 +14,18 @@ pub fn to_dafny(
  CiphertextForRecipient: crate::standard_library_conversions::oblob_to_dafny(&value.ciphertext_for_recipient),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GenerateDataKeyResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::generate_data_key::GenerateDataKeyOutput {
     aws_sdk_kms::operation::generate_data_key::GenerateDataKeyOutput::builder()
-        .set_ciphertext_blob(crate::standard_library_conversions::oblob_from_dafny(
-            dafny_value.CiphertextBlob().clone(),
-        ))
-        .set_plaintext(crate::standard_library_conversions::oblob_from_dafny(
-            dafny_value.Plaintext().clone(),
-        ))
-        .set_key_id(crate::standard_library_conversions::ostring_from_dafny(
-            dafny_value.KeyId().clone(),
-        ))
-        .set_ciphertext_for_recipient(crate::standard_library_conversions::oblob_from_dafny(
-            dafny_value.CiphertextForRecipient().clone(),
-        ))
-        .build()
+          .set_ciphertext_blob(crate::standard_library_conversions::oblob_from_dafny(dafny_value.CiphertextBlob().clone()))
+ .set_plaintext(crate::standard_library_conversions::oblob_from_dafny(dafny_value.Plaintext().clone()))
+ .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
+ .set_ciphertext_for_recipient(crate::standard_library_conversions::oblob_from_dafny(dafny_value.CiphertextForRecipient().clone()))
+          .build()
+
+
 }

@@ -14,19 +14,17 @@ pub fn to_dafny(
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::None,
 ) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::None {
-    crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::None::None {}
+    crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::None::None {
+
+    }
 }
 
 #[allow(dead_code)]
 pub fn option_to_dafny(
-    value: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::None>,
-) -> ::std::rc::Rc<
-    crate::_Wrappers_Compile::Option<
-        ::std::rc::Rc<
-            crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::None,
-        >,
-    >,
-> {
+  value: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::None>,
+) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+  crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::None,
+>>>{
     ::std::rc::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {

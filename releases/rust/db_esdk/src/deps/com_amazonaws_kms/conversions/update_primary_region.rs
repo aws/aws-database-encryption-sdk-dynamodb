@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::update_primary_region::UpdatePrimaryRegionError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::update_primary_region::UpdatePrimaryRegionError::DisabledException(e) =>
@@ -24,12 +22,16 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_kms::conversions::error::not_found_exception::to_dafny(e.clone()),
          aws_sdk_kms::operation::update_primary_region::UpdatePrimaryRegionError::UnsupportedOperationException(e) =>
             crate::deps::com_amazonaws_kms::conversions::error::unsupported_operation_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _update_primary_region_request;
+ pub mod _update_primary_region_request;

@@ -35,7 +35,7 @@ impl UpdateItemInputTransformFluentBuilder {
         }
     }
     /// Access the UpdateItemInputTransform as a reference.
-    pub fn as_input(&self) -> &crate::operation::update_item_input_transform::builders::UpdateItemInputTransformInputBuilder{
+    pub fn as_input(&self) -> &crate::operation::update_item_input_transform::builders::UpdateItemInputTransformInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -52,37 +52,27 @@ impl UpdateItemInputTransformFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| crate::types::error::Error::Opaque {
+            .map_err(|mut e| {
+	     let msg = format!("{:?}", e);
+             crate::types::error::Error::OpaqueWithText {
                 obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                alt_text: format!("{:?}", e),
-            })?;
-        crate::operation::update_item_input_transform::UpdateItemInputTransform::send(
-            &self.client,
-            input,
-        )
-        .await
+		objMessage: msg
+             }})?;
+        crate::operation::update_item_input_transform::UpdateItemInputTransform::send(&self.client, input).await
     }
 
     #[allow(missing_docs)]
-    pub fn sdk_input(
-        mut self,
-        input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::update_item::UpdateItemInput>,
-    ) -> Self {
-        self.inner = self.inner.sdk_input(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_sdk_input(
-        mut self,
-        input: ::std::option::Option<aws_sdk_dynamodb::operation::update_item::UpdateItemInput>,
-    ) -> Self {
-        self.inner = self.inner.set_sdk_input(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_sdk_input(
-        &self,
-    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::update_item::UpdateItemInput> {
-        self.inner.get_sdk_input()
-    }
+pub fn sdk_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::update_item::UpdateItemInput>) -> Self {
+    self.inner = self.inner.sdk_input(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_sdk_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::update_item::UpdateItemInput>) -> Self {
+    self.inner = self.inner.set_sdk_input(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::update_item::UpdateItemInput> {
+    self.inner.get_sdk_input()
+}
 }

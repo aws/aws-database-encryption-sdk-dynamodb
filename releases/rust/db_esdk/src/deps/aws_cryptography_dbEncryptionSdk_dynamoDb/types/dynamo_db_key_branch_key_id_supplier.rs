@@ -16,14 +16,12 @@ pub trait DynamoDbKeyBranchKeyIdSupplier {
 #[derive(::std::clone::Clone)]
 /// A reference to a DynamoDbKeyBranchKeyIdSupplier
 pub struct DynamoDbKeyBranchKeyIdSupplierRef {
-    pub inner: ::std::rc::Rc<std::cell::RefCell<dyn DynamoDbKeyBranchKeyIdSupplier>>,
+  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn DynamoDbKeyBranchKeyIdSupplier>>
 }
 
-impl<T: DynamoDbKeyBranchKeyIdSupplier + 'static> From<T> for DynamoDbKeyBranchKeyIdSupplierRef {
+impl<T : DynamoDbKeyBranchKeyIdSupplier + 'static> From<T> for DynamoDbKeyBranchKeyIdSupplierRef {
     fn from(value: T) -> Self {
-        Self {
-            inner: std::rc::Rc::new(std::cell::RefCell::new(value)),
-        }
+        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
     }
 }
 

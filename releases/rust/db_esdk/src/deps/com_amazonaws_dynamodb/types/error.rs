@@ -3,136 +3,139 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
-    LimitExceededException {
-        error: aws_sdk_dynamodb::types::error::LimitExceededException,
-    },
-
-    IdempotentParameterMismatchException {
-        error: aws_sdk_dynamodb::types::error::IdempotentParameterMismatchException,
-    },
-
-    ReplicaAlreadyExistsException {
-        error: aws_sdk_dynamodb::types::error::ReplicaAlreadyExistsException,
-    },
-
-    ResourceInUseException {
-        error: aws_sdk_dynamodb::types::error::ResourceInUseException,
-    },
-
-    InvalidExportTimeException {
-        error: aws_sdk_dynamodb::types::error::InvalidExportTimeException,
-    },
-
-    PointInTimeRecoveryUnavailableException {
-        error: aws_sdk_dynamodb::types::error::PointInTimeRecoveryUnavailableException,
-    },
-
-    ResourceNotFoundException {
-        error: aws_sdk_dynamodb::types::error::ResourceNotFoundException,
-    },
-
-    ExportConflictException {
-        error: aws_sdk_dynamodb::types::error::ExportConflictException,
-    },
-
-    TableNotFoundException {
-        error: aws_sdk_dynamodb::types::error::TableNotFoundException,
-    },
-
-    TransactionInProgressException {
-        error: aws_sdk_dynamodb::types::error::TransactionInProgressException,
-    },
-
-    TransactionConflictException {
-        error: aws_sdk_dynamodb::types::error::TransactionConflictException,
-    },
-
-    ContinuousBackupsUnavailableException {
-        error: aws_sdk_dynamodb::types::error::ContinuousBackupsUnavailableException,
-    },
-
-    ItemCollectionSizeLimitExceededException {
-        error: aws_sdk_dynamodb::types::error::ItemCollectionSizeLimitExceededException,
-    },
-
-    ProvisionedThroughputExceededException {
-        error: aws_sdk_dynamodb::types::error::ProvisionedThroughputExceededException,
-    },
-
-    InternalServerError {
-        error: aws_sdk_dynamodb::types::error::InternalServerError,
-    },
-
-    RequestLimitExceeded {
-        error: aws_sdk_dynamodb::types::error::RequestLimitExceeded,
-    },
-
-    ExportNotFoundException {
-        error: aws_sdk_dynamodb::types::error::ExportNotFoundException,
-    },
-
-    InvalidEndpointException {
-        error: aws_sdk_dynamodb::types::error::InvalidEndpointException,
-    },
-
-    ConditionalCheckFailedException {
-        error: aws_sdk_dynamodb::types::error::ConditionalCheckFailedException,
-    },
-
-    TableAlreadyExistsException {
-        error: aws_sdk_dynamodb::types::error::TableAlreadyExistsException,
-    },
-
-    TableInUseException {
-        error: aws_sdk_dynamodb::types::error::TableInUseException,
-    },
-
-    ImportConflictException {
-        error: aws_sdk_dynamodb::types::error::ImportConflictException,
-    },
-
-    IndexNotFoundException {
-        error: aws_sdk_dynamodb::types::error::IndexNotFoundException,
-    },
-
-    GlobalTableNotFoundException {
-        error: aws_sdk_dynamodb::types::error::GlobalTableNotFoundException,
-    },
-
-    TransactionCanceledException {
-        error: aws_sdk_dynamodb::types::error::TransactionCanceledException,
-    },
-
-    ReplicaNotFoundException {
-        error: aws_sdk_dynamodb::types::error::ReplicaNotFoundException,
-    },
-
-    BackupNotFoundException {
-        error: aws_sdk_dynamodb::types::error::BackupNotFoundException,
-    },
-
     BackupInUseException {
-        error: aws_sdk_dynamodb::types::error::BackupInUseException,
-    },
+    error: aws_sdk_dynamodb::types::error::BackupInUseException,
+},
 
-    DuplicateItemException {
-        error: aws_sdk_dynamodb::types::error::DuplicateItemException,
-    },
+BackupNotFoundException {
+    error: aws_sdk_dynamodb::types::error::BackupNotFoundException,
+},
 
-    ImportNotFoundException {
-        error: aws_sdk_dynamodb::types::error::ImportNotFoundException,
-    },
+ConditionalCheckFailedException {
+    error: aws_sdk_dynamodb::types::error::ConditionalCheckFailedException,
+},
 
-    GlobalTableAlreadyExistsException {
-        error: aws_sdk_dynamodb::types::error::GlobalTableAlreadyExistsException,
-    },
+ContinuousBackupsUnavailableException {
+    error: aws_sdk_dynamodb::types::error::ContinuousBackupsUnavailableException,
+},
 
-    InvalidRestoreTimeException {
-        error: aws_sdk_dynamodb::types::error::InvalidRestoreTimeException,
-    },
+DuplicateItemException {
+    error: aws_sdk_dynamodb::types::error::DuplicateItemException,
+},
+
+ExportConflictException {
+    error: aws_sdk_dynamodb::types::error::ExportConflictException,
+},
+
+ExportNotFoundException {
+    error: aws_sdk_dynamodb::types::error::ExportNotFoundException,
+},
+
+GlobalTableAlreadyExistsException {
+    error: aws_sdk_dynamodb::types::error::GlobalTableAlreadyExistsException,
+},
+
+GlobalTableNotFoundException {
+    error: aws_sdk_dynamodb::types::error::GlobalTableNotFoundException,
+},
+
+IdempotentParameterMismatchException {
+    error: aws_sdk_dynamodb::types::error::IdempotentParameterMismatchException,
+},
+
+ImportConflictException {
+    error: aws_sdk_dynamodb::types::error::ImportConflictException,
+},
+
+ImportNotFoundException {
+    error: aws_sdk_dynamodb::types::error::ImportNotFoundException,
+},
+
+IndexNotFoundException {
+    error: aws_sdk_dynamodb::types::error::IndexNotFoundException,
+},
+
+InternalServerError {
+    error: aws_sdk_dynamodb::types::error::InternalServerError,
+},
+
+InvalidEndpointException {
+    error: aws_sdk_dynamodb::types::error::InvalidEndpointException,
+},
+
+InvalidExportTimeException {
+    error: aws_sdk_dynamodb::types::error::InvalidExportTimeException,
+},
+
+InvalidRestoreTimeException {
+    error: aws_sdk_dynamodb::types::error::InvalidRestoreTimeException,
+},
+
+ItemCollectionSizeLimitExceededException {
+    error: aws_sdk_dynamodb::types::error::ItemCollectionSizeLimitExceededException,
+},
+
+LimitExceededException {
+    error: aws_sdk_dynamodb::types::error::LimitExceededException,
+},
+
+PointInTimeRecoveryUnavailableException {
+    error: aws_sdk_dynamodb::types::error::PointInTimeRecoveryUnavailableException,
+},
+
+ProvisionedThroughputExceededException {
+    error: aws_sdk_dynamodb::types::error::ProvisionedThroughputExceededException,
+},
+
+ReplicaAlreadyExistsException {
+    error: aws_sdk_dynamodb::types::error::ReplicaAlreadyExistsException,
+},
+
+ReplicaNotFoundException {
+    error: aws_sdk_dynamodb::types::error::ReplicaNotFoundException,
+},
+
+RequestLimitExceeded {
+    error: aws_sdk_dynamodb::types::error::RequestLimitExceeded,
+},
+
+ResourceInUseException {
+    error: aws_sdk_dynamodb::types::error::ResourceInUseException,
+},
+
+ResourceNotFoundException {
+    error: aws_sdk_dynamodb::types::error::ResourceNotFoundException,
+},
+
+TableAlreadyExistsException {
+    error: aws_sdk_dynamodb::types::error::TableAlreadyExistsException,
+},
+
+TableInUseException {
+    error: aws_sdk_dynamodb::types::error::TableInUseException,
+},
+
+TableNotFoundException {
+    error: aws_sdk_dynamodb::types::error::TableNotFoundException,
+},
+
+TransactionCanceledException {
+    error: aws_sdk_dynamodb::types::error::TransactionCanceledException,
+},
+
+TransactionConflictException {
+    error: aws_sdk_dynamodb::types::error::TransactionConflictException,
+},
+
+TransactionInProgressException {
+    error: aws_sdk_dynamodb::types::error::TransactionInProgressException,
+},
     Opaque {
         obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
-        alt_text: String,
+    },
+    OpaqueWithText {
+        obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
+        objMessage: ::std::string::String,
     },
 }
 

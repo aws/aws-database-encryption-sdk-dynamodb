@@ -14,26 +14,18 @@ pub fn to_dafny(
  TableMaxWriteCapacityUnits: crate::standard_library_conversions::olong_to_dafny(&value.table_max_write_capacity_units),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DescribeLimitsOutput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::describe_limits::DescribeLimitsOutput {
     aws_sdk_dynamodb::operation::describe_limits::DescribeLimitsOutput::builder()
-        .set_account_max_read_capacity_units(crate::standard_library_conversions::olong_from_dafny(
-            dafny_value.AccountMaxReadCapacityUnits().clone(),
-        ))
-        .set_account_max_write_capacity_units(
-            crate::standard_library_conversions::olong_from_dafny(
-                dafny_value.AccountMaxWriteCapacityUnits().clone(),
-            ),
-        )
-        .set_table_max_read_capacity_units(crate::standard_library_conversions::olong_from_dafny(
-            dafny_value.TableMaxReadCapacityUnits().clone(),
-        ))
-        .set_table_max_write_capacity_units(crate::standard_library_conversions::olong_from_dafny(
-            dafny_value.TableMaxWriteCapacityUnits().clone(),
-        ))
-        .build()
+          .set_account_max_read_capacity_units(crate::standard_library_conversions::olong_from_dafny(dafny_value.AccountMaxReadCapacityUnits().clone()))
+ .set_account_max_write_capacity_units(crate::standard_library_conversions::olong_from_dafny(dafny_value.AccountMaxWriteCapacityUnits().clone()))
+ .set_table_max_read_capacity_units(crate::standard_library_conversions::olong_from_dafny(dafny_value.TableMaxReadCapacityUnits().clone()))
+ .set_table_max_write_capacity_units(crate::standard_library_conversions::olong_from_dafny(dafny_value.TableMaxWriteCapacityUnits().clone()))
+          .build()
+
+
 }

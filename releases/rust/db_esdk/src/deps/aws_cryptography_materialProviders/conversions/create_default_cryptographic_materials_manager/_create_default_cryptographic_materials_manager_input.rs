@@ -12,12 +12,12 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateDefaultCryptographicMaterialsManagerInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::create_default_cryptographic_materials_manager::CreateDefaultCryptographicMaterialsManagerInput{
+) -> crate::deps::aws_cryptography_materialProviders::operation::create_default_cryptographic_materials_manager::CreateDefaultCryptographicMaterialsManagerInput {
     crate::deps::aws_cryptography_materialProviders::operation::create_default_cryptographic_materials_manager::CreateDefaultCryptographicMaterialsManagerInput::builder()
         .set_keyring(Some( crate::deps::aws_cryptography_materialProviders::conversions::keyring::from_dafny(dafny_value.keyring().clone())
  ))

@@ -7,8 +7,8 @@
 
 use aws_sdk_dynamodb::{
     config::{
-        interceptors::{BeforeSerializationInterceptorContextMut, FinalizerInterceptorContextMut},
         ConfigBag, Intercept, RuntimeComponents,
+        interceptors::{BeforeSerializationInterceptorContextMut, FinalizerInterceptorContextMut},
     },
     error::BoxError,
 };

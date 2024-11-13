@@ -4,10 +4,8 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &aws_sdk_kms::types::GrantListEntry,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantListEntry,
-> {
-    ::std::rc::Rc::new(
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantListEntry>{
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantListEntry::GrantListEntry {
         KeyId: crate::standard_library_conversions::ostring_to_dafny(&value.key_id),
  GrantId: crate::standard_library_conversions::ostring_to_dafny(&value.grant_id),
@@ -32,8 +30,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GrantListEntry,
@@ -64,4 +61,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

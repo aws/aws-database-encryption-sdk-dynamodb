@@ -15,20 +15,20 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::RestoreTableFromBackupOutput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::restore_table_from_backup::RestoreTableFromBackupOutput {
     aws_sdk_dynamodb::operation::restore_table_from_backup::RestoreTableFromBackupOutput::builder()
-        .set_table_description(match (*dafny_value.TableDescription()).as_ref() {
-            crate::r#_Wrappers_Compile::Option::Some { value } => Some(
-                crate::deps::com_amazonaws_dynamodb::conversions::table_description::from_dafny(
-                    value.clone(),
-                ),
-            ),
-            _ => None,
-        })
-        .build()
+          .set_table_description(match (*dafny_value.TableDescription()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::table_description::from_dafny(value.clone())),
+    _ => None,
+}
+)
+          .build()
+
+
 }

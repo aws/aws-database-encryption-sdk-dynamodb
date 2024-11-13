@@ -23,14 +23,10 @@ impl Client {
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            return Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner.as_ref().error().clone(),
-                ),
-            );
+            return Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(inner.as_ref().error().clone()));
         }
         Ok(Self {
-            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),
+            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract())
         })
     }
 }

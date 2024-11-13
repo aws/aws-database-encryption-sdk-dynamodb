@@ -4,9 +4,9 @@
 #[derive(::std::clone::Clone, ::std::fmt::Debug, ::std::cmp::PartialEq)]
 pub enum Error {
     #[allow(missing_docs)]
-    AwsCryptographicPrimitivesError {
-        message: ::std::string::String,
-    },
+AwsCryptographicPrimitivesError {
+    message: ::std::string::String,
+},
     CollectionOfErrors {
         list: ::std::vec::Vec<Self>,
         message: ::std::string::String,
@@ -14,7 +14,10 @@ pub enum Error {
     ValidationError(ValidationError),
     Opaque {
         obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
-        alt_text: ::std::string::String,
+    },
+    OpaqueWithText {
+        obj: ::dafny_runtime::Object<dyn ::std::any::Any>,
+        objMessage: ::std::string::String,
     },
 }
 
@@ -24,7 +27,6 @@ impl ::std::fmt::Display for Error {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             Self::ValidationError(err) => ::std::fmt::Display::fmt(err, f),
-            Self::Opaque { obj, alt_text } => ::std::fmt::Debug::fmt(alt_text, f),
             _ => ::std::fmt::Debug::fmt(self, f),
         }
     }
@@ -49,7 +51,7 @@ impl Error {
 }
 
 #[derive(::std::clone::Clone, ::std::fmt::Debug)]
-pub(crate) struct ValidationError(::std::rc::Rc<dyn ::std::error::Error>);
+pub struct ValidationError(::std::rc::Rc<dyn ::std::error::Error>);
 
 impl ::std::cmp::PartialEq for ValidationError {
     fn eq(&self, other: &Self) -> bool {

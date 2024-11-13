@@ -6,7 +6,7 @@ pub fn to_dafny(
     value: &aws_sdk_kms::operation::verify::VerifyInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::services::kms::internaldafny::types::VerifyRequest,
-> {
+>{
     ::std::rc::Rc::new(crate::r#software::amazon::cryptography::services::kms::internaldafny::types::VerifyRequest::VerifyRequest {
         KeyId: crate::standard_library_conversions::ostring_to_dafny(&value.key_id) .Extract(),
  Message: crate::standard_library_conversions::oblob_to_dafny(&value.message).Extract(),
@@ -29,11 +29,11 @@ pub fn to_dafny(
  DryRun: crate::standard_library_conversions::obool_to_dafny(&value.dry_run),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::VerifyRequest,
-    >,
+    >
 ) -> aws_sdk_kms::operation::verify::VerifyInput {
     aws_sdk_kms::operation::verify::VerifyInput::builder()
           .set_key_id(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.KeyId()) ))

@@ -23,11 +23,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::DeriveSharedSecretResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::derive_shared_secret::DeriveSharedSecretOutput {
     aws_sdk_kms::operation::derive_shared_secret::DeriveSharedSecretOutput::builder()
           .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
@@ -48,4 +48,6 @@ pub fn from_dafny(
 }
 )
           .build()
+
+
 }

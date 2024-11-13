@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_dynamodb::operation::create_backup::CreateBackupError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
     match value {
       aws_sdk_dynamodb::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_dynamodb::operation::create_backup::CreateBackupError::BackupInUseException(e) =>
@@ -26,14 +24,18 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_dynamodb::conversions::error::table_in_use_exception::to_dafny(e.clone()),
          aws_sdk_dynamodb::operation::create_backup::CreateBackupError::TableNotFoundException(e) =>
             crate::deps::com_amazonaws_dynamodb::conversions::error::table_not_found_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _create_backup_request;
+ pub mod _create_backup_request;
 
-pub mod _create_backup_response;
+ pub mod _create_backup_response;

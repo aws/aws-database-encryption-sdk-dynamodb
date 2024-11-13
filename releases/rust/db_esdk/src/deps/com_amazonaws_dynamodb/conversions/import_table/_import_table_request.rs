@@ -26,11 +26,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportTableInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::import_table::ImportTableInput {
     aws_sdk_dynamodb::operation::import_table::ImportTableInput::builder()
           .set_client_token(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ClientToken().clone()))

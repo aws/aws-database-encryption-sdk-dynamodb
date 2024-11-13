@@ -24,12 +24,12 @@ pub fn to_dafny(
  symmetricSigningKey: crate::standard_library_conversions::oblob_to_dafny(&value.symmetric_signing_key),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DecryptionMaterials,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::initialize_decryption_materials::DecryptionMaterials{
+) -> crate::deps::aws_cryptography_materialProviders::operation::initialize_decryption_materials::DecryptionMaterials {
     crate::deps::aws_cryptography_materialProviders::operation::initialize_decryption_materials::DecryptionMaterials::builder()
         .set_algorithm_suite(Some( crate::deps::aws_cryptography_materialProviders::conversions::algorithm_suite_info::from_dafny(dafny_value.algorithmSuite().clone())
  ))

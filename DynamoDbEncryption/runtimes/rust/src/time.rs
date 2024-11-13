@@ -34,7 +34,7 @@ impl crate::Time::_default {
         >,
     > {
         let now_utc = chrono::Utc::now();
-        let formatted = format!("{}", now_utc.format("%Y-%m-%dT%H:%M:%S%.fZ"));
+        let formatted = format!("{}", now_utc.format("%Y-%m-%dT%H:%M:%S%.6fZ"));
         ::std::rc::Rc::new(
                 _Wrappers_Compile::Result::Success{value :
                 dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&formatted)

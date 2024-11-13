@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput,
-) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput{
+) -> crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput {
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput::CreateRequiredEncryptionContextCMMInput {
         underlyingCMM: ::std::rc::Rc::new(match &value.underlying_cmm {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::aws_cryptography_materialProviders::conversions::cryptographic_materials_manager::to_dafny(&x.clone()) },
@@ -51,16 +51,14 @@ pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput
-{
+) -> crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput {
     plain_from_dafny(&*dafny_value)
 }
 
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput,
-) -> crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput
-{
+) -> crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput {
     match dafny_value {
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput::CreateRequiredEncryptionContextCMMInput {..} =>
             crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput::builder()
@@ -90,9 +88,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::CreateRequiredEncryptionContextCMMInput,
     >>>,
-) -> ::std::option::Option<
-    crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput,
-> {
+) -> ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::CreateRequiredEncryptionContextCmmInput> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

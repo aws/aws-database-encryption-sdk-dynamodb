@@ -13,7 +13,7 @@ impl CreateDynamoDbEncryptionBranchKeyIdSupplierInputBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplierOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
-    >{
+    > {
         let mut fluent_builder = client.create_dynamo_db_encryption_branch_key_id_supplier();
         fluent_builder.inner = self;
         fluent_builder.send().await
@@ -29,16 +29,14 @@ pub struct CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder {
 }
 impl CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder {
     /// Creates a new `CreateDynamoDbEncryptionBranchKeyIdSupplier`.
-    pub(crate) fn new(
-        client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::client::Client,
-    ) -> Self {
+    pub(crate) fn new(client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::client::Client) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the CreateDynamoDbEncryptionBranchKeyIdSupplier as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::builders::CreateDynamoDbEncryptionBranchKeyIdSupplierInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::builders::CreateDynamoDbEncryptionBranchKeyIdSupplierInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -47,7 +45,7 @@ impl CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplierOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
-    >{
+    > {
         let input = self
             .inner
             .build()
@@ -55,31 +53,27 @@ impl CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder {
             // Operations' models don't declare their own validation error,
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
-            .map_err(|mut e| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::Opaque {
+            .map_err(|mut e| {
+	     let msg = format!("{:?}", e);
+             crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::OpaqueWithText {
                 obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-		alt_text : format!("{:?}", e)
-            })?;
+		objMessage: msg
+             }})?;
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplier::send(&self.client, input).await
     }
 
     /// An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
-    pub fn ddb_key_branch_key_id_supplier(
-        mut self,
-        input: impl ::std::convert::Into<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef>,
-    ) -> Self {
-        self.inner = self.inner.ddb_key_branch_key_id_supplier(input.into());
-        self
-    }
-    /// An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
-    pub fn set_ddb_key_branch_key_id_supplier(
-        mut self,
-        input: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef>,
-    ) -> Self {
-        self.inner = self.inner.set_ddb_key_branch_key_id_supplier(input);
-        self
-    }
-    /// An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
-    pub fn get_ddb_key_branch_key_id_supplier(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef>{
-        self.inner.get_ddb_key_branch_key_id_supplier()
-    }
+pub fn ddb_key_branch_key_id_supplier(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef>) -> Self {
+    self.inner = self.inner.ddb_key_branch_key_id_supplier(input.into());
+    self
+}
+/// An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
+pub fn set_ddb_key_branch_key_id_supplier(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef>) -> Self {
+    self.inner = self.inner.set_ddb_key_branch_key_id_supplier(input);
+    self
+}
+/// An implementation of the DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to use for data key wrapping/unwrapping based on the DynamoDB item being written/read.
+pub fn get_ddb_key_branch_key_id_supplier(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef> {
+    self.inner.get_ddb_key_branch_key_id_supplier()
+}
 }

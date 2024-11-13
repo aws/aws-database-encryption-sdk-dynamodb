@@ -6,14 +6,14 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
 ) -> ::std::rc::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ParsedHeader,
->{
+> {
     ::std::rc::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ParsedHeader{
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ParsedHeader {
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ParsedHeader::ParsedHeader {
         algorithmSuiteId: crate::deps::aws_cryptography_materialProviders::conversions::dbe_algorithm_suite_id::to_dafny(value.algorithm_suite_id.clone().unwrap()),
  encryptedDataKeys: ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&value.encrypted_data_keys.clone().unwrap(),
@@ -90,9 +90,7 @@ pub fn option_from_dafny(
     dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ParsedHeader,
     >>>,
-) -> ::std::option::Option<
-    crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
-> {
+) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

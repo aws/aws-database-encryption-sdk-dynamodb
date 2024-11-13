@@ -5,7 +5,7 @@
 pub fn to_dafny(
     value: &aws_sdk_dynamodb::types::AutoScalingSettingsUpdate,
 ) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AutoScalingSettingsUpdate>{
-    ::std::rc::Rc::new(
+  ::std::rc::Rc::new(
     crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AutoScalingSettingsUpdate::AutoScalingSettingsUpdate {
         MinimumUnits: crate::standard_library_conversions::olong_to_dafny(&value.minimum_units),
  MaximumUnits: crate::standard_library_conversions::olong_to_dafny(&value.maximum_units),
@@ -18,8 +18,7 @@ pub fn to_dafny(
 ,
     }
   )
-}
-#[allow(dead_code)]
+} #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AutoScalingSettingsUpdate,
@@ -37,4 +36,5 @@ pub fn from_dafny(
 }
 )
           .build()
+
 }

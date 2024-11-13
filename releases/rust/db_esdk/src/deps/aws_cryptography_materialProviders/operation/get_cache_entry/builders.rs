@@ -13,7 +13,7 @@ impl GetCacheEntryInputBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryOutput,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
+    > {
         let mut fluent_builder = cryptographic_materials_cache.get_cache_entry();
         fluent_builder.inner = self;
         fluent_builder.send().await
@@ -28,16 +28,14 @@ pub struct GetCacheEntryFluentBuilder {
 }
 impl GetCacheEntryFluentBuilder {
     /// Creates a new `GetCacheEntry`.
-    pub(crate) fn new(
-        cryptographic_materials_cache: crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef,
-    ) -> Self {
+    pub(crate) fn new(cryptographic_materials_cache: crate::deps::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef) -> Self {
         Self {
             cryptographic_materials_cache,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the GetCacheEntry as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::builders::GetCacheEntryInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::builders::GetCacheEntryInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -46,7 +44,7 @@ impl GetCacheEntryFluentBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntryOutput,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
-    >{
+    > {
         let input = self
             .inner
             .build()
@@ -55,46 +53,40 @@ impl GetCacheEntryFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                    alt_text: format!("{:?}", e),
-                }
-            })?;
+	     let msg = format!("{:?}", e);
+             crate::deps::aws_cryptography_materialProviders::types::error::Error::OpaqueWithText {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		objMessage: msg
+             }})?;
         crate::deps::aws_cryptography_materialProviders::operation::get_cache_entry::GetCacheEntry::send(&self.cryptographic_materials_cache, input).await
     }
 
     #[allow(missing_docs)]
-    pub fn bytes_used(mut self, input: impl ::std::convert::Into<::std::primitive::i64>) -> Self {
-        self.inner = self.inner.bytes_used(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_bytes_used(mut self, input: ::std::option::Option<::std::primitive::i64>) -> Self {
-        self.inner = self.inner.set_bytes_used(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_bytes_used(&self) -> &::std::option::Option<::std::primitive::i64> {
-        self.inner.get_bytes_used()
-    }
-    #[allow(missing_docs)]
-    pub fn identifier(
-        mut self,
-        input: impl ::std::convert::Into<::aws_smithy_types::Blob>,
-    ) -> Self {
-        self.inner = self.inner.identifier(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_identifier(
-        mut self,
-        input: ::std::option::Option<::aws_smithy_types::Blob>,
-    ) -> Self {
-        self.inner = self.inner.set_identifier(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_identifier(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
-        self.inner.get_identifier()
-    }
+pub fn bytes_used(mut self, input: impl ::std::convert::Into<::std::primitive::i64>) -> Self {
+    self.inner = self.inner.bytes_used(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_bytes_used(mut self, input: ::std::option::Option<::std::primitive::i64>) -> Self {
+    self.inner = self.inner.set_bytes_used(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_bytes_used(&self) -> &::std::option::Option<::std::primitive::i64> {
+    self.inner.get_bytes_used()
+}
+#[allow(missing_docs)]
+pub fn identifier(mut self, input: impl ::std::convert::Into<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.identifier(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_identifier(mut self, input: ::std::option::Option<::aws_smithy_types::Blob>) -> Self {
+    self.inner = self.inner.set_identifier(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_identifier(&self) -> &::std::option::Option<::aws_smithy_types::Blob> {
+    self.inner.get_identifier()
+}
 }

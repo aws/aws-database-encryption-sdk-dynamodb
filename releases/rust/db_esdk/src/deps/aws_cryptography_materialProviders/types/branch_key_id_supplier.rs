@@ -16,14 +16,12 @@ pub trait BranchKeyIdSupplier {
 #[derive(::std::clone::Clone)]
 /// A reference to a BranchKeyIdSupplier
 pub struct BranchKeyIdSupplierRef {
-    pub inner: ::std::rc::Rc<std::cell::RefCell<dyn BranchKeyIdSupplier>>,
+  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn BranchKeyIdSupplier>>
 }
 
-impl<T: BranchKeyIdSupplier + 'static> From<T> for BranchKeyIdSupplierRef {
+impl<T : BranchKeyIdSupplier + 'static> From<T> for BranchKeyIdSupplierRef {
     fn from(value: T) -> Self {
-        Self {
-            inner: std::rc::Rc::new(std::cell::RefCell::new(value)),
-        }
+        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
     }
 }
 

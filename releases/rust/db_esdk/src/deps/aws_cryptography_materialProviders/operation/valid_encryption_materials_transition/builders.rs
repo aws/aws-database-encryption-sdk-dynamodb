@@ -28,16 +28,14 @@ pub struct ValidEncryptionMaterialsTransitionFluentBuilder {
 }
 impl ValidEncryptionMaterialsTransitionFluentBuilder {
     /// Creates a new `ValidEncryptionMaterialsTransition`.
-    pub(crate) fn new(
-        client: crate::deps::aws_cryptography_materialProviders::client::Client,
-    ) -> Self {
+    pub(crate) fn new(client: crate::deps::aws_cryptography_materialProviders::client::Client) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the ValidEncryptionMaterialsTransition as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::valid_encryption_materials_transition::builders::ValidEncryptionMaterialsTransitionInputBuilder{
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_materialProviders::operation::valid_encryption_materials_transition::builders::ValidEncryptionMaterialsTransitionInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -55,68 +53,40 @@ impl ValidEncryptionMaterialsTransitionFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-                crate::deps::aws_cryptography_materialProviders::types::error::Error::Opaque {
-                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-                    alt_text: format!("{:?}", e),
-                }
-            })?;
+	     let msg = format!("{:?}", e);
+             crate::deps::aws_cryptography_materialProviders::types::error::Error::OpaqueWithText {
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+		objMessage: msg
+             }})?;
         crate::deps::aws_cryptography_materialProviders::operation::valid_encryption_materials_transition::ValidEncryptionMaterialsTransition::send(&self.client, input).await
     }
 
     #[allow(missing_docs)]
-    pub fn start(
-        mut self,
-        input: impl ::std::convert::Into<
-            crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials,
-        >,
-    ) -> Self {
-        self.inner = self.inner.start(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_start(
-        mut self,
-        input: ::std::option::Option<
-            crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_start(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_start(
-        &self,
-    ) -> &::std::option::Option<
-        crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials,
-    > {
-        self.inner.get_start()
-    }
-    #[allow(missing_docs)]
-    pub fn stop(
-        mut self,
-        input: impl ::std::convert::Into<
-            crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials,
-        >,
-    ) -> Self {
-        self.inner = self.inner.stop(input.into());
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn set_stop(
-        mut self,
-        input: ::std::option::Option<
-            crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials,
-        >,
-    ) -> Self {
-        self.inner = self.inner.set_stop(input);
-        self
-    }
-    #[allow(missing_docs)]
-    pub fn get_stop(
-        &self,
-    ) -> &::std::option::Option<
-        crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials,
-    > {
-        self.inner.get_stop()
-    }
+pub fn start(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
+    self.inner = self.inner.start(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_start(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
+    self.inner = self.inner.set_start(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_start(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
+    self.inner.get_start()
+}
+#[allow(missing_docs)]
+pub fn stop(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
+    self.inner = self.inner.stop(input.into());
+    self
+}
+#[allow(missing_docs)]
+pub fn set_stop(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials>) -> Self {
+    self.inner = self.inner.set_stop(input);
+    self
+}
+#[allow(missing_docs)]
+pub fn get_stop(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::EncryptionMaterials> {
+    self.inner.get_stop()
+}
 }

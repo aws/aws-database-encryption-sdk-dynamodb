@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::delete_custom_key_store::DeleteCustomKeyStoreError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::delete_custom_key_store::DeleteCustomKeyStoreError::CustomKeyStoreHasCmKsException(e) =>
@@ -20,14 +18,18 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_kms::conversions::error::custom_key_store_not_found_exception::to_dafny(e.clone()),
          aws_sdk_kms::operation::delete_custom_key_store::DeleteCustomKeyStoreError::KmsInternalException(e) =>
             crate::deps::com_amazonaws_kms::conversions::error::kms_internal_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _delete_custom_key_store_request;
+ pub mod _delete_custom_key_store_request;
 
-pub mod _delete_custom_key_store_response;
+ pub mod _delete_custom_key_store_response;

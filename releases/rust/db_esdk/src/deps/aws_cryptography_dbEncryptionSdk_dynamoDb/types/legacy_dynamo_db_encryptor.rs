@@ -3,19 +3,19 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 #[allow(missing_docs)]
-pub trait LegacyDynamoDbEncryptor {}
+pub trait LegacyDynamoDbEncryptor {
+
+}
 
 #[derive(::std::clone::Clone)]
 /// A reference to a LegacyDynamoDbEncryptor
 pub struct LegacyDynamoDbEncryptorRef {
-    pub inner: ::std::rc::Rc<std::cell::RefCell<dyn LegacyDynamoDbEncryptor>>,
+  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn LegacyDynamoDbEncryptor>>
 }
 
-impl<T: LegacyDynamoDbEncryptor + 'static> From<T> for LegacyDynamoDbEncryptorRef {
+impl<T : LegacyDynamoDbEncryptor + 'static> From<T> for LegacyDynamoDbEncryptorRef {
     fn from(value: T) -> Self {
-        Self {
-            inner: std::rc::Rc::new(std::cell::RefCell::new(value)),
-        }
+        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
     }
 }
 
@@ -30,3 +30,4 @@ impl ::std::fmt::Debug for LegacyDynamoDbEncryptorRef {
         write!(f, "<LegacyDynamoDbEncryptorRef>")
     }
 }
+

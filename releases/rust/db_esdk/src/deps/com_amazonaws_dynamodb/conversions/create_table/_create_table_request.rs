@@ -76,11 +76,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::CreateTableInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::create_table::CreateTableInput {
     aws_sdk_dynamodb::operation::create_table::CreateTableInput::builder()
           .set_attribute_definitions(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(dafny_value.AttributeDefinitions(),

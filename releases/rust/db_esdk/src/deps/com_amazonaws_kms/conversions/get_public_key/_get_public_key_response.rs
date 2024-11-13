@@ -54,11 +54,11 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::kms::internaldafny::types::GetPublicKeyResponse,
-    >,
+    >
 ) -> aws_sdk_kms::operation::get_public_key::GetPublicKeyOutput {
     aws_sdk_kms::operation::get_public_key::GetPublicKeyOutput::builder()
           .set_key_id(crate::standard_library_conversions::ostring_from_dafny(dafny_value.KeyId().clone()))
@@ -115,4 +115,6 @@ pub fn from_dafny(
 }
 )
           .build()
+
+
 }

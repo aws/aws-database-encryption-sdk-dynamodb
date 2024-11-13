@@ -29,11 +29,11 @@ pub fn to_dafny(
  Limit: crate::standard_library_conversions::oint_to_dafny(value.limit),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ExecuteStatementInput,
-    >,
+    >
 ) -> aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput {
     aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput::builder()
           .set_statement(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.Statement()) ))

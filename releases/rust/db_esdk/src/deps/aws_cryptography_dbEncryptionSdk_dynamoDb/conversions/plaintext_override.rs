@@ -13,7 +13,7 @@ crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride {

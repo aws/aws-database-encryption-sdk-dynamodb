@@ -17,16 +17,16 @@ impl GenerateEcdsaSignatureKey {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_primitives::operation::generate_ecdsa_signature_key::GenerateEcdsaSignatureKeyOutput,
         crate::deps::aws_cryptography_primitives::types::error::Error,
-    >{
+    > {
         if input.signature_algorithm.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "signature_algorithm",
         "signature_algorithm was not specified but it is required when building GenerateEcdsaSignatureKeyInput",
     )).map_err(crate::deps::aws_cryptography_primitives::types::error::Error::wrap_validation_err);
-        }
-        let inner_input = crate::deps::aws_cryptography_primitives::conversions::generate_ecdsa_signature_key::_generate_ecdsa_signature_key_input::to_dafny(input);
-        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
-            .GenerateECDSASignatureKey(&inner_input);
+}
+                let inner_input = crate::deps::aws_cryptography_primitives::conversions::generate_ecdsa_signature_key::_generate_ecdsa_signature_key_input::to_dafny(input);
+        let inner_result =
+            ::dafny_runtime::md!(client.dafny_client.clone()).GenerateECDSASignatureKey(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }
@@ -35,11 +35,9 @@ impl GenerateEcdsaSignatureKey {
                 crate::deps::aws_cryptography_primitives::conversions::generate_ecdsa_signature_key::_generate_ecdsa_signature_key_output::from_dafny(inner_result.value().clone()),
             )
         } else {
-            Err(
-                crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
-                    inner_result.error().clone(),
-                ),
-            )
+            Err(crate::deps::aws_cryptography_primitives::conversions::error::from_dafny(
+                inner_result.error().clone(),
+            ))
         }
     }
 }

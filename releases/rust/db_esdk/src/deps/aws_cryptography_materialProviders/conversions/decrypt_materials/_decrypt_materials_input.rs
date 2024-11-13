@@ -35,12 +35,12 @@ pub fn to_dafny(
 ,
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: ::std::rc::Rc<
         crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::DecryptMaterialsInput,
     >,
-) -> crate::deps::aws_cryptography_materialProviders::operation::decrypt_materials::DecryptMaterialsInput{
+) -> crate::deps::aws_cryptography_materialProviders::operation::decrypt_materials::DecryptMaterialsInput {
     crate::deps::aws_cryptography_materialProviders::operation::decrypt_materials::DecryptMaterialsInput::builder()
         .set_algorithm_suite_id(Some( crate::deps::aws_cryptography_materialProviders::conversions::algorithm_suite_id::from_dafny(dafny_value.algorithmSuiteId().clone())
  ))

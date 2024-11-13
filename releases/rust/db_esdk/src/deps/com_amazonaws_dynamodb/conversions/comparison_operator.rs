@@ -23,7 +23,7 @@ aws_sdk_dynamodb::types::ComparisonOperator::BeginsWith => crate::r#software::am
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
-#[allow(dead_code)]
+ #[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ComparisonOperator,
 ) -> aws_sdk_dynamodb::types::ComparisonOperator {

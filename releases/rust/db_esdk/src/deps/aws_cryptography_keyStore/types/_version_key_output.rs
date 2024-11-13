@@ -4,12 +4,15 @@
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
 /// Outputs for versioning a Branch Key.
-pub struct VersionKeyOutput {}
-impl VersionKeyOutput {}
+pub struct VersionKeyOutput {
+
+}
+impl VersionKeyOutput {
+
+}
 impl VersionKeyOutput {
     /// Creates a new builder-style object to manufacture [`VersionKeyOutput`](crate::deps::aws_cryptography_keyStore::types::VersionKeyOutput).
-    pub fn builder(
-    ) -> crate::deps::aws_cryptography_keyStore::types::builders::VersionKeyOutputBuilder {
+    pub fn builder() -> crate::deps::aws_cryptography_keyStore::types::builders::VersionKeyOutputBuilder {
         crate::deps::aws_cryptography_keyStore::types::builders::VersionKeyOutputBuilder::default()
     }
 }
@@ -19,8 +22,11 @@ impl VersionKeyOutput {
 #[derive(
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
-pub struct VersionKeyOutputBuilder {}
+pub struct VersionKeyOutputBuilder {
+
+}
 impl VersionKeyOutputBuilder {
+
     /// Consumes the builder and constructs a [`VersionKeyOutput`](crate::deps::aws_cryptography_keyStore::types::VersionKeyOutput).
     pub fn build(
         self,
@@ -28,8 +34,8 @@ impl VersionKeyOutputBuilder {
         crate::deps::aws_cryptography_keyStore::types::VersionKeyOutput,
         ::aws_smithy_types::error::operation::BuildError,
     > {
-        ::std::result::Result::Ok(
-            crate::deps::aws_cryptography_keyStore::types::VersionKeyOutput {},
-        )
+        ::std::result::Result::Ok(crate::deps::aws_cryptography_keyStore::types::VersionKeyOutput {
+
+        })
     }
 }

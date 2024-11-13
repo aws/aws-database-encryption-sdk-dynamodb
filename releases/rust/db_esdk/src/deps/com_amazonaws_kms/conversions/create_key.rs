@@ -7,9 +7,7 @@ pub fn to_dafny_error(
         aws_sdk_kms::operation::create_key::CreateKeyError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::kms::internaldafny::types::Error> {
     match value {
       aws_sdk_kms::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_kms::operation::create_key::CreateKeyError::CloudHsmClusterInvalidConfigurationException(e) =>
@@ -38,14 +36,18 @@ pub fn to_dafny_error(
             crate::deps::com_amazonaws_kms::conversions::error::xks_key_invalid_configuration_exception::to_dafny(e.clone()),
          aws_sdk_kms::operation::create_key::CreateKeyError::XksKeyNotFoundException(e) =>
             crate::deps::com_amazonaws_kms::conversions::error::xks_key_not_found_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_kms::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _create_key_request;
+ pub mod _create_key_request;
 
-pub mod _create_key_response;
+ pub mod _create_key_response;

@@ -19,13 +19,12 @@ impl ScanInputTransform {
         crate::types::error::Error,
     > {
         if input.sdk_input.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "sdk_input",
         "sdk_input was not specified but it is required when building ScanInputTransformInput",
     )).map_err(crate::types::error::Error::wrap_validation_err);
-        }
-        let inner_input =
-            crate::conversions::scan_input_transform::_scan_input_transform_input::to_dafny(input);
+}
+                let inner_input = crate::conversions::scan_input_transform::_scan_input_transform_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ScanInputTransform(&inner_input);
         if matches!(
@@ -33,9 +32,7 @@ impl ScanInputTransform {
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
             Ok(
-                crate::conversions::scan_input_transform::_scan_input_transform_output::from_dafny(
-                    inner_result.value().clone(),
-                ),
+                crate::conversions::scan_input_transform::_scan_input_transform_output::from_dafny(inner_result.value().clone()),
             )
         } else {
             Err(crate::conversions::error::from_dafny(

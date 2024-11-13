@@ -30,8 +30,5 @@ pem = "3.0.4"
 tokio = {version = "1.41.0", features = ["full"] }
 uuid = { version = "1.11.0", features = ["v4"] }
 
-[lib]
-path = "src/implementation_from_dafny.rs"
-
 [[example]]
 name = "main"

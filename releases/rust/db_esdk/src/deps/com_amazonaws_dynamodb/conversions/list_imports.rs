@@ -7,21 +7,23 @@ pub fn to_dafny_error(
         aws_sdk_dynamodb::operation::list_imports::ListImportsError,
         ::aws_smithy_runtime_api::client::orchestrator::HttpResponse,
     >,
-) -> ::std::rc::Rc<
-    crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error,
-> {
+) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error> {
     match value {
       aws_sdk_dynamodb::error::SdkError::ServiceError(service_error) => match service_error.err() {
                 aws_sdk_dynamodb::operation::list_imports::ListImportsError::LimitExceededException(e) =>
             crate::deps::com_amazonaws_dynamodb::conversions::error::limit_exceeded_exception::to_dafny(e.clone()),
-        e => crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", e)),
+        e => {
+          let msg = format!("{:?}", e);
+          crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(msg)
+        }
       },
       _ => {
-        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(format!("{:?}", value))
+        let msg = format!("{:?}", value);
+        crate::deps::com_amazonaws_dynamodb::conversions::error::to_opaque_error(msg)
       }
    }
 }
 
-pub mod _list_imports_request;
+ pub mod _list_imports_request;
 
-pub mod _list_imports_response;
+ pub mod _list_imports_response;

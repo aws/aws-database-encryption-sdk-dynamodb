@@ -17,32 +17,32 @@ impl EncryptStructure {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::EncryptStructureOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-    >{
+    > {
         if input.table_name.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "table_name",
         "table_name was not specified but it is required when building EncryptStructureInput",
     )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err);
-        }
-        if input.plaintext_structure.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+}
+if input.plaintext_structure.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "plaintext_structure",
         "plaintext_structure was not specified but it is required when building EncryptStructureInput",
     )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err);
-        }
-        if input.crypto_schema.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+}
+if input.crypto_schema.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "crypto_schema",
         "crypto_schema was not specified but it is required when building EncryptStructureInput",
     )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err);
-        }
-        if input.cmm.is_none() {
-            return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
+}
+if input.cmm.is_none() {
+    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
         "cmm",
         "cmm was not specified but it is required when building EncryptStructureInput",
     )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err);
-        }
-        let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::encrypt_structure::_encrypt_structure_input::to_dafny(input);
+}
+                let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::encrypt_structure::_encrypt_structure_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).EncryptStructure(&inner_input);
         if matches!(

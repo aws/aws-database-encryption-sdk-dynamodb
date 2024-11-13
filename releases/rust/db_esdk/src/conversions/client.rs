@@ -20,7 +20,5 @@ pub fn from_dafny(
       dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::IDynamoDbEncryptionTransformsClient
     >,
 ) -> crate::client::Client {
-    crate::client::Client {
-        dafny_client: dafny_value,
-    }
+  crate::client::Client { dafny_client: dafny_value }
 }
