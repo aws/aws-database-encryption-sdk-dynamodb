@@ -18,6 +18,7 @@ impl crate::Time::_default {
     }
 
     #[allow(non_snake_case)]
+    #[allow(dead_code)]
     pub fn CurrentRelativeTimeMilli() -> i64 {
         match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
             Ok(n) => n.as_millis() as i64,
