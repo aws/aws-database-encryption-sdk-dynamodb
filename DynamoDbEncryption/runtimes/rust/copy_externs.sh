@@ -18,7 +18,8 @@ cp $SRC/local_cmc.rs src
 cp $SRC/random.rs src
 cp $SRC/rsa.rs src
 cp $SRC/sets.rs src
-cp $SRC/software_externs.rs src
+# software_externs also has the Legacy stuff for Gazelle
+# cp $SRC/software_externs.rs src
 cp $SRC/storm_tracker.rs src
 cp $SRC/time.rs src
 cp $SRC/uuid.rs src
