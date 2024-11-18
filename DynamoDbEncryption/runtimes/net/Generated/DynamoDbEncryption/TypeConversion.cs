@@ -1625,6 +1625,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
               new string(dafnyVal.dtor_message.Elements));
         case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_Opaque dafnyVal:
           return new OpaqueError(dafnyVal._obj);
+        case software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_OpaqueWithText dafnyVal:
+          return new OpaqueWithTextError(dafnyVal._obj, dafnyVal._obj.ToString());
         default:
           // The switch MUST be complete for _IError, so `value` MUST NOT be an _IError. (How did you get here?)
           return new OpaqueError();
