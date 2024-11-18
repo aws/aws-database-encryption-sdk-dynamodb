@@ -36,8 +36,8 @@ jobs:
       - name: Init Submodules
         shell: bash
         run: |
-          git submodule update --init libraries
-          git submodule update --init --recursive smithy-dafny
+          git submodule update --init --recursive submodules/smithy-dafny
+          git submodule update --init --recursive submodules/MaterialProviders
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
