@@ -17,7 +17,7 @@ module BeaconTestFixtures {
   import DDBC = Com.Amazonaws.Dynamodb
   import KTypes = AwsCryptographyKeyStoreTypes
   import SI = SearchableEncryptionInfo
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import MaterialProviders
   import MPT = AwsCryptographyMaterialProvidersTypes
   import SortedSets
@@ -181,6 +181,9 @@ module BeaconTestFixtures {
     ensures output.keyStore.ValidState()
     ensures fresh(output.keyStore.Modifies)
     ensures output.version == 1
+    ensures
+      && output.keySource.multi?
+      && output.keySource.multi.cache.None?
   {
     var store := GetKeyStore();
     return BeaconVersion (
