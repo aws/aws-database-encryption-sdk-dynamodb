@@ -26,6 +26,7 @@ module SearchableEncryptionInfo {
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import CacheConstants
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
@@ -137,7 +138,8 @@ module SearchableEncryptionInfo {
     store : ValidStore,
     keyLoc : KeyLocation,
     cache : MP.ICryptographicMaterialsCache,
-    cacheTTL : uint32
+    cacheTTL : uint32,
+    partitionIdBytes : seq<uint8>
   ) {
     function Modifies() : set<object> {
       client.Modifies + store.Modifies
@@ -153,7 +155,7 @@ module SearchableEncryptionInfo {
     {
       if keyLoc.SingleLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a SingleKeyStore"));
-        var theMap :- getKeysCache(stdNames, keyLoc.keyId);
+        var theMap :- getKeysCache(stdNames, keyLoc.keyId, partitionIdBytes);
         return Success(Keys(theMap));
       } else if keyLoc.LiteralLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a LiteralKeyStore"));
@@ -163,7 +165,7 @@ module SearchableEncryptionInfo {
         match keyId {
           case DontUseKeyId => return Failure(E("KeyID must not be supplied with a MultiKeyStore"));
           case ShouldHaveKeyId => return Success(ShouldHaveKeys);
-          case KeyId(id) => var theMap :- getKeysCache(stdNames, id); return Success(Keys(theMap));
+          case KeyId(id) => var theMap :- getKeysCache(stdNames, id, partitionIdBytes); return Success(Keys(theMap));
         }
       }
     }
@@ -182,7 +184,8 @@ module SearchableEncryptionInfo {
 
     method getKeysCache(
       stdNames : seq<string>,
-      keyId : string
+      keyId : string,
+      partitionIdBytes : seq<uint8>
     )
       returns (output : Result<HmacKeyMap, Error>)
       requires Seq.HasNoDuplicates(stdNames)
@@ -241,6 +244,11 @@ module SearchableEncryptionInfo {
 
                    )
     {
+
+      // Resource ID: Searchable Encryption [0x02]
+      // var resourceId : seq<uint8> := RESOURCE_ID_HIERARCHICAL_KEYRING;
+
+
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
       var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
@@ -253,6 +261,7 @@ module SearchableEncryptionInfo {
         return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=getCacheOutput.error));
       }
 
+      // TODO: Add cacheEntryWithinLimits
       if getCacheOutput.Failure? {
         //= specification/searchable-encryption/search-config.md#beacon-keys
         //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).

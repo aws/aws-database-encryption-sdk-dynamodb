@@ -150,7 +150,7 @@ module
       var tableName: string := tableNamesSeq[i];
 
       var inputConfig := config.tableEncryptionConfigs[tableName];
-      :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
+      :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table mapped to multiple physical tables: " + inputConfig.logicalTableName));
 
       assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
       SearchInModifies(config, tableName);

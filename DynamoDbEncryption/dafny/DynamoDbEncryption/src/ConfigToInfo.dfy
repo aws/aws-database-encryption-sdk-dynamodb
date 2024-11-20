@@ -33,6 +33,7 @@ module SearchConfigToInfo {
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
   import Primitives = AtomicPrimitives
+  import UUID
 
   // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbTableEncryptionConfig)
@@ -151,13 +152,35 @@ module SearchConfigToInfo {
       cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
 
+    var partitionIdBytes : seq<uint8>;
+
+    if outer.keyring.Some? {
+      if outer.keyring.value.partitionId.Some? {
+        partitionIdBytes :- UTF8.Encode(outer.keyring.value.partitionId.value)
+        .MapFailure(
+          e => Error.DynamoDbEncryptionException(
+              message := "Could not UTF-8 Encode Partition ID: " + e
+            )
+        );
+      }
+    }
+    else {
+      var uuid? := UUID.GenerateUUID();
+
+      var uuid :- uuid?
+      .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+
+      partitionIdBytes :- UUID.ToByteArray(uuid)
+      .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+    }
+
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       var deleteKey :- ShouldDeleteKeyField(outer, config.multi.keyFieldName);
-      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32, partitionIdBytes));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32, partitionIdBytes));
     }
   }
 
