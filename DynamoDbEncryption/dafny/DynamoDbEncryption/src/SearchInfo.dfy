@@ -26,7 +26,7 @@ module SearchableEncryptionInfo {
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  import CacheConstants
+  import opened CacheConstants
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
@@ -246,11 +246,19 @@ module SearchableEncryptionInfo {
     {
 
       // Resource ID: Searchable Encryption [0x02]
-      // var resourceId : seq<uint8> := RESOURCE_ID_HIERARCHICAL_KEYRING;
+      var resourceId : seq<uint8> := RESOURCE_ID_HIERARCHICAL_KEYRING;
 
+      // Scope ID: Searchable Encryption [0x03]
+      var scopeId : seq<uint8> := SCOPE_ID_SEARCHABLE_ENCRYPTION;
 
+      // Create the Suffix
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
+      var suffix : seq<uint8> := keyIdBytes;
+
+      // Append Resource Id, Scope Id, Partition Id, and Suffix to create the cache identifier
+      var identifier := resourceId + NULL_BYTE + scopeId + NULL_BYTE + partitionIdBytes + NULL_BYTE + suffix;
+
       var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
       verifyValidStateCache(cache);
       assume {:axiom} cache.Modifies == {};

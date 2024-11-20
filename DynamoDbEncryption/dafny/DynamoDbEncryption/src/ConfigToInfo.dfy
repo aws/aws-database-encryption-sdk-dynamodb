@@ -138,6 +138,7 @@ module SearchConfigToInfo {
       else
         MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
+    // TODO : Add check that customers only provide either cacheTTL or cache in case of SingleKeyStore
     var cache;
     if cacheType.Shared? {
       cache := cacheType.Shared;
