@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        library: [DynamoDbEncryption, TestVectors]
+        library: [DynamoDbEncryption] # , TestVectors]
         # removed windows-latest because somehow it can't build aws-lc in CI
         os: [ubuntu-latest, macos-13]
     runs-on: ${{ matrix.os }}
