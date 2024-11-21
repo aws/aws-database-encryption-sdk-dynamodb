@@ -129,13 +129,13 @@ public class KmsEcdhKeyringExample {
     // Create a KMS ECDH keyring.
     // This keyring uses the KmsPrivateKeyToStaticPublicKey configuration. This configuration calls for both of
     // the keys to be on the same curve (P256, P384, P521).
-    // On encrypt, the keyring calls AWS KMS to derive the shared from the sender's KMS ECC Key ARN and the recipient's public key.
-    // For this example, on decrypt, the keyring calls AWS KMS to derive the shared from the sender's KMS ECC Key ARN and the recipient's public key;
-    // however, on decrypt the recipient can construct a keyring such that the shared secret is calculated with
+    // On encrypt, the keyring calls AWS KMS to derive the shared secret from the sender's KMS ECC Key ARN and the recipient's public key.
+    // For this example, on decrypt, the keyring calls AWS KMS to derive the shared secret from the sender's KMS ECC Key ARN and the recipient's public key;
+    // however, on decrypt, the recipient can construct a keyring such that the shared secret is calculated with
     // the recipient's private key and the sender's public key. In both scenarios the shared secret will be the same.
     // For more information on this configuration see:
     // https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-kms-ecdh-keyring.html#kms-ecdh-create
-    // The DynamoDb encryption client uses this to encrypt and decrypt items.
+    // The DynamoDb encryption client uses this keyring to encrypt and decrypt items.
     // This keyring takes in:
     //  - kmsClient
     //  - kmsKeyId: Must be an ARN representing a KMS ECC key meant for KeyAgreement

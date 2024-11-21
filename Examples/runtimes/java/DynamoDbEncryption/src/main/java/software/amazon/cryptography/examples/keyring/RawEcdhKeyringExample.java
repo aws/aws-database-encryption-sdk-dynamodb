@@ -736,8 +736,8 @@ public class RawEcdhKeyringExample {
 
     // If keys already exist: do not overwrite existing keys
     return (
-      !privateKeyFileSender.exists() ||
-      !publicKeyFileRecipient.exists() ||
+      !privateKeyFileSender.exists() &&
+      !publicKeyFileRecipient.exists() &&
       !privateKeyFileRecipient.exists()
     );
     // If no keys are present, generate new keys
