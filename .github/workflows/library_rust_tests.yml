@@ -102,3 +102,10 @@ jobs:
         working-directory: ./${{ matrix.library }}
         run: |
           make test_rust
+
+      - name: Test Examples for Rust in ${{ matrix.library }}
+        if: ${{ matrix.library == 'DynamoDbEncryption' }}
+        working-directory: ${{ matrix.library }}
+        shell: bash
+        run: |
+          cargo run --example main
