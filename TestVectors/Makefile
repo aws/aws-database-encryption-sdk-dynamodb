@@ -6,7 +6,9 @@ CORES=2
 include ../SharedMakefile.mk
 
 PROJECT_SERVICES := \
-	DDBEncryption \
+	DDBEncryption
+
+MAIN_SERVICE_FOR_RUST := DDBEncryption
 
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/DynamoDbEncryption/dafny/DynamoDbEncryption/Model
 OUTPUT_LOCAL_SERVICE_DDBEncryption := --local-service-test
@@ -24,6 +26,26 @@ PROJECT_DEPENDENCIES := \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders \
 	DynamoDbEncryption \
+
+RUST_OTHER_FILES := \
+	runtimes/rust/src/aes_gcm.rs \
+	runtimes/rust/src/aes_kdf_ctr.rs \
+	runtimes/rust/src/ddb.rs \
+	runtimes/rust/src/concurrent_call.rs \
+	runtimes/rust/src/dafny_libraries.rs \
+	runtimes/rust/src/digest.rs \
+	runtimes/rust/src/ecdh.rs \
+	runtimes/rust/src/ecdsa.rs \
+	runtimes/rust/src/hmac.rs \
+	runtimes/rust/src/kms.rs \
+	runtimes/rust/src/local_cmc.rs \
+	runtimes/rust/src/random.rs \
+	runtimes/rust/src/rsa.rs \
+	runtimes/rust/src/sets.rs \
+	runtimes/rust/src/software_externs.rs \
+	runtimes/rust/src/storm_tracker.rs \
+	runtimes/rust/src/time.rs \
+	runtimes/rust/src/uuid.rs
 
 # Since we are packaging projects differently, we cannot make assumptions
 # about where the files are located. 
