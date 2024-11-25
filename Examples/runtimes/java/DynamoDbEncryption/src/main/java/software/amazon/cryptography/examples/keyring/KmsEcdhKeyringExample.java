@@ -178,9 +178,8 @@ public class KmsEcdhKeyringExample {
   }
 
   /*
-    This example takes in the recipient's KMS ECC key ARN,
-    and the algorithm definition where the ECC keys lie.
-    The eccRecipientKeyArn parameter takes in the sender's KMS ECC key ARN
+    This example takes in the recipient's KMS ECC key ARN via
+    the eccRecipientKeyArn parameter.
 
     This example attempts to decrypt a test item using the provided eccRecipientKeyArn,
     it does so by checking if the message header contains the recipient's public key.
@@ -581,6 +580,8 @@ public class KmsEcdhKeyringExample {
       eccPublicKeyRecipientFilename = EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME;
     }
     if (args.length == 5) {
+      eccPublicKeySenderFilename = args[2];
+      eccPublicKeyRecipientFilename = args[3];
       eccRecipientKeyArn = args[4];
     } else {
       eccRecipientKeyArn = null;

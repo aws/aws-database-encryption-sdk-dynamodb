@@ -195,7 +195,7 @@ public class RawEcdhKeyringExample {
 
   /*
     This example takes in the recipient's public key located at EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
-    as a UTF8 PEM-encoded (PKCS #8 PrivateKeyInfo structures), and the Curve Specification where the key lies.
+    as a UTF8 PEM-encoded X.509 public key, and the Curve Specification where the key lies.
 
     This examples creates a RawECDH keyring with the EphemeralPrivateKeyToStaticPublicKey key agreement scheme.
     This configuration will always create a new key pair as the sender key pair for the key agreement operation.
@@ -252,7 +252,7 @@ public class RawEcdhKeyringExample {
     // This keyring uses an ephemeral configuration. This configuration will always create a new
     // key pair as the sender key pair for the key agreement operation. The ephemeral configuration can only
     // encrypt data and CANNOT decrypt messages.
-    // The DynamoDb encryption client uses this to encrypt and decrypt items.
+    // The DynamoDb encryption client uses this to encrypt items.
     final CreateRawEcdhKeyringInput keyringInput = CreateRawEcdhKeyringInput
       .builder()
       .curveSpec(ecdhCurveSpec)
@@ -283,7 +283,7 @@ public class RawEcdhKeyringExample {
 
   /*
     This example takes in the recipient's private key located at EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT
-    as a UTF8 PEM-encoded X.509 public key, also known as SubjectPublicKeyInfo (SPKI),
+    as a UTF8 PEM-encoded (PKCS #8 PrivateKeyInfo structures) private key,
     and the Curve Specification where the key lies.
 
     This examples creates a RawECDH keyring with the PublicKeyDiscovery key agreement scheme.
@@ -319,7 +319,7 @@ public class RawEcdhKeyringExample {
     // This keyring uses a discovery configuration. This configuration will check on decrypt
     // if it is meant to decrypt the message by checking if the configured public key is stored on the message.
     // The discovery configuration can only decrypt messages and CANNOT encrypt messages.
-    // The DynamoDb encryption client uses this to encrypt and decrypt items.
+    // The DynamoDb encryption client uses this to decrypt items.
     final CreateRawEcdhKeyringInput keyringInput = CreateRawEcdhKeyringInput
       .builder()
       .curveSpec(ecdhCurveSpec)
