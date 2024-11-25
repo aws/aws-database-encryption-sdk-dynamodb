@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 CORES=2
+TRANSPILE_TESTS_IN_RUST=1
 
 include ../SharedMakefile.mk
 
@@ -27,11 +28,13 @@ PROJECT_DEPENDENCIES := \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders \
 	DynamoDbEncryption \
 
+
 RUST_OTHER_FILES := \
 	runtimes/rust/src/aes_gcm.rs \
 	runtimes/rust/src/aes_kdf_ctr.rs \
 	runtimes/rust/src/ddb.rs \
 	runtimes/rust/src/concurrent_call.rs \
+	runtimes/rust/src/create_client.rs \
 	runtimes/rust/src/dafny_libraries.rs \
 	runtimes/rust/src/digest.rs \
 	runtimes/rust/src/ecdh.rs \
@@ -77,9 +80,6 @@ SERVICE_DEPS_DDBEncryption := \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
-
-format_net:
-	pushd runtimes/net && dotnet format && popd
-
-clean:
-	rm -f runtimes/java/WriteTests1.json runtimes/java/decrypt.json runtimes/java/encrypt.json runtimes/net/*.json
+_remove_wrapped_client_rust:
+	$(MAKE) _sed_file SED_FILE_PATH="runtimes/rust/src/deps/aws_cryptography_materialProviders.rs" \
+SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\/ Removed cfg(feature = "wrapped-client")'

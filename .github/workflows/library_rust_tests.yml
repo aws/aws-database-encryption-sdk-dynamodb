@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        library: [DynamoDbEncryption] # , TestVectors]
+        library: [DynamoDbEncryption, TestVectors]
         # removed windows-latest because somehow it can't build aws-lc in CI
         os: [ubuntu-latest, macos-13]
     runs-on: ${{ matrix.os }}
@@ -54,11 +54,10 @@ jobs:
       # - name: Rustfmt Check
       #   uses: actions-rust-lang/rustfmt@v1
 
-      # Use setup-dafny-actions with correct version when Dafny releases 4.8.2
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: 4.9.0
+          dafny-version: nightly-latest
 
       # Remove this after the formatting in Rust starts working
       - name: smithy-dafny Rust hacks
@@ -96,6 +95,13 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
+
+      - name: Copy ${{ matrix.library }} Vector Files
+        if: ${{ matrix.library == TestVectors' }}
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          cp runtimes/java/*.json runtimes/rust/
 
       - name: Test ${{ matrix.library }} Rust
         shell: bash

@@ -3,7 +3,7 @@
 
 include "../Model/AwsCryptographyDynamoDbEncryptionTypesWrapped.dfy"
 
-module CreateInterceptedDDBClient {
+module {:extern} CreateInterceptedDDBClient {
   import opened Wrappers
   import AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import ComAmazonawsDynamodbTypes

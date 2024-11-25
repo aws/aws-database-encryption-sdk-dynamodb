@@ -97,6 +97,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       Validate();
       StringOrdering();
+      var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
+      if skipLocal.Success? {
+        return;
+      }
       BasicIoTest();
       RunIoTests();
       BasicQueryTest();

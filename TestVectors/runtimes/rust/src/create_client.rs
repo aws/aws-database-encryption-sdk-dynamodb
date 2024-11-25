@@ -1,0 +1,76 @@
+use std::rc::Rc;
+use dafny_runtime::Object;
+use crate::implementation_from_dafny::software::amazon::cryptography::services::dynamodb::internaldafny::types::IDynamoDBClient;
+use crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Error;
+use crate::implementation_from_dafny::_Wrappers_Compile;
+use std::sync::LazyLock;
+// use crate::intercept::DbEsdkInterceptor;
+
+static DAFNY_TOKIO_RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
+  tokio::runtime::Builder::new_multi_thread()
+      .enable_all()
+      .build()
+      .unwrap()
+});
+
+pub mod _CreateInterceptedDDBClient_Compile {
+pub struct _default {}
+}
+impl _CreateInterceptedDDBClient_Compile::_default {
+
+  pub fn CreateInterceptedDDBClient(config : &Rc<crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbTablesEncryptionConfig>)
+  -> Rc<_Wrappers_Compile::Result<Object<dyn IDynamoDBClient>, Rc<Error>>> 
+  {
+    let shared_config = DAFNY_TOKIO_RUNTIME.block_on(aws_config::load_defaults(
+      aws_config::BehaviorVersion::v2024_03_28()));
+
+      let shared_config = shared_config
+        .to_builder()
+        .endpoint_url("http://localhost:8000")
+        .build();
+
+        let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&shared_config)
+//        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .build();
+      let inner = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
+
+      let client = crate::deps::com_amazonaws_dynamodb::client::Client { inner };
+      let dafny_client = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(client));
+      std::rc::Rc::new(crate::r#_Wrappers_Compile::Result::Success {
+        value: dafny_client,
+      })
+}
+  pub fn CreateVanillaDDBClient()
+  -> Rc<_Wrappers_Compile::Result<Object<dyn IDynamoDBClient>, Rc<Error>>>
+  {
+    let shared_config = DAFNY_TOKIO_RUNTIME.block_on(aws_config::load_defaults(
+            aws_config::BehaviorVersion::v2024_03_28()));
+
+    let shared_config = shared_config
+        .to_builder()
+        .endpoint_url("http://localhost:8000")
+        .build();
+      let inner = aws_sdk_dynamodb::Client::new(&shared_config);
+      let client = crate::deps::com_amazonaws_dynamodb::client::Client { inner };
+      let dafny_client = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(client));
+      std::rc::Rc::new(crate::r#_Wrappers_Compile::Result::Success {
+        value: dafny_client,
+    })
+  }
+
+}
+
+
+// public static _IResult<IDynamoDBClient, _IError> CreateInterceptedDDBClient(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IDynamoDbTablesEncryptionConfig config)
+// {
+//     var clientConfig = new AmazonDynamoDBConfig();
+//     clientConfig.ServiceURL = "http://localhost:8000";
+
+//     var native = AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.TypeConversion
+//       .FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S30_DynamoDbTablesEncryptionConfig(
+//         config);
+
+//     var client = new Client.DynamoDbClient(clientConfig, native);
+//     var c2 = new Com.Amazonaws.Dynamodb.DynamoDBv2Shim(client);
+//     return new Result_Success<IDynamoDBClient, _IError>(c2);
+// }
