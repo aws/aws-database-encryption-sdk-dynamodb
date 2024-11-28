@@ -136,9 +136,11 @@ module SearchConfigToInfo {
         else
           MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
-        MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
+        if config.single.cache.Some? then
+          config.single.cache.value
+        else
+          MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
-    // TODO : Add check that customers only provide either cacheTTL or cache in case of SingleKeyStore
     var cache;
     if cacheType.Shared? {
       cache := cacheType.Shared;
@@ -155,15 +157,21 @@ module SearchConfigToInfo {
 
     var partitionIdBytes : seq<uint8>;
 
-    if outer.keyring.Some? {
-      if outer.keyring.value.partitionId.Some? {
-        partitionIdBytes :- UTF8.Encode(outer.keyring.value.partitionId.value)
-        .MapFailure(
-          e => Error.DynamoDbEncryptionException(
-              message := "Could not UTF-8 Encode Partition ID: " + e
-            )
-        );
-      }
+    if config.multi? && config.multi.partitionId.Some? {
+      partitionIdBytes :- UTF8.Encode(config.multi.partitionId.value)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Partition ID from MultiKeyStore: " + e
+          )
+      );
+    }
+    if config.single? && config.single.partitionId.Some? {
+      partitionIdBytes :- UTF8.Encode(config.single.partitionId.value)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Partition ID from SingleKeyStore: " + e
+          )
+      );
     }
     else {
       var uuid? := UUID.GenerateUUID();

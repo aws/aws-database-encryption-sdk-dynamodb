@@ -389,7 +389,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   }
   datatype SingleKeyStore = | SingleKeyStore (
     nameonly keyId: string ,
-    nameonly cacheTTL: Option<int32> := Option.None ,
+    nameonly cacheTTL: int32 ,
     nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None ,
     nameonly partitionId: Option<string> := Option.None
   )

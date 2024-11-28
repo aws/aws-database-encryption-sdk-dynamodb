@@ -155,7 +155,7 @@ module SearchableEncryptionInfo {
     {
       if keyLoc.SingleLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a SingleKeyStore"));
-        var theMap :- getKeysCache(stdNames, keyLoc.keyId, partitionIdBytes);
+        var theMap :- getKeysCache(stdNames, keyLoc.keyId, cacheTTL as MP.PositiveLong, partitionIdBytes);
         return Success(Keys(theMap));
       } else if keyLoc.LiteralLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a LiteralKeyStore"));
@@ -165,7 +165,7 @@ module SearchableEncryptionInfo {
         match keyId {
           case DontUseKeyId => return Failure(E("KeyID must not be supplied with a MultiKeyStore"));
           case ShouldHaveKeyId => return Success(ShouldHaveKeys);
-          case KeyId(id) => var theMap :- getKeysCache(stdNames, id, partitionIdBytes); return Success(Keys(theMap));
+          case KeyId(id) => var theMap :- getKeysCache(stdNames, id, cacheTTL as MP.PositiveLong, partitionIdBytes); return Success(Keys(theMap));
         }
       }
     }
@@ -182,9 +182,22 @@ module SearchableEncryptionInfo {
       return Success(keyLoc.keys);
     }
 
+    // Checks if (time_now - cache creation time of the extracted cache entry) is less than the allowed
+    // TTL of the current Beacon Key Source calling the getEntry method from the cache.
+    // Mitigates risk if another Beacon Key Source wrote the entry with a longer TTL.
+    predicate method cacheEntryWithinLimits(
+      creationTime: MP.PositiveLong,
+      now: MP.PositiveLong,
+      ttlSeconds: MP.PositiveLong
+    ): (output: bool)
+    {
+      now - creationTime <= ttlSeconds as MP.PositiveLong
+    }
+
     method getKeysCache(
       stdNames : seq<string>,
       keyId : string,
+      cacheTTL : MP.PositiveLong,
       partitionIdBytes : seq<uint8>
     )
       returns (output : Result<HmacKeyMap, Error>)
@@ -269,8 +282,21 @@ module SearchableEncryptionInfo {
         return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=getCacheOutput.error));
       }
 
-      // TODO: Add cacheEntryWithinLimits
-      if getCacheOutput.Failure? {
+      var now := Time.GetCurrent();
+
+      // //= specification/searchable-encryption/search-config.md#<heading>
+      //# If using a `Shared` cache across multiple Beacon Key Sources,
+      //# different Key Sources having the same `beaconKey` can have different TTLs.
+      //# In such a case, the expiry time in the cache is set according to the Beacon Key Source that populated the cache.
+      //# There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
+      //# `time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
+      //# valid for TTL of the Beacon Key Source getting the cache entry.
+      //# If this is NOT true, then we MUST treat the cache entry as expired.
+      if getCacheOutput.Failure? || !cacheEntryWithinLimits(
+        creationTime := getCacheOutput.value.creationTime,
+        now := now,
+        ttlSeconds := cacheTTL
+      ) {
         //= specification/searchable-encryption/search-config.md#beacon-keys
         //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
         var maybeRawBeaconKeyMaterials := store.GetBeaconKey(
