@@ -136,10 +136,10 @@ module SearchConfigToInfo {
         else
           MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
-        if config.single.cache.Some? then
-          config.single.cache.value
-        else
-          MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
+      if config.single.cache.Some? then
+        config.single.cache.value
+      else
+        MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
     var cache;
     if cacheType.Shared? {

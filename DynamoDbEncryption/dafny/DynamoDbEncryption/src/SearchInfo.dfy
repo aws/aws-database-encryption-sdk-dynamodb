@@ -293,10 +293,10 @@ module SearchableEncryptionInfo {
       //# valid for TTL of the Beacon Key Source getting the cache entry.
       //# If this is NOT true, then we MUST treat the cache entry as expired.
       if getCacheOutput.Failure? || !cacheEntryWithinLimits(
-        creationTime := getCacheOutput.value.creationTime,
-        now := now,
-        ttlSeconds := cacheTTL
-      ) {
+           creationTime := getCacheOutput.value.creationTime,
+           now := now,
+           ttlSeconds := cacheTTL
+         ) {
         //= specification/searchable-encryption/search-config.md#beacon-keys
         //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
         var maybeRawBeaconKeyMaterials := store.GetBeaconKey(
