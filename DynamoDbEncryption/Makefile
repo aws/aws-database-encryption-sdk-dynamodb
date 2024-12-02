@@ -98,8 +98,3 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor
-
-polymorph:
-	export DAFNY_VERSION=4.2
-	npm i --no-save prettier@3 prettier-plugin-java@2.5
-	make polymorph_code_gen PROJECT_DEPENDENCIES=

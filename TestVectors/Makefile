@@ -80,6 +80,8 @@ SERVICE_DEPS_DDBEncryption := \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
+transpile_implementation_rust: _remove_wrapped_client_rust
+
 _remove_wrapped_client_rust:
 	$(MAKE) _sed_file SED_FILE_PATH="runtimes/rust/src/deps/aws_cryptography_materialProviders.rs" \
 SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\/ Removed cfg(feature = "wrapped-client")'
