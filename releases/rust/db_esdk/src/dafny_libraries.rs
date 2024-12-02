@@ -71,6 +71,12 @@ pub mod DafnyLibraries {
         }
     }
 
+    impl<K: ::dafny_runtime::DafnyTypeEq, V: ::dafny_runtime::DafnyTypeEq>
+        ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for MutableMap<K, V>
+    {
+        ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+    }
+
     pub mod FileIO {
         use std::fs::File;
         use std::io::Read;
@@ -89,7 +95,12 @@ pub mod DafnyLibraries {
 
             let mut file = match File::open(path) {
                 Err(why) => {
-                    let err_msg = format!("couldn't open {} for reading from {}: {}", path.display(), curr_dir(), why);
+                    let err_msg = format!(
+                        "couldn't open {} for reading from {}: {}",
+                        path.display(),
+                        curr_dir(),
+                        why
+                    );
                     let err_msg = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&err_msg);
                     return (true, dafny_runtime::Sequence::default(), err_msg);
                 }
@@ -111,8 +122,7 @@ pub mod DafnyLibraries {
             }
         }
 
-        fn curr_dir() -> String
-        {
+        fn curr_dir() -> String {
             let path = std::env::current_dir();
             match path {
                 Ok(path) => format!("{}", path.display()),
@@ -137,7 +147,12 @@ pub mod DafnyLibraries {
                 .open(path);
             let mut file = match maybe_file {
                 Err(why) => {
-                    let err_msg = format!("couldn't open {} for writing from {}: {}", path.display(), curr_dir(), why);
+                    let err_msg = format!(
+                        "couldn't open {} for writing from {}: {}",
+                        path.display(),
+                        curr_dir(),
+                        why
+                    );
                     let err_msg = dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&err_msg);
                     return (true, err_msg);
                 }

@@ -74,6 +74,13 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ DeletionProtectionEnabled: crate::standard_library_conversions::obool_to_dafny(&value.deletion_protection_enabled),
+ ResourcePolicy: crate::standard_library_conversions::ostring_to_dafny(&value.resource_policy),
+ OnDemandThroughput: ::std::rc::Rc::new(match &value.on_demand_throughput {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::to_dafny(x) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     })
 }
  #[allow(dead_code)]
@@ -156,6 +163,14 @@ pub fn from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } => Some(
         crate::deps::com_amazonaws_dynamodb::conversions::table_class::from_dafny(value)
     ),
+    _ => None,
+}
+)
+ .set_deletion_protection_enabled(crate::standard_library_conversions::obool_from_dafny(dafny_value.DeletionProtectionEnabled().clone()))
+ .set_resource_policy(crate::standard_library_conversions::ostring_from_dafny(dafny_value.ResourcePolicy().clone()))
+ .set_on_demand_throughput(match (*dafny_value.OnDemandThroughput()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::from_dafny(value.clone())),
     _ => None,
 }
 )

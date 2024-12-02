@@ -22,6 +22,11 @@ pub fn to_dafny_plain(
  fanOut: value.fan_out.clone().unwrap(),
  inFlightTTL: value.in_flight_ttl.clone().unwrap(),
  sleepMilli: value.sleep_milli.clone().unwrap(),
+ timeUnits: ::std::rc::Rc::new(match &value.time_units {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::aws_cryptography_materialProviders::conversions::time_units::to_dafny(x.clone()) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     }
 }
 
@@ -62,6 +67,13 @@ pub fn plain_from_dafny(
  .set_fan_out(Some( dafny_value.fanOut() .clone() ))
  .set_in_flight_ttl(Some( dafny_value.inFlightTTL() .clone() ))
  .set_sleep_milli(Some( dafny_value.sleepMilli() .clone() ))
+ .set_time_units(match &**dafny_value.timeUnits() {
+    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+        crate::deps::aws_cryptography_materialProviders::conversions::time_units::from_dafny(value)
+    ),
+    _ => None,
+}
+)
                 .build()
                 .unwrap()
     }

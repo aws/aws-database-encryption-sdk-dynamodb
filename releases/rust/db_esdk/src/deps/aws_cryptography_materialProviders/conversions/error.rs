@@ -47,6 +47,10 @@ crate::deps::aws_cryptography_materialProviders::types::error::Error::EntryDoesN
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::Error::EntryDoesNotExist {
         message: ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&message),
     },
+crate::deps::aws_cryptography_materialProviders::types::error::Error::InFlightTtlExceeded { message } =>
+    crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::Error::InFlightTTLExceeded {
+        message: ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&message),
+    },
 crate::deps::aws_cryptography_materialProviders::types::error::Error::InvalidAlgorithmSuiteInfo { message } =>
     crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::Error::InvalidAlgorithmSuiteInfo {
         message: ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&message),
@@ -135,6 +139,10 @@ crate::r#software::amazon::cryptography::materialproviders::internaldafny::types
     },
 crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::Error::EntryDoesNotExist { message } =>
     crate::deps::aws_cryptography_materialProviders::types::error::Error::EntryDoesNotExist {
+        message: ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(&message),
+    },
+crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::Error::InFlightTTLExceeded { message } =>
+    crate::deps::aws_cryptography_materialProviders::types::error::Error::InFlightTtlExceeded {
         message: ::dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(&message),
     },
 crate::r#software::amazon::cryptography::materialproviders::internaldafny::types::Error::InvalidAlgorithmSuiteInfo { message } =>

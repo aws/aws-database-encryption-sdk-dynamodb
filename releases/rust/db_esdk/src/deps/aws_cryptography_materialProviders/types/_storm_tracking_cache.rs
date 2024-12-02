@@ -12,15 +12,19 @@ pub entry_capacity: ::std::option::Option<::std::primitive::i32>,
 pub entry_pruning_tail_size: ::std::option::Option<::std::primitive::i32>,
 /// How many simultaneous attempts to refresh the materials.
 pub fan_out: ::std::option::Option<::std::primitive::i32>,
-/// How many seconds between attempts to refresh the materials.
+/// How much time between attempts to refresh the materials.
 pub grace_interval: ::std::option::Option<::std::primitive::i32>,
-/// How many seconds before expiration should an attempt be made to refresh the materials.
+/// How much time before expiration should an attempt be made to refresh the materials.
 ///   If zero, use a simple cache with no storm tracking.
 pub grace_period: ::std::option::Option<::std::primitive::i32>,
-/// How many seconds until an attempt to refresh the materials should be forgotten.
+/// How much time until an attempt to refresh the materials should be forgotten.
 pub in_flight_ttl: ::std::option::Option<::std::primitive::i32>,
 /// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub sleep_milli: ::std::option::Option<::std::primitive::i32>,
+/// The time unit for gracePeriod, graceInterval, and inFlightTTL.
+///   The default is seconds.
+///   If this is set to milliseconds, then these values will be treated as milliseconds.
+pub time_units: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::TimeUnits>,
 }
 impl StormTrackingCache {
     /// Maximum number of entries cached.
@@ -35,22 +39,28 @@ pub fn entry_pruning_tail_size(&self) -> &::std::option::Option<::std::primitive
 pub fn fan_out(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.fan_out
 }
-/// How many seconds between attempts to refresh the materials.
+/// How much time between attempts to refresh the materials.
 pub fn grace_interval(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_interval
 }
-/// How many seconds before expiration should an attempt be made to refresh the materials.
+/// How much time before expiration should an attempt be made to refresh the materials.
 ///   If zero, use a simple cache with no storm tracking.
 pub fn grace_period(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_period
 }
-/// How many seconds until an attempt to refresh the materials should be forgotten.
+/// How much time until an attempt to refresh the materials should be forgotten.
 pub fn in_flight_ttl(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.in_flight_ttl
 }
 /// How many milliseconds should a thread sleep if fanOut is exceeded.
 pub fn sleep_milli(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.sleep_milli
+}
+/// The time unit for gracePeriod, graceInterval, and inFlightTTL.
+///   The default is seconds.
+///   If this is set to milliseconds, then these values will be treated as milliseconds.
+pub fn time_units(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::TimeUnits> {
+    &self.time_units
 }
 }
 impl StormTrackingCache {
@@ -73,6 +83,7 @@ pub(crate) grace_interval: ::std::option::Option<::std::primitive::i32>,
 pub(crate) grace_period: ::std::option::Option<::std::primitive::i32>,
 pub(crate) in_flight_ttl: ::std::option::Option<::std::primitive::i32>,
 pub(crate) sleep_milli: ::std::option::Option<::std::primitive::i32>,
+pub(crate) time_units: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::TimeUnits>,
 }
 impl StormTrackingCacheBuilder {
     /// Maximum number of entries cached.
@@ -117,48 +128,48 @@ pub fn set_fan_out(mut self, input: ::std::option::Option<::std::primitive::i32>
 pub fn get_fan_out(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.fan_out
 }
-/// How many seconds between attempts to refresh the materials.
+/// How much time between attempts to refresh the materials.
 pub fn grace_interval(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.grace_interval = ::std::option::Option::Some(input.into());
     self
 }
-/// How many seconds between attempts to refresh the materials.
+/// How much time between attempts to refresh the materials.
 pub fn set_grace_interval(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.grace_interval = input;
     self
 }
-/// How many seconds between attempts to refresh the materials.
+/// How much time between attempts to refresh the materials.
 pub fn get_grace_interval(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_interval
 }
-/// How many seconds before expiration should an attempt be made to refresh the materials.
+/// How much time before expiration should an attempt be made to refresh the materials.
 ///   If zero, use a simple cache with no storm tracking.
 pub fn grace_period(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.grace_period = ::std::option::Option::Some(input.into());
     self
 }
-/// How many seconds before expiration should an attempt be made to refresh the materials.
+/// How much time before expiration should an attempt be made to refresh the materials.
 ///   If zero, use a simple cache with no storm tracking.
 pub fn set_grace_period(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.grace_period = input;
     self
 }
-/// How many seconds before expiration should an attempt be made to refresh the materials.
+/// How much time before expiration should an attempt be made to refresh the materials.
 ///   If zero, use a simple cache with no storm tracking.
 pub fn get_grace_period(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.grace_period
 }
-/// How many seconds until an attempt to refresh the materials should be forgotten.
+/// How much time until an attempt to refresh the materials should be forgotten.
 pub fn in_flight_ttl(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
     self.in_flight_ttl = ::std::option::Option::Some(input.into());
     self
 }
-/// How many seconds until an attempt to refresh the materials should be forgotten.
+/// How much time until an attempt to refresh the materials should be forgotten.
 pub fn set_in_flight_ttl(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
     self.in_flight_ttl = input;
     self
 }
-/// How many seconds until an attempt to refresh the materials should be forgotten.
+/// How much time until an attempt to refresh the materials should be forgotten.
 pub fn get_in_flight_ttl(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.in_flight_ttl
 }
@@ -176,6 +187,26 @@ pub fn set_sleep_milli(mut self, input: ::std::option::Option<::std::primitive::
 pub fn get_sleep_milli(&self) -> &::std::option::Option<::std::primitive::i32> {
     &self.sleep_milli
 }
+/// The time unit for gracePeriod, graceInterval, and inFlightTTL.
+///   The default is seconds.
+///   If this is set to milliseconds, then these values will be treated as milliseconds.
+pub fn time_units(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_materialProviders::types::TimeUnits>) -> Self {
+    self.time_units = ::std::option::Option::Some(input.into());
+    self
+}
+/// The time unit for gracePeriod, graceInterval, and inFlightTTL.
+///   The default is seconds.
+///   If this is set to milliseconds, then these values will be treated as milliseconds.
+pub fn set_time_units(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::TimeUnits>) -> Self {
+    self.time_units = input;
+    self
+}
+/// The time unit for gracePeriod, graceInterval, and inFlightTTL.
+///   The default is seconds.
+///   If this is set to milliseconds, then these values will be treated as milliseconds.
+pub fn get_time_units(&self) -> &::std::option::Option<crate::deps::aws_cryptography_materialProviders::types::TimeUnits> {
+    &self.time_units
+}
     /// Consumes the builder and constructs a [`StormTrackingCache`](crate::deps::aws_cryptography_materialProviders::types::StormTrackingCache).
     pub fn build(
         self,
@@ -191,6 +222,7 @@ grace_interval: self.grace_interval,
 grace_period: self.grace_period,
 in_flight_ttl: self.in_flight_ttl,
 sleep_milli: self.sleep_milli,
+time_units: self.time_units,
         })
     }
 }

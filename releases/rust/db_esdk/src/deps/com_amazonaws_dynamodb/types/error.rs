@@ -83,6 +83,10 @@ PointInTimeRecoveryUnavailableException {
     error: aws_sdk_dynamodb::types::error::PointInTimeRecoveryUnavailableException,
 },
 
+PolicyNotFoundException {
+    error: aws_sdk_dynamodb::types::error::PolicyNotFoundException,
+},
+
 ProvisionedThroughputExceededException {
     error: aws_sdk_dynamodb::types::error::ProvisionedThroughputExceededException,
 },

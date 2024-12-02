@@ -233,6 +233,8 @@ pub mod aes_wrapping_alg;
 
  pub mod symmetric_signature_algorithm;
 
+ pub mod time_units;
+
  pub mod update_usage_metadata;
 
  pub mod update_usage_metadata_input;

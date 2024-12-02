@@ -14,6 +14,11 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ OnDemandThroughputOverride: ::std::rc::Rc::new(match &value.on_demand_throughput_override {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput_override::to_dafny(x) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
  GlobalSecondaryIndexes: ::std::rc::Rc::new(match &value.global_secondary_indexes {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
         ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(x,
@@ -43,6 +48,12 @@ pub fn from_dafny(
  .set_provisioned_throughput_override(match (*dafny_value.ProvisionedThroughputOverride()).as_ref() {
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(crate::deps::com_amazonaws_dynamodb::conversions::provisioned_throughput_override::from_dafny(value.clone())),
+    _ => None,
+}
+)
+ .set_on_demand_throughput_override(match (*dafny_value.OnDemandThroughputOverride()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput_override::from_dafny(value.clone())),
     _ => None,
 }
 )

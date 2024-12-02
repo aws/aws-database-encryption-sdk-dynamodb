@@ -19,6 +19,11 @@ EntryDoesNotExist {
 },
 
 #[allow(missing_docs)]
+InFlightTtlExceeded {
+    message: ::std::string::String,
+},
+
+#[allow(missing_docs)]
 InvalidAlgorithmSuiteInfo {
     message: ::std::string::String,
 },

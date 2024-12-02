@@ -1,7 +1,9 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
-pub mod archival_summary;
+pub mod approximate_creation_date_time_precision;
+
+ pub mod archival_summary;
 
  pub mod attribute_action;
 
@@ -107,6 +109,8 @@ pub mod archival_summary;
 
  pub mod delete_request;
 
+ pub mod delete_resource_policy;
+
  pub mod delete_table;
 
  pub mod describe_backup;
@@ -139,6 +143,8 @@ pub mod archival_summary;
 
  pub mod disable_kinesis_streaming_destination;
 
+ pub mod enable_kinesis_streaming_configuration;
+
  pub mod enable_kinesis_streaming_destination;
 
  pub mod endpoint;
@@ -161,11 +167,17 @@ pub mod archival_summary;
 
  pub mod export_table_to_point_in_time;
 
+ pub mod export_type;
+
+ pub mod export_view_type;
+
  pub mod failure_exception;
 
  pub mod get;
 
  pub mod get_item;
+
+ pub mod get_resource_policy;
 
  pub mod global_secondary_index;
 
@@ -192,6 +204,8 @@ pub mod archival_summary;
  pub mod import_table;
 
  pub mod import_table_description;
+
+ pub mod incremental_export_specification;
 
  pub mod index_status;
 
@@ -233,6 +247,10 @@ pub mod archival_summary;
 
  pub mod local_secondary_index_info;
 
+ pub mod on_demand_throughput;
+
+ pub mod on_demand_throughput_override;
+
  pub mod parameterized_statement;
 
  pub mod point_in_time_recovery_description;
@@ -256,6 +274,8 @@ pub mod archival_summary;
  pub mod put_item;
 
  pub mod put_request;
+
+ pub mod put_resource_policy;
 
  pub mod query;
 
@@ -374,6 +394,10 @@ pub mod archival_summary;
  pub mod update_global_table_settings;
 
  pub mod update_item;
+
+ pub mod update_kinesis_streaming_configuration;
+
+ pub mod update_kinesis_streaming_destination;
 
  pub mod update_replication_group_member_action;
 

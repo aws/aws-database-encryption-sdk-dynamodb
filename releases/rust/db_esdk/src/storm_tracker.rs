@@ -25,8 +25,8 @@ pub mod internal_StormTrackingCMC {
         }
     }
 
-    impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for StormTrackingCMC {
-        ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+    impl ::dafny_runtime::UpcastObject<dyn::std::any::Any> for StormTrackingCMC {
+        ::dafny_runtime::UpcastObjectFn!(dyn::std::any::Any);
     }
 
     impl ::dafny_runtime::UpcastObject<dyn software::amazon::cryptography::materialproviders::internaldafny::types::ICryptographicMaterialsCache>
@@ -50,6 +50,9 @@ pub mod internal_StormTrackingCMC {
     fn r#_GetCacheEntry_k(&self, input: &std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryInput>)
     -> std::rc::Rc<crate::_Wrappers_Compile::Result<std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::GetCacheEntryOutput>, std::rc::Rc<crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error>>>
     {
+        let max_in_flight = crate::Time::_default::CurrentRelativeTimeMilli() + unsafe { *(*self.wrapped.lock().unwrap()).as_ref().inFlightTTL.get() };
+        let sleep_milli = unsafe { *(*self.wrapped.lock().unwrap()).as_ref().sleepMilli.get() };
+        let sleep_time = Duration::from_millis(sleep_milli as u64);
         loop {
             let result = self.wrapped.lock().unwrap().as_mut().GetFromCache(input);
             match &*result {
@@ -66,7 +69,19 @@ pub mod internal_StormTrackingCMC {
                                 },
                             )});
                         }
-                        EmptyWait {} => { std::thread::sleep(Duration::from_micros(50)); }
+                        EmptyWait {} => {
+                            if crate::Time::_default::CurrentRelativeTimeMilli() <= max_in_flight {
+                                std::thread::sleep(sleep_time);
+                            } else {
+                                return std::rc::Rc::new(crate::_Wrappers_Compile::Result::Failure{error :
+                                    std::rc::Rc::new(crate::software::amazon::cryptography::materialproviders::internaldafny::types::Error::InFlightTTLExceeded { message:
+                                        dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(
+                                            "Storm cache inFlightTTL exceeded"
+                                        )
+                                    },
+                                )});
+                            }
+                        }
                     }
                 }
             }

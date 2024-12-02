@@ -41,6 +41,8 @@ pub mod backup_in_use_exception;
 
  pub mod point_in_time_recovery_unavailable_exception;
 
+ pub mod policy_not_found_exception;
+
  pub mod provisioned_throughput_exceeded_exception;
 
  pub mod replica_already_exists_exception;
@@ -138,6 +140,8 @@ crate::deps::com_amazonaws_dynamodb::types::error::Error::LimitExceededException
     crate::deps::com_amazonaws_dynamodb::conversions::error::limit_exceeded_exception::to_dafny(error),
 crate::deps::com_amazonaws_dynamodb::types::error::Error::PointInTimeRecoveryUnavailableException { error } =>
     crate::deps::com_amazonaws_dynamodb::conversions::error::point_in_time_recovery_unavailable_exception::to_dafny(error),
+crate::deps::com_amazonaws_dynamodb::types::error::Error::PolicyNotFoundException { error } =>
+    crate::deps::com_amazonaws_dynamodb::conversions::error::policy_not_found_exception::to_dafny(error),
 crate::deps::com_amazonaws_dynamodb::types::error::Error::ProvisionedThroughputExceededException { error } =>
     crate::deps::com_amazonaws_dynamodb::conversions::error::provisioned_throughput_exceeded_exception::to_dafny(error),
 crate::deps::com_amazonaws_dynamodb::types::error::Error::ReplicaAlreadyExistsException { error } =>
@@ -298,6 +302,12 @@ crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::type
 crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error::PointInTimeRecoveryUnavailableException { message, .. } =>
   crate::deps::com_amazonaws_dynamodb::types::error::Error::PointInTimeRecoveryUnavailableException {
     error: aws_sdk_dynamodb::types::error::PointInTimeRecoveryUnavailableException::builder()
+      .set_message(crate::standard_library_conversions::ostring_from_dafny(message.clone()))
+      .build()
+  },
+crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error::PolicyNotFoundException { message, .. } =>
+  crate::deps::com_amazonaws_dynamodb::types::error::Error::PolicyNotFoundException {
+    error: aws_sdk_dynamodb::types::error::PolicyNotFoundException::builder()
       .set_message(crate::standard_library_conversions::ostring_from_dafny(message.clone()))
       .build()
   },

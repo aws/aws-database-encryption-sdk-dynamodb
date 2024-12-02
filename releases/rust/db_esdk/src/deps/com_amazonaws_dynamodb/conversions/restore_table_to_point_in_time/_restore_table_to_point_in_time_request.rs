@@ -43,6 +43,11 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ OnDemandThroughputOverride: ::std::rc::Rc::new(match &value.on_demand_throughput_override {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::to_dafny(x) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
  SSESpecificationOverride: ::std::rc::Rc::new(match &value.sse_specification_override {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::sse_specification::to_dafny(x) },
     None => crate::_Wrappers_Compile::Option::None { }
@@ -94,6 +99,12 @@ pub fn from_dafny(
  .set_provisioned_throughput_override(match (*dafny_value.ProvisionedThroughputOverride()).as_ref() {
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(crate::deps::com_amazonaws_dynamodb::conversions::provisioned_throughput::from_dafny(value.clone())),
+    _ => None,
+}
+)
+ .set_on_demand_throughput_override(match (*dafny_value.OnDemandThroughputOverride()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::from_dafny(value.clone())),
     _ => None,
 }
 )

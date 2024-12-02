@@ -15,6 +15,11 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ EnableKinesisStreamingConfiguration: ::std::rc::Rc::new(match &value.enable_kinesis_streaming_configuration {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::enable_kinesis_streaming_configuration::to_dafny(x) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     })
 }
  #[allow(dead_code)]
@@ -30,6 +35,12 @@ pub fn from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } => Some(
         crate::deps::com_amazonaws_dynamodb::conversions::destination_status::from_dafny(value)
     ),
+    _ => None,
+}
+)
+ .set_enable_kinesis_streaming_configuration(match (*dafny_value.EnableKinesisStreamingConfiguration()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::enable_kinesis_streaming_configuration::from_dafny(value.clone())),
     _ => None,
 }
 )

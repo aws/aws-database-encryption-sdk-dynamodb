@@ -162,6 +162,9 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
 .set_sse_specification(inner_input.sse_specification)
 .set_tags(inner_input.tags)
 .set_table_class(inner_input.table_class)
+.set_deletion_protection_enabled(inner_input.deletion_protection_enabled)
+.set_resource_policy(inner_input.resource_policy)
+.set_on_demand_throughput(inner_input.on_demand_throughput)
         .send()
         .await
       })
@@ -216,6 +219,26 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
   crate::standard_library_conversions::result_to_dafny(&native_result,
     crate::deps::com_amazonaws_dynamodb::conversions::delete_item::_delete_item_response::to_dafny,
     crate::deps::com_amazonaws_dynamodb::conversions::delete_item::to_dafny_error)
+}
+ fn DeleteResourcePolicy(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DeleteResourcePolicyInput>)
+  -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DeleteResourcePolicyOutput>,
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
+  >
+> {
+  let inner_input = crate::deps::com_amazonaws_dynamodb::conversions::delete_resource_policy::_delete_resource_policy_request::from_dafny(input.clone());
+  let native_result = tokio::task::block_in_place(|| {
+    dafny_tokio_runtime.block_on(async {
+      self.inner.delete_resource_policy()
+        .set_resource_arn(inner_input.resource_arn)
+.set_expected_revision_id(inner_input.expected_revision_id)
+        .send()
+        .await
+      })
+    });
+  crate::standard_library_conversions::result_to_dafny(&native_result,
+    crate::deps::com_amazonaws_dynamodb::conversions::delete_resource_policy::_delete_resource_policy_response::to_dafny,
+    crate::deps::com_amazonaws_dynamodb::conversions::delete_resource_policy::to_dafny_error)
 }
  fn DeleteTable(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DeleteTableInput>)
   -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
@@ -496,6 +519,7 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
       self.inner.disable_kinesis_streaming_destination()
         .set_table_name(inner_input.table_name)
 .set_stream_arn(inner_input.stream_arn)
+.set_enable_kinesis_streaming_configuration(inner_input.enable_kinesis_streaming_configuration)
         .send()
         .await
       })
@@ -516,6 +540,7 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
       self.inner.enable_kinesis_streaming_destination()
         .set_table_name(inner_input.table_name)
 .set_stream_arn(inner_input.stream_arn)
+.set_enable_kinesis_streaming_configuration(inner_input.enable_kinesis_streaming_configuration)
         .send()
         .await
       })
@@ -588,6 +613,8 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
 .set_s3_sse_algorithm(inner_input.s3_sse_algorithm)
 .set_s3_sse_kms_key_id(inner_input.s3_sse_kms_key_id)
 .set_export_format(inner_input.export_format)
+.set_export_type(inner_input.export_type)
+.set_incremental_export_specification(inner_input.incremental_export_specification)
         .send()
         .await
       })
@@ -620,6 +647,25 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
   crate::standard_library_conversions::result_to_dafny(&native_result,
     crate::deps::com_amazonaws_dynamodb::conversions::get_item::_get_item_response::to_dafny,
     crate::deps::com_amazonaws_dynamodb::conversions::get_item::to_dafny_error)
+}
+ fn GetResourcePolicy(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GetResourcePolicyInput>)
+  -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::GetResourcePolicyOutput>,
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
+  >
+> {
+  let inner_input = crate::deps::com_amazonaws_dynamodb::conversions::get_resource_policy::_get_resource_policy_request::from_dafny(input.clone());
+  let native_result = tokio::task::block_in_place(|| {
+    dafny_tokio_runtime.block_on(async {
+      self.inner.get_resource_policy()
+        .set_resource_arn(inner_input.resource_arn)
+        .send()
+        .await
+      })
+    });
+  crate::standard_library_conversions::result_to_dafny(&native_result,
+    crate::deps::com_amazonaws_dynamodb::conversions::get_resource_policy::_get_resource_policy_response::to_dafny,
+    crate::deps::com_amazonaws_dynamodb::conversions::get_resource_policy::to_dafny_error)
 }
  fn ImportTable(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::ImportTableInput>)
   -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
@@ -821,6 +867,28 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
     crate::deps::com_amazonaws_dynamodb::conversions::put_item::_put_item_response::to_dafny,
     crate::deps::com_amazonaws_dynamodb::conversions::put_item::to_dafny_error)
 }
+ fn PutResourcePolicy(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PutResourcePolicyInput>)
+  -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::PutResourcePolicyOutput>,
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
+  >
+> {
+  let inner_input = crate::deps::com_amazonaws_dynamodb::conversions::put_resource_policy::_put_resource_policy_request::from_dafny(input.clone());
+  let native_result = tokio::task::block_in_place(|| {
+    dafny_tokio_runtime.block_on(async {
+      self.inner.put_resource_policy()
+        .set_resource_arn(inner_input.resource_arn)
+.set_policy(inner_input.policy)
+.set_expected_revision_id(inner_input.expected_revision_id)
+.set_confirm_remove_self_resource_access(inner_input.confirm_remove_self_resource_access)
+        .send()
+        .await
+      })
+    });
+  crate::standard_library_conversions::result_to_dafny(&native_result,
+    crate::deps::com_amazonaws_dynamodb::conversions::put_resource_policy::_put_resource_policy_response::to_dafny,
+    crate::deps::com_amazonaws_dynamodb::conversions::put_resource_policy::to_dafny_error)
+}
  fn Query(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::QueryInput>)
   -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
     std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::QueryOutput>,
@@ -872,6 +940,7 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
 .set_global_secondary_index_override(inner_input.global_secondary_index_override)
 .set_local_secondary_index_override(inner_input.local_secondary_index_override)
 .set_provisioned_throughput_override(inner_input.provisioned_throughput_override)
+.set_on_demand_throughput_override(inner_input.on_demand_throughput_override)
 .set_sse_specification_override(inner_input.sse_specification_override)
         .send()
         .await
@@ -900,6 +969,7 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
 .set_global_secondary_index_override(inner_input.global_secondary_index_override)
 .set_local_secondary_index_override(inner_input.local_secondary_index_override)
 .set_provisioned_throughput_override(inner_input.provisioned_throughput_override)
+.set_on_demand_throughput_override(inner_input.on_demand_throughput_override)
 .set_sse_specification_override(inner_input.sse_specification_override)
         .send()
         .await
@@ -1140,6 +1210,27 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
     crate::deps::com_amazonaws_dynamodb::conversions::update_item::_update_item_response::to_dafny,
     crate::deps::com_amazonaws_dynamodb::conversions::update_item::to_dafny_error)
 }
+ fn UpdateKinesisStreamingDestination(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::UpdateKinesisStreamingDestinationInput>)
+  -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::UpdateKinesisStreamingDestinationOutput>,
+    std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::Error>
+  >
+> {
+  let inner_input = crate::deps::com_amazonaws_dynamodb::conversions::update_kinesis_streaming_destination::_update_kinesis_streaming_destination_request::from_dafny(input.clone());
+  let native_result = tokio::task::block_in_place(|| {
+    dafny_tokio_runtime.block_on(async {
+      self.inner.update_kinesis_streaming_destination()
+        .set_table_name(inner_input.table_name)
+.set_stream_arn(inner_input.stream_arn)
+.set_update_kinesis_streaming_configuration(inner_input.update_kinesis_streaming_configuration)
+        .send()
+        .await
+      })
+    });
+  crate::standard_library_conversions::result_to_dafny(&native_result,
+    crate::deps::com_amazonaws_dynamodb::conversions::update_kinesis_streaming_destination::_update_kinesis_streaming_destination_response::to_dafny,
+    crate::deps::com_amazonaws_dynamodb::conversions::update_kinesis_streaming_destination::to_dafny_error)
+}
  fn UpdateTable(&self, input: &std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::UpdateTableInput>)
   -> std::rc::Rc<crate::r#_Wrappers_Compile::Result<
     std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::UpdateTableOutput>,
@@ -1159,6 +1250,8 @@ impl crate::r#software::amazon::cryptography::services::dynamodb::internaldafny:
 .set_sse_specification(inner_input.sse_specification)
 .set_replica_updates(inner_input.replica_updates)
 .set_table_class(inner_input.table_class)
+.set_deletion_protection_enabled(inner_input.deletion_protection_enabled)
+.set_on_demand_throughput(inner_input.on_demand_throughput)
         .send()
         .await
       })

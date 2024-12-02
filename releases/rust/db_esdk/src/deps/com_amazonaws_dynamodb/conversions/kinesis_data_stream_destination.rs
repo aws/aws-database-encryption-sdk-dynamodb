@@ -14,6 +14,11 @@ pub fn to_dafny(
 })
 ,
  DestinationStatusDescription: crate::standard_library_conversions::ostring_to_dafny(&value.destination_status_description),
+ ApproximateCreationDateTimePrecision: ::std::rc::Rc::new(match &value.approximate_creation_date_time_precision {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::approximate_creation_date_time_precision::to_dafny(x.clone()) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     }
   )
 } #[allow(dead_code)]
@@ -32,6 +37,13 @@ pub fn from_dafny(
 }
 )
  .set_destination_status_description(crate::standard_library_conversions::ostring_from_dafny(dafny_value.DestinationStatusDescription().clone()))
+ .set_approximate_creation_date_time_precision(match &**dafny_value.ApproximateCreationDateTimePrecision() {
+    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+        crate::deps::com_amazonaws_dynamodb::conversions::approximate_creation_date_time_precision::from_dafny(value)
+    ),
+    _ => None,
+}
+)
           .build()
 
 }

@@ -13,6 +13,11 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ ExportType: ::std::rc::Rc::new(match &value.export_type {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::export_type::to_dafny(x.clone()) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     }
   )
 } #[allow(dead_code)]
@@ -26,6 +31,13 @@ pub fn from_dafny(
  .set_export_status(match &**dafny_value.ExportStatus() {
     crate::r#_Wrappers_Compile::Option::Some { value } => Some(
         crate::deps::com_amazonaws_dynamodb::conversions::export_status::from_dafny(value)
+    ),
+    _ => None,
+}
+)
+ .set_export_type(match &**dafny_value.ExportType() {
+    crate::r#_Wrappers_Compile::Option::Some { value } => Some(
+        crate::deps::com_amazonaws_dynamodb::conversions::export_type::from_dafny(value)
     ),
     _ => None,
 }

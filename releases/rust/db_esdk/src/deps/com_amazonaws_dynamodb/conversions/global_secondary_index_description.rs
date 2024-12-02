@@ -37,6 +37,11 @@ pub fn to_dafny(
  IndexSizeBytes: crate::standard_library_conversions::olong_to_dafny(&value.index_size_bytes),
  ItemCount: crate::standard_library_conversions::olong_to_dafny(&value.item_count),
  IndexArn: crate::standard_library_conversions::ostring_to_dafny(&value.index_arn),
+ OnDemandThroughput: ::std::rc::Rc::new(match &value.on_demand_throughput {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::to_dafny(x) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     }
   )
 } #[allow(dead_code)]
@@ -81,6 +86,12 @@ pub fn from_dafny(
  .set_index_size_bytes(crate::standard_library_conversions::olong_from_dafny(dafny_value.IndexSizeBytes().clone()))
  .set_item_count(crate::standard_library_conversions::olong_from_dafny(dafny_value.ItemCount().clone()))
  .set_index_arn(crate::standard_library_conversions::ostring_from_dafny(dafny_value.IndexArn().clone()))
+ .set_on_demand_throughput(match (*dafny_value.OnDemandThroughput()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::from_dafny(value.clone())),
+    _ => None,
+}
+)
           .build()
 
 }

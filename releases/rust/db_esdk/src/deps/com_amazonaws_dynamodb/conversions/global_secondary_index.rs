@@ -20,6 +20,11 @@ pub fn to_dafny(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ OnDemandThroughput: ::std::rc::Rc::new(match &value.on_demand_throughput {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::to_dafny(x) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     }
   )
 } #[allow(dead_code)]
@@ -40,6 +45,12 @@ pub fn from_dafny(
  .set_provisioned_throughput(match (*dafny_value.ProvisionedThroughput()).as_ref() {
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(crate::deps::com_amazonaws_dynamodb::conversions::provisioned_throughput::from_dafny(value.clone())),
+    _ => None,
+}
+)
+ .set_on_demand_throughput(match (*dafny_value.OnDemandThroughput()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::com_amazonaws_dynamodb::conversions::on_demand_throughput::from_dafny(value.clone())),
     _ => None,
 }
 )

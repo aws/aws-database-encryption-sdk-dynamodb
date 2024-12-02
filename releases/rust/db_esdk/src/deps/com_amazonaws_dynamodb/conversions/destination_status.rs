@@ -12,6 +12,7 @@ aws_sdk_dynamodb::types::DestinationStatus::Active => crate::r#software::amazon:
 aws_sdk_dynamodb::types::DestinationStatus::Disabling => crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::DISABLING {},
 aws_sdk_dynamodb::types::DestinationStatus::Disabled => crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::DISABLED {},
 aws_sdk_dynamodb::types::DestinationStatus::EnableFailed => crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::ENABLE_FAILED {},
+aws_sdk_dynamodb::types::DestinationStatus::Updating => crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::UPDATING {},
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
@@ -25,5 +26,6 @@ crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::type
 crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::DISABLING {} => aws_sdk_dynamodb::types::DestinationStatus::Disabling,
 crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::DISABLED {} => aws_sdk_dynamodb::types::DestinationStatus::Disabled,
 crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::ENABLE_FAILED {} => aws_sdk_dynamodb::types::DestinationStatus::EnableFailed,
+crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::DestinationStatus::UPDATING {} => aws_sdk_dynamodb::types::DestinationStatus::Updating,
     }
 }

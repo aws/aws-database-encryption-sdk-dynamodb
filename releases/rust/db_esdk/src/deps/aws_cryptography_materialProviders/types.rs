@@ -156,6 +156,8 @@ mod _esdk_commitment_policy;
 pub use crate::deps::aws_cryptography_materialProviders::types::_esdk_commitment_policy::EsdkCommitmentPolicy;
 mod _padding_scheme;
 pub use crate::deps::aws_cryptography_materialProviders::types::_padding_scheme::PaddingScheme;
+mod _time_units;
+pub use crate::deps::aws_cryptography_materialProviders::types::_time_units::TimeUnits;
 
 mod _algorithm_suite_id;
 pub use crate::deps::aws_cryptography_materialProviders::types::_algorithm_suite_id::AlgorithmSuiteId;
