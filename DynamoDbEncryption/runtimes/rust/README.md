@@ -63,4 +63,3 @@ Please note that tests and test vectors require internet access and valid AWS cr
 ## License
 
 This library is licensed under the Apache 2.0 License.
-

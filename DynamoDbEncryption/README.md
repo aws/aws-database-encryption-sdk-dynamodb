@@ -82,7 +82,7 @@ Common Makefile targets are:
   - The above command takes a while to complete.
 - `make test_net_mac_intel` builds and tests the transpiled code in .NET in an Intel-MacOS environment.
 - `make transpile_rust` transpiles all of the Dafny code into runtimes/rust/src/implementation_from_dafny.
-- `make polymorph_rust` transpiles the smithy files into untimes/rust/src/*.rs
+- `make polymorph_rust` transpiles the smithy files into untimes/rust/src/\*.rs
 
 ### Development Requirements
 

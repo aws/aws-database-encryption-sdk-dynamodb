@@ -25,7 +25,6 @@ This validates the Database Encryption SDK's cross-version compatibility.
 7. Run `make transpile_rust`
 8. Run `make polymorph_rust`
 9. Run `make test_rust`
- 
 
 ### Saving results for later
 
