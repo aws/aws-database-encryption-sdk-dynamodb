@@ -67,6 +67,7 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
 - Java
 - .NET
 - Dafny
+- Rust
 
 # Contributing
 

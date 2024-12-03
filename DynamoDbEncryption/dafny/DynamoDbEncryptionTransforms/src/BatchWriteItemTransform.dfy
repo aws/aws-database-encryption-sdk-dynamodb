@@ -21,7 +21,7 @@ module BatchWriteItemTransform {
     modifies ModifiesConfig(config)
   {
     var tableNames := input.sdkInput.RequestItems.Keys;
-    var result : map<DDB.TableName, DDB.WriteRequests> := map[];
+    var result : map<DDB.TableArn, DDB.WriteRequests> := map[];
     var tableNamesSeq := SortedSets.ComputeSetToSequence(tableNames);
     ghost var tableNamesSet' := tableNames;
     var i := 0;

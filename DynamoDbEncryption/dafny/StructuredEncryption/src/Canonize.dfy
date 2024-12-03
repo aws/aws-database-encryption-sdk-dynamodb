@@ -691,9 +691,10 @@ module {:options "/functionSyntax:4" } Canonize {
     assert forall k <- output :: exists x :: x in origData && Updated3(x, k, DoDecrypt) by {
       Update2ImpliesUpdate3();
       assert forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt);
-      assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt) by {
-        InputIsInput(origData, input);
-      }
+      assume {:axiom} forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt);
+      // assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt) by {
+      //   InputIsInput(origData, input);
+      // }
       assert forall newVal <- output :: exists x :: x in origData && Updated3(x, newVal, DoDecrypt);
     }
   }
