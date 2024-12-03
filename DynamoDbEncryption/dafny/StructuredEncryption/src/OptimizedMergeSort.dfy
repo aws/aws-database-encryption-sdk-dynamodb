@@ -105,7 +105,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires Relations.TotalOrdering(lessThanOrEq)
     requires lo < hi <= left.Length
     requires hi <= right.Length && left != right
-    // reads left, right
+    reads left, right
     modifies left, right
     ensures !where.Either? ==> where == resultPlacement
 
@@ -217,6 +217,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires Relations.SortedBy(left[mid..hi], lessThanOrEq)
     // reads left, right
     modifies right
+    reads left, right
     // We do not modify anything before lo
     ensures right[..lo] == old(right[..lo]) && left[..lo] == old(left[..lo])
     // We do not modify anything above hi
@@ -239,8 +240,10 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       invariant Below(right[lo..iter], left[leftPosition..mid], lessThanOrEq)
       invariant Below(right[lo..iter], left[rightPosition..hi], lessThanOrEq)
       invariant Relations.SortedBy(right[lo..iter], lessThanOrEq)
-      invariant multiset(right[lo..iter]) == multiset(left[lo..leftPosition]) + multiset(left[mid..rightPosition])
+      invariant multiset(right[lo..iter]) == multiset(left[lo..leftPosition] + left[mid..rightPosition])
     {
+
+      ghost var oldRightPosition, oldIter, oldLeftPosition := rightPosition, iter, leftPosition;
       if leftPosition == mid || (rightPosition < hi && lessThanOrEq(left[rightPosition], left[leftPosition])) {
         right[iter] := left[rightPosition];
 
@@ -255,7 +258,26 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
         PushStillSortedBy(right, lo, iter, lessThanOrEq);
         leftPosition, iter := leftPosition + 1, iter + 1;
 
+        assert 0 < |right[lo..iter]| && 0 < |left[leftPosition..mid]| ==> lessThanOrEq(right[lo..iter][|right[lo..iter]| - 1], left[leftPosition..mid][0]) by {
+          if 0 == |right[lo..iter]| || 0 == |left[leftPosition..mid]| {
+          } else {
+            assert rightPosition == oldRightPosition;
+            assert oldLeftPosition < mid;
+            // This is true, but uncommenting it causes the proof to fail
+            // leaving it here it make what is going on a little more clear
+            // assert right[lo..iter][|right[lo..iter]| - 1] == right[oldIter];
+            assert left[leftPosition..mid][0] == left[leftPosition];
+          }
+        }
         BelowIsTransitive(right[lo..iter], left[leftPosition..mid], lessThanOrEq);
+
+        assert 0 < |right[lo..iter]| && 0 < |left[rightPosition..hi]| ==> lessThanOrEq(right[lo..iter][|right[lo..iter]| - 1], left[rightPosition..hi][0]) by {
+          if 0 == |right[lo..iter]| || 0 == |left[rightPosition..hi]| {
+          } else {
+            assert right[lo..iter][|right[lo..iter]| - 1] == right[iter - 1];
+            assert left[rightPosition..hi][0] == left[rightPosition];
+          }
+        }
         BelowIsTransitive(right[lo..iter], left[rightPosition..hi], lessThanOrEq);
       }
     }
@@ -362,7 +384,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       && right.Length < UINT64_LIMIT
     requires lo < hi <= left.Length as uint64
     requires hi <= right.Length as uint64 && left != right
-    // reads left, right
+    reads left, right
     modifies left, right
     ensures !where.Either? ==> where == resultPlacement
 
@@ -485,7 +507,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires Relations.SortedBy(left[lo..mid], lessThanOrEq)
     // We store "right" in [mid..hi]
     requires Relations.SortedBy(left[mid..hi], lessThanOrEq)
-    // reads left, right
+    reads left, right
     modifies right
     // We do not modify anything before lo
     ensures right[..lo] == old(right[..lo]) && left[..lo] == old(left[..lo])
@@ -509,9 +531,10 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       invariant Below(right[lo..iter], left[leftPosition..mid], lessThanOrEq)
       invariant Below(right[lo..iter], left[rightPosition..hi], lessThanOrEq)
       invariant Relations.SortedBy(right[lo..iter], lessThanOrEq)
-      invariant multiset(right[lo..iter]) == multiset(left[lo..leftPosition]) + multiset(left[mid..rightPosition])
+      invariant multiset(right[lo..iter]) == multiset(left[lo..leftPosition] + left[mid..rightPosition])
     {
-      label BEFORE_WORK:
+
+      ghost var oldRightPosition, oldIter, oldLeftPosition := rightPosition, iter, leftPosition;
       if leftPosition == mid || (rightPosition < hi && lessThanOrEq(left[rightPosition], left[leftPosition])) {
         right[iter] := left[rightPosition];
 
@@ -529,11 +552,10 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
         leftPosition, iter := leftPosition + 1, iter + 1;
 
         assert 0 < |right[lo..iter]| && 0 < |left[leftPosition..mid]| ==> lessThanOrEq(right[lo..iter][|right[lo..iter]| - 1], left[leftPosition..mid][0]) by {
-          if 0 < |right[lo..iter]| && 0 < |left[leftPosition..mid]| {
-            assert lessThanOrEq(left[leftPosition-1], left[leftPosition]) by {
-              assert lo <= leftPosition-1 < leftPosition < mid;
-              assert Relations.SortedBy(left[lo..mid], lessThanOrEq);
-            }
+          if 0 == |right[lo..iter]| || 0 == |left[leftPosition..mid]| {
+          } else {
+            assert right[lo..iter][|right[lo..iter]| - 1] == right[iter - 1];
+            assert left[leftPosition..mid][0] == left[leftPosition];
           }
         }
         BelowIsTransitive(right[lo..iter], left[leftPosition..mid], lessThanOrEq);
