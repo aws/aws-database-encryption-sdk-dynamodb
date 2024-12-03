@@ -288,7 +288,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         .send()
         .await?;
 
-    // 10. Query for the item we just put.
+    // 9. Query for the item we just put.
     //     Note that we are constructing the query as if we were querying on plaintext values.
     //     However, the DDB encryption client will detect that this attribute name has a beacon configured.
     //     The client will add the beaconized attribute name and attribute value to the query,

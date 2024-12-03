@@ -152,7 +152,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
-    // 9. Put an item into our table using the above client.
+    // 8. Put an item into our table using the above client.
     //    Before the item gets sent to DynamoDb, it will be encrypted
     //    client-side using the multi-keyring.
     //    The item will be encrypted with all wrapping keys in the keyring,
@@ -175,7 +175,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 10. Get the item back from our table using the above client.
+    // 9. Get the item back from our table using the above client.
     //     The client will decrypt the item client-side using the AWS KMS
     //     keyring, and return back the original item.
     //     Since the generator key is the first available key in the keyring,
@@ -198,7 +198,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
 
     assert_eq!(resp.item, Some(item.clone()));
 
-    // 11. Create a new config and client with only the raw AES keyring to GET the item
+    // 10. Create a new config and client with only the raw AES keyring to GET the item
     //     This is the same setup as above, except the config uses the `rawAesKeyring`.
     let only_aes_table_config = DynamoDbTableEncryptionConfig::builder()
         .logical_table_name(ddb_table_name)
@@ -221,7 +221,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build();
     let only_aes_ddb = aws_sdk_dynamodb::Client::from_conf(only_aes_dynamo_config);
 
-    // 12. Get the item back from our table using the client
+    // 11. Get the item back from our table using the client
     //     configured with only the raw AES keyring.
     //     The client will decrypt the item client-side using the raw
     //     AES keyring, and return back the original item.

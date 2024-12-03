@@ -119,7 +119,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
-    // 7. Put an item into our table using the above client.
+    // 6. Put an item into our table using the above client.
     //    Before the item gets sent to DynamoDb, it will be encrypted
     //    client-side using the MRK multi-keyring.
     let item = HashMap::from([
@@ -140,7 +140,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 8. Construct a discovery filter.
+    // 7. Construct a discovery filter.
     //    A discovery filter limits the set of encrypted data keys
     //    the keyring can use to decrypt data.
     //    We will only let the keyring use keys in the selected AWS accounts
@@ -152,7 +152,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .account_ids(account_ids)
         .build()?;
 
-    // 9. Construct a discovery keyring.
+    // 8. Construct a discovery keyring.
     //    Note that we choose to use the MRK discovery multi-keyring, even though
     //    our original keyring used a single KMS key.
 
@@ -163,7 +163,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 10. Create new DDB config and client using the decrypt discovery keyring.
+    // 9. Create new DDB config and client using the decrypt discovery keyring.
     //     This is the same as the above config, except we pass in the decrypt keyring.
     let table_config_for_decrypt = DynamoDbTableEncryptionConfig::builder()
         .logical_table_name(ddb_table_name)
@@ -186,7 +186,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build();
     let ddb_for_decrypt = aws_sdk_dynamodb::Client::from_conf(dynamo_config_for_decrypt);
 
-    // 11. Get the item back from our table using the client.
+    // 10. Get the item back from our table using the client.
     //     The client will retrieve encrypted items from the DDB table, then
     //     detect the KMS key that was used to encrypt their data keys.
     //     The client will make a request to KMS to decrypt with the encrypting KMS key.

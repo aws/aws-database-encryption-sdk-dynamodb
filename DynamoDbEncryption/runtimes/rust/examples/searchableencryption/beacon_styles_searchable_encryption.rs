@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::test_utils;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle;
@@ -304,7 +307,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
     // Validate the item has the expected attributes
     assert_eq!(returned_item["work_id"], item1["work_id"]);
 
-    // 14. Test the second type of Set operation :
+    // 13. Test the second type of Set operation :
     // Select records where the basket attribute holds the fruit attribute
     let scan_response = ddb
         .scan()
@@ -320,7 +323,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
     // Validate the item has the expected attributes
     assert_eq!(returned_item["work_id"], item1["work_id"]);
 
-    // 15. Test the third type of Set operation :
+    // 14. Test the third type of Set operation :
     // Select records where the fruit attribute exists in a particular set
     let basket3 = vec![
         "boysenberry".to_string(),
@@ -345,7 +348,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
     // Validate the item has the expected attributes
     assert_eq!(returned_item["work_id"], item2["work_id"]);
 
-    // 16 Test a Shared search. Select records where the dessert attribute matches the fruit attribute
+    // 15. Test a Shared search. Select records where the dessert attribute matches the fruit attribute
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
@@ -360,7 +363,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
     // Validate the item has the expected attributes
     assert_eq!(returned_item["work_id"], item2["work_id"]);
 
-    // 17. Test the AsSet attribute 'veggies' :
+    // 15. Test the AsSet attribute 'veggies' :
     // Select records where the veggies attribute holds a particular value
     let expression_attribute_values =
         HashMap::from([(":value".to_string(), AttributeValue::S("peas".to_string()))]);
@@ -380,7 +383,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
     // Validate the item has the expected attributes
     assert_eq!(returned_item["work_id"], item2["work_id"]);
 
-    // 18. Test the compound beacon 'work_unit' :
+    // 16. Test the compound beacon 'work_unit' :
     let expression_attribute_values = HashMap::from([(
         ":value".to_string(),
         AttributeValue::S("I-1.T-small".to_string()),

@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::CompoundBeacon;
@@ -209,7 +212,7 @@ pub async fn setup_beacon_config(
             .build()?,
     ];
 
-    // 6. Create constructor parts
+    // 5. Create constructor parts
     //    Constructor parts are used to assemble constructors (constructors described more in next step).
     //    For each attribute that will be used in a constructor, there must be a corresponding constructor part.
     //    A constructor part must receive:
@@ -295,7 +298,7 @@ pub async fn setup_beacon_config(
         .required(true)
         .build()?;
 
-    // 7. Define constructors
+    // 6. Define constructors
     //    Constructors define how encrypted and signed parts are assembled into compound beacons.
     //    The constructors below are based off of the "PK Constructors", "SK constructors", etc. sections in Demo.md.
 
@@ -379,7 +382,7 @@ pub async fn setup_beacon_config(
         ])
         .build()?;
 
-    // 5. Add constructors to the compound beacon constructor list in desired construction order
+    // 7. Add constructors to the compound beacon constructor list in desired construction order
     //    In a compound beacon with multiple constructors, the order the constructors are added to
     //        the constructor list determines their priority.
     //    The first constructor added to a constructor list will be the first constructor that is executed.
@@ -418,7 +421,7 @@ pub async fn setup_beacon_config(
     let pk3_constructor_list = vec![city_constructor, severity_constructor];
     let sk3_constructor_list = vec![building_floor_desk_constructor, ticket_mod_time_constructor];
 
-    // 9. Define compound beacons
+    // 8. Define compound beacons
     //    Compound beacon construction is defined in more detail in CompoundBeaconSearchableEncryptionExample.
     //    Note that the split character must be a character that is not used in any attribute value.
     let compound_beacon_list = vec![
@@ -459,7 +462,7 @@ pub async fn setup_beacon_config(
             .build()?,
     ];
 
-    // 10. Create BeaconVersion
+    // 9. Create BeaconVersion
     let beacon_versions = BeaconVersion::builder()
         .standard_beacons(standard_beacon_list)
         .compound_beacons(compound_beacon_list)
@@ -476,7 +479,7 @@ pub async fn setup_beacon_config(
         .build()?;
     let beacon_versions = vec![beacon_versions];
 
-    // 11. Create a Hierarchical Keyring
+    // 10. Create a Hierarchical Keyring
     let mpl_config = MaterialProvidersConfig::builder().build()?;
     let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let kms_keyring = mpl
@@ -487,7 +490,7 @@ pub async fn setup_beacon_config(
         .send()
         .await?;
 
-    // 12. Define crypto actions
+    // 11. Define crypto actions
     let attribute_actions_on_encrypt = HashMap::from([
         // Our partition key must be configured as SIGN_ONLY
         ("partition_key".to_string(), CryptoAction::SignOnly),
@@ -523,7 +526,7 @@ pub async fn setup_beacon_config(
         ("Duration".to_string(), CryptoAction::SignOnly),
     ]);
 
-    // 13. Set up table config
+    // 12. Set up table config
     let table_config = DynamoDbTableEncryptionConfig::builder()
         .logical_table_name(ddb_table_name)
         .partition_key_name("partition_key")
@@ -541,7 +544,7 @@ pub async fn setup_beacon_config(
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
         .build()?;
 
-    // 15. Create a new AWS SDK DynamoDb client using the config above
+    // 13. Create a new AWS SDK DynamoDb client using the config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
         .interceptor(DbEsdkInterceptor::new(table_configs))

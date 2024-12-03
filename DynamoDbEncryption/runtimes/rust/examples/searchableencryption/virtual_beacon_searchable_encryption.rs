@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::test_utils;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion;

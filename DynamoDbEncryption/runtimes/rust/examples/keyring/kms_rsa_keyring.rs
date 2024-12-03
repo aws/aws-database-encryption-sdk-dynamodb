@@ -176,7 +176,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 9. Get the item back from our table using the client.
+    // 8. Get the item back from our table using the client.
     //    The client will decrypt the item client-side using the RSA keyring
     //    and return the original item.
     let key_to_get = HashMap::from([

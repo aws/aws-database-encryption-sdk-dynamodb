@@ -143,9 +143,6 @@ impl Intercept for DbEsdkInterceptor {
         Ok(())
     }
 
-    // macro_rules! modify_response {
-    //     ($cfg:ident,$type:ty,$output:ident,$self:ident,$transform:ident) => {
-
     fn modify_before_attempt_completion(
         &self,
         context: &mut FinalizerInterceptorContextMut,

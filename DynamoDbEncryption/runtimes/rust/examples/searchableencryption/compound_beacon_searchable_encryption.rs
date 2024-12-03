@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::test_utils;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion;
@@ -268,7 +271,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         .send()
         .await?;
 
-    // 15. Query for the item we just put.
+    // 14. Query for the item we just put.
     let expression_attribute_values = HashMap::from([
         // This query expression takes a few factors into consideration:
         //  - The configured prefix for the last 4 digits of an inspector ID is "L-";

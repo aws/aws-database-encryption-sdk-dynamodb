@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 #![allow(warnings, unconditional_panic)]
 #![allow(nonstandard_style)]
 
@@ -18,8 +21,6 @@ mod standard_library_externs;
 
 pub use client::Client;
 
-// pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb;
-// pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption;
 pub use crate::deps::aws_cryptography_keyStore;
 pub use crate::deps::aws_cryptography_materialProviders;

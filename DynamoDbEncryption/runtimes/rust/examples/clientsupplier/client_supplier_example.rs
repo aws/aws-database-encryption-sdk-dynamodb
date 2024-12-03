@@ -1,9 +1,11 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 use super::regional_role_client_supplier::RegionalRoleClientSupplier;
 use crate::test_utils;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
-//use aws_db_esdk::aws_cryptography_materialProviders::types::client_supplier::ClientSupplierRef;
 use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
 use aws_db_esdk::aws_cryptography_materialProviders::types::DiscoveryFilter;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
@@ -54,9 +56,6 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     // defined in the RegionalRoleClientSupplier class in this directory.
     // Note: RegionalRoleClientSupplier will internally use the key_arn's region
     // to retrieve the correct IAM role.
-    //    let supplier_ref = ClientSupplierRef {
-    //        inner: std::rc::Rc::new(std::cell::RefCell::new(RegionalRoleClientSupplier {})),
-    //    };
 
     let mrk_keyring_with_client_supplier = mpl
         .create_aws_kms_mrk_multi_keyring()
@@ -176,7 +175,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         AttributeValue::S("encrypt and sign me!".to_string())
     );
 
-    // 7. Create a MRK discovery multi-keyring with a custom client supplier.
+    // 8. Create a MRK discovery multi-keyring with a custom client supplier.
     //    A discovery MRK multi-keyring will be composed of
     //    multiple discovery MRK keyrings, one for each region.
     //    Each component keyring has its own KMS client in a particular region.

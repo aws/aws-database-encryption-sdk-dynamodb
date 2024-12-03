@@ -10,7 +10,6 @@ use aws_db_esdk::aws_cryptography_keyStore::types::key_store_config::KeyStoreCon
 use aws_db_esdk::aws_cryptography_keyStore::types::KmsConfiguration;
 use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
 use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
-//use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
@@ -94,9 +93,7 @@ pub async fn put_item_get_item(
     let dbesdk_config = DynamoDbEncryptionConfig::builder().build()?;
     let dbesdk = dbesdk_client::Client::from_conf(dbesdk_config)?;
     let supplier = ExampleBranchKeyIdSupplier::new(tenant1_branch_key_id, tenant2_branch_key_id);
-    //    let supplier_ref = DynamoDbKeyBranchKeyIdSupplierRef {
-    //        inner: ::std::rc::Rc::new(std::cell::RefCell::new(supplier)),
-    //    };
+
     let branch_key_id_supplier = dbesdk
         .create_dynamo_db_encryption_branch_key_id_supplier()
         .ddb_key_branch_key_id_supplier(supplier)
@@ -212,7 +209,7 @@ pub async fn put_item_get_item(
         .send()
         .await?;
 
-    // 10. Get the item back from our table using the same client.
+    // 9. Get the item back from our table using the same client.
     //     The client will decrypt the item client-side, and return
     //     back the original item.
     //     Because the returned item's partition value is "tenantId1",

@@ -164,7 +164,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 8. Get the item back from our table using the client.
+    // 7. Get the item back from our table using the client.
     //    The client will decrypt the item client-side using the MRK
     //    and return back the original item.
     //    Since the generator key is the first available key in the keyring,
@@ -187,7 +187,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
 
     assert_eq!(resp.item, Some(item.clone()));
 
-    // 9. Create a MRK keyring using the replica MRK arn.
+    // 8. Create a MRK keyring using the replica MRK arn.
     //    We will use this to demonstrate that the replica MRK
     //    can decrypt data created with the original MRK,
     //    even when the replica MRK was not present in the
@@ -198,7 +198,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 10. Create a new config and client using the MRK keyring.
+    // 9. Create a new config and client using the MRK keyring.
     //     This is the same setup as above, except we provide the MRK keyring to the config.
     let only_replica_table_config = DynamoDbTableEncryptionConfig::builder()
         .logical_table_name(ddb_table_name)
@@ -222,7 +222,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build();
     let only_replica_ddb = aws_sdk_dynamodb::Client::from_conf(only_replica_dynamo_config);
 
-    // 11. Get the item back from our table using the client configured with the replica.
+    // 10. Get the item back from our table using the client configured with the replica.
     //    The client will decrypt the item client-side using the replica MRK
     //    and return back the original item.
 
@@ -236,7 +236,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
 
     assert_eq!(only_replica_resp.item, Some(item.clone()));
 
-    // 12. Create an AWS KMS keyring using the single-region key ARN.
+    // 11. Create an AWS KMS keyring using the single-region key ARN.
     //     We will use this to demonstrate that the single-region key
     //     can decrypt data created with the MRK multi-keyring,
     //     since it is present in the keyring used to encrypt.
@@ -246,7 +246,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .send()
         .await?;
 
-    // 13. Create a new config and client using the AWS KMS keyring.
+    // 12. Create a new config and client using the AWS KMS keyring.
     //     This is the same setup as above, except we provide the AWS KMS keyring to the config.
     let only_srk_table_config = DynamoDbTableEncryptionConfig::builder()
         .logical_table_name(ddb_table_name)
@@ -270,7 +270,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build();
     let only_srk_ddb = aws_sdk_dynamodb::Client::from_conf(only_srk_dynamo_config);
 
-    // 14. Get the item back from our table using the client configured with the AWS KMS keyring.
+    // 13. Get the item back from our table using the client configured with the AWS KMS keyring.
     //     The client will decrypt the item client-side using the single-region key
     //     and return back the original item.
 

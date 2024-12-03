@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 use std::rc::Rc;
 use dafny_runtime::Object;
 use crate::implementation_from_dafny::software::amazon::cryptography::services::dynamodb::internaldafny::types::IDynamoDBClient;
@@ -59,18 +62,3 @@ impl _CreateInterceptedDDBClient_Compile::_default {
   }
 
 }
-
-
-// public static _IResult<IDynamoDBClient, _IError> CreateInterceptedDDBClient(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IDynamoDbTablesEncryptionConfig config)
-// {
-//     var clientConfig = new AmazonDynamoDBConfig();
-//     clientConfig.ServiceURL = "http://localhost:8000";
-
-//     var native = AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.TypeConversion
-//       .FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S30_DynamoDbTablesEncryptionConfig(
-//         config);
-
-//     var client = new Client.DynamoDbClient(clientConfig, native);
-//     var c2 = new Com.Amazonaws.Dynamodb.DynamoDBv2Shim(client);
-//     return new Result_Success<IDynamoDBClient, _IError>(c2);
-// }
