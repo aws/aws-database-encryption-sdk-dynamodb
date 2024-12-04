@@ -272,7 +272,7 @@ module SearchableEncryptionInfo {
       // Append Resource Id, Scope Id, Partition Id, and Suffix to create the cache identifier
       var identifier := resourceId + NULL_BYTE + scopeId + NULL_BYTE + partitionIdBytes + NULL_BYTE + suffix;
 
-      var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
+      var getCacheInput := MP.GetCacheEntryInput(identifier := identifier, bytesUsed := None);
       verifyValidStateCache(cache);
       assume {:axiom} cache.Modifies == {};
       var getCacheOutput := cache.GetCacheEntry(getCacheInput);
