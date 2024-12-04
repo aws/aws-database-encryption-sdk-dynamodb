@@ -16,7 +16,6 @@ use aws_sdk_dynamodb::{
 use aws_smithy_runtime_api::client::interceptors::context::Input;
 use aws_smithy_types::config_bag::{Storable, StoreReplace};
 
-#[macro_export]
 macro_rules! modify_request {
     ($cfg:ident,$request:ident,$self:ident,$transform:ident) => {{
         // store the original request
@@ -44,7 +43,6 @@ macro_rules! modify_request {
     }};
 }
 
-#[macro_export]
 macro_rules! modify_response {
     ($cfg:ident,$type:ty,$response:ident,$self:ident,$transform:ident) => {{
         // retrieve the original request
