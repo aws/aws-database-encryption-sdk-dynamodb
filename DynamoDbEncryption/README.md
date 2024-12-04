@@ -33,6 +33,13 @@ Within `runtimes/java`:
 - `ImplementationFromDafny.cs` contains all Dafny to .NET transpiled code.
 - `Generated/` contains all Smithy to .NET generated code.
 
+#### Rust
+
+`runtimes/rust` contains the Rust related code and build instructions for this project.
+
+- `src/` contains all hand written Dotnet code, including externs, and also all Smithy to Rust generated code.
+- `src/implementation_from_dafny.cs` contains all Dafny to .NET transpiled code.
+
 ### Development
 
 Common Makefile targets are:
@@ -74,10 +81,12 @@ Common Makefile targets are:
   that end up adding or removing dafny-generated files.
   - The above command takes a while to complete.
 - `make test_net_mac_intel` builds and tests the transpiled code in .NET in an Intel-MacOS environment.
+- `make transpile_rust` transpiles all of the Dafny code into runtimes/rust/src/implementation_from_dafny.
+- `make polymorph_rust` transpiles the smithy files into untimes/rust/src/\*.rs
 
 ### Development Requirements
 
-- Dafny 4.1.0: https://github.com/dafny-lang/dafny
+- Dafny 4.9.0: https://github.com/dafny-lang/dafny
 - A Java 8 or newer development environment
 
 #### (Optional) Dafny Report Generator Requirements
