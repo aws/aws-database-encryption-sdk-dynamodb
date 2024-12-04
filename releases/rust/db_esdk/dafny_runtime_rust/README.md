@@ -1,1 +1,1 @@
-Do not use this crate. Use the dafny-runtime crate instead.
+This is the runtime support library for Rust code generated from Dafny.
