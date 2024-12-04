@@ -4,6 +4,7 @@
 #![deny(warnings, unconditional_panic)]
 #![deny(nonstandard_style)]
 #![deny(clippy::all)]
+#![allow(unused)]
 
 use aws_sdk_dynamodb::{
     config::{

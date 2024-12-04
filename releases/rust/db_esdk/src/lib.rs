@@ -55,7 +55,7 @@ pub(crate) mod digest;
 pub(crate) mod ecdh;
 pub(crate) mod ecdsa;
 pub(crate) mod hmac;
-pub(crate) mod intercept;
+pub mod intercept;
 pub(crate) mod kms;
 pub(crate) mod local_cmc;
 pub(crate) mod random;

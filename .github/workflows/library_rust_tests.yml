@@ -114,4 +114,4 @@ jobs:
         working-directory: ./${{ matrix.library }}/runtimes/rust/
         shell: bash
         run: |
-          cargo run --example main
+          cargo run --release --example main
