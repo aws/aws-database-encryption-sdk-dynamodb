@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 cd $( dirname ${BASH_SOURCE[0]} )
 
@@ -22,11 +22,11 @@ rm -rf ../../../releases/rust/db_esdk
 cp -r . ../../../releases/rust/db_esdk
 cd ../../../releases/rust/db_esdk
 git checkout dafny_runtime_rust
-rm -f *~
-rm -f copy_externs.sh prepare_release.sh test_release *.pem
+rm -rf *~ copy_externs.sh start_release.sh test_published.sh test_examples *.pem RELEASE.md
 echo Cargo.lock > .gitignore
 echo target >> .gitignore
 
 cargo test
 cargo run --example main
 rm -f Cargo.lock *.pem
+
