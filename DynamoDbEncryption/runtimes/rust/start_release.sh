@@ -1,11 +1,15 @@
 #!/bin/bash -eu
 
+if [ "$#" -ne 1 ]; then
+    echo 1>&2 "USAGE: start_release.sh N.N.N"
+    exit 1
+fi
+
 cd $( dirname ${BASH_SOURCE[0]} )
 
 REGEX_VERSION='^\d+\.\d+\.\d+$'
-
-echo "$1" | egrep -q $REGEX_VERSION
-if [ $? -ne 0 ]; then
+MATCHES=$(echo "$1" | egrep $REGEX_VERSION | wc -l)
+if [ $MATCHES -eq 0 ]; then
    echo 1>&2 "Version \"$1\" must be N.N.N"
    exit 1
 fi

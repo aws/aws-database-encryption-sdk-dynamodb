@@ -3,14 +3,6 @@ name = "aws-db-esdk-examples"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.80.0"
-keywords = ["cryptography", "security", "dynamodb", "encryption", "client-side"]
-license = "ISC AND (Apache-2.0 OR ISC)"
-description = "aws-db-esdk is a library for implementing client side encryption with DynamoDB."
-homepage = "https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk"
-repository = "https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk"
-authors = ["AWS-CryptoTools"]
-documentation = "https://docs.rs/crate/aws-db-esdk"
-readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
