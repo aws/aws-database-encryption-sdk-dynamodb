@@ -3,6 +3,8 @@
 
 #![allow(warnings, unconditional_panic)]
 #![allow(nonstandard_style)]
+#![allow(clippy::never_loop)]
+#![allow(clippy::absurd_extreme_comparisons)]
 
 pub mod client;
 pub mod conversions;
@@ -30,7 +32,7 @@ pub use crate::deps::aws_cryptography_materialProviders;
 pub use crate::deps::aws_cryptography_primitives;
 
 pub(crate) mod implementation_from_dafny;
-pub(crate) use crate::implementation_from_dafny::r#_Wrappers_Compile;
+pub(crate) use crate::implementation_from_dafny::_Wrappers_Compile;
 pub(crate) use crate::implementation_from_dafny::software;
 pub(crate) use crate::implementation_from_dafny::AesKdfCtr;
 pub(crate) use crate::implementation_from_dafny::ConcurrentCall;
