@@ -24,7 +24,7 @@ rm -rf test_examples/src
 cp -r examples test_examples/src/
 cd test_examples
 
-# Add aws-esdk
+# Add aws-db-esdk
 cargo add aws-db-esdk
 
 # Check if the added version matches the provided version
