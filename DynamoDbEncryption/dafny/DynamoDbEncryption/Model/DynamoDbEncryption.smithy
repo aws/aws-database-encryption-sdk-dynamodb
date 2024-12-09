@@ -717,6 +717,10 @@ structure SingleKeyStore {
   @required
   @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
+  @documentation("Provide the Shared Cache for Searchable Encryption.")
+  cache : CacheType,
+  @documentation("Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.")
+  partitionId: String
 }
 
 //= specification/searchable-encryption/search-config.md#multi-key-store-initialization
@@ -735,7 +739,9 @@ structure MultiKeyStore {
   @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
   @javadoc("Which type of local cache to use.")
-  cache : CacheType
+  cache : CacheType,
+  @documentation("Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.")
+  partitionId: String
 }
 
 //= specification/searchable-encryption/search-config.md#beacon-key-source
