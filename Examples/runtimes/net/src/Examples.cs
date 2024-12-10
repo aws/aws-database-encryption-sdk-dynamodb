@@ -33,6 +33,7 @@ namespace Examples
             Thread.Sleep(5000);
 
             await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
+            await SharedCacheAcrossHierarchicalKeyringsExample.SharedCacheAcrossHierarchicalKeyringsGetItemPutItem(keyId);
 
             await BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(keyId);
             await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);
