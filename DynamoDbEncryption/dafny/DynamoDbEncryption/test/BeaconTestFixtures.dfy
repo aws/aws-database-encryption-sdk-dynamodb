@@ -242,7 +242,9 @@ module BeaconTestFixtures {
       cache := MPT.Default(Default := MPT.DefaultCache(entryCapacity := 3))
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
-    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0);
+    // Create a test partitionIdBytes
+    var partitionIdBytes : seq<uint8> := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0, partitionIdBytes);
   }
 
   method GetMultiSource(keyName : string, version : BeaconVersion) returns (output : SI.KeySource)
@@ -257,7 +259,9 @@ module BeaconTestFixtures {
       cache := MPT.Default(Default := MPT.DefaultCache(entryCapacity := 3))
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
-    return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0);
+    // Create a test partitionIdBytes
+    var partitionIdBytes : seq<uint8> := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0, partitionIdBytes);
   }
 
   const SimpleItem : DDB.AttributeMap := map[
