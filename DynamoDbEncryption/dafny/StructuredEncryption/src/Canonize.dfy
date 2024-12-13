@@ -552,7 +552,7 @@ module {:options "/functionSyntax:4" } Canonize {
 
   // This says vcs_split_on_every_assert, because it has many many asserts, each of which is cheap
   opaque function {:vcs_split_on_every_assert}
-    DoResolveLegend(canonSorted : CanonAuthList, legend: Header.Legend, ghost tableName : GoodString, ghost data : AuthList) : (ret : Result<CanonCryptoList, Error>)
+  DoResolveLegend(canonSorted : CanonAuthList, legend: Header.Legend, ghost tableName : GoodString, ghost data : AuthList) : (ret : Result<CanonCryptoList, Error>)
     requires CanonAuthMatchesAuthList(tableName, data, canonSorted)
     requires Relations.SortedBy(canonSorted, SortCanon.AuthBelow)
     ensures ret.Success? ==>

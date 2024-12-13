@@ -397,9 +397,9 @@ module CompoundBeacon {
                 //= type=implication
                 //# * If a string is returned, it MUST NOT be empty.
                 && |res.value.value| > 0
-                //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
-                //= type=implication
-                //# * This operation MUST iterate through all constructors, in order, using the first that succeeds.
+                   //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                   //= type=implication
+                   //# * This operation MUST iterate through all constructors, in order, using the first that succeeds.
                 && TryConstructors(construct, item, vf, keys).Success?
     {
       TryConstructors(construct, item, vf, keys)
@@ -578,9 +578,9 @@ module CompoundBeacon {
       ensures part.Signed? && ret.Success? ==>
                 && ret.value == part.prefix + data
                 && 0 < |ret.value|
-                //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
-                //= type=implication
-                //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
+                   //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                   //= type=implication
+                   //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
                 && split !in data
 
       //= specification/searchable-encryption/beacons.md#part-value-calculation
@@ -593,9 +593,9 @@ module CompoundBeacon {
                 && keys.Keys?
                 && part.beacon.hashStr(data, keys.value).Success?
                 && ret.value == part.prefix + part.beacon.hashStr(data, keys.value).value
-                //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
-                //= type=implication
-                //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
+                   //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
+                   //= type=implication
+                   //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
                 && split !in data
     {
       :- Need(split !in data, E("Value '" + data + "' for beacon part " + part.getName() + " contains the split character '" + [split] + "'."));

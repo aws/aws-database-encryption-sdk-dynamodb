@@ -128,11 +128,11 @@ module DynamoDbMiddlewareSupport {
     (ret : Result<Option<string>, Error>)
     ensures ret.Success? && config.search.Some? && config.search.value.curr().keySource.keyLoc.MultiLoc? ==>
               && output.parsedHeader.Some?
-              //= specification/searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header
-              //= type=implication
-              //# If the [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys
-              //# do not contain only one encrypted data key
-              //# this function MUST fail.
+                 //= specification/searchable-encryption/search-config.md#get-beacon-key-id-from-parsed-header
+                 //= type=implication
+                 //# If the [Parsed Header](../dynamodb-encryption-client/encrypt-item.md#parsed-header)'s encrypted data keys
+                 //# do not contain only one encrypted data key
+                 //# this function MUST fail.
               && var keys := output.parsedHeader.value.encryptedDataKeys;
               && |keys| == 1
 

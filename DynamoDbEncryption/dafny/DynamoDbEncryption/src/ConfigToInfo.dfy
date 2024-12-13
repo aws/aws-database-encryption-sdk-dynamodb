@@ -504,10 +504,10 @@ module SearchConfigToInfo {
               //= type=implication
               //# Initialization MUST fail if two standard beacons are configured with the same location.
               && FindBeaconWithThisLocation(converted, loc).None?
-              //= specification/searchable-encryption/virtual.md#virtual-field-initialization
-              //= type=implication
-              //# Initialization MUST fail if a virtual field is defined with only one location,
-              //# and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
+                 //= specification/searchable-encryption/virtual.md#virtual-field-initialization
+                 //= type=implication
+                 //# Initialization MUST fail if a virtual field is defined with only one location,
+                 //# and also a [standard beacon](beacons.md#standard-beacon) is defined with that same location.
               && FindVirtualFieldWithThisLocation(virtualFields, {loc}).None?
   {
     if |beacons| == 0 {
@@ -636,10 +636,10 @@ module SearchConfigToInfo {
     //# or is not `signed`.
     ensures
       (&& 0 < |parts|
-       //= specification/searchable-encryption/beacons.md#signed-part-initialization
-       //= type=implication
-       //# If no [terminal location](virtual.md#terminal-location) is provided,
-       //# the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
+          //= specification/searchable-encryption/beacons.md#signed-part-initialization
+          //= type=implication
+          //# If no [terminal location](virtual.md#terminal-location) is provided,
+          //# the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
        && GetLoc(parts[0].name, parts[0].loc).Success?
        && var loc := GetLoc(parts[0].name, parts[0].loc).value;
        && !IsSignOnly(outer, CB.Signed(parts[0].prefix, parts[0].name, loc).loc))
@@ -721,10 +721,10 @@ module SearchConfigToInfo {
     ensures ret.Success? ==>
               && |ret.value| == 1
               && |ret.value[0].parts| == |parts| + |converted|
-              //= specification/searchable-encryption/beacons.md#default-construction
-              //= type=implication
-              //# * This default constructor MUST be all of the signed parts,
-              //# followed by all the encrypted parts, all parts being required.
+                 //= specification/searchable-encryption/beacons.md#default-construction
+                 //= type=implication
+                 //# * This default constructor MUST be all of the signed parts,
+                 //# followed by all the encrypted parts, all parts being required.
               && CB.OrderedParts(allParts, numNon)
               && (forall i | 0 <= i < |ret.value[0].parts| ::
                     && ret.value[0].parts[i].part == allParts[i]
@@ -1109,14 +1109,14 @@ module SearchConfigToInfo {
     ensures ret.Success? && 0 < |names| && data[names[0]].Standard? && data[names[0]].std.share.Some? ==>
               && var share := data[names[0]].std.share.value;
               && IsValidShare(data, names[0], data[names[0]].std.length, share).Success?
-              //= specification/searchable-encryption/beacons.md#shared-initialization
-              //= type=implication
-              //# This name MUST be the name of a previously defined Standard Beacon.
+                 //= specification/searchable-encryption/beacons.md#shared-initialization
+                 //= type=implication
+                 //# This name MUST be the name of a previously defined Standard Beacon.
               && share in data
               && data[share].Standard?
-              //= specification/searchable-encryption/beacons.md#shared-initialization
-              //= type=implication
-              //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
+                 //= specification/searchable-encryption/beacons.md#shared-initialization
+                 //= type=implication
+                 //# This beacon's [length](#beacon-length) MUST be equal to the `other` beacon's [length](#beacon-length).
               && data[share].std.length == data[names[0]].std.length
   {
     if |names| == 0 then

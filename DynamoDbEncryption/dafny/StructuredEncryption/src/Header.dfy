@@ -114,17 +114,17 @@ module StructuredEncryptionHeader {
     function method {:opaque} serialize() : (ret : Bytes)
       ensures
         && PREFIX_LEN <= |ret|
-        //= specification/structured-encryption/header.md#partial-header
-        //= type=implication
-        //# The Partial Header MUST be
-        // | Length (bytes) | Meaning |
-        // |---|---|
-        // | 1 | [Format Version](#format-version) |
-        // | 1 | [Format Flavor](#format-flavor) |
-        // | 32 | [Message ID](#message-id) |
-        // | Variable | [Encrypt Legend](#encrypt-legend) |
-        // | Variable | [Encryption Context](#encryption-context) |
-        // | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
+           //= specification/structured-encryption/header.md#partial-header
+           //= type=implication
+           //# The Partial Header MUST be
+           // | Length (bytes) | Meaning |
+           // |---|---|
+           // | 1 | [Format Version](#format-version) |
+           // | 1 | [Format Flavor](#format-flavor) |
+           // | 32 | [Message ID](#message-id) |
+           // | Variable | [Encrypt Legend](#encrypt-legend) |
+           // | Variable | [Encryption Context](#encryption-context) |
+           // | Variable | [Encrypted Data Keys](#encrypted-data-keys) |
         && ret == (
                     [version]
                     + [flavor]
@@ -321,10 +321,10 @@ module StructuredEncryptionHeader {
     requires ValidSuite(alg)
     ensures ret.Success? ==>
               && |ret.value| == COMMITMENT_LEN
-              //= specification/structured-encryption/header.md#commitment-calculation
-              //= type=implication
-              //# The Header Commitment MUST be calculated as a the first 32 bytes of an HmacSha384,
-              //# with the serialized partial header as the message, and the Commit Key as the key.
+                 //= specification/structured-encryption/header.md#commitment-calculation
+                 //= type=implication
+                 //# The Header Commitment MUST be calculated as a the first 32 bytes of an HmacSha384,
+                 //# with the serialized partial header as the message, and the Commit Key as the key.
               && var input := Prim.HMacInput(
                                 digestAlgorithm := alg.commitment.HKDF.hmac,
                                 key := commitKey,

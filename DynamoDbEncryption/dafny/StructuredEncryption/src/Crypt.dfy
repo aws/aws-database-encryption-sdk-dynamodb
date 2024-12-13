@@ -26,7 +26,7 @@ module StructuredEncryptionCrypt {
   import AesKdfCtr
   import Seq
   import SortCanon
-  // import Relations
+    // import Relations
   import opened Canonize
 
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
@@ -455,9 +455,9 @@ module StructuredEncryptionCrypt {
               //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
               && KeySize == 32
               && encryptInput.key == fieldKey[0..KeySize]
-              //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
-              //= type=implication
-              //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
+                 //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
+                 //= type=implication
+                 //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
               && NonceSize == 12
               && |fieldKey| - KeySize == 12
               && encryptInput.iv == fieldKey[KeySize..]
@@ -510,10 +510,10 @@ module StructuredEncryptionCrypt {
     returns (ret : Result<StructuredDataTerminal, Error>)
     ensures ret.Success? ==>
               && |data.value| >= (AuthTagSize+2)
-              //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
-              //= type=implication
-              //# The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
-              //# equal to the deserialized Terminal Type Id.
+                 //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
+                 //= type=implication
+                 //# The output Terminal Data MUST have a [Terminal Type Id](./structures.md#terminal-type-id)
+                 //# equal to the deserialized Terminal Type Id.
               && ret.value.typeId == data.value[0..TYPEID_LEN]
               && ret.value != data
 
