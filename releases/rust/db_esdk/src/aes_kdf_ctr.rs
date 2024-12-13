@@ -14,9 +14,6 @@ pub mod AesKdfCtr {
     use dafny_runtime::Sequence;
     use std::rc::Rc;
 
-    #[allow(non_camel_case_types)]
-    // pub struct _default {}
-
     fn error(s: &str) -> Rc<DafnyError> {
         Rc::new(DafnyError::AwsCryptographicPrimitivesError {
             message:
