@@ -27,6 +27,7 @@ module SearchableEncryptionInfo {
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened CacheConstants
+  import UUID
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
@@ -72,11 +73,11 @@ module SearchableEncryptionInfo {
       //# MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
       var newKey :- GetBeaconKey(client, key, keysLeft[0]);
       reveal Seq.HasNoDuplicates();
-             //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-             //# [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
-             //# with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
-             //# and the [HMAC Keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#hmac-keys) equal to a map
-             //# of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+      //# [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
+      //# with the [beacon key id](#beacon-key-id) equal to the `beacon key id`
+      //# and the [HMAC Keys](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#hmac-keys) equal to a map
+      //# of every [standard beacons](beacons.md#standard-beacon-initialization) name to its generated HMAC key.
       output := GetHmacKeys(client, allKeys, keysLeft[1..], key, acc[keysLeft[0] := newKey]);
     }
   }
@@ -106,14 +107,14 @@ module SearchableEncryptionInfo {
               && hkdfInput.digestAlgorithm == Prim.SHA_512
               && hkdfInput.salt == None
               && hkdfInput.ikm == key
-                 //= specification/searchable-encryption/search-config.md#hmac-key-generation
-                 //= type=implication
-                 //# The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" encoded as UTF8
-                 //# and the beacon name.
+              //= specification/searchable-encryption/search-config.md#hmac-key-generation
+              //= type=implication
+              //# The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" encoded as UTF8
+              //# and the beacon name.
               && hkdfInput.info == info
-                 //= specification/searchable-encryption/search-config.md#hmac-key-generation
-                 //= type=implication
-                 //# The `expectedLength` MUST be 64 bytes.
+              //= specification/searchable-encryption/search-config.md#hmac-key-generation
+              //= type=implication
+              //# The `expectedLength` MUST be 64 bytes.
               && hkdfInput.expectedLength == 64
   {
     var info :- UTF8.Encode("AWS_DBE_SCAN_BEACON" + name).MapFailure(e => E(e));
@@ -126,6 +127,20 @@ module SearchableEncryptionInfo {
                             ));
     var newKey :- keyR.MapFailure(e => AwsCryptographyPrimitives(e));
     return Success(newKey);
+  }
+
+  // Generates a new partitionId, which is a random UUID
+  method GeneratePartitionId() returns (output : Result<seq<uint8>, Error>)
+  {
+    var uuid? := UUID.GenerateUUID();
+
+    var uuid :- uuid?
+    .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+
+    var partitionIdBytes: seq<uint8> :- UUID.ToByteArray(uuid)
+    .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+
+    output := Success(partitionIdBytes);
   }
 
   datatype KeyLocation =
@@ -219,6 +234,7 @@ module SearchableEncryptionInfo {
                 && var cacheInput := Seq.Last(newHistory).input;
                 && var cacheOutput := Seq.Last(newHistory).output;
                 && UTF8.Encode(keyId).Success?
+                // TODO - why is this verifying?
                 && cacheInput.identifier == UTF8.Encode(keyId).value
 
                 //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
@@ -234,9 +250,9 @@ module SearchableEncryptionInfo {
                       && var oldGetHistory := old(store.History.GetBeaconKey);
                       && var newGetHistory := store.History.GetBeaconKey;
                       && |newGetHistory| == |oldGetHistory|+1
-                         //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-                         //= type=implication
-                         //# If `GetBeaconKey` fails get beacon key MUST fail.
+                      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+                      //= type=implication
+                      //# If `GetBeaconKey` fails get beacon key MUST fail.
                       && Seq.Last(newGetHistory).output.Success?
                       && var storeInput := Seq.Last(newGetHistory).input;
                       && var storeOutput := Seq.Last(newGetHistory).output;
@@ -258,7 +274,7 @@ module SearchableEncryptionInfo {
                    )
     {
 
-      // Resource ID: Searchable Encryption [0x02]
+      // Resource ID: Hierarchical Keyring [0x02]
       var resourceId : seq<uint8> := RESOURCE_ID_HIERARCHICAL_KEYRING;
 
       // Scope ID: Searchable Encryption [0x03]
@@ -318,7 +334,7 @@ module SearchableEncryptionInfo {
         //# equal to now + configured [cacheTTL](#cachettl).
         var now := Time.GetCurrent();
         var putCacheEntryInput:= MP.PutCacheEntryInput(
-          identifier := keyIdBytes,
+          identifier := identifier,
           materials := MP.Materials.BeaconKey(beaconKeyMaterials),
           creationTime := now,
           expiryTime := now+cacheTTL as MP.PositiveLong,

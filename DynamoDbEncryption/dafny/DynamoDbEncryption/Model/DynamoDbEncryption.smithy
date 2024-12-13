@@ -719,7 +719,7 @@ structure SingleKeyStore {
   cacheTTL: Integer,
   @documentation("Provide the Shared Cache for Searchable Encryption.")
   cache : CacheType,
-  @documentation("Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.")
+  @documentation("Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.")
   partitionId: String
 }
 
@@ -740,7 +740,7 @@ structure MultiKeyStore {
   cacheTTL: Integer,
   @javadoc("Which type of local cache to use.")
   cache : CacheType,
-  @documentation("Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.")
+  @documentation("Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.")
   partitionId: String
 }
 

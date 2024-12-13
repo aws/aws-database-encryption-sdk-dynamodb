@@ -188,8 +188,8 @@ module UpdateItemTransform {
              || input.originalInput.ReturnValues.value.ALL_OLD?)
       )
     {
-      // This error should not be possible to reach if we assume the DDB API contract is correct.
-      // We include this runtime check for defensive purposes.
+        // This error should not be possible to reach if we assume the DDB API contract is correct.
+        // We include this runtime check for defensive purposes.
       :- Need(forall k <- attributes.Keys :: !IsSigned(tableConfig, k),
               E("UpdateItems response contains signed attributes, but does not include the entire item which is required for verification."));
 

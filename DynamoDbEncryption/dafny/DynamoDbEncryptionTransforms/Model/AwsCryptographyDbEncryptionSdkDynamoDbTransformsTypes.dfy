@@ -17,7 +17,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
   import AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import AwsCryptographyMaterialProvidersTypes
   import ComAmazonawsDynamodbTypes
-    // Generic helpers for verification of mock/unit tests.
+  // Generic helpers for verification of mock/unit tests.
   datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
 
   // Begin Generated Types

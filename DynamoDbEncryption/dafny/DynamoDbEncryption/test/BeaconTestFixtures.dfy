@@ -243,11 +243,11 @@ module BeaconTestFixtures {
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     // Create a test partitionIdBytes
-    var partitionIdBytes : seq<uint8> := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    var partitionIdBytes : seq<uint8> :- expect SI.GeneratePartitionId();
     return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0, partitionIdBytes);
   }
 
-  method GetMultiSource(keyName : string, version : BeaconVersion) returns (output : SI.KeySource)
+  method GetMultiSource(keyName : string, version : BeaconVersion, partitionId: Option<seq<uint8>>, shared_cache: Option<MPT.ICryptographicMaterialsCache>) returns (output : SI.KeySource)
     requires version.keyStore.ValidState()
     ensures output.ValidState()
     ensures version.keyStore == output.store
@@ -260,7 +260,7 @@ module BeaconTestFixtures {
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     // Create a test partitionIdBytes
-    var partitionIdBytes : seq<uint8> := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    var partitionIdBytes : seq<uint8> :- expect SI.GeneratePartitionId();
     return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0, partitionIdBytes);
   }
 

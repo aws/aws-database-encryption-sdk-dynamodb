@@ -54,11 +54,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     || (unauthenticatedAttributes.Some? && attr in unauthenticatedAttributes.value)
     || (unauthenticatedPrefix.Some? && unauthenticatedPrefix.value <= attr)
     || ReservedPrefix <= attr
-       // Attributes with the reserved prefix are "allowed unauthenticated" in that
-       // they are not specified as signed within attributeActionsOnEncrypt.
-       // These attributes MAY still be authenticated via other methods,
-       // such as "aws_dbe_head" which is explicitly added to the canonical hash
-       // used in signing.
+    // Attributes with the reserved prefix are "allowed unauthenticated" in that
+    // they are not specified as signed within attributeActionsOnEncrypt.
+    // These attributes MAY still be authenticated via other methods,
+    // such as "aws_dbe_head" which is explicitly added to the canonical hash
+    // used in signing.
   }
 
   //= specification/dynamodb-encryption-client/decrypt-item.md#signature-scope
@@ -126,9 +126,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   {
     && InSignatureScope(config, attr)
     && attr !in config.attributeActionsOnEncrypt
-       // Attributes in signature scope MUST be configured in attributeActionsOnEncrypt
-       // so these two lines are saying "in scope && not in scope"
-       // and that's why it's an error
+    // Attributes in signature scope MUST be configured in attributeActionsOnEncrypt
+    // so these two lines are saying "in scope && not in scope"
+    // and that's why it's an error
   }
 
   // Is the attribute name in signature scope?
@@ -176,9 +176,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               //= type=implication
               //# If the Version Number is 2, then the base context MUST be the [version 2](./encrypt-item.md#dynamodb-item-base-context-version-2) context.
               && (header[0] == 2 ==> ret == MakeEncryptionContextV2(config, item))
-                 //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
-                 //= type=implication
-                 //# If the Version Number is 1, the base context MUST be the [version 1](./encrypt-item.md#dynamodb-item-base-context-version-1) context.
+              //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
+              //= type=implication
+              //# If the Version Number is 1, the base context MUST be the [version 1](./encrypt-item.md#dynamodb-item-base-context-version-1) context.
               && (header[0] == 1 ==> ret == MakeEncryptionContextV1(config, item))
               && ((header[0] == 1) || (header[0] == 2))
 
@@ -441,7 +441,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     // The partition key MUST be CSE.SIGN_ONLY
     && config.partitionKeyName in config.attributeActionsOnEncrypt
     && config.attributeActionsOnEncrypt[config.partitionKeyName] == KeyActionFromVersion(config.version)
-       // The sort key MUST be CSE.SIGN_ONLY
+    // The sort key MUST be CSE.SIGN_ONLY
     && (config.sortKeyName.Some? ==>
           && config.sortKeyName.value in config.attributeActionsOnEncrypt
           && config.attributeActionsOnEncrypt[config.sortKeyName.value] == KeyActionFromVersion(config.version))

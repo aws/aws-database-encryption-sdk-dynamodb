@@ -584,10 +584,10 @@ module DynamoToStruct {
     ensures ret.Success? ==>
               && U32ToBigEndian(|b|).Success?
               && |ret.value| == LENGTH_LEN + |b|
-                 //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entry-length
-                 //= type=implication
-                 //# Set Entry Length MUST be a big-endian unsigned integer
-                 //# equal to the length of [Set Entry Value](#set-entry-value).
+              //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#set-entry-length
+              //= type=implication
+              //# Set Entry Length MUST be a big-endian unsigned integer
+              //# equal to the length of [Set Entry Value](#set-entry-value).
               && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|b|).value
               && ret.value[LENGTH_LEN..] == b
   {

@@ -27,7 +27,7 @@ public class SingleKeyStore {
   private final CacheType cache;
 
   /**
-   * Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.
+   * Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
    */
   private final String partitionId;
 
@@ -60,7 +60,7 @@ public class SingleKeyStore {
   }
 
   /**
-   * @return Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.
+   * @return Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
    */
   public String partitionId() {
     return this.partitionId;
@@ -106,12 +106,12 @@ public class SingleKeyStore {
     CacheType cache();
 
     /**
-     * @param partitionId Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.
+     * @param partitionId Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
      */
     Builder partitionId(String partitionId);
 
     /**
-     * @return Partition ID to distinguish Beacon Key Sources writing to a cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the cache.
+     * @return Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
      */
     String partitionId();
 

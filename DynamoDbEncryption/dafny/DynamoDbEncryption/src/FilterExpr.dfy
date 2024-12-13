@@ -1289,9 +1289,9 @@ module DynamoDBFilterExpr {
         a[0] < b[0]
       else
         bIsHighSurrogate
-        // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
-        // so if bIsHighSurrogate then a is less
-        // and if aIsHighSurrogate then a is greater
+    // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
+    // so if bIsHighSurrogate then a is less
+    // and if aIsHighSurrogate then a is greater
   }
 
   predicate method UnicodeLessOrEqual(a : string, b : string)

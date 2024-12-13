@@ -526,7 +526,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var client :- expect Primitives.AtomicPrimitives();
 
     // Create a test partitionIdBytes
-    var partitionIdBytes : seq<uint8> := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    var partitionIdBytes : seq<uint8> :- expect SI.GeneratePartitionId();
     var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32, partitionIdBytes);
 
     var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[]);

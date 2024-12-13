@@ -715,9 +715,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
       var newEncryptionContext :- GetV2EncryptionContext(input.plaintextStructure);
       if |newEncryptionContext| != 0 {
-        //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
-        //# An error MUST be returned if any of the entries added to the encryption context in this step
-        //# have the same key as any entry already in the encryption context.
+          //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
+          //# An error MUST be returned if any of the entries added to the encryption context in this step
+          //# have the same key as any entry already in the encryption context.
         :- Need(encryptionContext.Keys !! newEncryptionContext.Keys,
                 E("Internal Error - Structured Encryption encryption context overlaps with Item Encryptor encryption context."));
         encryptionContext := encryptionContext + newEncryptionContext;
@@ -1070,9 +1070,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       //# in the input record, plus the Legend.
       var newEncryptionContext :- GetV2EncryptionContext(UnCanon(canonData));
       if |newEncryptionContext| != 0 {
-        //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
-        //# An error MUST be returned if any of the entries added to the encryption context in this step
-        //# have the same key as any entry already in the encryption context.
+          //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
+          //# An error MUST be returned if any of the entries added to the encryption context in this step
+          //# have the same key as any entry already in the encryption context.
         :- Need(encryptionContext.Keys !! newEncryptionContext.Keys,
                 E("Internal Error - Structured Encryption encryption context overlaps with Item Encryptor encryption context."));
         encryptionContext := encryptionContext + newEncryptionContext;
