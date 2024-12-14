@@ -136,6 +136,12 @@ module SearchConfigToInfo {
           MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
       if config.single.cache.Some? then
+        // Ideally, we only want to pass a cache here with entryCapacity = 1
+        // because the SingleKeyStore caches only one value.
+        // That is, we SHOULD add a check here for entryCapacity = 1.
+        // However, that requires us to write an if block for each CacheType.
+        // Also, it does NOT matter what the entryCapacity is, because the cache
+        // can only hold one element at a time.
         config.single.cache.value
       else
         MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
