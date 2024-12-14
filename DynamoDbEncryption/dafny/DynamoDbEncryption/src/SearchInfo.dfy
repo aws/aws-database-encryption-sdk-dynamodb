@@ -245,19 +245,19 @@ module SearchableEncryptionInfo {
                 //# If a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
                 //# exists, get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
                 && (cacheOutput.Success? && cacheEntryWithinLimits(
-                    creationTime := cacheOutput.value.creationTime,
-                    now := now,
-                    ttlSeconds := cacheTTL
-                  ) ==>
+                      creationTime := cacheOutput.value.creationTime,
+                      now := now,
+                      ttlSeconds := cacheTTL
+                    ) ==>
                       && cacheOutput.value.materials.BeaconKey?
                       && cacheOutput.value.materials.BeaconKey.hmacKeys.Some?
                       && output.value == cacheOutput.value.materials.BeaconKey.hmacKeys.value)
 
                 && (cacheOutput.Failure? || !cacheEntryWithinLimits(
-                    creationTime := cacheOutput.value.creationTime,
-                    now := now,
-                    ttlSeconds := cacheTTL
-                  ) ==>
+                      creationTime := cacheOutput.value.creationTime,
+                      now := now,
+                      ttlSeconds := cacheTTL
+                    ) ==>
                       && var oldGetHistory := old(store.History.GetBeaconKey);
                       && var newGetHistory := store.History.GetBeaconKey;
                       && |newGetHistory| == |oldGetHistory|+1
@@ -333,10 +333,10 @@ module SearchableEncryptionInfo {
         var keyMap :- getAllKeys(stdNames, key.value);
         var beaconKeyMaterials := rawBeaconKeyMaterials.beaconKeyMaterials.(beaconKey := None, hmacKeys := Some(keyMap));
 
-        //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-        //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
-        //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
-        //# equal to now + configured [cacheTTL](#cachettl).
+          //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+          //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
+          //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
+          //# equal to now + configured [cacheTTL](#cachettl).
         :- expect Need(
           (now as int + cacheTTL as int) < UInt.INT64_MAX_LIMIT,
           MP.AwsCryptographicMaterialProvidersException(message := "INT64 Overflow when putting cache entry.")
