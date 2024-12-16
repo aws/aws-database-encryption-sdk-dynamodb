@@ -131,7 +131,8 @@ module SearchConfigToInfo {
         && output.error.DynamoDbEncryptionException?
         && output.error.message == "Searchable Encryption does not support the Shared Cache type at this time."
   {
-    // TODO-FutureCleanUp : It is not-good that the MPL is initialized here;
+    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // It is not-good that the MPL is initialized here;
     // The MPL has a config object that could hold customer intent that affects behavior.
     // Today, it does not. But tomorrow?
     var mplR := MaterialProviders.MaterialProviders();
