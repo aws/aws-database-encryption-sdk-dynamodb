@@ -10,7 +10,10 @@ use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTable
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::EncryptedPart;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SearchConfig;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SignedPart;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SingleKeyStore;
+use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::MultiKeyStore;
+use aws_db_esdk::aws_cryptography_materialProviders::types::CacheType;
+use aws_db_esdk::aws_cryptography_materialProviders::types::DefaultCache;
+use aws_db_esdk::aws_cryptography_materialProviders::types::cryptographic_materials_cache::CryptographicMaterialsCacheRef;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon;
 use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
 use aws_db_esdk::aws_cryptography_keyStore::client as keystore_client;
@@ -463,6 +466,22 @@ pub async fn setup_beacon_config(
     ];
 
     // 9. Create BeaconVersion
+    let mpl_config = MaterialProvidersConfig::builder().build()?;
+    let mpl = mpl_client::Client::from_conf(mpl_config)?;
+    let cache: CacheType = CacheType::Default(
+        DefaultCache::builder()
+            .entry_capacity(100)
+            .build()?,
+    );
+
+    let shared_cryptographic_materials_cache: CryptographicMaterialsCacheRef = mpl.
+        create_cryptographic_materials_cache()
+        .cache(cache)
+        .send()
+        .await?;
+
+    let shared_cache: CacheType = CacheType::Shared(shared_cryptographic_materials_cache);
+
     let beacon_versions = BeaconVersion::builder()
         .standard_beacons(standard_beacon_list)
         .compound_beacons(compound_beacon_list)
@@ -470,9 +489,10 @@ pub async fn setup_beacon_config(
         .signed_parts(signed_parts_list)
         .version(1)
         .key_store(key_store.clone())
-        .key_source(BeaconKeySource::Single(
-            SingleKeyStore::builder()
-                .key_id(branch_key_id)
+        .key_source(BeaconKeySource::Multi(
+            MultiKeyStore::builder()
+                .cache(shared_cache)
+                .key_field_name(branch_key_id)
                 .cache_ttl(6000)
                 .build()?,
         ))
@@ -480,8 +500,6 @@ pub async fn setup_beacon_config(
     let beacon_versions = vec![beacon_versions];
 
     // 10. Create a Hierarchical Keyring
-    let mpl_config = MaterialProvidersConfig::builder().build()?;
-    let mpl = mpl_client::Client::from_conf(mpl_config)?;
     let kms_keyring = mpl
         .create_aws_kms_hierarchical_keyring()
         .branch_key_id(branch_key_id)
