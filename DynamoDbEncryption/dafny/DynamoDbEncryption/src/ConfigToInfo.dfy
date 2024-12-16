@@ -120,13 +120,13 @@ module SearchConfigToInfo {
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
     // Not in Spec, but for now, SE does not support the Shared Cache Type
-   ensures
+    ensures
       && config.multi?
       && config.multi.cache.Some?
       && config.multi.cache.value.Shared?
-        ==> 
+      ==>
         && output.Failure?
-        // If the failure was NOT caused by booting up the MPL
+           // If the failure was NOT caused by booting up the MPL
         && !output.error.AwsCryptographyMaterialProviders?
         ==>
           && output.error.DynamoDbEncryptionException?
