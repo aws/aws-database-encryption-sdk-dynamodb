@@ -119,6 +119,12 @@ module SearchConfigToInfo {
       && config.multi.keyFieldName in outer.attributeActionsOnEncrypt
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
+    ensures
+      && config.multi?
+      && config.multi.cache.Some?
+      && config.multi.cache.value.Shared?
+      ==> output.Failure?
+
   {
     var mplR := MaterialProviders.MaterialProviders();
     var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
@@ -139,7 +145,7 @@ module SearchConfigToInfo {
 
     var cache;
     if cacheType.Shared? {
-      cache := cacheType.Shared;
+      return Failure(E("Scan Beacons and Searchable Encryption do NOT support Shared caches."));
     } else {
       //= specification/searchable-encryption/search-config.md#key-store-cache
       //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
