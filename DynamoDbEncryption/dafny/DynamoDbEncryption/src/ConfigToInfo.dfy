@@ -139,7 +139,8 @@ module SearchConfigToInfo {
 
     var cache;
     if cacheType.Shared? {
-      cache := cacheType.Shared;
+      return Failure(DynamoDbEncryptionException(message:="Searchable Encryption does not support shared caches"));
+      // cache := cacheType.Shared;
     } else {
       //= specification/searchable-encryption/search-config.md#key-store-cache
       //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
