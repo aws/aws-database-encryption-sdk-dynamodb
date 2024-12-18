@@ -15,6 +15,7 @@ aws-sdk-kms = "1.50.0"
 aws-smithy-runtime-api = {version = "1.7.3", features = ["client"] }
 aws-smithy-types = "1.2.9"
 chrono = "0.4.38"
+cpu-time = "1.0.0"
 dafny_runtime = { path = "../../../submodules/MaterialProviders/smithy-dafny/TestModels/dafny-dependencies/dafny_runtime_rust"}
 dashmap = "6.1.0"
 pem = "3.0.4"
