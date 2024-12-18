@@ -116,7 +116,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .interceptor(DbEsdkInterceptor::new(table_configs)?)
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 

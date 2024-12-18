@@ -36,4 +36,5 @@ src/types.rs
 src/uuid.rs
 src/wrapped
 src/wrapped.rs
+src/validation.rs
 target

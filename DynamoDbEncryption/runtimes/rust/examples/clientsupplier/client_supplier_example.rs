@@ -123,7 +123,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     // 5. Create a new AWS SDK DynamoDb client using the DynamoDb Config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .interceptor(DbEsdkInterceptor::new(table_configs)?)
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
@@ -215,7 +215,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build()?;
 
     let only_replica_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(only_replica_table_configs))
+        .interceptor(DbEsdkInterceptor::new(only_replica_table_configs)?)
         .build();
     let only_replica_ddb = aws_sdk_dynamodb::Client::from_conf(only_replica_dynamo_config);
 
