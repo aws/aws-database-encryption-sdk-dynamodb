@@ -134,7 +134,23 @@ module SearchConfigToInfo {
       && config.multi.keyFieldName in outer.attributeActionsOnEncrypt
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
+    // Not in Spec, but for now, SE does not support the Shared Cache Type
+    ensures
+      && config.multi?
+      && config.multi.cache.Some?
+      && config.multi.cache.value.Shared?
+      ==>
+        && output.Failure?
+           // If the failure was NOT caused by booting up the MPL
+        && !output.error.AwsCryptographyMaterialProviders?
+        ==>
+          && output.error.DynamoDbEncryptionException?
+          && output.error.message == "Searchable Encryption does not support the Shared Cache type at this time."
   {
+    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // It is not-good that the MPL is initialized here;
+    // The MPL has a config object that could hold customer intent that affects behavior.
+    // Today, it does not. But tomorrow?
     var mplR := MaterialProviders.MaterialProviders();
     var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
