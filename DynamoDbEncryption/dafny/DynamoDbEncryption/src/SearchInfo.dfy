@@ -275,10 +275,10 @@ module SearchableEncryptionInfo {
                       && var newPutHistory := cache.History.PutCacheEntry;
                       && |newPutHistory| == |oldPutHistory|+1
                       && (
-                        var storeOutput := Seq.Last(newPutHistory).output;
-                        || storeOutput.Success?
-                        || storeOutput.error.EntryAlreadyExists?
-                      )
+                           var storeOutput := Seq.Last(newPutHistory).output;
+                           || storeOutput.Success?
+                           || storeOutput.error.EntryAlreadyExists?
+                         )
                       && var storeInput := Seq.Last(newPutHistory).input;
                       && var storeOutput := Seq.Last(newPutHistory).output;
                       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
@@ -339,10 +339,10 @@ module SearchableEncryptionInfo {
         var beaconKeyMaterials := rawBeaconKeyMaterials.beaconKeyMaterials.(beaconKey := None, hmacKeys := Some(keyMap));
 
         expect now < UInt.BoundedInts.INT64_MAX - cacheTTL;
-          //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-          //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
-          //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
-          //# equal to now + configured [cacheTTL](#cachettl).
+        //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
+        //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
+        //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
+        //# equal to now + configured [cacheTTL](#cachettl).
         var putCacheEntryInput:= MP.PutCacheEntryInput(
           identifier := identifier,
           materials := MP.Materials.BeaconKey(beaconKeyMaterials),
