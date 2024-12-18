@@ -43,7 +43,7 @@ cd ../../../releases/rust/db_esdk
 git checkout dafny_runtime_rust
 
 # Remove unnecessary files and directories
-rm -rf *~ copy_externs.sh start_release.sh test_published.sh test_examples *.pem RELEASE.md
+rm -rf *~ copy_externs.sh start_release.sh test_published.sh test_examples *.pem RELEASE.md src/README.md
 
 # Create .gitignore file with specified entries
 echo Cargo.lock > .gitignore
