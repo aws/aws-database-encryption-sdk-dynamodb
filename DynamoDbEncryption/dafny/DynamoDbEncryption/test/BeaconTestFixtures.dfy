@@ -231,6 +231,9 @@ module BeaconTestFixtures {
     ensures output.ValidState()
     ensures version.keyStore == output.store
     ensures fresh(output.client.Modifies)
+    ensures
+      && fresh(output.cache)
+      && fresh(output.cache.Modifies)
   {
     var client :- expect Primitives.AtomicPrimitives();
 
@@ -252,6 +255,9 @@ module BeaconTestFixtures {
     ensures output.ValidState()
     ensures version.keyStore == output.store
     ensures fresh(output.client.Modifies)
+    ensures
+      && fresh(output.cache)
+      && fresh(output.cache.Modifies)
   {
     var client :- expect Primitives.AtomicPrimitives();
     var mpl :- expect MaterialProviders.MaterialProviders();

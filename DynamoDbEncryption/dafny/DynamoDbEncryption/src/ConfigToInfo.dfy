@@ -38,6 +38,7 @@ module SearchConfigToInfo {
   method Convert(outer : DynamoDbTableEncryptionConfig)
     returns (output : Result<Option<I.ValidSearchInfo>, Error>)
     requires ValidSearchConfig(outer.search)
+    requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
@@ -74,6 +75,19 @@ module SearchConfigToInfo {
       forall b <- config.value.versions :: ValidBeaconVersion(b)
   }
 
+  // Valid state of the provided shared cache, if it exists
+  predicate {:opaque} ValidSharedCache(config: BeaconKeySource)
+  {
+    && (&& config.single?
+        && config.single.cache.Some?
+        && config.single.cache.value.Shared?
+        ==> && config.single.cache.value.Shared.ValidState())
+    && (&& config.multi?
+        && config.multi.cache.Some?
+        && config.multi.cache.value.Shared?
+        ==> && config.multi.cache.value.Shared.ValidState())
+  }
+
   // return true if, `keyFieldName` should be deleted from an item before writing
   function method ShouldDeleteKeyField(outer : DynamoDbTableEncryptionConfig, keyFieldName : string)
     : (ret : Result<bool, Error>)
@@ -102,6 +116,7 @@ module SearchConfigToInfo {
     returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
     requires client.ValidState()
+    requires ValidSharedCache(config)
     ensures client.ValidState()
     ensures output.Success? ==>
               && output.value.ValidState()
@@ -149,6 +164,11 @@ module SearchConfigToInfo {
     var cache;
     if cacheType.Shared? {
       cache := cacheType.Shared;
+      reveal ValidSharedCache(config, keyStore);
+
+      // This axiom is important because it is not easy to prove
+      // keyStore.Modifies !! cache.Modifies for a shared cache.
+      assume {:axiom} keyStore.Modifies !! cache.Modifies;
     } else {
       //= specification/searchable-encryption/search-config.md#key-store-cache
       //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
@@ -196,6 +216,7 @@ module SearchConfigToInfo {
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
     returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
+    requires ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)

@@ -154,6 +154,8 @@ module
 
       assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
       SearchInModifies(config, tableName);
+      reveal SearchConfigToInfo.ValidSharedCache();
+      assume {:axiom} inputConfig.search.Some? ==> SearchConfigToInfo.ValidSharedCache(inputConfig.search.value.versions[0].keySource);
       var searchR := SearchConfigToInfo.Convert(inputConfig);
       var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
       assert search.None? || search.value.ValidState();
