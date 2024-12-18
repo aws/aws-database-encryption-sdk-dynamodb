@@ -236,7 +236,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         .keyring(kms_keyring)
         .search(
             SearchConfig::builder()
-                // .write_version(1) // MUST be 1
+                .write_version(1) // MUST be 1
                 .versions(beacon_versions)
                 .build()?,
         )
