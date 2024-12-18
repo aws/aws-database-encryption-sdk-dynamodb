@@ -88,11 +88,6 @@ impl DbEsdkInterceptor {
     ) -> Result<Self, crate::types::error::Error> {
         let client = crate::client::Client::from_conf(config)?;
         Ok(DbEsdkInterceptor { client })
-        // let client = crate::client::Client::from_conf(config);
-        // match client {
-        //     Ok(x) => Ok(DbEsdkInterceptor { client : x }),
-        //     Err(e) => Err(format!("{:?}", e))
-        // }
     }
 }
 
