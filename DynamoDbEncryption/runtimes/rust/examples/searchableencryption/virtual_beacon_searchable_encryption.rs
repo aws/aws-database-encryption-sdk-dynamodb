@@ -350,7 +350,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
 
     // 13. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(encryption_config))
+        .interceptor(DbEsdkInterceptor::new(encryption_config)?)
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 

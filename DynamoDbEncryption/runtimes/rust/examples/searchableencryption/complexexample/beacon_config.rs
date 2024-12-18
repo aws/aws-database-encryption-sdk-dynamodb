@@ -547,7 +547,7 @@ pub async fn setup_beacon_config(
     // 13. Create a new AWS SDK DynamoDb client using the config above
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .interceptor(DbEsdkInterceptor::new(table_configs)?)
         .build();
 
     Ok(aws_sdk_dynamodb::Client::from_conf(dynamo_config))
