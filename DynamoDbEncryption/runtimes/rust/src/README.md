@@ -1,31 +1,51 @@
-# AWS Database Encryption SDK for DynamoDB
+## Building the AWS Database Encryption SDK for DynamoDB
 
-[![build status](https://github.com/aws/aws-database-encryption-sdk-dynamodb/actions/workflows/daily_ci.yml/badge.svg?branch=main)](https://github.com/aws/aws-database-encryption-sdk-dynamodb/actions/workflows/daily_ci.yml)
-[![crates.io](https://img.shields.io/crates/v/aws-db-esdk.svg)](https://crates.io/crates/aws-db-esdk)
-[![docs](https://docs.rs/aws-db-esdk/badge.svg)](https://docs.rs/aws-db-esdk)
-[![rustc](https://img.shields.io/badge/rust-1.81%2B-orange.svg)](https://img.shields.io/badge/rust-1.81%2B-orange.svg)
+To build, the AWS Database Encryption SDK for DynamoDB requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
 
-This is the official [AWS Database Encryption SDK (DB-ESDK) for DynamoDB in Rust](https://crates.io/crates/aws-db-esdk).
+You will also need to ensure that you fetch all submodules using either `git clone --recursive ...` when cloning the repository or `git submodule update --init` on an existing clone.
 
-## [CHANGELOG](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/CHANGELOG.md)
+To setup your project to use the AWS Database Encryption SDK for DynamoDB in Rust, run:
 
-## Overview
+```
+cd DynamoDbEncryption
+# Polymorph smithy to Rust
+make polymorph_rust
+# Transpile Dafny to Rust
+make transpile_rust
+# Build Project
+cd runtimes/rust
+cargo build
+```
 
-The AWS Database Encryption SDK (DB-ESDK) for DynamoDB is a client-side encryption
-library that allows you to perform attribute-level encryption, enabling you to encrypt specific
-attribute values within items before storing them in your DynamoDB table. All encryption and
-decryption are performed within your application. This lets you protect sensitive data in-transit
-and at-rest, as data cannot be exposed unless decrypted by your application.
+### (Optional) Set up the AWS Database Encryption SDK for DynamoDB to work with AWS KMS
 
-For more details about the design and architecture of the DB-ESDK for DynamoDB,
-see the [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/).
+If you set up the AWS Database Encryption SDK for DynamoDB to use the AWS KMS Keyring,
+the AWS Database Encryption SDK for DynamoDB will make calls to AWS KMS on your behalf,
+using the appropriate AWS SDK.
 
-## Examples for AWS Database Encryption SDK in Rust
+However, you must first set up AWS credentials for use with the AWS SDK.
 
-Please look at the Examples on how to use the AWS Database Encryption SDK in Rust [here](https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk/examples).
+## Testing the AWS Database Encryption SDK for DynamoDB for Rust
 
-Please note that some examples MAY require internet access and valid AWS credentials, since calls to KMS are made.
+### Configure AWS credentials
 
-## License
+To run the test suite you must first set up AWS credentials for use with the AWS SDK.
+This is required in order to run the integration tests, which use a KMS Keyring against a publicly accessible KMS CMK.
 
-This library is licensed under the Apache 2.0 License.
+### Run the tests
+
+Run the test suite with:
+
+```
+cd DynamoDbEncryption
+make test_rust
+```
+
+Run tests on examples, to ensure they are up to date:
+
+```
+cd DynamoDbEncryption/runtimes/rust/
+cargo test --examples
+```
+
+Please note that tests require internet access and valid AWS credentials, since calls to KMS and DynamoDB are made as part of the workflow.
