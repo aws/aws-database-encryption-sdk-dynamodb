@@ -38,6 +38,7 @@ module SearchConfigToInfo {
   method Convert(outer : DynamoDbTableEncryptionConfig)
     returns (output : Result<Option<I.ValidSearchInfo>, Error>)
     requires ValidSearchConfig(outer.search)
+    requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
@@ -74,6 +75,19 @@ module SearchConfigToInfo {
       forall b <- config.value.versions :: ValidBeaconVersion(b)
   }
 
+  // Valid state of the provided shared cache, if it exists
+  predicate {:opaque} ValidSharedCache(config: BeaconKeySource)
+  {
+    && (&& config.single?
+        && config.single.cache.Some?
+        && config.single.cache.value.Shared?
+        ==> && config.single.cache.value.Shared.ValidState())
+    && (&& config.multi?
+        && config.multi.cache.Some?
+        && config.multi.cache.value.Shared?
+        ==> && config.multi.cache.value.Shared.ValidState())
+  }
+
   // return true if, `keyFieldName` should be deleted from an item before writing
   function method ShouldDeleteKeyField(outer : DynamoDbTableEncryptionConfig, keyFieldName : string)
     : (ret : Result<bool, Error>)
@@ -102,6 +116,7 @@ module SearchConfigToInfo {
     returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
     requires client.ValidState()
+    requires ValidSharedCache(config)
     ensures client.ValidState()
     ensures output.Success? ==>
               && output.value.ValidState()
@@ -119,18 +134,6 @@ module SearchConfigToInfo {
       && config.multi.keyFieldName in outer.attributeActionsOnEncrypt
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
-    // Not in Spec, but for now, SE does not support the Shared Cache Type
-    ensures
-      && config.multi?
-      && config.multi.cache.Some?
-      && config.multi.cache.value.Shared?
-      ==>
-        && output.Failure?
-           // If the failure was NOT caused by booting up the MPL
-        && !output.error.AwsCryptographyMaterialProviders?
-        ==>
-          && output.error.DynamoDbEncryptionException?
-          && output.error.message == "Searchable Encryption does not support the Shared Cache type at this time."
   {
     // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
     // It is not-good that the MPL is initialized here;
@@ -151,12 +154,25 @@ module SearchConfigToInfo {
         else
           MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
+      if config.single.cache.Some? then
+        // Ideally, we only want to pass a cache here with entryCapacity = 1
+        // because the SingleKeyStore caches only one value.
+        // That is, we SHOULD add a check here for entryCapacity = 1.
+        // However, that requires us to write an if block for each CacheType.
+        // Also, it does NOT matter what the entryCapacity is, because the cache
+        // can only hold one element at a time.
+        config.single.cache.value
+      else
         MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
     var cache;
     if cacheType.Shared? {
-      return Failure(DynamoDbEncryptionException(message:="Searchable Encryption does not support the Shared Cache type at this time."));
-      // cache := cacheType.Shared;
+      cache := cacheType.Shared;
+      reveal ValidSharedCache(config, keyStore);
+
+      // This axiom is important because it is not easy to prove
+      // keyStore.Modifies !! cache.Modifies for a shared cache.
+      assume {:axiom} keyStore.Modifies !! cache.Modifies;
     } else {
       //= specification/searchable-encryption/search-config.md#key-store-cache
       //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
@@ -168,13 +184,35 @@ module SearchConfigToInfo {
       cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
     }
 
+    var partitionIdBytes : seq<uint8>;
+
+    if config.multi? && config.multi.partitionId.Some? {
+      partitionIdBytes :- UTF8.Encode(config.multi.partitionId.value)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Partition ID from MultiKeyStore: " + e
+          )
+      );
+    }
+    else if config.single? && config.single.partitionId.Some? {
+      partitionIdBytes :- UTF8.Encode(config.single.partitionId.value)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Partition ID from SingleKeyStore: " + e
+          )
+      );
+    }
+    else {
+      partitionIdBytes :- I.GeneratePartitionId();
+    }
+
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       var deleteKey :- ShouldDeleteKeyField(outer, config.multi.keyFieldName);
-      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32, partitionIdBytes));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32, partitionIdBytes));
     }
   }
 
@@ -182,6 +220,7 @@ module SearchConfigToInfo {
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
     returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
+    requires ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
