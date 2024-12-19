@@ -18,12 +18,8 @@ impl ScanInputTransform {
         crate::operation::scan_input_transform::ScanInputTransformOutput,
         crate::types::error::Error,
     > {
-        if input.sdk_input.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "sdk_input",
-        "sdk_input was not specified but it is required when building ScanInputTransformInput",
-    )).map_err(crate::types::error::Error::wrap_validation_err);
-}
+        crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HScanInputTransformInput_for_DynamoDbEncryptionTransforms_ScanInputTransform(&input)
+            .map_err(crate::types::error::Error::wrap_validation_err)?;
                 let inner_input = crate::conversions::scan_input_transform::_scan_input_transform_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ScanInputTransform(&inner_input);

@@ -13,11 +13,13 @@ impl Client {
     /// Creates a new client from the service [`Config`](crate::Config).
     #[track_caller]
     pub fn from_conf(
-        conf: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig,
+        input: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig,
     ) -> Result<Self, crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error> {
+        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_PitemEncryptor_HDynamoDbItemEncryptorConfig(&input)
+            .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error::wrap_validation_err)?;
         let inner =
             crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::_default::DynamoDbItemEncryptor(
-                &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::dynamo_db_item_encryptor_config::_dynamo_db_item_encryptor_config::to_dafny(conf),
+                &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::dynamo_db_item_encryptor_config::_dynamo_db_item_encryptor_config::to_dafny(input),
             );
         if matches!(
             inner.as_ref(),

@@ -18,12 +18,8 @@ impl CreateDynamoDbEncryptionBranchKeyIdSupplier {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplierOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
     > {
-        if input.ddb_key_branch_key_id_supplier.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "ddb_key_branch_key_id_supplier",
-        "ddb_key_branch_key_id_supplier was not specified but it is required when building CreateDynamoDbEncryptionBranchKeyIdSupplierInput",
-    )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::wrap_validation_err);
-}
+        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HCreateDynamoDbEncryptionBranchKeyIdSupplierInput_for_DynamoDbEncryption_CreateDynamoDbEncryptionBranchKeyIdSupplier(&input)
+            .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::wrap_validation_err)?;
                 let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::create_dynamo_db_encryption_branch_key_id_supplier::_create_dynamo_db_encryption_branch_key_id_supplier_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).CreateDynamoDbEncryptionBranchKeyIdSupplier(&inner_input);

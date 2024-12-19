@@ -18,12 +18,8 @@ impl GetEncryptedDataKeyDescription {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_encrypted_data_key_description::GetEncryptedDataKeyDescriptionOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
     > {
-        if input.input.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "input",
-        "input was not specified but it is required when building GetEncryptedDataKeyDescriptionInput",
-    )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::wrap_validation_err);
-}
+        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetEncryptedDataKeyDescriptionInput_for_DynamoDbEncryption_GetEncryptedDataKeyDescription(&input)
+            .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::wrap_validation_err)?;
                 let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::get_encrypted_data_key_description::_get_encrypted_data_key_description_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).GetEncryptedDataKeyDescription(&inner_input);
