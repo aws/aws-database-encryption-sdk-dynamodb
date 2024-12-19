@@ -3,6 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 /// Types for the `DynamoDbTablesEncryptionConfig`
 pub mod dynamo_db_tables_encryption_config;
+pub use crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
 
 pub mod builders;
 
