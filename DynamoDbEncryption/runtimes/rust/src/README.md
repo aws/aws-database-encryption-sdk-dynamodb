@@ -1,4 +1,3 @@
-
 ## Building the AWS Database Encryption SDK for DynamoDB
 
 To build, the AWS Database Encryption SDK for DynamoDB requires the most up to date version of [Dafny](https://github.com/dafny-lang/dafny) on your PATH.
