@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::test_utils;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::client as dbesdk_client;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetEncryptedDataKeyDescriptionUnion;
+use aws_db_esdk::dynamodb::client as dbesdk_client;
+use aws_db_esdk::dynamodb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig;
+use aws_db_esdk::dynamodb::types::GetEncryptedDataKeyDescriptionUnion;
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
