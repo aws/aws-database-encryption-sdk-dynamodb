@@ -524,7 +524,10 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
 
     var client :- expect Primitives.AtomicPrimitives();
-    var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32);
+
+    // Create a test partitionIdBytes
+    var partitionIdBytes : seq<uint8> :- expect SI.GeneratePartitionId();
+    var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32, partitionIdBytes);
 
     var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[]);
     return Success(bv);
