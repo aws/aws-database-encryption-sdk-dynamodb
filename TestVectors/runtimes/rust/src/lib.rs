@@ -55,6 +55,7 @@ pub mod ecdsa;
 pub mod hmac;
 pub mod kms;
 pub mod local_cmc;
+pub mod oslang;
 pub mod random;
 pub mod rsa;
 pub mod sets;
