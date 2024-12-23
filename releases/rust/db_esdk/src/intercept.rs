@@ -84,9 +84,9 @@ pub struct DbEsdkInterceptor {
 impl DbEsdkInterceptor {
     pub fn new(
         config: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
-    ) -> Self {
-        let client = crate::client::Client::from_conf(config).unwrap(); // FIXME
-        DbEsdkInterceptor { client }
+    ) -> Result<Self, crate::types::error::Error> {
+        let client = crate::client::Client::from_conf(config)?;
+        Ok(DbEsdkInterceptor { client })
     }
 }
 

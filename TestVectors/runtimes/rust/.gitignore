@@ -24,6 +24,7 @@ src/local_cmc.rs
 src/operation
 src/operation.rs
 src/random.rs
+src/oslang.rs
 src/rsa.rs
 src/sets.rs
 src/software_externs.rs
@@ -36,4 +37,5 @@ src/types.rs
 src/uuid.rs
 src/wrapped
 src/wrapped.rs
+src/validation.rs
 target
