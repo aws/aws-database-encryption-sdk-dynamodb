@@ -1,0 +1,39 @@
+diff --git b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/CollectionOfErrors.cs a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/CollectionOfErrors.cs
+index ef0d4752..acc77d97 100644
+--- b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/CollectionOfErrors.cs
++++ a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/CollectionOfErrors.cs
+@@ -8,9 +8,18 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
+   public class CollectionOfErrors : Exception
+   {
+     public readonly System.Collections.Generic.List<Exception> list;
+-    public CollectionOfErrors(System.Collections.Generic.List<Exception> list, string message) : base(message) { this.list = list; }
++    public CollectionOfErrors(System.Collections.Generic.List<Exception> list, string message) : base(message + $"\n List: \n{ListAsString(list)}") { this.list = list; }
+     public CollectionOfErrors(string message) : base(message) { this.list = new System.Collections.Generic.List<Exception>(); }
+     public CollectionOfErrors() : base("CollectionOfErrors") { this.list = new System.Collections.Generic.List<Exception>(); }
++
++    private static string ListAsString(List<Exception> list)
++    {
++      if (list.Count < 1) return "";
++      string[] msgArr = new string[list.Count];
++      for (int i = 0; i < list.Count; i++)
++        msgArr[i] = $"{list[i].GetType().Name} :: {list[i].Message}";
++      return String.Join("\n\t", msgArr);
++    }
+   }
+ 
+ }
+diff --git b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
+index d1ceb19b..f96612ee 100644
+--- b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
++++ a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
+@@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
+ {
+   public static class TypeConversion
+   {
+-    private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+-
+-    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
+-
+     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.DecryptItemInput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S16_DecryptItemInput(software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types._IDecryptItemInput value)
+     {
+       software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.DecryptItemInput converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.DecryptItemInput(); converted.EncryptedItem = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S16_DecryptItemInput__M13_encryptedItem(concrete._encryptedItem); return converted;
