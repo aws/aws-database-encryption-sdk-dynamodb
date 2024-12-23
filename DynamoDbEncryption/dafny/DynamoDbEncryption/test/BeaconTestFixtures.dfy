@@ -270,6 +270,8 @@ module BeaconTestFixtures {
     return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0, partitionIdBytes);
   }
 
+  // method GetMultiSourceWithSharedCache(keyName: string, version : BeaconVersion)
+
   const SimpleItem : DDB.AttributeMap := map[
                                            "std2" := Std2String,
                                            "std4" := Std4String,
