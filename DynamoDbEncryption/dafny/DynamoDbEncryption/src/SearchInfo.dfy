@@ -129,18 +129,18 @@ module SearchableEncryptionInfo {
     return Success(newKey);
   }
 
-  // Generates a new partitionId, which is a random UUID
-  method GeneratePartitionId() returns (output : Result<seq<uint8>, Error>)
+  // Generates a new random UUID converted to UTF8 bytes
+  method GenerateUuidBytes() returns (output : Result<seq<uint8>, Error>)
   {
     var uuid? := UUID.GenerateUUID();
 
     var uuid :- uuid?
     .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
 
-    var partitionIdBytes: seq<uint8> :- UUID.ToByteArray(uuid)
+    var uuidBytes: seq<uint8> :- UUID.ToByteArray(uuid)
     .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
 
-    output := Success(partitionIdBytes);
+    output := Success(uuidBytes);
   }
 
   datatype KeyLocation =
@@ -154,7 +154,8 @@ module SearchableEncryptionInfo {
     keyLoc : KeyLocation,
     cache : MP.ICryptographicMaterialsCache,
     cacheTTL : uint32,
-    partitionIdBytes : seq<uint8>
+    partitionIdBytes : seq<uint8>,
+    logicalKeyStoreNameBytes : seq<uint8>
   ) {
     function Modifies() : set<object> {
       client.Modifies + store.Modifies + cache.Modifies
@@ -174,7 +175,7 @@ module SearchableEncryptionInfo {
       if keyLoc.SingleLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a SingleKeyStore"));
         var now := Time.GetCurrent();
-        var theMap :- getKeysCache(stdNames, keyLoc.keyId, cacheTTL as MP.PositiveLong, partitionIdBytes, now as MP.PositiveLong);
+        var theMap :- getKeysCache(stdNames, keyLoc.keyId, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong);
         return Success(Keys(theMap));
       } else if keyLoc.LiteralLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a LiteralKeyStore"));
@@ -184,7 +185,7 @@ module SearchableEncryptionInfo {
         match keyId {
           case DontUseKeyId => return Failure(E("KeyID must not be supplied with a MultiKeyStore"));
           case ShouldHaveKeyId => return Success(ShouldHaveKeys);
-          case KeyId(id) => var now := Time.GetCurrent(); var theMap :- getKeysCache(stdNames, id, cacheTTL as MP.PositiveLong, partitionIdBytes, now as MP.PositiveLong); return Success(Keys(theMap));
+          case KeyId(id) => var now := Time.GetCurrent(); var theMap :- getKeysCache(stdNames, id, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong); return Success(Keys(theMap));
         }
       }
     }
@@ -218,6 +219,7 @@ module SearchableEncryptionInfo {
       keyId : string,
       cacheTTL : MP.PositiveLong,
       partitionIdBytes : seq<uint8>,
+      logicalKeyStoreNameBytes : seq<uint8>,
       now : MP.PositiveLong
     )
       returns (output : Result<HmacKeyMap, Error>)
@@ -238,7 +240,7 @@ module SearchableEncryptionInfo {
                 && var cacheInput := Seq.Last(newHistory).input;
                 && var cacheOutput := Seq.Last(newHistory).output;
                 && UTF8.Encode(keyId).Success?
-                && cacheInput.identifier == RESOURCE_ID_HIERARCHICAL_KEYRING + NULL_BYTE + SCOPE_ID_SEARCHABLE_ENCRYPTION + NULL_BYTE + partitionIdBytes + NULL_BYTE + UTF8.Encode(keyId).value
+                && cacheInput.identifier == RESOURCE_ID_HIERARCHICAL_KEYRING + NULL_BYTE + SCOPE_ID_SEARCHABLE_ENCRYPTION + NULL_BYTE + partitionIdBytes + NULL_BYTE + logicalKeyStoreNameBytes + NULL_BYTE + UTF8.Encode(keyId).value
 
                 //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
                 //= type=implication
@@ -297,7 +299,7 @@ module SearchableEncryptionInfo {
       // Create the Suffix
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
-      var suffix : seq<uint8> := keyIdBytes;
+      var suffix : seq<uint8> := logicalKeyStoreNameBytes + NULL_BYTE + keyIdBytes;
 
       // Append Resource Id, Scope Id, Partition Id, and Suffix to create the cache identifier
       var identifier := resourceId + NULL_BYTE + scopeId + NULL_BYTE + partitionIdBytes + NULL_BYTE + suffix;

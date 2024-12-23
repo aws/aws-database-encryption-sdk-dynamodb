@@ -246,8 +246,20 @@ module BeaconTestFixtures {
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     // Create a test partitionIdBytes
-    var partitionIdBytes : seq<uint8> :- expect SI.GeneratePartitionId();
-    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0, partitionIdBytes);
+    var partitionIdBytes : seq<uint8> :- expect SI.GenerateUuidBytes();
+
+    // Create a random logicalKeyStoreNameBytes
+    // Ideally, this should be taken from the KeyStore version.keyStore,
+    // but logicalKeyStoreName variable doesn't exist in the
+    // trait AwsCryptographyKeyStoreTypes.IKeyStoreClient
+    // Therefore, the only way to get logicalKeyStoreName is
+    // to call GetKeyStoreInfo, which we don't need to do here
+    // since this method does NOT test the shared cache
+    // which is the only place logicalKeyStoreName is used
+    // (in the cache identifier)
+    var logicalKeyStoreNameBytes : seq<uint8> :- expect SI.GenerateUuidBytes();
+
+    return SI.KeySource(client, version.keyStore, SI.LiteralLoc(keys), cache, 0, partitionIdBytes, logicalKeyStoreNameBytes);
   }
 
   method GetMultiSource(keyName : string, version : BeaconVersion) returns (output : SI.KeySource)
@@ -266,8 +278,20 @@ module BeaconTestFixtures {
     );
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
     // Create a test partitionIdBytes
-    var partitionIdBytes : seq<uint8> :- expect SI.GeneratePartitionId();
-    return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0, partitionIdBytes);
+    var partitionIdBytes : seq<uint8> :- expect SI.GenerateUuidBytes();
+
+    // Create a random logicalKeyStoreNameBytes
+    // Ideally, this should be taken from the KeyStore version.keyStore,
+    // but logicalKeyStoreName variable doesn't exist in the
+    // trait AwsCryptographyKeyStoreTypes.IKeyStoreClient
+    // Therefore, the only way to get logicalKeyStoreName is
+    // to call GetKeyStoreInfo, which we don't need to do here
+    // since this method does NOT test the shared cache
+    // which is the only place logicalKeyStoreName is used
+    // (in the cache identifier)
+    var logicalKeyStoreNameBytes : seq<uint8> :- expect SI.GenerateUuidBytes();
+
+    return SI.KeySource(client, version.keyStore, SI.MultiLoc(keyName, false), cache, 0, partitionIdBytes, logicalKeyStoreNameBytes);
   }
 
   const SimpleItem : DDB.AttributeMap := map[

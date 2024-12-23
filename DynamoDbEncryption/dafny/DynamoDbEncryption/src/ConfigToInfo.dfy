@@ -39,6 +39,7 @@ module SearchConfigToInfo {
     returns (output : Result<Option<I.ValidSearchInfo>, Error>)
     requires ValidSearchConfig(outer.search)
     requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
+    modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
@@ -57,7 +58,8 @@ module SearchConfigToInfo {
     } else {
       :- Need(outer.search.value.writeVersion == 1, E("writeVersion must be '1'."));
       :- Need(|outer.search.value.versions| == 1, E("search config must be have exactly one version."));
-      var version :- ConvertVersion(outer, outer.search.value.versions[0]);
+      var beaconVersionConfig := outer.search.value.versions[0];
+      var version :- ConvertVersion(outer, beaconVersionConfig);
       var info := I.MakeSearchInfo(version);
       return Success(Some(info));
     }
@@ -115,6 +117,7 @@ module SearchConfigToInfo {
   )
     returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
+    modifies keyStore.Modifies
     requires client.ValidState()
     requires ValidSharedCache(config)
     ensures client.ValidState()
@@ -203,16 +206,25 @@ module SearchConfigToInfo {
       );
     }
     else {
-      partitionIdBytes :- I.GeneratePartitionId();
+      partitionIdBytes :- I.GenerateUuidBytes();
     }
+    var getKeyStoreInfoOutput? := keyStore.GetKeyStoreInfo();
+    var getKeyStoreInfoOutput :- getKeyStoreInfoOutput?.MapFailure(e => Error.AwsCryptographyKeyStore(e));
+    var logicalKeyStoreName : string := getKeyStoreInfoOutput.logicalKeyStoreName;
+    var logicalKeyStoreNameBytes : seq<uint8> :- UTF8.Encode(logicalKeyStoreName)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Logical Key Store Name: " + e
+          )
+      );
 
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       var deleteKey :- ShouldDeleteKeyField(outer, config.multi.keyFieldName);
-      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32, partitionIdBytes));
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32, partitionIdBytes, logicalKeyStoreNameBytes));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32, partitionIdBytes));
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32, partitionIdBytes, logicalKeyStoreNameBytes));
     }
   }
 
@@ -221,6 +233,7 @@ module SearchConfigToInfo {
     returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
     requires ValidSharedCache(config.keySource)
+    modifies config.keyStore.Modifies
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
