@@ -164,6 +164,8 @@ This can also be described as single tenant.
 
 On initialization of a Single Key Store, the caller MUST provide:
 
+TODO: Update
+
 - [Beacon Key Id](#beacon-key-id)
 - [cacheTTL](#cachettl)
 
@@ -174,6 +176,8 @@ when different items in a DDB table will use the different beacon keys.
 This can also be described as multi tenant.
 
 On initialization of a Multi Key Store, the caller MUST provide:
+
+TODO: Update
 
 - [Beacon Key Field Name](#beacon-key-field-name)
 - [cacheTTL](#cachettl)
@@ -210,10 +214,14 @@ for how long a beacon key should exist locally before reauthorization.
 
 #### max cache size
 
+TODO: Remove and add partition ID
+
 The [max cache size](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
 that the [Key Store Cache](#key-store-cache) will be configured to.
 
 ### Key Store Cache
+
+TODO: Update
 
 For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
 MUST be created.

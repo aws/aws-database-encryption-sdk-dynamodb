@@ -26,6 +26,8 @@ module SearchableEncryptionInfo {
   import MP = AwsCryptographyMaterialProvidersTypes
   import KeyStoreTypes = AwsCryptographyKeyStoreTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import opened CacheConstants
+  import UUID
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
@@ -127,6 +129,20 @@ module SearchableEncryptionInfo {
     return Success(newKey);
   }
 
+  // Generates a new random UUID converted to UTF8 bytes
+  method GenerateUuidBytes() returns (output : Result<seq<uint8>, Error>)
+  {
+    var uuid? := UUID.GenerateUUID();
+
+    var uuid :- uuid?
+    .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+
+    var uuidBytes: seq<uint8> :- UUID.ToByteArray(uuid)
+    .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+
+    output := Success(uuidBytes);
+  }
+
   datatype KeyLocation =
     | LiteralLoc (keys: HmacKeyMap)
     | SingleLoc (keyId: string)
@@ -137,13 +153,18 @@ module SearchableEncryptionInfo {
     store : ValidStore,
     keyLoc : KeyLocation,
     cache : MP.ICryptographicMaterialsCache,
-    cacheTTL : uint32
+    cacheTTL : uint32,
+    partitionIdBytes : seq<uint8>,
+    logicalKeyStoreNameBytes : seq<uint8>
   ) {
     function Modifies() : set<object> {
-      client.Modifies + store.Modifies
+      client.Modifies + store.Modifies + cache.Modifies
     }
     predicate ValidState() {
-      client.ValidState() && store.ValidState()
+      && client.ValidState()
+      && store.ValidState()
+      && cache.ValidState()
+      && store.Modifies !! cache.Modifies
     }
     method getKeyMap(stdNames : seq<string>, keyId : MaybeKeyId) returns (output : Result<MaybeKeyMap, Error>)
       requires Seq.HasNoDuplicates(stdNames)
@@ -153,7 +174,8 @@ module SearchableEncryptionInfo {
     {
       if keyLoc.SingleLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a SingleKeyStore"));
-        var theMap :- getKeysCache(stdNames, keyLoc.keyId);
+        var now := Time.GetCurrent();
+        var theMap :- getKeysCache(stdNames, keyLoc.keyId, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong);
         return Success(Keys(theMap));
       } else if keyLoc.LiteralLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a LiteralKeyStore"));
@@ -163,7 +185,7 @@ module SearchableEncryptionInfo {
         match keyId {
           case DontUseKeyId => return Failure(E("KeyID must not be supplied with a MultiKeyStore"));
           case ShouldHaveKeyId => return Success(ShouldHaveKeys);
-          case KeyId(id) => var theMap :- getKeysCache(stdNames, id); return Success(Keys(theMap));
+          case KeyId(id) => var now := Time.GetCurrent(); var theMap :- getKeysCache(stdNames, id, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong); return Success(Keys(theMap));
         }
       }
     }
@@ -180,9 +202,25 @@ module SearchableEncryptionInfo {
       return Success(keyLoc.keys);
     }
 
+    // Checks if (time_now - cache creation time of the extracted cache entry) is less than the allowed
+    // TTL of the current Beacon Key Source calling the getEntry method from the cache.
+    // Mitigates risk if another Beacon Key Source wrote the entry with a longer TTL.
+    predicate method cacheEntryWithinLimits(
+      creationTime: MP.PositiveLong,
+      now: MP.PositiveLong,
+      ttlSeconds: MP.PositiveLong
+    ): (output: bool)
+    {
+      now - creationTime <= ttlSeconds as MP.PositiveLong
+    }
+
     method getKeysCache(
       stdNames : seq<string>,
-      keyId : string
+      keyId : string,
+      cacheTTL : MP.PositiveLong,
+      partitionIdBytes : seq<uint8>,
+      logicalKeyStoreNameBytes : seq<uint8>,
+      now : MP.PositiveLong
     )
       returns (output : Result<HmacKeyMap, Error>)
       requires Seq.HasNoDuplicates(stdNames)
@@ -199,22 +237,29 @@ module SearchableEncryptionInfo {
                 && var oldHistory := old(cache.History.GetCacheEntry);
                 && var newHistory := cache.History.GetCacheEntry;
                 && |newHistory| == |oldHistory|+1
-                && Seq.Last(newHistory).output.Success?
                 && var cacheInput := Seq.Last(newHistory).input;
                 && var cacheOutput := Seq.Last(newHistory).output;
                 && UTF8.Encode(keyId).Success?
-                && cacheInput.identifier == UTF8.Encode(keyId).value
+                && cacheInput.identifier == RESOURCE_ID_HIERARCHICAL_KEYRING + NULL_BYTE + SCOPE_ID_SEARCHABLE_ENCRYPTION + NULL_BYTE + partitionIdBytes + NULL_BYTE + logicalKeyStoreNameBytes + NULL_BYTE + UTF8.Encode(keyId).value
 
                 //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
                 //= type=implication
                 //# If a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
                 //# exists, get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
-                && (cacheOutput.Success? ==>
+                && (cacheOutput.Success? && cacheEntryWithinLimits(
+                      creationTime := cacheOutput.value.creationTime,
+                      now := now,
+                      ttlSeconds := cacheTTL
+                    ) ==>
                       && cacheOutput.value.materials.BeaconKey?
                       && cacheOutput.value.materials.BeaconKey.hmacKeys.Some?
                       && output.value == cacheOutput.value.materials.BeaconKey.hmacKeys.value)
 
-                && (cacheOutput.Failure? ==>
+                && (cacheOutput.Failure? || !cacheEntryWithinLimits(
+                      creationTime := cacheOutput.value.creationTime,
+                      now := now,
+                      ttlSeconds := cacheTTL
+                    ) ==>
                       && var oldGetHistory := old(store.History.GetBeaconKey);
                       && var newGetHistory := store.History.GetBeaconKey;
                       && |newGetHistory| == |oldGetHistory|+1
@@ -231,29 +276,55 @@ module SearchableEncryptionInfo {
                       && var oldPutHistory := old(cache.History.PutCacheEntry);
                       && var newPutHistory := cache.History.PutCacheEntry;
                       && |newPutHistory| == |oldPutHistory|+1
-                      && Seq.Last(newPutHistory).output.Success?
+                      && (
+                           var storeOutput := Seq.Last(newPutHistory).output;
+                           || storeOutput.Success?
+                           || storeOutput.error.EntryAlreadyExists?
+                         )
                       && var storeInput := Seq.Last(newPutHistory).input;
                       && var storeOutput := Seq.Last(newPutHistory).output;
                       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
                       //= type=implication
                       //# These cached materials MUST be returned.
-                      && storeInput.materials.BeaconKey.hmacKeys == Some(output.value)
-
+                      && storeInput.materials.BeaconKey? ==> storeInput.materials.BeaconKey.hmacKeys == Some(output.value)
                    )
     {
+
+      // Resource ID: Hierarchical Keyring [0x02]
+      var resourceId : seq<uint8> := RESOURCE_ID_HIERARCHICAL_KEYRING;
+
+      // Scope ID: Searchable Encryption [0x03]
+      var scopeId : seq<uint8> := SCOPE_ID_SEARCHABLE_ENCRYPTION;
+
+      // Create the Suffix
       var keyIdBytesR := UTF8.Encode(keyId);
       var keyIdBytes :- keyIdBytesR.MapFailure(e => E(e));
-      var getCacheInput := MP.GetCacheEntryInput(identifier := keyIdBytes, bytesUsed := None);
-      verifyValidStateCache(cache);
-      assume {:axiom} cache.Modifies == {};
-      var getCacheOutput := cache.GetCacheEntry(getCacheInput);
+      var suffix : seq<uint8> := logicalKeyStoreNameBytes + NULL_BYTE + keyIdBytes;
 
+      // Append Resource Id, Scope Id, Partition Id, and Suffix to create the cache identifier
+      var identifier := resourceId + NULL_BYTE + scopeId + NULL_BYTE + partitionIdBytes + NULL_BYTE + suffix;
+
+      var getCacheInput := MP.GetCacheEntryInput(identifier := identifier, bytesUsed := None);
+      verifyValidStateCache(cache);
+      var getCacheOutput := cache.GetCacheEntry(getCacheInput);
       // If error is not EntryDoesNotExist, return failure
       if (getCacheOutput.Failure? && !getCacheOutput.error.EntryDoesNotExist?) {
         return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=getCacheOutput.error));
       }
 
-      if getCacheOutput.Failure? {
+      // //= specification/searchable-encryption/search-config.md#<heading>
+      //# If using a `Shared` cache across multiple Beacon Key Sources,
+      //# different Key Sources having the same `beaconKey` can have different TTLs.
+      //# In such a case, the expiry time in the cache is set according to the Beacon Key Source that populated the cache.
+      //# There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
+      //# `time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
+      //# valid for TTL of the Beacon Key Source getting the cache entry.
+      //# If this is NOT true, then we MUST treat the cache entry as expired.
+      if getCacheOutput.Failure? || !cacheEntryWithinLimits(
+           creationTime := getCacheOutput.value.creationTime,
+           now := now,
+           ttlSeconds := cacheTTL
+         ) {
         //= specification/searchable-encryption/search-config.md#beacon-keys
         //# Beacon keys MUST be obtained from the configured [Beacon Key Source](#beacon-key-source).
         var maybeRawBeaconKeyMaterials := store.GetBeaconKey(
@@ -269,22 +340,21 @@ module SearchableEncryptionInfo {
         var keyMap :- getAllKeys(stdNames, key.value);
         var beaconKeyMaterials := rawBeaconKeyMaterials.beaconKeyMaterials.(beaconKey := None, hmacKeys := Some(keyMap));
 
+        expect now < UInt.BoundedInts.INT64_MAX - cacheTTL;
         //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
         //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
         //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
         //# equal to now + configured [cacheTTL](#cachettl).
-        var now := Time.GetCurrent();
         var putCacheEntryInput:= MP.PutCacheEntryInput(
-          identifier := keyIdBytes,
+          identifier := identifier,
           materials := MP.Materials.BeaconKey(beaconKeyMaterials),
           creationTime := now,
-          expiryTime := now+cacheTTL as MP.PositiveLong,
+          expiryTime := now + cacheTTL,
           messagesUsed := None,
           bytesUsed := None
         );
 
         verifyValidStateCache(cache);
-        assume {:axiom} cache.Modifies == {};
 
         var putResult := cache.PutCacheEntry(putCacheEntryInput);
         if (putResult.Failure? && !putResult.error.EntryAlreadyExists?) {
