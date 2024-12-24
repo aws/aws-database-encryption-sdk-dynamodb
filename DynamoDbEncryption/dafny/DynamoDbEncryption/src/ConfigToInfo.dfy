@@ -212,11 +212,11 @@ module SearchConfigToInfo {
     var getKeyStoreInfoOutput :- getKeyStoreInfoOutput?.MapFailure(e => Error.AwsCryptographyKeyStore(e));
     var logicalKeyStoreName : string := getKeyStoreInfoOutput.logicalKeyStoreName;
     var logicalKeyStoreNameBytes : seq<uint8> :- UTF8.Encode(logicalKeyStoreName)
-      .MapFailure(
-        e => Error.DynamoDbEncryptionException(
-            message := "Could not UTF-8 Encode Logical Key Store Name: " + e
-          )
-      );
+    .MapFailure(
+      e => Error.DynamoDbEncryptionException(
+          message := "Could not UTF-8 Encode Logical Key Store Name: " + e
+        )
+    );
 
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
