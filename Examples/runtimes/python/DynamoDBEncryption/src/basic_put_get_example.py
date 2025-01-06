@@ -137,7 +137,6 @@ item_to_encrypt = {
 }
 
 transformed_item = transform_item_for_localservice(item_to_encrypt)
-# print(f"{transformed_item=}")
 
 put_item = {
     "TableName": ddb_table_name,
@@ -151,8 +150,6 @@ put_item_transform_input = PutItemInputTransformInput(
 transformed_put_item = transforms_client.put_item_input_transform(
     put_item_transform_input
 )
-
-# print(f"{transformed_put_item=}")
 
 encrypted_item = transformed_put_item.transformed_input["Item"]
 

@@ -53,7 +53,6 @@ class InternalEncryptionInterceptor:
 
     def _request_interceptor(self, params, **kwargs):
         event_name: str = kwargs["event_name"]
-        print(f"{event_name=}")
 
         if event_name == "provide-client-params.dynamodb.PutItem":
             transformed_request = self._transformer.put_item_input_transform(
