@@ -601,3 +601,43 @@ def aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesOutput
             for (key, value) in dafny_input.CompoundBeacons.items
         },
     )
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_AwsCryptographicMaterialProvidersReference(
+    dafny_input,
+):
+    from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.client import (
+        AwsCryptographicMaterialProviders,
+    )
+
+    return AwsCryptographicMaterialProviders(config=None, dafny_client=dafny_input)
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_DynamoDbEncryptionReference(
+    dafny_input,
+):
+    from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.client import (
+        DynamoDbEncryption,
+    )
+
+    return DynamoDbEncryption(config=None, dafny_client=dafny_input)
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_DynamoDbItemEncryptorReference(
+    dafny_input,
+):
+    from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.client import (
+        DynamoDbItemEncryptor,
+    )
+
+    return DynamoDbItemEncryptor(config=None, dafny_client=dafny_input)
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_StructuredEncryptionReference(
+    dafny_input,
+):
+    from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.client import (
+        StructuredEncryption,
+    )
+
+    return StructuredEncryption(config=None, dafny_client=dafny_input)

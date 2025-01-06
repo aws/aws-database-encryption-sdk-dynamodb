@@ -91,14 +91,14 @@ TRANSLATION_RECORD_PYTHON := \
     --translation-record ../submodules/MaterialProviders/ComAmazonawsKms/runtimes/python/src/aws_cryptography_internal_kms/internaldafny/generated/dafny_src-py.dtr \
     --translation-record ../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/python/src/aws_cryptography_internal_dynamodb/internaldafny/generated/dafny_src-py.dtr \
     --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr \
-	--translation-record ../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptographic_materialproviders/internaldafny/generated/dafny_src-py.dtr
+	--translation-record ../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptographic_material_providers/internaldafny/generated/dafny_src-py.dtr
 
 PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.primitives=aws_cryptography_primitives \
 	--dependency-library-name=com.amazonaws.kms=aws_cryptography_internal_kms \
 	--dependency-library-name=com.amazonaws.dynamodb=aws_cryptography_internal_dynamodb \
-	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_materialproviders \
-	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_materialproviders \
+	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_material_providers \
+	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_material_providers \
 	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_database_encryption_sdk \
 	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_database_encryption_sdk \
 	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_database_encryption_sdk \

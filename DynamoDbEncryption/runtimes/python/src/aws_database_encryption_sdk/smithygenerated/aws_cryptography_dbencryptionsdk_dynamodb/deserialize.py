@@ -24,7 +24,7 @@ from .errors import (
     ServiceError,
     StructuredEncryption,
 )
-from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.deserialize import (
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.deserialize import (
     _deserialize_error as aws_cryptography_materialproviders_deserialize_error,
 )
 from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.shim import (
@@ -65,6 +65,8 @@ def _deserialize_get_encrypted_data_key_description(
 def _deserialize_error(error: Error) -> ServiceError:
     if error.is_Opaque:
         return OpaqueError(obj=error.obj)
+    elif error.is_OpaqueWithText:
+        return OpaqueErrorWithText(obj=error.obj, obj_message=error.objMessage)
     elif error.is_CollectionOfErrors:
         return CollectionOfErrors(
             message=_dafny.string_of(error.message),

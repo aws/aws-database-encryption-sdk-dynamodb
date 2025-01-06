@@ -7,6 +7,9 @@ from aws_database_encryption_sdk.internaldafny.generated.AwsCryptographyDbEncryp
 )
 import aws_database_encryption_sdk.internaldafny.generated.module_
 import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy
+from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+    DynamoDbTablesEncryptionConfig,
+)
 import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny
 from dataclasses import dataclass
 from typing import Any, Callable, TypeAlias

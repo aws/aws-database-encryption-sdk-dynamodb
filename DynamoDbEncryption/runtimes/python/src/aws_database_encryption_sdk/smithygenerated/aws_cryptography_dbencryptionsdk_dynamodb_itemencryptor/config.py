@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-import aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references
+import aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references
 from aws_database_encryption_sdk.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes import (
     DynamoDbItemEncryptorConfig_DynamoDbItemEncryptorConfig as DafnyDynamoDbItemEncryptorConfig,
 )
@@ -56,17 +56,17 @@ Plugin: TypeAlias = Callable[[Config], None]
 
 class DynamoDbItemEncryptorConfig(Config):
     logical_table_name: str
-    partition_key_name: str
+    partition_key_name: dict[str, Any]
     attribute_actions_on_encrypt: dict[str, str]
-    sort_key_name: Optional[str]
-    allowed_unsigned_attributes: Optional[list[str]]
+    sort_key_name: Optional[dict[str, Any]]
+    allowed_unsigned_attributes: Optional[dict[str, Any]]
     allowed_unsigned_attribute_prefix: Optional[str]
     algorithm_suite_id: Optional[str]
     keyring: Optional[
-        "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
+        "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
     ]
     cmm: Optional[
-        "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+        "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     ]
     legacy_override: Optional[LegacyOverride]
     plaintext_override: Optional[str]
@@ -75,17 +75,17 @@ class DynamoDbItemEncryptorConfig(Config):
         self,
         *,
         logical_table_name: str,
-        partition_key_name: str,
+        partition_key_name: dict[str, Any],
         attribute_actions_on_encrypt: dict[str, str],
-        sort_key_name: Optional[str] = None,
-        allowed_unsigned_attributes: Optional[list[str]] = None,
+        sort_key_name: Optional[dict[str, Any]] = None,
+        allowed_unsigned_attributes: Optional[dict[str, Any]] = None,
         allowed_unsigned_attribute_prefix: Optional[str] = None,
         algorithm_suite_id: Optional[str] = None,
         keyring: Optional[
-            "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
+            "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
         ] = None,
         cmm: Optional[
-            "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+            "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
         ] = None,
         legacy_override: Optional[LegacyOverride] = None,
         plaintext_override: Optional[str] = None,
@@ -213,10 +213,10 @@ class DynamoDbItemEncryptorConfig(Config):
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DynamoDbItemEncryptorConfig":
         """Creates a DynamoDbItemEncryptorConfig from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             Keyring,
         )
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             CryptographicMaterialsManager,
         )
 

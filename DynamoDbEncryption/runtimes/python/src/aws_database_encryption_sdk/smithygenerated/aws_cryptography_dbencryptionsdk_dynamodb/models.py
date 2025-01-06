@@ -2,17 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-import aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_keystore.client
-import aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references
+import aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client
+import aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references
 import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references
 from typing import Any, Dict, List, Optional, Union
 
-from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.models import (
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.models import (
     CacheType,
     _cache_type_from_dict,
-)
-from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.models import (
-    AttributeValue,
 )
 
 
@@ -76,12 +73,12 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierInput:
 
 
 class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
-    branch_key_id_supplier: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier"
+    branch_key_id_supplier: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier"
 
     def __init__(
         self,
         *,
-        branch_key_id_supplier: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier",
+        branch_key_id_supplier: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier",
     ):
         """Outputs for creating a Branch Key Supplier from a DynamoDB Key
         Branch Key Id Supplier.
@@ -104,7 +101,7 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
     ) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierOutput":
         """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierOutput from a
         dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             BranchKeyIdSupplier,
         )
 
@@ -321,12 +318,12 @@ class GetEncryptedDataKeyDescriptionOutput:
 
 
 class GetBranchKeyIdFromDdbKeyInput:
-    ddb_key: "dict[str, AttributeValue]"
+    ddb_key: dict[str, Any]
 
     def __init__(
         self,
         *,
-        ddb_key: "dict[str, AttributeValue]",
+        ddb_key: dict[str, Any],
     ):
         """Inputs for getting the Branch Key that should be used for wrapping
         and unwrapping data keys.
@@ -397,7 +394,7 @@ class GetEncryptedDataKeyDescriptionUnionHeader:
 class GetEncryptedDataKeyDescriptionUnionItem:
     """A DynamoDB item."""
 
-    def __init__(self, value: "dict[str, AttributeValue]"):
+    def __init__(self, value: dict[str, Any]):
         self.value = value
 
     def as_dict(self) -> Dict[str, Any]:
@@ -2278,7 +2275,7 @@ class VirtualField:
 
 class BeaconVersion:
     version: int
-    key_store: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_keystore.client.KeyStore"
+    key_store: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client.KeyStore"
     key_source: BeaconKeySource
     standard_beacons: list[StandardBeacon]
     compound_beacons: Optional[list[CompoundBeacon]]
@@ -2289,7 +2286,7 @@ class BeaconVersion:
     def __init__(
         self,
         *,
-        key_store: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_keystore.client.KeyStore",
+        key_store: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client.KeyStore",
         key_source: BeaconKeySource,
         standard_beacons: list[StandardBeacon],
         version: int = 0,
@@ -2387,7 +2384,7 @@ class BeaconVersion:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconVersion":
         """Creates a BeaconVersion from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_keystore.client import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client import (
             KeyStore,
         )
 
@@ -2678,18 +2675,18 @@ class SearchConfig:
 
 class DynamoDbTableEncryptionConfig:
     logical_table_name: str
-    partition_key_name: str
-    sort_key_name: Optional[str]
+    partition_key_name: dict[str, Any]
+    sort_key_name: Optional[dict[str, Any]]
     search: Optional[SearchConfig]
     attribute_actions_on_encrypt: dict[str, str]
-    allowed_unsigned_attributes: Optional[list[str]]
+    allowed_unsigned_attributes: Optional[dict[str, Any]]
     allowed_unsigned_attribute_prefix: Optional[str]
     algorithm_suite_id: Optional[str]
     keyring: Optional[
-        "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
+        "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
     ]
     cmm: Optional[
-        "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+        "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     ]
     legacy_override: Optional[LegacyOverride]
     plaintext_override: Optional[str]
@@ -2698,18 +2695,18 @@ class DynamoDbTableEncryptionConfig:
         self,
         *,
         logical_table_name: str,
-        partition_key_name: str,
+        partition_key_name: dict[str, Any],
         attribute_actions_on_encrypt: dict[str, str],
-        sort_key_name: Optional[str] = None,
+        sort_key_name: Optional[dict[str, Any]] = None,
         search: Optional[SearchConfig] = None,
-        allowed_unsigned_attributes: Optional[list[str]] = None,
+        allowed_unsigned_attributes: Optional[dict[str, Any]] = None,
         allowed_unsigned_attribute_prefix: Optional[str] = None,
         algorithm_suite_id: Optional[str] = None,
         keyring: Optional[
-            "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
+            "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
         ] = None,
         cmm: Optional[
-            "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+            "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
         ] = None,
         legacy_override: Optional[LegacyOverride] = None,
         plaintext_override: Optional[str] = None,
@@ -2841,10 +2838,10 @@ class DynamoDbTableEncryptionConfig:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DynamoDbTableEncryptionConfig":
         """Creates a DynamoDbTableEncryptionConfig from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             Keyring,
         )
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             CryptographicMaterialsManager,
         )
 

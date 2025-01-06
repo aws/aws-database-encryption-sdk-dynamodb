@@ -143,7 +143,9 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
                && output.value.branchKeyIdSupplier.ValidState()
                && output.value.branchKeyIdSupplier.Modifies !! {History}
                && fresh(output.value.branchKeyIdSupplier)
-               && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+               && fresh ( output.value.branchKeyIdSupplier.Modifies
+                          - Modifies - {History}
+                          - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
 
@@ -475,7 +477,16 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     | CollectionOfErrors(list: seq<Error>, nameonly message: string)
       // The Opaque error, used for native, extern, wrapped or unknown errors
     | Opaque(obj: object)
-  type OpaqueError = e: Error | e.Opaque? witness *
+      // A better Opaque, with a visible string representation.
+    | OpaqueWithText(obj: object, objMessage : string)
+  type OpaqueError = e: Error | e.Opaque? || e.OpaqueWithText? witness *
+  // This dummy subset type is included to make sure Dafny
+  // always generates a _ExternBase___default.java class.
+  type DummySubsetType = x: int | IsDummySubsetType(x) witness 1
+  predicate method IsDummySubsetType(x: int) {
+    0 < x
+  }
+
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
 {
@@ -535,7 +546,9 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
                && output.value.branchKeyIdSupplier.ValidState()
                && output.value.branchKeyIdSupplier.Modifies !! {History}
                && fresh(output.value.branchKeyIdSupplier)
-               && fresh ( output.value.branchKeyIdSupplier.Modifies - Modifies - {History} - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+               && fresh ( output.value.branchKeyIdSupplier.Modifies
+                          - Modifies - {History}
+                          - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
       ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
       ensures History.CreateDynamoDbEncryptionBranchKeyIdSupplier == old(History.CreateDynamoDbEncryptionBranchKeyIdSupplier) + [DafnyCallEvent(input, output)]
     {
@@ -592,7 +605,9 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
       && ( output.Success? ==>
              && output.value.branchKeyIdSupplier.ValidState()
              && fresh(output.value.branchKeyIdSupplier)
-             && fresh ( output.value.branchKeyIdSupplier.Modifies - ModifiesInternalConfig(config) - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
+             && fresh ( output.value.branchKeyIdSupplier.Modifies
+                        - ModifiesInternalConfig(config)
+                        - input.ddbKeyBranchKeyIdSupplier.Modifies ) )
     ensures CreateDynamoDbEncryptionBranchKeyIdSupplierEnsuresPublicly(input, output)
 
 

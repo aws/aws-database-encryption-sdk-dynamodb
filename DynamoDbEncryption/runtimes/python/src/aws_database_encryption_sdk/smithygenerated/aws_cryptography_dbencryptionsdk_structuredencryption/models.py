@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-import aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references
+import aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references
 from typing import Any, Dict, List, Optional, Union
 
-from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.models import (
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.models import (
     EncryptedDataKey,
 )
 
@@ -317,7 +317,7 @@ class CryptoItem:
 class DecryptPathStructureInput:
     table_name: str
     encrypted_structure: list[AuthItem]
-    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+    cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     encryption_context: Optional[dict[str, str]]
 
     def __init__(
@@ -325,7 +325,7 @@ class DecryptPathStructureInput:
         *,
         table_name: str,
         encrypted_structure: list[AuthItem],
-        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
+        cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         encryption_context: Optional[dict[str, str]] = None,
     ):
         self.table_name = table_name
@@ -349,7 +349,7 @@ class DecryptPathStructureInput:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptPathStructureInput":
         """Creates a DecryptPathStructureInput from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             CryptographicMaterialsManager,
         )
 
@@ -516,7 +516,7 @@ class DecryptStructureInput:
     table_name: str
     encrypted_structure: dict[str, StructuredDataTerminal]
     authenticate_schema: dict[str, str]
-    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+    cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     encryption_context: Optional[dict[str, str]]
 
     def __init__(
@@ -525,7 +525,7 @@ class DecryptStructureInput:
         table_name: str,
         encrypted_structure: dict[str, StructuredDataTerminal],
         authenticate_schema: dict[str, str],
-        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
+        cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         encryption_context: Optional[dict[str, str]] = None,
     ):
         self.table_name = table_name
@@ -553,7 +553,7 @@ class DecryptStructureInput:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DecryptStructureInput":
         """Creates a DecryptStructureInput from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             CryptographicMaterialsManager,
         )
 
@@ -669,7 +669,7 @@ class DecryptStructureOutput:
 class EncryptPathStructureInput:
     table_name: str
     plaintext_structure: list[CryptoItem]
-    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+    cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     algorithm_suite_id: Optional[str]
     encryption_context: Optional[dict[str, str]]
 
@@ -678,7 +678,7 @@ class EncryptPathStructureInput:
         *,
         table_name: str,
         plaintext_structure: list[CryptoItem],
-        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
+        cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         algorithm_suite_id: Optional[str] = None,
         encryption_context: Optional[dict[str, str]] = None,
     ):
@@ -707,7 +707,7 @@ class EncryptPathStructureInput:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptPathStructureInput":
         """Creates a EncryptPathStructureInput from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             CryptographicMaterialsManager,
         )
 
@@ -811,7 +811,7 @@ class EncryptStructureInput:
     table_name: str
     plaintext_structure: dict[str, StructuredDataTerminal]
     crypto_schema: dict[str, str]
-    cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+    cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
     algorithm_suite_id: Optional[str]
     encryption_context: Optional[dict[str, str]]
 
@@ -821,7 +821,7 @@ class EncryptStructureInput:
         table_name: str,
         plaintext_structure: dict[str, StructuredDataTerminal],
         crypto_schema: dict[str, str],
-        cmm: "aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
+        cmm: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager",
         algorithm_suite_id: Optional[str] = None,
         encryption_context: Optional[dict[str, str]] = None,
     ):
@@ -854,7 +854,7 @@ class EncryptStructureInput:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptStructureInput":
         """Creates a EncryptStructureInput from a dictionary."""
-        from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.references import (
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             CryptographicMaterialsManager,
         )
 

@@ -2,37 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-from typing import Any, Dict
-
-from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.models import (
-    AttributeValue,
-    BatchExecuteStatementInput,
-    BatchExecuteStatementOutput,
-    BatchGetItemInput,
-    BatchGetItemOutput,
-    BatchWriteItemInput,
-    BatchWriteItemOutput,
-    DeleteItemInput,
-    DeleteItemOutput,
-    ExecuteStatementInput,
-    ExecuteStatementOutput,
-    ExecuteTransactionInput,
-    ExecuteTransactionOutput,
-    GetItemInput,
-    GetItemOutput,
-    PutItemInput,
-    PutItemOutput,
-    QueryInput,
-    QueryOutput,
-    ScanInput,
-    ScanOutput,
-    TransactGetItemsInput,
-    TransactGetItemsOutput,
-    TransactWriteItemsInput,
-    TransactWriteItemsOutput,
-    UpdateItemInput,
-    UpdateItemOutput,
-)
+from typing import Any, Dict, Optional
 
 
 class ResolveAttributesOutput:
@@ -90,15 +60,15 @@ class ResolveAttributesOutput:
 
 
 class ResolveAttributesInput:
-    table_name: str
-    item: "dict[str, AttributeValue]"
+    table_name: dict[str, Any]
+    item: dict[str, Any]
     version: int
 
     def __init__(
         self,
         *,
-        table_name: str,
-        item: "dict[str, AttributeValue]",
+        table_name: dict[str, Any],
+        item: dict[str, Any],
         version: int = 0,
     ):
         """
@@ -171,12 +141,12 @@ class ResolveAttributesInput:
 
 
 class ExecuteStatementInputTransformInput:
-    sdk_input: "ExecuteStatementInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "ExecuteStatementInput",
+        sdk_input: dict[str, Any],
     ):
         self.sdk_input = sdk_input
 
@@ -190,7 +160,7 @@ class ExecuteStatementInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementInputTransformInput":
         """Creates a ExecuteStatementInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": ExecuteStatementInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return ExecuteStatementInputTransformInput(**kwargs)
@@ -212,12 +182,12 @@ class ExecuteStatementInputTransformInput:
 
 
 class ExecuteStatementInputTransformOutput:
-    transformed_input: "ExecuteStatementInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "ExecuteStatementInput",
+        transformed_input: dict[str, Any],
     ):
         self.transformed_input = transformed_input
 
@@ -232,9 +202,7 @@ class ExecuteStatementInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementInputTransformOutput":
         """Creates a ExecuteStatementInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": ExecuteStatementInput.from_dict(
-                d["transformed_input"]
-            ),
+            "transformed_input": d["transformed_input"],
         }
 
         return ExecuteStatementInputTransformOutput(**kwargs)
@@ -256,12 +224,12 @@ class ExecuteStatementInputTransformOutput:
 
 
 class GetItemInputTransformInput:
-    sdk_input: "GetItemInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "GetItemInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>GetItem</code>
@@ -279,7 +247,7 @@ class GetItemInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "GetItemInputTransformInput":
         """Creates a GetItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": GetItemInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return GetItemInputTransformInput(**kwargs)
@@ -301,12 +269,12 @@ class GetItemInputTransformInput:
 
 
 class GetItemInputTransformOutput:
-    transformed_input: "GetItemInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "GetItemInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>GetItem</code>
@@ -324,7 +292,7 @@ class GetItemInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "GetItemInputTransformOutput":
         """Creates a GetItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": GetItemInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return GetItemInputTransformOutput(**kwargs)
@@ -346,12 +314,12 @@ class GetItemInputTransformOutput:
 
 
 class GetItemOutputTransformOutput:
-    transformed_output: "GetItemOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "GetItemOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>GetItem</code>
@@ -369,7 +337,7 @@ class GetItemOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "GetItemOutputTransformOutput":
         """Creates a GetItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": GetItemOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return GetItemOutputTransformOutput(**kwargs)
@@ -391,12 +359,12 @@ class GetItemOutputTransformOutput:
 
 
 class BatchExecuteStatementInputTransformInput:
-    sdk_input: "BatchExecuteStatementInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "BatchExecuteStatementInput",
+        sdk_input: dict[str, Any],
     ):
         self.sdk_input = sdk_input
 
@@ -412,7 +380,7 @@ class BatchExecuteStatementInputTransformInput:
         """Creates a BatchExecuteStatementInputTransformInput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": BatchExecuteStatementInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return BatchExecuteStatementInputTransformInput(**kwargs)
@@ -434,12 +402,12 @@ class BatchExecuteStatementInputTransformInput:
 
 
 class BatchExecuteStatementInputTransformOutput:
-    transformed_input: "BatchExecuteStatementInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "BatchExecuteStatementInput",
+        transformed_input: dict[str, Any],
     ):
         self.transformed_input = transformed_input
 
@@ -455,9 +423,7 @@ class BatchExecuteStatementInputTransformOutput:
         """Creates a BatchExecuteStatementInputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": BatchExecuteStatementInput.from_dict(
-                d["transformed_input"]
-            ),
+            "transformed_input": d["transformed_input"],
         }
 
         return BatchExecuteStatementInputTransformOutput(**kwargs)
@@ -479,12 +445,12 @@ class BatchExecuteStatementInputTransformOutput:
 
 
 class BatchExecuteStatementOutputTransformOutput:
-    transformed_output: "BatchExecuteStatementOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "BatchExecuteStatementOutput",
+        transformed_output: dict[str, Any],
     ):
         self.transformed_output = transformed_output
 
@@ -500,9 +466,7 @@ class BatchExecuteStatementOutputTransformOutput:
         """Creates a BatchExecuteStatementOutputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": BatchExecuteStatementOutput.from_dict(
-                d["transformed_output"]
-            ),
+            "transformed_output": d["transformed_output"],
         }
 
         return BatchExecuteStatementOutputTransformOutput(**kwargs)
@@ -524,12 +488,12 @@ class BatchExecuteStatementOutputTransformOutput:
 
 
 class ExecuteTransactionInputTransformInput:
-    sdk_input: "ExecuteTransactionInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "ExecuteTransactionInput",
+        sdk_input: dict[str, Any],
     ):
         self.sdk_input = sdk_input
 
@@ -545,7 +509,7 @@ class ExecuteTransactionInputTransformInput:
         """Creates a ExecuteTransactionInputTransformInput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": ExecuteTransactionInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return ExecuteTransactionInputTransformInput(**kwargs)
@@ -567,12 +531,12 @@ class ExecuteTransactionInputTransformInput:
 
 
 class ExecuteTransactionInputTransformOutput:
-    transformed_input: "ExecuteTransactionInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "ExecuteTransactionInput",
+        transformed_input: dict[str, Any],
     ):
         self.transformed_input = transformed_input
 
@@ -588,9 +552,7 @@ class ExecuteTransactionInputTransformOutput:
         """Creates a ExecuteTransactionInputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": ExecuteTransactionInput.from_dict(
-                d["transformed_input"]
-            ),
+            "transformed_input": d["transformed_input"],
         }
 
         return ExecuteTransactionInputTransformOutput(**kwargs)
@@ -612,12 +574,12 @@ class ExecuteTransactionInputTransformOutput:
 
 
 class ExecuteTransactionOutputTransformOutput:
-    transformed_output: "ExecuteTransactionOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "ExecuteTransactionOutput",
+        transformed_output: dict[str, Any],
     ):
         self.transformed_output = transformed_output
 
@@ -633,9 +595,7 @@ class ExecuteTransactionOutputTransformOutput:
         """Creates a ExecuteTransactionOutputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": ExecuteTransactionOutput.from_dict(
-                d["transformed_output"]
-            ),
+            "transformed_output": d["transformed_output"],
         }
 
         return ExecuteTransactionOutputTransformOutput(**kwargs)
@@ -657,12 +617,12 @@ class ExecuteTransactionOutputTransformOutput:
 
 
 class TransactGetItemsOutputTransformOutput:
-    transformed_output: "TransactGetItemsOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "TransactGetItemsOutput",
+        transformed_output: dict[str, Any],
     ):
         self.transformed_output = transformed_output
 
@@ -678,9 +638,7 @@ class TransactGetItemsOutputTransformOutput:
         """Creates a TransactGetItemsOutputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": TransactGetItemsOutput.from_dict(
-                d["transformed_output"]
-            ),
+            "transformed_output": d["transformed_output"],
         }
 
         return TransactGetItemsOutputTransformOutput(**kwargs)
@@ -702,12 +660,12 @@ class TransactGetItemsOutputTransformOutput:
 
 
 class BatchGetItemInputTransformInput:
-    sdk_input: "BatchGetItemInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "BatchGetItemInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>BatchGetItem</code>
@@ -725,7 +683,7 @@ class BatchGetItemInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemInputTransformInput":
         """Creates a BatchGetItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": BatchGetItemInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return BatchGetItemInputTransformInput(**kwargs)
@@ -747,12 +705,12 @@ class BatchGetItemInputTransformInput:
 
 
 class BatchGetItemInputTransformOutput:
-    transformed_input: "BatchGetItemInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "BatchGetItemInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>BatchGetItem</code>
@@ -770,7 +728,7 @@ class BatchGetItemInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemInputTransformOutput":
         """Creates a BatchGetItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": BatchGetItemInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return BatchGetItemInputTransformOutput(**kwargs)
@@ -792,12 +750,12 @@ class BatchGetItemInputTransformOutput:
 
 
 class TransactGetItemsInputTransformInput:
-    sdk_input: "TransactGetItemsInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "TransactGetItemsInput",
+        sdk_input: dict[str, Any],
     ):
         self.sdk_input = sdk_input
 
@@ -811,7 +769,7 @@ class TransactGetItemsInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsInputTransformInput":
         """Creates a TransactGetItemsInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": TransactGetItemsInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return TransactGetItemsInputTransformInput(**kwargs)
@@ -833,12 +791,12 @@ class TransactGetItemsInputTransformInput:
 
 
 class TransactGetItemsInputTransformOutput:
-    transformed_input: "TransactGetItemsInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "TransactGetItemsInput",
+        transformed_input: dict[str, Any],
     ):
         self.transformed_input = transformed_input
 
@@ -853,9 +811,7 @@ class TransactGetItemsInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsInputTransformOutput":
         """Creates a TransactGetItemsInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": TransactGetItemsInput.from_dict(
-                d["transformed_input"]
-            ),
+            "transformed_input": d["transformed_input"],
         }
 
         return TransactGetItemsInputTransformOutput(**kwargs)
@@ -877,12 +833,12 @@ class TransactGetItemsInputTransformOutput:
 
 
 class TransactWriteItemsOutputTransformOutput:
-    transformed_output: "TransactWriteItemsOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "TransactWriteItemsOutput",
+        transformed_output: dict[str, Any],
     ):
         self.transformed_output = transformed_output
 
@@ -898,9 +854,7 @@ class TransactWriteItemsOutputTransformOutput:
         """Creates a TransactWriteItemsOutputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": TransactWriteItemsOutput.from_dict(
-                d["transformed_output"]
-            ),
+            "transformed_output": d["transformed_output"],
         }
 
         return TransactWriteItemsOutputTransformOutput(**kwargs)
@@ -922,14 +876,14 @@ class TransactWriteItemsOutputTransformOutput:
 
 
 class GetItemOutputTransformInput:
-    sdk_output: "GetItemOutput"
-    original_input: "GetItemInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "GetItemOutput",
-        original_input: "GetItemInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>GetItem</code>
@@ -951,8 +905,8 @@ class GetItemOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "GetItemOutputTransformInput":
         """Creates a GetItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": GetItemOutput.from_dict(d["sdk_output"]),
-            "original_input": GetItemInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return GetItemOutputTransformInput(**kwargs)
@@ -978,12 +932,12 @@ class GetItemOutputTransformInput:
 
 
 class DeleteItemOutputTransformOutput:
-    transformed_output: "DeleteItemOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "DeleteItemOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>DeleteItem</code>
@@ -1001,7 +955,7 @@ class DeleteItemOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "DeleteItemOutputTransformOutput":
         """Creates a DeleteItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": DeleteItemOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return DeleteItemOutputTransformOutput(**kwargs)
@@ -1023,12 +977,12 @@ class DeleteItemOutputTransformOutput:
 
 
 class ExecuteStatementOutputTransformOutput:
-    transformed_output: "ExecuteStatementOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "ExecuteStatementOutput",
+        transformed_output: dict[str, Any],
     ):
         self.transformed_output = transformed_output
 
@@ -1044,9 +998,7 @@ class ExecuteStatementOutputTransformOutput:
         """Creates a ExecuteStatementOutputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": ExecuteStatementOutput.from_dict(
-                d["transformed_output"]
-            ),
+            "transformed_output": d["transformed_output"],
         }
 
         return ExecuteStatementOutputTransformOutput(**kwargs)
@@ -1068,12 +1020,12 @@ class ExecuteStatementOutputTransformOutput:
 
 
 class PutItemOutputTransformOutput:
-    transformed_output: "PutItemOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "PutItemOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>PutItem</code>
@@ -1091,7 +1043,7 @@ class PutItemOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "PutItemOutputTransformOutput":
         """Creates a PutItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": PutItemOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return PutItemOutputTransformOutput(**kwargs)
@@ -1113,12 +1065,12 @@ class PutItemOutputTransformOutput:
 
 
 class QueryOutputTransformOutput:
-    transformed_output: "QueryOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "QueryOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>Query</code>
@@ -1136,7 +1088,7 @@ class QueryOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "QueryOutputTransformOutput":
         """Creates a QueryOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": QueryOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return QueryOutputTransformOutput(**kwargs)
@@ -1158,12 +1110,12 @@ class QueryOutputTransformOutput:
 
 
 class ScanOutputTransformOutput:
-    transformed_output: "ScanOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "ScanOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>Scan</code>
@@ -1181,7 +1133,7 @@ class ScanOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "ScanOutputTransformOutput":
         """Creates a ScanOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": ScanOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return ScanOutputTransformOutput(**kwargs)
@@ -1203,12 +1155,12 @@ class ScanOutputTransformOutput:
 
 
 class UpdateItemOutputTransformOutput:
-    transformed_output: "UpdateItemOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "UpdateItemOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of an
@@ -1226,7 +1178,7 @@ class UpdateItemOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "UpdateItemOutputTransformOutput":
         """Creates a UpdateItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": UpdateItemOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return UpdateItemOutputTransformOutput(**kwargs)
@@ -1248,14 +1200,14 @@ class UpdateItemOutputTransformOutput:
 
 
 class BatchExecuteStatementOutputTransformInput:
-    sdk_output: "BatchExecuteStatementOutput"
-    original_input: "BatchExecuteStatementInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "BatchExecuteStatementOutput",
-        original_input: "BatchExecuteStatementInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1273,8 +1225,8 @@ class BatchExecuteStatementOutputTransformInput:
         """Creates a BatchExecuteStatementOutputTransformInput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": BatchExecuteStatementOutput.from_dict(d["sdk_output"]),
-            "original_input": BatchExecuteStatementInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return BatchExecuteStatementOutputTransformInput(**kwargs)
@@ -1300,14 +1252,14 @@ class BatchExecuteStatementOutputTransformInput:
 
 
 class ExecuteTransactionOutputTransformInput:
-    sdk_output: "ExecuteTransactionOutput"
-    original_input: "ExecuteTransactionInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "ExecuteTransactionOutput",
-        original_input: "ExecuteTransactionInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1325,8 +1277,8 @@ class ExecuteTransactionOutputTransformInput:
         """Creates a ExecuteTransactionOutputTransformInput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": ExecuteTransactionOutput.from_dict(d["sdk_output"]),
-            "original_input": ExecuteTransactionInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return ExecuteTransactionOutputTransformInput(**kwargs)
@@ -1352,12 +1304,12 @@ class ExecuteTransactionOutputTransformInput:
 
 
 class BatchGetItemOutputTransformOutput:
-    transformed_output: "BatchGetItemOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "BatchGetItemOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a
@@ -1375,7 +1327,7 @@ class BatchGetItemOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemOutputTransformOutput":
         """Creates a BatchGetItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": BatchGetItemOutput.from_dict(d["transformed_output"]),
+            "transformed_output": d["transformed_output"],
         }
 
         return BatchGetItemOutputTransformOutput(**kwargs)
@@ -1397,14 +1349,14 @@ class BatchGetItemOutputTransformOutput:
 
 
 class TransactGetItemsOutputTransformInput:
-    sdk_output: "TransactGetItemsOutput"
-    original_input: "TransactGetItemsInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "TransactGetItemsOutput",
-        original_input: "TransactGetItemsInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1421,8 +1373,8 @@ class TransactGetItemsOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "TransactGetItemsOutputTransformInput":
         """Creates a TransactGetItemsOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": TransactGetItemsOutput.from_dict(d["sdk_output"]),
-            "original_input": TransactGetItemsInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return TransactGetItemsOutputTransformInput(**kwargs)
@@ -1448,14 +1400,14 @@ class TransactGetItemsOutputTransformInput:
 
 
 class ExecuteStatementOutputTransformInput:
-    sdk_output: "ExecuteStatementOutput"
-    original_input: "ExecuteStatementInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "ExecuteStatementOutput",
-        original_input: "ExecuteStatementInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1472,8 +1424,8 @@ class ExecuteStatementOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "ExecuteStatementOutputTransformInput":
         """Creates a ExecuteStatementOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": ExecuteStatementOutput.from_dict(d["sdk_output"]),
-            "original_input": ExecuteStatementInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return ExecuteStatementOutputTransformInput(**kwargs)
@@ -1499,12 +1451,12 @@ class ExecuteStatementOutputTransformInput:
 
 
 class ScanInputTransformInput:
-    sdk_input: "ScanInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "ScanInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>Scan</code> operation.</p>
@@ -1521,7 +1473,7 @@ class ScanInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "ScanInputTransformInput":
         """Creates a ScanInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": ScanInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return ScanInputTransformInput(**kwargs)
@@ -1543,12 +1495,12 @@ class ScanInputTransformInput:
 
 
 class ScanInputTransformOutput:
-    transformed_input: "ScanInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "ScanInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>Scan</code>
@@ -1566,7 +1518,7 @@ class ScanInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "ScanInputTransformOutput":
         """Creates a ScanInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": ScanInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return ScanInputTransformOutput(**kwargs)
@@ -1588,12 +1540,12 @@ class ScanInputTransformOutput:
 
 
 class BatchWriteItemInputTransformInput:
-    sdk_input: "BatchWriteItemInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "BatchWriteItemInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>BatchWriteItem</code>
@@ -1611,7 +1563,7 @@ class BatchWriteItemInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemInputTransformInput":
         """Creates a BatchWriteItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": BatchWriteItemInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return BatchWriteItemInputTransformInput(**kwargs)
@@ -1633,12 +1585,12 @@ class BatchWriteItemInputTransformInput:
 
 
 class BatchWriteItemInputTransformOutput:
-    transformed_input: "BatchWriteItemInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "BatchWriteItemInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a
@@ -1656,7 +1608,7 @@ class BatchWriteItemInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemInputTransformOutput":
         """Creates a BatchWriteItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": BatchWriteItemInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return BatchWriteItemInputTransformOutput(**kwargs)
@@ -1678,14 +1630,14 @@ class BatchWriteItemInputTransformOutput:
 
 
 class BatchGetItemOutputTransformInput:
-    sdk_output: "BatchGetItemOutput"
-    original_input: "BatchGetItemInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "BatchGetItemOutput",
-        original_input: "BatchGetItemInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>BatchGetItem</code>
@@ -1707,8 +1659,8 @@ class BatchGetItemOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "BatchGetItemOutputTransformInput":
         """Creates a BatchGetItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": BatchGetItemOutput.from_dict(d["sdk_output"]),
-            "original_input": BatchGetItemInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return BatchGetItemOutputTransformInput(**kwargs)
@@ -1734,12 +1686,12 @@ class BatchGetItemOutputTransformInput:
 
 
 class DeleteItemInputTransformInput:
-    sdk_input: "DeleteItemInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "DeleteItemInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>DeleteItem</code>
@@ -1757,7 +1709,7 @@ class DeleteItemInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "DeleteItemInputTransformInput":
         """Creates a DeleteItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": DeleteItemInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return DeleteItemInputTransformInput(**kwargs)
@@ -1779,12 +1731,12 @@ class DeleteItemInputTransformInput:
 
 
 class DeleteItemInputTransformOutput:
-    transformed_input: "DeleteItemInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "DeleteItemInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>DeleteItem</code>
@@ -1802,7 +1754,7 @@ class DeleteItemInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "DeleteItemInputTransformOutput":
         """Creates a DeleteItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": DeleteItemInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return DeleteItemInputTransformOutput(**kwargs)
@@ -1824,12 +1776,12 @@ class DeleteItemInputTransformOutput:
 
 
 class PutItemInputTransformInput:
-    sdk_input: "PutItemInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "PutItemInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>PutItem</code>
@@ -1847,7 +1799,7 @@ class PutItemInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "PutItemInputTransformInput":
         """Creates a PutItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": PutItemInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return PutItemInputTransformInput(**kwargs)
@@ -1869,12 +1821,12 @@ class PutItemInputTransformInput:
 
 
 class PutItemInputTransformOutput:
-    transformed_input: "PutItemInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "PutItemInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>PutItem</code>
@@ -1892,7 +1844,7 @@ class PutItemInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "PutItemInputTransformOutput":
         """Creates a PutItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": PutItemInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return PutItemInputTransformOutput(**kwargs)
@@ -1914,12 +1866,12 @@ class PutItemInputTransformOutput:
 
 
 class QueryInputTransformInput:
-    sdk_input: "QueryInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "QueryInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>Query</code> operation.</p>
@@ -1936,7 +1888,7 @@ class QueryInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "QueryInputTransformInput":
         """Creates a QueryInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": QueryInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return QueryInputTransformInput(**kwargs)
@@ -1958,12 +1910,12 @@ class QueryInputTransformInput:
 
 
 class QueryInputTransformOutput:
-    transformed_input: "QueryInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "QueryInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>Query</code>
@@ -1981,7 +1933,7 @@ class QueryInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "QueryInputTransformOutput":
         """Creates a QueryInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": QueryInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return QueryInputTransformOutput(**kwargs)
@@ -2003,12 +1955,12 @@ class QueryInputTransformOutput:
 
 
 class BatchWriteItemOutputTransformOutput:
-    transformed_output: "BatchWriteItemOutput"
+    transformed_output: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_output: "BatchWriteItemOutput",
+        transformed_output: dict[str, Any],
     ):
         """
         :param transformed_output: <p>Represents the output of a
@@ -2026,9 +1978,7 @@ class BatchWriteItemOutputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemOutputTransformOutput":
         """Creates a BatchWriteItemOutputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_output": BatchWriteItemOutput.from_dict(
-                d["transformed_output"]
-            ),
+            "transformed_output": d["transformed_output"],
         }
 
         return BatchWriteItemOutputTransformOutput(**kwargs)
@@ -2050,14 +2000,14 @@ class BatchWriteItemOutputTransformOutput:
 
 
 class ScanOutputTransformInput:
-    sdk_output: "ScanOutput"
-    original_input: "ScanInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "ScanOutput",
-        original_input: "ScanInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>Scan</code>
@@ -2079,8 +2029,8 @@ class ScanOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "ScanOutputTransformInput":
         """Creates a ScanOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": ScanOutput.from_dict(d["sdk_output"]),
-            "original_input": ScanInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return ScanOutputTransformInput(**kwargs)
@@ -2106,12 +2056,12 @@ class ScanOutputTransformInput:
 
 
 class UpdateItemInputTransformInput:
-    sdk_input: "UpdateItemInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "UpdateItemInput",
+        sdk_input: dict[str, Any],
     ):
         """
         :param sdk_input: <p>Represents the input of an <code>UpdateItem</code>
@@ -2129,7 +2079,7 @@ class UpdateItemInputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "UpdateItemInputTransformInput":
         """Creates a UpdateItemInputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": UpdateItemInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return UpdateItemInputTransformInput(**kwargs)
@@ -2151,12 +2101,12 @@ class UpdateItemInputTransformInput:
 
 
 class UpdateItemInputTransformOutput:
-    transformed_input: "UpdateItemInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "UpdateItemInput",
+        transformed_input: dict[str, Any],
     ):
         """
         :param transformed_input: <p>Represents the input of an <code>UpdateItem</code>
@@ -2174,7 +2124,7 @@ class UpdateItemInputTransformOutput:
     def from_dict(d: Dict[str, Any]) -> "UpdateItemInputTransformOutput":
         """Creates a UpdateItemInputTransformOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": UpdateItemInput.from_dict(d["transformed_input"]),
+            "transformed_input": d["transformed_input"],
         }
 
         return UpdateItemInputTransformOutput(**kwargs)
@@ -2196,14 +2146,14 @@ class UpdateItemInputTransformOutput:
 
 
 class DeleteItemOutputTransformInput:
-    sdk_output: "DeleteItemOutput"
-    original_input: "DeleteItemInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "DeleteItemOutput",
-        original_input: "DeleteItemInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>DeleteItem</code>
@@ -2225,8 +2175,8 @@ class DeleteItemOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "DeleteItemOutputTransformInput":
         """Creates a DeleteItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": DeleteItemOutput.from_dict(d["sdk_output"]),
-            "original_input": DeleteItemInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return DeleteItemOutputTransformInput(**kwargs)
@@ -2252,14 +2202,14 @@ class DeleteItemOutputTransformInput:
 
 
 class PutItemOutputTransformInput:
-    sdk_output: "PutItemOutput"
-    original_input: "PutItemInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "PutItemOutput",
-        original_input: "PutItemInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>PutItem</code>
@@ -2281,8 +2231,8 @@ class PutItemOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "PutItemOutputTransformInput":
         """Creates a PutItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": PutItemOutput.from_dict(d["sdk_output"]),
-            "original_input": PutItemInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return PutItemOutputTransformInput(**kwargs)
@@ -2308,14 +2258,14 @@ class PutItemOutputTransformInput:
 
 
 class QueryOutputTransformInput:
-    sdk_output: "QueryOutput"
-    original_input: "QueryInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "QueryOutput",
-        original_input: "QueryInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>Query</code>
@@ -2337,8 +2287,8 @@ class QueryOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "QueryOutputTransformInput":
         """Creates a QueryOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": QueryOutput.from_dict(d["sdk_output"]),
-            "original_input": QueryInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return QueryOutputTransformInput(**kwargs)
@@ -2364,14 +2314,14 @@ class QueryOutputTransformInput:
 
 
 class UpdateItemOutputTransformInput:
-    sdk_output: "UpdateItemOutput"
-    original_input: "UpdateItemInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "UpdateItemOutput",
-        original_input: "UpdateItemInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of an <code>UpdateItem</code>
@@ -2393,8 +2343,8 @@ class UpdateItemOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "UpdateItemOutputTransformInput":
         """Creates a UpdateItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": UpdateItemOutput.from_dict(d["sdk_output"]),
-            "original_input": UpdateItemInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return UpdateItemOutputTransformInput(**kwargs)
@@ -2420,14 +2370,14 @@ class UpdateItemOutputTransformInput:
 
 
 class BatchWriteItemOutputTransformInput:
-    sdk_output: "BatchWriteItemOutput"
-    original_input: "BatchWriteItemInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "BatchWriteItemOutput",
-        original_input: "BatchWriteItemInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>BatchWriteItem</code>
@@ -2449,8 +2399,8 @@ class BatchWriteItemOutputTransformInput:
     def from_dict(d: Dict[str, Any]) -> "BatchWriteItemOutputTransformInput":
         """Creates a BatchWriteItemOutputTransformInput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": BatchWriteItemOutput.from_dict(d["sdk_output"]),
-            "original_input": BatchWriteItemInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return BatchWriteItemOutputTransformInput(**kwargs)
@@ -2476,12 +2426,12 @@ class BatchWriteItemOutputTransformInput:
 
 
 class TransactWriteItemsInputTransformInput:
-    sdk_input: "TransactWriteItemsInput"
+    sdk_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_input: "TransactWriteItemsInput",
+        sdk_input: dict[str, Any],
     ):
         self.sdk_input = sdk_input
 
@@ -2497,7 +2447,7 @@ class TransactWriteItemsInputTransformInput:
         """Creates a TransactWriteItemsInputTransformInput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_input": TransactWriteItemsInput.from_dict(d["sdk_input"]),
+            "sdk_input": d["sdk_input"],
         }
 
         return TransactWriteItemsInputTransformInput(**kwargs)
@@ -2519,12 +2469,12 @@ class TransactWriteItemsInputTransformInput:
 
 
 class TransactWriteItemsInputTransformOutput:
-    transformed_input: "TransactWriteItemsInput"
+    transformed_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        transformed_input: "TransactWriteItemsInput",
+        transformed_input: dict[str, Any],
     ):
         self.transformed_input = transformed_input
 
@@ -2540,9 +2490,7 @@ class TransactWriteItemsInputTransformOutput:
         """Creates a TransactWriteItemsInputTransformOutput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "transformed_input": TransactWriteItemsInput.from_dict(
-                d["transformed_input"]
-            ),
+            "transformed_input": d["transformed_input"],
         }
 
         return TransactWriteItemsInputTransformOutput(**kwargs)
@@ -2564,14 +2512,14 @@ class TransactWriteItemsInputTransformOutput:
 
 
 class TransactWriteItemsOutputTransformInput:
-    sdk_output: "TransactWriteItemsOutput"
-    original_input: "TransactWriteItemsInput"
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
 
     def __init__(
         self,
         *,
-        sdk_output: "TransactWriteItemsOutput",
-        original_input: "TransactWriteItemsInput",
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -2589,8 +2537,8 @@ class TransactWriteItemsOutputTransformInput:
         """Creates a TransactWriteItemsOutputTransformInput from a
         dictionary."""
         kwargs: Dict[str, Any] = {
-            "sdk_output": TransactWriteItemsOutput.from_dict(d["sdk_output"]),
-            "original_input": TransactWriteItemsInput.from_dict(d["original_input"]),
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
         }
 
         return TransactWriteItemsOutputTransformInput(**kwargs)

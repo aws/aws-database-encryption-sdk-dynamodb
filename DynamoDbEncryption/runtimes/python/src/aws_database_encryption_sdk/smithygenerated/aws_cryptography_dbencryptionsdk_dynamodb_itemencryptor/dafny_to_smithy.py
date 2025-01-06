@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-import aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy
+import aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy
 import aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk
 import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy
 import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy
@@ -50,11 +50,11 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_ParsedHeader(dafny_i
             )
             for (key, value) in dafny_input.attributeActionsOnEncrypt.items
         },
-        algorithm_suite_id=aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
+        algorithm_suite_id=aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
             dafny_input.algorithmSuiteId
         ),
         encrypted_data_keys=[
-            aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_EncryptedDataKey(
+            aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_EncryptedDataKey(
                 list_element
             )
             for list_element in dafny_input.encryptedDataKeys
@@ -126,6 +126,16 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemOutput(
     )
 
 
+def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_AtomicPrimitivesReference(
+    dafny_input,
+):
+    from aws_cryptography_primitives.smithygenerated.aws_cryptography_primitives.client import (
+        AwsCryptographicPrimitives,
+    )
+
+    return AwsCryptographicPrimitives(config=None, dafny_client=dafny_input)
+
+
 def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncryptorConfig(
     dafny_input,
 ):
@@ -180,7 +190,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         ),
         algorithm_suite_id=(
             (
-                aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
+                aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
                     dafny_input.algorithmSuiteId.value
                 )
             )
@@ -189,7 +199,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         ),
         keyring=(
             (
-                aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_KeyringReference(
+                aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_KeyringReference(
                     dafny_input.keyring.UnwrapOr(None)
                 )
             )
@@ -198,7 +208,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         ),
         cmm=(
             (
-                aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
+                aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
                     dafny_input.cmm.UnwrapOr(None)
                 )
             )
@@ -224,3 +234,13 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
             else None
         ),
     )
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_StructuredEncryptionReference(
+    dafny_input,
+):
+    from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.client import (
+        StructuredEncryption,
+    )
+
+    return StructuredEncryption(config=None, dafny_client=dafny_input)

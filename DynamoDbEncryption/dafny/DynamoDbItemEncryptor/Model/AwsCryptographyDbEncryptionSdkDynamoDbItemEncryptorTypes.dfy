@@ -98,8 +98,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencry
   datatype DynamoDbItemEncryptorConfig = | DynamoDbItemEncryptorConfig (
     nameonly logicalTableName: string ,
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
-    nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> := Option.None ,
     nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
+    nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> := Option.None ,
     nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> := Option.None ,
     nameonly allowedUnsignedAttributePrefix: Option<string> := Option.None ,
     nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
@@ -160,7 +160,16 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencry
     | CollectionOfErrors(list: seq<Error>, nameonly message: string)
       // The Opaque error, used for native, extern, wrapped or unknown errors
     | Opaque(obj: object)
-  type OpaqueError = e: Error | e.Opaque? witness *
+      // A better Opaque, with a visible string representation.
+    | OpaqueWithText(obj: object, objMessage : string)
+  type OpaqueError = e: Error | e.Opaque? || e.OpaqueWithText? witness *
+  // This dummy subset type is included to make sure Dafny
+  // always generates a _ExternBase___default.java class.
+  type DummySubsetType = x: int | IsDummySubsetType(x) witness 1
+  predicate method IsDummySubsetType(x: int) {
+    0 < x
+  }
+
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService
 {

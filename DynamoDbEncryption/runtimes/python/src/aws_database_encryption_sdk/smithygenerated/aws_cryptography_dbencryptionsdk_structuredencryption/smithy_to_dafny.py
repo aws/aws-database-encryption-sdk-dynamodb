@@ -3,7 +3,7 @@
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 from _dafny import Map, Seq
-import aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny
+import aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny
 from aws_database_encryption_sdk.internaldafny.generated.AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes import (
     AuthItem_AuthItem as DafnyAuthItem,
     AuthenticateAction_DO__NOT__SIGN,
@@ -82,13 +82,13 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(
                 for (key, value) in native_input.crypto_schema.items()
             }
         ),
-        cmm=aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
+        cmm=aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
             native_input.cmm
         ),
         algorithmSuiteId=(
             (
                 Option_Some(
-                    aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
+                    aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
                         native_input.algorithm_suite_id
                     )
                 )
@@ -183,7 +183,7 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(
                 for (key, value) in native_input.authenticate_schema.items()
             }
         ),
-        cmm=aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
+        cmm=aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
             native_input.cmm
         ),
         encryptionContext=(
@@ -238,13 +238,13 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureIn
                 for list_element in native_input.plaintext_structure
             ]
         ),
-        cmm=aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
+        cmm=aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
             native_input.cmm
         ),
         algorithmSuiteId=(
             (
                 Option_Some(
-                    aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
+                    aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
                         native_input.algorithm_suite_id
                     )
                 )
@@ -343,7 +343,7 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureIn
                 for list_element in native_input.encrypted_structure
             ]
         ),
-        cmm=aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
+        cmm=aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CryptographicMaterialsManagerReference(
             native_input.cmm
         ),
         encryptionContext=(
@@ -450,12 +450,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureOutput
 
 def aws_cryptography_dbencryptionsdk_structuredencryption_ParsedHeader(native_input):
     return DafnyParsedHeader(
-        algorithmSuiteId=aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
+        algorithmSuiteId=aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_DBEAlgorithmSuiteId(
             native_input.algorithm_suite_id
         ),
         encryptedDataKeys=Seq(
             [
-                aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_EncryptedDataKey(
+                aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_EncryptedDataKey(
                     list_element
                 )
                 for list_element in native_input.encrypted_data_keys
@@ -565,6 +565,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsOutp
             ]
         ),
     )
+
+
+def aws_cryptography_dbencryptionsdk_structuredencryption_AtomicPrimitivesReference(
+    native_input,
+):
+    return native_input._config.dafnyImplInterface.impl
 
 
 def aws_cryptography_dbencryptionsdk_structuredencryption_StructuredEncryptionConfig(

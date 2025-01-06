@@ -708,3 +708,27 @@ def aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesOutput
             }
         ),
     )
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_AwsCryptographicMaterialProvidersReference(
+    native_input,
+):
+    return native_input._config.dafnyImplInterface.impl
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_DynamoDbEncryptionReference(
+    native_input,
+):
+    return native_input._config.dafnyImplInterface.impl
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_DynamoDbItemEncryptorReference(
+    native_input,
+):
+    return native_input._config.dafnyImplInterface.impl
+
+
+def aws_cryptography_dbencryptionsdk_dynamodb_transforms_StructuredEncryptionReference(
+    native_input,
+):
+    return native_input._config.dafnyImplInterface.impl

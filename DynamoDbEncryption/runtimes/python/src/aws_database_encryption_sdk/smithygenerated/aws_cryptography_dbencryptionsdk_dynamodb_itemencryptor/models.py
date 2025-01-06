@@ -4,21 +4,18 @@
 
 from typing import Any, Dict, Optional
 
-from aws_cryptographic_materialproviders.smithygenerated.aws_cryptography_materialproviders.models import (
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.models import (
     EncryptedDataKey,
-)
-from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.models import (
-    AttributeValue,
 )
 
 
 class DecryptItemInput:
-    encrypted_item: "dict[str, AttributeValue]"
+    encrypted_item: dict[str, Any]
 
     def __init__(
         self,
         *,
-        encrypted_item: "dict[str, AttributeValue]",
+        encrypted_item: dict[str, Any],
     ):
         """Inputs for decrypting a DynamoDB Item.
 
@@ -58,12 +55,12 @@ class DecryptItemInput:
 
 
 class EncryptItemInput:
-    plaintext_item: "dict[str, AttributeValue]"
+    plaintext_item: dict[str, Any]
 
     def __init__(
         self,
         *,
-        plaintext_item: "dict[str, AttributeValue]",
+        plaintext_item: dict[str, Any],
     ):
         """Inputs for encrypting a DynamoDB Item.
 
@@ -108,7 +105,7 @@ class ParsedHeader:
     encrypted_data_keys: list[EncryptedDataKey]
     stored_encryption_context: dict[str, str]
     encryption_context: dict[str, str]
-    selector_context: "dict[str, AttributeValue]"
+    selector_context: dict[str, Any]
 
     def __init__(
         self,
@@ -118,7 +115,7 @@ class ParsedHeader:
         encrypted_data_keys: list[EncryptedDataKey],
         stored_encryption_context: dict[str, str],
         encryption_context: dict[str, str],
-        selector_context: "dict[str, AttributeValue]",
+        selector_context: dict[str, Any],
     ):
         """A parsed version of the header that was written with or read on an
         encrypted DynamoDB item.
@@ -207,13 +204,13 @@ class ParsedHeader:
 
 
 class DecryptItemOutput:
-    plaintext_item: "dict[str, AttributeValue]"
+    plaintext_item: dict[str, Any]
     parsed_header: Optional["ParsedHeader"]
 
     def __init__(
         self,
         *,
-        plaintext_item: "dict[str, AttributeValue]",
+        plaintext_item: dict[str, Any],
         parsed_header: Optional["ParsedHeader"] = None,
     ):
         """Outputs for decrypting a DynamoDB Item.
@@ -269,13 +266,13 @@ class DecryptItemOutput:
 
 
 class EncryptItemOutput:
-    encrypted_item: "dict[str, AttributeValue]"
+    encrypted_item: dict[str, Any]
     parsed_header: Optional["ParsedHeader"]
 
     def __init__(
         self,
         *,
-        encrypted_item: "dict[str, AttributeValue]",
+        encrypted_item: dict[str, Any],
         parsed_header: Optional["ParsedHeader"] = None,
     ):
         """Outputs for encrypting a DynamoDB Item.
