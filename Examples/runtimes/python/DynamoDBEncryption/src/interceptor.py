@@ -91,14 +91,14 @@ item_to_encrypt = {
 
 # "Main"
 
-client = boto3.client("dynamodb")
+boto3_client = boto3.client("dynamodb")
 
 from aws_database_encryption_sdk.encryptor.interceptor import (
     register_encryption_interceptor
 )
 
 register_encryption_interceptor(
-    client = client,
+    client = boto3_client,
     encryption_configs = tables_config,
     expect_standard_dictionaries = True
 )
@@ -108,7 +108,7 @@ put_item = {
     "Item": item_to_encrypt,
 }
 
-put_item_output = client.put_item(**put_item)
+put_item_output = boto3_client.put_item(**put_item)
 
 get_item_key = {
     "partition_key": "LucasPythonTesting",
@@ -120,6 +120,6 @@ get_item = {
     "Key": get_item_key
 }
 
-get_item_output = client.get_item(**get_item)
+get_item_output = boto3_client.get_item(**get_item)
 
 assert get_item_output["Item"] == item_to_encrypt
