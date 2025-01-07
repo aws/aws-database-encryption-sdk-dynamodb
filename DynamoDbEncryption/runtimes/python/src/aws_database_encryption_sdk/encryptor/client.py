@@ -55,7 +55,7 @@ class EncryptedClient:
         )
 
     def put_item(self, **kwargs):
-        # TODO: refactor shared logic (DDB/Python conversions)
+        # TODO: refactor shared logic (DDB/Python conversions, client/table)
         if self._expect_standard_dictionaries:
             dynamodb_item = dict_to_ddb(kwargs["Item"])
             dynamodb_input = kwargs

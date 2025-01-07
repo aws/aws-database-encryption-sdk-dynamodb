@@ -108,9 +108,14 @@ put_item = {
 
 put_item_output = encrypted_client.put_item(**put_item)
 
+item_to_get = {
+    "partition_key": "LucasPythonTesting",
+    "sort_key": 1234,
+}
+
 get_item = {
     "TableName": ddb_table_name,
-    "Key": item_to_encrypt
+    "Key": item_to_get
 }
 
 get_item_output = encrypted_client.get_item(**get_item)
