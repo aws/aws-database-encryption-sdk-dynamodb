@@ -3,7 +3,11 @@
 
 CORES=2
 
+<<<<<<< HEAD
 ENABLE_EXTERN_PROCESSING=1
+=======
+TRANSPILE_TESTS_IN_RUST=1
+>>>>>>> main
 
 include ../SharedMakefile.mk
 
@@ -14,6 +18,29 @@ PROJECT_SERVICES := \
 	DynamoDbItemEncryptor \
 	DynamoDbEncryptionTransforms \
 	StructuredEncryption
+
+MAIN_SERVICE_FOR_RUST := DynamoDbEncryptionTransforms
+
+RUST_OTHER_FILES := \
+	runtimes/rust/src/aes_gcm.rs \
+	runtimes/rust/src/aes_kdf_ctr.rs \
+	runtimes/rust/src/ddb.rs \
+	runtimes/rust/src/concurrent_call.rs \
+	runtimes/rust/src/dafny_libraries.rs \
+	runtimes/rust/src/digest.rs \
+	runtimes/rust/src/ecdh.rs \
+	runtimes/rust/src/ecdsa.rs \
+	runtimes/rust/src/hmac.rs \
+	runtimes/rust/src/kms.rs \
+	runtimes/rust/src/local_cmc.rs \
+	runtimes/rust/src/oslang.rs \
+	runtimes/rust/src/random.rs \
+	runtimes/rust/src/rsa.rs \
+	runtimes/rust/src/sets.rs \
+	runtimes/rust/src/software_externs.rs \
+	runtimes/rust/src/storm_tracker.rs \
+	runtimes/rust/src/time.rs \
+	runtimes/rust/src/uuid.rs
 
 # Namespace for each local service
 # Currently our build relies on local services and namespaces being 1:1
@@ -76,6 +103,7 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/StructuredEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor
+<<<<<<< HEAD
 
 polymorph:
 	export DAFNY_VERSION=4.2
@@ -167,3 +195,5 @@ _sed_index_file_add_extern:
 	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_LEGACY_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING)
+=======
+>>>>>>> main

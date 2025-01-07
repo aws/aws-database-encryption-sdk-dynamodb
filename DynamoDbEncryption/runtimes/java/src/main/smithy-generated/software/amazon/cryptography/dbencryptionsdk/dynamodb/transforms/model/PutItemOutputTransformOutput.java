@@ -8,12 +8,18 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
 public class PutItemOutputTransformOutput {
 
+  /**
+   * <p>Represents the output of a <code>PutItem</code> operation.</p>
+   */
   private final PutItemResponse transformedOutput;
 
   protected PutItemOutputTransformOutput(BuilderImpl builder) {
     this.transformedOutput = builder.transformedOutput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>PutItem</code> operation.</p>
+   */
   public PutItemResponse transformedOutput() {
     return this.transformedOutput;
   }
@@ -27,8 +33,14 @@ public class PutItemOutputTransformOutput {
   }
 
   public interface Builder {
+    /**
+     * @param transformedOutput <p>Represents the output of a <code>PutItem</code> operation.</p>
+     */
     Builder transformedOutput(PutItemResponse transformedOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>PutItem</code> operation.</p>
+     */
     PutItemResponse transformedOutput();
 
     PutItemOutputTransformOutput build();

@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 CORES=2
+TRANSPILE_TESTS_IN_RUST=1
 
 include ../SharedMakefile.mk
 
 PROJECT_SERVICES := \
-	DDBEncryption \
+	DDBEncryption
+
+MAIN_SERVICE_FOR_RUST := DDBEncryption
 
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/DynamoDbEncryption/dafny/DynamoDbEncryption/Model
 OUTPUT_LOCAL_SERVICE_DDBEncryption := --local-service-test
@@ -24,6 +27,29 @@ PROJECT_DEPENDENCIES := \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders \
 	DynamoDbEncryption \
+
+
+RUST_OTHER_FILES := \
+	runtimes/rust/src/aes_gcm.rs \
+	runtimes/rust/src/aes_kdf_ctr.rs \
+	runtimes/rust/src/ddb.rs \
+	runtimes/rust/src/concurrent_call.rs \
+	runtimes/rust/src/create_client.rs \
+	runtimes/rust/src/dafny_libraries.rs \
+	runtimes/rust/src/digest.rs \
+	runtimes/rust/src/ecdh.rs \
+	runtimes/rust/src/ecdsa.rs \
+	runtimes/rust/src/hmac.rs \
+	runtimes/rust/src/kms.rs \
+	runtimes/rust/src/local_cmc.rs \
+	runtimes/rust/src/oslang.rs \
+	runtimes/rust/src/random.rs \
+	runtimes/rust/src/rsa.rs \
+	runtimes/rust/src/sets.rs \
+	runtimes/rust/src/software_externs.rs \
+	runtimes/rust/src/storm_tracker.rs \
+	runtimes/rust/src/time.rs \
+	runtimes/rust/src/uuid.rs
 
 # Since we are packaging projects differently, we cannot make assumptions
 # about where the files are located. 
@@ -55,9 +81,8 @@ SERVICE_DEPS_DDBEncryption := \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
+transpile_implementation_rust: _remove_wrapped_client_rust
 
-format_net:
-	pushd runtimes/net && dotnet format && popd
-
-clean:
-	rm -f runtimes/java/WriteTests1.json runtimes/java/decrypt.json runtimes/java/encrypt.json runtimes/net/*.json
+_remove_wrapped_client_rust:
+	$(MAKE) _sed_file SED_FILE_PATH="runtimes/rust/src/deps/aws_cryptography_materialProviders.rs" \
+SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\/ Removed cfg(feature = "wrapped-client")'

@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
+import dafny.TypeDescriptor;
 import java.lang.Boolean;
 import java.lang.Character;
 import java.lang.IllegalArgumentException;
@@ -62,6 +63,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient;
 import software.amazon.cryptography.materialproviders.internaldafny.types.CacheType;
@@ -80,6 +82,9 @@ public class ToDafny {
     if (nativeValue instanceof OpaqueError) {
       return ToDafny.Error((OpaqueError) nativeValue);
     }
+    if (nativeValue instanceof OpaqueWithTextError) {
+      return ToDafny.Error((OpaqueWithTextError) nativeValue);
+    }
     if (nativeValue instanceof CollectionOfErrors) {
       return ToDafny.Error((CollectionOfErrors) nativeValue);
     }
@@ -88,6 +93,13 @@ public class ToDafny {
 
   public static Error Error(OpaqueError nativeValue) {
     return Error.create_Opaque(nativeValue.obj());
+  }
+
+  public static Error Error(OpaqueWithTextError nativeValue) {
+    return Error.create_OpaqueWithText(
+      nativeValue.obj(),
+      dafny.DafnySequence.asString(nativeValue.objMessage())
+    );
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
@@ -129,31 +141,45 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.compoundBeacons()) &&
           nativeValue.compoundBeacons().size() > 0)
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(CompoundBeacon._typeDescriptor()),
           ToDafny.CompoundBeaconList(nativeValue.compoundBeacons())
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(CompoundBeacon._typeDescriptor())
+        );
     Option<DafnySequence<? extends VirtualField>> virtualFields;
     virtualFields =
       (Objects.nonNull(nativeValue.virtualFields()) &&
           nativeValue.virtualFields().size() > 0)
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(VirtualField._typeDescriptor()),
           ToDafny.VirtualFieldList(nativeValue.virtualFields())
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(VirtualField._typeDescriptor())
+        );
     Option<DafnySequence<? extends EncryptedPart>> encryptedParts;
     encryptedParts =
       (Objects.nonNull(nativeValue.encryptedParts()) &&
           nativeValue.encryptedParts().size() > 0)
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(EncryptedPart._typeDescriptor()),
           ToDafny.EncryptedPartsList(nativeValue.encryptedParts())
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(EncryptedPart._typeDescriptor())
+        );
     Option<DafnySequence<? extends SignedPart>> signedParts;
     signedParts =
       (Objects.nonNull(nativeValue.signedParts()) &&
           nativeValue.signedParts().size() > 0)
-        ? Option.create_Some(ToDafny.SignedPartsList(nativeValue.signedParts()))
-        : Option.create_None();
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(SignedPart._typeDescriptor()),
+          ToDafny.SignedPartsList(nativeValue.signedParts())
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(SignedPart._typeDescriptor())
+        );
     return new BeaconVersion(
       version,
       keyStore,
@@ -184,22 +210,33 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.encrypted()) &&
           nativeValue.encrypted().size() > 0)
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(EncryptedPart._typeDescriptor()),
           ToDafny.EncryptedPartsList(nativeValue.encrypted())
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(EncryptedPart._typeDescriptor())
+        );
     Option<DafnySequence<? extends SignedPart>> signed;
     signed =
       (Objects.nonNull(nativeValue.signed()) && nativeValue.signed().size() > 0)
-        ? Option.create_Some(ToDafny.SignedPartsList(nativeValue.signed()))
-        : Option.create_None();
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(SignedPart._typeDescriptor()),
+          ToDafny.SignedPartsList(nativeValue.signed())
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(SignedPart._typeDescriptor())
+        );
     Option<DafnySequence<? extends Constructor>> constructors;
     constructors =
       (Objects.nonNull(nativeValue.constructors()) &&
           nativeValue.constructors().size() > 0)
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(Constructor._typeDescriptor()),
           ToDafny.ConstructorList(nativeValue.constructors())
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(Constructor._typeDescriptor())
+        );
     return new CompoundBeacon(name, split, encrypted, signed, constructors);
   }
 
@@ -273,16 +310,22 @@ public class ToDafny {
     sortKeyName =
       Objects.nonNull(nativeValue.sortKeyName())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.sortKeyName()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     Option<SearchConfig> search;
     search =
       Objects.nonNull(nativeValue.search())
-        ? Option.create_Some(ToDafny.SearchConfig(nativeValue.search()))
-        : Option.create_None();
+        ? Option.create_Some(
+          SearchConfig._typeDescriptor(),
+          ToDafny.SearchConfig(nativeValue.search())
+        )
+        : Option.create_None(SearchConfig._typeDescriptor());
     DafnyMap<
       ? extends DafnySequence<? extends Character>,
       ? extends CryptoAction
@@ -296,61 +339,78 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.allowedUnsignedAttributes()) &&
           nativeValue.allowedUnsignedAttributes().size() > 0)
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+          ),
           software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeNameList(
             nativeValue.allowedUnsignedAttributes()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+          )
+        );
     Option<DafnySequence<? extends Character>> allowedUnsignedAttributePrefix;
     allowedUnsignedAttributePrefix =
       Objects.nonNull(nativeValue.allowedUnsignedAttributePrefix())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.allowedUnsignedAttributePrefix()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     Option<DBEAlgorithmSuiteId> algorithmSuiteId;
     algorithmSuiteId =
       Objects.nonNull(nativeValue.algorithmSuiteId())
         ? Option.create_Some(
+          DBEAlgorithmSuiteId._typeDescriptor(),
           software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
             nativeValue.algorithmSuiteId()
           )
         )
-        : Option.create_None();
+        : Option.create_None(DBEAlgorithmSuiteId._typeDescriptor());
     Option<IKeyring> keyring;
     keyring =
       Objects.nonNull(nativeValue.keyring())
         ? Option.create_Some(
+          TypeDescriptor.reference(IKeyring.class),
           software.amazon.cryptography.materialproviders.ToDafny.Keyring(
             nativeValue.keyring()
           )
         )
-        : Option.create_None();
+        : Option.create_None(TypeDescriptor.reference(IKeyring.class));
     Option<ICryptographicMaterialsManager> cmm;
     cmm =
       Objects.nonNull(nativeValue.cmm())
         ? Option.create_Some(
+          TypeDescriptor.reference(ICryptographicMaterialsManager.class),
           software.amazon.cryptography.materialproviders.ToDafny.CryptographicMaterialsManager(
             nativeValue.cmm()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          TypeDescriptor.reference(ICryptographicMaterialsManager.class)
+        );
     Option<LegacyOverride> legacyOverride;
     legacyOverride =
       Objects.nonNull(nativeValue.legacyOverride())
         ? Option.create_Some(
+          LegacyOverride._typeDescriptor(),
           ToDafny.LegacyOverride(nativeValue.legacyOverride())
         )
-        : Option.create_None();
+        : Option.create_None(LegacyOverride._typeDescriptor());
     Option<PlaintextOverride> plaintextOverride;
     plaintextOverride =
       Objects.nonNull(nativeValue.plaintextOverride())
         ? Option.create_Some(
+          PlaintextOverride._typeDescriptor(),
           ToDafny.PlaintextOverride(nativeValue.plaintextOverride())
         )
-        : Option.create_None();
+        : Option.create_None(PlaintextOverride._typeDescriptor());
     return new DynamoDbTableEncryptionConfig(
       logicalTableName,
       partitionKeyName,
@@ -393,29 +453,38 @@ public class ToDafny {
     keyProviderInfo =
       Objects.nonNull(nativeValue.keyProviderInfo())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.keyProviderInfo()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     Option<DafnySequence<? extends Character>> branchKeyId;
     branchKeyId =
       Objects.nonNull(nativeValue.branchKeyId())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.branchKeyId()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     Option<DafnySequence<? extends Character>> branchKeyVersion;
     branchKeyVersion =
       Objects.nonNull(nativeValue.branchKeyVersion())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.branchKeyVersion()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     return new EncryptedDataKeyDescription(
       keyProviderId,
       keyProviderInfo,
@@ -570,11 +639,12 @@ public class ToDafny {
     defaultAttributeFlag =
       Objects.nonNull(nativeValue.defaultAttributeFlag())
         ? Option.create_Some(
+          CryptoAction._typeDescriptor(),
           software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToDafny.CryptoAction(
             nativeValue.defaultAttributeFlag()
           )
         )
-        : Option.create_None();
+        : Option.create_None(CryptoAction._typeDescriptor());
     return new LegacyOverride(
       policy,
       encryptor,
@@ -603,11 +673,12 @@ public class ToDafny {
     cache =
       Objects.nonNull(nativeValue.cache())
         ? Option.create_Some(
+          CacheType._typeDescriptor(),
           software.amazon.cryptography.materialproviders.ToDafny.CacheType(
             nativeValue.cache()
           )
         )
-        : Option.create_None();
+        : Option.create_None(CacheType._typeDescriptor());
     return new MultiKeyStore(keyFieldName, cacheTTL, cache);
   }
 
@@ -666,11 +737,14 @@ public class ToDafny {
     loc =
       Objects.nonNull(nativeValue.loc())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.loc()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     return new SignedPart(name, prefix, loc);
   }
 
@@ -701,16 +775,22 @@ public class ToDafny {
     loc =
       Objects.nonNull(nativeValue.loc())
         ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
           software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
             nativeValue.loc()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
     Option<BeaconStyle> style;
     style =
       Objects.nonNull(nativeValue.style())
-        ? Option.create_Some(ToDafny.BeaconStyle(nativeValue.style()))
-        : Option.create_None();
+        ? Option.create_Some(
+          BeaconStyle._typeDescriptor(),
+          ToDafny.BeaconStyle(nativeValue.style())
+        )
+        : Option.create_None(BeaconStyle._typeDescriptor());
     return new StandardBeacon(name, length, loc, style);
   }
 
@@ -744,8 +824,13 @@ public class ToDafny {
     Option<DafnySequence<? extends VirtualTransform>> trans;
     trans =
       (Objects.nonNull(nativeValue.trans()) && nativeValue.trans().size() > 0)
-        ? Option.create_Some(ToDafny.VirtualTransformList(nativeValue.trans()))
-        : Option.create_None();
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(VirtualTransform._typeDescriptor()),
+          ToDafny.VirtualTransformList(nativeValue.trans())
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(VirtualTransform._typeDescriptor())
+        );
     return new VirtualPart(loc, trans);
   }
 

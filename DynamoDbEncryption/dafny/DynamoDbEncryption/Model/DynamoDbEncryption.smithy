@@ -39,7 +39,8 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
     AwsCryptographicPrimitives,
     DynamoDB_20120810,
     AwsCryptographicMaterialProviders,
-    StructuredEncryption
+    StructuredEncryption,
+    KeyStore
   ]
 )
 service DynamoDbEncryption {

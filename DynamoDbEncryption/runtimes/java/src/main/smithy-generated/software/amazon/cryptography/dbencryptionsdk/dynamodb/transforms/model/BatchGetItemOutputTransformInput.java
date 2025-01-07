@@ -9,8 +9,14 @@ import software.amazon.awssdk.services.dynamodb.model.BatchGetItemResponse;
 
 public class BatchGetItemOutputTransformInput {
 
+  /**
+   * <p>Represents the output of a <code>BatchGetItem</code> operation.</p>
+   */
   private final BatchGetItemResponse sdkOutput;
 
+  /**
+   * <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+   */
   private final BatchGetItemRequest originalInput;
 
   protected BatchGetItemOutputTransformInput(BuilderImpl builder) {
@@ -18,10 +24,16 @@ public class BatchGetItemOutputTransformInput {
     this.originalInput = builder.originalInput();
   }
 
+  /**
+   * @return <p>Represents the output of a <code>BatchGetItem</code> operation.</p>
+   */
   public BatchGetItemResponse sdkOutput() {
     return this.sdkOutput;
   }
 
+  /**
+   * @return <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+   */
   public BatchGetItemRequest originalInput() {
     return this.originalInput;
   }
@@ -35,12 +47,24 @@ public class BatchGetItemOutputTransformInput {
   }
 
   public interface Builder {
+    /**
+     * @param sdkOutput <p>Represents the output of a <code>BatchGetItem</code> operation.</p>
+     */
     Builder sdkOutput(BatchGetItemResponse sdkOutput);
 
+    /**
+     * @return <p>Represents the output of a <code>BatchGetItem</code> operation.</p>
+     */
     BatchGetItemResponse sdkOutput();
 
+    /**
+     * @param originalInput <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+     */
     Builder originalInput(BatchGetItemRequest originalInput);
 
+    /**
+     * @return <p>Represents the input of a <code>BatchGetItem</code> operation.</p>
+     */
     BatchGetItemRequest originalInput();
 
     BatchGetItemOutputTransformInput build();

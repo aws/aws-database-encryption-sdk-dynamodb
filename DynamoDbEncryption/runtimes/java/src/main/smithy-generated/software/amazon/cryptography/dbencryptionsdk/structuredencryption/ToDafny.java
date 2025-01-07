@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.structuredencryption;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
+import dafny.TypeDescriptor;
 import java.lang.Byte;
 import java.lang.Character;
 import java.lang.IllegalArgumentException;
@@ -38,6 +39,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.interna
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.StructuredEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionException;
 import software.amazon.cryptography.materialproviders.internaldafny.types.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.internaldafny.types.EncryptedDataKey;
@@ -52,6 +54,9 @@ public class ToDafny {
     if (nativeValue instanceof OpaqueError) {
       return ToDafny.Error((OpaqueError) nativeValue);
     }
+    if (nativeValue instanceof OpaqueWithTextError) {
+      return ToDafny.Error((OpaqueWithTextError) nativeValue);
+    }
     if (nativeValue instanceof CollectionOfErrors) {
       return ToDafny.Error((CollectionOfErrors) nativeValue);
     }
@@ -60,6 +65,13 @@ public class ToDafny {
 
   public static Error Error(OpaqueError nativeValue) {
     return Error.create_Opaque(nativeValue.obj());
+  }
+
+  public static Error Error(OpaqueWithTextError nativeValue) {
+    return Error.create_OpaqueWithText(
+      nativeValue.obj(),
+      dafny.DafnySequence.asString(nativeValue.objMessage())
+    );
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
@@ -125,11 +137,20 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.encryptionContext()) &&
           nativeValue.encryptionContext().size() > 0)
         ? Option.create_Some(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          ),
           software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(
             nativeValue.encryptionContext()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          )
+        );
     return new DecryptPathStructureInput(
       tableName,
       encryptedStructure,
@@ -183,11 +204,20 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.encryptionContext()) &&
           nativeValue.encryptionContext().size() > 0)
         ? Option.create_Some(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          ),
           software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(
             nativeValue.encryptionContext()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          )
+        );
     return new DecryptStructureInput(
       tableName,
       encryptedStructure,
@@ -239,11 +269,12 @@ public class ToDafny {
     algorithmSuiteId =
       Objects.nonNull(nativeValue.algorithmSuiteId())
         ? Option.create_Some(
+          DBEAlgorithmSuiteId._typeDescriptor(),
           software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
             nativeValue.algorithmSuiteId()
           )
         )
-        : Option.create_None();
+        : Option.create_None(DBEAlgorithmSuiteId._typeDescriptor());
     Option<
       DafnyMap<
         ? extends DafnySequence<? extends Byte>,
@@ -254,11 +285,20 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.encryptionContext()) &&
           nativeValue.encryptionContext().size() > 0)
         ? Option.create_Some(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          ),
           software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(
             nativeValue.encryptionContext()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          )
+        );
     return new EncryptPathStructureInput(
       tableName,
       plaintextStructure,
@@ -306,11 +346,12 @@ public class ToDafny {
     algorithmSuiteId =
       Objects.nonNull(nativeValue.algorithmSuiteId())
         ? Option.create_Some(
+          DBEAlgorithmSuiteId._typeDescriptor(),
           software.amazon.cryptography.materialproviders.ToDafny.DBEAlgorithmSuiteId(
             nativeValue.algorithmSuiteId()
           )
         )
-        : Option.create_None();
+        : Option.create_None(DBEAlgorithmSuiteId._typeDescriptor());
     Option<
       DafnyMap<
         ? extends DafnySequence<? extends Byte>,
@@ -321,11 +362,20 @@ public class ToDafny {
       (Objects.nonNull(nativeValue.encryptionContext()) &&
           nativeValue.encryptionContext().size() > 0)
         ? Option.create_Some(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          ),
           software.amazon.cryptography.materialproviders.ToDafny.EncryptionContext(
             nativeValue.encryptionContext()
           )
         )
-        : Option.create_None();
+        : Option.create_None(
+          DafnyMap._typeDescriptor(
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE),
+            DafnySequence._typeDescriptor(TypeDescriptor.BYTE)
+          )
+        );
     return new EncryptStructureInput(
       tableName,
       plaintextStructure,

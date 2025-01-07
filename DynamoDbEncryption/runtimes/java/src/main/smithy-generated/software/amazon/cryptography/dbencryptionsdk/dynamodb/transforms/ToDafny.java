@@ -6,6 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms;
 import Wrappers_Compile.Option;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
+import dafny.TypeDescriptor;
 import java.lang.Character;
 import java.lang.Integer;
 import java.lang.RuntimeException;
@@ -72,6 +73,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internal
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueWithTextError;
 import software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue;
 import software.amazon.cryptography.services.dynamodb.internaldafny.types.BatchExecuteStatementInput;
 import software.amazon.cryptography.services.dynamodb.internaldafny.types.BatchExecuteStatementOutput;
@@ -109,6 +111,9 @@ public class ToDafny {
     if (nativeValue instanceof OpaqueError) {
       return ToDafny.Error((OpaqueError) nativeValue);
     }
+    if (nativeValue instanceof OpaqueWithTextError) {
+      return ToDafny.Error((OpaqueWithTextError) nativeValue);
+    }
     if (nativeValue instanceof CollectionOfErrors) {
       return ToDafny.Error((CollectionOfErrors) nativeValue);
     }
@@ -117,6 +122,13 @@ public class ToDafny {
 
   public static Error Error(OpaqueError nativeValue) {
     return Error.create_Opaque(nativeValue.obj());
+  }
+
+  public static Error Error(OpaqueWithTextError nativeValue) {
+    return Error.create_OpaqueWithText(
+      nativeValue.obj(),
+      dafny.DafnySequence.asString(nativeValue.objMessage())
+    );
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
@@ -596,8 +608,8 @@ public class ToDafny {
     Option<Integer> version;
     version =
       Objects.nonNull(nativeValue.Version())
-        ? Option.create_Some((nativeValue.Version()))
-        : Option.create_None();
+        ? Option.create_Some(TypeDescriptor.INT, (nativeValue.Version()))
+        : Option.create_None(TypeDescriptor.INT);
     return new ResolveAttributesInput(tableName, item, version);
   }
 

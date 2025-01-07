@@ -1,7 +1,8 @@
 TestResults
 ImplementationFromDafny.cs
 TestsFromDafny.cs
-**/bin
+ImplementationFromDafny-cs.dtr
+TestsFromDafny-cs.dtr
 **/obj
 node_modules
 project.properties
