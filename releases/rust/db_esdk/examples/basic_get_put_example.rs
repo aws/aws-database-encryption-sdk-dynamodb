@@ -143,11 +143,45 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         ),
     ]);
 
-    ddb.put_item()
-        .table_name(ddb_table_name)
-        .set_item(Some(item.clone()))
-        .send()
-        .await?;
+    // ddb.put_item()
+    //     .table_name(ddb_table_name)
+    //     .set_item(Some(item.clone()))
+    //     .send()
+    //     .await?;
+
+    let mut tasks = vec![];
+
+    for _ in 0..3 {
+        let ddb_clone = ddb.clone();
+        let ddb_table_name_clone = ddb_table_name.to_string();
+        let item_clone = item.clone();
+        
+        let task = tokio::spawn(async move {
+            match ddb_clone
+                .put_item()
+                .table_name(&ddb_table_name_clone)
+                .set_item(Some(item_clone))
+                .send()
+                .await
+            {
+                Ok(_) => {
+                    println!("Put item succeeded");
+                }
+                Err(e) => {
+                    eprintln!("Put item failed: {}", e);
+                }
+            }
+        });
+        
+        tasks.push(task);
+    }
+    
+    // Wait for all tasks to complete
+    for _task in tasks {
+        // Await the task and check for errors
+        // match task.await {
+        // }
+    }
 
     // 7. Get the item back from our table using the same client.
     //    The client will decrypt the item client-side, and return
