@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 CORES=2
+ENABLE_EXTERN_PROCESSING=1
 TRANSPILE_TESTS_IN_RUST=1
 
 include ../SharedMakefile.mk
@@ -64,6 +65,8 @@ PROJECT_INDEX := \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/KeyVectors/src/Index.dfy \
 	DynamoDbEncryption/dafny/StructuredEncryption/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy \
 
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
@@ -79,6 +82,8 @@ SERVICE_DEPS_DDBEncryption := \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
 	DynamoDbEncryption/dafny/StructuredEncryption \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor \
+	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
 transpile_implementation_rust: _remove_wrapped_client_rust
@@ -86,3 +91,40 @@ transpile_implementation_rust: _remove_wrapped_client_rust
 _remove_wrapped_client_rust:
 	$(MAKE) _sed_file SED_FILE_PATH="runtimes/rust/src/deps/aws_cryptography_materialProviders.rs" \
 SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\/ Removed cfg(feature = "wrapped-client")'
+
+# Python
+
+PYTHON_MODULE_NAME=dbesdk_ddb_test_vectors
+
+TRANSLATION_RECORD_PYTHON := \
+    --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/smithy_dafny_standard_library/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/ComAmazonawsKms/runtimes/python/src/aws_cryptography_internal_kms/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/python/src/aws_cryptography_internal_dynamodb/internaldafny/generated/dafny_src-py.dtr \
+    --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr \
+	--translation-record ../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptographic_material_providers/internaldafny/generated/dafny_src-py.dtr \
+	--translation-record ../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptography_materialproviders_test_vectors/internaldafny/generated/dafny_src-py.dtr \
+	--translation-record ../DynamoDbEncryption/runtimes/python/src/aws_database_encryption_sdk/internaldafny/generated/dafny_src-py.dtr
+
+PYTHON_DEPENDENCY_MODULE_NAMES := \
+	--dependency-library-name=aws.cryptography.primitives=aws_cryptography_primitives \
+	--dependency-library-name=com.amazonaws.kms=aws_cryptography_internal_kms \
+	--dependency-library-name=com.amazonaws.dynamodb=aws_cryptography_internal_dynamodb \
+	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_material_providers \
+	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_material_providers \
+	--dependency-library-name=aws.cryptography.materialProvidersTestVectorKeys=aws_cryptography_materialproviders_test_vectors \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_database_encryption_sdk \
+
+# Constants for languages that drop extern names (Python, Go)
+
+INDEX_FILE_PATH=dafny/DDBEncryption/src/LibraryIndex.dfy
+INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.wrapped\"} WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
+INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
+
+_sed_types_file_remove_extern:
+	echo "no types file"
+
+_sed_types_file_add_extern:
+	echo "no types file"
