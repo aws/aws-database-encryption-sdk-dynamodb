@@ -33,3 +33,6 @@ uuid = { version = "1.11.0", features = ["v4"] }
 
 [[example]]
 name = "main"
+
+[features]
+async-fixed = []

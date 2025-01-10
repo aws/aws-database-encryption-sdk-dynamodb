@@ -15,6 +15,9 @@ pub mod multi_get_put_example;
 pub mod searchableencryption;
 pub mod test_utils;
 
+#[cfg(feature = "async-fixed")]
+pub mod basic_async;
+
 use std::convert::From;
 
 // Why two types?

@@ -86,9 +86,6 @@ pub mod types;
 /// the DbEsdkInterceptor type for use with the aws_sdk_dynamodb interceptor
 pub mod intercept;
 
-#[cfg(feature = "wrapped-client")]
-pub mod wrapped;
-
 pub use client::Client;
 pub use types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
 
