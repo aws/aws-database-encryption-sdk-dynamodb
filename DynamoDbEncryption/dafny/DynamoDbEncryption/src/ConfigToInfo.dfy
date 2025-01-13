@@ -171,7 +171,7 @@ module SearchConfigToInfo {
     var cache;
     if cacheType.Shared? {
       cache := cacheType.Shared;
-      reveal ValidSharedCache(config, keyStore);
+      reveal ValidSharedCache(config);
 
       // This axiom is important because it is not easy to prove
       // keyStore.Modifies !! cache.Modifies for a shared cache.
