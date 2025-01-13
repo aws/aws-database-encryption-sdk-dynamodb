@@ -273,6 +273,9 @@ module TestBaseBeacon {
     var badVersion := GetLotsaBeaconsMultiWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionIdBadVersion));
     var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
     var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
+    // Providing a valid branch_key_id is important in this method because unlike other tests in Beacon.dfy,
+    // this is used in a test which actually fetches data from DynamoDb without using a Literal KeySource.
     var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
     expect badAttrs.Failure?;
 
@@ -309,6 +312,9 @@ module TestBaseBeacon {
     var badVersion := GetLotsaBeaconsMultiWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := None);
     var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
     var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
+    // Providing a valid branch_key_id is important in this method because unlike other tests in Beacon.dfy,
+    // this is used in a test which actually fetches data from DynamoDb without using a Literal KeySource.
     var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
     expect badAttrs.Failure?;
 
