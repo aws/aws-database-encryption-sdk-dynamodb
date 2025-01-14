@@ -708,6 +708,8 @@ structure KeyStoreReference {}
 //# On initialization of a Single Key Store, the caller MUST provide:
 //#  - [Beacon Key Id](#beacon-key-id)
 //#  - [cacheTTL](#cachettl)
+//#  - [cache](#key-store-cache)
+//#  - [partition-id](#partition-id)
 
 @javadoc("The configuration for using a single Beacon Key.")
 structure SingleKeyStore {
@@ -728,7 +730,8 @@ structure SingleKeyStore {
 //# On initialization of a Multi Key Store, the caller MUST provide:
 //#  - [Beacon Key Field Name](#beacon-key-field-name)
 //#  - [cacheTTL](#cachettl)
-//#  - [max cache size](#max-cache-size)
+//#  - [cache](#key-store-cache)
+//#  - [partition-id](#partition-id)
 
 @javadoc("The configuration for using multiple Beacon Keys.")
 structure MultiKeyStore {

@@ -28,6 +28,7 @@ module SearchableEncryptionInfo {
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened CacheConstants
   import UUID
+  import Digest
 
   //= specification/searchable-encryption/search-config.md#version-number
   //= type=implication
@@ -175,7 +176,7 @@ module SearchableEncryptionInfo {
       if keyLoc.SingleLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a SingleKeyStore"));
         var now := Time.GetCurrent();
-        var theMap :- getKeysCache(stdNames, keyLoc.keyId, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong);
+        var theMap :- getKeysCache(client, stdNames, keyLoc.keyId, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong);
         return Success(Keys(theMap));
       } else if keyLoc.LiteralLoc? {
         :- Need(keyId.DontUseKeyId?, E("KeyID should not be supplied with a LiteralKeyStore"));
@@ -185,7 +186,7 @@ module SearchableEncryptionInfo {
         match keyId {
           case DontUseKeyId => return Failure(E("KeyID must be supplied with a MultiKeyStore"));
           case ShouldHaveKeyId => return Success(ShouldHaveKeys);
-          case KeyId(id) => var now := Time.GetCurrent(); var theMap :- getKeysCache(stdNames, id, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong); return Success(Keys(theMap));
+          case KeyId(id) => var now := Time.GetCurrent(); var theMap :- getKeysCache(client, stdNames, id, cacheTTL as MP.PositiveLong, partitionIdBytes, logicalKeyStoreNameBytes, now as MP.PositiveLong); return Success(Keys(theMap));
         }
       }
     }
@@ -215,6 +216,7 @@ module SearchableEncryptionInfo {
     }
 
     method getKeysCache(
+      client : Primitives.AtomicPrimitivesClient,
       stdNames : seq<string>,
       keyId : string,
       cacheTTL : MP.PositiveLong,
@@ -240,7 +242,8 @@ module SearchableEncryptionInfo {
                 && var cacheInput := Seq.Last(newHistory).input;
                 && var cacheOutput := Seq.Last(newHistory).output;
                 && UTF8.Encode(keyId).Success?
-                && cacheInput.identifier == RESOURCE_ID_HIERARCHICAL_KEYRING + NULL_BYTE + SCOPE_ID_SEARCHABLE_ENCRYPTION + NULL_BYTE + partitionIdBytes + NULL_BYTE + logicalKeyStoreNameBytes + NULL_BYTE + UTF8.Encode(keyId).value
+                // This is no longer true since we're taking a SHA384 of the identifier
+                // && cacheInput.identifier == RESOURCE_ID_HIERARCHICAL_KEYRING + NULL_BYTE + SCOPE_ID_SEARCHABLE_ENCRYPTION + NULL_BYTE + partitionIdBytes + NULL_BYTE + logicalKeyStoreNameBytes + NULL_BYTE + UTF8.Encode(keyId).value
 
                 //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
                 //= type=implication
@@ -304,7 +307,23 @@ module SearchableEncryptionInfo {
       // Append Resource Id, Scope Id, Partition Id, and Suffix to create the cache identifier
       var identifier := resourceId + NULL_BYTE + scopeId + NULL_BYTE + partitionIdBytes + NULL_BYTE + suffix;
 
-      var getCacheInput := MP.GetCacheEntryInput(identifier := identifier, bytesUsed := None);
+      // Take a SHA384 of the cache identifier
+      var hashAlgorithm := Prim.DigestAlgorithm.SHA_384;
+
+      var identifierDigestInput := Prim.DigestInput(
+        digestAlgorithm := hashAlgorithm, message := identifier
+      );
+      var maybeCacheDigest := Digest.Digest(identifierDigestInput);
+      var cacheDigest :- maybeCacheDigest.MapFailure(e => AwsCryptographyPrimitives(e));
+
+      :- Need(
+        |cacheDigest| == Digest.Length(hashAlgorithm),
+        Error.DynamoDbEncryptionException(
+          message := "Digest generated a message not equal to the expected length.")
+      );
+
+      // Use the SHA384 of the identifier as the cache identifier
+      var getCacheInput := MP.GetCacheEntryInput(identifier := cacheDigest, bytesUsed := None);
       verifyValidStateCache(cache);
       var getCacheOutput := cache.GetCacheEntry(getCacheInput);
       // If error is not EntryDoesNotExist, return failure
