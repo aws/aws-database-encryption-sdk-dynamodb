@@ -22,7 +22,7 @@ perl -pe "s/^version = .*$/version = \"$1\"/" < Cargo.toml > new_Cargo.toml
 mv new_Cargo.toml Cargo.toml
 
 # Remove all files and directories in src except for specified files
-find src -depth 1 | egrep -v '(intercept.rs|lib.rs|software_externs.rs)' | xargs rm -rf
+find src -depth 1 | egrep -v '(intercept.rs|lib.rs|software_externs.rs|README)' | xargs rm -rf
 
 # Change to the parent directory and run make polymorph and transpile commands
 cd ../..
@@ -43,7 +43,7 @@ cd ../../../releases/rust/db_esdk
 git checkout dafny_runtime_rust
 
 # Remove unnecessary files and directories
-rm -rf *~ copy_externs.sh start_release.sh test_published.sh test_examples *.pem RELEASE.md
+rm -rf *~ copy_externs.sh start_release.sh test_published.sh test_examples *.pem RELEASE.md src/README.md
 
 # Create .gitignore file with specified entries
 echo Cargo.lock > .gitignore

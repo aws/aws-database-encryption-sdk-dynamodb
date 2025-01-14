@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::test_utils;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
-use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
-use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
-use aws_db_esdk::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
+use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
+use aws_db_esdk::CryptoAction;
+use aws_db_esdk::material_providers::client as mpl_client;
+use aws_db_esdk::material_providers::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::material_providers::types::DbeAlgorithmSuiteId;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
 use aws_db_esdk::DynamoDbTablesEncryptionConfig;
 use aws_sdk_dynamodb::types::AttributeValue;
@@ -15,7 +15,7 @@ use std::fs::File;
 use std::io::Read;
 use std::io::Write;
 use std::path::Path;
-
+ 
 /*
  This example sets up DynamoDb Encryption for the AWS SDK client
  using the KMS RSA Keyring. This keyring uses a KMS RSA key pair to
@@ -151,7 +151,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
 
     // 6. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .interceptor(DbEsdkInterceptor::new(table_configs)?)
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 

@@ -18,18 +18,8 @@ impl GetItemOutputTransform {
         crate::operation::get_item_output_transform::GetItemOutputTransformOutput,
         crate::types::error::Error,
     > {
-        if input.sdk_output.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "sdk_output",
-        "sdk_output was not specified but it is required when building GetItemOutputTransformInput",
-    )).map_err(crate::types::error::Error::wrap_validation_err);
-}
-if input.original_input.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "original_input",
-        "original_input was not specified but it is required when building GetItemOutputTransformInput",
-    )).map_err(crate::types::error::Error::wrap_validation_err);
-}
+        crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetItemOutputTransformInput_for_DynamoDbEncryptionTransforms_GetItemOutputTransform(&input)
+            .map_err(crate::types::error::Error::wrap_validation_err)?;
                 let inner_input = crate::conversions::get_item_output_transform::_get_item_output_transform_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).GetItemOutputTransform(&inner_input);

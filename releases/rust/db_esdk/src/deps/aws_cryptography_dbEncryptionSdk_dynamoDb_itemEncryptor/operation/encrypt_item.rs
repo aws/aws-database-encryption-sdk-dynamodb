@@ -18,12 +18,8 @@ impl EncryptItem {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::EncryptItemOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error,
     > {
-        if input.plaintext_item.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "plaintext_item",
-        "plaintext_item was not specified but it is required when building EncryptItemInput",
-    )).map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error::wrap_validation_err);
-}
+        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_PitemEncryptor_HEncryptItemInput_for_DynamoDbItemEncryptor_EncryptItem(&input)
+            .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error::wrap_validation_err)?;
                 let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::encrypt_item::_encrypt_item_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).EncryptItem(&inner_input);

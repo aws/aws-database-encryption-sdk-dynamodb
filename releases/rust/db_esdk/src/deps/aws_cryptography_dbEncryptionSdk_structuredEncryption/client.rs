@@ -13,11 +13,13 @@ impl Client {
     /// Creates a new client from the service [`Config`](crate::Config).
     #[track_caller]
     pub fn from_conf(
-        conf: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::structured_encryption_config::StructuredEncryptionConfig,
+        input: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::structured_encryption_config::StructuredEncryptionConfig,
     ) -> Result<Self, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error> {
+        crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PstructuredEncryption_HStructuredEncryptionConfig(&input)
+            .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err)?;
         let inner =
             crate::software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::_default::StructuredEncryption(
-                &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::structured_encryption_config::_structured_encryption_config::to_dafny(conf),
+                &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::structured_encryption_config::_structured_encryption_config::to_dafny(input),
             );
         if matches!(
             inner.as_ref(),

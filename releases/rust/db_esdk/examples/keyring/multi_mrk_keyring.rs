@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::test_utils;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
-use aws_db_esdk::aws_cryptography_materialProviders::client as mpl_client;
-use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
+use aws_db_esdk::CryptoAction;
+use aws_db_esdk::material_providers::client as mpl_client;
+use aws_db_esdk::material_providers::types::material_providers_config::MaterialProvidersConfig;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
 use aws_db_esdk::DynamoDbTablesEncryptionConfig;
 use aws_sdk_dynamodb::types::AttributeValue;
@@ -136,7 +136,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
     // 5. Create the DynamoDb Encryption Interceptor
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .interceptor(DbEsdkInterceptor::new(table_configs)?)
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
@@ -218,7 +218,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build()?;
 
     let only_replica_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(only_replica_table_configs))
+        .interceptor(DbEsdkInterceptor::new(only_replica_table_configs)?)
         .build();
     let only_replica_ddb = aws_sdk_dynamodb::Client::from_conf(only_replica_dynamo_config);
 
@@ -266,7 +266,7 @@ pub async fn put_item_get_item() -> Result<(), crate::BoxError> {
         .build()?;
 
     let only_srk_dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(only_srk_table_configs))
+        .interceptor(DbEsdkInterceptor::new(only_srk_table_configs)?)
         .build();
     let only_srk_ddb = aws_sdk_dynamodb::Client::from_conf(only_srk_dynamo_config);
 
