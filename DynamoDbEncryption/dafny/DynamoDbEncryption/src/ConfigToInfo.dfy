@@ -146,10 +146,12 @@ module SearchConfigToInfo {
     var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     //= specification/searchable-encryption/search-config.md#key-store-cache
-    //# For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# MUST be 1
-    //# For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# MUST be key store's max cache size.
+    //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
+    //# MUST be created.
+    //# For a [Single Key Store](#single-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# equal to 1.
+    //# For a [Multi Key Store](#multi-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# equal to 1000.
     var cacheType : MPT.CacheType :=
       if config.multi? then
         if config.multi.cache.Some? then

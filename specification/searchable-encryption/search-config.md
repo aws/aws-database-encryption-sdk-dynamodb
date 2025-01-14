@@ -407,9 +407,9 @@ while providing a Shared Cache to the [Beacon Key Source](#beacon-key-source).
 
 The resource suffixes for the Searchable Encryption is as follows:
 
-  ```
-  logicalKeyStoreName + NULL_BYTE + UTF8Encode(branchKeyId)
-  ```
+```
+logicalKeyStoreName + NULL_BYTE + UTF8Encode(branchKeyId)
+```
 
 The aforementioned 4 definitions ([Resource Identifier](#resource-identifier),
 [Scope Identifier](#scope-identifier), [Partition ID](#partition-id-1), and

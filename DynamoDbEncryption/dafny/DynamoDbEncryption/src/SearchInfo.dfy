@@ -330,12 +330,12 @@ module SearchableEncryptionInfo {
       }
 
       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-      //# If using a `Shared` cache across multiple Beacon Key Sources,
-      //# different Beacon Key Sources having the same `branchKey` can have different TTLs.
-      //# In such a case, the expiry time in the cache is set according to the Beacon Key Source that populated the cache.
+      //# If using a `Shared` cache across multiple [Beacon Key Sources](#beacon-key-source),
+      //# different [Beacon Key Sources](#beacon-key-source) having the same `branchKey` can have different TTLs.
+      //# In such a case, the expiry time in the cache is set according to the [Beacon Key Source](#beacon-key-source) that populated the cache.
       //# There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
       //# `time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
-      //# valid for TTL of the Beacon Key Source getting the cache entry.
+      //# valid for TTL of the [Beacon Key Source](#beacon-key-source) getting the cache entry.
       //# If this is NOT true, then we MUST treat the cache entry as expired.
       if getCacheOutput.Failure? || !cacheEntryWithinLimits(
            creationTime := getCacheOutput.value.creationTime,
