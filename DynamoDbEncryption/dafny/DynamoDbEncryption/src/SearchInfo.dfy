@@ -242,8 +242,6 @@ module SearchableEncryptionInfo {
                 && var cacheInput := Seq.Last(newHistory).input;
                 && var cacheOutput := Seq.Last(newHistory).output;
                 && UTF8.Encode(keyId).Success?
-                // This is no longer true since we're taking a SHA384 of the identifier
-                // && cacheInput.identifier == RESOURCE_ID_HIERARCHICAL_KEYRING + NULL_BYTE + SCOPE_ID_SEARCHABLE_ENCRYPTION + NULL_BYTE + partitionIdBytes + NULL_BYTE + logicalKeyStoreNameBytes + NULL_BYTE + UTF8.Encode(keyId).value
 
                 //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
                 //= type=implication
@@ -365,7 +363,7 @@ module SearchableEncryptionInfo {
         //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
         //# equal to now + configured [cacheTTL](#cachettl).
         var putCacheEntryInput:= MP.PutCacheEntryInput(
-          identifier := identifier,
+          identifier := cacheDigest,
           materials := MP.Materials.BeaconKey(beaconKeyMaterials),
           creationTime := now,
           expiryTime := now + cacheTTL,
