@@ -329,9 +329,9 @@ module SearchableEncryptionInfo {
         return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=getCacheOutput.error));
       }
 
-      // //= specification/searchable-encryption/search-config.md#<heading>
+      //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
       //# If using a `Shared` cache across multiple Beacon Key Sources,
-      //# different Key Sources having the same `beaconKey` can have different TTLs.
+      //# different Beacon Key Sources having the same `branchKey` can have different TTLs.
       //# In such a case, the expiry time in the cache is set according to the Beacon Key Source that populated the cache.
       //# There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
       //# `time.now() - cacheEntryCreationTime <= ttlSeconds` is true and

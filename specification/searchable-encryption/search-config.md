@@ -5,7 +5,12 @@
 
 ## Version
 
-1.0.0
+- 1.1.0
+  - [Update Cache Entry Identifier Formulas to shared cache across multiple Beacon Key Sources](../../changes/2024-09-13_cache-across-hierarchical-keyrings/change.md)
+  - New optional parameter `Partition ID` used to distinguish Cryptographic Material Providers (i.e: Beacon Key Sources) writing to a cache
+  - New optional parameter `cache` allowed while creating a `SingleKeyStore`
+- 1.0.0
+  - Initial record
 
 ### Changelog
 
@@ -164,10 +169,10 @@ This can also be described as single tenant.
 
 On initialization of a Single Key Store, the caller MUST provide:
 
-TODO: Update
-
 - [Beacon Key Id](#beacon-key-id)
 - [cacheTTL](#cachettl)
+- [cache](#key-store-cache)
+- [partition-id](#partition-id)
 
 ### Multi Key Store Initialization
 
@@ -177,11 +182,10 @@ This can also be described as multi tenant.
 
 On initialization of a Multi Key Store, the caller MUST provide:
 
-TODO: Update
-
 - [Beacon Key Field Name](#beacon-key-field-name)
 - [cacheTTL](#cachettl)
-- [max cache size](#max-cache-size)
+- [cache](#key-store-cache)
+- [partition-id](#partition-id)
 
 ### Field descriptions
 
@@ -212,28 +216,32 @@ and used to extract a beacon key id from a query.
 The [cacheTTL](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#time-to-live-ttl)
 for how long a beacon key should exist locally before reauthorization.
 
-#### max cache size
-
-TODO: Remove and add partition ID
-
-The [max cache size](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#entry-capacity)
-that the [Key Store Cache](#key-store-cache) will be configured to.
-
 ### Key Store Cache
-
-TODO: Update
 
 For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
 MUST be created.
-For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-MUST be 1
-For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-MUST be key store's max cache size.
+For a [Single Key Store](#single-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+equal to 1.
+For a [Multi Key Store](#multi-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+equal to 1000.
 
-The Key Store Cache MUST be bound to the Beacon Key Source.
-This is currently invariant because we construct the cache for each search config
-It is easy for beacon key ids to be unique within a single key source,
-this may not be true across all key sources.
+The Key Store Cache MUST be shared across different [Beacon Key Sources](#beacon-key-source) if and only if a `Shared` cache is used.
+In all other cases, the Key Store Cache MUST be bound to the [Beacon Key Source](#beacon-key-source).
+In either case, Cache Identifiers MUST be unique across all key sources.
+Cache Identifiers for Searchable Encryption MUST be set as per the section [Searchable Encryption Cache Identifier](#searchable-encryption-cache-identifier).
+
+### Partition ID
+
+An optional string that uniquely identifies the respective [Beacon Key Source](#beacon-key-source)
+and is used to avoid collisions with other [Beacon Key Sources](#beacon-key-source).
+
+PartitionId can be a string provided by the user. If provided, it MUST be interpreted as UTF8 bytes.
+If the PartitionId is NOT provided by the user, it MUST be set to the 16 byte representation of a v4 UUID.
+
+The Partition ID MUST NOT be changed after initialization.
+
+Please see [Shared Cache Considerations](#shared-cache-considerations) on how to provide the
+Partition ID and Logical Key Store Name while providing a Shared Cache to the [Beacon Key Source](#beacon-key-source).
 
 ## Beacon Keys
 
@@ -328,6 +336,14 @@ These materials MUST be put into the associated [Key Store Cache](#key-store-cac
 with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
 equal to now + configured [cacheTTL](#cachettl).
 
+If using a `Shared` cache across multiple [Beacon Key Sources](#beacon-key-source),
+different [Beacon Key Sources](#beacon-key-source) having the same `branchKey` can have different TTLs.
+In such a case, the expiry time in the cache is set according to the [Beacon Key Source](#beacon-key-source) that populated the cache.
+There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
+`time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
+valid for TTL of the [Beacon Key Source](#beacon-key-source) getting the cache entry.
+If this is NOT true, then we MUST treat the cache entry as expired.
+
 These cached materials MUST be returned.
 
 ### HMAC Key Generation
@@ -340,3 +356,160 @@ using the beacon key retrieved above as the initial key material with no salt.
 The `info` MUST be the concatenation of "AWS_DBE_SCAN_BEACON" encoded as UTF8
 and the beacon name.
 The `expectedLength` MUST be 64 bytes.
+
+## Searchable Encryption Cache Identifier
+
+When accessing the underlying cryptographic materials cache,
+Searchable Encryption MUST use the formulas specified in this section
+in order to compute the [cache entry identifier](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-identifier).
+
+### Preliminaries
+
+Each of the cache entry identifier formulas includes serialized information related to the branch key,
+as defined in the [Key Provider Info](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#key-provider-information).
+
+We establish the following definitions for the Cache Entry Identifier formula:
+
+#### Resource Identifier
+
+A Hex value that indicates if an element is from a Caching_CMM, Hierarchical_Keyring, or some other future resource.
+
+```
+Caching_CMM : 0x01  (0001)
+Hierarchical_Keyring : 0x02 (0010)
+```
+
+#### Scope Identifier
+
+A Hex value that indicates if an element is used for Encryption, Decryption, Searchable Encryption, or some other future purpose.
+
+```
+Encrypt : 0x01 (0001)
+Decrypt : 0x02 (0010)
+Searchable Encryption : 0x03 (0011)
+```
+
+#### Partition ID
+
+Partition ID is an optional parameter provided to the [Beacon Key Source](#beacon-key-source) input, which distinguishes
+Cryptographic Material Providers (i.e: [Beacon Key Sources](#beacon-key-source)) writing to a cache.
+It can either be a String provided by the user, which MUST be interpreted as the bytes of
+UTF-8 Encoding of the String, or a v4 UUID, which SHOULD be interpreted as the 16 byte representation of the UUID.
+
+Note: The cache will not know if the Partition ID is a String set by the user or the UUID.
+The constructor of the [Beacon Key Source](#beacon-key-source) MUST record these bytes at construction time.
+
+Please see [Shared Cache Considerations](#shared-cache-considerations) on how to provide the
+Partition ID and Logical Key Store Name of the [beacon versions](#beacon-version-initialization)
+while providing a Shared Cache to the [Beacon Key Source](#beacon-key-source).
+
+#### Resource Suffix
+
+The resource suffixes for the Searchable Encryption is as follows:
+
+  ```
+  logicalKeyStoreName + NULL_BYTE + UTF8Encode(branchKeyId)
+  ```
+
+The aforementioned 4 definitions ([Resource Identifier](#resource-identifier),
+[Scope Identifier](#scope-identifier), [Partition ID](#partition-id-1), and
+[Resource Suffix](#resource-suffix)) MUST be appended together with the null byte, 0x00,
+and the SHA384 of the result should be taken as the final cache identifier.
+
+When the [Beacon Key Source](#beacon-key-source) receives a `getKeyMap` request,
+the cache entry identifier MUST be calculated as the
+SHA-384 hash of the following byte strings, in the order listed:
+
+- MUST be the Resource ID for the Hierarchical Keyring (0x02)
+- MUST be the Scope ID for Searchable Encryption (0x03)
+- MUST be the Partition ID for the [Beacon Key Source](#beacon-key-source)
+- Resource Suffix
+  - MUST be the UTF8 encoded Logical Key Store Name of the keystore for the [beacon versions](#beacon-version-initialization)
+  - MUST be the UTF8 encoded branch-key-id
+
+All the above fields must be separated by a single NULL_BYTE `0x00`.
+
+| Field                  | Length (bytes) | Interpreted as      |
+| ---------------------- | -------------- | ------------------- |
+| Resource ID            | 1              | bytes               |
+| Null Byte              | 1              | `0x00`              |
+| Scope ID               | 1              | bytes               |
+| Null Byte              | 1              | `0x00`              |
+| Partition ID           | Variable       | bytes               |
+| Null Byte              | 1              | `0x00`              |
+| Logical Key Store Name | Variable       | UTF-8 Encoded Bytes |
+| Null Byte              | 1              | `0x00`              |
+| Branch Key ID          | Variable       | UTF-8 Encoded Bytes |
+
+As a formula:
+
+```
+resource-id = [0x02]
+scope-id = [0x03]
+logical-key-store-name = UTF8Encode(beaconVersion.keystore.LogicalKeyStoreName)
+branch-key-id = UTF8Encode(BranchKeyIdentifier)
+NULL_BYTE = [0x00]
+
+ENTRY_ID = SHA384(
+    resource-id
+    + NULL_BYTE
+    + scope-id
+    + NULL_BYTE
+    + partition-id
+    + NULL_BYTE
+    + logical-key-store-name
+    + NULL_BYTE
+    + branch-key-id
+)
+```
+
+## Shared Cache Considerations
+
+If a user has two or more [beacon versions](#beacon-version-initialization) with:
+
+- Same Partition ID
+- Same Logical Key Store Name of the Key Store
+- Same Branch Key ID
+
+then they WILL share the cache entries in the `Shared` Cache.
+
+Any keyring that has access to the `Shared` cache MAY be able to use materials
+that it MAY or MAY NOT have direct access to.
+
+Users MUST make sure that all of Partition ID, Logical Key Store Name of the Key Store
+and Branch Key ID are set to be the same for two [beacon versions](#beacon-version-initialization) if and only they want the keyrings to share
+cache entries.
+
+Therefore, there are two important parameters that users need to carefully set while providing the shared cache:
+
+### Partition ID
+
+Partition ID is an optional parameter provided to the [Beacon Key Source](#beacon-key-source) input,
+which distinguishes Cryptographic Material Providers (i.e: [Beacon Key Sources](#beacon-key-source)) writing to a cache.
+
+- (Default) A a random 16-byte UUID, which makes
+  it unique for every [Beacon Key Source](#beacon-key-source). In this case, two [Beacon Key Sources](#beacon-key-source) (or another Material Provider)
+  CANNOT share the same cache entries in the cache.
+- If the Partition ID is set by the user and is the same for two [Beacon Key Sources](#beacon-key-source) (or another Material Provider),
+  they CAN share the same cache entries in the cache.
+- If the Partition ID is set by the user and is different for two [Beacon Key Sources](#beacon-key-source) (or another Material Provider),
+  they CANNOT share the same cache entries in the cache.
+
+### Logical Key Store Name
+
+> Note: Users MUST NEVER have two different physical Key Stores with the same Logical Key Store Name.
+
+Logical Key Store Name is set by the user when configuring the Key Store for
+the [beacon versions](#beacon-version-initialization). This is a logical name for the key store.
+Logical Key Store Name MUST be converted to UTF8 Bytes to be used in
+the cache identifiers.
+
+Suppose there's a physical Key Store on DynamoDB (K). Two Key Store clients of K (K1 and K2) are created.
+Now, two [beacon versions](#beacon-version-initialization) (BV1 and BV2) are created with these Key Store clients (K1 and K2 respectively).
+
+- If we want to share cache entries across these two BeaconVersions BV1 and BV2, the Logical Key Store Names
+  for both the Key Store clients (K1 and K2) should be set to be the same.
+- If we set the Logical Key Store Names for K1 and K2 to be different, BV1 (which uses Key Store client K1)
+  and BV2 (which uses Key Store client K2) will NOT be able to share cache entries.
+
+Notice that both K1 and K2 are clients for the same physical Key Store (K).
