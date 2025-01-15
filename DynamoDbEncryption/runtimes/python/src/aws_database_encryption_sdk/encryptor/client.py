@@ -54,56 +54,70 @@ class EncryptedClient:
             config = encryption_config
         )
 
-    def put_item(self, **kwargs):
-        # TODO: refactor shared logic (DDB/Python conversions, client/table)
+    def _maybe_transform_request_to_dynamodb_item(self, item_key, **kwargs):
         if self._expect_standard_dictionaries:
-            dynamodb_item = dict_to_ddb(kwargs["Item"])
+            dynamodb_item = dict_to_ddb(kwargs[item_key])
             dynamodb_input = kwargs
-            dynamodb_input["Item"] = dynamodb_item
+            dynamodb_input[item_key] = dynamodb_item
         else:
             dynamodb_input = kwargs
+        return dynamodb_input
+
+    def _maybe_transform_response_item_to_python_dict(self, response):
+        if self._expect_standard_dictionaries:
+            if hasattr(response, "Item"):
+                response["Item"] = ddb_to_dict(response["Item"])
+
+    def _copy_sdk_response_to_dbesdk_response(self, sdk_response, dbesdk_response):
+        for sdk_response_key, sdk_response_value in sdk_response.items():
+            if sdk_response_key not in dbesdk_response:
+                dbesdk_response[sdk_response_key] = sdk_response_value
+
+    def put_item(self, **kwargs):
+        # TODO: refactor shared logic (DDB/Python conversions, client/table)
+        dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Item", **kwargs)
+        # if self._expect_standard_dictionaries:
+        #     dynamodb_item = dict_to_ddb(kwargs["Item"])
+        #     dynamodb_input = kwargs
+        #     dynamodb_input["Item"] = dynamodb_item
+        # else:
+        #     dynamodb_input = kwargs
         transformed_request = self._transformer.put_item_input_transform(
             PutItemInputTransformInput(
                 sdk_input = dynamodb_input
             )
         ).transformed_input
-        sdk_output = self._client.put_item(**transformed_request)
-        transformed_response = self._transformer.put_item_output_transform(
+        sdk_response = self._client.put_item(**transformed_request)
+        dbesdk_response = self._transformer.put_item_output_transform(
             PutItemOutputTransformInput(
                 original_input = dynamodb_input,
-                sdk_output = sdk_output,
+                sdk_output = sdk_response,
             )
         ).transformed_output
-        response = transformed_response
-        for sdk_output_key, sdk_output_value in sdk_output.items():
-            if sdk_output_key not in transformed_response:
-                response[sdk_output_key] = sdk_output_value
-        # TODO: standard dicts transform output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        self._maybe_transform_response_to_python_dict(dbesdk_response)
         return response
     
     def get_item(self, **kwargs):
-        if self._expect_standard_dictionaries:
-            dynamodb_item = dict_to_ddb(kwargs["Key"])
-            dynamodb_input = kwargs
-            dynamodb_input["Key"] = dynamodb_item
-        else:
-            dynamodb_input = kwargs
+        dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
         transformed_request = self._transformer.get_item_input_transform(
             GetItemInputTransformInput(
                 sdk_input = dynamodb_input
             )
         ).transformed_input
-        sdk_output = self._client.get_item(**transformed_request)
-        transformed_response = self._transformer.get_item_output_transform(
+        sdk_response = self._client.get_item(**transformed_request)
+        dbesdk_response = self._transformer.get_item_output_transform(
             GetItemOutputTransformInput(
                 original_input = dynamodb_input,
-                sdk_output = sdk_output,
+                sdk_output = sdk_response,
             )
         ).transformed_output
-        response = transformed_response
-        for sdk_output_key, sdk_output_value in sdk_output.items():
-            if sdk_output_key not in transformed_response:
-                response[sdk_output_key] = sdk_output_value
-        if self._expect_standard_dictionaries:
-            response["Item"] = ddb_to_dict(response["Item"])
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        self._maybe_transform_response_to_python_dict(dbesdk_response)
         return response
+        
+    def __getattr__(self, name):
+        if hasattr(self._client, name):
+            print(f'calling underlyign client {name=}')
+            return getattr(self._client, name)
+        raise KeyError("idk")

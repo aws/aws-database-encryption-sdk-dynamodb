@@ -82,37 +82,37 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json");
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json");
       // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json");
       // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json");
       // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json");
       // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json");
       // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json");
-      // var _ :- expect WriteManifest.Write("encrypt.json");
-      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3");
-      // var _ :- expect DecryptManifest.Decrypt("decrypt.json");
-      // if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
-      //   print "\nRunning no tests\n";
-      //   return;
-      // }
-      // Validate();
-      // // Because of Dafny-Rust's lack of modules, there is no way to mae an interceptor for the wrapped DB-ESDK client.
-      // // So we create runtimes/rust/SkipLocal.txt to skip those tests that need the wrapped client.
-      // var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
-      // if skipLocal.Success? {
-      //   return;
-      // }
-      // StringOrdering();
-      // BasicIoTest();
-      // RunIoTests();
-      // BasicQueryTest();
-      // ConfigModTest();
-      // ComplexTests();
-      // WriteTests();
-      // RoundTripTests();
-      // DecryptTests();
-      // var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
-      // DeleteTable(client);
+      var _ :- expect WriteManifest.Write("encrypt.json");
+      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3");
+      var _ :- expect DecryptManifest.Decrypt("decrypt.json");
+      if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
+        print "\nRunning no tests\n";
+        return;
+      }
+      Validate();
+      // Because of Dafny-Rust's lack of modules, there is no way to mae an interceptor for the wrapped DB-ESDK client.
+      // So we create runtimes/rust/SkipLocal.txt to skip those tests that need the wrapped client.
+      var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
+      if skipLocal.Success? {
+        return;
+      }
+      StringOrdering();
+      BasicIoTest();
+      RunIoTests();
+      BasicQueryTest();
+      ConfigModTest();
+      ComplexTests();
+      WriteTests();
+      RoundTripTests();
+      DecryptTests();
+      var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+      DeleteTable(client);
     }
 
     function NewOrderRecord(i : nat, str : string) : Record
