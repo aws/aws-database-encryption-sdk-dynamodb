@@ -365,9 +365,9 @@ module SearchableEncryptionInfo {
       }
 
       assert
-      && |client.History.Digest| == |old(client.History.Digest)| + 1
-      && Seq.Last(client.History.Digest).input.message == identifier
-      && Seq.Last(cache.History.GetCacheEntry).input.identifier == Seq.Last(client.History.Digest).output.value
+        && |client.History.Digest| == |old(client.History.Digest)| + 1
+        && Seq.Last(client.History.Digest).input.message == identifier
+        && Seq.Last(cache.History.GetCacheEntry).input.identifier == Seq.Last(client.History.Digest).output.value
       by {
         assume{:axiom} client.Modifies !! cache.Modifies;
       }
@@ -393,9 +393,9 @@ module SearchableEncryptionInfo {
           )
         );
         assert
-        && |client.History.Digest| == |old(client.History.Digest)| + 1
-        && Seq.Last(client.History.Digest).input.message == identifier
-        && Seq.Last(cache.History.GetCacheEntry).input.identifier == Seq.Last(client.History.Digest).output.value
+          && |client.History.Digest| == |old(client.History.Digest)| + 1
+          && Seq.Last(client.History.Digest).input.message == identifier
+          && Seq.Last(cache.History.GetCacheEntry).input.identifier == Seq.Last(client.History.Digest).output.value
         by {
           assume{:axiom} client.Modifies !! store.Modifies;
         }
@@ -428,9 +428,9 @@ module SearchableEncryptionInfo {
           return Failure(AwsCryptographyMaterialProviders(AwsCryptographyMaterialProviders:=putResult.error));
         }
         assert
-        && |client.History.Digest| == |old(client.History.Digest)| + 1
-        && Seq.Last(client.History.Digest).input.message == identifier
-        && Seq.Last(cache.History.GetCacheEntry).input.identifier == Seq.Last(client.History.Digest).output.value
+          && |client.History.Digest| == |old(client.History.Digest)| + 1
+          && Seq.Last(client.History.Digest).input.message == identifier
+          && Seq.Last(cache.History.GetCacheEntry).input.identifier == Seq.Last(client.History.Digest).output.value
         by {
           assume{:axiom} client.Modifies !! cache.Modifies;
         }
