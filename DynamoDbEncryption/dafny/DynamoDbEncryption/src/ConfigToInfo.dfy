@@ -40,6 +40,7 @@ module SearchConfigToInfo {
     requires ValidSearchConfig(outer.search)
     requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
+    ensures outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
@@ -120,6 +121,7 @@ module SearchConfigToInfo {
     modifies keyStore.Modifies
     requires client.ValidState()
     requires ValidSharedCache(config)
+    ensures ValidSharedCache(config)
     ensures client.ValidState()
     ensures output.Success? ==>
               && output.value.ValidState()
@@ -148,9 +150,10 @@ module SearchConfigToInfo {
     //= specification/searchable-encryption/search-config.md#key-store-cache
     //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
     //# MUST be created.
-    //# For a [Single Key Store](#single-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# equal to 1.
-    //# For a [Multi Key Store](#multi-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# equal to 1. If the user provides a cache which is not `Shared`, they SHOULD set the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# of the provided `CacheType` to 1, because the [Single Key Store](#single-key-store-initialization) only ever caches one entry. Even if the user provides an entryCapacity > 1, the [Single Key Store](#single-key-store-initialization) will only cache one entry.
+    //# For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
     //# equal to 1000.
     var cacheType : MPT.CacheType :=
       if config.multi? then
@@ -160,8 +163,9 @@ module SearchConfigToInfo {
           MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
       if config.single.cache.Some? then
-        // Ideally, we only want to pass a cache here with entryCapacity = 1
-        // because the SingleKeyStore caches only one value.
+        // If the user provides a CacheType, and it is NOT Shared,
+        // we SHOULD only allow an entryCapacity = 1
+        // because the SingleKeyStore only ever caches one value.
         // That is, we SHOULD add a check here for entryCapacity = 1.
         // However, that requires us to write an if block for each CacheType.
         // Also, it does NOT matter what the entryCapacity is, because the cache
@@ -174,10 +178,6 @@ module SearchConfigToInfo {
     if cacheType.Shared? {
       cache := cacheType.Shared;
       reveal ValidSharedCache(config);
-
-      // This axiom is important because it is not easy to prove
-      // keyStore.Modifies !! cache.Modifies for a shared cache.
-      assume {:axiom} keyStore.Modifies !! cache.Modifies;
     } else {
       //= specification/searchable-encryption/search-config.md#key-store-cache
       //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
@@ -228,6 +228,11 @@ module SearchConfigToInfo {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32, partitionIdBytes, logicalKeyStoreNameBytes));
     }
+    assert output.value.ValidState() by {
+      // This axiom is important because it is not easy to prove
+      // keyStore.Modifies !! cache.Modifies for a shared cache.
+      assume {:axiom} keyStore.Modifies !! cache.Modifies;
+    }
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
@@ -236,6 +241,7 @@ module SearchConfigToInfo {
     requires ValidBeaconVersion(config)
     requires ValidSharedCache(config.keySource)
     modifies config.keyStore.Modifies
+    ensures ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)

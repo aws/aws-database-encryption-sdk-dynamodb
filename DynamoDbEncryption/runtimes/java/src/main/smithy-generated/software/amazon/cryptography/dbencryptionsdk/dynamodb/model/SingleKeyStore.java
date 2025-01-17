@@ -22,7 +22,7 @@ public class SingleKeyStore {
   private final Integer cacheTTL;
 
   /**
-   * Provide the Shared Cache for Searchable Encryption.
+   * Which type of local cache to use. Please see the [spec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/searchable-encryption/search-config.md#key-store-cache) on how to provide a cache for a SingleKeyStore.
    */
   private final CacheType cache;
 
@@ -53,7 +53,7 @@ public class SingleKeyStore {
   }
 
   /**
-   * @return Provide the Shared Cache for Searchable Encryption.
+   * @return Which type of local cache to use. Please see the [spec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/searchable-encryption/search-config.md#key-store-cache) on how to provide a cache for a SingleKeyStore.
    */
   public CacheType cache() {
     return this.cache;
@@ -96,12 +96,12 @@ public class SingleKeyStore {
     Integer cacheTTL();
 
     /**
-     * @param cache Provide the Shared Cache for Searchable Encryption.
+     * @param cache Which type of local cache to use. Please see the [spec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/searchable-encryption/search-config.md#key-store-cache) on how to provide a cache for a SingleKeyStore.
      */
     Builder cache(CacheType cache);
 
     /**
-     * @return Provide the Shared Cache for Searchable Encryption.
+     * @return Which type of local cache to use. Please see the [spec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/searchable-encryption/search-config.md#key-store-cache) on how to provide a cache for a SingleKeyStore.
      */
     CacheType cache();
 

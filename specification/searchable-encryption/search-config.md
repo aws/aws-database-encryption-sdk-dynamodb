@@ -220,9 +220,10 @@ for how long a beacon key should exist locally before reauthorization.
 
 For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
 MUST be created.
-For a [Single Key Store](#single-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-equal to 1.
-For a [Multi Key Store](#multi-key-store-initialization), either the customer provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+equal to 1. If the user provides a cache which is not `Shared`, they SHOULD set the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+of the provided `CacheType` to 1, because the [Single Key Store](#single-key-store-initialization) only ever caches one entry. Even if the user provides an entryCapacity > 1, the [Single Key Store](#single-key-store-initialization) will only cache one entry.
+For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
 equal to 1000.
 
 The Key Store Cache MUST be shared across different [Beacon Key Sources](#beacon-key-source) if and only if a `Shared` cache is used.
@@ -312,11 +313,11 @@ and the result returned for Get beacon key for query.
 
 ### Get Beacon Key Materials
 
-Takes a `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`
+Takes a `beacon key id`, [Key Store Cache](#key-store-cache), and a `KeyStore`.
 
 Get beacon key MUST Call the associated [Key Store Cache](#key-store-cache)
 [Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
-with the `beacon key id`.
+with the cache identifier defined in the [Searchable Encryption Cache Identifier](#searchable-encryption-cache-identifier) section.
 
 If a [cache entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#cache-entry)
 exists, get beacon key MUST return the [entry materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#materials).
@@ -324,7 +325,7 @@ exists, get beacon key MUST return the [entry materials](../../submodules/Materi
 The `beacon key id` MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
 If `GetBeaconKey` fails get beacon key MUST fail.
 
-For every [standard beacons](beacons.md#standard-beacon-initialization) an HMAC key
+For every [standard beacons](beacons.md#standard-beacon-initialization), an HMAC key
 MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
 
 [Beacon Key Materials](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/structures.md#beacon-key-materials) MUST be generated
@@ -335,6 +336,12 @@ of every [standard beacons](beacons.md#standard-beacon-initialization) name to i
 These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
 with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
 equal to now + configured [cacheTTL](#cachettl).
+
+The Searchable Encryption cache identifier for [Key Store Cache](#key-store-cache)
+[Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
+and the [Key Store Cache](#key-store-cache)
+[Put Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#put-cache-entry)
+MUST be the same.
 
 If using a `Shared` cache across multiple [Beacon Key Sources](#beacon-key-source),
 different [Beacon Key Sources](#beacon-key-source) having the same `branchKey` can have different TTLs.
