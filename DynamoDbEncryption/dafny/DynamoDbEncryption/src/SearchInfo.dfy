@@ -139,7 +139,7 @@ module SearchableEncryptionInfo {
     .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
 
     output := UUID.ToByteArray(uuid)
-      .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
+    .MapFailure(e => Error.DynamoDbEncryptionException(message := e));
   }
 
   datatype KeyLocation =
@@ -341,7 +341,7 @@ module SearchableEncryptionInfo {
       var identifierDigestInput := Prim.DigestInput(
         digestAlgorithm := hashAlgorithm, message := identifier
       );
-      var maybeCacheDigest := client.Digest(identifierDigestInput); 
+      var maybeCacheDigest := client.Digest(identifierDigestInput);
       var cacheDigest :- maybeCacheDigest.MapFailure(e => AwsCryptographyPrimitives(e));
 
       // Use the SHA384 of the identifier as the cache identifier
