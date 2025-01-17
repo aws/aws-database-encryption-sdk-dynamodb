@@ -190,7 +190,7 @@ module SearchableEncryptionInfo {
         return Success(Keys(theMap));
       } else {
         match keyId {
-          case DontUseKeyId => return Failure(E("KeyID must be supplied with a MultiKeyStore"));
+          case DontUseKeyId => return Failure(E("Fixed KeyID must not be supplied with a MultiKeyStore"));
           case ShouldHaveKeyId => return Success(ShouldHaveKeys);
           case KeyId(id) =>
             var now := Time.GetCurrent();
