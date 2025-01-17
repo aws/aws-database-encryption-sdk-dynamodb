@@ -33,8 +33,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import DynamoDbItemEncryptor
 
 
-  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
-
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
 
@@ -130,7 +128,11 @@ module {:options "-functionSyntax:4"} JsonConfig {
     }
   }
 
-  method GetRoundTripTests(data : JSON) returns (output : Result<seq<RoundTripTest>, string>)
+  method GetRoundTripTests(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<seq<RoundTripTest>, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "RoundTripTest Test must be an object.");
     var configs : map<string, TableConfig> := map[];
@@ -139,7 +141,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "Configs" => var src :- GetTableConfigs(obj.1); configs := src;
+        case "Configs" => var src :- GetTableConfigs(obj.1, keys); configs := src;
         case "Records" => var src :- GetRecords(obj.1); records := src;
         case _ => return Failure("Unexpected part of a write test : '" + obj.0 + "'");
       }
@@ -147,18 +149,26 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success([RoundTripTest(configs, records)]);
   }
 
-  method GetWriteTests(data : JSON) returns (output : Result<seq<WriteTest> , string>)
+  method GetWriteTests(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<seq<WriteTest> , string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Array?, "Write Test list must be an array.");
     var results : seq<WriteTest> := [];
     for i := 0 to |data.arr| {
       var obj := data.arr[i];
-      var item :- GetOneWriteTest(obj);
+      var item :- GetOneWriteTest(obj, keys);
       results := results + [item];
     }
     return Success(results);
   }
-  method GetOneWriteTest(data : JSON) returns (output : Result<WriteTest, string>)
+  method GetOneWriteTest(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<WriteTest, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "A Write Test must be an object.");
     var config : Option<TableConfig> := None;
@@ -168,7 +178,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "Config" => var src :- GetOneTableConfig("foo", obj.1); config := Some(src);
+        case "Config" => var src :- GetOneTableConfig("foo", obj.1, keys); config := Some(src);
         case "FileName" =>
           :- Need(obj.1.String?, "Write Test file name must be a string.");
           fileName := obj.1.str;
@@ -181,18 +191,26 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(WriteTest(config.value, records, fileName));
   }
 
-  method GetDecryptTests(data : JSON) returns (output : Result<seq<DecryptTest> , string>)
+  method GetDecryptTests(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<seq<DecryptTest> , string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Array?, "Decrypt Test list must be an array.");
     var results : seq<DecryptTest> := [];
     for i := 0 to |data.arr| {
       var obj := data.arr[i];
-      var item :- GetOneDecryptTest(obj);
+      var item :- GetOneDecryptTest(obj, keys);
       results := results + [item];
     }
     return Success(results);
   }
-  method GetOneDecryptTest(data : JSON) returns (output : Result<DecryptTest, string>)
+  method GetOneDecryptTest(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<DecryptTest, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "A Decrypt Test must be an object.");
     var config : Option<TableConfig> := None;
@@ -202,7 +220,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "Config" => var src :- GetOneTableConfig("foo", obj.1); config := Some(src);
+        case "Config" => var src :- GetOneTableConfig("foo", obj.1, keys); config := Some(src);
         case "EncryptedRecords" => encRecords :- GetRecords(obj.1);
         case "PlainTextRecords" => plainRecords :- GetRecords(obj.1);
         case _ => return Failure("Unexpected part of a encrypt test : '" + obj.0 + "'");
@@ -214,20 +232,27 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(DecryptTest(config.value, encRecords, plainRecords));
   }
 
-  method GetTableConfigs(data : JSON) returns (output : Result<map<string, TableConfig> , string>)
+  method GetTableConfigs(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<map<string, TableConfig> , string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "Search Config list must be an object.");
     var results : map<string, TableConfig> := map[];
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
-      var item :- GetOneTableConfig(obj.0, obj.1);
+      var item :- GetOneTableConfig(obj.0, obj.1, keys);
       results := results[obj.0 := item];
     }
     return Success(results);
   }
 
-  method GetItemEncryptor(name : string, data : JSON)
+  method GetItemEncryptor(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
     returns (encryptor : Result<DynamoDbItemEncryptor.DynamoDbItemEncryptorClient, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
     ensures encryptor.Success? ==>
               && encryptor.value.ValidState()
               && fresh(encryptor.value)
@@ -296,11 +321,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
       }
     }
 
-    var keys :- expect KeyVectors.KeyVectors(
-      KeyVectorsTypes.KeyVectorsConfig(
-        keyManifestPath := DEFAULT_KEYS
-      )
-    );
     var keyDescription :-
       if |key| == 0 then
         Success(KeyVectorsTypes.Hierarchy(KeyVectorsTypes.HierarchyKeyring(
@@ -333,7 +353,11 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(encr);
   }
 
-  method GetOneTableConfig(name : string, data : JSON) returns (output : Result<TableConfig, string>)
+  method GetOneTableConfig(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<TableConfig, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "A Table Config must be an object.");
     var logicalTableName := TableName;
@@ -400,11 +424,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
       }
     }
 
-    var keys :- expect KeyVectors.KeyVectors(
-      KeyVectorsTypes.KeyVectorsConfig(
-        keyManifestPath := DEFAULT_KEYS
-      )
-    );
     var keyDescription :-
       if |key| == 0 then
         Success(KeyVectorsTypes.Hierarchy(KeyVectorsTypes.HierarchyKeyring(
@@ -1114,19 +1133,27 @@ module {:options "-functionSyntax:4"} JsonConfig {
                    ));
   }
 
-  method GetIoTests(data : JSON) returns (output : Result<seq<IoTest> , string>)
+  method GetIoTests(data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<seq<IoTest> , string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "IoTests must be an object.");
     var results : seq<IoTest> := [];
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
-      var item :- GetOneIoTest(obj.0, obj.1);
+      var item :- GetOneIoTest(obj.0, obj.1, keys);
       results := results + [item];
     }
     return Success(results);
   }
 
-  method GetOneIoTest(name : string, data : JSON) returns (output : Result<IoTest, string>)
+  method GetOneIoTest(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<IoTest, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(data.Object?, "IoTest must be an object.");
     var readConfig : Option<TableConfig> := None;
@@ -1138,8 +1165,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "WriteConfig" => var config :- GetOneTableConfig(obj.0, obj.1); writeConfig := Some(config);
-        case "ReadConfig" => var config :- GetOneTableConfig(obj.0, obj.1); readConfig := Some(config);
+        case "WriteConfig" => var config :- GetOneTableConfig(obj.0, obj.1, keys); writeConfig := Some(config);
+        case "ReadConfig" => var config :- GetOneTableConfig(obj.0, obj.1, keys); readConfig := Some(config);
         case "Records" => records :- GetRecords(obj.1);
         case "Values" => values :- GetValueMap(data.obj[i].1);
         case "Queries" => queries :- GetSimpleQueries(data.obj[i].1);
