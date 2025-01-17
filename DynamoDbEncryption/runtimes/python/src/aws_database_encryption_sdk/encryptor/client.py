@@ -13,6 +13,16 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
     PutItemOutputTransformInput,
     BatchWriteItemInputTransformInput,
     BatchWriteItemOutputTransformInput,
+    BatchGetItemInputTransformInput,
+    BatchGetItemOutputTransformInput,
+    ScanInputTransformInput,
+    ScanOutputTransformInput,
+    TransactGetItemsInputTransformInput,
+    TransactGetItemsOutputTransformInput,
+    TransactWriteItemsInputTransformInput,
+    TransactWriteItemsOutputTransformInput,
+    QueryInputTransformInput,
+    QueryOutputTransformInput,
 )
 from aws_database_encryption_sdk.transform import (
     dict_to_ddb,
@@ -137,6 +147,101 @@ class EncryptedClient:
         sdk_response = self._client.batch_write_item(**transformed_request)
         dbesdk_response = self._transformer.batch_write_item_output_transform(
             BatchWriteItemOutputTransformInput(
+                original_input = dynamodb_input,
+                sdk_output = sdk_response,
+            )
+        ).transformed_output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        # self._maybe_transform_response_to_python_dict(dbesdk_response)
+        return dbesdk_response
+
+    def batch_get_item(self, **kwargs):
+        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
+        dynamodb_input = kwargs
+        transformed_request = self._transformer.batch_get_item_input_transform(
+            BatchGetItemInputTransformInput(
+                sdk_input = dynamodb_input
+            )
+        ).transformed_input
+        sdk_response = self._client.batch_get_item(**transformed_request)
+        dbesdk_response = self._transformer.batch_get_item_output_transform(
+            BatchGetItemOutputTransformInput(
+                original_input = dynamodb_input,
+                sdk_output = sdk_response,
+            )
+        ).transformed_output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        # self._maybe_transform_response_to_python_dict(dbesdk_response)
+        return dbesdk_response
+
+    def scan(self, **kwargs):
+        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
+        dynamodb_input = kwargs
+        transformed_request = self._transformer.scan_input_transform(
+            ScanInputTransformInput(
+                sdk_input = dynamodb_input
+            )
+        ).transformed_input
+        sdk_response = self._client.scan(**transformed_request)
+        dbesdk_response = self._transformer.scan_output_transform(
+            ScanOutputTransformInput(
+                original_input = dynamodb_input,
+                sdk_output = sdk_response,
+            )
+        ).transformed_output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        # self._maybe_transform_response_to_python_dict(dbesdk_response)
+        return dbesdk_response
+
+    def transact_get_items(self, **kwargs):
+        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
+        dynamodb_input = kwargs
+        transformed_request = self._transformer.transact_get_items_input_transform(
+            TransactGetItemsInputTransformInput(
+                sdk_input = dynamodb_input
+            )
+        ).transformed_input
+        sdk_response = self._client.transact_get_items(**transformed_request)
+        dbesdk_response = self._transformer.transact_get_items_output_transform(
+            TransactGetItemsOutputTransformInput(
+                original_input = dynamodb_input,
+                sdk_output = sdk_response,
+            )
+        ).transformed_output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        # self._maybe_transform_response_to_python_dict(dbesdk_response)
+        return dbesdk_response
+
+    def transact_write_items(self, **kwargs):
+        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
+        dynamodb_input = kwargs
+        transformed_request = self._transformer.transact_write_items_input_transform(
+            TransactWriteItemsInputTransformInput(
+                sdk_input = dynamodb_input
+            )
+        ).transformed_input
+        sdk_response = self._client.transact_write_items(**transformed_request)
+        dbesdk_response = self._transformer.transact_write_items_output_transform(
+            TransactWriteItemsOutputTransformInput(
+                original_input = dynamodb_input,
+                sdk_output = sdk_response,
+            )
+        ).transformed_output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        # self._maybe_transform_response_to_python_dict(dbesdk_response)
+        return dbesdk_response
+
+    def query(self, **kwargs):
+        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
+        dynamodb_input = kwargs
+        transformed_request = self._transformer.query_input_transform(
+            QueryInputTransformInput(
+                sdk_input = dynamodb_input
+            )
+        ).transformed_input
+        sdk_response = self._client.query(**transformed_request)
+        dbesdk_response = self._transformer.query_output_transform(
+            QueryOutputTransformInput(
                 original_input = dynamodb_input,
                 sdk_output = sdk_response,
             )

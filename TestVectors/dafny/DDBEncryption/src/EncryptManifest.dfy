@@ -23,7 +23,6 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import KeyVectors
 
-  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
 
   function Manifest() : (string, JSON)
   {
