@@ -36,13 +36,13 @@ module WrappedDDBEncryptionMain {
     }
   }
 
-  method ASDF() 
+  method ASDF()
   {
     // KeyVectors client passed to every test.
     // All test vectors currently use the same keys manifest, located at DEFAULT_KEYS.
     // All test vectors can share this same KeyVectors client.
 
-    // To use a different keys manifest, create a new KeyVectors client. 
+    // To use a different keys manifest, create a new KeyVectors client.
     // If you need to create a new KeyVectors client, create it as infrequently as possible.
     // Creating this client frequently means JSON is parsed frequently.
     // Parsing JSON is very slow in Python. Parse JSON as infrequently as possible.
