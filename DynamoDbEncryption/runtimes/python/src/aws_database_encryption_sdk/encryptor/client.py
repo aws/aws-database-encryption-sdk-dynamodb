@@ -4,12 +4,15 @@
 from botocore.paginate import Paginator
 import botocore.client
 from typing import Callable, Optional
+import inspect
 
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
     GetItemInputTransformInput,
     GetItemOutputTransformInput,
     PutItemInputTransformInput,
     PutItemOutputTransformInput,
+    BatchWriteItemInputTransformInput,
+    BatchWriteItemOutputTransformInput,
 )
 from aws_database_encryption_sdk.transform import (
     dict_to_ddb,
@@ -73,6 +76,13 @@ class EncryptedClient:
             if sdk_response_key not in dbesdk_response:
                 dbesdk_response[sdk_response_key] = sdk_response_value
 
+    def _get_protected_methods(self):
+        """Return a list of all protected methods in the given object."""
+        return [
+            name for name, member in inspect.getmembers(self, predicate=inspect.ismethod)
+            if name.startswith('_') and not name.startswith('__')
+        ]
+
     def put_item(self, **kwargs):
         # TODO: refactor shared logic (DDB/Python conversions, client/table)
         dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Item", **kwargs)
@@ -95,8 +105,8 @@ class EncryptedClient:
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        self._maybe_transform_response_to_python_dict(dbesdk_response)
-        return response
+        self._maybe_transform_response_item_to_python_dict(dbesdk_response)
+        return dbesdk_response
     
     def get_item(self, **kwargs):
         dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
@@ -113,11 +123,34 @@ class EncryptedClient:
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        self._maybe_transform_response_to_python_dict(dbesdk_response)
-        return response
+        self._maybe_transform_response_item_to_python_dict(dbesdk_response)
+        return dbesdk_response
+
+    def batch_write_item(self, **kwargs):
+        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
+        dynamodb_input = kwargs
+        transformed_request = self._transformer.batch_write_item_input_transform(
+            BatchWriteItemInputTransformInput(
+                sdk_input = dynamodb_input
+            )
+        ).transformed_input
+        sdk_response = self._client.batch_write_item(**transformed_request)
+        dbesdk_response = self._transformer.batch_write_item_output_transform(
+            BatchWriteItemOutputTransformInput(
+                original_input = dynamodb_input,
+                sdk_output = sdk_response,
+            )
+        ).transformed_output
+        self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        # self._maybe_transform_response_to_python_dict(dbesdk_response)
+        return dbesdk_response
         
     def __getattr__(self, name):
         if hasattr(self._client, name):
             print(f'calling underlyign client {name=}')
             return getattr(self._client, name)
-        raise KeyError("idk")
+        # __getattr__ doesn't find protected methods by default.
+        elif name in self._get_protected_methods():
+            return getattr(self, name)
+        else:
+            raise KeyError("idk still")
