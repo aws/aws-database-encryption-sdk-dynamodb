@@ -17,6 +17,9 @@ module WrappedDDBEncryptionMain {
   import KeyVectors
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
 
+
+  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+
   method AddJson(prev : TestVectorConfig, file : string, keyVectors: KeyVectors.KeyVectorsClient)
     returns (output : Result<TestVectorConfig, string>)
     requires keyVectors.ValidState()
@@ -36,12 +39,16 @@ module WrappedDDBEncryptionMain {
     }
   }
 
-  method ASDF() 
+  method ASDF()
   {
-    // Create a singleton keyVectors client used in every test.
-    // Right now, all test vectors use the same keys manifest, located at DEFAULT_KEYS.
-    // Parsing JSON is expensive in some languages.
-    // 
+    // KeyVectors client passed to every test.
+    // All test vectors currently use the same keys manifest, located at DEFAULT_KEYS.
+    // All test vectors can share this same KeyVectors client.
+
+    // To use a different keys manifest, create a new KeyVectors client.
+    // If you need to create a new KeyVectors client, create it as infrequently as possible.
+    // Creating this client frequently means JSON is parsed frequently.
+    // Parsing JSON is very slow in Python. Parse JSON as infrequently as possible.
     var keyVectors :- expect KeyVectors.KeyVectors(
       KeyVectorsTypes.KeyVectorsConfig(
         keyManifestPath := DEFAULT_KEYS
