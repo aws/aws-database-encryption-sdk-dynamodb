@@ -12,7 +12,7 @@ on:
 
 jobs:
   getDafnyVerifyVersion:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read_property.outputs.dafnyVerifyVersion }}
     steps:

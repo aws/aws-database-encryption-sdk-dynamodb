@@ -21,13 +21,13 @@ jobs:
       matrix:
         library: [DynamoDbEncryption, TestVectors]
         # removed windows-latest because somehow it can't build aws-lc in CI
-        os: [ubuntu-latest, macos-13]
+        os: [ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     env:
-      RUST_MIN_STACK: 104857600
+      RUST_MIN_STACK: 404857600
     steps:
       - name: Support longpaths on Git checkout
         run: |

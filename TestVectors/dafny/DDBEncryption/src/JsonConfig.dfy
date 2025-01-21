@@ -357,8 +357,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(encr);
   }
 
-
-
   method GetOneTableConfig(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
     returns (output : Result<TableConfig, string>)
     requires keys.ValidState()
