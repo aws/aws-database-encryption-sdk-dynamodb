@@ -1,16 +1,13 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::future::Future;
 use aws_db_esdk::key_store::types::KeyStoreConfig;
 use aws_db_esdk::key_store::types::KmsConfiguration;
 use aws_db_esdk::material_providers::types::MaterialProvidersConfig;
 use aws_db_esdk::key_store::client as keystore_client;
 use aws_db_esdk::material_providers::client;
 
-fn is_send<T: Future + Send>(_f: T) {}
-
-fn example() {
+pub async fn example() {
     let future = async move {
         let kms_key_id =
             "random key stuff"
@@ -44,5 +41,5 @@ fn example() {
             .unwrap();
     };
 
-    is_send(future);
+    future.await;
 }
