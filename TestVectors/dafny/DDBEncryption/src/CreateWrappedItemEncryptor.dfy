@@ -13,7 +13,7 @@ module {:extern} CreateWrappedItemEncryptor {
 
   // The `ensures` clause is copy-pasted from the DynamoDbItemEncryptor client method's `ensures` clause.
   method {:extern} CreateWrappedItemEncryptor(config: ENC.DynamoDbItemEncryptorConfig)
-    returns (output: Result<ENC.IDynamoDbItemEncryptorClient, AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error>)
+    returns (output: Result<ENC.IDynamoDbItemEncryptorClient, ENC.Error>)
     requires config.keyring.Some? ==>
       config.keyring.value.ValidState()
     requires config.cmm.Some? ==>
@@ -63,8 +63,4 @@ module {:extern} CreateWrappedItemEncryptor {
       ==>
         && var config := (output.value as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient).config;
         && config.plaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ?
-  {
-    var encryptor :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(config);
-    return Success(encryptor);
-  }
 }

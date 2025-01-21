@@ -351,7 +351,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
         plaintextOverride := plaintextOverride
       );
     var enc : ENC.IDynamoDbItemEncryptorClient :- expect CreateWrappedItemEncryptor.CreateWrappedItemEncryptor(encryptorConfig);
-    // var enc : ENC.IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
     assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
     var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
     return Success(encr);
