@@ -49,7 +49,6 @@ impl<T: std::fmt::Debug> From<T> for BoxError {
 
 #[tokio::main]
 pub async fn main() -> Result<(), BoxError2> {
-    basic_async::example().await;
     basic_get_put_example::put_item_get_item().await?;
     itemencryptor::item_encrypt_decrypt::encrypt_decrypt().await?;
     get_encrypted_data_key_description::get_encrypted_data_key_description().await?;
