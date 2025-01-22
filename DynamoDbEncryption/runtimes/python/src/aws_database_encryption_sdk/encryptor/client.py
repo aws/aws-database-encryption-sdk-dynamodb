@@ -43,7 +43,6 @@ class EncryptedClient:
 
     _client: botocore.client.BaseClient
     _encryption_config: DynamoDbTablesEncryptionConfig
-    _expect_standard_dictionaries: Optional[bool]
     _transformer: DynamoDbEncryptionTransforms
 
     def __init__(
@@ -51,35 +50,17 @@ class EncryptedClient:
         *,
         client: botocore.client.BaseClient,
         encryption_config: DynamoDbTablesEncryptionConfig,
-        expect_standard_dictionaries: Optional[bool] = False,
     ):
         """
         Parameters:
         client (botocore.client.BaseClient): Initialized boto3 DynamoDB client
         encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
-        expect_standard_dictionaries (Optional[bool]): Should we expect items to be standard Python
-            dictionaries? (default: False)
         """
         self._client = client
         self._encryption_config = encryption_config
-        self._expect_standard_dictionaries = expect_standard_dictionaries
         self._transformer = DynamoDbEncryptionTransforms(
             config = encryption_config
         )
-
-    def _maybe_transform_request_to_dynamodb_item(self, item_key, **kwargs):
-        if self._expect_standard_dictionaries:
-            dynamodb_item = dict_to_ddb(kwargs[item_key])
-            dynamodb_input = kwargs
-            dynamodb_input[item_key] = dynamodb_item
-        else:
-            dynamodb_input = kwargs
-        return dynamodb_input
-
-    def _maybe_transform_response_item_to_python_dict(self, response):
-        if self._expect_standard_dictionaries:
-            if hasattr(response, "Item"):
-                response["Item"] = ddb_to_dict(response["Item"])
 
     def _copy_sdk_response_to_dbesdk_response(self, sdk_response, dbesdk_response):
         for sdk_response_key, sdk_response_value in sdk_response.items():
@@ -94,168 +75,142 @@ class EncryptedClient:
         ]
 
     def put_item(self, **kwargs):
-        # TODO: refactor shared logic (DDB/Python conversions, client/table)
-        dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Item", **kwargs)
-        # if self._expect_standard_dictionaries:
-        #     dynamodb_item = dict_to_ddb(kwargs["Item"])
-        #     dynamodb_input = kwargs
-        #     dynamodb_input["Item"] = dynamodb_item
-        # else:
-        #     dynamodb_input = kwargs
         transformed_request = self._transformer.put_item_input_transform(
             PutItemInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.put_item(**transformed_request)
         dbesdk_response = self._transformer.put_item_output_transform(
             PutItemOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        self._maybe_transform_response_item_to_python_dict(dbesdk_response)
         return dbesdk_response
     
     def get_item(self, **kwargs):
-        dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
         transformed_request = self._transformer.get_item_input_transform(
             GetItemInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.get_item(**transformed_request)
         dbesdk_response = self._transformer.get_item_output_transform(
             GetItemOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        self._maybe_transform_response_item_to_python_dict(dbesdk_response)
         return dbesdk_response
 
     def batch_write_item(self, **kwargs):
-        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
-        dynamodb_input = kwargs
         transformed_request = self._transformer.batch_write_item_input_transform(
             BatchWriteItemInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.batch_write_item(**transformed_request)
         dbesdk_response = self._transformer.batch_write_item_output_transform(
             BatchWriteItemOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        # self._maybe_transform_response_to_python_dict(dbesdk_response)
         return dbesdk_response
 
     def batch_get_item(self, **kwargs):
-        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
-        dynamodb_input = kwargs
         transformed_request = self._transformer.batch_get_item_input_transform(
             BatchGetItemInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.batch_get_item(**transformed_request)
         dbesdk_response = self._transformer.batch_get_item_output_transform(
             BatchGetItemOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        # self._maybe_transform_response_to_python_dict(dbesdk_response)
         return dbesdk_response
 
     def scan(self, **kwargs):
-        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
-        dynamodb_input = kwargs
         transformed_request = self._transformer.scan_input_transform(
             ScanInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.scan(**transformed_request)
         dbesdk_response = self._transformer.scan_output_transform(
             ScanOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        # self._maybe_transform_response_to_python_dict(dbesdk_response)
         return dbesdk_response
 
     def transact_get_items(self, **kwargs):
-        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
-        dynamodb_input = kwargs
         transformed_request = self._transformer.transact_get_items_input_transform(
             TransactGetItemsInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.transact_get_items(**transformed_request)
         dbesdk_response = self._transformer.transact_get_items_output_transform(
             TransactGetItemsOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        # self._maybe_transform_response_to_python_dict(dbesdk_response)
         return dbesdk_response
 
     def transact_write_items(self, **kwargs):
-        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
-        dynamodb_input = kwargs
         transformed_request = self._transformer.transact_write_items_input_transform(
             TransactWriteItemsInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.transact_write_items(**transformed_request)
         dbesdk_response = self._transformer.transact_write_items_output_transform(
             TransactWriteItemsOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        # self._maybe_transform_response_to_python_dict(dbesdk_response)
         return dbesdk_response
 
     def query(self, **kwargs):
-        # dynamodb_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **kwargs)
-        dynamodb_input = kwargs
         transformed_request = self._transformer.query_input_transform(
             QueryInputTransformInput(
-                sdk_input = dynamodb_input
+                sdk_input = kwargs
             )
         ).transformed_input
         sdk_response = self._client.query(**transformed_request)
         dbesdk_response = self._transformer.query_output_transform(
             QueryOutputTransformInput(
-                original_input = dynamodb_input,
+                original_input = kwargs,
                 sdk_output = sdk_response,
             )
         ).transformed_output
         self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
-        # self._maybe_transform_response_to_python_dict(dbesdk_response)
         return dbesdk_response
         
     def __getattr__(self, name):
-        if hasattr(self._client, name):
-            print(f'calling underlyign client {name=}')
-            return getattr(self._client, name)
-        # __getattr__ doesn't find protected methods by default.
-        elif name in self._get_protected_methods():
+        # Before calling __getattr__, the class will look at its own methods.
+        # Any methods defined on the class are called before getting to this point.
+
+        # __getattr__ doesn't find a class' protected methods by default.
+        if name in self._get_protected_methods():
             return getattr(self, name)
+        # If the class doesn't override a boto3 method, defer to boto3 now.
+        elif hasattr(self._client, name):
+            return getattr(self._client, name)
         else:
-            raise KeyError("idk still")
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
