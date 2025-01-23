@@ -381,22 +381,11 @@ We establish the following definitions for the Cache Entry Identifier formula:
 
 #### Resource Identifier
 
-A Hex value that indicates if an element is from a Caching_CMM, Hierarchical_Keyring, or some other future resource.
-
-```
-Caching_CMM : 0x01  (0001)
-Hierarchical_Keyring : 0x02 (0010)
-```
+Resource Identifier is defined in the [Material Providers specification](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#resource-identifier).
 
 #### Scope Identifier
 
-A Hex value that indicates if an element is used for Encryption, Decryption, Searchable Encryption, or some other future purpose.
-
-```
-Encrypt : 0x01 (0001)
-Decrypt : 0x02 (0010)
-Searchable Encryption : 0x03 (0011)
-```
+Scope Identifier is defined in the [Material Providers specification](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#scope-identifier).
 
 #### Partition ID
 
