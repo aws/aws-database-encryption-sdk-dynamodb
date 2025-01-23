@@ -150,10 +150,9 @@ module SearchConfigToInfo {
     //= specification/searchable-encryption/search-config.md#key-store-cache
     //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
     //# MUST be created.
-    //# For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# equal to 1. If the user provides a cache which is not `Shared`, they SHOULD set the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# of the provided `CacheType` to 1, because the [Single Key Store](#single-key-store-initialization) only ever caches one entry. Even if the user provides an entryCapacity > 1, the [Single Key Store](#single-key-store-initialization) will only cache one entry.
-    //# For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that has [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# equal to 1.
+    //# For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that has [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
     //# equal to 1000.
     var cacheType : MPT.CacheType :=
       if config.multi? then

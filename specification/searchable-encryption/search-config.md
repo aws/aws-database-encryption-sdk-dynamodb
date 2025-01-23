@@ -220,14 +220,13 @@ for how long a beacon key should exist locally before reauthorization.
 
 For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
 MUST be created.
-For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-equal to 1. If the user provides a cache which is not `Shared`, they SHOULD set the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-of the provided `CacheType` to 1, because the [Single Key Store](#single-key-store-initialization) only ever caches one entry. Even if the user provides an entryCapacity > 1, the [Single Key Store](#single-key-store-initialization) will only cache one entry.
-For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that MUST have [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that has [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+equal to 1.
+For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that has [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
 equal to 1000.
 
-The Key Store Cache MUST be shared across different [Beacon Key Sources](#beacon-key-source) if and only if a `Shared` cache is used.
-In all other cases, the Key Store Cache MUST be bound to the [Beacon Key Source](#beacon-key-source).
+The Key Store Cache is shared across different [Beacon Key Sources](#beacon-key-source) if and only if a `Shared` cache is used.
+In all other cases, the Key Store Cache is bound to the [Beacon Key Source](#beacon-key-source).
 In either case, Cache Identifiers MUST be unique across all key sources.
 Cache Identifiers for Searchable Encryption MUST be set as per the section [Searchable Encryption Cache Identifier](#searchable-encryption-cache-identifier).
 
@@ -325,6 +324,14 @@ exists, get beacon key MUST return the [entry materials](../../submodules/Materi
 The `beacon key id` MUST be passed to the configured `KeyStore`'s `GetBeaconKey` operation.
 If `GetBeaconKey` fails get beacon key MUST fail.
 
+If using a `Shared` cache across multiple [Beacon Key Sources](#beacon-key-source),
+different [Beacon Key Sources](#beacon-key-source) having the same `beaconKey` can have different TTLs.
+In such a case, the expiry time in the cache is set according to the [Beacon Key Source](#beacon-key-source) that populated the cache.
+There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
+`time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
+valid for TTL of the [Beacon Key Source](#beacon-key-source) getting the cache entry.
+If this is NOT true, then we MUST treat the cache entry as expired.
+
 For every [standard beacons](beacons.md#standard-beacon-initialization), an HMAC key
 MUST be generated in accordance with [HMAC Key Generation](#hmac-key-generation).
 
@@ -337,19 +344,10 @@ These materials MUST be put into the associated [Key Store Cache](#key-store-cac
 with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
 equal to now + configured [cacheTTL](#cachettl).
 
-The Searchable Encryption cache identifier for [Key Store Cache](#key-store-cache)
-[Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
-and the [Key Store Cache](#key-store-cache)
-[Put Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#put-cache-entry)
-MUST be the same.
-
-If using a `Shared` cache across multiple [Beacon Key Sources](#beacon-key-source),
-different [Beacon Key Sources](#beacon-key-source) having the same `branchKey` can have different TTLs.
-In such a case, the expiry time in the cache is set according to the [Beacon Key Source](#beacon-key-source) that populated the cache.
-There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
-`time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
-valid for TTL of the [Beacon Key Source](#beacon-key-source) getting the cache entry.
-If this is NOT true, then we MUST treat the cache entry as expired.
+The Searchable Encryption cache identifier
+used to [Put Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#put-cache-entry)
+MUST be the same
+as the identifier that was used to attempt [Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry).
 
 These cached materials MUST be returned.
 
@@ -365,6 +363,10 @@ and the beacon name.
 The `expectedLength` MUST be 64 bytes.
 
 ## Searchable Encryption Cache Identifier
+
+This section is consistent with the Cache Entry Identifier formulas for the [Hierarchical Keyring](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/aws-kms/aws-kms-hierarchical-keyring.md#appendix-a-cache-entry-identifier-formulas)
+and [Caching CMM](https://github.com/awslabs/aws-encryption-sdk-specification/blob/master/framework/caching-cmm.md#appendix-a-cache-entry-identifier-formulas) in the Material Providers spec. These cache identifier formulas should
+not be changed independently.
 
 When accessing the underlying cryptographic materials cache,
 Searchable Encryption MUST use the formulas specified in this section
@@ -480,12 +482,12 @@ If a user has two or more [beacon versions](#beacon-version-initialization) with
 
 then they WILL share the cache entries in the `Shared` Cache.
 
-Any keyring that has access to the `Shared` cache MAY be able to use materials
-that it MAY or MAY NOT have direct access to.
+Any keyring that has access to the `Shared` cache may be able to use materials
+that it may or may not have direct access to.
 
-Users MUST make sure that all of Partition ID, Logical Key Store Name of the Key Store
-and Branch Key ID are set to be the same for two [beacon versions](#beacon-version-initialization) if and only they want the keyrings to share
-cache entries.
+Users should make sure that all of Partition ID, Logical Key Store Name of the Key Store
+and Branch Key ID are set to be the same for two [beacon versions](#beacon-version-initialization)
+if and only they want the keyrings to share cache entries.
 
 Therefore, there are two important parameters that users need to carefully set while providing the shared cache:
 
@@ -495,19 +497,21 @@ Partition ID is an optional parameter provided to the [Beacon Key Source](#beaco
 which distinguishes Cryptographic Material Providers (i.e: [Beacon Key Sources](#beacon-key-source)) writing to a cache.
 
 - (Default) A a random 16-byte UUID, which makes
-  it unique for every [Beacon Key Source](#beacon-key-source). In this case, two [Beacon Key Sources](#beacon-key-source) (or another Material Provider)
-  CANNOT share the same cache entries in the cache.
+  it unique for every [Beacon Key Source](#beacon-key-source).
+  In this case, two [Beacon Key Sources](#beacon-key-source) (or another Material Provider)
+  WILL NOT share the same cache entries in the cache.
 - If the Partition ID is set by the user and is the same for two [Beacon Key Sources](#beacon-key-source) (or another Material Provider),
-  they CAN share the same cache entries in the cache.
+  they MAY share the same cache entries in the cache.
 - If the Partition ID is set by the user and is different for two [Beacon Key Sources](#beacon-key-source) (or another Material Provider),
-  they CANNOT share the same cache entries in the cache.
+  they WILL NOT share the same cache entries in the cache.
 
 ### Logical Key Store Name
 
-> Note: Users MUST NEVER have two different physical Key Stores with the same Logical Key Store Name.
+> Note: Users should not have two different physical Key Stores with the same Logical Key Store Name.
 
 Logical Key Store Name is set by the user when configuring the Key Store for
-the [beacon versions](#beacon-version-initialization). This is a logical name for the key store.
+the [beacon versions](#beacon-version-initialization).
+This is a logical name for the key store.
 Logical Key Store Name MUST be converted to UTF8 Bytes to be used in
 the cache identifiers.
 

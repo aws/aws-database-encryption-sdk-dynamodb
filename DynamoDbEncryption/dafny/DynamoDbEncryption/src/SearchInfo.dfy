@@ -318,11 +318,10 @@ module SearchableEncryptionInfo {
                       && var putCacheOutput := Seq.Last(newPutCacheHistory).output;
 
                       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
-                      //# The Searchable Encryption cache identifier for [Key Store Cache](#key-store-cache)
-                      //# [Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry)
-                      //# and the [Key Store Cache](#key-store-cache)
-                      //# [Put Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#put-cache-entry)
-                      //# MUST be the same.
+                      //# The Searchable Encryption cache identifier
+                      //# used to [Put Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#put-cache-entry)
+                      //# MUST be the same
+                      //# as the identifier that was used to attempt [Get Cache Entry](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/local-cryptographic-materials-cache.md#get-cache-entry).
                       && putCacheInput.identifier == getCacheInput.identifier
 
                       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
@@ -374,7 +373,7 @@ module SearchableEncryptionInfo {
 
       //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
       //# If using a `Shared` cache across multiple [Beacon Key Sources](#beacon-key-source),
-      //# different [Beacon Key Sources](#beacon-key-source) having the same `branchKey` can have different TTLs.
+      //# different [Beacon Key Sources](#beacon-key-source) having the same `beaconKey` can have different TTLs.
       //# In such a case, the expiry time in the cache is set according to the [Beacon Key Source](#beacon-key-source) that populated the cache.
       //# There MUST be a check (cacheEntryWithinLimits) to make sure that for the cache entry found, who's TTL has NOT expired,
       //# `time.now() - cacheEntryCreationTime <= ttlSeconds` is true and
