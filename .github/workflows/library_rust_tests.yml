@@ -61,10 +61,10 @@ jobs:
 
       # Use setup-dafny-actions with correct version when Dafny releases 4.8.2
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@03b219c5a4f71cfe24cb9e02b69d4a622449adbb
+        uses: ./submodules/smithy-dafny/.github/actions/build_dafny_from_source
         with:
           dafny-version: 4.9.2
-          build-from-source: d07403b6d6606257e1b5aada4d0156901f4a17de
+          ref: 867e0e262e8b939f6a1b1260fccec71613dbcc30
 
       - name: Update MPL submodule if using MPL HEAD
         if: ${{ inputs.mpl-head == true }}
