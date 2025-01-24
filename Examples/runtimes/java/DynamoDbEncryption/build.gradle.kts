@@ -70,6 +70,9 @@ dependencies {
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
+    implementation("org.dafny:DafnyRuntime:4.9.0")
+    implementation("software.amazon.smithy.dafny:conversion:0.1.1")
+
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:arns")
     implementation("software.amazon.awssdk:auth")
