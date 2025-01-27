@@ -9,8 +9,8 @@ namespace software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.in
   public partial class InternalLegacyOverride
   {
     public software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy _policy {
-      get => software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.Default();
-      set { } // Empty set to maintain the property signature
+      get => software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT();
+      set { }
     }
     public software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy policy { 
       get {
