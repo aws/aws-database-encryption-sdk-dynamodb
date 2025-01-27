@@ -32,7 +32,7 @@ module PutItemTransformTest {
 
   method TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
     assume {:axiom} false;
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(plaintextOverride);
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMulti(plaintextOverride);
     var tableName := GetTableName("foo");
     var input := DDB.PutItemInput(
       TableName := tableName,
@@ -57,7 +57,7 @@ module PutItemTransformTest {
 
   method {:test} TestPutItemInputMultiForceAllow() {
     assume {:axiom} false;
-    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMutli(
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMulti(
       Some(PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ)
     );
     var tableName := GetTableName("foo");
