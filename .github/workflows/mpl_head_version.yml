@@ -18,7 +18,7 @@ on:
 
 jobs:
   getMplHeadVersion:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read_property.outputs.mplVersion }}
     steps:

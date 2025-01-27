@@ -27,7 +27,7 @@ jobs:
         dotnet-version: ["6.0.x"]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
-            ubuntu-latest,
+            ubuntu-22.04,
           ]
     runs-on: ${{ matrix.os }}
     permissions:

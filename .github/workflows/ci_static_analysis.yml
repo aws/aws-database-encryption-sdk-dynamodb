@@ -9,7 +9,7 @@ on:
 
 jobs:
   not-grep:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: not-grep
