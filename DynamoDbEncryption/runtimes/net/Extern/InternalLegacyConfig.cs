@@ -8,14 +8,17 @@ namespace software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.in
 
   public partial class InternalLegacyOverride
   {
-    public software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy _policy {
+    public software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy _policy
+    {
       get => software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy.create_FORBID__LEGACY__ENCRYPT__FORBID__LEGACY__DECRYPT();
       set { }
     }
-    public software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy policy { 
-      get {
+    public software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ILegacyPolicy policy
+    {
+      get
+      {
         return this._policy;
-      } 
+      }
     }
     public static Wrappers_Compile._IResult<
       Wrappers_Compile._IOption<InternalLegacyOverride>,
