@@ -2,6 +2,10 @@
 
 ## [3.8.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.7.0...v3.8.0) (2025-01-27)
 
+This release is available in the following languages:
+
+- Java
+
 ### Features
 
 - **SharedCache:** Shared Cache for Searchable Encryption ([#1476](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1476)) ([46076f8](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/46076f86aec77f7df204c1e06a8ecb2400f01b6f))
