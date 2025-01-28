@@ -31,7 +31,6 @@ jobs:
         shell: bash
         run: |
           git checkout ${{inputs.mpl-head}}
-          git pull
           git submodule update --init --recursive
           git rev-parse HEAD
 
