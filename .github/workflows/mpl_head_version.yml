@@ -43,7 +43,7 @@ jobs:
         with:
           path: "submodules/MaterialProviders/project.properties"
           properties: "mplVersion"
-          
+
   getMplHeadDafnyVersion:
     runs-on: ubuntu-22.04
     outputs:
@@ -67,5 +67,3 @@ jobs:
         with:
           path: "submodules/MaterialProviders/project.properties"
           properties: "dafnyVersion"
-          
-      
