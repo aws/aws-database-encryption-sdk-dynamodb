@@ -64,7 +64,7 @@ jobs:
     uses: ./.github/workflows/ci_examples_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  pr-ci-net-examples:
+  pr-ci-latest-released-mpl-remove:
     uses: ./.github/workflows/ci_test_latest_released_mpl_java.yml
   pr-ci-all-required:
     if: always()
