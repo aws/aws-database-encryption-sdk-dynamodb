@@ -5,7 +5,7 @@ name: Test Latest Released MPL Java with DB-ESDK HEAD
 on:
   schedule:
     - cron: "00 16 * * 1-5"
-  workflow_dispatch:     # allows triggering this manually through the Actions UI
+  workflow_dispatch: # allows triggering this manually through the Actions UI
 
 jobs:
   getDBESDKDafnyVersion:
