@@ -6,6 +6,8 @@ on:
   schedule:
     - cron: "00 16 * * 1-5"
   workflow_dispatch: # allows triggering this manually through the Actions UI
+  # TODO: Remove this before merging to main. We don't want this workflow running in CI
+  # on PRs because we expect it to fail when the MPL is actually updated since the last version.
   pull_request:
 
 jobs:
@@ -21,7 +23,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        java-version: [8, 11, 16, 17]
+        java-version: [17]
         os: [macos-13]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -79,7 +81,7 @@ jobs:
           gradle -p runtimes/java test
 
       # The following three steps: "Transpile MPL Test Vectors without recursively building the MPL",
-      # "Run Test Vectors", and "Test Examples" mimic the tests in ./codebuild/staging/release-staging.yml
+      # "Run Test Vectors", and "Test Examples" mimic the tests in ./codebuild/staging/validate-staging.yml
       - name: Transpile MPL Test Vectors without recursively building the MPL
         working-directory: ./submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders
         run: |
