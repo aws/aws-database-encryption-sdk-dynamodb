@@ -64,8 +64,6 @@ jobs:
     uses: ./.github/workflows/ci_examples_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  pr-ci-latest-released-mpl-remove:
-    uses: ./.github/workflows/ci_test_latest_released_mpl_java.yml
   pr-ci-all-required:
     if: always()
     needs:
@@ -82,7 +80,6 @@ jobs:
       - pr-ci-rust
       - pr-ci-net-test-vectors
       - pr-ci-net-examples
-      - pr-ci-latest-released-mpl-remove
     runs-on: ubuntu-22.04
     steps:
       - name: Verify all required jobs passed

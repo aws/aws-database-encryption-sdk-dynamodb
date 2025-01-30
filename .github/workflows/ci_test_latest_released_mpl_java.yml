@@ -6,6 +6,7 @@ on:
   schedule:
     - cron: "00 16 * * 1-5"
   workflow_dispatch: # allows triggering this manually through the Actions UI
+  pull_request:
 
 jobs:
   testJava:
