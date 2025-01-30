@@ -12,12 +12,9 @@ on:
         default: main
         type: string
     outputs:
-      mplVersion:
+      version:
         description: "The MPL version"
         value: ${{ jobs.getMplHeadVersion.outputs.version }}
-      dafnyVersion:
-        description: "The dafny version for the MPL"
-        value: ${{ jobs.getMplHeadDafnyVersion.outputs.version }}
 
 jobs:
   getMplHeadVersion:
@@ -43,27 +40,3 @@ jobs:
         with:
           path: "submodules/MaterialProviders/project.properties"
           properties: "mplVersion"
-
-  getMplHeadDafnyVersion:
-    runs-on: ubuntu-22.04
-    outputs:
-      version: ${{ steps.read_property.outputs.dafnyVersion }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-      - name: Update MPL submodule locally if requested
-        working-directory: submodules/MaterialProviders
-        shell: bash
-        run: |
-          git checkout ${{inputs.mpl-head}}
-          git submodule update --init --recursive
-          git rev-parse HEAD
-
-      - name: Get the MPL version from the MPL submodule
-        id: read_property
-        uses: christian-draeger/read-properties@1.1.1
-        with:
-          path: "submodules/MaterialProviders/project.properties"
-          properties: "dafnyVersion"
