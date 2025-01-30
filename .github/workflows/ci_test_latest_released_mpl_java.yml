@@ -15,7 +15,7 @@ jobs:
     uses: ./.github/workflows/dafny_version.yml
   getVerifyVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/dafny_verify_version.ym
+    uses: ./.github/workflows/dafny_verify_version.yml
   testJava:
     needs: getVersion
     strategy:
