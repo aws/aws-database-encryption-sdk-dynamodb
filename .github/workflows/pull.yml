@@ -82,6 +82,7 @@ jobs:
       - pr-ci-rust
       - pr-ci-net-test-vectors
       - pr-ci-net-examples
+      - pr-ci-latest-released-mpl-remove
     runs-on: ubuntu-22.04
     steps:
       - name: Verify all required jobs passed
