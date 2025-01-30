@@ -92,7 +92,7 @@ dependencies {
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
     implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:1.8.0-SNAPSHOT")
 
-    implementation(platform("software.amazon.awssdk:bom:2.26.25"))
+    implementation(platform("software.amazon.awssdk:bom:2.30.8"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:core:2.26.25")
