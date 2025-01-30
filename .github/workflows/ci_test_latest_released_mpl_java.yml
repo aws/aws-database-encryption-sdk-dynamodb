@@ -1,0 +1,32 @@
+# This workflow is for testing that the latest released version
+# of the MPL is compatible with the current DB-ESDK Head
+name: Test Latest Released MPL Java with DB-ESDK HEAD
+
+on:
+  schedule:
+    - cron: "00 16 * * 1-5"
+
+jobs:
+  getDBESDKDafnyVersion:
+    # Don't run the cron builds on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/dafny_version.yml
+  getVerifyDBESDKDafnyVersion:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/dafny_verify_version.yml
+  getLatestReleaseMplVersion:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/mpl_latest_release_version.yml
+  getMplDafnyVersion:
+    needs: getLatestReleaseMplVersion
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/mpl_head_version.yml
+    with:
+      mpl-head: ${{needs.getLatestReleaseMplVersion.outputs.version}}
+  test-latest-released-mpl-java:
+    needs: [getDafnyVersion, getLatestReleaseMplVersion, getMplDafnyVersion]
+    uses: ./.github/workflows/dafny-interop.yml
+    with:
+      mpl-dafny: ${{needs.getLatestReleaseMplVersion.outputs.version}}
+      mpl-commit: ${{needs.getMplDafnyVersion.outputs.dafnyVersion}}
+      dbesdk-dafny: ${{needs.getDBESDKDafnyVersion.outputs.version}}

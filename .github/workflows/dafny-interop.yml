@@ -31,7 +31,7 @@ jobs:
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-java-test-vectors:
     needs: getMplHeadVersion
@@ -39,7 +39,7 @@ jobs:
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-java-examples:
     needs: getMplHeadVersion
@@ -47,7 +47,7 @@ jobs:
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-net:
     uses: ./.github/workflows/dafny_interop_test_net.yml

@@ -31,35 +31,35 @@ jobs:
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       mpl-head: true
   mpl-head-ci-test-vector-verification:
     needs: [getVerifyVersion, getMplHeadVersion]
     uses: ./.github/workflows/test_vector_verification.yml
     with:
       dafny: ${{needs.getVerifyVersion.outputs.version}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       mpl-head: true
   mpl-head-ci-java:
     needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_test_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       mpl-head: true
   mpl-head-ci-java-test-vectors:
     needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       mpl-head: true
   mpl-head-ci-java-examples:
     needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
+      mpl-version: ${{needs.getMplHeadVersion.outputs.mplVersion}}
       mpl-head: true
   mpl-head-ci-net:
     needs: getVersion
