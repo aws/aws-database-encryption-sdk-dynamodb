@@ -49,6 +49,9 @@ class ItemEncryptor:
             transform the encrypted DynamoDB JSON into an encrypted Python dictionary,
             then return the encrypted Python dictionary.
 
+        See the boto3 documentation for details on Python/DynamoDB type transfomations:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/dynamodb/types.html
+
         boto3 DynamoDB Tables and Resources expect items formatted as native Python dictionaries.
         Use this method to encrypt an item if you intend to pass the encrypted item
             to a boto3 DynamoDB Table or Resource interface to store it.
@@ -161,6 +164,9 @@ class ItemEncryptor:
             decrypt the DynamoDB JSON,
             transform the plaintext DynamoDB JSON into a plaintext Python dictionary,
             then return the plaintext Python dictionary.
+
+        See the boto3 documentation for details on Python/DynamoDB type transfomations:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/dynamodb/types.html
 
         boto3 DynamoDB Tables and Resources return items formatted as native Python dictionaries.
         Use this method to decrypt an item if you retrieve the encrypted item
