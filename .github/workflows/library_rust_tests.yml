@@ -108,7 +108,7 @@ jobs:
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
-          make test_rust
+          make test_rust test_rust_debug
 
       - name: Test Examples for Rust in ${{ matrix.library }}
         if: ${{ matrix.library == 'DynamoDbEncryption' }}
