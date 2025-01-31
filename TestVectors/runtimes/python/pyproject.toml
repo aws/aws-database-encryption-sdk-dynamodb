@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "aws-database-encryption-sdk-dynamodb-test-vectors"
+version = "0.1.0"
+description = ""
+authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
+packages = [
+    { include = "dbesdk_ddb_test_vectors", from = "src" },
+]
+# Include all of the following .gitignored files in package distributions,
+# even though it is not included in version control
+include = ["**/internaldafny/generated/*.py"]
+
+[tool.poetry.dependencies]
+python = "^3.11.0"
+aws-database-encryption-sdk = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false}
+aws-cryptography-internal-mpl-testvectors = { path = "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/python", develop = false}
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core<2.0.0"]
+build-backend = "poetry.core.masonry.api"

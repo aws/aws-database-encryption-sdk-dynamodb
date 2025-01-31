@@ -40,7 +40,7 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierInput:
 
     @staticmethod
     def from_dict(
-        d: Dict[str, Any]
+        d: Dict[str, Any],
     ) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierInput":
         """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierInput from a
         dictionary."""
@@ -97,7 +97,7 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
 
     @staticmethod
     def from_dict(
-        d: Dict[str, Any]
+        d: Dict[str, Any],
     ) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierOutput":
         """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierOutput from a
         dictionary."""
@@ -451,7 +451,7 @@ GetEncryptedDataKeyDescriptionUnion = Union[
 
 
 def _get_encrypted_data_key_description_union_from_dict(
-    d: Dict[str, Any]
+    d: Dict[str, Any],
 ) -> GetEncryptedDataKeyDescriptionUnion:
     if "header" in d:
         return GetEncryptedDataKeyDescriptionUnionHeader.from_dict(d)

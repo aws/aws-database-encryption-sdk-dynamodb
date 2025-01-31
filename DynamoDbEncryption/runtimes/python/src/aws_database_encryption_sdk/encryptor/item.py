@@ -27,17 +27,13 @@ class ItemEncryptor:
 
     def __init__(
         self,
-        *,
-        item_encryptor_config: DynamoDbItemEncryptorConfig | None,
+        item_encryptor_config: DynamoDbItemEncryptorConfig,
     ):
         """
         Create an ItemEncryptor.
-        Must provide exactly one of `item_encryptor_config` or `initialized_client`.
 
         Parameters:
-        item_encryptor_config (Optional[DynamoDbItemEncryptorConfig]): Encryption configuration object.
-        initialized_client (Optional[DynamoDbItemEncryptor]): Initialized DynamoDbItemEncryptor.
-
+        item_encryptor_config (DynamoDbItemEncryptorConfig): Encryption configuration object.
         """
         self._internal_client = DynamoDbItemEncryptor(config = item_encryptor_config)
 
@@ -109,7 +105,7 @@ class ItemEncryptor:
         """
         return self.encrypt_item(
             EncryptItemInput(
-                plaintext_item = plaintext_ddb_item
+                plaintext_item = plaintext_dynamodb_item
             )
         )
 

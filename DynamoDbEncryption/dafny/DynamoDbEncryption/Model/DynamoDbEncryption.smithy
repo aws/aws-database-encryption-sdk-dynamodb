@@ -26,6 +26,7 @@ use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#Key
 use com.amazonaws.dynamodb#AttributeNameList
 use com.amazonaws.dynamodb#KeySchemaAttributeName
+use com.amazonaws.dynamodb#ExpressionAttributeNameMap
 
 use aws.cryptography.primitives#AwsCryptographicPrimitives
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
@@ -880,4 +881,16 @@ structure CreateDynamoDbEncryptionBranchKeyIdSupplierOutput {
 structure DynamoDbEncryptionException {
   @required
   message: String,
+}
+
+structure ExtractAttrtibutesInput {
+  @required
+  s: string
+  ex: ExpressionAttributeNameMap
+}
+
+structure ExtractAttrtibutesOutput {
+  @required
+  s: string
+  ex: ExpressionAttributeNameMap
 }
