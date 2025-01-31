@@ -165,9 +165,9 @@ def convert_conditions_to_client_expression(condition, expression_attribute_name
     """
 
     # from boto3.dynamodb.conditions import ConditionExpressionBuilder
-    from aws_database_encryption_sdk.internal.condition_expression_builder import ConditionExpressionBuilder
+    from aws_database_encryption_sdk.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
     
-    a = ConditionExpressionBuilder()
+    a = InternalDBESDKDynamoDBConditionExpressionBuilder()
     out = a.build_expression(condition, expression_attribute_names, expression_attribute_values)
     print(f'our {out=}')
     return out
@@ -313,45 +313,42 @@ from boto3.dynamodb.types import TypeDeserializer
 
 def convert_client_expression_to_conditions(expression):
     """
-    Converts a DynamoDB client-compatible expression into a Key or Attr condition.
+    Crypto Tools internal method to convert a DynamoDB filter/key expression to boto3 Resource tokens.
+    DO NOT USE FOR ANY OTHER PURPOSE.
+    This is a basic implementation for simple expressions that will fail with complex expressions.
     
-    :param expression: A string of the DynamoDB client expression (e.g., "AttrName = :val").
-    :param expression_values: A dictionary of attribute values (e.g., {":val": {"N": "0"}}).
-    :param expression_names: A dictionary of attribute names, if placeholders are used (e.g., {"#attr": "AttrName"}).
-    :return: A boto3.dynamodb.conditions object (Key, Attr, or a combination of them).
-    """
+    To extend this to support one or a few complex expressions, consider extending the existing logic.
+    To extend this to support all expressions, consider implementing and extending the code below:
 
+    ```
     from aws_database_encryption_sdk.internaldafny.generated.DynamoDBFilterExpr import default__ as filter_expr
     import _dafny
     from smithy_dafny_standard_library.internaldafny.generated import Wrappers
-
-
 
     dafny_expr_token = filter_expr.ParseExpr(
         _dafny.Seq(
             expression
         ),
     )
+    ```
 
-
-
-    # print(f"{dafny_expr_token.Elements=}")
-    # print(f"{dafny_expr_token.Elements[0].__dict__=}")
-
-    # dafny_expr = filter_expr.ExtractAttributes(
-    #     _dafny.Seq(
-    #         expression
-    #     ),
-    #     Wrappers.Option_Some(_dafny.Map())
-    # )
-
-    # print(f"{dafny_expr.Elements=}")
-    # print(f"{dafny_expr.Elements[0].__dict__=}")
-
-    # def parse_dafny_tokens(dafny_tokens):
-    #     for 
-
-
+    This library's generated internal Dafny code has a DynamoDB string parser.
+    This will parse a _dafny.Seq and produce Dafny tokens for the expression.
+    Implementing this will involve
+        1. Mapping Dafny tokens to boto3 Resource tokens.
+            (e.g. class Token_Between -> boto3.dynamodb.conditions.Between)
+        2. Converting Dafny token grammar to boto3 Resource token grammar.
+            (e.g.
+                Dafny: [Token_Between, Token_Open, Token_Attr, Token_And, Token_Attr, Token_Close]
+                ->
+                boto3: [Between(Attr, Attr)]
+            )
+    
+    :param expression: A string of the DynamoDB client expression (e.g., "AttrName = :val").
+    :param expression_values: A dictionary of attribute values (e.g., {":val": {"N": "0"}}).
+    :param expression_names: A dictionary of attribute names, if placeholders are used (e.g., {"#attr": "AttrName"}).
+    :return: A boto3.dynamodb.conditions object (Key, Attr, or a combination of them).
+    """
 
     # Recursive parser for complex expressions
     def parse_expression(expr_tokens):
@@ -380,7 +377,7 @@ def convert_client_expression_to_conditions(expression):
             value = expr_tokens[3]
             return Attr(attr_name).contains(value)
         
-        # simple contains
+        # simple begins_with
         elif "BEGINS_WITH" == expr_tokens[0].upper():
             attr_name = expr_tokens[2]
             if attr_name[-1] == ",":
@@ -390,14 +387,8 @@ def convert_client_expression_to_conditions(expression):
          
         # Base case: Single comparison or condition
         if "AND" not in [t.upper() for t in expr_tokens] and "OR" not in [t.upper() for t in expr_tokens]:
-            # # BETWEEN operator
-            # if "BETWEEN" in [t.upper() for t in expr_tokens]:
-            #     attr_name = expr_tokens[0]
-            #     value1 = expr_tokens[2]
-            #     value2 = expr_tokens[4]
-            #     return Key(attr_name).between(value1, value2)
 
-            # Simple comparison
+            # simple comparison
             attr_name = expr_tokens[0]
             operator = expr_tokens[1].upper()
             value = expr_tokens[2]
@@ -415,12 +406,6 @@ def convert_client_expression_to_conditions(expression):
                 return Key(attr_name).gte(value)
             elif operator in ("!=", "<>"):
                 return Attr(attr_name).ne(value)
-            elif operator == "CONTAINS":
-                return Attr(attr_name).contains(value)
-            elif operator == "BEGINS_WITH":
-                return Key(attr_name).begins_with(value)
-            elif operator == "BEGINS_WITH":
-                return Key(attr_name).begins_with(value)
             else:
                 raise ValueError(f"Unsupported operator: {operator}")
 

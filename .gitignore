@@ -19,3 +19,8 @@ specification_compliance_report.html
 
 # logs 
 *.log
+
+# Performance testing artifacts
+*.png
+*.dot
+*.prof
