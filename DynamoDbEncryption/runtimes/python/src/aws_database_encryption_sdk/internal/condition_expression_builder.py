@@ -20,9 +20,9 @@ class InternalDBESDKDynamoDBConditionExpressionBuilder:
     https://github.com/boto/boto3/blob/c5c634b53be589d6e913e6dca51ad8d6480f58c7/boto3/dynamodb/conditions.py#L304
     The original class is intended to interface from boto3 Table resources to boto3 clients,
         and has logic to replace attribute names and values with placeholders.
-    This class is intended to interface from boto3 Table resources to internal DBESDK DyanmoDB operation transformers,
-        which does not expect inserted placeholders.
-    The placeholder insertion logic has been removed from this class along with its supporting logic,
+    The class defined here is intended to interface from boto3 Table resources
+        to internal DBESDK DynamoDB operation transformers, which does not expect inserted placeholders.
+    The placeholder insertion logic has been removed from this class, along with supporting logic,
         but this class maintains boto3's recursive ConditionExpression traversal logic.
     """
 
