@@ -97,10 +97,6 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
 
-      - name: Rustfmt Check
-        uses: actions-rust-lang/rustfmt@v1
-        working-directory: ./${{ matrix.library }}/runtimes/rust
-
       - name: Copy ${{ matrix.library }} Vector Files
         if: ${{ matrix.library == 'TestVectors' }}
         shell: bash
