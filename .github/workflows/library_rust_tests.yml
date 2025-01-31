@@ -55,16 +55,11 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
         with:
           components: rustfmt
-      # uncomment this after Rust formatter works
-      # - name: Rustfmt Check
-      #   uses: actions-rust-lang/rustfmt@v1
 
-      # Use setup-dafny-actions with correct version when Dafny releases 4.8.2
       - name: Setup Dafny
-        uses: ./submodules/smithy-dafny/.github/actions/build_dafny_from_source
+        uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
-          dafny-version: 4.9.2
-          ref: a928ebf5733dca040cbbb9b0c5861c20fb5bff6d
+          dafny-version: nightly-2025-01-30-7db1e5f
 
       - name: Update MPL submodule if using MPL HEAD
         if: ${{ inputs.mpl-head == true }}
@@ -74,16 +69,6 @@ jobs:
           git pull
           git submodule update --init --recursive
           git rev-parse HEAD
-
-      # Remove this after the formatting in Rust starts working
-      - name: smithy-dafny Rust hacks
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            sed -i '' 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' submodules/smithy-dafny/SmithyDafnyMakefile.mk
-          else
-            sed -i 's|rustfmt --edition 2021 runtimes/rust/src/implementation_from_dafny.rs|#&|' submodules/smithy-dafny/SmithyDafnyMakefile.mk
-          fi
 
       - name: Setup Java 17 for codegen
         uses: actions/setup-java@v3
@@ -111,6 +96,10 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
+
+      - name: Rustfmt Check
+        uses: actions-rust-lang/rustfmt@v1
+        working-directory: ./${{ matrix.library }}/runtimes/rust
 
       - name: Copy ${{ matrix.library }} Vector Files
         if: ${{ matrix.library == 'TestVectors' }}
