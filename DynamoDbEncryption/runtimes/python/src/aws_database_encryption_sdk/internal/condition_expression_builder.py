@@ -1,8 +1,5 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import re
-from collections import namedtuple
-
 from boto3.exceptions import (
     DynamoDBNeedsConditionError,
 )
