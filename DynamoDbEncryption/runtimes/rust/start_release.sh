@@ -29,10 +29,20 @@ export AWS_ACCESS_KEY_ID=`echo "$STS_RESPONSE" | jq -r .Credentials.AccessKeyId`
 export AWS_SECRET_ACCESS_KEY=`echo "$STS_RESPONSE" | jq -r .Credentials.SecretAccessKey`
 export AWS_SESSION_TOKEN=`echo "$STS_RESPONSE" | jq -r .Credentials.SessionToken`
 unset AWS_PROFILE AWS_SDK_LOAD_CONFIG _assume_role _session_name STS_RESPONSE
-    
+
+echo
+echo
+echo "Current Dafny Version:"
+dafny --version
+echo
+echo
+sleep 2
+
 # Update the version in Cargo.toml
 perl -pe "s/^version = .*$/version = \"$1\"/" < Cargo.toml > new_Cargo.toml
 mv new_Cargo.toml Cargo.toml
+
+set -v
 
 # Remove all files and directories in src except for specified files
 find src -depth 1 | egrep -v '(intercept.rs|lib.rs|software_externs.rs|README)' | xargs rm -rf
@@ -64,6 +74,10 @@ echo target >> .gitignore
 
 # format the generated code
 cargo fmt
+
+# clippy shuld run clean
+cargo clippy
+cargo clippy --example main
 
 # replace local path with latest dafny-runtime from crates.io
 cargo rm dafny-runtime
