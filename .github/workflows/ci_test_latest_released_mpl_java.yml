@@ -18,8 +18,11 @@ jobs:
   getVerifyVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/dafny_verify_version.yml
+  getMplDependencyJavaVersion:
+    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    uses: ./.github/workflows/mpl_dependency_java_version.yml
   testJava:
-    needs: getVersion
+    needs: [getVersion, getMplDependencyJavaVersion]
     strategy:
       max-parallel: 1
       matrix:
@@ -79,6 +82,13 @@ jobs:
         run: |
           gradle -p runtimes/java clean
           gradle -p runtimes/java test
+
+      # This makes sure that we are using the correct MPL version to test the DB-ESDK.
+      # If this contains a SNAPSHOT version, this will fail because'
+      # we are NOT building the MPL recursively but pulling from Maven.
+      - name: Update project.properties if using MPL HEAD
+        run: |
+          sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{needs.getMplDependencyJavaVersion.outputs.version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
       # The following three steps: "Transpile MPL Test Vectors without recursively building the MPL",
       # "Run Test Vectors", and "Test Examples" mimic the tests in ./codebuild/staging/validate-staging.yml

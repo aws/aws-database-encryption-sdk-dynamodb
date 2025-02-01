@@ -1,6 +1,6 @@
-# This workflow reads the project.properties
+# This workflow reads the project.properties in the MPL submodule
 # into the environment variables
-# and then creates an output variable for `dafnyVerifyVersion `
+# and then creates an output variable for `mplVersion`
 name: MPL HEAD Version
 
 on:
