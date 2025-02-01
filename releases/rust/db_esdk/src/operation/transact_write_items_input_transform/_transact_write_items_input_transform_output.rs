@@ -6,17 +6,23 @@
 #[allow(missing_docs)]
 pub struct TransactWriteItemsInputTransformOutput {
     #[allow(missing_docs)]
-pub transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput>,
+    pub transformed_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput,
+    >,
 }
 impl TransactWriteItemsInputTransformOutput {
     #[allow(missing_docs)]
-pub fn transformed_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput> {
-    &self.transformed_input
-}
+    pub fn transformed_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput,
+    > {
+        &self.transformed_input
+    }
 }
 impl TransactWriteItemsInputTransformOutput {
     /// Creates a new builder-style object to manufacture [`TransactWriteItemsInputTransformOutput`](crate::operation::transact_write_items_input_transform::builders::TransactWriteItemsInputTransformOutput).
-    pub fn builder() -> crate::operation::transact_write_items_input_transform::builders::TransactWriteItemsInputTransformOutputBuilder {
+    pub fn builder() -> crate::operation::transact_write_items_input_transform::builders::TransactWriteItemsInputTransformOutputBuilder{
         crate::operation::transact_write_items_input_transform::builders::TransactWriteItemsInputTransformOutputBuilder::default()
     }
 }
@@ -27,30 +33,46 @@ impl TransactWriteItemsInputTransformOutput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct TransactWriteItemsInputTransformOutputBuilder {
-    pub(crate) transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput>,
+    pub(crate) transformed_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput,
+    >,
 }
 impl TransactWriteItemsInputTransformOutputBuilder {
     #[allow(missing_docs)]
-pub fn transformed_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput>) -> Self {
-    self.transformed_input = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_transformed_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput>) -> Self {
-    self.transformed_input = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_transformed_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput> {
-    &self.transformed_input
-}
+    pub fn transformed_input(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput,
+        >,
+    ) -> Self {
+        self.transformed_input = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_transformed_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput,
+        >,
+    ) -> Self {
+        self.transformed_input = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_transformed_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_write_items::TransactWriteItemsInput,
+    > {
+        &self.transformed_input
+    }
     /// Consumes the builder and constructs a [`TransactWriteItemsInputTransformOutput`](crate::operation::operation::TransactWriteItemsInputTransformOutput).
     pub fn build(
         self,
     ) -> ::std::result::Result<
         crate::operation::transact_write_items_input_transform::TransactWriteItemsInputTransformOutput,
         ::aws_smithy_types::error::operation::BuildError,
-    > {
+    >{
         ::std::result::Result::Ok(crate::operation::transact_write_items_input_transform::TransactWriteItemsInputTransformOutput {
             transformed_input: self.transformed_input,
         })

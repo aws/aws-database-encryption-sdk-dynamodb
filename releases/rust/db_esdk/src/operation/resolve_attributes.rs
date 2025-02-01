@@ -20,7 +20,8 @@ impl ResolveAttributes {
     > {
         crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HResolveAttributesInput_for_DynamoDbEncryptionTransforms_ResolveAttributes(&input)
             .map_err(crate::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::conversions::resolve_attributes::_resolve_attributes_input::to_dafny(input);
+        let inner_input =
+            crate::conversions::resolve_attributes::_resolve_attributes_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ResolveAttributes(&inner_input);
         if matches!(
@@ -28,7 +29,9 @@ impl ResolveAttributes {
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
             Ok(
-                crate::conversions::resolve_attributes::_resolve_attributes_output::from_dafny(inner_result.value().clone()),
+                crate::conversions::resolve_attributes::_resolve_attributes_output::from_dafny(
+                    inner_result.value().clone(),
+                ),
             )
         } else {
             Err(crate::conversions::error::from_dafny(

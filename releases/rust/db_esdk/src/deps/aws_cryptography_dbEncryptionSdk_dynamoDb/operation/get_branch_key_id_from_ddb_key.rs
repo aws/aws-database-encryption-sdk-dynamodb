@@ -17,10 +17,14 @@ impl GetBranchKeyIdFromDdbKey {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error,
-    > {
+    >{
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetBranchKeyIdFromDdbKeyInput_for_DynamoDbKeyBranchKeyIdSupplier_GetBranchKeyIdFromDdbKey(&input)
             .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error::wrap_validation_err)?;
-        dynamo_db_key_branch_key_id_supplier.inner.borrow_mut().get_branch_key_id_from_ddb_key(input)
+        dynamo_db_key_branch_key_id_supplier
+            .inner
+            .lock()
+            .unwrap()
+            .get_branch_key_id_from_ddb_key(input)
     }
 }
 
