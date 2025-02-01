@@ -14,7 +14,7 @@ jobs:
   getMplDependencyJavaVersion:
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.read_property.outputs.mplVersion }}
+      version: ${{ steps.read_property.outputs.mplDependencyJavaVersion }}
     steps:
       - uses: actions/checkout@v4
       - name: Read version from Properties-file

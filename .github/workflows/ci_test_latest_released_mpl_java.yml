@@ -89,10 +89,8 @@ jobs:
       - name: Update project.properties to use the correct MPL version (from project.properties in DB-ESDK)
         working-directory: ./submodules/MaterialProviders/
         run: |
-          echo ${{ needs.getVersion.outputs.version }} 
-          echo ${{ needs.getMplDependencyJavaVersion.outputs.version }}
           cat project.properties
-          sed "s/mplVersion=.*/mplVersion=${{ needs.getMplDependencyJavaVersion.outputs.version }}/g" project.properties > project.properties2; mv project.properties2 project.properties
+          sed "s/mplVersion=.*/mplVersion=${{needs.getMplDependencyJavaVersion.outputs.version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
           cat project.properties
 
       # The following three steps: "Transpile MPL Test Vectors without recursively building the MPL",
