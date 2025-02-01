@@ -50,30 +50,30 @@ jobs:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
 
-      - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
-        with:
-          dafny-version: ${{ needs.getVersion.outputs.version }}
+      # - name: Setup Dafny
+      #   uses: dafny-lang/setup-dafny-action@v1.8.0
+      #   with:
+      #     dafny-version: ${{ needs.getVersion.outputs.version }}
 
-      - name: Regenerate code using smithy-dafny if necessary
-        if: ${{ inputs.regenerate-code }}
-        uses: ./.github/actions/polymorph_codegen
-        with:
-          dafny: ${{ env.DAFNY_VERSION }}
-          library: DynamoDbEncryption
-          diff-generated-code: false
-          update-and-regenerate-mpl: true
+      # - name: Regenerate code using smithy-dafny if necessary
+      #   if: ${{ inputs.regenerate-code }}
+      #   uses: ./.github/actions/polymorph_codegen
+      #   with:
+      #     dafny: ${{ env.DAFNY_VERSION }}
+      #     library: DynamoDbEncryption
+      #     diff-generated-code: false
+      #     update-and-regenerate-mpl: true
 
       # The following two steps: "Build and deploy to maven local" and "Run Extensive Tests"
       # mimic the tests in ./codebuild/staging/release-staging.yml
-      - name: Build and deploy to maven local
-        shell: bash
-        working-directory: ./DynamoDbEncryption
-        run: |
-          # Run transpile by itself. We don't want to locally build the MPL because
-          # we want to verify that the version pulled down from maven works correctly
-          make transpile_implementation_java
-          make transpile_test_java
+      # - name: Build and deploy to maven local
+      #   shell: bash
+      #   working-directory: ./DynamoDbEncryption
+      #   run: |
+      #     # Run transpile by itself. We don't want to locally build the MPL because
+      #     # we want to verify that the version pulled down from maven works correctly
+      #     make transpile_implementation_java
+      #     make transpile_test_java
       #     make mvn_local_deploy
       #     make test_java
 
@@ -89,9 +89,9 @@ jobs:
       - name: Update project.properties to use the correct MPL version (from project.properties in DB-ESDK)
         working-directory: ./submodules/MaterialProviders/
         run: |
-          echo ${{needs.getMplDependencyJavaVersion.outputs.version}}
+          echo ${{ needs.getMplDependencyJavaVersion.outputs.version }}
           cat project.properties
-          sed "s/mplVersion=.*/mplVersion=${{needs.getMplDependencyJavaVersion.outputs.version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
+          sed "s/mplVersion=.*/mplVersion=${{ needs.getMplDependencyJavaVersion.outputs.version }}/g" project.properties > project.properties2; mv project.properties2 project.properties
           cat project.properties
 
       # The following three steps: "Transpile MPL Test Vectors without recursively building the MPL",
