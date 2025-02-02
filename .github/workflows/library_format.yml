@@ -19,7 +19,7 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-13]
     runs-on: ${{ matrix.os }}
     defaults:
       run:

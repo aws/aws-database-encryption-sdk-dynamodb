@@ -26,10 +26,16 @@ public class MultiKeyStore {
    */
   private final CacheType cache;
 
+  /**
+   * Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
+   */
+  private final String partitionId;
+
   protected MultiKeyStore(BuilderImpl builder) {
     this.keyFieldName = builder.keyFieldName();
     this.cacheTTL = builder.cacheTTL();
     this.cache = builder.cache();
+    this.partitionId = builder.partitionId();
   }
 
   /**
@@ -51,6 +57,13 @@ public class MultiKeyStore {
    */
   public CacheType cache() {
     return this.cache;
+  }
+
+  /**
+   * @return Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
+   */
+  public String partitionId() {
+    return this.partitionId;
   }
 
   public Builder toBuilder() {
@@ -92,6 +105,16 @@ public class MultiKeyStore {
      */
     CacheType cache();
 
+    /**
+     * @param partitionId Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
+     */
+    Builder partitionId(String partitionId);
+
+    /**
+     * @return Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.
+     */
+    String partitionId();
+
     MultiKeyStore build();
   }
 
@@ -103,12 +126,15 @@ public class MultiKeyStore {
 
     protected CacheType cache;
 
+    protected String partitionId;
+
     protected BuilderImpl() {}
 
     protected BuilderImpl(MultiKeyStore model) {
       this.keyFieldName = model.keyFieldName();
       this.cacheTTL = model.cacheTTL();
       this.cache = model.cache();
+      this.partitionId = model.partitionId();
     }
 
     public Builder keyFieldName(String keyFieldName) {
@@ -136,6 +162,15 @@ public class MultiKeyStore {
 
     public CacheType cache() {
       return this.cache;
+    }
+
+    public Builder partitionId(String partitionId) {
+      this.partitionId = partitionId;
+      return this;
+    }
+
+    public String partitionId() {
+      return this.partitionId;
     }
 
     public MultiKeyStore build() {

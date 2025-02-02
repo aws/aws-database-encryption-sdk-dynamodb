@@ -96,6 +96,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         return;
       }
       Validate();
+      // Because of Dafny-Rust's lack of modules, there is no way to mae an interceptor for the wrapped DB-ESDK client.
+      // So we create runtimes/rust/SkipLocal.txt to skip those tests that need the wrapped client.
+      var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
+      if skipLocal.Success? {
+        return;
+      }
       StringOrdering();
       BasicIoTest();
       RunIoTests();

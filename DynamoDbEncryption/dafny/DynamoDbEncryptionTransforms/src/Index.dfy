@@ -130,6 +130,7 @@ module
              (if tableConfig.keyring.Some? then tableConfig.keyring.value.Modifies else {})
              + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
              + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
+             + (if tableConfig.search.Some? then tableConfig.search.value.versions[0].keyStore.Modifies else {})
            )
       :: o;
 
@@ -150,10 +151,11 @@ module
       var tableName: string := tableNamesSeq[i];
 
       var inputConfig := config.tableEncryptionConfigs[tableName];
-      :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table maped to multipule physical tables: " + inputConfig.logicalTableName));
+      :- Need(inputConfig.logicalTableName !in allLogicalTableNames,  E("Duplicate logical table mapped to multiple physical tables: " + inputConfig.logicalTableName));
 
       assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
       SearchInModifies(config, tableName);
+      reveal SearchConfigToInfo.ValidSharedCache();
       var searchR := SearchConfigToInfo.Convert(inputConfig);
       var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
       assert search.None? || search.value.ValidState();

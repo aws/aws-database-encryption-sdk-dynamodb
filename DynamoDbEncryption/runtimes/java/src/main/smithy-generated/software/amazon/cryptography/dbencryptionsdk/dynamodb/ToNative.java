@@ -15,6 +15,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_Opaque;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_OpaqueWithText;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.AsSet;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.BeaconKeySource;
@@ -48,6 +49,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.Lower;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.MultiKeyStore;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PartOnly;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOverride;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.SearchConfig;
@@ -67,6 +69,17 @@ public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue.dtor_obj());
+    return nativeBuilder.build();
+  }
+
+  public static OpaqueWithTextError Error(Error_OpaqueWithText dafnyValue) {
+    OpaqueWithTextError.Builder nativeBuilder = OpaqueWithTextError.builder();
+    nativeBuilder.obj(dafnyValue.dtor_obj());
+    nativeBuilder.objMessage(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_objMessage()
+      )
+    );
     return nativeBuilder.build();
   }
 
@@ -106,6 +119,9 @@ public class ToNative {
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }
+    if (dafnyValue.is_OpaqueWithText()) {
+      return ToNative.Error((Error_OpaqueWithText) dafnyValue);
+    }
     if (dafnyValue.is_CollectionOfErrors()) {
       return ToNative.Error((Error_CollectionOfErrors) dafnyValue);
     }
@@ -127,6 +143,11 @@ public class ToNative {
     if (dafnyValue.is_AwsCryptographyDbEncryptionSdkStructuredEncryption()) {
       return software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative.Error(
         dafnyValue.dtor_AwsCryptographyDbEncryptionSdkStructuredEncryption()
+      );
+    }
+    if (dafnyValue.is_AwsCryptographyKeyStore()) {
+      return software.amazon.cryptography.keystore.ToNative.Error(
+        dafnyValue.dtor_AwsCryptographyKeyStore()
       );
     }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
@@ -574,6 +595,13 @@ public class ToNative {
         )
       );
     }
+    if (dafnyValue.dtor_partitionId().is_Some()) {
+      nativeBuilder.partitionId(
+        software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+          dafnyValue.dtor_partitionId().dtor_value()
+        )
+      );
+    }
     return nativeBuilder.build();
   }
 
@@ -653,6 +681,20 @@ public class ToNative {
       )
     );
     nativeBuilder.cacheTTL((dafnyValue.dtor_cacheTTL()));
+    if (dafnyValue.dtor_cache().is_Some()) {
+      nativeBuilder.cache(
+        software.amazon.cryptography.materialproviders.ToNative.CacheType(
+          dafnyValue.dtor_cache().dtor_value()
+        )
+      );
+    }
+    if (dafnyValue.dtor_partitionId().is_Some()) {
+      nativeBuilder.partitionId(
+        software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+          dafnyValue.dtor_partitionId().dtor_value()
+        )
+      );
+    }
     return nativeBuilder.build();
   }
 
