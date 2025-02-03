@@ -6,13 +6,19 @@
 #[allow(missing_docs)]
 pub struct ExecuteTransactionInputTransformInput {
     #[allow(missing_docs)]
-pub sdk_input: ::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>,
+    pub sdk_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+    >,
 }
 impl ExecuteTransactionInputTransformInput {
     #[allow(missing_docs)]
-pub fn sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput> {
-    &self.sdk_input
-}
+    pub fn sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+    > {
+        &self.sdk_input
+    }
 }
 impl ExecuteTransactionInputTransformInput {
     /// Creates a new builder-style object to manufacture [`ExecuteTransactionInputTransformInput`](crate::types::ExecuteTransactionInputTransformInput).
@@ -27,23 +33,39 @@ impl ExecuteTransactionInputTransformInput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct ExecuteTransactionInputTransformInputBuilder {
-    pub(crate) sdk_input: ::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>,
+    pub(crate) sdk_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+    >,
 }
 impl ExecuteTransactionInputTransformInputBuilder {
     #[allow(missing_docs)]
-pub fn sdk_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>) -> Self {
-    self.sdk_input = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_sdk_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>) -> Self {
-    self.sdk_input = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput> {
-    &self.sdk_input
-}
+    pub fn sdk_input(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+        >,
+    ) -> Self {
+        self.sdk_input = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_sdk_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+        >,
+    ) -> Self {
+        self.sdk_input = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+    > {
+        &self.sdk_input
+    }
     /// Consumes the builder and constructs a [`ExecuteTransactionInputTransformInput`](crate::types::ExecuteTransactionInputTransformInput).
     pub fn build(
         self,

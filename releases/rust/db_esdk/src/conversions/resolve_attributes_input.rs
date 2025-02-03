@@ -4,16 +4,16 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::types::ResolveAttributesInput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput,
-> {
-    ::std::rc::Rc::new(to_dafny_plain(value.clone()))
+>{
+    ::dafny_runtime::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::types::ResolveAttributesInput,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput::ResolveAttributesInput {
         TableName: crate::standard_library_conversions::ostring_to_dafny(&value.table_name) .Extract(),
  Item: ::dafny_runtime::dafny_runtime_conversions::hashmap_to_dafny_map(&value.item.clone().unwrap(),
@@ -29,20 +29,20 @@ pub fn to_dafny_plain(
 #[allow(dead_code)]
 pub fn option_to_dafny(
   value: ::std::option::Option<crate::types::ResolveAttributesInput>,
-) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+) -> ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
   crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput,
 >>>{
-    ::std::rc::Rc::new(match value {
+    ::dafny_runtime::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {
-            value: ::std::rc::Rc::new(to_dafny_plain(x)),
+            value: ::dafny_runtime::Rc::new(to_dafny_plain(x)),
         },
     })
 }
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput,
     >,
 ) -> crate::types::ResolveAttributesInput {
@@ -59,7 +59,7 @@ pub fn plain_from_dafny(
                 .set_table_name(Some( dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(dafny_value.TableName()) ))
  .set_item(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(&dafny_value.Item(),
     |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<::dafny_runtime::dafny_runtime_conversions::DafnyCharUTF16>| dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(k),
-    |v: &::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValue>| crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::from_dafny(v.clone())
+    |v: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValue>| crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::from_dafny(v.clone())
 ,
 )
  ))
@@ -71,7 +71,7 @@ pub fn plain_from_dafny(
 
 #[allow(dead_code)]
 pub fn option_from_dafny(
-    dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ResolveAttributesInput,
     >>>,
 ) -> ::std::option::Option<crate::types::ResolveAttributesInput> {

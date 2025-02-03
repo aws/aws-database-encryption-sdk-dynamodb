@@ -13,7 +13,7 @@ impl EncryptItemInputBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::EncryptItemOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error,
-    > {
+    >{
         let mut fluent_builder = client.encrypt_item();
         fluent_builder.inner = self;
         fluent_builder.send().await
@@ -29,14 +29,16 @@ pub struct EncryptItemFluentBuilder {
 }
 impl EncryptItemFluentBuilder {
     /// Creates a new `EncryptItem`.
-    pub(crate) fn new(client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client::Client) -> Self {
+    pub(crate) fn new(
+        client: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client::Client,
+    ) -> Self {
         Self {
             client,
             inner: ::std::default::Default::default(),
         }
     }
     /// Access the EncryptItem as a reference.
-    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::builders::EncryptItemInputBuilder {
+    pub fn as_input(&self) -> &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::builders::EncryptItemInputBuilder{
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -45,7 +47,7 @@ impl EncryptItemFluentBuilder {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::EncryptItemOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error,
-    > {
+    >{
         let input = self
             .inner
             .build()
@@ -56,24 +58,44 @@ impl EncryptItemFluentBuilder {
             .map_err(|mut e| {
 	     let msg = format!("{:?}", e);
              crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::error::Error::OpaqueWithText {
-                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
+                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut ::dafny_runtime::DynAny),
 		objMessage: msg
              }})?;
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::EncryptItem::send(&self.client, input).await
     }
 
     /// The DynamoDB item to encrypt.
-pub fn plaintext_item(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>) -> Self {
-    self.inner = self.inner.plaintext_item(input.into());
-    self
-}
-/// The DynamoDB item to encrypt.
-pub fn set_plaintext_item(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>) -> Self {
-    self.inner = self.inner.set_plaintext_item(input);
-    self
-}
-/// The DynamoDB item to encrypt.
-pub fn get_plaintext_item(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>> {
-    self.inner.get_plaintext_item()
-}
+    pub fn plaintext_item(
+        mut self,
+        input: impl ::std::convert::Into<
+            ::std::collections::HashMap<
+                ::std::string::String,
+                aws_sdk_dynamodb::types::AttributeValue,
+            >,
+        >,
+    ) -> Self {
+        self.inner = self.inner.plaintext_item(input.into());
+        self
+    }
+    /// The DynamoDB item to encrypt.
+    pub fn set_plaintext_item(
+        mut self,
+        input: ::std::option::Option<
+            ::std::collections::HashMap<
+                ::std::string::String,
+                aws_sdk_dynamodb::types::AttributeValue,
+            >,
+        >,
+    ) -> Self {
+        self.inner = self.inner.set_plaintext_item(input);
+        self
+    }
+    /// The DynamoDB item to encrypt.
+    pub fn get_plaintext_item(
+        &self,
+    ) -> &::std::option::Option<
+        ::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>,
+    > {
+        self.inner.get_plaintext_item()
+    }
 }
