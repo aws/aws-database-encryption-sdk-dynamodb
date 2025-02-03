@@ -5,8 +5,8 @@
 
 pub fn to_dafny(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoAction>{
-    ::std::rc::Rc::new(match value {
+) -> ::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoAction>{
+    ::dafny_runtime::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction::EncryptAndSign => crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoAction::ENCRYPT_AND_SIGN {},
 crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction::SignAndIncludeInEncryptionContext => crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoAction::SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {},
 crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction::SignOnly => crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoAction::SIGN_ONLY {},
@@ -14,7 +14,7 @@ crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::Crypt
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoAction,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction {

@@ -2,6 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
- pub mod _batch_execute_statement_input_transform_input;
+pub mod _batch_execute_statement_input_transform_input;
 
- pub mod _batch_execute_statement_input_transform_output;
+pub mod _batch_execute_statement_input_transform_output;

@@ -4,17 +4,17 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::update_item_input_transform::UpdateItemInputTransformOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::UpdateItemInputTransformOutput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::UpdateItemInputTransformOutput::UpdateItemInputTransformOutput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::UpdateItemInputTransformOutput::UpdateItemInputTransformOutput {
         transformedInput: crate::deps::com_amazonaws_dynamodb::conversions::update_item::_update_item_request::to_dafny(&value.transformed_input.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::UpdateItemInputTransformOutput,
     >,
 ) -> crate::operation::update_item_input_transform::UpdateItemInputTransformOutput {

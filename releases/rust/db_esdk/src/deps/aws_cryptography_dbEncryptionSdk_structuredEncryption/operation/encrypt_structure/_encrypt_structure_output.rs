@@ -14,21 +14,32 @@ pub parsed_header: ::std::option::Option<crate::deps::aws_cryptography_dbEncrypt
 }
 impl EncryptStructureOutput {
     #[allow(missing_docs)]
-pub fn crypto_schema(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>> {
-    &self.crypto_schema
-}
-#[allow(missing_docs)]
-pub fn encrypted_structure(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>> {
-    &self.encrypted_structure
-}
-#[allow(missing_docs)]
-pub fn parsed_header(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader> {
-    &self.parsed_header
-}
+    pub fn crypto_schema(
+        &self,
+    ) -> &::std::option::Option<
+        ::std::collections::HashMap<
+            ::std::string::String,
+            crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction,
+        >,
+    > {
+        &self.crypto_schema
+    }
+    #[allow(missing_docs)]
+    pub fn encrypted_structure(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>{
+        &self.encrypted_structure
+    }
+    #[allow(missing_docs)]
+    pub fn parsed_header(
+        &self,
+    ) -> &::std::option::Option<
+        crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
+    > {
+        &self.parsed_header
+    }
 }
 impl EncryptStructureOutput {
     /// Creates a new builder-style object to manufacture [`EncryptStructureOutput`](crate::operation::encrypt_structure::builders::EncryptStructureOutput).
-    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::builders::EncryptStructureOutputBuilder {
+    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::builders::EncryptStructureOutputBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::builders::EncryptStructureOutputBuilder::default()
     }
 }
@@ -45,54 +56,87 @@ pub(crate) parsed_header: ::std::option::Option<crate::deps::aws_cryptography_db
 }
 impl EncryptStructureOutputBuilder {
     #[allow(missing_docs)]
-pub fn crypto_schema(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>>) -> Self {
-    self.crypto_schema = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_crypto_schema(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>>) -> Self {
-    self.crypto_schema = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_crypto_schema(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>> {
-    &self.crypto_schema
-}
-#[allow(missing_docs)]
-pub fn encrypted_structure(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>) -> Self {
-    self.encrypted_structure = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_encrypted_structure(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>) -> Self {
-    self.encrypted_structure = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_encrypted_structure(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>> {
-    &self.encrypted_structure
-}
-#[allow(missing_docs)]
-pub fn parsed_header(mut self, input: impl ::std::convert::Into<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader>) -> Self {
-    self.parsed_header = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_parsed_header(mut self, input: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader>) -> Self {
-    self.parsed_header = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_parsed_header(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader> {
-    &self.parsed_header
-}
+    pub fn crypto_schema(
+        mut self,
+        input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>>,
+    ) -> Self {
+        self.crypto_schema = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_crypto_schema(
+        mut self,
+        input: ::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>>,
+    ) -> Self {
+        self.crypto_schema = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_crypto_schema(
+        &self,
+    ) -> &::std::option::Option<
+        ::std::collections::HashMap<
+            ::std::string::String,
+            crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction,
+        >,
+    > {
+        &self.crypto_schema
+    }
+    #[allow(missing_docs)]
+    pub fn encrypted_structure(
+        mut self,
+        input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>,
+    ) -> Self {
+        self.encrypted_structure = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_encrypted_structure(
+        mut self,
+        input: ::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>,
+    ) -> Self {
+        self.encrypted_structure = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_encrypted_structure(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>{
+        &self.encrypted_structure
+    }
+    #[allow(missing_docs)]
+    pub fn parsed_header(
+        mut self,
+        input: impl ::std::convert::Into<
+            crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
+        >,
+    ) -> Self {
+        self.parsed_header = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_parsed_header(
+        mut self,
+        input: ::std::option::Option<
+            crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
+        >,
+    ) -> Self {
+        self.parsed_header = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_parsed_header(
+        &self,
+    ) -> &::std::option::Option<
+        crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader,
+    > {
+        &self.parsed_header
+    }
     /// Consumes the builder and constructs a [`EncryptStructureOutput`](crate::operation::operation::EncryptStructureOutput).
     pub fn build(
         self,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::EncryptStructureOutput,
         ::aws_smithy_types::error::operation::BuildError,
-    > {
+    >{
         ::std::result::Result::Ok(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::EncryptStructureOutput {
             crypto_schema: self.crypto_schema,
 encrypted_structure: self.encrypted_structure,

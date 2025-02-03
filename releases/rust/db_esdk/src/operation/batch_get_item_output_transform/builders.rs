@@ -35,7 +35,7 @@ impl BatchGetItemOutputTransformFluentBuilder {
         }
     }
     /// Access the BatchGetItemOutputTransform as a reference.
-    pub fn as_input(&self) -> &crate::operation::batch_get_item_output_transform::builders::BatchGetItemOutputTransformInputBuilder {
+    pub fn as_input(&self) -> &crate::operation::batch_get_item_output_transform::builders::BatchGetItemOutputTransformInputBuilder{
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -53,40 +53,69 @@ impl BatchGetItemOutputTransformFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-	     let msg = format!("{:?}", e);
-             crate::types::error::Error::OpaqueWithText {
-                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-		objMessage: msg
-             }})?;
-        crate::operation::batch_get_item_output_transform::BatchGetItemOutputTransform::send(&self.client, input).await
+                let msg = format!("{:?}", e);
+                crate::types::error::Error::OpaqueWithText {
+                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut ::dafny_runtime::DynAny),
+                    objMessage: msg,
+                }
+            })?;
+        crate::operation::batch_get_item_output_transform::BatchGetItemOutputTransform::send(
+            &self.client,
+            input,
+        )
+        .await
     }
 
     #[allow(missing_docs)]
-pub fn original_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput>) -> Self {
-    self.inner = self.inner.original_input(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_original_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput>) -> Self {
-    self.inner = self.inner.set_original_input(input);
-    self
-}
-#[allow(missing_docs)]
-pub fn get_original_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput> {
-    self.inner.get_original_input()
-}
-#[allow(missing_docs)]
-pub fn sdk_output(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemOutput>) -> Self {
-    self.inner = self.inner.sdk_output(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_sdk_output(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemOutput>) -> Self {
-    self.inner = self.inner.set_sdk_output(input);
-    self
-}
-#[allow(missing_docs)]
-pub fn get_sdk_output(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemOutput> {
-    self.inner.get_sdk_output()
-}
+    pub fn original_input(
+        mut self,
+        input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput>,
+    ) -> Self {
+        self.inner = self.inner.original_input(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_original_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.set_original_input(input);
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_original_input(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemInput>
+    {
+        self.inner.get_original_input()
+    }
+    #[allow(missing_docs)]
+    pub fn sdk_output(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemOutput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.sdk_output(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_sdk_output(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemOutput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.set_sdk_output(input);
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_sdk_output(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemOutput>
+    {
+        self.inner.get_sdk_output()
+    }
 }

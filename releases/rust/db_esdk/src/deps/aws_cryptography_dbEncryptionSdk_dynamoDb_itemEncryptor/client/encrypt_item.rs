@@ -10,7 +10,7 @@ impl crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::clien
     ///   - [`encrypted_item(Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>)`](crate::operation::encrypt_item::EncryptItemOutput::encrypted_item): (undocumented)
     ///   - [`parsed_header(Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::ParsedHeader>)`](crate::operation::encrypt_item::EncryptItemOutput::parsed_header): (undocumented)
     /// - On failure, responds with [`SdkError<EncryptItemError>`](crate::operation::encrypt_item::EncryptItemError)
-    pub fn encrypt_item(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::builders::EncryptItemFluentBuilder {
+    pub fn encrypt_item(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::builders::EncryptItemFluentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::operation::encrypt_item::builders::EncryptItemFluentBuilder::new(self.clone())
     }
 }
