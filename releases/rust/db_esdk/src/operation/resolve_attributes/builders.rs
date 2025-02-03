@@ -36,7 +36,9 @@ impl ResolveAttributesFluentBuilder {
         }
     }
     /// Access the ResolveAttributes as a reference.
-    pub fn as_input(&self) -> &crate::operation::resolve_attributes::builders::ResolveAttributesInputBuilder {
+    pub fn as_input(
+        &self,
+    ) -> &crate::operation::resolve_attributes::builders::ResolveAttributesInputBuilder {
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -54,54 +56,75 @@ impl ResolveAttributesFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-	     let msg = format!("{:?}", e);
-             crate::types::error::Error::OpaqueWithText {
-                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-		objMessage: msg
-             }})?;
+                let msg = format!("{:?}", e);
+                crate::types::error::Error::OpaqueWithText {
+                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut ::dafny_runtime::DynAny),
+                    objMessage: msg,
+                }
+            })?;
         crate::operation::resolve_attributes::ResolveAttributes::send(&self.client, input).await
     }
 
     /// The Item to be examined.
-pub fn item(mut self, input: impl ::std::convert::Into<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>) -> Self {
-    self.inner = self.inner.item(input.into());
-    self
-}
-/// The Item to be examined.
-pub fn set_item(mut self, input: ::std::option::Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>>) -> Self {
-    self.inner = self.inner.set_item(input);
-    self
-}
-/// The Item to be examined.
-pub fn get_item(&self) -> &::std::option::Option<::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>> {
-    self.inner.get_item()
-}
-/// Use the config for this Table.
-pub fn table_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-    self.inner = self.inner.table_name(input.into());
-    self
-}
-/// Use the config for this Table.
-pub fn set_table_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-    self.inner = self.inner.set_table_name(input);
-    self
-}
-/// Use the config for this Table.
-pub fn get_table_name(&self) -> &::std::option::Option<::std::string::String> {
-    self.inner.get_table_name()
-}
-/// The beacon version to use. Defaults to 'writeVersion'.
-pub fn version(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
-    self.inner = self.inner.version(input.into());
-    self
-}
-/// The beacon version to use. Defaults to 'writeVersion'.
-pub fn set_version(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
-    self.inner = self.inner.set_version(input);
-    self
-}
-/// The beacon version to use. Defaults to 'writeVersion'.
-pub fn get_version(&self) -> &::std::option::Option<::std::primitive::i32> {
-    self.inner.get_version()
-}
+    pub fn item(
+        mut self,
+        input: impl ::std::convert::Into<
+            ::std::collections::HashMap<
+                ::std::string::String,
+                aws_sdk_dynamodb::types::AttributeValue,
+            >,
+        >,
+    ) -> Self {
+        self.inner = self.inner.item(input.into());
+        self
+    }
+    /// The Item to be examined.
+    pub fn set_item(
+        mut self,
+        input: ::std::option::Option<
+            ::std::collections::HashMap<
+                ::std::string::String,
+                aws_sdk_dynamodb::types::AttributeValue,
+            >,
+        >,
+    ) -> Self {
+        self.inner = self.inner.set_item(input);
+        self
+    }
+    /// The Item to be examined.
+    pub fn get_item(
+        &self,
+    ) -> &::std::option::Option<
+        ::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>,
+    > {
+        self.inner.get_item()
+    }
+    /// Use the config for this Table.
+    pub fn table_name(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+        self.inner = self.inner.table_name(input.into());
+        self
+    }
+    /// Use the config for this Table.
+    pub fn set_table_name(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+        self.inner = self.inner.set_table_name(input);
+        self
+    }
+    /// Use the config for this Table.
+    pub fn get_table_name(&self) -> &::std::option::Option<::std::string::String> {
+        self.inner.get_table_name()
+    }
+    /// The beacon version to use. Defaults to 'writeVersion'.
+    pub fn version(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
+        self.inner = self.inner.version(input.into());
+        self
+    }
+    /// The beacon version to use. Defaults to 'writeVersion'.
+    pub fn set_version(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
+        self.inner = self.inner.set_version(input);
+        self
+    }
+    /// The beacon version to use. Defaults to 'writeVersion'.
+    pub fn get_version(&self) -> &::std::option::Option<::std::primitive::i32> {
+        self.inner.get_version()
+    }
 }
