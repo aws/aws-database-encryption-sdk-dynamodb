@@ -279,7 +279,7 @@ module TestFixtures {
       "TheKeyField" := SE.SIGN_ONLY
     ]
 
-  method GetDynamoDbEncryptionTransformsMutli(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
+  method GetDynamoDbEncryptionTransformsMulti(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
     returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)

@@ -4,21 +4,21 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon,
-> {
-    ::std::rc::Rc::new(to_dafny_plain(value.clone()))
+>{
+    ::dafny_runtime::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon::StandardBeacon {
         name: crate::standard_library_conversions::ostring_to_dafny(&value.name) .Extract(),
  length: value.length.clone().unwrap(),
  loc: crate::standard_library_conversions::ostring_to_dafny(&value.loc),
- style: ::std::rc::Rc::new(match &value.style {
+ style: ::dafny_runtime::Rc::new(match &value.style {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::beacon_style::to_dafny(&x.clone()) },
     None => crate::_Wrappers_Compile::Option::None { }
 })
@@ -29,20 +29,20 @@ pub fn to_dafny_plain(
 #[allow(dead_code)]
 pub fn option_to_dafny(
   value: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon>,
-) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+) -> ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
   crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon,
 >>>{
-    ::std::rc::Rc::new(match value {
+    ::dafny_runtime::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {
-            value: ::std::rc::Rc::new(to_dafny_plain(x)),
+            value: ::dafny_runtime::Rc::new(to_dafny_plain(x)),
         },
     })
 }
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon,
     >,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon {
@@ -72,10 +72,12 @@ pub fn plain_from_dafny(
 
 #[allow(dead_code)]
 pub fn option_from_dafny(
-    dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

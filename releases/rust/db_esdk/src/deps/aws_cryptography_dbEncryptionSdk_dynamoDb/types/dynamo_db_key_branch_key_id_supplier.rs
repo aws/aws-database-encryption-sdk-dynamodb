@@ -3,7 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 #[allow(missing_docs)]
-pub trait DynamoDbKeyBranchKeyIdSupplier {
+pub trait DynamoDbKeyBranchKeyIdSupplier: Send + Sync {
     fn get_branch_key_id_from_ddb_key(
     &self,
     input: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyInput,
@@ -16,18 +16,20 @@ pub trait DynamoDbKeyBranchKeyIdSupplier {
 #[derive(::std::clone::Clone)]
 /// A reference to a DynamoDbKeyBranchKeyIdSupplier
 pub struct DynamoDbKeyBranchKeyIdSupplierRef {
-  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn DynamoDbKeyBranchKeyIdSupplier>>
+    pub inner: ::dafny_runtime::Rc<::dafny_runtime::RefCell<dyn DynamoDbKeyBranchKeyIdSupplier>>,
 }
 
-impl<T : DynamoDbKeyBranchKeyIdSupplier + 'static> From<T> for DynamoDbKeyBranchKeyIdSupplierRef {
+impl<T: DynamoDbKeyBranchKeyIdSupplier + 'static> From<T> for DynamoDbKeyBranchKeyIdSupplierRef {
     fn from(value: T) -> Self {
-        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
+        Self {
+            inner: dafny_runtime::Rc::new(::dafny_runtime::RefCell::new(value)),
+        }
     }
 }
 
 impl ::std::cmp::PartialEq for DynamoDbKeyBranchKeyIdSupplierRef {
     fn eq(&self, other: &DynamoDbKeyBranchKeyIdSupplierRef) -> bool {
-        ::std::rc::Rc::ptr_eq(&self.inner, &other.inner)
+        ::dafny_runtime::Rc::ptr_eq(&self.inner, &other.inner)
     }
 }
 

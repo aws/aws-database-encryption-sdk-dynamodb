@@ -4,16 +4,16 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion,
-> {
-    ::std::rc::Rc::new(to_dafny_plain(value.clone()))
+>{
+    ::dafny_runtime::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion::BeaconVersion {
         version: value.version.clone().unwrap(),
  keyStore: crate::deps::aws_cryptography_keyStore::conversions::client::to_dafny(&value.key_store.clone().unwrap())
@@ -25,7 +25,7 @@ pub fn to_dafny_plain(
 ,
 )
 ,
- compoundBeacons: ::std::rc::Rc::new(match &value.compound_beacons {
+ compoundBeacons: ::dafny_runtime::Rc::new(match &value.compound_beacons {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
         ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(x,
             |e| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::compound_beacon::to_dafny(&e.clone())
@@ -35,7 +35,7 @@ pub fn to_dafny_plain(
     None => crate::r#_Wrappers_Compile::Option::None {}
 })
 ,
- virtualFields: ::std::rc::Rc::new(match &value.virtual_fields {
+ virtualFields: ::dafny_runtime::Rc::new(match &value.virtual_fields {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
         ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(x,
             |e| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::virtual_field::to_dafny(&e.clone())
@@ -45,7 +45,7 @@ pub fn to_dafny_plain(
     None => crate::r#_Wrappers_Compile::Option::None {}
 })
 ,
- encryptedParts: ::std::rc::Rc::new(match &value.encrypted_parts {
+ encryptedParts: ::dafny_runtime::Rc::new(match &value.encrypted_parts {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
         ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(x,
             |e| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::encrypted_part::to_dafny(&e.clone())
@@ -55,7 +55,7 @@ pub fn to_dafny_plain(
     None => crate::r#_Wrappers_Compile::Option::None {}
 })
 ,
- signedParts: ::std::rc::Rc::new(match &value.signed_parts {
+ signedParts: ::dafny_runtime::Rc::new(match &value.signed_parts {
     Some(x) => crate::r#_Wrappers_Compile::Option::Some { value :
         ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(x,
             |e| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::signed_part::to_dafny(&e.clone())
@@ -71,20 +71,20 @@ pub fn to_dafny_plain(
 #[allow(dead_code)]
 pub fn option_to_dafny(
   value: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion>,
-) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+) -> ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
   crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion,
 >>>{
-    ::std::rc::Rc::new(match value {
+    ::dafny_runtime::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {
-            value: ::std::rc::Rc::new(to_dafny_plain(x)),
+            value: ::dafny_runtime::Rc::new(to_dafny_plain(x)),
         },
     })
 }
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion,
     >,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion {
@@ -104,7 +104,7 @@ pub fn plain_from_dafny(
  .set_key_source(Some( crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::beacon_key_source::from_dafny(dafny_value.keySource().clone())
  ))
  .set_standard_beacons(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(dafny_value.standardBeacons(),
-    |e: &::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::standard_beacon::from_dafny(e.clone())
+    |e: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::StandardBeacon>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::standard_beacon::from_dafny(e.clone())
 ,
 )
  ))
@@ -112,7 +112,7 @@ pub fn plain_from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(
             ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(value,
-                |e: &::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::CompoundBeacon>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::compound_beacon::from_dafny(e.clone())
+                |e: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::CompoundBeacon>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::compound_beacon::from_dafny(e.clone())
 ,
             )
         ),
@@ -123,7 +123,7 @@ pub fn plain_from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(
             ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(value,
-                |e: &::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::VirtualField>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::virtual_field::from_dafny(e.clone())
+                |e: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::VirtualField>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::virtual_field::from_dafny(e.clone())
 ,
             )
         ),
@@ -134,7 +134,7 @@ pub fn plain_from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(
             ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(value,
-                |e: &::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::EncryptedPart>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::encrypted_part::from_dafny(e.clone())
+                |e: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::EncryptedPart>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::encrypted_part::from_dafny(e.clone())
 ,
             )
         ),
@@ -145,7 +145,7 @@ pub fn plain_from_dafny(
     crate::r#_Wrappers_Compile::Option::Some { value } =>
         Some(
             ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(value,
-                |e: &::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::SignedPart>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::signed_part::from_dafny(e.clone())
+                |e: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::SignedPart>| crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::signed_part::from_dafny(e.clone())
 ,
             )
         ),
@@ -159,10 +159,12 @@ pub fn plain_from_dafny(
 
 #[allow(dead_code)]
 pub fn option_from_dafny(
-    dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconVersion,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

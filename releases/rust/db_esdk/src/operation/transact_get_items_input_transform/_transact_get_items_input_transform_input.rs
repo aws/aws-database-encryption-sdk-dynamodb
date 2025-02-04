@@ -6,17 +6,23 @@
 #[allow(missing_docs)]
 pub struct TransactGetItemsInputTransformInput {
     #[allow(missing_docs)]
-pub sdk_input: ::std::option::Option<aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput>,
+    pub sdk_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput,
+    >,
 }
 impl TransactGetItemsInputTransformInput {
     #[allow(missing_docs)]
-pub fn sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput> {
-    &self.sdk_input
-}
+    pub fn sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput,
+    > {
+        &self.sdk_input
+    }
 }
 impl TransactGetItemsInputTransformInput {
     /// Creates a new builder-style object to manufacture [`TransactGetItemsInputTransformInput`](crate::operation::transact_get_items_input_transform::builders::TransactGetItemsInputTransformInput).
-    pub fn builder() -> crate::operation::transact_get_items_input_transform::builders::TransactGetItemsInputTransformInputBuilder {
+    pub fn builder() -> crate::operation::transact_get_items_input_transform::builders::TransactGetItemsInputTransformInputBuilder{
         crate::operation::transact_get_items_input_transform::builders::TransactGetItemsInputTransformInputBuilder::default()
     }
 }
@@ -27,23 +33,39 @@ impl TransactGetItemsInputTransformInput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct TransactGetItemsInputTransformInputBuilder {
-    pub(crate) sdk_input: ::std::option::Option<aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput>,
+    pub(crate) sdk_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput,
+    >,
 }
 impl TransactGetItemsInputTransformInputBuilder {
     #[allow(missing_docs)]
-pub fn sdk_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput>) -> Self {
-    self.sdk_input = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_sdk_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput>) -> Self {
-    self.sdk_input = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput> {
-    &self.sdk_input
-}
+    pub fn sdk_input(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput,
+        >,
+    ) -> Self {
+        self.sdk_input = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_sdk_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput,
+        >,
+    ) -> Self {
+        self.sdk_input = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::transact_get_items::TransactGetItemsInput,
+    > {
+        &self.sdk_input
+    }
     /// Consumes the builder and constructs a [`TransactGetItemsInputTransformInput`](crate::operation::operation::TransactGetItemsInputTransformInput).
     pub fn build(
         self,

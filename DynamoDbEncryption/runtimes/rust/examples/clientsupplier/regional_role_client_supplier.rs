@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aws_config::Region;
+use aws_db_esdk::com_amazonaws_kms::client::Client as kms_client;
 use aws_db_esdk::material_providers::operation::get_client::GetClientInput;
 use aws_db_esdk::material_providers::types::error::Error;
 use aws_db_esdk::material_providers::types::ClientSupplier;
-use aws_db_esdk::com_amazonaws_kms::client::Client as kms_client;
 
 /*
  Example class demonstrating an implementation of a custom client supplier.
