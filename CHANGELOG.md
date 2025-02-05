@@ -9,6 +9,7 @@ This release is available in the following languages:
 ### Features
 
 - **SharedCache:** Shared Cache for Searchable Encryption ([#1476](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1476)) ([46076f8](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/46076f86aec77f7df204c1e06a8ecb2400f01b6f))
+- bump to dafny 4.9.0 and mpl 1.9.0 ([#1627](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1627))
 
 ### Fixes
 
