@@ -6,6 +6,12 @@ on:
   schedule:
     - cron: "00 16 * * 1-5"
   workflow_dispatch: # allows triggering this manually through the Actions UI
+    inputs:
+      run_test_vectors:
+        description: 'Run Test Vectors?'
+        required: false
+        default: true
+        type: boolean
   # TODO: Remove this before merging to main. We don't want this workflow running in CI
   # on PRs because we expect it to fail when the MPL is actually updated since the last version.
   pull_request:
@@ -103,6 +109,8 @@ jobs:
           make mvn_local_deploy
 
       - name: Run Test Vectors
+        # TODO: Remove pull_request from here
+        if: github.event_name == 'pull_request' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && ${{inputs.run_test_vectors}})
         working-directory: ./TestVectors
         run: |
           # Spin up ddb local
