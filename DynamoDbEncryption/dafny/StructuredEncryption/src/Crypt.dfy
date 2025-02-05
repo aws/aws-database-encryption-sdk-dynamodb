@@ -49,6 +49,11 @@ module StructuredEncryptionCrypt {
     keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
 
+  const AwsDbeField : UTF8.ValidUTF8Bytes :=
+    var s := [0x41, 0x77, 0x73, 0x44, 0x62, 0x65, 0x46, 0x69, 0x65, 0x6c, 0x64];
+    assert s == UTF8.EncodeAscii("AwsDbeField");
+    s
+
   function method FieldKeyNonce(offset : uint32)
     : (ret : Bytes)
     ensures |ret| == 16 // NOT NonceSize
@@ -61,17 +66,24 @@ module StructuredEncryptionCrypt {
     //# | 0x2c          | 1        | 44, the length of the eventual FieldKey |
     //# | offset        | 4        | 32 bit integer representation of offset |
     ensures ret ==
-            UTF8.EncodeAscii("AwsDbeField")
+            AwsDbeField
             + [(KeySize+NonceSize) as uint8]
             + UInt32ToSeq(offset)
   {
-    UTF8.EncodeAscii("AwsDbeField")
+    AwsDbeField
     + [(KeySize+NonceSize) as uint8] // length
     + UInt32ToSeq(offset)
   }
 
-  const LABEL_COMMITMENT_KEY := UTF8.EncodeAscii("AWS_DBE_COMMIT_KEY")
-  const LABEL_ENCRYPTION_KEY := UTF8.EncodeAscii("AWS_DBE_DERIVE_KEY")
+  const LABEL_COMMITMENT_KEY : UTF8.ValidUTF8Bytes :=
+    var s := [0x41, 0x57, 0x53, 0x5f, 0x44, 0x42, 0x45, 0x5f, 0x43, 0x4f, 0x4d, 0x4d, 0x49, 0x54, 0x5f, 0x4b, 0x45, 0x59];
+    assert s == UTF8.EncodeAscii("AWS_DBE_COMMIT_KEY");
+    s
+
+  const LABEL_ENCRYPTION_KEY : UTF8.ValidUTF8Bytes :=
+    var s := [0x41, 0x57, 0x53, 0x5f, 0x44, 0x42, 0x45, 0x5f, 0x44, 0x45, 0x52, 0x49, 0x56, 0x45, 0x5f, 0x4b, 0x45, 0x59];
+    assert s == UTF8.EncodeAscii("AWS_DBE_DERIVE_KEY");
+    s
 
   // suitable for header field
   method GetCommitKey(
