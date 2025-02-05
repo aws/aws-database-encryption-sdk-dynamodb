@@ -12,9 +12,6 @@ on:
         required: false
         default: true
         type: boolean
-  # TODO: Remove this before merging to main. We don't want this workflow running in CI
-  # on PRs because we expect it to fail when the MPL is actually updated since the last version.
-  pull_request:
 
 jobs:
   getVersion:
@@ -109,8 +106,7 @@ jobs:
           make mvn_local_deploy
 
       - name: Run Test Vectors
-        # TODO: Remove pull_request from here
-        if: github.event_name == 'pull_request' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && ${{inputs.run_test_vectors}})
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && ${{inputs.run_test_vectors}})
         working-directory: ./TestVectors
         run: |
           # Spin up ddb local
