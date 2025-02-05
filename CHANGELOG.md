@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.8.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.7.0...v3.8.0) (2025-01-27)
+## [3.8.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.7.0...v3.8.0) (2025-02-05)
 
 This release is available in the following languages:
 
@@ -21,6 +21,12 @@ This release is available in the following languages:
 
 ### Maintenance
 
+- make const policy an extern ([#1587](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1587)) ([be3b96e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/be3b96e7d6c441aee3b87862a2989309560413ba))
+- mpl: Bump to 1.9.0 ([#1621](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1621)) ([04a8eb2](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/04a8eb2ec84e57b795562618331e9c7e6f0de0c4))
+- release Rust 1.0.0 ([#1612](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1612)) ([3392200](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3392200e2c844710a2d1b6d9c9942c8b9769f71e))
+- remove unsafe from interceptor ([#1620](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1620)) ([f6ef3f4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/f6ef3f4b05010aa06f5a0f7f0d48ca05db4f71f1))
+- TestVectors: Reuse single KeyVectors client across TestVectors ([#1577](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1577)) ([dabcaf1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/dabcaf12c198bd3dda78996a42ae5a5682f2b88a))
+- update for async support ([#1560](https://github.com/aws/aws-database-encryption-sdk-dynamodb/pull/1560)) ([700f939](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/700f939e9e5c5e8ed7f7880ea74213231ab6e6ed))
 - add dependabot for rust ([#1481](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1481)) ([67f3d2e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/67f3d2e567b513a53d208f60ec6991a0b6c825d0))
 - Add ECDH examples ([#1461](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1461)) ([cc937b4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/cc937b41190c17e1087acbdcd524becc1a97e214))
 - add Rust release directory ([#1479](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1479)) ([97dde01](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/97dde01a3b6d9a33a8b60dcb6e63debc5329d691))
