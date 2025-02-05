@@ -61,7 +61,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     strings : seq<string>
   ) {
 
-    method RunAllTests()
+    method RunAllTests(keyVectors: KeyVectors.KeyVectorsClient)
+      requires keyVectors.ValidState()
+      modifies keyVectors.Modifies
+      ensures keyVectors.ValidState()
     {
       print "DBE Test Vectors\n";
       print |globalRecords|, " records.\n";
@@ -82,15 +85,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
       var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3");
-      var _ :- expect DecryptManifest.Decrypt("decrypt.json");
+      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
       if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
         print "\nRunning no tests\n";
         return;
@@ -999,7 +1002,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [], [], [])
   }
 
-  method ParseTestVector(data : JSON, prev : TestVectorConfig) returns (output : Result<TestVectorConfig, string>)
+  method ParseTestVector(data : JSON, prev : TestVectorConfig, keyVectors: KeyVectors.KeyVectorsClient)
+    returns (output : Result<TestVectorConfig, string>)
+    requires keyVectors.ValidState()
+    modifies keyVectors.Modifies
+    ensures keyVectors.ValidState()
   {
     :- Need(data.Object?, "Top Level JSON must be an object.");
     var records : seq<Record> := [];
@@ -1028,12 +1035,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "Names" => names :- GetNameMap(data.obj[i].1);
         case "Values" => values :- GetValueMap(data.obj[i].1);
         case "Complex" => complexTests :- GetComplexTests(data.obj[i].1);
-        case "IoTests" => ioTests :- GetIoTests(data.obj[i].1);
+        case "IoTests" => ioTests :- GetIoTests(data.obj[i].1, keyVectors);
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
-        case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1);
-        case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1);
-        case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1);
-        case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1);
+        case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1, keyVectors);
+        case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1, keyVectors);
+        case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1, keyVectors);
+        case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1, keyVectors);
         case "Strings" => strings :- GetStrings(data.obj[i].1);
         case _ => return Failure("Unexpected top level tag " + data.obj[i].0);
       }
