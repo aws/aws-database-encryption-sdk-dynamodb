@@ -8,7 +8,7 @@ on:
   workflow_dispatch: # allows triggering this manually through the Actions UI
     inputs:
       run_test_vectors:
-        description: 'Run Test Vectors?'
+        description: "Run Test Vectors?"
         required: false
         default: true
         type: boolean
