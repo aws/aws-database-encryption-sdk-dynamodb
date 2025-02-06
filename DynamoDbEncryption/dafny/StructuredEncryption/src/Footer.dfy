@@ -234,19 +234,45 @@ module StructuredEncryptionFooter {
       GetCanonicalPlaintextField(data.key, data.data)
   }
 
-  function method CanonContent (
-    data : CanonCryptoList,      // remaining fields to be canonized
-    canonized : Bytes := []   // output
-  ) : Result<Bytes, Error>
+  function CanonContent (data : CanonCryptoList)
+    : Result<Bytes, Error>
   {
     if |data| == 0 then
-      Success(canonized)
+      Success([])
     else if data[0].action == DO_NOTHING then
-      CanonContent(data[1..], canonized)
+      CanonContent(data[1..])
     else
+      var tail :- CanonContent(data[1..]);
       var newPart :- GetCanonicalItem(data[0]);
-      CanonContent(data[1..], canonized + newPart)
+      Success(newPart + tail)
+  } by method {
+    var i: nat := |data|;
+    var vectors : Bytes := [];
+
+    while i != 0
+      decreases i
+      invariant Success(vectors) == CanonContent(data[i..])
+    {
+      i := i - 1;
+      if data[i].action != DO_NOTHING {
+        var test := GetCanonicalItem(data[i]);
+        if test.Failure? {
+          ghost var j := i;
+          while j != 0
+            decreases j
+            invariant Failure(test.error) == CanonContent(data[j..])
+          {
+            j := j - 1;
+          }
+          return Failure(test.error);
+        }
+        vectors := test.value + vectors;
+      }
+    }
+
+    return Success(vectors);
   }
+
 
   function method CanonRecord (
     data : CanonCryptoList,
@@ -377,13 +403,21 @@ module StructuredEncryptionFooter {
     }
   }
 
-  function method SerializeTags(tags : seq<RecipientTag>)
+  function SerializeTags(tags : seq<RecipientTag>)
     : Bytes
   {
     if |tags| == 0 then
       []
     else
       tags[0] + SerializeTags(tags[1..])
+  } by method {
+    var result : Bytes := [];
+    for i := |tags| downto 0
+      invariant result == SerializeTags(tags[i..])
+    {
+      result := tags[i] + result;
+    }
+    return result;
   }
 
   function method SerializeSig(sig : Option<Signature>)

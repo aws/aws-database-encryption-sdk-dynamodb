@@ -127,7 +127,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   }
 
   // Return the sum of the sizes of the given fields
-  function method {:opaque} SumValueSize(fields : CanonCryptoList)
+  function {:opaque}  SumValueSize(fields : CanonCryptoList)
     : nat
   {
     if |fields| == 0 then
@@ -136,6 +136,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       |fields[0].data.value| + SumValueSize(fields[1..])
     else
       SumValueSize(fields[1..])
+  } by method {
+    reveal SumValueSize();
+    var sum : nat := 0;
+    for i := |fields| downto 0
+      invariant sum == SumValueSize(fields[i..])
+    {
+      if fields[i].action == ENCRYPT_AND_SIGN {
+        sum := |fields[i].data.value| + sum;
+      }
+    }
+    return sum;
   }
 
   function method {:opaque} GetAlgorithmSuiteId(alg : Option<CMP.DBEAlgorithmSuiteId>)
