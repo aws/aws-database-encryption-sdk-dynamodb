@@ -11,7 +11,10 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 )
 from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
 from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
-
+from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
+    DynamoDbEncryptionTransforms
+)
+from aws_database_encryption_sdk.encryptor.table import EncryptedTable
 
 class EncryptedTablesCollectionManager:
 
@@ -33,18 +36,20 @@ class EncryptedResource:
     ):
         self._resource = resource
         self._encryption_config = encryption_config
+        self._transformer = DynamoDbEncryptionTransforms(
+            config = encryption_config
+        )
         self._client_shape_to_resource_shape_converter = ClientShapeToResourceShapeConverter()
         self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter()
 
     
     def Table(self, name, **kwargs):
         print("EncryptedResource making EncryptedTable")
-        table_kwargs = dict(
+
+        return EncryptedTable(
             table=self._resource.Table(name),
             encryption_config=self._encryption_config
         )
-
-        return EncryptedTable(**table_kwargs)
     
     def __getattr__(self, name):
         print("calling EncryptedResource.__getattr__")
@@ -110,4 +115,10 @@ class EncryptedResource:
         response = self._client_shape_to_resource_shape_converter.batch_write_item_response(output_transform_output)
         response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
 
+        return response
+
+    def _copy_missing_sdk_output_fields_to_response(self, sdk_output, response, output_transform_output):
+        for sdk_output_key, sdk_output_value in sdk_output.items():
+            if sdk_output_key not in output_transform_output:
+                response[sdk_output_key] = sdk_output_value
         return response

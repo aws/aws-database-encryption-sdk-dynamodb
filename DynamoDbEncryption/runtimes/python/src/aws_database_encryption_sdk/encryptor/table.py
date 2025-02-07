@@ -91,6 +91,7 @@ class EncryptedTable:
 
         return response
     
+    # TODO refactor across table/client/resource/more?
     def _copy_missing_sdk_output_fields_to_response(self, sdk_output, response, output_transform_output):
         for sdk_output_key, sdk_output_value in sdk_output.items():
             if sdk_output_key not in output_transform_output:
@@ -171,3 +172,16 @@ class EncryptedTable:
         response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
 
         return response
+
+    def __getattr__(self, name):
+        # Before calling __getattr__, the class will look at its own methods.
+        # Any methods defined on the class are called before getting to this point.
+
+        # __getattr__ doesn't find a class' protected methods by default.
+        # if name in self._get_protected_methods():
+        #     return getattr(self, name)
+        # If the class doesn't override a boto3 method, defer to boto3 now.
+        if hasattr(self._resource, name):
+            return getattr(self._resource, name)
+        else:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")

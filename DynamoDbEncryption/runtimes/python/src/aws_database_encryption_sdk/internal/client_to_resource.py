@@ -11,20 +11,24 @@ class ClientShapeToResourceShapeConverter(BotoInterfaceShapeConverter):
         return list(ddb_to_dict({"throwaway_key": attribute_value}).values())[0]
 
     def put_item_request(self, put_item_request):
-        del put_item_request["TableName"]
-        return super().put_item_request(put_item_request)
+        out = super().put_item_request(put_item_request)
+        del out["TableName"]
+        return out
     
     def get_item_request(self, get_item_request):
-        del get_item_request["TableName"]
-        return super().get_item_request(get_item_request)
+        out = super().get_item_request(get_item_request)
+        del out["TableName"]
+        return out
     
     def query_request(self, query_request):
-        del query_request["TableName"]
-        return super().query_request(query_request)
+        out = super().query_request(query_request)
+        del out["TableName"]
+        return out
 
     def scan_request(self, scan_request):
-        del scan_request["TableName"]
-        return super().scan_request(scan_request)
+        out = super().scan_request(scan_request)
+        del out["TableName"]
+        return out
 
     def expression(self, condition_expression):
         # Tables accept the same format as the client (string).

@@ -29,23 +29,13 @@ def convert_client_expression_to_conditions(expression):
     This is a basic implementation for simple expressions that will fail with complex expressions.
     
     I have two suggestions for extending this to support more complex expressions:
+
     1) To support one or a few complex expressions, consider extending the existing logic.
 
-    2) To support all expressions, consider implementing and extending this library's generated internal Dafny code.
-    This library's generated internal Dafny code has a DynamoDB filter/conditions expression syntax parser.
-    This will parse a _dafny.Seq of an expression and produce Dafny tokens for the expression.
-    Reusing this parser here this will involve
-        1. Mapping Dafny tokens to boto3 Resource tokens.
-            (e.g. Dafny class Token_Between -> boto3.dynamodb.conditions.Between)
-        2. Converting Dafny token grammar to boto3 Resource token grammar.
-            (e.g.
-                Dafny: [Token_Between, Token_Open, Token_Attr, Token_And, Token_Attr, Token_Close]
-                ->
-                boto3: [Between(Attr, Attr)]
-            )
+    2) To support all expressions, consider extending DBESDK for DynamoDB's generated Dafny-Python code.
+    DBESDK for DynamoDB's generated Dafny-Python code has a DynamoDB filter/conditions expression syntax parser.
 
     Stub code for using the parser from Dafny:
-
     ```
     from aws_database_encryption_sdk.internaldafny.generated.DynamoDBFilterExpr import default__ as filter_expr
     import _dafny
@@ -57,7 +47,19 @@ def convert_client_expression_to_conditions(expression):
         ),
     )
     ```
-    
+    This will parse a _dafny.Seq of an expression and produce Dafny tokens for the expression.
+
+    Reusing this parser and extending it to support boto3 tokens this will involve:
+
+    1. Mapping Dafny tokens to boto3 Resource tokens.
+        (e.g. Dafny class Token_Between -> boto3.dynamodb.conditions.Between)
+    2. Converting Dafny token grammar to boto3 Resource token grammar.
+        (e.g.
+            Dafny: [Token_Between, Token_Open, Token_Attr, Token_And, Token_Attr, Token_Close]
+            ->
+            boto3: [Between(Attr, Attr)]
+        )
+
     :param expression: A string of the DynamoDB client expression (e.g., "AttrName = :val").
     :return: A boto3.dynamodb.conditions object (Key, Attr, or a combination of them).
     """
@@ -185,19 +187,19 @@ class DynamoDBClientWrapperForDynamoDBTable:
     def __init__(self, table, client):
         self._table = table
         self._client = client
-        self._client_shape_to_table_shape_converter = ClientShapeToResourceShapeConverter()
-        self._table_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter(table_name = self._table._table.table_name)
+        self._client_shape_to_resource_shape_converter = ClientShapeToResourceShapeConverter()
+        self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter(table_name = self._table._table.table_name)
 
     def put_item(self, **kwargs):
-        table_input = self._client_shape_to_table_shape_converter.put_item_request(kwargs)
+        table_input = self._client_shape_to_resource_shape_converter.put_item_request(kwargs)
         table_output = self._table.put_item(**table_input)
-        client_output = self._table_shape_to_client_shape_converter.put_item_response(table_output)
+        client_output = self._resource_shape_to_client_shape_converter.put_item_response(table_output)
         return client_output
 
     def get_item(self, **kwargs):
-        table_input = self._client_shape_to_table_shape_converter.get_item_request(kwargs)
+        table_input = self._client_shape_to_resource_shape_converter.get_item_request(kwargs)
         table_output = self._table.get_item(**table_input)
-        client_output = self._table_shape_to_client_shape_converter.get_item_response(table_output)
+        client_output = self._resource_shape_to_client_shape_converter.get_item_response(table_output)
         return client_output
 
     def batch_write_item(self, **kwargs):
@@ -281,9 +283,9 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
 
     def scan(self, **kwargs):
-        table_input = self._client_shape_to_table_shape_converter.scan_request(kwargs)
+        table_input = self._client_shape_to_resource_shape_converter.scan_request(kwargs)
         table_output = self._table.scan(**table_input)
-        client_output = self._table_shape_to_client_shape_converter.scan_response(table_output)
+        client_output = self._resource_shape_to_client_shape_converter.scan_response(table_output)
         return client_output
 
     def transact_get_items(self, **kwargs):
@@ -327,9 +329,9 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # return {"Responses": responses}
 
     def query(self, **kwargs):
-        table_input = self._client_shape_to_table_shape_converter.query_request(kwargs)
+        table_input = self._client_shape_to_resource_shape_converter.query_request(kwargs)
         table_output = self._table.query(**table_input)
-        client_output = self._table_shape_to_client_shape_converter.query_response(table_output)
+        client_output = self._resource_shape_to_client_shape_converter.query_response(table_output)
         return client_output
 
     def delete_table(self, **kwargs):

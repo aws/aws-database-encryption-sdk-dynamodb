@@ -20,14 +20,17 @@ import dbesdk_ddb_test_vectors.internaldafny.extern.CreateInterceptedDDBResource
 import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
 
 # Remove invalid tests.
-# Supported operations on `resource` that are also supported by DBESDK are:
+# Supported operations on Resources that are also supported by DBESDK are:
 # - batch_get_item
 # - batch_write_item
-# Unsupported operations on `resource` are that are supported by DBESDK are:
+# However, Resources can provide Tables. 
+# Unsupported operations on Resources are that are supported by provided Tables are:
 # - put_item
 # - get_item
 # - query
 # - scan
+# These operations will be tested on EncryptedResources via provided EncryptedTables.
+# Unsupported operations on both Resources and Tables are that are supported by DBESDK are:
 # - transact_get_items
 # - transact_write_items
 # Remove any tests that call unsupported operations.
@@ -40,11 +43,7 @@ import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncrypt
 def EmptyTest(*args):
   pass
 
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestPutItem = EmptyTest
 dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = EmptyTest
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicQueryTest = EmptyTest
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestGetItem = EmptyTest
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestScan = EmptyTest
 dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = EmptyTest
 
 def test_dafny():

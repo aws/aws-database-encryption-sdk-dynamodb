@@ -12,6 +12,8 @@ from aws_database_encryption_sdk.transform import (
     dict_to_ddb,
     ddb_to_dict,
 )
+from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
+from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
 
 # TestVectors-only override of ._flush method:
 # persist response in self._response for TestVectors output processing.
@@ -49,123 +51,87 @@ class DynamoDBClientWrapperForDynamoDBResource:
     def __init__(self, resource, client):
         self._resource = resource
         self._client = client
-
-    def put_item(self, **kwargs):
-        pass
-
-    def get_item(self, **kwargs):
-        key_dynamodb_format = kwargs["Key"]
-        key_dict_format = ddb_to_dict(key_dynamodb_format)
-        kwargs["Key"] = key_dict_format
-        dict_format_output = self._resource.get_item(**kwargs)
-        dynamodb_format_item = dict_format_output
-        if "Item" in dict_format_output:
-            dynamodb_format_item["Item"] = dict_to_ddb(dict_format_output["Item"])
-        return dynamodb_format_item
-
-    def _convert_batch_write_item_request_from_dynamo_to_dict(self, **kwargs):
-        for table, requests in kwargs["RequestItems"].items():
-            dict_requests = []
-            for request in requests:
-                request_name_list = list(request.keys())
-                if len(request_name_list) > 1:
-                    raise ValueError("Cannot send more than one request in a single request")
-                request_name = request_name_list[0]
-                if request_name == "PutRequest":
-                    dict_request = ddb_to_dict(request[request_name]["Item"])
-                    dict_requests.append({request_name: {"Item": dict_request}})
-                elif request_name == "DeleteRequest":
-                    dict_request = ddb_to_dict(request[request_name]["Key"])
-                    dict_requests.append({request_name: {"Key": dict_request}})
-                else:
-                    raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-            kwargs["RequestItems"][table] = dict_requests
-        return kwargs
+        self._client_shape_to_resource_shape_converter = ClientShapeToResourceShapeConverter()
+        self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter()
 
     def batch_write_item(self, **kwargs):
-        print(f"batch_write_item {kwargs=}")
-        dict_formatted = self._convert_batch_write_item_request_from_dynamo_to_dict(**kwargs)
-        return self._resource.batch_write_item(**dict_formatted)
-
-        # # print(f"batch_write_item {kwargs=}")
-        # # Parse boto3 client.batch_write_item input into table.batch_writer() calls
-        # # client.batch_write_item: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
-        # # table.batch_writer(): https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
-        # tables = kwargs["RequestItems"]
-        # table_names = list(tables.keys())
-        # if len(tables.keys()) > 1:
-        #     raise ValueError("Table batch_write_item only supports 1 table in a request.")
-        # requests = tables[table_names[0]]
-        # with self._table.batch_writer() as batch:
-
-        #     batch._flush=types.MethodType(_flush_and_persist_response, batch)
-
-        #     for request in requests:
-        #         request_name_list = list(request.keys())
-        #         if len(request_name_list) > 1:
-        #             raise ValueError("Cannot send more than one request in a single request")
-        #         request_name = request_name_list[0]
-        #         if request_name == "PutRequest":
-        #             dict_request = ddb_to_dict(request[request_name]["Item"])
-        #             boto3_request = {"Item": dict_request}
-        #             batch.put_item(**boto3_request)
-        #             # dynamodb_request = request[request_name]
-        #             # print(f"{dynamodb_request}")
-        #             # batch.put_item(**dynamodb_request)
-        #         elif request_name == "DeleteRequest":
-        #             batch.delete_item(Key=ddb_to_dict(request["Key"]))
-        #         else:
-        #             raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-        # return batch._response
-
+        # The input here is from the DBESDK TestVectors, which is in the shape of a client request.
+        # Convert the client request to a resource request to be passed to the table.
+        table_input = self._client_shape_to_resource_shape_converter.batch_write_item_request(kwargs)
+        # ClientShapeToResourceShapeConverters don't convert DynamoDB expressions from strings to Condition objects,
+        #   because resource shapes can accept strings.
+        # For TestVectors coverage, use a TestVectors-internal string-to-Condition converter.
+        # TODO: Use a shared Condition converter.
+        table_output = self._resource.batch_write_item(**table_input)
+        client_output = self._resource_shape_to_client_shape_converter.batch_write_item_response(table_output)
+        return client_output
+    
     def batch_get_item(self, **kwargs):
-        # batch_get_item doesn't exist on boto3 tables.
-        # For TestVector compatibility, just make a series of get_item calls,
-        # and massage inputs/outputs into expected formats.
-        tables = kwargs["RequestItems"]
-        table_names = list(tables.keys())
-        if len(tables.keys()) > 1:
-            raise ValueError("Table batch_get_item only supports 1 table in a request.")
-        requests = tables[table_names[0]]
-        with self._table.batch_writer() as batch:
-
-            batch._flush=types.MethodType(_flush_and_persist_response, batch)
-
-            for request in requests:
-                request_name_list = list(request.keys())
-                if len(request_name_list) > 1:
-                    raise ValueError("Cannot send more than one request in a single request")
-                request_name = request_name_list[0]
-                if request_name == "PutRequest":
-                    dict_request = ddb_to_dict(request[request_name]["Item"])
-                    boto3_request = {"Item": dict_request}
-                    batch.put_item(**boto3_request)
-                    # dynamodb_request = request[request_name]
-                    # print(f"{dynamodb_request}")
-                    # batch.put_item(**dynamodb_request)
-                elif request_name == "DeleteRequest":
-                    batch.delete_item(Key=ddb_to_dict(request["Key"]))
-                else:
-                    raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-        return batch._response
-
-
+        table_input = self._client_shape_to_resource_shape_converter.batch_get_item_request(kwargs)
+        table_output = self._resource.batch_get_item(**table_input)
+        client_output = self._resource_shape_to_client_shape_converter.batch_get_item_response(table_output)
+        return client_output
+    
     def scan(self, **kwargs):
-        pass
+        # Resources don't have scan, but our EncryptedResources can provide EncryptedTables that do support scan.
+        # This path tests that the EncryptedTables provided by EncryptedResources can used for scan.
+        table_name = kwargs["TableName"]
+        table_input = self._client_shape_to_resource_shape_converter.scan_request(kwargs)
+        encrypted_table = self._resource.Table(table_name)
+        table_output = encrypted_table.scan(**table_input)
+        table_shape_converter = ResourceShapeToClientShapeConverter(table_name=table_name)
+        client_output = table_shape_converter.scan_response(table_output)
+        return client_output
+    
+    def put_item(self, **kwargs):
+        # Resources don't have put_item, but our EncryptedResources can provide EncryptedTables that do support put_item.
+        # This path tests that the EncryptedTables provided by EncryptedResources can used for put_item.
+        table_name = kwargs["TableName"]
+        table_input = self._client_shape_to_resource_shape_converter.put_item_request(kwargs)
+        encrypted_table = self._resource.Table(table_name)
+        table_output = encrypted_table.put_item(**table_input)
+        table_shape_converter = ResourceShapeToClientShapeConverter(table_name=table_name)
+        client_output = table_shape_converter.put_item_response(table_output)
+        return client_output
+    
+    def get_item(self, **kwargs):
+        # Resources don't have get_item, but our EncryptedResources can provide EncryptedTables that do support get_item.
+        # This path tests that the EncryptedTables provided by EncryptedResources can used for get_item.
+        table_name = kwargs["TableName"]
+        table_input = self._client_shape_to_resource_shape_converter.get_item_request(kwargs)
+        encrypted_table = self._resource.Table(table_name)
+        table_output = encrypted_table.get_item(**table_input)
+        table_shape_converter = ResourceShapeToClientShapeConverter(table_name=table_name)
+        client_output = table_shape_converter.get_item_response(table_output)
+        return client_output
+    
+    def query(self, **kwargs):
+        # Resources don't have query, but our EncryptedResources can provide EncryptedTables that do support query.
+        # This path tests that the EncryptedTables provided by EncryptedResources can used for query.
+        table_name = kwargs["TableName"]
+        table_input = self._client_shape_to_resource_shape_converter.put_item_request(kwargs)
+        encrypted_table = self._resource.Table(table_name)
+        table_output = encrypted_table.query(**table_input)
+        table_shape_converter = ResourceShapeToClientShapeConverter(table_name=table_name)
+        client_output = table_shape_converter.put_item_response(table_output)
+        return client_output
 
     def transact_get_items(self, **kwargs):
-        pass
+        raise NotImplementedError("transact_get_items not supported on resources")
 
     def transact_write_items(self, **kwargs):
-        pass
-
-    def query(self, **kwargs):
-        pass
+        raise NotImplementedError("transact_get_items not supported on resources")
 
     def delete_table(self, **kwargs):
+        # Resources don't have delete_table. Plus, DBESDK doesn't intercept DeleteTable calls.
+        # TestVectors only use this to ensure a new, clean table is created for each test.
+        # Defer to the underlying boto3 client to delete the table.
         return self._client.delete_table(**kwargs)
 
     def create_table(self, **kwargs):
+        # Resources don't have create_table. Plus, DBESDK doesn't intercept CreateTable calls.
+        # TestVectors only use this to ensure a new, clean table is created for each test.
+        # Defer to the underlying boto3 client to create a table.
         return self._client.create_table(**kwargs)
 
 
