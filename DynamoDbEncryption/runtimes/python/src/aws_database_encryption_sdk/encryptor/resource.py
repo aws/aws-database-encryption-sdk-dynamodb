@@ -3,6 +3,15 @@ from boto3.resources.collection import CollectionManager
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTablesEncryptionConfig,
 )
+from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
+    BatchGetItemInputTransformInput,
+    BatchGetItemOutputTransformInput,
+    BatchWriteItemInputTransformInput,
+    BatchWriteItemOutputTransformInput,
+)
+from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
+from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
+
 
 class EncryptedTablesCollectionManager:
 
@@ -23,7 +32,10 @@ class EncryptedResource:
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
         self._resource = resource
-        self._encryption_config = DynamoDbTablesEncryptionConfig
+        self._encryption_config = encryption_config
+        self._client_shape_to_resource_shape_converter = ClientShapeToResourceShapeConverter()
+        self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter()
+
     
     def Table(self, name, **kwargs):
         print("EncryptedResource making EncryptedTable")
@@ -47,3 +59,55 @@ class EncryptedResource:
             return getattr(self._resource, name)
         else:
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        
+    def batch_get_item(self, **kwargs):
+        input_transform_input = self._resource_shape_to_client_shape_converter.batch_get_item_request(kwargs)
+        input_transform_output = self._transformer.batch_get_item_input_transform(
+            BatchGetItemInputTransformInput(
+                sdk_input = input_transform_input
+            )
+        ).transformed_input
+
+        sdk_input = self._client_shape_to_resource_shape_converter.batch_get_item_request(input_transform_output)
+
+        sdk_output = self._resource.batch_get_item(**sdk_input)
+
+        output_transform_input = self._resource_shape_to_client_shape_converter.batch_get_item_response(sdk_output)
+
+        output_transform_output = self._transformer.batch_get_item_output_transform(
+            BatchGetItemOutputTransformInput(
+                original_input = input_transform_input,
+                sdk_output = output_transform_input,
+            )
+        ).transformed_output
+
+        response = self._client_shape_to_resource_shape_converter.batch_get_item_response(output_transform_output)
+        response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
+
+        return response
+    
+    def batch_write_item(self, **kwargs):
+        input_transform_input = self._resource_shape_to_client_shape_converter.batch_write_item_request(kwargs)
+        input_transform_output = self._transformer.batch_write_item_input_transform(
+            BatchWriteItemInputTransformInput(
+                sdk_input = input_transform_input
+            )
+        ).transformed_input
+
+        sdk_input = self._client_shape_to_resource_shape_converter.batch_write_item_request(input_transform_output)
+
+        sdk_output = self._resource.batch_write_item(**sdk_input)
+
+        output_transform_input = self._resource_shape_to_client_shape_converter.batch_write_item_response(sdk_output)
+
+        output_transform_output = self._transformer.batch_write_item_output_transform(
+            BatchWriteItemOutputTransformInput(
+                original_input = input_transform_input,
+                sdk_output = output_transform_input,
+            )
+        ).transformed_output
+
+        response = self._client_shape_to_resource_shape_converter.batch_write_item_response(output_transform_output)
+        response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
+
+        return response

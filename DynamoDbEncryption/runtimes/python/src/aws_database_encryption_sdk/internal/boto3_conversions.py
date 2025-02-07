@@ -1,0 +1,238 @@
+from abc import ABC, abstractmethod
+
+class BotoInterfaceShapeConverter(ABC):
+    """
+    Class modelling transformations between boto3 DynamoDB client and resource shapes.
+    
+    Context: DBESDK DynamoDB provides encrypted interfaces for boto3 DynamoDB resources (ex. Table, Resource).
+    boto3 resource methods accept different input shapes than boto3 clients, and return different output shapes.
+    (The members of these shapes are the same, but in some cases, the shapes themselves are different.)
+
+    DBESDK DynamoDB has an internal transformer layer that performs encryption, decryption, and query modification.
+    This transformer layer only accepts client shapes.
+
+    This class exists to transform from/to resource shapes to/from client shapes
+        for the internal DBESDK DynamoDB transformer layer.
+
+    This class is abstract, as some specific transformations depend on the transformation direction.
+    But the structure modelling is the same for both directions, and is expressed here.
+    Implementations of this class should implement the abstract methods to perform the transformations.
+    """
+    def key_condition_expression(self, key_condition_expression):
+        return self.expression(key_condition_expression)
+
+    def filter_expression(self, filter_expression):
+        return self.expression(filter_expression)
+
+    @abstractmethod
+    def expression(self, condition_expression):
+        pass
+
+    def key_conditions(self, key_conditions):
+        return self.key_to_attribute_value_list(key_conditions)
+
+    def query_filter(self, query_filter):
+        return self.key_to_attribute_value_list(query_filter)
+
+    def key_to_attribute_value_list(self, key_to_attribute_value_list):
+        list_out = []
+        for elem in key_to_attribute_value_list:
+            list_out.append(self.item(elem))
+        return list_out
+
+    def exclusive_start_key(self, exclusive_start_key):
+        return self.item(exclusive_start_key)
+
+    def expression_attribute_values(self, exclusive_start_key):
+        return self.item(exclusive_start_key)
+
+    @abstractmethod
+    def attribute_value(self, attribute_value):
+        pass
+
+    def attribute_value_list(self, attribute_value_list):
+        list_out = []
+        for elem in attribute_value_list:
+            list_out.append(self.attribute_value(elem))
+        return list_out
+
+    @abstractmethod
+    def item(self, item):
+        pass
+
+    def items(self, items):
+        items_out = []
+        for item in items:
+            items_out.append(self.item(item))
+        return items_out
+
+    def last_evaluated_key(self, last_evaluated_key):
+        return self.item(last_evaluated_key)
+
+    def expected(self, expected):
+        for expected_key, expected_value in expected.items():
+            if "Value" in expected_value:
+                expected_value["Value"] = self.attribute_value(expected_value["Value"])
+            if "AttributeValueList" in expected_value:
+                expected_value["AttributeValueList"] = self.attribute_value_list(expected_value["AttributeValueList"])
+            expected[expected_key] = expected_value
+        return expected
+
+    def put_item_request(self, put_item_request):
+        if "Item" in put_item_request:
+            put_item_request["Item"] = self.item(put_item_request["Item"])
+        if "Expected" in put_item_request:
+            put_item_request["Expected"] = self.expected(put_item_request["Expected"])
+        if "ExpressionAttributeValues" in put_item_request:
+            put_item_request["Expected"] = self.expression_attribute_values(put_item_request["ExpressionAttributeValues"])
+        return put_item_request
+
+    def attributes(self, attributes):
+        return self.item(attributes)
+
+    def item_collection_metrics(self, item_collection_metrics):
+        if "ItemCollectionKey" in item_collection_metrics:
+            item_collection_metrics["ItemCollectionKey"] = self.item(item_collection_metrics["ItemCollectionKey"])
+        return item_collection_metrics
+
+    def put_item_response(self, put_item_response):
+        if "Attributes" in put_item_response:
+            put_item_response["Attributes"] = self.attributes(put_item_response["Attributes"])
+        if "ItemCollectionMetrics" in put_item_response:
+            put_item_response["ItemCollectionMetrics"] = self.item_collection_metrics(put_item_response["ItemCollectionMetrics"])
+        return put_item_response
+    
+    def get_item_request(self, get_item_request):
+        if "Key" in get_item_request:
+            get_item_request["Key"] = self.item(get_item_request["Key"])
+        return get_item_request
+    
+    def get_item_response(self, get_item_response):
+        if "Item" in get_item_response:
+            get_item_response["Item"] = self.item(get_item_response["Item"])
+        return get_item_response
+    
+    def scan_filter(self, scan_filter):
+        for scan_filter_key, scan_filter_value in scan_filter.items():
+            if "AttributeValueList" in scan_filter_value:
+                scan_filter_value["AttributeValueList"] = self.attribute_value_list(scan_filter_value["AttributeValueList"])
+            scan_filter[scan_filter_key] = scan_filter_value
+        return scan_filter
+
+    def scan_request(self, scan_request):
+        if "ScanFilter" in scan_request:
+            scan_request["ScanFilter"] = self.scan_filter(scan_request["ScanFilter"])
+        if "ExclusiveStartKey" in scan_request:
+            scan_request["ExclusiveStartKey"] = self.exclusive_start_key(scan_request["ExclusiveStartKey"])
+        if "FilterExpression" in scan_request:
+            scan_request["FilterExpression"] = self.filter_expression(scan_request["FilterExpression"])
+        if "ExpressionAttributeValues" in scan_request:
+            scan_request["ExpressionAttributeValues"] = self.expression_attribute_values(scan_request["ExpressionAttributeValues"])
+        return scan_request
+    
+    def scan_response(self, scan_response):
+        if "Items" in scan_response:
+            scan_response["Items"] = self.items(scan_response["Items"])
+        if "LastEvaluatedKey" in scan_response:
+            scan_response["LastEvaluatedKey"] = self.last_evaluated_key(scan_response["LastEvaluatedKey"])
+        return scan_response
+    
+    def query_request(self, query_request):
+        if "KeyConditions" in query_request:
+            query_request["KeyConditions"] = self.key_conditions(query_request["KeyConditions"])
+        if "QueryFilter" in query_request:
+            query_request["QueryFilter"] = self.query_filter(query_request["QueryFilter"])
+        if "ExclusiveStartKey" in query_request:
+            query_request["ExclusiveStartKey"] = self.exclusive_start_key(query_request["ExclusiveStartKey"])
+        if "FilterExpression" in query_request:
+            query_request["FilterExpression"] = self.filter_expression(query_request["FilterExpression"])
+        if "KeyConditionExpression" in query_request:
+            query_request["KeyConditionExpression"] = self.key_condition_expression(query_request["KeyConditionExpression"])
+        if "ExpressionAttributeValues" in query_request:
+            query_request["ExpressionAttributeValues"] = self.expression_attribute_values(query_request["ExpressionAttributeValues"])
+        return query_request
+
+    def query_response(self, query_response):
+        if "Items" in query_response:
+            query_response["Items"] = self.items(query_response["Items"])
+        if "LastEvaluatedKey" in query_response:
+            query_response["LastEvaluatedKey"] = self.last_evaluated_key(query_response["LastEvaluatedKey"])
+        return query_response
+    
+    def batch_get_item_request(self, batch_get_item_request):
+        if "RequestItems" in batch_get_item_request:
+            batch_get_item_request["RequestItems"] = self.batch_get_item_request_items(batch_get_item_request["RequestItems"])
+        return batch_get_item_request
+
+    def batch_get_item_request_items(self, request_items):
+        keys_out = {}
+        for table_name, table_value in request_items.items():
+            if "Keys" in table_value:
+                table_value["Keys"] = self.key_to_attribute_value_list(table_value["Keys"])
+            keys_out[table_name] = table_value
+        return keys_out
+
+    def batch_get_item_response(self, batch_get_item_response):
+        if "Responses" in batch_get_item_response:
+            batch_get_item_response["Responses"] = self.responses(batch_get_item_response["Responses"])
+        if "UnprocessedKeys" in batch_get_item_response:
+            batch_get_item_response["UnprocessedKeys"] = self.unprocessed_keys(batch_get_item_response["UnprocessedKeys"])
+        return batch_get_item_response
+    
+    def responses(self, responses):
+        responses_out = {}
+        for table_name, table_value in responses.items():
+            table_value = self.items(table_value)
+            responses_out[table_name] = table_value
+        return responses_out
+    
+    def unprocessed_keys(self, unprocessed_keys):
+        unprocessed_keys_out = {}
+        for table_name, table_value in unprocessed_keys.items():
+            if "Keys" in table_value:
+                table_value["Keys"] = self.keys(table_value["Keys"])
+            unprocessed_keys_out[table_name] = table_value
+        return unprocessed_keys_out
+    
+    def keys(self, keys):
+        return self.items(keys)
+    
+    def batch_write_item_request(self, batch_write_item_request):
+        if "RequestItems" in batch_write_item_request:
+            batch_write_item_request["RequestItems"] = self.batch_write_item_request_items(batch_write_item_request["RequestItems"])
+        return batch_write_item_request
+    
+    def batch_write_item_request_items(self, request_items):
+        return self.batch_write_item_items(request_items)
+    
+    def batch_write_item_items(self, items):
+        items_out = {}
+        for table_name, table_value in items.items():
+            request_out = []
+            for request in table_value:
+                if "PutRequest" in request:
+                    request["PutRequest"]["Item"] = self.item(request["PutRequest"]["Item"])
+                elif "DeleteRequest" in request:
+                    request["DeleteRequest"]["Key"] = self.item(request["DeleteRequest"]["Key"])
+                else:
+                    raise ValueError(f"Unexpected request type in batch write item request: {request}")
+                request_out.append(request)
+            items_out[table_name] = request_out
+        return items_out
+    
+    def batch_write_item_response(self, batch_write_item_response):
+        if "UnprocessedItems" in batch_write_item_response:
+            batch_write_item_response["UnprocessedItems"] = self.unprocessed_items(batch_write_item_response["UnprocessedItems"])
+        if "ItemCollectionMetrics" in batch_write_item_response:
+            batch_write_item_response["ItemCollectionMetrics"] = self.batch_write_item_item_collection_metrics(batch_write_item_response["ItemCollectionMetrics"])
+        return batch_write_item_response
+    
+    def unprocessed_items(self, unprocessed_items):
+        return self.batch_write_item_items(unprocessed_items)
+
+    def batch_write_item_item_collection_metrics(self, item_collection_metrics):
+        item_collection_metrics_out = {}
+        for table_name, table_value in item_collection_metrics.items():
+            table_value = self.item_collection_metrics(table_value)
+            item_collection_metrics_out[table_name] = table_value
+        return item_collection_metrics_out

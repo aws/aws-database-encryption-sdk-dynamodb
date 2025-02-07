@@ -124,6 +124,6 @@ get_item = {
 
 get_item_output = encrypted_table.get_item(**get_item)
 
-print(f"{get_item_output["Item"]=}")
+print(f"{get_item_output['Item']=}")
 
 assert get_item_output["Item"] == item_to_encrypt

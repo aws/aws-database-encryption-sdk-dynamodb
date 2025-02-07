@@ -5,8 +5,9 @@ import aws_cryptography_internal_dynamodb.internaldafny.extern
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy import aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig
 from aws_database_encryption_sdk.encryptor.table import (
     EncryptedTable,
-    convert_client_expression_to_conditions
 )
+from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
+from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
 from smithy_dafny_standard_library.internaldafny.generated import Wrappers
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors import _smithy_error_to_dafny_error
 from dbesdk_ddb_test_vectors.waiting_boto3_ddb_client import WaitingDynamoClient
@@ -14,6 +15,7 @@ from aws_database_encryption_sdk.transform import (
     dict_to_ddb,
     ddb_to_dict,
 )
+from aws_database_encryption_sdk.internal import client_to_resource
 
 from boto3.dynamodb.conditions import Key, Attr, And, Or, Not
 from boto3.dynamodb.types import TypeDeserializer
@@ -22,11 +24,27 @@ from boto3.dynamodb.types import TypeDeserializer
 def convert_client_expression_to_conditions(expression):
     """
     Crypto Tools internal method to convert a DynamoDB filter/key expression to boto3 Resource tokens.
-    DO NOT USE FOR ANY OTHER PURPOSE.
+
+    THIS SHOULD NOT BE USED BY ANY EXTERNAL USERS.
     This is a basic implementation for simple expressions that will fail with complex expressions.
     
-    To extend this to support one or a few complex expressions, consider extending the existing logic.
-    To extend this to support all expressions, consider implementing and extending the code below:
+    I have two suggestions for extending this to support more complex expressions:
+    1) To support one or a few complex expressions, consider extending the existing logic.
+
+    2) To support all expressions, consider implementing and extending this library's generated internal Dafny code.
+    This library's generated internal Dafny code has a DynamoDB filter/conditions expression syntax parser.
+    This will parse a _dafny.Seq of an expression and produce Dafny tokens for the expression.
+    Reusing this parser here this will involve
+        1. Mapping Dafny tokens to boto3 Resource tokens.
+            (e.g. Dafny class Token_Between -> boto3.dynamodb.conditions.Between)
+        2. Converting Dafny token grammar to boto3 Resource token grammar.
+            (e.g.
+                Dafny: [Token_Between, Token_Open, Token_Attr, Token_And, Token_Attr, Token_Close]
+                ->
+                boto3: [Between(Attr, Attr)]
+            )
+
+    Stub code for using the parser from Dafny:
 
     ```
     from aws_database_encryption_sdk.internaldafny.generated.DynamoDBFilterExpr import default__ as filter_expr
@@ -39,22 +57,8 @@ def convert_client_expression_to_conditions(expression):
         ),
     )
     ```
-
-    This library's generated internal Dafny code has a DynamoDB string parser.
-    This will parse a _dafny.Seq and produce Dafny tokens for the expression.
-    Implementing this will involve
-        1. Mapping Dafny tokens to boto3 Resource tokens.
-            (e.g. class Token_Between -> boto3.dynamodb.conditions.Between)
-        2. Converting Dafny token grammar to boto3 Resource token grammar.
-            (e.g.
-                Dafny: [Token_Between, Token_Open, Token_Attr, Token_And, Token_Attr, Token_Close]
-                ->
-                boto3: [Between(Attr, Attr)]
-            )
     
     :param expression: A string of the DynamoDB client expression (e.g., "AttrName = :val").
-    :param expression_values: A dictionary of attribute values (e.g., {":val": {"N": "0"}}).
-    :param expression_names: A dictionary of attribute names, if placeholders are used (e.g., {"#attr": "AttrName"}).
     :return: A boto3.dynamodb.conditions object (Key, Attr, or a combination of them).
     """
 
@@ -146,49 +150,6 @@ def convert_client_expression_to_conditions(expression):
     tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
     return parse_expression(tokens)
 
-def modify_kwargs_for_scan_or_query(**kwargs):
-    # Turn client query request into table query request
-    print(f"CreateTable {kwargs=}")
-
-    others = ["KeyConditionExpression", "FilterExpression"]
-    for other in others:
-        if other in kwargs:
-            print(f'before {kwargs[other]=}')
-            kwargs[other] = convert_client_expression_to_conditions(kwargs[other])
-            print(f'updated {kwargs[other]=}')
-
-    request_attributes_with_keys = ["KeyConditions", "QueryFilter", "ExclusiveStartKey"]
-    for attribute_with_key in request_attributes_with_keys:
-        if attribute_with_key in kwargs:
-            attribute_ddb_format = kwargs[attribute_with_key]
-            attribute_dict_format = ddb_to_dict(attribute_ddb_format)
-            kwargs[attribute_with_key] = attribute_dict_format
-    
-    if "ExpressionAttributeValues" in kwargs:
-        for name, ddb_value in kwargs["ExpressionAttributeValues"].items():
-            updated_item = ddb_to_dict({name: ddb_value})
-            kwargs["ExpressionAttributeValues"][list(updated_item.keys())[0]] = list(updated_item.values())[0]
-    return kwargs
-
-def modify_response_for_scan_or_query(sdk_output):
-    # Turn table query resposne into client query response
-    response_attributes_with_keys = ["LastEvaluatedKey"]
-    for attribute_with_key in response_attributes_with_keys:
-        if attribute_with_key in sdk_output:
-            attribute_dict_format = sdk_output[attribute_with_key]
-            attribute_ddb_format = dict_to_ddb(attribute_ddb_format)
-            sdk_output[attribute_with_key] = attribute_ddb_format
-
-    if "Items" in sdk_output:
-        dict_items = sdk_output["Items"]
-        ddb_items = []
-        for dict_item in dict_items:
-            ddb_items.append(dict_to_ddb(dict_item))
-        sdk_output["Items"] = ddb_items
-    
-    print(f"table query response client looking like {sdk_output=}")
-    return sdk_output
-
 # TestVectors-only override of ._flush method:
 # persist response in self._response for TestVectors output processing.
 def _flush_and_persist_response(self):
@@ -208,7 +169,9 @@ def _flush_and_persist_response(self):
 
 class DynamoDBClientWrapperForDynamoDBTable:
     """
-    Internal-only wrapper class for DBESDK TestVectors.
+    DBESDK TestVectors-internal wrapper class.
+    Converts boto3 DynamoDB client-formatted inputs Table-formatted inputs,
+        and converts Table-formatted outputs to boto3 DynamoDB client-formatted outputs.
 
     TestVectors Dafny code only knows how to interact with DynamoDB clients.
     However, Python DDBEC and DBESDK have an EncryptedTable class that wraps boto3 DynamoDB Tables.
@@ -217,33 +180,25 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
     This class defers to a boto3 client for create_table and delete_table,
       which are not supported on boto3 DynamoDB Table tables.
-
-    TODO: Transact not supported on table. What do?
     """
 
     def __init__(self, table, client):
         self._table = table
         self._client = client
+        self._client_shape_to_table_shape_converter = ClientShapeToResourceShapeConverter()
+        self._table_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter(table_name = self._table._table.table_name)
 
     def put_item(self, **kwargs):
-        key_dynamodb_format = kwargs["Item"]
-        key_dict_format = ddb_to_dict(key_dynamodb_format)
-        kwargs["Item"] = key_dict_format
-        dict_format_output = self._table.put_item(**kwargs)
-        dynamodb_format_item = dict_format_output
-        if "Attributes" in dict_format_output:
-            dynamodb_format_item["Attributes"] = dict_to_ddb(dict_format_output["Attributes"])
-        return dynamodb_format_item
+        table_input = self._client_shape_to_table_shape_converter.put_item_request(kwargs)
+        table_output = self._table.put_item(**table_input)
+        client_output = self._table_shape_to_client_shape_converter.put_item_response(table_output)
+        return client_output
 
     def get_item(self, **kwargs):
-        key_dynamodb_format = kwargs["Key"]
-        key_dict_format = ddb_to_dict(key_dynamodb_format)
-        kwargs["Key"] = key_dict_format
-        dict_format_output = self._table.get_item(**kwargs)
-        dynamodb_format_item = dict_format_output
-        if "Item" in dict_format_output:
-            dynamodb_format_item["Item"] = dict_to_ddb(dict_format_output["Item"])
-        return dynamodb_format_item
+        table_input = self._client_shape_to_table_shape_converter.get_item_request(kwargs)
+        table_output = self._table.get_item(**table_input)
+        client_output = self._table_shape_to_client_shape_converter.get_item_response(table_output)
+        return client_output
 
     def _convert_batch_write_item_request_from_dynamo_to_dict(self, **kwargs):
         for table, requests in kwargs["RequestItems"].items():
@@ -345,17 +300,10 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
 
     def scan(self, **kwargs):
-        print(f"client scan request {kwargs=}")
-        kwargs = modify_kwargs_for_scan_or_query(**kwargs)
-        table_output = self._table.scan(**kwargs)
-        modify_response_for_scan_or_query(table_output)
-        # dict_items = table_output["Items"]
-        # ddb_items = []
-        # for dict_item in dict_items:
-        #     ddb_item = dict_to_ddb(dict_item)
-        #     ddb_items.append(ddb_item)
-        # table_output["Items"] = ddb_items
-        return table_output
+        table_input = self._client_shape_to_table_shape_converter.scan_request(kwargs)
+        table_output = self._table.scan(**table_input)
+        client_output = self._table_shape_to_client_shape_converter.scan_response(table_output)
+        return client_output
 
     def transact_get_items(self, **kwargs):
         raise NotImplementedError("transact_get_items not supported on table interface; remove tests calling this")
@@ -398,11 +346,10 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # return {"Responses": responses}
 
     def query(self, **kwargs):
-
-        kwargs = modify_kwargs_for_scan_or_query(**kwargs)
-        sdk_output = self._table.query(**kwargs)
-        modify_response_for_scan_or_query(sdk_output)
-        return sdk_output
+        table_input = self._client_shape_to_table_shape_converter.query_request(kwargs)
+        table_output = self._table.query(**table_input)
+        client_output = self._table_shape_to_client_shape_converter.query_response(table_output)
+        return client_output
 
     def delete_table(self, **kwargs):
         return self._client.delete_table(**kwargs)

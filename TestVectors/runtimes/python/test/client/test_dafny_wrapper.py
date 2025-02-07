@@ -17,7 +17,7 @@ sys.path.append(test_dir + "/internaldafny/extern")
 sys.path.append(test_dir + "/internaldafny/generated")
 
 import dbesdk_ddb_test_vectors.internaldafny.extern.CreateInterceptedDDBClient
-import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedItemEncryptor
+import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDynamoDbItemEncryptor
 
 def test_dafny():
   from ..internaldafny.generated import __main__
