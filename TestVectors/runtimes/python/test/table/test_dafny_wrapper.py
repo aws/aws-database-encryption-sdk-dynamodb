@@ -20,11 +20,16 @@ import dbesdk_ddb_test_vectors.internaldafny.extern.CreateInterceptedDDBTable
 import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
 
 # Remove invalid tests.
-# Unsupported operations on `table` are:
+# Supported operations on `table` that are also supported by DBESDK are:
+# - put_item
+# - get_item
+# - query
+# - scan
+# Unsupported operations on `table` are that are supported by DBESDK are:
 # - transact_get_items
 # - transact_write_items
 # - batch_get_item
-# Remove any tests that call these operations.
+# Remove any tests that call unsupported operations.
 # If more tests that call these operations are added, remove them below.
 # If the list below becomes unmaintainable,
 # or if other languages add clients with unsupported operations,

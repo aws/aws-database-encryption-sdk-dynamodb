@@ -200,25 +200,6 @@ class DynamoDBClientWrapperForDynamoDBTable:
         client_output = self._table_shape_to_client_shape_converter.get_item_response(table_output)
         return client_output
 
-    def _convert_batch_write_item_request_from_dynamo_to_dict(self, **kwargs):
-        for table, requests in kwargs["RequestItems"].items():
-            dict_requests = []
-            for request in requests:
-                request_name_list = list(request.keys())
-                if len(request_name_list) > 1:
-                    raise ValueError("Cannot send more than one request in a single request")
-                request_name = request_name_list[0]
-                if request_name == "PutRequest":
-                    dict_request = ddb_to_dict(request[request_name]["Item"])
-                    dict_requests.append({request_name: {"Item": dict_request}})
-                elif request_name == "DeleteRequest":
-                    dict_request = ddb_to_dict(request[request_name]["Key"])
-                    dict_requests.append({request_name: {"Key": dict_request}})
-                else:
-                    raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-            kwargs["RequestItems"][table] = dict_requests
-        return kwargs
-
     def batch_write_item(self, **kwargs):
         # print(f"batch_write_item {kwargs=}")
         # Parse boto3 client.batch_write_item input into table.batch_writer() calls
