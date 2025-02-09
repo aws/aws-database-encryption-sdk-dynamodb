@@ -168,11 +168,13 @@ module {:options "-functionSyntax:4"} DecryptManifest {
       }
     }
 
+    var time := Time.GetAbsoluteTime();
     for i := 0 to |tests.value| {
       var obj := tests.value[i];
       :- Need(obj.1.Object?, "Value of test '" + obj.0 + "' must be an Object.");
       var _ :- OneTest(obj.0, obj.1, keyVectors);
     }
+    Time.PrintTimeSinceLong(time, "DB-ESDK-TV " + inFile);
 
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Tests Complete.\n";

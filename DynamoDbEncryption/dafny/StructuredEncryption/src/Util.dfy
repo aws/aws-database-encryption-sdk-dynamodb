@@ -199,14 +199,16 @@ module StructuredEncryptionUtil {
 
   // sequences are equal if zero is returned
   // Some care should be taken to ensure that target languages don't over optimize this.
-  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, acc : bv8 := 0) : bv8
+  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : nat := 0, acc : bv8 := 0) : bv8
     requires |a| == |b|
+    requires 0 <= pos <= |a|
+    decreases |a| - pos
   {
-    if |a| == 0 then
+    if |a| == pos then
       acc
     else
-      var x := ((a[0] as bv8) ^ (b[0] as bv8));
-      ConstantTimeCompare(a[1..], b[1..], x | acc)
+      var x := ((a[pos] as bv8) ^ (b[pos] as bv8));
+      ConstantTimeCompare(a, b, pos+1, x | acc)
   }
 
   predicate method ConstantTimeEquals(a : Bytes, b : Bytes)

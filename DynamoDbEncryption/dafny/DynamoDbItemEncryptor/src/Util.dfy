@@ -191,25 +191,30 @@ module DynamoDbItemEncryptorUtil {
     keys : seq<UTF8.ValidUTF8Bytes>,
     context : MPL.EncryptionContext,
     legend : string,
+    keyPos : nat := 0,
+    legendPos : nat := 0,
     attrMap : DDB.AttributeMap := map[]
   )
     : Result<DDB.AttributeMap, string>
     requires forall k <- keys :: k in context
+    requires keyPos <= |keys|
+    requires legendPos <= |legend|
+    decreases |keys| - keyPos
   {
-    if |keys| == 0 then
-      if |legend| == 0 then
+    if |keys| == keyPos then
+      if |legend| == legendPos then
         Success(attrMap)
       else
         Failure("Encryption Context Legend is too long.")
     else
-      var key : UTF8.ValidUTF8Bytes := keys[0];
+      var key : UTF8.ValidUTF8Bytes := keys[keyPos];
       if SE.EC_ATTR_PREFIX < key then
-        :- Need(0 < |legend|, "Encryption Context Legend is too short.");
+        :- Need(legendPos < |legend|, "Encryption Context Legend is too short.");
         var attrName :- GetAttributeName(key);
-        var attrValue :- GetAttrValue(context[key], legend[0]);
-        GetV2AttrMap(keys[1..], context, legend[1..], attrMap[attrName := attrValue])
+        var attrValue :- GetAttrValue(context[key], legend[legendPos]);
+        GetV2AttrMap(keys, context, legend, keyPos+1, legendPos+1, attrMap[attrName := attrValue])
       else
-        GetV2AttrMap(keys[1..], context, legend, attrMap)
+        GetV2AttrMap(keys, context, legend, keyPos+1, legendPos, attrMap)
   }
 
   function method GetAttributeName(ddbAttrKey: UTF8.ValidUTF8Bytes)
