@@ -17,10 +17,10 @@ impl ResolveAuthActions {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-    > {
+    >{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PstructuredEncryption_HResolveAuthActionsInput_for_StructuredEncryption_ResolveAuthActions(&input)
             .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::resolve_auth_actions::_resolve_auth_actions_input::to_dafny(input);
+        let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::resolve_auth_actions::_resolve_auth_actions_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ResolveAuthActions(&inner_input);
         if matches!(

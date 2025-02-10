@@ -176,7 +176,7 @@ module SearchConfigToInfo {
     var cache;
     if cacheType.Shared? {
       cache := cacheType.Shared;
-      reveal ValidSharedCache(config);
+      reveal ValidSharedCache();
     } else {
       //= specification/searchable-encryption/search-config.md#key-store-cache
       //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)

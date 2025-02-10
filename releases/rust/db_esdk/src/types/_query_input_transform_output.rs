@@ -6,13 +6,15 @@
 #[allow(missing_docs)]
 pub struct QueryInputTransformOutput {
     #[allow(missing_docs)]
-pub transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>,
+    pub transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>,
 }
 impl QueryInputTransformOutput {
     #[allow(missing_docs)]
-pub fn transformed_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput> {
-    &self.transformed_input
-}
+    pub fn transformed_input(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput> {
+        &self.transformed_input
+    }
 }
 impl QueryInputTransformOutput {
     /// Creates a new builder-style object to manufacture [`QueryInputTransformOutput`](crate::types::QueryInputTransformOutput).
@@ -27,23 +29,32 @@ impl QueryInputTransformOutput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct QueryInputTransformOutputBuilder {
-    pub(crate) transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>,
+    pub(crate) transformed_input:
+        ::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>,
 }
 impl QueryInputTransformOutputBuilder {
     #[allow(missing_docs)]
-pub fn transformed_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::query::QueryInput>) -> Self {
-    self.transformed_input = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_transformed_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>) -> Self {
-    self.transformed_input = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_transformed_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput> {
-    &self.transformed_input
-}
+    pub fn transformed_input(
+        mut self,
+        input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::query::QueryInput>,
+    ) -> Self {
+        self.transformed_input = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_transformed_input(
+        mut self,
+        input: ::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>,
+    ) -> Self {
+        self.transformed_input = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_transformed_input(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput> {
+        &self.transformed_input
+    }
     /// Consumes the builder and constructs a [`QueryInputTransformOutput`](crate::types::QueryInputTransformOutput).
     pub fn build(
         self,

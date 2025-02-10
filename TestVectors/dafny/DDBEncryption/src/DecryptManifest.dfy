@@ -20,12 +20,17 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   import opened JSONHelpers
   import JsonConfig
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import KeyVectors
 
-  method OnePositiveTest(name : string, config : JSON, encrypted : JSON, plaintext : JSON) returns (output : Result<bool, string>)
+  method OnePositiveTest(name : string, config : JSON, encrypted : JSON, plaintext : JSON, keys : KeyVectors.KeyVectorsClient)
+    returns (output : Result<bool, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     var enc :- JsonConfig.GetRecord(encrypted);
     var plain :- JsonConfig.GetRecord(plaintext);
-    var encryptor :- JsonConfig.GetItemEncryptor(name, config);
+    var encryptor :- JsonConfig.GetItemEncryptor(name, config, keys);
     var decrypted :- expect encryptor.DecryptItem(
       ENC.DecryptItemInput(
         encryptedItem:=enc.item
@@ -36,10 +41,14 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     return Success(true);
   }
 
-  method OneNegativeTest(name : string, config : JSON, encrypted : JSON) returns (output : Result<bool, string>)
+  method OneNegativeTest(name : string, config : JSON, encrypted : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<bool, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     var enc :- JsonConfig.GetRecord(encrypted);
-    var encryptor :- JsonConfig.GetItemEncryptor(name, config);
+    var encryptor :- JsonConfig.GetItemEncryptor(name, config, keys);
     var decrypted := encryptor.DecryptItem(
       ENC.DecryptItemInput(
         encryptedItem:=enc.item
@@ -51,7 +60,11 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     return Success(true);
   }
 
-  method OneTest(name : string, value : JSON) returns (output : Result<bool, string>)
+  method OneTest(name : string, value : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<bool, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(value.Object?, "Test must be an object");
 
@@ -89,15 +102,19 @@ module {:options "-functionSyntax:4"} DecryptManifest {
 
     if types.value == "positive-decrypt" {
       :- Need(plaintext.Some?, "positive-decrypt Test requires a 'plaintext' member.");
-      output := OnePositiveTest(name, config.value, encrypted.value, plaintext.value);
+      output := OnePositiveTest(name, config.value, encrypted.value, plaintext.value, keys);
     } else if types.value == "negative-decrypt" {
-      output := OneNegativeTest(name, config.value, encrypted.value);
+      output := OneNegativeTest(name, config.value, encrypted.value, keys);
     } else {
       return Failure("Invalid encrypt type : '" + types.value + "'.");
     }
   }
 
-  method Decrypt(inFile : string) returns (output : Result<bool, string>)
+  method Decrypt(inFile : string, keyVectors: KeyVectors.KeyVectorsClient)
+    returns (output : Result<bool, string>)
+    requires keyVectors.ValidState()
+    modifies keyVectors.Modifies
+    ensures keyVectors.ValidState()
   {
     var timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Decrypt : ", inFile, "\n";
@@ -154,7 +171,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     for i := 0 to |tests.value| {
       var obj := tests.value[i];
       :- Need(obj.1.Object?, "Value of test '" + obj.0 + "' must be an Object.");
-      var _ :- OneTest(obj.0, obj.1);
+      var _ :- OneTest(obj.0, obj.1, keyVectors);
     }
 
     timeStamp :- expect Time.GetCurrentTimeStamp();

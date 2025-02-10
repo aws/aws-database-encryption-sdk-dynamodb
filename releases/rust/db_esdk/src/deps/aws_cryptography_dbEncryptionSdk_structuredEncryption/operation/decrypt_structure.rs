@@ -17,10 +17,10 @@ impl DecryptStructure {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::decrypt_structure::DecryptStructureOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-    > {
+    >{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PstructuredEncryption_HDecryptStructureInput_for_StructuredEncryption_DecryptStructure(&input)
             .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::decrypt_structure::_decrypt_structure_input::to_dafny(input);
+        let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::decrypt_structure::_decrypt_structure_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).DecryptStructure(&inner_input);
         if matches!(

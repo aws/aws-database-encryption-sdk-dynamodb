@@ -4,17 +4,17 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::batch_write_item_output_transform::BatchWriteItemOutputTransformOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchWriteItemOutputTransformOutput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchWriteItemOutputTransformOutput::BatchWriteItemOutputTransformOutput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchWriteItemOutputTransformOutput::BatchWriteItemOutputTransformOutput {
         transformedOutput: crate::deps::com_amazonaws_dynamodb::conversions::batch_write_item::_batch_write_item_response::to_dafny(&value.transformed_output.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::BatchWriteItemOutputTransformOutput,
     >,
 ) -> crate::operation::batch_write_item_output_transform::BatchWriteItemOutputTransformOutput {

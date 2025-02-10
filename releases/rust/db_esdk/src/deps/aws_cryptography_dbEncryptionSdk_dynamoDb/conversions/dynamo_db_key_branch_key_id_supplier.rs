@@ -6,20 +6,20 @@ pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef,
 ) -> ::dafny_runtime::Object<
   dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::IDynamoDbKeyBranchKeyIdSupplier,
-> {
-  let wrap = DynamoDbKeyBranchKeyIdSupplierWrapper {
-      obj: value.clone(),
-  };
-  let inner = ::std::rc::Rc::new(::std::cell::UnsafeCell::new(wrap));
-  ::dafny_runtime::Object (Some(inner) )
+>{
+    let wrap = DynamoDbKeyBranchKeyIdSupplierWrapper { obj: value.clone() };
+    let inner = ::dafny_runtime::Rc::new(::dafny_runtime::UnsafeCell::new(wrap));
+    ::dafny_runtime::Object(Some(inner))
 }
 
 pub struct DynamoDbKeyBranchKeyIdSupplierWrapper {
   obj: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef,
 }
 
-impl ::dafny_runtime::UpcastObject<dyn ::std::any::Any> for DynamoDbKeyBranchKeyIdSupplierWrapper {
-  ::dafny_runtime::UpcastObjectFn!(dyn ::std::any::Any);
+impl ::dafny_runtime::UpcastObject<::dafny_runtime::DynAny>
+    for DynamoDbKeyBranchKeyIdSupplierWrapper
+{
+    ::dafny_runtime::UpcastObjectFn!(::dafny_runtime::DynAny);
 }
 
 #[allow(dead_code)]
@@ -27,12 +27,12 @@ pub fn from_dafny(
     dafny_value: ::dafny_runtime::Object<
       dyn crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::IDynamoDbKeyBranchKeyIdSupplier,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef{
     let wrap = IDynamoDbKeyBranchKeyIdSupplierDafnyWrapper {
         obj: dafny_value.clone(),
     };
     crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_key_branch_key_id_supplier::DynamoDbKeyBranchKeyIdSupplierRef {
-      inner: ::std::rc::Rc::new(::std::cell::RefCell::new(wrap))
+      inner: ::dafny_runtime::Rc::new(::dafny_runtime::RefCell::new(wrap))
     }
 }
 
@@ -48,16 +48,16 @@ impl crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internald
 {
   fn r#_GetBranchKeyIdFromDdbKey_k(
     &self,
-    input: &::std::rc::Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::GetBranchKeyIdFromDdbKeyInput>,
-) -> ::std::rc::Rc<
+    input: &::dafny_runtime::Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::GetBranchKeyIdFromDdbKeyInput>,
+) -> ::dafny_runtime::Rc<
     crate::r#_Wrappers_Compile::Result<
-        ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::GetBranchKeyIdFromDdbKeyOutput>,
-        ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Error>,
+        ::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::GetBranchKeyIdFromDdbKeyOutput>,
+        ::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Error>,
     >,
 >
 {
     let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::get_branch_key_id_from_ddb_key::_get_branch_key_id_from_ddb_key_input::from_dafny(input.clone());
-    let inner_result = self.obj.inner.borrow_mut().get_branch_key_id_from_ddb_key(inner_input);
+    let inner_result = self.obj.inner.lock().unwrap().get_branch_key_id_from_ddb_key(inner_input);
     let result = match inner_result {
         Ok(x) => crate::r#_Wrappers_Compile::Result::Success {
             value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::get_branch_key_id_from_ddb_key::_get_branch_key_id_from_ddb_key_output::to_dafny(x.clone()),
@@ -66,7 +66,7 @@ impl crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internald
             error: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::error::to_dafny(x),
         },
     };
-    ::std::rc::Rc::new(result)
+    ::dafny_runtime::Rc::new(result)
 }
 }
 

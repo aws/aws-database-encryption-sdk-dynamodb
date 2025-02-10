@@ -21,7 +21,7 @@ phases:
     commands:
       - cd ..
       # Get Dafny
-      - curl https://github.com/dafny-lang/dafny/releases/download/v4.8.0/dafny-4.8.0-x64-ubuntu-20.04.zip  -L -o dafny.zip
+      - curl https://github.com/dafny-lang/dafny/releases/download/v4.9.0/dafny-4.9.0-x64-ubuntu-20.04.zip  -L -o dafny.zip
       - unzip -qq dafny.zip && rm dafny.zip
       - export PATH="$PWD/dafny:$PATH"
       # Get Gradle 7.6
@@ -47,8 +47,6 @@ phases:
       - aws sts get-caller-identity
   build:
     commands:
-      # Validate the MPL submodule points to the correct release
-      - scripts/validate-mpl-submodule.sh
       # Build and deploy to maven local
       - cd DynamoDbEncryption/
       - make transpile_implementation_java

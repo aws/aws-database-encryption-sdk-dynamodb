@@ -4,10 +4,10 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ResolveAuthActionsOutput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ResolveAuthActionsOutput::ResolveAuthActionsOutput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ResolveAuthActionsOutput::ResolveAuthActionsOutput {
         cryptoActions: ::dafny_runtime::dafny_runtime_conversions::vec_to_dafny_sequence(&value.crypto_actions.clone().unwrap(),
     |e| crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::crypto_item::to_dafny(&e.clone())
 ,
@@ -15,15 +15,15 @@ pub fn to_dafny(
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::ResolveAuthActionsOutput,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput{
     crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::ResolveAuthActionsOutput::builder()
         .set_crypto_actions(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_sequence_to_vec(dafny_value.cryptoActions(),
-    |e: &::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoItem>| crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::crypto_item::from_dafny(e.clone())
+    |e: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::CryptoItem>| crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::crypto_item::from_dafny(e.clone())
 ,
 )
  ))
