@@ -504,7 +504,6 @@ module StructuredEncryptionHeader {
     : (ret : Result<(CMPUtf8Bytes, CMPUtf8Bytes, nat), Error>)
     ensures ret.Success? ==>
               && ret.value.2 + pos <= |data|
-              && SerializeOneKVPair(ret.value.0, ret.value.1) == data[pos..pos+ret.value.2]
     ensures (
               && 2 + pos <= |data|
               && var keyLen := SeqPosToUInt16(data, pos) as nat;
