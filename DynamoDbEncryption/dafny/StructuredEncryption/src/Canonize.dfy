@@ -826,6 +826,7 @@ module {:options "/functionSyntax:4" } Canonize {
     else if xs[pos].key in [HeaderPath, FooterPath] then
       RemoveHeaderPaths(xs, pos+1, acc)
     else
+      assert xs[pos] !in acc;
       RemoveHeaderPaths(xs, pos+1, acc + [xs[pos]])
   }
 
