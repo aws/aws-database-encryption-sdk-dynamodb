@@ -429,7 +429,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       // Second this would create two loops.
       // First loop would create the `lo to hi` range of numbers.
       // The second loop would then loop over these elements.
-      // A single loop with 
+      // A single loop with
       for i := lo to hi
         modifies right
         invariant left[..lo] == old(left[..lo]) && right[..lo] == old(right[..lo])
