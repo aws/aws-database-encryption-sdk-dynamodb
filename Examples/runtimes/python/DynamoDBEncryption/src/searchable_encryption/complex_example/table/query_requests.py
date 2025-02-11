@@ -1,4 +1,3 @@
-import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
 def run_queries(table):
@@ -29,14 +28,12 @@ def run_queries(table):
 def run_query_1(table):
     """
     Query 1: Get meetings by date and email
-    - Key condition: PK1 = email AND SK1 BETWEEN date1 AND date2
-    - Filter condition: Duration > 0
+    Key condition: PK1 = email AND SK1 BETWEEN date1 AND date2
+    Filter condition: Duration > 0
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK1").eq("EE-able@gmail.com") & Key("SK1").between("MS-2022-07-02", "MS-2022-07-08")
     filter_condition = Attr("Duration").gt("0")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition,
@@ -67,11 +64,9 @@ def run_query_2(table):
     Key condition: PK=employeeID SK between(date1, date2)
     Filter condition: duration > 0
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK").eq("E-emp_001") & Key("SK").between("MS-2022-07-02", "MS-2022-07-08")
     filter_condition = Attr("Duration").gt("0")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition,
@@ -95,6 +90,7 @@ def run_query_2(table):
 
     assert found_known_value_item
 
+
 def run_query_3(table):
     """
     Query 3: Get meetings by date and building/floor/room
@@ -105,12 +101,11 @@ def run_query_3(table):
           However, one cannot use primary keys (partition nor sort) in a filter expression.
           Instead, this query filters on the individual beacon attributes: building, floor, and room.
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK").eq("B-SEA33") & Key("SK").between("MS-2022-07-02", "MS-2022-07-08")
     filter_condition = (Attr("Building").eq("SEA33") & 
                        Attr("Floor").eq("12") & 
                        Attr("Room").eq("403"))
-    # Execute query
+
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition,
@@ -132,15 +127,14 @@ def run_query_3(table):
 
     assert found_known_value_item
 
+
 def run_query_4(table):
     """
     Query 4: Get employee data by email
     Key condition: PK1=email SK1=employee ID
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK1").eq("EE-able@gmail.com") & Key("SK1").eq("E-emp_001")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition
@@ -162,15 +156,14 @@ def run_query_4(table):
 
     assert found_known_value_item
 
+
 def run_query_5(table):
     """
     Query 5: Get meetings by email
     Key condition: PK1=email SK1 > 30 days ago
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK1").eq("EE-able@gmail.com") & Key("SK1").between("MS-", "MS-2023-03-20")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition
@@ -193,15 +186,14 @@ def run_query_5(table):
 
     assert found_known_value_item
 
+
 def run_query_6(table):
     """
     Query 6: Get tickets by email
     Key condition: PK1=email SK1 > 30 days ago
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK1").eq("CE-zorro@gmail.com") & Key("SK1").lt("MS-2023-03-20")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition
@@ -223,15 +215,14 @@ def run_query_6(table):
 
     assert found_known_value_item
 
+
 def run_query_7(table):
     """
     Query 7: Get reservations by email
     Key condition: PK1=organizeremail SK1 > 30 days ago
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK1").eq("OE-able@gmail.com") & Key("SK1").lt("MS-2023-03-20")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition
@@ -260,10 +251,8 @@ def run_query_8(table):
     Query 8: Get time cards by email
     Key condition: PK1=employeeemail SK1 > 30 days ago
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK1").eq("EE-able@gmail.com") & Key("SK1").between("TC-", "TC-2023-03-20")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition
@@ -290,10 +279,8 @@ def run_query_9(table):
     Query 9: Get employee info by employee ID
     Key condition: PK1=employeeID SK starts with "E-"
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK").eq("E-emp_001") & Key("SK").begins_with("E-")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition
@@ -314,16 +301,15 @@ def run_query_9(table):
 
     assert found_known_value_item
 
+
 def run_query_10(table):
     """
     Query 10: Get employee info by email
     Key condition: PK1=email
     Filter condition: SK starts with "E-"
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK1").eq("EE-able@gmail.com") & Key("SK1").begins_with("E-")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition
@@ -350,10 +336,8 @@ def run_query_11(table):
     Query 11: Get ticket history by ticket number
     Key condition: PK=TicketNumber
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK").eq("T-ticket_001")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition
@@ -382,11 +366,9 @@ def run_query_12(table):
     Key condition: PK1=CreatorEmail
     Filter condition: PK=TicketNumber
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK1").eq("CE-zorro@gmail.com")
     filter_condition = Attr("PK").eq("T-ticket_001")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition,
@@ -415,11 +397,9 @@ def run_query_13(table):
     Key condition: PK=AssigneeEmail
     Filter condition: PK=ticketNumber
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK2").eq("AE-able@gmail.com")
     filter_condition = Attr("PK").eq("T-ticket_001")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-2",
         KeyConditionExpression=key_condition,
@@ -447,7 +427,6 @@ def run_query_14(table):
     Query 14: Get employees by city.building.floor.desk
     Key condition: PK3=city SK3 begins_with(building.floor.desk)
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK3").eq("C-Seattle") & Key("SK3").begins_with("B-44~F-12~D-3")
 
     # Execute query with retries since GSIs don't update instantly
@@ -483,15 +462,14 @@ def run_query_14(table):
     # Assert the value was found inside the loop
     assert found_known_value_item
 
+
 def run_query_15(table):
     """
     Query 15: Get employees by manager email
     Key condition: PK2 = ManagerEmail
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK2").eq("ME-zorro@gmail.com")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-2",
         KeyConditionExpression=key_condition
@@ -520,10 +498,8 @@ def run_query_16(table):
     Query 16: Get assigned tickets by assignee email
     Key condition: PK2 = AssigneeEmail
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK2").eq("AE-able@gmail.com")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-2",
         KeyConditionExpression=key_condition
@@ -555,10 +531,8 @@ def run_query_17(table):
      is 2022-10-07T09:30:00, and that our sample ticket record
      with TicketModTime=2022-10-07T14:32:25 will be returned.)
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK3").eq("S-3") & Key("SK3").gt("M-2022-10-07T09:30:00")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-3",
         KeyConditionExpression=key_condition
@@ -587,11 +561,9 @@ def run_query_18(table):
     Key condition: PK1 = Status, SK1 > StartDate
     Filter condition: TargetDelivery < TargetDate
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK1").eq("PSts-Pending") & Key("SK1").gt("PS-2022-01-01")
     filter_condition = Attr("ProjectTarget").lt("2025-01-01")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-1",
         KeyConditionExpression=key_condition,
@@ -619,10 +591,8 @@ def run_query_19(table):
     Query 19: Get projects by name
     Key condition: PK = ProjectName, SK = ProjectName
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK").eq("P-project_001") & Key("SK").eq("P-project_001")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition
@@ -649,10 +619,8 @@ def run_query_20(table):
     Query 20: Get Project History by date range (against timecard record)
     Key condition: PK = ProjectName, SK between(date1, date2)
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK").eq("P-project_002") & Key("SK").between("TC-2022-01-01", "TC-2023-01-01")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition
@@ -681,11 +649,9 @@ def run_query_21(table):
     Key condition: PK = ProjectName
     Filter condition: role=rolename
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK").eq("P-project_002")
     filter_condition = Attr("Role").eq("SDE3")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition,
@@ -713,10 +679,8 @@ def run_query_22(table):
     Query 22: Get reservations by building ID
     Key condition: PK = Building ID
     """
-    # Define query conditions using boto3 Key()
     key_condition = Key("PK").eq("B-SEA33")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition
@@ -745,11 +709,9 @@ def run_query_23(table):
     Key condition: PK = Building ID, SK between(date1, date2)
     Filter condition: Duration > 0
     """
-    # Define query conditions using boto3 Key() and Attr()
     key_condition = Key("PK").eq("B-SEA33") & Key("SK").between("MS-2022-07-01", "MS-2022-07-08")
     filter_condition = Attr("Duration").gt("0")
 
-    # Execute query
     response = table.query(
         IndexName="GSI-0",
         KeyConditionExpression=key_condition,
