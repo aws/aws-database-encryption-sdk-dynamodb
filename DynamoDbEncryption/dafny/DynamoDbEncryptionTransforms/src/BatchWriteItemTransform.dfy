@@ -85,7 +85,7 @@ module BatchWriteItemTransform {
     tableConfig : ValidTableConfig,
     srcRequests : DDB.WriteRequests,
     itemReq : DDB.WriteRequest
-    ) returns (ret : Result<DDB.WriteRequest, Error>)
+  ) returns (ret : Result<DDB.WriteRequest, Error>)
     requires itemReq.PutRequest.Some?
     ensures ret.Success? ==> ret.value.PutRequest.Some?
   {
