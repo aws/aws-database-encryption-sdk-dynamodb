@@ -81,6 +81,8 @@ module BatchWriteItemTransform {
     return Success(BatchWriteItemInputTransformOutput(transformedInput := input.sdkInput.(RequestItems := result)));
   }
 
+  // Given the encrypted item, find the original plaintext item, based on the never encrypted PK and SK.
+  // We don't have to worry about duplicates, because DynamoDB will report an error if there are duplicates
   method GetOrigItem(
     tableConfig : ValidTableConfig,
     srcRequests : DDB.WriteRequests,
@@ -109,11 +111,20 @@ module BatchWriteItemTransform {
 
   method Output(config: Config, input: BatchWriteItemOutputTransformInput)
     returns (output: Result<BatchWriteItemOutputTransformOutput, Error>)
+
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-batchwriteitem
+    //= type=implication
+    //# If there are no UnprocessedItems, then the BatchWriteItemOutput MUST be returned unchanged.
+    ensures input.sdkOutput.UnprocessedItems.None? ==>
+              && output.Success?
+              && output.value.transformedOutput == input.sdkOutput
   {
     if input.sdkOutput.UnprocessedItems.None? {
       return Success(BatchWriteItemOutputTransformOutput(transformedOutput := input.sdkOutput));
     }
 
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-batchwriteitem
+    //# Each item in UnprocessedItems MUST be replaced by its original plaintext value.
     var srcItems := input.originalInput.RequestItems;
     var unprocessed := input.sdkOutput.UnprocessedItems.value;
     var tableNames := unprocessed.Keys;
