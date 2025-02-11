@@ -16,7 +16,10 @@ test_dir = '/'.join(__file__.split("/")[:-2])
 sys.path.append(test_dir + "/internaldafny/extern")
 sys.path.append(test_dir + "/internaldafny/generated")
 
+# Import extern to use an EncryptedResource as the wrapped DBESDK client.
 import dbesdk_ddb_test_vectors.internaldafny.extern.CreateInterceptedDDBResource
+# Import extern to use the ItemEncryptor with Python dictionary-formatted items.
+# (EncryptedResources use Python dictionary-formatted items.)
 import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
 
 # Remove invalid tests.

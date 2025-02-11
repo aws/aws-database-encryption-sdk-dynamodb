@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from boto3.dynamodb.conditions import (
+    BuiltConditionExpression,
+)
 
 class BotoInterfaceShapeConverter(ABC):
     """

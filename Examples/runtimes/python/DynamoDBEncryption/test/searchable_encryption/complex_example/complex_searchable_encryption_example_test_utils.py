@@ -1,0 +1,1 @@
+TEST_DDB_TABLE_NAME = "ComplexBeaconTestTable"
