@@ -2,6 +2,7 @@ import boto3
 from ..beacon_config import setup_beacon_config
 from aws_database_encryption_sdk.encryptor.client import EncryptedClient
 from .put_requests import put_all_items_to_table
+from .query_requests import run_queries
 
 def run_example(
     ddb_table_name: str,
@@ -24,4 +25,5 @@ def run_example(
     )
 
     put_all_items_to_table(ddb_table_name, encrypted_client)
+    run_queries(encrypted_client, ddb_table_name)
     
