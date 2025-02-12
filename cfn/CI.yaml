@@ -64,131 +64,13 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: !Ref TableName
 
-  BasicTestJavaTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "partition_key"
-          AttributeType: "S"
-        - AttributeName: "sort_key"
-          AttributeType: "N"
-      KeySchema:
-        - AttributeName: "partition_key"
-          KeyType: "HASH"
-        - AttributeName: "sort_key"
-          KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: !Ref BasicTestJavaTableName
-
-  BasicTestDotnetTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "partition_key"
-          AttributeType: "S"
-        - AttributeName: "sort_key"
-          AttributeType: "N"
-      KeySchema:
-        - AttributeName: "partition_key"
-          KeyType: "HASH"
-        - AttributeName: "sort_key"
-          KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: !Ref BasicTestDotnetTableName
-
-  SearchTestJavaTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "aws_dbe_b_inspector_id_last4"
-          AttributeType: "S"
-        - AttributeName: "aws_dbe_b_last4UnitCompound"
-          AttributeType: "S"
-        - AttributeName: "aws_dbe_b_unit"
-          AttributeType: "S"
-        - AttributeName: "inspection_date"
-          AttributeType: "S"
-        - AttributeName: "work_id"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "work_id"
-          KeyType: "HASH"
-        - AttributeName: "inspection_date"
-          KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: !Ref SearchTestJavaTableName
-      GlobalSecondaryIndexes:
-        - IndexName: "last4-unit-index"
-          KeySchema:
-            - AttributeName: "aws_dbe_b_inspector_id_last4"
-              KeyType: "HASH"
-            - AttributeName: "aws_dbe_b_unit"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
-        - IndexName: "last4UnitCompound-index"
-          KeySchema:
-            - AttributeName: "aws_dbe_b_last4UnitCompound"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
-
-  SearchTestDotnetTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "aws_dbe_b_inspector_id_last4"
-          AttributeType: "S"
-        - AttributeName: "aws_dbe_b_last4UnitCompound"
-          AttributeType: "S"
-        - AttributeName: "aws_dbe_b_unit"
-          AttributeType: "S"
-        - AttributeName: "inspection_date"
-          AttributeType: "S"
-        - AttributeName: "work_id"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "work_id"
-          KeyType: "HASH"
-        - AttributeName: "inspection_date"
-          KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
-      TableName: !Ref SearchTestDotnetTableName
-      GlobalSecondaryIndexes:
-        - IndexName: "last4-unit-index"
-          KeySchema:
-            - AttributeName: "aws_dbe_b_inspector_id_last4"
-              KeyType: "HASH"
-            - AttributeName: "aws_dbe_b_unit"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
-        - IndexName: "last4UnitCompound-index"
-          KeySchema:
-            - AttributeName: "aws_dbe_b_last4UnitCompound"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
+  # These tables were manually created but not used in CI
+  # If we have to start using them in CI we just have to add
+  # them to the policy below.
+  # BasicTestJavaTable:
+  # BasicTestDotnetTable:
+  # SearchTestJavaTable:
+  # SearchTestDotnetTable:
 
   TestTableWithSimpleBeaconIndex:
     Type: AWS::DynamoDB::Table
@@ -384,7 +266,7 @@ Resources:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${KeystoreTableName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BasicTestJavaTableName}"
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BasicTestDotnetTableName}"
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${BasicTestDotNetTableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestJavaTableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestJavaTableName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}"
@@ -450,6 +332,7 @@ Resources:
         - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
         - "arn:aws:iam::370957321024:policy/Hierarchical-GitHub-KMS-Key-Policy"
+        - "arn:aws:iam::370957321024:policy/Github-ECDH-KMS"
         - !Ref KMSUsage
         - !Ref DDBUsage
       AssumeRolePolicyDocument: !Sub |

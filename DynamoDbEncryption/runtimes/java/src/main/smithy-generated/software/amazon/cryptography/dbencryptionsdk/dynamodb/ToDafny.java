@@ -63,6 +63,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 import software.amazon.cryptography.keystore.internaldafny.types.IKeyStoreClient;
 import software.amazon.cryptography.materialproviders.internaldafny.types.CacheType;
@@ -81,6 +82,9 @@ public class ToDafny {
     if (nativeValue instanceof OpaqueError) {
       return ToDafny.Error((OpaqueError) nativeValue);
     }
+    if (nativeValue instanceof OpaqueWithTextError) {
+      return ToDafny.Error((OpaqueWithTextError) nativeValue);
+    }
     if (nativeValue instanceof CollectionOfErrors) {
       return ToDafny.Error((CollectionOfErrors) nativeValue);
     }
@@ -89,6 +93,13 @@ public class ToDafny {
 
   public static Error Error(OpaqueError nativeValue) {
     return Error.create_Opaque(nativeValue.obj());
+  }
+
+  public static Error Error(OpaqueWithTextError nativeValue) {
+    return Error.create_OpaqueWithText(
+      nativeValue.obj(),
+      dafny.DafnySequence.asString(nativeValue.objMessage())
+    );
   }
 
   public static Error Error(CollectionOfErrors nativeValue) {
@@ -668,7 +679,19 @@ public class ToDafny {
           )
         )
         : Option.create_None(CacheType._typeDescriptor());
-    return new MultiKeyStore(keyFieldName, cacheTTL, cache);
+    Option<DafnySequence<? extends Character>> partitionId;
+    partitionId =
+      Objects.nonNull(nativeValue.partitionId())
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
+          software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+            nativeValue.partitionId()
+          )
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
+    return new MultiKeyStore(keyFieldName, cacheTTL, cache, partitionId);
   }
 
   public static PartOnly PartOnly(
@@ -747,7 +770,29 @@ public class ToDafny {
       );
     Integer cacheTTL;
     cacheTTL = (nativeValue.cacheTTL());
-    return new SingleKeyStore(keyId, cacheTTL);
+    Option<CacheType> cache;
+    cache =
+      Objects.nonNull(nativeValue.cache())
+        ? Option.create_Some(
+          CacheType._typeDescriptor(),
+          software.amazon.cryptography.materialproviders.ToDafny.CacheType(
+            nativeValue.cache()
+          )
+        )
+        : Option.create_None(CacheType._typeDescriptor());
+    Option<DafnySequence<? extends Character>> partitionId;
+    partitionId =
+      Objects.nonNull(nativeValue.partitionId())
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
+          software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+            nativeValue.partitionId()
+          )
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
+    return new SingleKeyStore(keyId, cacheTTL, cache, partitionId);
   }
 
   public static StandardBeacon StandardBeacon(

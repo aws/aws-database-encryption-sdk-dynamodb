@@ -125,6 +125,7 @@ MUST have the following modified behavior:
 - [Encrypt before PutItem](#encrypt-before-putitem)
 - [Encrypt before BatchWriteItem](#encrypt-before-batchwriteitem)
 - [Encrypt before TransactWriteItems](#encrypt-before-transactwriteitems)
+- [Decrypt after BatchWriteItem](#encrypt-before-batchwriteitem)
 - [Decrypt after GetItem](#decrypt-after-getitem)
 - [Decrypt after PutItem](#decrypt-after-putitem)
 - [Decrypt after UpdateItem](#decrypt-after-updateitem)
@@ -318,6 +319,12 @@ If there is a `Put` that refers to a `TableName` that refers to an [encrypted-ta
   with a value that is equivalent to
   the result [Encrypted DynamoDB Item](./encrypt-item.md#encrypted-dynamodb-item)
   calculated above.
+
+### Decrypt after BatchWriteItem
+
+If there are no UnprocessedItems, then the BatchWriteItemOutput MUST be returned unchanged.
+
+Each item in UnprocessedItems MUST be replaced by its original plaintext value.
 
 ### Decrypt after GetItem
 

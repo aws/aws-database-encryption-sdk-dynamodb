@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Examples.keyring;
 
 namespace Examples
 {
@@ -22,6 +23,8 @@ namespace Examples
             await MultiKeyringExample.MultiKeyringGetItemPutItem();
             await RawRsaKeyringExample.RawRsaKeyringGetItemPutItem();
             await KmsRsaKeyringExample.KmsRsaKeyringGetItemPutItem();
+            await RawEcdhKeyringExample.RawEcdhKeyringExamples();
+            await KmsEcdhKeyringExample.KmsEcdhKeyringExamples();
 
             var keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey();
             var keyId2 = CreateKeyStoreKeyExample.KeyStoreCreateKey();
@@ -30,6 +33,7 @@ namespace Examples
             Thread.Sleep(5000);
 
             await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
+            await SharedCacheAcrossHierarchicalKeyringsExample.SharedCacheAcrossHierarchicalKeyringsGetItemPutItem(keyId);
 
             await BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(keyId);
             await CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(keyId);

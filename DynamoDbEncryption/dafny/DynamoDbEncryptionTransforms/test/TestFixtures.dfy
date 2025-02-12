@@ -19,6 +19,7 @@ module TestFixtures {
   import DDB = ComAmazonawsDynamodbTypes
 
   method GetTableName(s : string) returns (output : DDB.TableName)
+    ensures DDB.IsValid_TableArn(output)
   {
     expect DDB.IsValid_TableName(s);
     return s;
@@ -237,31 +238,37 @@ module TestFixtures {
     assume {:axiom} fresh(encryption.Modifies);
   }
 
-  // method GetDynamoDbEncryptionTransforms2(actions : AttributeActions, sortKey : Option<string>)
-  //   returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
-  //   ensures encryption.ValidState()
-  //   ensures fresh(encryption)
-  //   ensures fresh(encryption.Modifies)
-  // {
-  //   var keyring := GetKmsKeyring();
-  //   encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
-  //     DynamoDbTablesEncryptionConfig(
-  //       tableEncryptionConfigs := map[
-  //         "foo" := DynamoDbTableEncryptionConfig(
-  //           logicalTableName := "foo",
-  //           partitionKeyName := "bar",
-  //           sortKeyName := sortKey,
-  //           attributeActionsOnEncrypt := actions,
-  //           allowedUnsignedAttributes := Some(["plain"]),
-  //           allowedUnsignedAttributePrefix := None(),
-  //           algorithmSuiteId := None(),
-  //           keyring := Some(keyring)
-  //         )
-  //       ]
-  //     )
-  //   );
-  //   assume {:axiom} fresh(encryption.Modifies);
-  // }
+  method GetDynamoDbEncryptionTransforms2()
+    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+    ensures encryption.ValidState()
+    ensures fresh(encryption)
+    ensures fresh(encryption.Modifies)
+  {
+    expect DDB.IsValid_TableName("foo");
+    var keyring := GetKmsKeyring();
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+      DynamoDbTablesEncryptionConfig(
+        tableEncryptionConfigs := map[
+          "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
+            partitionKeyName := "bar",
+            sortKeyName := Some("sign"),
+            attributeActionsOnEncrypt := map[
+              "bar" := CSE.SIGN_ONLY,
+              "sign" := CSE.SIGN_ONLY,
+              "encrypt" := CSE.ENCRYPT_AND_SIGN,
+              "plain" := CSE.DO_NOTHING
+            ],
+            allowedUnsignedAttributes := Some(["plain"]),
+            allowedUnsignedAttributePrefix := None(),
+            algorithmSuiteId := None(),
+            keyring := Some(keyring)
+          )
+        ]
+      )
+    );
+    assume {:axiom} fresh(encryption.Modifies);
+  }
 
   // type AttributeActions = map<ComAmazonawsDynamodbTypes.AttributeName, AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction>
 
@@ -279,7 +286,7 @@ module TestFixtures {
       "TheKeyField" := SE.SIGN_ONLY
     ]
 
-  method GetDynamoDbEncryptionTransformsMutli(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
+  method GetDynamoDbEncryptionTransformsMulti(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>)
     returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
     ensures encryption.ValidState()
     ensures fresh(encryption)
