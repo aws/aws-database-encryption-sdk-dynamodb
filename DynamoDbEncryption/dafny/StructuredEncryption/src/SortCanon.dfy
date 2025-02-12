@@ -311,7 +311,7 @@ module SortCanon {
     ret
   } by method {
     AuthBelowIsTotal();
-    result := OptimizedMergeSort.FastMergeSort(x, AuthBelow);
+    result := OptimizedMergeSort.MergeSortNat(x, AuthBelow);
     CanonAuthListMultiNoDup(x, result);
     assert CanonAuthListHasNoDuplicates(result);
   }
@@ -331,7 +331,7 @@ module SortCanon {
     ret
   } by method {
     CryptoBelowIsTotal();
-    result := OptimizedMergeSort.FastMergeSort(x, CryptoBelow);
+    result := OptimizedMergeSort.MergeSortNat(x, CryptoBelow);
     CanonCryptoListMultiNoDup(x, result);
     assert CanonCryptoListHasNoDuplicates(result);
   }
