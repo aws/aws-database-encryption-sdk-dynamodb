@@ -7,7 +7,7 @@ use crate::implementation_from_dafny::software::amazon::cryptography::services::
 use crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Error;
 use crate::implementation_from_dafny::_Wrappers_Compile;
 use std::sync::LazyLock;
-// use crate::intercept::DbEsdkInterceptor;
+use crate::intercept::DbEsdkInterceptor;
 
 static DAFNY_TOKIO_RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
   tokio::runtime::Builder::new_multi_thread()
@@ -24,6 +24,8 @@ impl _CreateInterceptedDDBClient_Compile::_default {
   pub fn CreateInterceptedDDBClient(config : &Rc<crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbTablesEncryptionConfig>)
   -> Rc<_Wrappers_Compile::Result<Object<dyn IDynamoDBClient>, Rc<Error>>> 
   {
+
+    let table_configs = crate::conversions::dynamo_db_tables_encryption_config::plain_from_dafny(config);
     let shared_config = DAFNY_TOKIO_RUNTIME.block_on(aws_config::load_defaults(
       aws_config::BehaviorVersion::v2024_03_28()));
 
@@ -33,7 +35,7 @@ impl _CreateInterceptedDDBClient_Compile::_default {
         .build();
 
         let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&shared_config)
-//        .interceptor(DbEsdkInterceptor::new(table_configs))
+       .interceptor(DbEsdkInterceptor::new(table_configs).unwrap())
         .build();
       let inner = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 
