@@ -21,6 +21,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   import JsonConfig
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import KeyVectors
+  import OsLang
 
   method OnePositiveTest(name : string, config : JSON, encrypted : JSON, plaintext : JSON, keys : KeyVectors.KeyVectorsClient)
     returns (output : Result<bool, string>)
@@ -110,6 +111,14 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     }
   }
 
+  function LogFileName() : string
+  {
+    if OsLang.GetOsShort() == "Windows" && OsLang.GetLanguageShort() == "Dotnet" then
+      "..\\..\\PerfLog.txt"
+    else
+      "../../PerfLog.txt"
+  }
+
   method Decrypt(inFile : string, keyVectors: KeyVectors.KeyVectorsClient)
     returns (output : Result<bool, string>)
     requires keyVectors.ValidState()
@@ -174,7 +183,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
       :- Need(obj.1.Object?, "Value of test '" + obj.0 + "' must be an Object.");
       var _ :- OneTest(obj.0, obj.1, keyVectors);
     }
-    Time.PrintTimeSinceLong(time, "DB-ESDK-TV " + inFile);
+    Time.PrintTimeSinceLong(time, "DB-ESDK-TV-Decrypt-" + inFile, Some(LogFileName()));
 
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Tests Complete.\n";

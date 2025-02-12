@@ -821,11 +821,11 @@ module StructuredEncryptionHeader {
   }
 
   // GetOneKVPair ==> SerializeOneKVPair
-  lemma GetOneKVPairRoundTrip(data : Bytes)
-    requires GetOneKVPair(data, 0).Success?
+  lemma GetOneKVPairRoundTrip(data : Bytes, pos : nat)
+    requires GetOneKVPair(data, pos).Success?
     ensures
-      && var cont := GetOneKVPair(data, 0).value;
-      && SerializeOneKVPair(cont.0, cont.1) == data[..cont.2]
+      && var cont := GetOneKVPair(data, pos).value;
+      && SerializeOneKVPair(cont.0, cont.1) == data[pos..cont.2+pos]
   {}
 
   // SerializeOneDataKey ==> GetOneDataKey
