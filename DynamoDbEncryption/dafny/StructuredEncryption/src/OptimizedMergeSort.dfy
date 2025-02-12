@@ -188,7 +188,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires lo < hi <= left.Length as BoundedInts.uint64
     requires hi <= right.Length as BoundedInts.uint64
     requires left != right
-    reads left, right
+    // reads left, right
     modifies left, right
     ensures !where.Either? ==> where == resultPlacement
 
@@ -321,7 +321,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires Relations.SortedBy(left[lo..mid], lessThanOrEq)
     // We store "right" in [mid..hi]
     requires Relations.SortedBy(left[mid..hi], lessThanOrEq)
-    reads left, right
+    // reads left, right
     modifies right
     // We do not modify anything before lo
     ensures right[..lo] == old(right[..lo]) && left[..lo] == old(left[..lo])
@@ -510,7 +510,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires Relations.TotalOrdering(lessThanOrEq)
     requires lo < hi <= left.Length
     requires hi <= right.Length && left != right
-    reads left, right
+    // reads left, right
     modifies left, right
     ensures !where.Either? ==> where == resultPlacement
 
@@ -641,9 +641,8 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     requires Relations.SortedBy(left[lo..mid], lessThanOrEq)
     // We store "right" in [mid..hi]
     requires Relations.SortedBy(left[mid..hi], lessThanOrEq)
-    // reads left, right
     modifies right
-    reads left, right
+    // reads left, right
     // We do not modify anything before lo
     ensures right[..lo] == old(right[..lo]) && left[..lo] == old(left[..lo])
     // We do not modify anything above hi
