@@ -92,7 +92,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     
     //    For the DDB-EC v1
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.765")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
@@ -117,8 +117,8 @@ dependencies {
     // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
     testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    testImplementation("org.projectlombok:lombok:1.18.32")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
+    testImplementation("org.projectlombok:lombok:1.18.36")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 }
 
 publishing {
