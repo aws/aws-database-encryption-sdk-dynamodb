@@ -27,7 +27,7 @@ jobs:
         dotnet-version: ["6.0.x"]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
-            ubuntu-latest,
+            ubuntu-22.04,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -89,7 +89,7 @@ jobs:
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net
         run: |
-          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json .
+          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json ../java/decrypt_rust_*.json .
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0

@@ -1,7 +1,7 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::rc::Rc;
+use dafny_runtime::Rc;
 use dafny_runtime::Object;
 use crate::implementation_from_dafny::software::amazon::cryptography::services::dynamodb::internaldafny::types::IDynamoDBClient;
 use crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::Error;
@@ -39,7 +39,7 @@ impl _CreateInterceptedDDBClient_Compile::_default {
 
       let client = crate::deps::com_amazonaws_dynamodb::client::Client { inner };
       let dafny_client = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(client));
-      std::rc::Rc::new(crate::r#_Wrappers_Compile::Result::Success {
+      Rc::new(crate::r#_Wrappers_Compile::Result::Success {
         value: dafny_client,
       })
 }
@@ -56,7 +56,7 @@ impl _CreateInterceptedDDBClient_Compile::_default {
       let inner = aws_sdk_dynamodb::Client::new(&shared_config);
       let client = crate::deps::com_amazonaws_dynamodb::client::Client { inner };
       let dafny_client = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(client));
-      std::rc::Rc::new(crate::r#_Wrappers_Compile::Result::Success {
+      Rc::new(crate::r#_Wrappers_Compile::Result::Success {
         value: dafny_client,
     })
   }

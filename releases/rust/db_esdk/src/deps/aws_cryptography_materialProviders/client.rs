@@ -13,20 +13,26 @@ impl Client {
     /// Creates a new client from the service [`Config`](crate::Config).
     #[track_caller]
     pub fn from_conf(
-        conf: crate::deps::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig,
+        input: crate::deps::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig,
     ) -> Result<Self, crate::deps::aws_cryptography_materialProviders::types::error::Error> {
+        crate::deps::aws_cryptography_materialProviders::validation::validate_aws_Pcryptography_PmaterialProviders_HMaterialProvidersConfig(&input)
+            .map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err)?;
         let inner =
             crate::software::amazon::cryptography::materialproviders::internaldafny::_default::MaterialProviders(
-                &crate::deps::aws_cryptography_materialProviders::conversions::material_providers_config::_material_providers_config::to_dafny(conf),
+                &crate::deps::aws_cryptography_materialProviders::conversions::material_providers_config::_material_providers_config::to_dafny(input),
             );
         if matches!(
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            return Err(crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(inner.as_ref().error().clone()));
+            return Err(
+                crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
+                    inner.as_ref().error().clone(),
+                ),
+            );
         }
         Ok(Self {
-            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract())
+            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),
         })
     }
 }

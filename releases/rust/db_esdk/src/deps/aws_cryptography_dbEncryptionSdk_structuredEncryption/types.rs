@@ -3,10 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 /// Types for the `StructuredEncryptionConfig`
 pub mod structured_encryption_config;
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::structured_encryption_config::StructuredEncryptionConfig;
 
 pub mod builders;
-
-
 
 mod _auth_item;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::_auth_item::AuthItem;

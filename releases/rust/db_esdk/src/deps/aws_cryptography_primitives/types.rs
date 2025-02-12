@@ -3,10 +3,9 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 /// Types for the `CryptoConfig`
 pub mod crypto_config;
+pub use crate::deps::aws_cryptography_primitives::types::crypto_config::CryptoConfig;
 
 pub mod builders;
-
-
 
 mod _aes_ctr;
 pub use crate::deps::aws_cryptography_primitives::types::_aes_ctr::AesCtr;
@@ -101,4 +100,3 @@ mod _ecdsa_signature_algorithm;
 pub use crate::deps::aws_cryptography_primitives::types::_ecdsa_signature_algorithm::EcdsaSignatureAlgorithm;
 mod _rsa_padding_mode;
 pub use crate::deps::aws_cryptography_primitives::types::_rsa_padding_mode::RsaPaddingMode;
-

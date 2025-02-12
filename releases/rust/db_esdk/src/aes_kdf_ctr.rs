@@ -11,11 +11,8 @@ pub mod AesKdfCtr {
     use crate::software::amazon::cryptography::primitives::internaldafny::types::Error as DafnyError;
     use crate::*;
     use aws_lc_rs::cipher::{EncryptingKey, EncryptionContext, UnboundCipherKey, AES_256};
+    use dafny_runtime::Rc;
     use dafny_runtime::Sequence;
-    use std::rc::Rc;
-
-    #[allow(non_camel_case_types)]
-    // pub struct _default {}
 
     fn error(s: &str) -> Rc<DafnyError> {
         Rc::new(DafnyError::AwsCryptographicPrimitivesError {

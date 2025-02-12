@@ -1,10 +1,10 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyInput;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyOutput;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::error::Error;
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbKeyBranchKeyIdSupplier;
+use aws_db_esdk::dynamodb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyInput;
+use aws_db_esdk::dynamodb::operation::get_branch_key_id_from_ddb_key::GetBranchKeyIdFromDdbKeyOutput;
+use aws_db_esdk::dynamodb::types::error::Error;
+use aws_db_esdk::dynamodb::types::DynamoDbKeyBranchKeyIdSupplier;
 
 // Used in the 'HierarchicalKeyringExample'.
 // In that example, we have a table where we distinguish multiple tenants

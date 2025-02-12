@@ -12,7 +12,11 @@ impl crate::client::Client {
     ///   - [`compound_beacons(Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>)`](crate::operation::resolve_attributes::ResolveAttributesOutput::compound_beacons): (undocumented)
     ///   - [`virtual_fields(Option<::std::collections::HashMap<::std::string::String, ::std::string::String>>)`](crate::operation::resolve_attributes::ResolveAttributesOutput::virtual_fields): (undocumented)
     /// - On failure, responds with [`SdkError<ResolveAttributesError>`](crate::operation::resolve_attributes::ResolveAttributesError)
-    pub fn resolve_attributes(&self) -> crate::operation::resolve_attributes::builders::ResolveAttributesFluentBuilder {
-        crate::operation::resolve_attributes::builders::ResolveAttributesFluentBuilder::new(self.clone())
+    pub fn resolve_attributes(
+        &self,
+    ) -> crate::operation::resolve_attributes::builders::ResolveAttributesFluentBuilder {
+        crate::operation::resolve_attributes::builders::ResolveAttributesFluentBuilder::new(
+            self.clone(),
+        )
     }
 }

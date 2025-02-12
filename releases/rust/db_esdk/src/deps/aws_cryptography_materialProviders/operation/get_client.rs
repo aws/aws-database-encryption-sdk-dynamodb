@@ -18,13 +18,9 @@ impl GetClient {
         crate::deps::com_amazonaws_kms::client::Client,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
     > {
-        if input.region.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "region",
-        "region was not specified but it is required when building GetClientInput",
-    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
-}
-        client_supplier.inner.borrow_mut().get_client(input)
+        crate::deps::aws_cryptography_materialProviders::validation::validate_aws_Pcryptography_PmaterialProviders_HGetClientInput_for_ClientSupplier_GetClient(&input)
+            .map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err)?;
+        client_supplier.inner.lock().unwrap().get_client(input)
     }
 }
 

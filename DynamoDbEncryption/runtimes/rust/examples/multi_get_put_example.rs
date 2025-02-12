@@ -5,13 +5,13 @@ use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction;
-use aws_db_esdk::aws_cryptography_materialProviders::client;
-use aws_db_esdk::aws_cryptography_materialProviders::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::material_providers::client;
+use aws_db_esdk::material_providers::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::CryptoAction;
 
-use aws_db_esdk::aws_cryptography_dbEncryptionSdk_dynamoDb::types::DynamoDbTableEncryptionConfig;
-use aws_db_esdk::aws_cryptography_materialProviders::types::DbeAlgorithmSuiteId;
+use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
+use aws_db_esdk::material_providers::types::DbeAlgorithmSuiteId;
 use aws_db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
 
 /*
@@ -116,7 +116,7 @@ pub async fn multi_put_get() -> Result<(), crate::BoxError> {
     // 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let dynamo_config = aws_sdk_dynamodb::config::Builder::from(&sdk_config)
-        .interceptor(DbEsdkInterceptor::new(table_configs))
+        .interceptor(DbEsdkInterceptor::new(table_configs)?)
         .build();
     let ddb = aws_sdk_dynamodb::Client::from_conf(dynamo_config);
 

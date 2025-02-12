@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aws_config::Region;
-use aws_db_esdk::aws_cryptography_materialProviders::operation::get_client::GetClientInput;
-use aws_db_esdk::aws_cryptography_materialProviders::types::error::Error;
-use aws_db_esdk::aws_cryptography_materialProviders::types::ClientSupplier;
-use aws_db_esdk::deps::com_amazonaws_kms::client::Client as kms_client;
+use aws_db_esdk::com_amazonaws_kms::client::Client as kms_client;
+use aws_db_esdk::material_providers::operation::get_client::GetClientInput;
+use aws_db_esdk::material_providers::types::error::Error;
+use aws_db_esdk::material_providers::types::ClientSupplier;
 
 /*
  Example class demonstrating an implementation of a custom client supplier.
@@ -44,7 +44,7 @@ impl ClientSupplier for RegionalRoleClientSupplier {
             .build();
 
         let inner_client = aws_sdk_kms::Client::from_conf(kms_config);
-        Ok(aws_db_esdk::deps::com_amazonaws_kms::client::Client {
+        Ok(kms_client {
             inner: inner_client,
         })
     }

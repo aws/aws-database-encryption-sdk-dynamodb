@@ -105,6 +105,231 @@ module TestBaseBeacon {
     expect goodAttrs["aws_dbe_b_std2"] == newAttrs["aws_dbe_b_std2"];
   }
 
+  method {:test} TestSharedCacheBeaconsSingleKeyStoreWithSamePartitionId()
+  {
+    var partitionId : string := "partitionId";
+    var sharedCache : MPT.CacheType := GetSharedCache();
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    // Verification by adding assume statements in "by" passes, but there's an error while transpiling code to runtimes
+    // Dafny is working on a fix. Update this test when Dafny releases `4.9.2`.
+    // Using `assume{:axiom} false;` for this test for now.
+    // var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives) by {
+    //   assume {:axiom} C.ValidSharedCache(version.keySource);
+    // }
+    // var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    // var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId) by {
+    //   assume{:axiom} false;
+    // }
+    assume{:axiom} false;
+
+    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    var badVersion := GetLotsaBeaconsSingleWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionId));
+    var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
+    var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect badAttrs.Failure?;
+
+    // This is expected to pass because we pass a valid KeyStore
+    var version := GetLotsaBeaconsSingleWithSharedCache(cache := sharedCache, partitionId := Some(partitionId));
+    var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+
+    // This is expected to pass now because the cache already has cached material for this Branch Key ID.
+    // This is a hack to test that the correct material is cached.
+    var badAttrsNowCached :- expect badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+  }
+
+  method {:test} TestSharedCacheBeaconsSingleKeyStoreWithDifferentPartitionId()
+  {
+    var sharedCache : MPT.CacheType := GetSharedCache();
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    // Verification by adding assume statements in "by" passes, but there's an error while transpiling code to runtimes
+    // Dafny is working on a fix. Update this test when Dafny releases `4.9.2`.
+    // Using `assume{:axiom} false;` for this test for now.
+    // var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives) by {
+    //   assume {:axiom} C.ValidSharedCache(version.keySource);
+    // }
+    // var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    // var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId) by {
+    //   assume{:axiom} false;
+    // }
+    assume{:axiom} false;
+
+    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    var partitionIdBadVersion : string := "partitionIdBadVersion";
+    var badVersion := GetLotsaBeaconsSingleWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionIdBadVersion));
+    var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
+    var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect badAttrs.Failure?;
+
+    // This is expected to pass because we pass a valid KeyStore
+    var partitionIdGoodVersion : string := "partitionIdGoodVersion";
+    var version := GetLotsaBeaconsSingleWithSharedCache(cache := sharedCache, partitionId := Some(partitionIdGoodVersion));
+    var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+
+    // This is still expected to fail because the partitionId for the cached material is different.
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect badAttrsNowCached.Failure?;
+  }
+
+  method {:test} TestSharedCacheBeaconsSingleKeyStoreWithUnspecifiedPartitionId()
+  {
+    var sharedCache : MPT.CacheType := GetSharedCache();
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    // Verification by adding assume statements in "by" passes, but there's an error while transpiling code to runtimes
+    // Dafny is working on a fix. Update this test when Dafny releases `4.9.2`.
+    // Using `assume{:axiom} false;` for this test for now.
+    // var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives) by {
+    //   assume {:axiom} C.ValidSharedCache(version.keySource);
+    // }
+    // var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    // var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId) by {
+    //   assume{:axiom} false;
+    // }
+    assume{:axiom} false;
+
+    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    var badVersion := GetLotsaBeaconsSingleWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := None);
+    var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
+    var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect badAttrs.Failure?;
+
+    // This is expected to pass because we pass a valid KeyStore
+    var version := GetLotsaBeaconsSingleWithSharedCache(cache := sharedCache, partitionId := None);
+    var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+
+    // This is still expected to fail because the partitionId for the cached material is different.
+    // If the user does NOT specify the partitionId, it is set to a random UUID
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    expect badAttrsNowCached.Failure?;
+  }
+
+  method {:test} TestSharedCacheBeaconsMultiKeyStoreWithSamePartitionId()
+  {
+    var partitionId : string := "partitionId";
+    var sharedCache : MPT.CacheType := GetSharedCache();
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    // Verification by adding assume statements in "by" passes, but there's an error while transpiling code to runtimes
+    // Dafny is working on a fix. Update this test when Dafny releases `4.9.2`.
+    // Using `assume{:axiom} false;` for this test for now.
+    // var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives) by {
+    //   assume {:axiom} C.ValidSharedCache(version.keySource);
+    // }
+    // var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    // var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId) by {
+    //   assume{:axiom} false;
+    // }
+    assume{:axiom} false;
+
+    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    var badVersion := GetLotsaBeaconsMultiWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionId));
+    var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
+    var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    expect badAttrs.Failure?;
+
+    // This is expected to pass because we pass a valid KeyStore
+    var version := GetLotsaBeaconsMultiWithSharedCache(cache := sharedCache, partitionId := Some(partitionId));
+    var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+
+    // This is expected to pass now because the cache already has cached material for this Branch Key ID.
+    // This is a hack to test that the correct material is cached.
+    var badAttrsNowCached :- expect badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+  }
+
+
+  method {:test} TestSharedCacheBeaconsMultiKeyStoreWithDifferentPartitionId()
+  {
+    var sharedCache : MPT.CacheType := GetSharedCache();
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    // Verification by adding assume statements in "by" passes, but there's an error while transpiling code to runtimes
+    // Dafny is working on a fix. Update this test when Dafny releases `4.9.2`.
+    // Using `assume{:axiom} false;` for this test for now.
+    // var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives) by {
+    //   assume {:axiom} C.ValidSharedCache(version.keySource);
+    // }
+    // var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    // var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId) by {
+    //   assume{:axiom} false;
+    // }
+    assume{:axiom} false;
+
+    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    var partitionIdBadVersion : string := "partitionIdBadVersion";
+    var badVersion := GetLotsaBeaconsMultiWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionIdBadVersion));
+    var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
+    var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
+    // Providing a valid branch_key_id is important in this method because unlike other tests in Beacon.dfy,
+    // this is used in a test which actually fetches data from DynamoDb without using a Literal KeySource.
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    expect badAttrs.Failure?;
+
+    // This is expected to pass because we pass a valid KeyStore
+    var partitionIdGoodVersion : string := "partitionIdGoodVersion";
+    var version := GetLotsaBeaconsMultiWithSharedCache(cache := sharedCache, partitionId := Some(partitionIdGoodVersion));
+    var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+
+    // This is still expected to fail because the partitionId for the cached material is different.
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    expect badAttrsNowCached.Failure?;
+  }
+
+  method {:test} TestSharedCacheBeaconsMultiKeyStoreWithUnspecifiedPartitionId()
+  {
+    var sharedCache : MPT.CacheType := GetSharedCache();
+    var primitives :- expect Primitives.AtomicPrimitives();
+
+    // Verification by adding assume statements in "by" passes, but there's an error while transpiling code to runtimes
+    // Dafny is working on a fix. Update this test when Dafny releases `4.9.2`.
+    // Using `assume{:axiom} false;` for this test for now.
+    // var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives) by {
+    //   assume {:axiom} C.ValidSharedCache(version.keySource);
+    // }
+    // var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    // var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId) by {
+    //   assume{:axiom} false;
+    // }
+    assume{:axiom} false;
+
+    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    var badVersion := GetLotsaBeaconsMultiWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := None);
+    var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
+    var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
+    // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
+    // Providing a valid branch_key_id is important in this method because unlike other tests in Beacon.dfy,
+    // this is used in a test which actually fetches data from DynamoDb without using a Literal KeySource.
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    expect badAttrs.Failure?;
+
+    // This is expected to pass because we pass a valid KeyStore
+    var version := GetLotsaBeaconsMultiWithSharedCache(cache := sharedCache, partitionId := None);
+    var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+
+    // This is still expected to fail because the partitionId for the cached material is different.
+    // If the user does NOT specify the partitionId, it is set to a random UUID
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    expect badAttrsNowCached.Failure?;
+  }
+
   method {:test} TestBeaconValues()
   {
     var version := GetLotsaBeacons();

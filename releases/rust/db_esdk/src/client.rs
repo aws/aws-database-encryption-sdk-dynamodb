@@ -13,20 +13,24 @@ impl Client {
     /// Creates a new client from the service [`Config`](crate::Config).
     #[track_caller]
     pub fn from_conf(
-        conf: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
+        input: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
     ) -> Result<Self, crate::types::error::Error> {
+        crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HDynamoDbTablesEncryptionConfig(&input)
+            .map_err(crate::types::error::Error::wrap_validation_err)?;
         let inner =
             crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::_default::DynamoDbEncryptionTransforms(
-                &crate::conversions::dynamo_db_tables_encryption_config::_dynamo_db_tables_encryption_config::to_dafny(conf),
+                &crate::conversions::dynamo_db_tables_encryption_config::_dynamo_db_tables_encryption_config::to_dafny(input),
             );
         if matches!(
             inner.as_ref(),
             crate::_Wrappers_Compile::Result::Failure { .. }
         ) {
-            return Err(crate::conversions::error::from_dafny(inner.as_ref().error().clone()));
+            return Err(crate::conversions::error::from_dafny(
+                inner.as_ref().error().clone(),
+            ));
         }
         Ok(Self {
-            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract())
+            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),
         })
     }
 }

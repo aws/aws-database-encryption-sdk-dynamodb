@@ -18,31 +18,9 @@ impl CreateRawAesKeyring {
         crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
         crate::deps::aws_cryptography_materialProviders::types::error::Error,
     > {
-        if input.key_namespace.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "key_namespace",
-        "key_namespace was not specified but it is required when building CreateRawAesKeyringInput",
-    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
-}
-if input.key_name.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "key_name",
-        "key_name was not specified but it is required when building CreateRawAesKeyringInput",
-    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
-}
-if input.wrapping_key.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "wrapping_key",
-        "wrapping_key was not specified but it is required when building CreateRawAesKeyringInput",
-    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
-}
-if input.wrapping_alg.is_none() {
-    return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::missing_field(
-        "wrapping_alg",
-        "wrapping_alg was not specified but it is required when building CreateRawAesKeyringInput",
-    )).map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err);
-}
-                let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_raw_aes_keyring::_create_raw_aes_keyring_input::to_dafny(input);
+        crate::deps::aws_cryptography_materialProviders::validation::validate_aws_Pcryptography_PmaterialProviders_HCreateRawAesKeyringInput_for_AwsCryptographicMaterialProviders_CreateRawAesKeyring(&input)
+            .map_err(crate::deps::aws_cryptography_materialProviders::types::error::Error::wrap_validation_err)?;
+        let inner_input = crate::deps::aws_cryptography_materialProviders::conversions::create_raw_aes_keyring::_create_raw_aes_keyring_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).CreateRawAesKeyring(&inner_input);
         if matches!(
@@ -50,13 +28,16 @@ if input.wrapping_alg.is_none() {
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
             Ok(
-                crate::deps::aws_cryptography_materialProviders::conversions::keyring::from_dafny(inner_result.value().clone())
-,
+                crate::deps::aws_cryptography_materialProviders::conversions::keyring::from_dafny(
+                    inner_result.value().clone(),
+                ),
             )
         } else {
-            Err(crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
-                inner_result.error().clone(),
-            ))
+            Err(
+                crate::deps::aws_cryptography_materialProviders::conversions::error::from_dafny(
+                    inner_result.error().clone(),
+                ),
+            )
         }
     }
 }

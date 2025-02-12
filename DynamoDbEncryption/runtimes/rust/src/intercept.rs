@@ -5,11 +5,12 @@
 #![deny(nonstandard_style)]
 #![deny(clippy::all)]
 #![allow(unused)]
+#![allow(clippy::result_large_err)]
 
 use aws_sdk_dynamodb::{
     config::{
-        ConfigBag, Intercept, RuntimeComponents,
         interceptors::{BeforeSerializationInterceptorContextMut, FinalizerInterceptorContextMut},
+        ConfigBag, Intercept, RuntimeComponents,
     },
     error::BoxError,
 };
@@ -84,14 +85,11 @@ pub struct DbEsdkInterceptor {
 impl DbEsdkInterceptor {
     pub fn new(
         config: crate::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig,
-    ) -> Self {
-        let client = crate::client::Client::from_conf(config).unwrap(); // FIXME
-        DbEsdkInterceptor { client }
+    ) -> Result<Self, crate::types::error::Error> {
+        let client = crate::client::Client::from_conf(config)?;
+        Ok(DbEsdkInterceptor { client })
     }
 }
-
-unsafe impl Sync for DbEsdkInterceptor {}
-unsafe impl Send for DbEsdkInterceptor {}
 
 #[derive(Debug)]
 struct OriginalRequest(Input);

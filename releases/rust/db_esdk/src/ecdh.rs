@@ -9,7 +9,7 @@
 #[allow(non_snake_case)]
 pub mod ECDH {
     use crate::software::amazon::cryptography::primitives::internaldafny::types::Error as DafnyError;
-    use std::rc::Rc;
+    use dafny_runtime::Rc;
 
     fn error(s: &str) -> Rc<DafnyError> {
         Rc::new(DafnyError::AwsCryptographicPrimitivesError {
@@ -23,7 +23,7 @@ pub mod ECDH {
         use crate::software::amazon::cryptography::primitives::internaldafny::types::Error as DafnyError;
         use crate::*;
         use aws_lc_sys;
-        use std::rc::Rc;
+        use dafny_runtime::Rc;
 
         fn get_nid(x: &ECDHCurveSpec) -> i32 {
             match x {
@@ -74,6 +74,9 @@ pub mod ECDH {
         const ELEM_MAX_BYTES: usize = (ELEM_MAX_BITS + 7) / 8;
         const PUBLIC_KEY_MAX_LEN: usize = 1 + (2 * ELEM_MAX_BYTES);
 
+        // This is the value checked in the Dafny test
+        const INVALID_KEY: &str = "Invalid X509 Public Key.";
+
         pub(crate) fn X509_to_X962(
             public_key: &[u8],
             compress: bool,
@@ -86,7 +89,7 @@ pub mod ECDH {
 
             let evp_pkey = unsafe { EVP_parse_public_key(&mut cbs) };
             if evp_pkey.is_null() {
-                return Err("Invalid X509 Public Key.".to_string());
+                return Err(INVALID_KEY.to_string());
             }
             let ec_key = unsafe { EVP_PKEY_get0_EC_KEY(evp_pkey) };
 
@@ -326,7 +329,29 @@ pub mod ECDH {
 
         // for the moment, it's valid if we can use it to generate a shared secret
         fn valid_public_key(alg: &ECDHCurveSpec, public_key: &[u8]) -> Result<(), String> {
-            X509_to_X962(public_key, false, Some(get_nid(alg)))?;
+            let mut cbs = CBS {
+                data: public_key.as_ptr(),
+                len: public_key.len(),
+            };
+
+            let evp_pkey = unsafe { EVP_parse_public_key(&mut cbs) };
+            if evp_pkey.is_null() {
+                return Err(INVALID_KEY.to_string());
+            }
+            let ec_key = unsafe { EVP_PKEY_get0_EC_KEY(evp_pkey) };
+
+            if unsafe { aws_lc_sys::EC_KEY_check_fips(ec_key) } != 1 {
+                return Err(INVALID_KEY.to_string());
+            }
+            let ec_group = unsafe { EC_KEY_get0_group(ec_key) };
+            if ec_group.is_null() {
+                return Err(INVALID_KEY.to_string());
+            }
+            if get_nid(alg) != unsafe { EC_GROUP_get_curve_name(ec_group) } {
+                return Err(INVALID_KEY.to_string());
+            }
+            unsafe { EVP_PKEY_free(evp_pkey) };
+
             Ok(())
         }
 
@@ -397,7 +422,7 @@ pub mod ECDH {
         use crate::software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec;
         use crate::software::amazon::cryptography::primitives::internaldafny::types::Error as DafnyError;
         use crate::*;
-        use std::rc::Rc;
+        use dafny_runtime::Rc;
 
         pub fn agree(
             curve_algorithm: &ECDHCurveSpec,
@@ -447,7 +472,7 @@ pub mod ECDH {
         use crate::*;
         use aws_lc_rs::encoding::AsDer;
         use aws_lc_rs::encoding::EcPrivateKeyRfc5915Der;
-        use std::rc::Rc;
+        use dafny_runtime::Rc;
 
         fn ecdsa_key_gen(alg: &ECDHCurveSpec) -> Result<(Vec<u8>, Vec<u8>), String> {
             let private_key =
@@ -493,7 +518,7 @@ pub mod ECDH {
         use super::*;
         use crate::software::amazon::cryptography::primitives::internaldafny::types::ECDHCurveSpec;
         use crate::*;
-        use std::rc::Rc;
+        use dafny_runtime::Rc;
 
         #[test]
         fn test_generate() {
