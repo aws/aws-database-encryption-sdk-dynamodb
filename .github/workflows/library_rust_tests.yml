@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Setup Docker
         if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
-        uses: marketplace/actions/setup-docker-on-macos@v1-alpha
+        uses: douglascamata/setup-docker-macos-action@v1-alpha
 
       - name: Setup DynamoDB Local
         if: matrix.library == 'TestVectors'
