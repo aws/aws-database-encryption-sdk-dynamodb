@@ -114,20 +114,20 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   function method {:opaque} GetBinary(data : AuthList, path : Path): (result: Result<StructuredDataTerminal, Error>)
     ensures result.Success? ==> exists x :: x in data && x.key == path
   {
-    var data := FindAuth(data, path);
+    var pos := FindAuth(data, path);
 
-    if data.None? then
+    if pos.None? then
       Failure(E("The field name " + Paths.PathToString(path) + " is required."))
-    else if data.value.data.typeId != BYTES_TYPE_ID then
+    else if data[pos.value].data.typeId != BYTES_TYPE_ID then
       Failure(E(Paths.PathToString(path) + " must be a binary Terminal."))
-    else if data.value.action != DO_NOT_SIGN then
+    else if data[pos.value].action != DO_NOT_SIGN then
       Failure(E(Paths.PathToString(path) + " must be DO_NOT_SIGN."))
     else
-      Success(data.value.data)
+      Success(data[pos.value].data)
   }
 
   // Return the sum of the sizes of the given fields
-  function method {:opaque} SumValueSize(fields : CanonCryptoList)
+  function {:opaque}  SumValueSize(fields : CanonCryptoList)
     : nat
   {
     if |fields| == 0 then
@@ -136,6 +136,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       |fields[0].data.value| + SumValueSize(fields[1..])
     else
       SumValueSize(fields[1..])
+  } by method {
+    reveal SumValueSize();
+    var sum : nat := 0;
+    for i := |fields| downto 0
+      invariant sum == SumValueSize(fields[i..])
+    {
+      if fields[i].action == ENCRYPT_AND_SIGN {
+        sum := |fields[i].data.value| + sum;
+      }
+    }
+    return sum;
   }
 
   function method {:opaque} GetAlgorithmSuiteId(alg : Option<CMP.DBEAlgorithmSuiteId>)
@@ -258,28 +269,66 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     output := GetV2EncryptionContext2(contextAttrs);
   }
 
-  function method {:opaque} Find(haystack : CryptoList, needle : Path) : Result<CryptoItem, Error>
+  function {:opaque} Find(haystack : CryptoList, needle : Path, start : nat := 0) : (res : Result<nat, Error>)
+    requires start <= |haystack|
+    requires forall i | 0 <= i < start :: haystack[i].key != needle
+    ensures (exists x <- haystack :: x.key == needle) <==> res.Success?
+    ensures (forall x <- haystack :: x.key != needle) <==> res.Failure?
+    ensures (forall x <- haystack :: x.key != needle) <==> res == Failure(E("Not Found"))
+    ensures res.Success? ==>
+              && 0 <= res.value < |haystack|
+              && haystack[res.value].key == needle
+              && (forall i | 0 <= i < res.value :: haystack[i].key != needle)
+    decreases |haystack| - start
   {
-    if |haystack| == 0 then
+    if |haystack| == start then
       Failure(E("Not Found"))
-    else if haystack[0].key == needle
-    then Success(haystack[0])
+    else if haystack[start].key == needle then
+      Success(start)
     else
-      Find(haystack[1..], needle)
+      Find(haystack, needle, start + 1)
+  }
+  by method {
+    for i := 0 to |haystack|
+      invariant forall x <- haystack[..i] :: x.key != needle
+    {
+      if haystack[i].key == needle {
+        return Success(i);
+      }
+    }
+    return Failure(E("Not Found"));
   }
 
-  function method {:opaque} FindAuth(haystack : AuthList, needle : Path) : (result : Option<AuthItem>)
-    ensures result.Some? ==> exists x :: x in haystack && x.key == needle
+  function {:opaque} FindAuth(haystack : AuthList, needle : Path, start : nat := 0) : (res : Option<nat>)
+    requires start <= |haystack|
+    requires forall i | 0 <= i < start :: haystack[i].key != needle
+    ensures (exists x <- haystack :: x.key == needle) <==> res.Some?
+    ensures (forall x <- haystack :: x.key != needle) <==> res == None
+    ensures res.Some? ==>
+              && 0 <= res.value < |haystack|
+              && haystack[res.value].key == needle
+              && (forall i | 0 <= i < res.value :: haystack[i].key != needle)
+    decreases |haystack| - start
   {
-    if |haystack| == 0 then
+    if |haystack| == start then
       None
-    else if haystack[0].key == needle
-    then Some(haystack[0])
+    else if haystack[start].key == needle then
+      Some(start)
     else
-      FindAuth(haystack[1..], needle)
+      FindAuth(haystack, needle, start + 1)
+  }
+  by method {
+    for i := 0 to |haystack|
+      invariant forall x <- haystack[..i] :: x.key != needle
+    {
+      if haystack[i].key == needle {
+        return Some(i);
+      }
+    }
+    return None;
   }
 
-  function method {:opaque} CountEncrypted(list : CanonCryptoList) : nat
+  function {:opaque} CountEncrypted(list : CanonCryptoList) : nat
   {
     if |list| == 0 then
       0
@@ -287,6 +336,17 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       1 + CountEncrypted(list[1..])
     else
       CountEncrypted(list[1..])
+  } by method {
+    reveal CountEncrypted();
+    var result : nat := 0;
+    for i := |list| downto 0
+      invariant result == CountEncrypted(list[i..])
+    {
+      if list[i].action == ENCRYPT_AND_SIGN {
+        result := result + 1;
+      }
+    }
+    return result;
   }
 
   method {:vcs_split_on_every_assert} GetV2EncryptionContext2(fields : CryptoList)
@@ -344,7 +404,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       var fieldUtf8 := keys[i];
       var fieldStr := fieldMap[fieldUtf8];
       var item :- Find(fields, fieldMap[fieldUtf8]);
-      var attr : StructuredDataTerminal := item.data;
+      var attr : StructuredDataTerminal := fields[item].data;
       var attrStr : ValidUTF8Bytes;
       var legendChar : char;
       if attr.typeId == NULL {
@@ -384,19 +444,18 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     cryptoSchema: CryptoSchemaMap,
-    ghost origKeys : seq<string> := keys,
+    pos : nat := 0,
     acc : CryptoList := []
   )
     : (ret : Result<CryptoList, Error>)
+    requires 0 <= pos <= |keys|
+    requires |acc| == pos
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in cryptoSchema
     requires forall k <- acc :: |k.key| == 1
-    requires CryptoListHasNoDuplicates(acc)
-    requires |acc| + |keys| == |origKeys|
-    requires keys == origKeys[|acc|..]
-    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(origKeys[i])
+    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(keys[i])
     requires Seq.HasNoDuplicates(keys)
-    requires Seq.HasNoDuplicates(origKeys)
+    decreases |keys| - pos
 
     ensures ret.Success? ==>
               && (forall k <- ret.value :: |k.key| == 1)
@@ -404,14 +463,14 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     reveal Seq.HasNoDuplicates();
     Paths.StringToUniPathUnique();
-    if |keys| == 0 then
+    if |keys| == pos then
       Success(acc)
     else
-      var key := keys[0];
+      var key := keys[pos];
       var path := Paths.StringToUniPath(key);
       var item := CryptoItem(key := path, data := plaintextStructure[key], action := cryptoSchema[key]);
       var newAcc := acc + [item];
-      BuildCryptoMap2(keys[1..], plaintextStructure, cryptoSchema, origKeys, newAcc)
+      BuildCryptoMap2(keys, plaintextStructure, cryptoSchema, pos+1, newAcc)
   }
 
   function method BuildCryptoMap(plaintextStructure: StructuredDataMap, cryptoSchema: CryptoSchemaMap) :
@@ -429,33 +488,33 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     authSchema: AuthenticateSchemaMap,
-    ghost origKeys : seq<string> := keys,
+    pos : nat := 0,
     acc : AuthList := []
   )
     : (ret : Result<AuthList, Error>)
+    requires 0 <= pos <= |keys|
+    requires |acc| == pos
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in authSchema
     requires forall k <- acc :: |k.key| == 1
+    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(keys[i])
     requires AuthListHasNoDuplicates(acc)
-    requires |acc| + |keys| == |origKeys|
-    requires keys == origKeys[|acc|..]
-    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(origKeys[i])
     requires Seq.HasNoDuplicates(keys)
-    requires Seq.HasNoDuplicates(origKeys)
+    decreases |keys| - pos
 
     ensures ret.Success? ==>
               && (forall k <- ret.value :: |k.key| == 1)
               && AuthListHasNoDuplicates(ret.value)
   {
     reveal Seq.HasNoDuplicates();
-    if |keys| == 0 then
+    if |keys| == pos then
       Success(acc)
     else
-      var key := keys[0];
+      var key := keys[pos];
       var path := Paths.StringToUniPath(key);
       var item := AuthItem(key := path, data := plaintextStructure[key], action := authSchema[key]);
       var newAcc := acc + [item];
-      BuildAuthMap2(keys[1..], plaintextStructure, authSchema, origKeys, newAcc)
+      BuildAuthMap2(keys, plaintextStructure, authSchema, pos+1, newAcc)
   }
 
   function method BuildAuthMap(plaintextStructure: StructuredDataMap, authSchema: AuthenticateSchemaMap)
@@ -469,24 +528,28 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     BuildAuthMap2(keys, plaintextStructure, authSchema)
   }
 
-  function method UnBuildCryptoMap(list : CryptoList, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
+  function method {:tailrecursion} UnBuildCryptoMap(list : CryptoList, pos : nat := 0, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
     (res : Result<(StructuredDataMap, CryptoSchemaMap), Error>)
+    requires 0 <= pos <= |list|
+    requires |dataSoFar| == pos
+    requires |actionsSoFar| <= pos
     requires forall k <- actionsSoFar :: k in dataSoFar
     requires (forall v :: v in actionsSoFar.Values ==> IsAuthAttr(v))
     requires forall k <- list :: |k.key| == 1
+    decreases |list| - pos
     ensures res.Success? ==>
               && (forall k <- res.value.1 :: k in res.value.0)
               && (forall v :: v in res.value.1.Values ==> IsAuthAttr(v))
   {
-    if |list| == 0 then
+    if |list| == pos then
       Success((dataSoFar, actionsSoFar))
     else
-      var key :- Paths.UniPathToString(list[0].key);
+      var key :- Paths.UniPathToString(list[pos].key);
       :- Need(key !in dataSoFar, E("Duplicate Key " + key));
-      if IsAuthAttr(list[0].action) then
-        UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar[key := list[0].action])
+      if IsAuthAttr(list[pos].action) then
+        UnBuildCryptoMap(list, pos+1, dataSoFar[key := list[pos].data], actionsSoFar[key := list[pos].action])
       else
-        UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar)
+        UnBuildCryptoMap(list, pos+1, dataSoFar[key := list[pos].data], actionsSoFar)
   }
 
   lemma EncryptStructureOutputHasSinglePaths(origData : CryptoList, finalData : CryptoList)

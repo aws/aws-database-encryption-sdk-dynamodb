@@ -1271,25 +1271,27 @@ module DynamoDBFilterExpr {
   // If only surrogates are involved, comparison is normal
   // if one surrogate is involved, the surrogate is larger
   // results undefined if not valid UTF16 encodings, but the idea of 'less' is also undefined for invalid encodings.
-  predicate method {:tailrecursion} UnicodeLess(a : string, b : string)
+  predicate method {:tailrecursion} UnicodeLess(a : string, b : string, pos : nat := 0)
+    requires pos <= |a|
+    requires pos <= |b|
+    decreases |a| - pos
   {
-    if |a| == 0 && |b| == 0 then
+    if |a| == pos && |b| == pos then
       false
-    else if |a| == 0 then
+    else if |a| == pos then
       true
-    else if |b| == 0 then
+    else if |b| == pos then
       false
+    else if a[pos] == b[pos] then
+      UnicodeLess(a, b, pos+1) // correct independent of surrogate status
     else
-    if a[0] == b[0] then
-      UnicodeLess(a[1..], b[1..]) // correct independent of surrogate status
-    else
-      var aIsHighSurrogate := IsHighSurrogate(a[0]);
-      var bIsHighSurrogate := IsHighSurrogate(b[0]);
+      var aIsHighSurrogate := IsHighSurrogate(a[pos]);
+      var bIsHighSurrogate := IsHighSurrogate(b[pos]);
       if aIsHighSurrogate == bIsHighSurrogate then
-        a[0] < b[0]
+        a[pos] < b[pos]
       else
         bIsHighSurrogate
-        // we know aIsHighSurrogate != bIsHighSurrogate and a[0] != b[0]
+        // we know aIsHighSurrogate != bIsHighSurrogate and a[pos] != b[pos]
         // so if bIsHighSurrogate then a is less
         // and if aIsHighSurrogate then a is greater
   }

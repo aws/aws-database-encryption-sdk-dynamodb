@@ -110,7 +110,7 @@ module StructuredEncryptionPaths {
   }
 
   // get the Canonical Path for these Selectors
-  function method {:tailrecursion} MakeCanonicalPath(path : Path)
+  function MakeCanonicalPath(path : Path)
     : (ret : CanonicalPath)
     requires ValidPath(path)
     ensures |path| == 0 ==> ret == []
@@ -120,7 +120,34 @@ module StructuredEncryptionPaths {
       []
     else
       CanonicalPart(path[0]) + MakeCanonicalPath(path[1..])
+  } by method {
+    var result : CanonicalPath := [];
+    for i := |path| downto 0
+      invariant result == MakeCanonicalPath(path[i..])
+    {
+      result := CanonicalPart(path[i]) + result;
+    }
+    return result;
   }
+
+  // get the Canonical Path for these Selectors
+  // function method {:tailrecursion} MakeCanonicalPath(path : Path, pos : nat := 0, acc : CanonicalPath := [])
+  //   : (ret : CanonicalPath)
+  //   requires ValidPath(path)
+  //   requires pos <= |path|
+  //   requires pos == 0 ==> |acc| == 0
+  //   requires pos == 1 ==> acc == CanonicalPart(path[0])
+  //   requires acc == MakeCanonicalPathGhost(path[..pos])
+  //   ensures |path| == 0 && pos == 0 ==> ret == []
+  //   ensures |path| == 1 ==> ret == CanonicalPart(path[0])
+  //   ensures ret == MakeCanonicalPathGhost(path)
+  //   decreases |path| - pos
+  // {
+  //   if |path| == pos then
+  //     acc
+  //   else
+  //     MakeCanonicalPath(path, pos+1, acc + CanonicalPart(path[pos]))
+  // }
 
   // Does NOT guarantee a unique output for every unique input
   // e.g. ['a.b'] and ['a','b'] both return 'a.b'.
