@@ -36,6 +36,15 @@ module {:options "-functionSyntax:4"} WriteManifest {
         }
       }"
 
+  const BasicConfigSort := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""SIGN_ONLY"",
+          ""Junk"": ""ENCRYPT_AND_SIGN""
+        },
+        ""sortKeyName"" : ""Stuff""
+      }"
+
   // Attribute names with special characters that seem likely to break
   // when we introduce structured encryption
   const SpecialConfig := @"{
@@ -147,8 +156,8 @@ module {:options "-functionSyntax:4"} WriteManifest {
 
   const BasicRecord := @"{
           ""RecNum"": 1,
-          ""Stuff"": ""StuffData"",
-          ""Junk"": ""JunkData""
+          ""Stuff"": ""Stuff𐀂Data"",
+          ""Junk"": ""Junk𐀂Data""
         }"
   const SpecialRecord := @"{
           ""RecNum"": 1,
@@ -396,8 +405,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var test12 := MakeTest("12", "positive-encrypt", "Basic encrypt V2 switching1", LongerV2Config1, BasicRecord, Some(LongerV2Config2));
     var test13 := MakeTest("13", "positive-encrypt", "Basic encrypt V2 switching2", LongerV2Config2, BasicRecord, Some(LongerV2Config1));
     var test14 := MakeTest("14", "positive-encrypt", "Special characters in attribute names", SpecialConfig, SpecialRecord);
+    var test15 := MakeTest("15", "positive-encrypt", "Basic encrypt with Sort", BasicConfigSort, BasicRecord);
     var configTests := MakeConfigTests();
-    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14] + configTests;
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15] + configTests;
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);
