@@ -1,7 +1,8 @@
 from aws_database_encryption_sdk.transform import dict_to_ddb
 from .boto3_conversions import BotoInterfaceShapeConverter
 from aws_database_encryption_sdk.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
-from boto3.dynamodb.conditions import ConditionBase, BuiltConditionExpression
+from boto3.dynamodb.conditions import BuiltConditionExpression
+from boto3.dynamodb.types import TypeSerializer
 
 class ResourceShapeToClientShapeConverter(BotoInterfaceShapeConverter):
 
@@ -34,8 +35,8 @@ class ResourceShapeToClientShapeConverter(BotoInterfaceShapeConverter):
         return dict_to_ddb(key_to_attribute_value)
     
     def attribute_value(self, attribute_value):
-        # TODO: optimize
-        return list(dict_to_ddb({"throwaway_key": attribute_value}).values())[0]
+        serializer = TypeSerializer()
+        return serializer.serialize(attribute_value)
 
     def put_item_request(self, put_item_request):
         if not self.table_name:
@@ -72,12 +73,10 @@ class ResourceShapeToClientShapeConverter(BotoInterfaceShapeConverter):
             self._unpack_built_condition_expression(super_conversion, "FilterExpression")
         return super_conversion
     
-    def expression(self, condition_expression):
+    def expression(self, condition_expression, expression_attribute_names, expression_attribute_values):
         # Expressions provided to tables can be Condition objects, which need to be converted to strings.
-        if condition_expression.__module__ == "boto3.dynamodb.conditions":
-            out = self.expression_builder.build_expression(condition_expression, {}, {})
-            print(f"{condition_expression=}")
-            print(f"{out=}")
+        if hasattr(condition_expression, "__module__") and condition_expression.__module__ == "boto3.dynamodb.conditions":
+            out = self.expression_builder.build_expression(condition_expression, expression_attribute_names, expression_attribute_values)
             return out
         # Expressions provided to tables can also already be string-like.
         # Assume the user has provided something string-like, and let Smithy-Python/DBESDK internals raise exceptions if not.

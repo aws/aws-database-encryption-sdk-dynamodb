@@ -21,14 +21,14 @@ class BotoInterfaceShapeConverter(ABC):
     But the structure modelling is the same for both directions, and is expressed here.
     Implementations of this class should implement the abstract methods to perform the transformations.
     """
-    def key_condition_expression(self, key_condition_expression):
-        return self.expression(key_condition_expression)
+    # def key_condition_expression(self, key_condition_expression, expression_attribute_names, expression_attribute_values):
+    #     return self.expression(key_condition_expression, expression_attribute_names, expression_attribute_values)
 
-    def filter_expression(self, filter_expression):
-        return self.expression(filter_expression)
+    # def filter_expression(self, filter_expression, expression_attribute_names, expression_attribute_values):
+    #     return self.expression(filter_expression, expression_attribute_names, expression_attribute_values)
 
     @abstractmethod
-    def expression(self, condition_expression):
+    def expression(self, condition_expression, expression_attribute_names, expression_attribute_values):
         pass
 
     def key_conditions(self, key_conditions):
@@ -128,7 +128,7 @@ class BotoInterfaceShapeConverter(ABC):
         if "ExclusiveStartKey" in scan_request:
             scan_request["ExclusiveStartKey"] = self.exclusive_start_key(scan_request["ExclusiveStartKey"])
         if "FilterExpression" in scan_request:
-            scan_request["FilterExpression"] = self.filter_expression(scan_request["FilterExpression"])
+            self._handle_expression_with_expression_attributes(scan_request, "FilterExpression")
         if "ExpressionAttributeValues" in scan_request:
             scan_request["ExpressionAttributeValues"] = self.expression_attribute_values(scan_request["ExpressionAttributeValues"])
         return scan_request
@@ -140,6 +140,18 @@ class BotoInterfaceShapeConverter(ABC):
             scan_response["LastEvaluatedKey"] = self.last_evaluated_key(scan_response["LastEvaluatedKey"])
         return scan_response
     
+    def _handle_expression_with_expression_attributes(self, request, expression_key):
+        # Pass the resource-formatted expression attribute values to the converter
+        if "ExpressionAttributeValues" in request:
+            expression_attribute_values = request["ExpressionAttributeValues"]
+        else:
+            expression_attribute_values = {}
+        if "ExpressionAttributeNames" in request:
+            expression_attribute_names = request["ExpressionAttributeNames"]
+        else:
+            expression_attribute_names = {}
+        request[expression_key] = self.expression(request[expression_key], expression_attribute_names, expression_attribute_values)
+    
     def query_request(self, query_request):
         if "KeyConditions" in query_request:
             query_request["KeyConditions"] = self.key_conditions(query_request["KeyConditions"])
@@ -148,9 +160,9 @@ class BotoInterfaceShapeConverter(ABC):
         if "ExclusiveStartKey" in query_request:
             query_request["ExclusiveStartKey"] = self.exclusive_start_key(query_request["ExclusiveStartKey"])
         if "FilterExpression" in query_request:
-            query_request["FilterExpression"] = self.filter_expression(query_request["FilterExpression"])
+            self._handle_expression_with_expression_attributes(query_request, "FilterExpression")
         if "KeyConditionExpression" in query_request:
-            query_request["KeyConditionExpression"] = self.key_condition_expression(query_request["KeyConditionExpression"])
+            self._handle_expression_with_expression_attributes(query_request, "KeyConditionExpression")
         if "ExpressionAttributeValues" in query_request:
             query_request["ExpressionAttributeValues"] = self.expression_attribute_values(query_request["ExpressionAttributeValues"])
         return query_request

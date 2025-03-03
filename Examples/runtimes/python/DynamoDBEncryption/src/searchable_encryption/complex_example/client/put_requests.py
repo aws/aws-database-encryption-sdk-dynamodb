@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 def put_all_meeting_items_to_table(ddb_table_name, ddb):
     meetings = [
         {

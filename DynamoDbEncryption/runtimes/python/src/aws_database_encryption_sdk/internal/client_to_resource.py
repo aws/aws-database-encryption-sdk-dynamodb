@@ -30,6 +30,6 @@ class ClientShapeToResourceShapeConverter(BotoInterfaceShapeConverter):
         del out["TableName"]
         return out
 
-    def expression(self, condition_expression):
+    def expression(self, condition_expression, expression_attribute_names, expression_attribute_values):
         # Tables accept the same format as the client (string).
         return condition_expression

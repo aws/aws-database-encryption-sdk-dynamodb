@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import boto3
 from ..beacon_config import setup_beacon_config
 from aws_database_encryption_sdk.encryptor.table import EncryptedTable

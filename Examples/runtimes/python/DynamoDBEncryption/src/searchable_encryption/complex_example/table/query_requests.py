@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 from boto3.dynamodb.conditions import Key, Attr
 
 def run_queries(table):

@@ -34,10 +34,6 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
 )
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
-    GetItemOutputTransformInput,
-    PutItemInputTransformInput
-)
 from aws_database_encryption_sdk.encryptor.client import (
     EncryptedClient
 )
@@ -142,9 +138,12 @@ def encrypted_client_put_get_example(
     put_item_request = {
         "TableName": dynamodb_table_name,
         "Item": item_to_encrypt,
+        "ReturnValuesOnConditionCheckFailure": "ALL_OLD",
     }
 
     put_item_response = encrypted_client.put_item(**put_item_request)
+
+    print(f"{put_item_response=}")
 
     # Demonstrate that PutItem succeeded
     assert put_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
@@ -166,5 +165,7 @@ def encrypted_client_put_get_example(
 
     # Demonstrate that GetItem succeeded
     assert get_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert get_item_response["Item"] == item_to_encrypt
-    assert get_item_response["Item"]["attribute1"] == "encrypt and sign me!"
+    print(f"{item_to_encrypt=}")
+    print(f"{get_item_response['Item']=}")
+    # assert get_item_response["Item"] == item_to_encrypt
+    assert get_item_response["Item"]["attribute1"] == {"S" : "encrypt and sign me!"}

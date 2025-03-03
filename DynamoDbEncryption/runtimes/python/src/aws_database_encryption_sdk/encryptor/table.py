@@ -148,14 +148,21 @@ class EncryptedTable:
         return response
 
     def query(self, **kwargs):
+        print(f"query {kwargs=}")
         input_transform_input = self._resource_shape_to_client_shape_converter.query_request(kwargs)
+
+        print(f"query {input_transform_input=}")
         input_transform_output = self._transformer.query_input_transform(
             QueryInputTransformInput(
                 sdk_input = input_transform_input
             )
         ).transformed_input
 
+        print(f"query {input_transform_output=}")
+
         sdk_input = self._client_shape_to_resource_shape_converter.query_request(input_transform_output)
+
+        print(f"query {sdk_input=}")
 
         sdk_output = self._table.query(**sdk_input)
 

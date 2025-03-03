@@ -1,4 +1,5 @@
-
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 def run_queries(ddb_client, table_name):
     run_query_1(ddb_client, table_name)
     run_query_2(ddb_client, table_name)

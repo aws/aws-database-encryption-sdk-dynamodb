@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import (
     ConditionBase,
     BuiltConditionExpression,
     AttributeBase,
+    Key
 )
 import re
 
@@ -60,6 +61,7 @@ class InternalDBESDKDynamoDBConditionExpressionBuilder:
             attribute_value_placeholders,
             is_key_condition=is_key_condition,
         )
+        print(f"BuiltConditionExpression {condition_expression=}")
         return BuiltConditionExpression(
             condition_expression=condition_expression,
             attribute_name_placeholders=attribute_name_placeholders,
@@ -138,26 +140,43 @@ class InternalDBESDKDynamoDBConditionExpressionBuilder:
         placeholder_format = ATTR_NAME_REGEX.sub('%s', attribute_name)
         str_format_args = []
         for part in attribute_name_parts:
-            name_placeholder = self._get_name_placeholder()
-            self._name_count += 1
-            str_format_args.append(name_placeholder)
-            # Add the placeholder and value to dictionary of name placeholders.
-            attribute_name_placeholders[name_placeholder] = part
+            # If the the name is already an AttributeName, use it. Don't make a new placeholder.
+            if part in attribute_name_placeholders:
+                str_format_args.append(part)
+            else:
+                name_placeholder = self._get_name_placeholder()
+                self._name_count += 1
+                str_format_args.append(name_placeholder)
+                # Add the placeholder and value to dictionary of name placeholders.
+                attribute_name_placeholders[name_placeholder] = part
         # Replace the temporary placeholders with the designated placeholders.
         return placeholder_format % tuple(str_format_args)
 
     def _build_value_placeholder(
         self, value, attribute_value_placeholders, has_grouped_values=False
     ):
+        print(f"{attribute_value_placeholders=}")
         # If the values are grouped, we need to add a placeholder for
         # each element inside of the actual value.
+        
+        # Also, you can define a grouped value with a colon here.
+        # If it's a colon, it's not a grouped value for the sake of this logic.
+        # Treat it as an "else" case.
         if has_grouped_values:
             placeholder_list = []
+            # If it's a pre-defined grouped attribute, don't attempt to unpack it as if it were
             for v in value:
-                value_placeholder = self._get_value_placeholder()
-                self._value_count += 1
-                placeholder_list.append(value_placeholder)
-                attribute_value_placeholders[value_placeholder] = v
+                print(f"v1 {v=}")
+                # If the value is already an AttributeValue, reuse it. Don't make a new placeholder.
+                if v in attribute_value_placeholders:
+                    print("in")
+                    placeholder_list.append(v)
+                else:
+                    print("not in")
+                    value_placeholder = self._get_value_placeholder()
+                    self._value_count += 1
+                    placeholder_list.append(value_placeholder)
+                    attribute_value_placeholders[value_placeholder] = v
             # Assuming the values are grouped by parenthesis.
             # IN is the currently the only one that uses this so it maybe
             # needed to be changed in future.
@@ -165,10 +184,17 @@ class InternalDBESDKDynamoDBConditionExpressionBuilder:
         # Otherwise, treat the value as a single value that needs only
         # one placeholder.
         else:
-            value_placeholder = self._get_value_placeholder()
-            self._value_count += 1
-            attribute_value_placeholders[value_placeholder] = value
-            return value_placeholder
+            print(f"v2 {value=}")
+            # If the value is already an AttributeValue, reuse it. Don't make a new placeholder.
+            if value in attribute_value_placeholders:
+                print("in")
+                return value
+            else:
+                print("not in")
+                value_placeholder = self._get_value_placeholder()
+                self._value_count += 1
+                attribute_value_placeholders[value_placeholder] = value
+                return value_placeholder
 
 
 # class InternalDBESDKDynamoDBConditionExpressionBuilder:
