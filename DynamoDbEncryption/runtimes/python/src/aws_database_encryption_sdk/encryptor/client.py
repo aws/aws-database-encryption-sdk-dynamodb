@@ -33,8 +33,40 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 )
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTablesEncryptionConfig,
+    DynamoDbTableEncryptionConfig,
 )
+from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
+    DynamoDbItemEncryptorConfig,
+)
+from aws_database_encryption_sdk.encryptor.item import ItemEncryptor
 
+class EncryptedPaginator:
+    def __init__(
+        self,
+        paginator: Paginator,
+        item_encryptors: dict[str, ItemEncryptor]
+    ):
+        self._paginator = paginator
+        self._item_encryptors = item_encryptors
+        
+    def paginate(self, **kwargs):
+        """Create an iterator that will paginate through responses from the underlying paginator,
+        transparently decrypting any returned items.
+        """
+        table_name = kwargs["TableName"]
+
+        try:
+            item_encryptor = self._item_encryptors[table_name]
+        except KeyError:
+            raise KeyError(f"No encryption configuration found for table {table_name}")
+
+        for page in self._paginator.paginate(**kwargs):
+            encrypted_items = page["Items"]
+            decrypted_items = []
+            for item in encrypted_items:
+                decrypted_items.append(item_encryptor.decrypt_dynamodb_item(item))
+            page["Items"] = decrypted_items
+            yield page
 
 class EncryptedClient:
     """
@@ -320,3 +352,41 @@ class EncryptedClient:
             return getattr(self._client, name)
         else:
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        
+    def _table_encryption_config_to_item_encryptor_config(
+        table_encryption_config: DynamoDbTableEncryptionConfig
+    ) -> DynamoDbItemEncryptorConfig:
+        return DynamoDbItemEncryptorConfig(
+            logical_table_name=table_encryption_config.logical_table_name,
+            partition_key_name=table_encryption_config.partition_key_name,
+            attribute_actions_on_encrypt=table_encryption_config.attribute_actions_on_encrypt,
+            sort_key_name=table_encryption_config.sort_key_name,
+            allowed_unsigned_attributes=table_encryption_config.allowed_unsigned_attributes,
+            allowed_unsigned_attribute_prefix=table_encryption_config.allowed_unsigned_attribute_prefix,
+            algorithm_suite_id=table_encryption_config.algorithm_suite_id,
+            keyring=table_encryption_config.keyring,
+            cmm=table_encryption_config.cmm,
+            legacy_override=table_encryption_config.legacy_override,
+            plaintext_override=table_encryption_config.plaintext_override,
+        )
+        
+    def get_paginator(self, operation_name: str) -> EncryptedPaginator:
+        """Get a paginator from the underlying client. If the paginator requested is for
+        "scan" or "query", the paginator returned will transparently decrypt the returned items.
+
+        :param str operation_name: Name of operation for which to get paginator
+        :returns: Paginator for name
+        :rtype: :class:`botocore.paginate.Paginator` or :class:`EncryptedPaginator`
+        """
+        paginator = self._client.get_paginator(operation_name)
+
+        item_encryptors = {}
+        for table_name, table_config in self._encryption_config.items():
+            item_encryptors[table_name] = self._table_encryption_config_to_item_encryptor_config(table_config)
+
+        if operation_name in ("scan", "query"):
+            return EncryptedPaginator(
+                paginator=paginator, item_encryptor_by_table=item_encryptors, client=self._client
+            )
+
+        return paginator

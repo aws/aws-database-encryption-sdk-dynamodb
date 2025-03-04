@@ -143,6 +143,14 @@ _sed_types_file_remove_extern:
 _sed_types_file_add_extern:
 	echo "no types file"
 
-test_python_dynamodb_format:
+test_python_client_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python/test/dynamodb_format
+	python3 -m tox -c runtimes/python/test/client
+
+test_python_resource_interface:
+	rm -rf runtimes/python/.tox
+	python3 -m tox -c runtimes/python/test/resource
+
+test_python_table_interface:
+	rm -rf runtimes/python/.tox
+	python3 -m tox -c runtimes/python/test/table
