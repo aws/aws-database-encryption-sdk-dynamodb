@@ -19,7 +19,11 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        os: [macos-13]
+        os: [
+          # TODO: Re-enable macOS after https://t.corp.amazon.com/P205755286
+          # macos-13,
+          ubuntu-latest,
+        ]
     runs-on: ${{ matrix.os }}
     defaults:
       run:

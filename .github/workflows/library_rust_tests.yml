@@ -26,7 +26,16 @@ jobs:
       matrix:
         library: [DynamoDbEncryption, TestVectors]
         # removed windows-latest because somehow it can't build aws-lc in CI
-        os: [ubuntu-latest, macos-13]
+        os: [
+            # TODO fix Dafny-generated tests on Windows;
+            # the sys.path workaround for generated Dafny doesn't work on Windows.
+            # Note: only tests use the sys.path workaround, not source code.
+            # Windows source code is tested downstream (ex. ESDK-Python CI).
+            # windows-latest,
+            ubuntu-22.04,
+            # TODO: Re-enable macOS after https://t.corp.amazon.com/P205755286
+              # macos-13,
+          ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
