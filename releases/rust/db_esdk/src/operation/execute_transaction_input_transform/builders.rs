@@ -13,7 +13,7 @@ impl ExecuteTransactionInputTransformInputBuilder {
     ) -> ::std::result::Result<
         crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformOutput,
         crate::types::error::Error,
-    > {
+    >{
         let mut fluent_builder = client.execute_transaction_input_transform();
         fluent_builder.inner = self;
         fluent_builder.send().await
@@ -35,7 +35,7 @@ impl ExecuteTransactionInputTransformFluentBuilder {
         }
     }
     /// Access the ExecuteTransactionInputTransform as a reference.
-    pub fn as_input(&self) -> &crate::operation::execute_transaction_input_transform::builders::ExecuteTransactionInputTransformInputBuilder {
+    pub fn as_input(&self) -> &crate::operation::execute_transaction_input_transform::builders::ExecuteTransactionInputTransformInputBuilder{
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -44,7 +44,7 @@ impl ExecuteTransactionInputTransformFluentBuilder {
     ) -> ::std::result::Result<
         crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransformOutput,
         crate::types::error::Error,
-    > {
+    >{
         let input = self
             .inner
             .build()
@@ -53,26 +53,41 @@ impl ExecuteTransactionInputTransformFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-	     let msg = format!("{:?}", e);
-             crate::types::error::Error::OpaqueWithText {
-                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-		objMessage: msg
-             }})?;
+                let msg = format!("{:?}", e);
+                crate::types::error::Error::OpaqueWithText {
+                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut ::dafny_runtime::DynAny),
+                    objMessage: msg,
+                }
+            })?;
         crate::operation::execute_transaction_input_transform::ExecuteTransactionInputTransform::send(&self.client, input).await
     }
 
     #[allow(missing_docs)]
-pub fn sdk_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>) -> Self {
-    self.inner = self.inner.sdk_input(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_sdk_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput>) -> Self {
-    self.inner = self.inner.set_sdk_input(input);
-    self
-}
-#[allow(missing_docs)]
-pub fn get_sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput> {
-    self.inner.get_sdk_input()
-}
+    pub fn sdk_input(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.sdk_input(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_sdk_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.set_sdk_input(input);
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_transaction::ExecuteTransactionInput,
+    > {
+        self.inner.get_sdk_input()
+    }
 }

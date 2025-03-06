@@ -679,7 +679,19 @@ public class ToDafny {
           )
         )
         : Option.create_None(CacheType._typeDescriptor());
-    return new MultiKeyStore(keyFieldName, cacheTTL, cache);
+    Option<DafnySequence<? extends Character>> partitionId;
+    partitionId =
+      Objects.nonNull(nativeValue.partitionId())
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
+          software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+            nativeValue.partitionId()
+          )
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
+    return new MultiKeyStore(keyFieldName, cacheTTL, cache, partitionId);
   }
 
   public static PartOnly PartOnly(
@@ -758,7 +770,29 @@ public class ToDafny {
       );
     Integer cacheTTL;
     cacheTTL = (nativeValue.cacheTTL());
-    return new SingleKeyStore(keyId, cacheTTL);
+    Option<CacheType> cache;
+    cache =
+      Objects.nonNull(nativeValue.cache())
+        ? Option.create_Some(
+          CacheType._typeDescriptor(),
+          software.amazon.cryptography.materialproviders.ToDafny.CacheType(
+            nativeValue.cache()
+          )
+        )
+        : Option.create_None(CacheType._typeDescriptor());
+    Option<DafnySequence<? extends Character>> partitionId;
+    partitionId =
+      Objects.nonNull(nativeValue.partitionId())
+        ? Option.create_Some(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR),
+          software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+            nativeValue.partitionId()
+          )
+        )
+        : Option.create_None(
+          DafnySequence._typeDescriptor(TypeDescriptor.CHAR)
+        );
+    return new SingleKeyStore(keyId, cacheTTL, cache, partitionId);
   }
 
   public static StandardBeacon StandardBeacon(

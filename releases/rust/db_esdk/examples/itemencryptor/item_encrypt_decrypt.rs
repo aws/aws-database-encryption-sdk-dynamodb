@@ -5,12 +5,12 @@ use crate::test_utils;
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
-use aws_db_esdk::CryptoAction;
 use aws_db_esdk::material_providers::client as mpl_client;
 use aws_db_esdk::material_providers::types::material_providers_config::MaterialProvidersConfig;
+use aws_db_esdk::CryptoAction;
 
-use aws_db_esdk::item_encryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig;
 use aws_db_esdk::item_encryptor::client as enc_client;
+use aws_db_esdk::item_encryptor::types::dynamo_db_item_encryptor_config::DynamoDbItemEncryptorConfig;
 use aws_db_esdk::material_providers::types::DbeAlgorithmSuiteId;
 
 /*

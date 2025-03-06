@@ -1,6 +1,6 @@
-# This workflow reads the project.properties
+# This workflow reads the project.properties in the MPL submodule
 # into the environment variables
-# and then creates an output variable for `dafnyVerifyVersion `
+# and then creates an output variable for `mplVersion`
 name: MPL HEAD Version
 
 on:
@@ -13,12 +13,12 @@ on:
         type: string
     outputs:
       version:
-        description: "The dafny version for verify"
+        description: "The MPL version"
         value: ${{ jobs.getMplHeadVersion.outputs.version }}
 
 jobs:
   getMplHeadVersion:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read_property.outputs.mplVersion }}
     steps:
@@ -31,7 +31,6 @@ jobs:
         shell: bash
         run: |
           git checkout ${{inputs.mpl-head}}
-          git pull
           git submodule update --init --recursive
           git rev-parse HEAD
 

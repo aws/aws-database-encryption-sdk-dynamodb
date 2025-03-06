@@ -10,7 +10,7 @@ impl crate::client::Client {
     /// - On success, responds with [`DeleteItemOutputTransformOutput`](crate::operation::delete_item_output_transform::DeleteItemOutputTransformOutput) with field(s):
     ///   - [`transformed_output(Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemOutput>)`](crate::operation::delete_item_output_transform::DeleteItemOutputTransformOutput::transformed_output): (undocumented)
     /// - On failure, responds with [`SdkError<DeleteItemOutputTransformError>`](crate::operation::delete_item_output_transform::DeleteItemOutputTransformError)
-    pub fn delete_item_output_transform(&self) -> crate::operation::delete_item_output_transform::builders::DeleteItemOutputTransformFluentBuilder {
+    pub fn delete_item_output_transform(&self) -> crate::operation::delete_item_output_transform::builders::DeleteItemOutputTransformFluentBuilder{
         crate::operation::delete_item_output_transform::builders::DeleteItemOutputTransformFluentBuilder::new(self.clone())
     }
 }

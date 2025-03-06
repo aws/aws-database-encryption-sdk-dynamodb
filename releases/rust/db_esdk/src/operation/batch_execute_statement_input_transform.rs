@@ -17,12 +17,12 @@ impl BatchExecuteStatementInputTransform {
     ) -> ::std::result::Result<
         crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformOutput,
         crate::types::error::Error,
-    > {
+    >{
         crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HBatchExecuteStatementInputTransformInput_for_DynamoDbEncryptionTransforms_BatchExecuteStatementInputTransform(&input)
             .map_err(crate::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::conversions::batch_execute_statement_input_transform::_batch_execute_statement_input_transform_input::to_dafny(input);
-        let inner_result =
-            ::dafny_runtime::md!(client.dafny_client.clone()).BatchExecuteStatementInputTransform(&inner_input);
+        let inner_input = crate::conversions::batch_execute_statement_input_transform::_batch_execute_statement_input_transform_input::to_dafny(input);
+        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
+            .BatchExecuteStatementInputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

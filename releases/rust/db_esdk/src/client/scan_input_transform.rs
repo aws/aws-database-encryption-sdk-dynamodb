@@ -9,7 +9,11 @@ impl crate::client::Client {
     /// - On success, responds with [`ScanInputTransformOutput`](crate::operation::scan_input_transform::ScanInputTransformOutput) with field(s):
     ///   - [`transformed_input(Option<aws_sdk_dynamodb::operation::scan::ScanInput>)`](crate::operation::scan_input_transform::ScanInputTransformOutput::transformed_input): (undocumented)
     /// - On failure, responds with [`SdkError<ScanInputTransformError>`](crate::operation::scan_input_transform::ScanInputTransformError)
-    pub fn scan_input_transform(&self) -> crate::operation::scan_input_transform::builders::ScanInputTransformFluentBuilder {
-        crate::operation::scan_input_transform::builders::ScanInputTransformFluentBuilder::new(self.clone())
+    pub fn scan_input_transform(
+        &self,
+    ) -> crate::operation::scan_input_transform::builders::ScanInputTransformFluentBuilder {
+        crate::operation::scan_input_transform::builders::ScanInputTransformFluentBuilder::new(
+            self.clone(),
+        )
     }
 }

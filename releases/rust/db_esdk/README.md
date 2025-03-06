@@ -22,7 +22,7 @@ see the [AWS Database Encryption SDK Developer Guide](https://docs.aws.amazon.co
 
 ## Examples for AWS Database Encryption SDK in Rust
 
-Please look at the Examples on how to use the AWS Database Encryption SDK in Rust [here](https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/DynamoDbEncryption/runtimes/rust/examples).
+Please look at the Examples on how to use the AWS Database Encryption SDK in Rust [here](https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk/examples).
 
 Please note that some examples MAY require internet access and valid AWS credentials, since calls to KMS are made.
 

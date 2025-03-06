@@ -9,7 +9,11 @@ impl crate::client::Client {
     /// - On success, responds with [`QueryInputTransformOutput`](crate::operation::query_input_transform::QueryInputTransformOutput) with field(s):
     ///   - [`transformed_input(Option<aws_sdk_dynamodb::operation::query::QueryInput>)`](crate::operation::query_input_transform::QueryInputTransformOutput::transformed_input): (undocumented)
     /// - On failure, responds with [`SdkError<QueryInputTransformError>`](crate::operation::query_input_transform::QueryInputTransformError)
-    pub fn query_input_transform(&self) -> crate::operation::query_input_transform::builders::QueryInputTransformFluentBuilder {
-        crate::operation::query_input_transform::builders::QueryInputTransformFluentBuilder::new(self.clone())
+    pub fn query_input_transform(
+        &self,
+    ) -> crate::operation::query_input_transform::builders::QueryInputTransformFluentBuilder {
+        crate::operation::query_input_transform::builders::QueryInputTransformFluentBuilder::new(
+            self.clone(),
+        )
     }
 }
