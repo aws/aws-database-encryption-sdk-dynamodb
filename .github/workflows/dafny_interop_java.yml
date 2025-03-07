@@ -29,10 +29,10 @@ jobs:
         library: [DynamoDbEncryption]
         java-version: [8, 11, 16, 17]
         os: [
-          # TODO: Re-enable macOS after https://t.corp.amazon.com/P205755286
-          # macos-13,
-          ubuntu-latest,
-        ]
+            # TODO: Re-enable macOS after https://t.corp.amazon.com/P205755286
+            # macos-13,
+            ubuntu-latest,
+          ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
