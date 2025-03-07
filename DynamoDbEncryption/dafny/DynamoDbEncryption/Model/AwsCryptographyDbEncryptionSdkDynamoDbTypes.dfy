@@ -354,7 +354,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype MultiKeyStore = | MultiKeyStore (
     nameonly keyFieldName: string ,
     nameonly cacheTTL: int32 ,
-    nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None
+    nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None ,
+    nameonly partitionId: Option<string> := Option.None
   )
   datatype PartOnly = | PartOnly (
 
@@ -388,7 +389,9 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   }
   datatype SingleKeyStore = | SingleKeyStore (
     nameonly keyId: string ,
-    nameonly cacheTTL: int32
+    nameonly cacheTTL: int32 ,
+    nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None ,
+    nameonly partitionId: Option<string> := Option.None
   )
   datatype StandardBeacon = | StandardBeacon (
     nameonly name: string ,

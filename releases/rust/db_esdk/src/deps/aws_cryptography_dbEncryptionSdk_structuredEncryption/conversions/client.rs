@@ -20,5 +20,7 @@ pub fn from_dafny(
       dyn crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::IStructuredEncryptionClient
     >,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client::Client {
-  crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client::Client { dafny_client: dafny_value }
+    crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client::Client {
+        dafny_client: dafny_value,
+    }
 }

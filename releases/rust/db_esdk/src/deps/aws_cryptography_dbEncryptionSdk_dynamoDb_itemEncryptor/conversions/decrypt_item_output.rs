@@ -4,16 +4,16 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput,
-> {
-    ::std::rc::Rc::new(to_dafny_plain(value.clone()))
+>{
+    ::dafny_runtime::Rc::new(to_dafny_plain(value.clone()))
 }
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput::DecryptItemOutput {
         plaintextItem: ::dafny_runtime::dafny_runtime_conversions::hashmap_to_dafny_map(&value.plaintext_item.clone().unwrap(),
     |k| dafny_runtime::dafny_runtime_conversions::unicode_chars_false::string_to_dafny_string(&k),
@@ -21,7 +21,7 @@ pub fn to_dafny_plain(
 ,
 )
 ,
- parsedHeader: ::std::rc::Rc::new(match &value.parsed_header {
+ parsedHeader: ::dafny_runtime::Rc::new(match &value.parsed_header {
     Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::parsed_header::to_dafny(&x.clone()) },
     None => crate::_Wrappers_Compile::Option::None { }
 })
@@ -32,36 +32,38 @@ pub fn to_dafny_plain(
 #[allow(dead_code)]
 pub fn option_to_dafny(
   value: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput>,
-) -> ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+) -> ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
   crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput,
 >>>{
-    ::std::rc::Rc::new(match value {
+    ::dafny_runtime::Rc::new(match value {
         ::std::option::Option::None => crate::_Wrappers_Compile::Option::None {},
         ::std::option::Option::Some(x) => crate::_Wrappers_Compile::Option::Some {
-            value: ::std::rc::Rc::new(to_dafny_plain(x)),
+            value: ::dafny_runtime::Rc::new(to_dafny_plain(x)),
         },
     })
 }
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput
+{
     plain_from_dafny(&*dafny_value)
 }
 
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput
+{
     match dafny_value {
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput::DecryptItemOutput {..} =>
             crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput::builder()
                 .set_plaintext_item(Some( ::dafny_runtime::dafny_runtime_conversions::dafny_map_to_hashmap(&dafny_value.plaintextItem(),
     |k: &::dafny_runtime::dafny_runtime_conversions::DafnySequence<::dafny_runtime::dafny_runtime_conversions::DafnyCharUTF16>| dafny_runtime::dafny_runtime_conversions::unicode_chars_false::dafny_string_to_string(k),
-    |v: &::std::rc::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValue>| crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::from_dafny(v.clone())
+    |v: &::dafny_runtime::Rc<crate::r#software::amazon::cryptography::services::dynamodb::internaldafny::types::AttributeValue>| crate::deps::com_amazonaws_dynamodb::conversions::attribute_value::from_dafny(v.clone())
 ,
 )
  ))
@@ -78,10 +80,12 @@ pub fn plain_from_dafny(
 
 #[allow(dead_code)]
 pub fn option_from_dafny(
-    dafny_value: ::std::rc::Rc<crate::_Wrappers_Compile::Option<::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<crate::_Wrappers_Compile::Option<::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DecryptItemOutput,
     >>>,
-) -> ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput> {
+) -> ::std::option::Option<
+    crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::types::DecryptItemOutput,
+> {
     match &*dafny_value {
         crate::_Wrappers_Compile::Option::Some { value } => {
             ::std::option::Option::Some(plain_from_dafny(value))

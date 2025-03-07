@@ -24,7 +24,7 @@ jobs:
       matrix:
         library: [TestVectors]
         dotnet-version: ["6.0.x"]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -61,7 +61,6 @@ jobs:
         run: |
           git fetch
           git checkout ${{inputs.mpl-commit}}
-          git pull
           git submodule update --init --recursive
           git rev-parse HEAD
 
@@ -109,7 +108,7 @@ jobs:
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net
         run: |
-          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json .
+          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json ../java/decrypt_rust_*.json .
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0
