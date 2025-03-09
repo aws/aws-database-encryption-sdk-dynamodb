@@ -5,7 +5,7 @@ package awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes
 import (
 	"fmt"
 
-	dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 

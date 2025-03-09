@@ -195,7 +195,7 @@ func (m DBEsdkMiddleware) createResponseInterceptor() middleware.FinalizeMiddlew
 }
 
 // handleResponseInterception handles the interception logic after the DynamoDB operation
-func (m DBEsdkMiddleware) handleResponseInterception(ctx context.Context, response interface{}) err {
+func (m DBEsdkMiddleware) handleResponseInterception(ctx context.Context, response interface{}) error {
 	switch v := response.(type) {
 	case *dynamodb.PutItemOutput:
 		transformedRequest, err := m.client.PutItemOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.PutItemOutputTransformInput{
