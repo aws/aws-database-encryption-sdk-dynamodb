@@ -20,14 +20,14 @@ func (input DecryptItemInput) Validate() error {
 	if input.EncryptedItem == nil {
 		return fmt.Errorf("input.EncryptedItem is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemInput_encryptedItem_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemInput_encryptedItem_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemInput_encryptedItem_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemInput_encryptedItem_Validate()
 	}
 
 	return nil
 }
 
-func (input DecryptItemInput) com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input DecryptItemInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func (input DecryptItemInput) com_amazonaws_dynamodb_AttributeMap_value_Validate
 
 	return nil
 }
-func (input DecryptItemInput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input DecryptItemInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -61,8 +61,8 @@ func (input DecryptItemInput) com_amazonaws_dynamodb_MapAttributeValue_value_Val
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -74,7 +74,7 @@ func (input DecryptItemInput) com_amazonaws_dynamodb_MapAttributeValue_value_Val
 
 	return nil
 }
-func (input DecryptItemInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input DecryptItemInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -82,14 +82,14 @@ func (input DecryptItemInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(V
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input DecryptItemInput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input DecryptItemInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -102,8 +102,8 @@ func (input DecryptItemInput) com_amazonaws_dynamodb_ListAttributeValue_member_V
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -114,16 +114,16 @@ func (input DecryptItemInput) com_amazonaws_dynamodb_ListAttributeValue_member_V
 
 	return nil
 }
-func (input DecryptItemInput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input DecryptItemInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input DecryptItemInput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemInput_encryptedItem_Validate() error {
+func (input DecryptItemInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemInput_encryptedItem_Validate() error {
 	for key, value := range input.EncryptedItem {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -131,8 +131,8 @@ func (input DecryptItemInput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncr
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -147,14 +147,14 @@ func (input EncryptItemInput) Validate() error {
 	if input.PlaintextItem == nil {
 		return fmt.Errorf("input.PlaintextItem is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemInput_plaintextItem_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemInput_plaintextItem_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemInput_plaintextItem_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemInput_plaintextItem_Validate()
 	}
 
 	return nil
 }
 
-func (input EncryptItemInput) com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input EncryptItemInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -176,7 +176,7 @@ func (input EncryptItemInput) com_amazonaws_dynamodb_AttributeMap_value_Validate
 
 	return nil
 }
-func (input EncryptItemInput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input EncryptItemInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -188,8 +188,8 @@ func (input EncryptItemInput) com_amazonaws_dynamodb_MapAttributeValue_value_Val
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -201,7 +201,7 @@ func (input EncryptItemInput) com_amazonaws_dynamodb_MapAttributeValue_value_Val
 
 	return nil
 }
-func (input EncryptItemInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input EncryptItemInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -209,14 +209,14 @@ func (input EncryptItemInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(V
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input EncryptItemInput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input EncryptItemInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -229,8 +229,8 @@ func (input EncryptItemInput) com_amazonaws_dynamodb_ListAttributeValue_member_V
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -241,16 +241,16 @@ func (input EncryptItemInput) com_amazonaws_dynamodb_ListAttributeValue_member_V
 
 	return nil
 }
-func (input EncryptItemInput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input EncryptItemInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input EncryptItemInput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemInput_plaintextItem_Validate() error {
+func (input EncryptItemInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemInput_plaintextItem_Validate() error {
 	for key, value := range input.PlaintextItem {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -258,8 +258,8 @@ func (input EncryptItemInput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncr
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -284,38 +284,38 @@ func (input ParsedHeader) Validate() error {
 	if input.AttributeActionsOnEncrypt == nil {
 		return fmt.Errorf("input.AttributeActionsOnEncrypt is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_attributeActionsOnEncrypt_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_attributeActionsOnEncrypt_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_attributeActionsOnEncrypt_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_attributeActionsOnEncrypt_Validate()
 	}
 	if input.EncryptedDataKeys == nil {
 		return fmt.Errorf("input.EncryptedDataKeys is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptedDataKeys_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptedDataKeys_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptedDataKeys_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptedDataKeys_Validate()
 	}
 	if input.EncryptionContext == nil {
 		return fmt.Errorf("input.EncryptionContext is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptionContext_Validate()
 	}
 	if input.SelectorContext == nil {
 		return fmt.Errorf("input.SelectorContext is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_selectorContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_selectorContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_selectorContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_selectorContext_Validate()
 	}
 	if input.StoredEncryptionContext == nil {
 		return fmt.Errorf("input.StoredEncryptionContext is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_storedEncryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_storedEncryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_storedEncryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_storedEncryptionContext_Validate()
 	}
 
 	return nil
 }
 
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_attributeActionsOnEncrypt_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_attributeActionsOnEncrypt_Validate() error {
 	for key, _ := range input.AttributeActionsOnEncrypt {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -327,7 +327,7 @@ func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncrypto
 
 	return nil
 }
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptedDataKeys_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptedDataKeys_Validate() error {
 	for _, item := range input.EncryptedDataKeys {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -336,7 +336,7 @@ func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncrypto
 
 	return nil
 }
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptionContext_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_encryptionContext_Validate() error {
 	for key, value := range input.EncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -348,7 +348,7 @@ func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncrypto
 
 	return nil
 }
-func (input ParsedHeader) com_amazonaws_dynamodb_Key_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input ParsedHeader) Com_amazonaws_dynamodb_Key_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -370,7 +370,7 @@ func (input ParsedHeader) com_amazonaws_dynamodb_Key_value_Validate(Value dynamo
 
 	return nil
 }
-func (input ParsedHeader) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input ParsedHeader) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -382,8 +382,8 @@ func (input ParsedHeader) com_amazonaws_dynamodb_MapAttributeValue_value_Validat
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -395,7 +395,7 @@ func (input ParsedHeader) com_amazonaws_dynamodb_MapAttributeValue_value_Validat
 
 	return nil
 }
-func (input ParsedHeader) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input ParsedHeader) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -403,14 +403,14 @@ func (input ParsedHeader) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input ParsedHeader) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input ParsedHeader) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -423,8 +423,8 @@ func (input ParsedHeader) com_amazonaws_dynamodb_ListAttributeValue_member_Valid
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -435,16 +435,16 @@ func (input ParsedHeader) com_amazonaws_dynamodb_ListAttributeValue_member_Valid
 
 	return nil
 }
-func (input ParsedHeader) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input ParsedHeader) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_selectorContext_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_selectorContext_Validate() error {
 	for key, value := range input.SelectorContext {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -452,14 +452,14 @@ func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncrypto
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_Key_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_Key_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_Key_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_Key_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_storedEncryptionContext_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_ParsedHeader_storedEncryptionContext_Validate() error {
 	for key, value := range input.StoredEncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -482,8 +482,8 @@ func (input DecryptItemOutput) Validate() error {
 	if input.PlaintextItem == nil {
 		return fmt.Errorf("input.PlaintextItem is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemOutput_plaintextItem_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemOutput_plaintextItem_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemOutput_plaintextItem_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemOutput_plaintextItem_Validate()
 	}
 	if input.ParsedHeader != nil {
 		if input.ParsedHeader.Validate() != nil {
@@ -495,7 +495,7 @@ func (input DecryptItemOutput) Validate() error {
 	return nil
 }
 
-func (input DecryptItemOutput) com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input DecryptItemOutput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -517,7 +517,7 @@ func (input DecryptItemOutput) com_amazonaws_dynamodb_AttributeMap_value_Validat
 
 	return nil
 }
-func (input DecryptItemOutput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input DecryptItemOutput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -529,8 +529,8 @@ func (input DecryptItemOutput) com_amazonaws_dynamodb_MapAttributeValue_value_Va
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -542,7 +542,7 @@ func (input DecryptItemOutput) com_amazonaws_dynamodb_MapAttributeValue_value_Va
 
 	return nil
 }
-func (input DecryptItemOutput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input DecryptItemOutput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -550,14 +550,14 @@ func (input DecryptItemOutput) com_amazonaws_dynamodb_AttributeValue_M_Validate(
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input DecryptItemOutput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input DecryptItemOutput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -570,8 +570,8 @@ func (input DecryptItemOutput) com_amazonaws_dynamodb_ListAttributeValue_member_
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -582,16 +582,16 @@ func (input DecryptItemOutput) com_amazonaws_dynamodb_ListAttributeValue_member_
 
 	return nil
 }
-func (input DecryptItemOutput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input DecryptItemOutput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input DecryptItemOutput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemOutput_plaintextItem_Validate() error {
+func (input DecryptItemOutput) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DecryptItemOutput_plaintextItem_Validate() error {
 	for key, value := range input.PlaintextItem {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -599,8 +599,8 @@ func (input DecryptItemOutput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEnc
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -617,8 +617,8 @@ func (input EncryptItemOutput) Validate() error {
 	if input.EncryptedItem == nil {
 		return fmt.Errorf("input.EncryptedItem is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemOutput_encryptedItem_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemOutput_encryptedItem_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemOutput_encryptedItem_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemOutput_encryptedItem_Validate()
 	}
 	if input.ParsedHeader != nil {
 		if input.ParsedHeader.Validate() != nil {
@@ -630,7 +630,7 @@ func (input EncryptItemOutput) Validate() error {
 	return nil
 }
 
-func (input EncryptItemOutput) com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input EncryptItemOutput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -652,7 +652,7 @@ func (input EncryptItemOutput) com_amazonaws_dynamodb_AttributeMap_value_Validat
 
 	return nil
 }
-func (input EncryptItemOutput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input EncryptItemOutput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -664,8 +664,8 @@ func (input EncryptItemOutput) com_amazonaws_dynamodb_MapAttributeValue_value_Va
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -677,7 +677,7 @@ func (input EncryptItemOutput) com_amazonaws_dynamodb_MapAttributeValue_value_Va
 
 	return nil
 }
-func (input EncryptItemOutput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input EncryptItemOutput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -685,14 +685,14 @@ func (input EncryptItemOutput) com_amazonaws_dynamodb_AttributeValue_M_Validate(
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input EncryptItemOutput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input EncryptItemOutput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -705,8 +705,8 @@ func (input EncryptItemOutput) com_amazonaws_dynamodb_ListAttributeValue_member_
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -717,16 +717,16 @@ func (input EncryptItemOutput) com_amazonaws_dynamodb_ListAttributeValue_member_
 
 	return nil
 }
-func (input EncryptItemOutput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input EncryptItemOutput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input EncryptItemOutput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemOutput_encryptedItem_Validate() error {
+func (input EncryptItemOutput) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_EncryptItemOutput_encryptedItem_Validate() error {
 	for key, value := range input.EncryptedItem {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -734,8 +734,8 @@ func (input EncryptItemOutput) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEnc
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -778,8 +778,8 @@ func (input DynamoDbItemEncryptorConfig) Validate() error {
 	if input.AttributeActionsOnEncrypt == nil {
 		return fmt.Errorf("input.AttributeActionsOnEncrypt is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_attributeActionsOnEncrypt_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_attributeActionsOnEncrypt_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_attributeActionsOnEncrypt_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_attributeActionsOnEncrypt_Validate()
 	}
 	if len(input.PartitionKeyName) < 1 {
 		return fmt.Errorf("KeySchemaAttributeName has a minimum length of 1 but has the length of %d.", len(input.PartitionKeyName))
@@ -790,8 +790,8 @@ func (input DynamoDbItemEncryptorConfig) Validate() error {
 	if len(input.AllowedUnsignedAttributes) < 1 {
 		return fmt.Errorf("AttributeNameList has a minimum length of 1 but has the length of %d.", len(input.AllowedUnsignedAttributes))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_allowedUnsignedAttributes_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_allowedUnsignedAttributes_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_allowedUnsignedAttributes_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_allowedUnsignedAttributes_Validate()
 	}
 	if input.LegacyOverride != nil {
 		if input.LegacyOverride.Validate() != nil {
@@ -811,7 +811,7 @@ func (input DynamoDbItemEncryptorConfig) Validate() error {
 	return nil
 }
 
-func (input DynamoDbItemEncryptorConfig) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_attributeActionsOnEncrypt_Validate() error {
+func (input DynamoDbItemEncryptorConfig) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_attributeActionsOnEncrypt_Validate() error {
 	for key, _ := range input.AttributeActionsOnEncrypt {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -823,7 +823,7 @@ func (input DynamoDbItemEncryptorConfig) aws_cryptography_dbEncryptionSdk_dynamo
 
 	return nil
 }
-func (input DynamoDbItemEncryptorConfig) aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_allowedUnsignedAttributes_Validate() error {
+func (input DynamoDbItemEncryptorConfig) Aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor_DynamoDbItemEncryptorConfig_allowedUnsignedAttributes_Validate() error {
 	for _, item := range input.AllowedUnsignedAttributes {
 		if len(item) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(item))

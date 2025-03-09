@@ -3,8 +3,6 @@
 package awscryptographydbencryptionsdkstructuredencryptionsmithygenerated
 
 import (
-	"unicode/utf8"
-
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyMaterialProvidersTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
@@ -20,7 +18,7 @@ func DecryptPathStructureInput_ToDafny(nativeInput awscryptographydbencryptionsd
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.DecryptPathStructureInput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptPathStructureInput_.Create_DecryptPathStructureInput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_tableName_ToDafny(nativeInput.TableName), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_ToDafny(nativeInput.EncryptedStructure), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptPathStructureInput_.Create_DecryptPathStructureInput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_tableName_ToDafny(nativeInput.TableName), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_ToDafny(nativeInput.EncryptedStructure), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
 	}()
 
 }
@@ -29,7 +27,7 @@ func DecryptPathStructureOutput_ToDafny(nativeOutput awscryptographydbencryption
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.DecryptPathStructureOutput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptPathStructureOutput_.Create_DecryptPathStructureOutput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_ToDafny(nativeOutput.PlaintextStructure), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptPathStructureOutput_.Create_DecryptPathStructureOutput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_ToDafny(nativeOutput.PlaintextStructure), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
 	}()
 
 }
@@ -38,7 +36,7 @@ func DecryptStructureInput_ToDafny(nativeInput awscryptographydbencryptionsdkstr
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.DecryptStructureInput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptStructureInput_.Create_DecryptStructureInput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_tableName_ToDafny(nativeInput.TableName), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_ToDafny(nativeInput.EncryptedStructure), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_authenticateSchema_ToDafny(nativeInput.AuthenticateSchema), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptStructureInput_.Create_DecryptStructureInput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_tableName_ToDafny(nativeInput.TableName), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_ToDafny(nativeInput.EncryptedStructure), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_authenticateSchema_ToDafny(nativeInput.AuthenticateSchema), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
 	}()
 
 }
@@ -47,7 +45,7 @@ func DecryptStructureOutput_ToDafny(nativeOutput awscryptographydbencryptionsdks
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.DecryptStructureOutput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptStructureOutput_.Create_DecryptStructureOutput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_ToDafny(nativeOutput.PlaintextStructure), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_cryptoSchema_ToDafny(nativeOutput.CryptoSchema), aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_DecryptStructureOutput_.Create_DecryptStructureOutput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_ToDafny(nativeOutput.PlaintextStructure), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_cryptoSchema_ToDafny(nativeOutput.CryptoSchema), Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
 	}()
 
 }
@@ -56,7 +54,7 @@ func EncryptPathStructureInput_ToDafny(nativeInput awscryptographydbencryptionsd
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.EncryptPathStructureInput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptPathStructureInput_.Create_EncryptPathStructureInput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_tableName_ToDafny(nativeInput.TableName), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_ToDafny(nativeInput.PlaintextStructure), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_algorithmSuiteId_ToDafny(nativeInput.AlgorithmSuiteId), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptPathStructureInput_.Create_EncryptPathStructureInput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_tableName_ToDafny(nativeInput.TableName), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_ToDafny(nativeInput.PlaintextStructure), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_algorithmSuiteId_ToDafny(nativeInput.AlgorithmSuiteId), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
 	}()
 
 }
@@ -65,7 +63,7 @@ func EncryptPathStructureOutput_ToDafny(nativeOutput awscryptographydbencryption
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.EncryptPathStructureOutput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptPathStructureOutput_.Create_EncryptPathStructureOutput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_ToDafny(nativeOutput.EncryptedStructure), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptPathStructureOutput_.Create_EncryptPathStructureOutput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_ToDafny(nativeOutput.EncryptedStructure), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
 	}()
 
 }
@@ -74,7 +72,7 @@ func EncryptStructureInput_ToDafny(nativeInput awscryptographydbencryptionsdkstr
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.EncryptStructureInput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptStructureInput_.Create_EncryptStructureInput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_tableName_ToDafny(nativeInput.TableName), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_ToDafny(nativeInput.PlaintextStructure), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_cryptoSchema_ToDafny(nativeInput.CryptoSchema), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_algorithmSuiteId_ToDafny(nativeInput.AlgorithmSuiteId), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptStructureInput_.Create_EncryptStructureInput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_tableName_ToDafny(nativeInput.TableName), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_ToDafny(nativeInput.PlaintextStructure), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_cryptoSchema_ToDafny(nativeInput.CryptoSchema), awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_algorithmSuiteId_ToDafny(nativeInput.AlgorithmSuiteId), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_ToDafny(nativeInput.EncryptionContext))
 	}()
 
 }
@@ -83,7 +81,7 @@ func EncryptStructureOutput_ToDafny(nativeOutput awscryptographydbencryptionsdks
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.EncryptStructureOutput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptStructureOutput_.Create_EncryptStructureOutput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_ToDafny(nativeOutput.EncryptedStructure), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_cryptoSchema_ToDafny(nativeOutput.CryptoSchema), aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_EncryptStructureOutput_.Create_EncryptStructureOutput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_ToDafny(nativeOutput.EncryptedStructure), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_cryptoSchema_ToDafny(nativeOutput.CryptoSchema), Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_parsedHeader_ToDafny(nativeOutput.ParsedHeader))
 	}()
 
 }
@@ -92,7 +90,7 @@ func ResolveAuthActionsInput_ToDafny(nativeInput awscryptographydbencryptionsdks
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ResolveAuthActionsInput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ResolveAuthActionsInput_.Create_ResolveAuthActionsInput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_tableName_ToDafny(nativeInput.TableName), aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_ToDafny(nativeInput.AuthActions), aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_headerBytes_ToDafny(nativeInput.HeaderBytes))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ResolveAuthActionsInput_.Create_ResolveAuthActionsInput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_tableName_ToDafny(nativeInput.TableName), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_ToDafny(nativeInput.AuthActions), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_headerBytes_ToDafny(nativeInput.HeaderBytes))
 	}()
 
 }
@@ -101,7 +99,7 @@ func ResolveAuthActionsOutput_ToDafny(nativeOutput awscryptographydbencryptionsd
 
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ResolveAuthActionsOutput {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ResolveAuthActionsOutput_.Create_ResolveAuthActionsOutput_(aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_ToDafny(nativeOutput.CryptoActions))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ResolveAuthActionsOutput_.Create_ResolveAuthActionsOutput_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_ToDafny(nativeOutput.CryptoActions))
 	}()
 
 }
@@ -109,7 +107,7 @@ func ResolveAuthActionsOutput_ToDafny(nativeOutput awscryptographydbencryptionsd
 func StructuredEncryptionException_ToDafny(nativeInput awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredEncryptionException) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Error {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_Error_.Create_StructuredEncryptionException_(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredEncryptionException_message_ToDafny(nativeInput.Message))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_Error_.Create_StructuredEncryptionException_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredEncryptionException_message_ToDafny(nativeInput.Message))
 	}()
 
 }
@@ -159,50 +157,50 @@ func StructuredEncryptionConfig_ToDafny(nativeInput awscryptographydbencryptions
 
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_tableName_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_tableName_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthItem) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthItem) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthList_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthList_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthItem) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthItem {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthList_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthItem) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthItem {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthItem {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_AuthItem_.Create_AuthItem_(aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_ToDafny(input.Key), aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_data_ToDafny(input.Data), aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_ToDafny(input.Action))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_AuthItem_.Create_AuthItem_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_ToDafny(input.Key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_data_ToDafny(input.Data), Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_ToDafny(input.Action))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegment) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegment) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegment) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.PathSegment {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegment) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.PathSegment {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.PathSegment {
 
 		switch input.(type) {
 		case *awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegmentMembermember:
-			var inputToConversion = aws_cryptography_dbEncryptionSdk_structuredEncryption_PathSegment_member_ToDafny(input.(*awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegmentMembermember).Value)
+			var inputToConversion = Aws_cryptography_dbEncryptionSdk_structuredEncryption_PathSegment_member_ToDafny(input.(*awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegmentMembermember).Value)
 			return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CompanionStruct_PathSegment_{}.Create_member_(inputToConversion.UnwrapOr(nil).(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructureSegment))
 
 		default:
@@ -211,28 +209,28 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(i
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_PathSegment_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructureSegment) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_PathSegment_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructureSegment) Wrappers.Option {
 	return func() Wrappers.Option {
 
-		return Wrappers.Companion_Option_.Create_Some_(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructureSegment_.Create_StructureSegment_(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructureSegment_key_ToDafny(input.Key)))
+		return Wrappers.Companion_Option_.Create_Some_(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructureSegment_.Create_StructureSegment_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructureSegment_key_ToDafny(input.Key)))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructureSegment_key_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructureSegment_key_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_data_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_data_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructuredDataTerminal_.Create_StructuredDataTerminal_(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input.Value), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input.TypeId))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructuredDataTerminal_.Create_StructuredDataTerminal_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input.Value), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input.TypeId))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input []byte) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input []byte) dafny.Sequence {
 	return func() dafny.Sequence {
 		var v []interface{}
 		if input == nil {
@@ -245,7 +243,7 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTermina
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input []byte) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input []byte) dafny.Sequence {
 	return func() dafny.Sequence {
 		var v []interface{}
 		if input == nil {
@@ -258,7 +256,7 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTermina
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthenticateAction {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthenticateAction {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthenticateAction {
 
 		var index int
@@ -267,6 +265,10 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_ToDaf
 			if enumVal == input {
 				break
 			}
+			if index == len(input.Values()) {
+				panic("Input value did not found in enum values")
+			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CompanionStruct_AuthenticateAction_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -280,85 +282,55 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_ToDaf
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
 	return func() Wrappers.Option {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
+			fieldValue.Add(awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
 		}
 		return Wrappers.Companion_Option_.Create_Some_(fieldValue.ToMap())
 	}()
 }
 
-func aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(input string) dafny.Sequence {
-	return func() dafny.Sequence {
-
-		return dafny.SeqOf(func() []interface{} {
-			utf8.ValidString(input)
-			b := []byte(input)
-			f := make([]interface{}, len(b))
-			for i, v := range b {
-				f[i] = v
-			}
-			return f
-		}()...)
-	}()
-}
-
-func aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(input string) dafny.Sequence {
-	return func() dafny.Sequence {
-
-		return dafny.SeqOf(func() []interface{} {
-			utf8.ValidString(input)
-			b := []byte(input)
-			f := make([]interface{}, len(b))
-			for i, v := range b {
-				f[i] = v
-			}
-			return f
-		}()...)
-	}()
-}
-
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoItem {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoItem {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoItem {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_CryptoItem_.Create_CryptoItem_(aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_ToDafny(input.Key), aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_data_ToDafny(input.Data), aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_action_ToDafny(input.Action))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_CryptoItem_.Create_CryptoItem_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_ToDafny(input.Key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_data_ToDafny(input.Data), Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_action_ToDafny(input.Action))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegment) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.PathSegment) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_data_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_data_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructuredDataTerminal_.Create_StructuredDataTerminal_(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input.Value), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input.TypeId))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructuredDataTerminal_.Create_StructuredDataTerminal_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input.Value), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input.TypeId))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_action_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_action_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction {
 
 		var index int
@@ -367,6 +339,10 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_action_ToD
 			if enumVal == input {
 				break
 			}
+			if index == len(input.Values()) {
+				panic("Input value did not found in enum values")
+			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CompanionStruct_CryptoAction_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -380,14 +356,14 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_action_ToD
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId) AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId) AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId {
 	return func() AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId {
 
 		var index int
@@ -396,6 +372,10 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorith
 			if enumVal == input {
 				break
 			}
+			if index == len(input.Values()) {
+				panic("Input value did not found in enum values")
+			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyMaterialProvidersTypes.CompanionStruct_DBEAlgorithmSuiteId_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -409,135 +389,87 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorith
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input []awscryptographymaterialproviderssmithygeneratedtypes.EncryptedDataKey) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input []awscryptographymaterialproviderssmithygeneratedtypes.EncryptedDataKey) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_materialProviders_EncryptedDataKeyList_member_ToDafny(val)
+			element := awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptedDataKeyList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_materialProviders_EncryptedDataKeyList_member_ToDafny(input awscryptographymaterialproviderssmithygeneratedtypes.EncryptedDataKey) AwsCryptographyMaterialProvidersTypes.EncryptedDataKey {
-	return func() AwsCryptographyMaterialProvidersTypes.EncryptedDataKey {
-
-		return AwsCryptographyMaterialProvidersTypes.Companion_EncryptedDataKey_.Create_EncryptedDataKey_(aws_cryptography_materialProviders_EncryptedDataKey_keyProviderId_ToDafny(input.KeyProviderId), aws_cryptography_materialProviders_EncryptedDataKey_keyProviderInfo_ToDafny(input.KeyProviderInfo), aws_cryptography_materialProviders_EncryptedDataKey_ciphertext_ToDafny(input.Ciphertext))
-	}()
-}
-
-func aws_cryptography_materialProviders_EncryptedDataKey_keyProviderId_ToDafny(input string) dafny.Sequence {
-	return func() dafny.Sequence {
-
-		return dafny.SeqOf(func() []interface{} {
-			utf8.ValidString(input)
-			b := []byte(input)
-			f := make([]interface{}, len(b))
-			for i, v := range b {
-				f[i] = v
-			}
-			return f
-		}()...)
-	}()
-}
-
-func aws_cryptography_materialProviders_EncryptedDataKey_keyProviderInfo_ToDafny(input []byte) dafny.Sequence {
-	return func() dafny.Sequence {
-		var v []interface{}
-		if input == nil {
-			return nil
-		}
-		for _, e := range input {
-			v = append(v, e)
-		}
-		return dafny.SeqOf(v...)
-	}()
-}
-
-func aws_cryptography_materialProviders_EncryptedDataKey_ciphertext_ToDafny(input []byte) dafny.Sequence {
-	return func() dafny.Sequence {
-		var v []interface{}
-		if input == nil {
-			return nil
-		}
-		for _, e := range input {
-			v = append(v, e)
-		}
-		return dafny.SeqOf(v...)
-	}()
-}
-
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input map[string]string) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input map[string]string) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
+			fieldValue.Add(awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input map[string]string) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input map[string]string) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
+			fieldValue.Add(awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_tableName_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_tableName_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.StructuredDataTerminal {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructuredDataTerminal_.Create_StructuredDataTerminal_(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input.Value), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input.TypeId))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_StructuredDataTerminal_.Create_StructuredDataTerminal_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input.Value), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input.TypeId))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_authenticateSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_authenticateSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_key_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_key_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_value_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthenticateAction {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap_value_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthenticateAction {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.AuthenticateAction {
 
 		var index int
@@ -546,6 +478,10 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap
 			if enumVal == input {
 				break
 			}
+			if index == len(input.Values()) {
+				panic("Input value did not found in enum values")
+			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CompanionStruct_AuthenticateAction_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -559,44 +495,44 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthenticateSchemaMap
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
 	return func() Wrappers.Option {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
+			fieldValue.Add(awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
 		}
 		return Wrappers.Companion_Option_.Create_Some_(fieldValue.ToMap())
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_cryptoSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_cryptoSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction {
 
 		var index int
@@ -605,6 +541,10 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value
 			if enumVal == input {
 				break
 			}
+			if index == len(input.Values()) {
+				panic("Input value did not found in enum values")
+			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CompanionStruct_CryptoAction_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -618,33 +558,33 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_tableName_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_tableName_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_algorithmSuiteId_ToDafny(input *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_algorithmSuiteId_ToDafny(input *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId) Wrappers.Option {
 	return func() Wrappers.Option {
 		if input == nil {
 			return Wrappers.Companion_Option_.Create_None_()
@@ -655,6 +595,7 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureI
 			if enumVal == *input {
 				break
 			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyMaterialProvidersTypes.CompanionStruct_DBEAlgorithmSuiteId_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -668,63 +609,63 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureI
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
 	return func() Wrappers.Option {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
+			fieldValue.Add(awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
 		}
 		return Wrappers.Companion_Option_.Create_Some_(fieldValue.ToMap())
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_tableName_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_tableName_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_cryptoSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_cryptoSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_algorithmSuiteId_ToDafny(input *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_algorithmSuiteId_ToDafny(input *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId) Wrappers.Option {
 	return func() Wrappers.Option {
 		if input == nil {
 			return Wrappers.Companion_Option_.Create_None_()
@@ -735,6 +676,7 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput
 			if enumVal == *input {
 				break
 			}
+
 		}
 		var enum interface{}
 		for allEnums, i := dafny.Iterate(AwsCryptographyMaterialProvidersTypes.CompanionStruct_DBEAlgorithmSuiteId_{}.AllSingletonConstructors()), 0; i < index; i++ {
@@ -748,63 +690,63 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_ToDafny(input map[string]string) Wrappers.Option {
 	return func() Wrappers.Option {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
+			fieldValue.Add(awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_key_ToDafny(key), awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_EncryptionContext_value_ToDafny(val))
 		}
 		return Wrappers.Companion_Option_.Create_Some_(fieldValue.ToMap())
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.StructuredDataTerminal) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_cryptoSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) dafny.Map {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_cryptoSchema_ToDafny(input map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction) dafny.Map {
 	return func() dafny.Map {
 		fieldValue := dafny.NewMapBuilder()
 		for key, val := range input {
-			fieldValue.Add(aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(key), aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(val))
+			fieldValue.Add(Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_key_ToDafny(key), Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoSchemaMap_value_ToDafny(val))
 		}
 		return fieldValue.ToMap()
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_parsedHeader_ToDafny(input awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.ParsedHeader) AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 	return func() AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.ParsedHeader {
 
-		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
+		return AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.Companion_ParsedHeader_.Create_ParsedHeader_(Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_algorithmSuiteId_ToDafny(input.AlgorithmSuiteId), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_ToDafny(input.EncryptedDataKeys), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_ToDafny(input.StoredEncryptionContext), Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_ToDafny(input.EncryptionContext))
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_tableName_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_tableName_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthItem) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthItem) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthList_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_headerBytes_ToDafny(input []byte) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_headerBytes_ToDafny(input []byte) dafny.Sequence {
 	return func() dafny.Sequence {
 		var v []interface{}
 		if input == nil {
@@ -817,19 +759,19 @@ func aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInp
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_ToDafny(input []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		var fieldValue []interface{} = make([]interface{}, 0)
 		for _, val := range input {
-			element := aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
+			element := Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoList_member_ToDafny(val)
 			fieldValue = append(fieldValue, element)
 		}
 		return dafny.SeqOf(fieldValue...)
 	}()
 }
 
-func aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredEncryptionException_message_ToDafny(input string) dafny.Sequence {
+func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredEncryptionException_message_ToDafny(input string) dafny.Sequence {
 	return func() dafny.Sequence {
 
 		return dafny.SeqOfChars([]dafny.Char(input)...)

@@ -60,14 +60,14 @@ func (input GetEncryptedDataKeyDescriptionOutput) Validate() error {
 	if input.EncryptedDataKeyDescriptionOutput == nil {
 		return fmt.Errorf("input.EncryptedDataKeyDescriptionOutput is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_Validate()
 	}
 
 	return nil
 }
 
-func (input GetEncryptedDataKeyDescriptionOutput) aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_Validate() error {
+func (input GetEncryptedDataKeyDescriptionOutput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_Validate() error {
 	for _, item := range input.EncryptedDataKeyDescriptionOutput {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -85,22 +85,22 @@ func (input GetEncryptedDataKeyDescriptionInput) Validate() error {
 	if input.Input == nil {
 		return fmt.Errorf("input.Input is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_Validate()
 	}
 
 	return nil
 }
 
-func (input GetEncryptedDataKeyDescriptionInput) aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_Validate() error {
+func (input GetEncryptedDataKeyDescriptionInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_Validate() error {
 	if input.Input == nil {
 		return nil
 	}
 	switch unionType := input.Input.(type) {
 	case *GetEncryptedDataKeyDescriptionUnionMemberheader:
 	case *GetEncryptedDataKeyDescriptionUnionMemberitem:
-		if input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_Validate(unionType.Value) != nil {
-			return input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_Validate(unionType.Value)
+		if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_Validate(unionType.Value) != nil {
+			return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_Validate(unionType.Value)
 		}
 	// Default case should not be reached.
 	default:
@@ -109,7 +109,7 @@ func (input GetEncryptedDataKeyDescriptionInput) aws_cryptography_dbEncryptionSd
 
 	return nil
 }
-func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetEncryptedDataKeyDescriptionInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -131,7 +131,7 @@ func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_Attribut
 
 	return nil
 }
-func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetEncryptedDataKeyDescriptionInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -143,8 +143,8 @@ func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_MapAttri
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -156,7 +156,7 @@ func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_MapAttri
 
 	return nil
 }
-func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input GetEncryptedDataKeyDescriptionInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -164,14 +164,14 @@ func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_Attribut
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetEncryptedDataKeyDescriptionInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -184,8 +184,8 @@ func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_ListAttr
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -196,16 +196,16 @@ func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_ListAttr
 
 	return nil
 }
-func (input GetEncryptedDataKeyDescriptionInput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input GetEncryptedDataKeyDescriptionInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input GetEncryptedDataKeyDescriptionInput) aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input GetEncryptedDataKeyDescriptionInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -213,8 +213,8 @@ func (input GetEncryptedDataKeyDescriptionInput) aws_cryptography_dbEncryptionSd
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -246,14 +246,14 @@ type MultiKeyStore struct {
 }
 
 func (input MultiKeyStore) Validate() error {
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_Validate()
 	}
 
 	return nil
 }
 
-func (input MultiKeyStore) aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_Validate() error {
+func (input MultiKeyStore) Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_Validate() error {
 	if input.Cache == nil {
 		return nil
 	}
@@ -346,14 +346,14 @@ func (input Constructor) Validate() error {
 	if input.Parts == nil {
 		return fmt.Errorf("input.Parts is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_Validate()
 	}
 
 	return nil
 }
 
-func (input Constructor) aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_Validate() error {
+func (input Constructor) Aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_Validate() error {
 	for _, item := range input.Parts {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -420,26 +420,26 @@ func (input CompoundBeacon) Validate() error {
 	if len(input.Constructors) < 1 {
 		return fmt.Errorf("ConstructorList has a minimum length of 1 but has the length of %d.", len(input.Constructors))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_Validate()
 	}
 	if len(input.Encrypted) < 1 {
 		return fmt.Errorf("EncryptedPartsList has a minimum length of 1 but has the length of %d.", len(input.Encrypted))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_Validate()
 	}
 	if len(input.Signed) < 1 {
 		return fmt.Errorf("SignedPartsList has a minimum length of 1 but has the length of %d.", len(input.Signed))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_Validate()
 	}
 
 	return nil
 }
 
-func (input CompoundBeacon) aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_Validate() error {
+func (input CompoundBeacon) Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_Validate() error {
 	for _, item := range input.Constructors {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -448,7 +448,7 @@ func (input CompoundBeacon) aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBe
 
 	return nil
 }
-func (input CompoundBeacon) aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_Validate() error {
+func (input CompoundBeacon) Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_Validate() error {
 	for _, item := range input.Encrypted {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -457,7 +457,7 @@ func (input CompoundBeacon) aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBe
 
 	return nil
 }
-func (input CompoundBeacon) aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_Validate() error {
+func (input CompoundBeacon) Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_Validate() error {
 	for _, item := range input.Signed {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -497,14 +497,14 @@ func (input StandardBeacon) Validate() error {
 			return fmt.Errorf("TerminalLocation has a minimum length of 1 but has the length of %d.", len(*input.Loc))
 		}
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate()
 	}
 
 	return nil
 }
 
-func (input StandardBeacon) aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() error {
+func (input StandardBeacon) Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() error {
 	if input.Style == nil {
 		return nil
 	}
@@ -636,14 +636,14 @@ func (input VirtualPart) Validate() error {
 	if len(input.Trans) < 1 {
 		return fmt.Errorf("VirtualTransformList has a minimum length of 1 but has the length of %d.", len(input.Trans))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_Validate()
 	}
 
 	return nil
 }
 
-func (input VirtualPart) aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_Validate(Value VirtualTransform) error {
+func (input VirtualPart) Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_Validate(Value VirtualTransform) error {
 	if Value == nil {
 		return nil
 	}
@@ -687,10 +687,10 @@ func (input VirtualPart) aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransf
 
 	return nil
 }
-func (input VirtualPart) aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_Validate() error {
+func (input VirtualPart) Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_Validate() error {
 	for _, item := range input.Trans {
-		if input.aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_Validate(item) != nil {
-			return input.aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_Validate(item)
+		if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_Validate(item) != nil {
+			return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_Validate(item)
 		}
 	}
 
@@ -710,14 +710,14 @@ func (input VirtualField) Validate() error {
 	if input.Parts == nil {
 		return fmt.Errorf("input.Parts is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_Validate()
 	}
 
 	return nil
 }
 
-func (input VirtualField) aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_Validate() error {
+func (input VirtualField) Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_Validate() error {
 	for _, item := range input.Parts {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -749,8 +749,8 @@ func (input BeaconVersion) Validate() error {
 	if input.KeySource == nil {
 		return fmt.Errorf("input.KeySource is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_Validate()
 	}
 	if len(input.StandardBeacons) < 1 {
 		return fmt.Errorf("StandardBeaconList has a minimum length of 1 but has the length of %d.", len(input.StandardBeacons))
@@ -758,8 +758,8 @@ func (input BeaconVersion) Validate() error {
 	if input.StandardBeacons == nil {
 		return fmt.Errorf("input.StandardBeacons is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Validate()
 	}
 	if input.Version < 1 {
 		return fmt.Errorf("VersionNumber has a minimum of 1 but has the value of %d.", input.Version)
@@ -767,32 +767,32 @@ func (input BeaconVersion) Validate() error {
 	if len(input.CompoundBeacons) < 1 {
 		return fmt.Errorf("CompoundBeaconList has a minimum length of 1 but has the length of %d.", len(input.CompoundBeacons))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate()
 	}
 	if len(input.EncryptedParts) < 1 {
 		return fmt.Errorf("EncryptedPartsList has a minimum length of 1 but has the length of %d.", len(input.EncryptedParts))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate()
 	}
 	if len(input.SignedParts) < 1 {
 		return fmt.Errorf("SignedPartsList has a minimum length of 1 but has the length of %d.", len(input.SignedParts))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_Validate()
 	}
 	if len(input.VirtualFields) < 1 {
 		return fmt.Errorf("VirtualFieldList has a minimum length of 1 but has the length of %d.", len(input.VirtualFields))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_Validate()
 	}
 
 	return nil
 }
 
-func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_Validate() error {
+func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_Validate() error {
 	if input.KeySource == nil {
 		return nil
 	}
@@ -812,7 +812,7 @@ func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersi
 
 	return nil
 }
-func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Validate() error {
+func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Validate() error {
 	for _, item := range input.StandardBeacons {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -821,7 +821,7 @@ func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersi
 
 	return nil
 }
-func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() error {
+func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() error {
 	for _, item := range input.CompoundBeacons {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -830,7 +830,7 @@ func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersi
 
 	return nil
 }
-func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() error {
+func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() error {
 	for _, item := range input.EncryptedParts {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -839,7 +839,7 @@ func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersi
 
 	return nil
 }
-func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_Validate() error {
+func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_Validate() error {
 	for _, item := range input.SignedParts {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -848,7 +848,7 @@ func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersi
 
 	return nil
 }
-func (input BeaconVersion) aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_Validate() error {
+func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_Validate() error {
 	for _, item := range input.VirtualFields {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -897,14 +897,14 @@ func (input LegacyOverride) Validate() error {
 	if input.AttributeActionsOnEncrypt == nil {
 		return fmt.Errorf("input.AttributeActionsOnEncrypt is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_Validate()
 	}
 
 	return nil
 }
 
-func (input LegacyOverride) aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_Validate() error {
+func (input LegacyOverride) Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_Validate() error {
 	for key, _ := range input.AttributeActionsOnEncrypt {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -933,8 +933,8 @@ func (input SearchConfig) Validate() error {
 	if input.Versions == nil {
 		return fmt.Errorf("input.Versions is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_Validate()
 	}
 	if input.WriteVersion < 1 {
 		return fmt.Errorf("VersionNumber has a minimum of 1 but has the value of %d.", input.WriteVersion)
@@ -943,7 +943,7 @@ func (input SearchConfig) Validate() error {
 	return nil
 }
 
-func (input SearchConfig) aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_Validate() error {
+func (input SearchConfig) Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_Validate() error {
 	for _, item := range input.Versions {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -983,8 +983,8 @@ func (input DynamoDbTableEncryptionConfig) Validate() error {
 	if input.AttributeActionsOnEncrypt == nil {
 		return fmt.Errorf("input.AttributeActionsOnEncrypt is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_Validate()
 	}
 	if len(input.PartitionKeyName) < 1 {
 		return fmt.Errorf("KeySchemaAttributeName has a minimum length of 1 but has the length of %d.", len(input.PartitionKeyName))
@@ -995,8 +995,8 @@ func (input DynamoDbTableEncryptionConfig) Validate() error {
 	if len(input.AllowedUnsignedAttributes) < 1 {
 		return fmt.Errorf("AttributeNameList has a minimum length of 1 but has the length of %d.", len(input.AllowedUnsignedAttributes))
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_Validate()
 	}
 	if input.LegacyOverride != nil {
 		if input.LegacyOverride.Validate() != nil {
@@ -1022,7 +1022,7 @@ func (input DynamoDbTableEncryptionConfig) Validate() error {
 	return nil
 }
 
-func (input DynamoDbTableEncryptionConfig) aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_Validate() error {
+func (input DynamoDbTableEncryptionConfig) Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_Validate() error {
 	for key, _ := range input.AttributeActionsOnEncrypt {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -1034,7 +1034,7 @@ func (input DynamoDbTableEncryptionConfig) aws_cryptography_dbEncryptionSdk_dyna
 
 	return nil
 }
-func (input DynamoDbTableEncryptionConfig) aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_Validate() error {
+func (input DynamoDbTableEncryptionConfig) Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_Validate() error {
 	for _, item := range input.AllowedUnsignedAttributes {
 		if len(item) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(item))
@@ -1055,14 +1055,14 @@ func (input DynamoDbTablesEncryptionConfig) Validate() error {
 	if input.TableEncryptionConfigs == nil {
 		return fmt.Errorf("input.TableEncryptionConfigs is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_Validate()
 	}
 
 	return nil
 }
 
-func (input DynamoDbTablesEncryptionConfig) aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_Validate() error {
+func (input DynamoDbTablesEncryptionConfig) Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_Validate() error {
 	for key, value := range input.TableEncryptionConfigs {
 		if len(key) < 3 {
 			return fmt.Errorf("TableName has a minimum length of 3 but has the length of %d.", len(key))
@@ -1086,14 +1086,14 @@ func (input GetBranchKeyIdFromDdbKeyInput) Validate() error {
 	if input.DdbKey == nil {
 		return fmt.Errorf("input.DdbKey is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_Validate()
 	}
 
 	return nil
 }
 
-func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_Key_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetBranchKeyIdFromDdbKeyInput) Com_amazonaws_dynamodb_Key_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -1115,7 +1115,7 @@ func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_Key_value_Vali
 
 	return nil
 }
-func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetBranchKeyIdFromDdbKeyInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -1127,8 +1127,8 @@ func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_MapAttributeVa
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -1140,7 +1140,7 @@ func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_MapAttributeVa
 
 	return nil
 }
-func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input GetBranchKeyIdFromDdbKeyInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -1148,14 +1148,14 @@ func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_AttributeValue
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetBranchKeyIdFromDdbKeyInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -1168,8 +1168,8 @@ func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_ListAttributeV
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -1180,16 +1180,16 @@ func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_ListAttributeV
 
 	return nil
 }
-func (input GetBranchKeyIdFromDdbKeyInput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input GetBranchKeyIdFromDdbKeyInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input GetBranchKeyIdFromDdbKeyInput) aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_Validate() error {
+func (input GetBranchKeyIdFromDdbKeyInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_Validate() error {
 	for key, value := range input.DdbKey {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -1197,8 +1197,8 @@ func (input GetBranchKeyIdFromDdbKeyInput) aws_cryptography_dbEncryptionSdk_dyna
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_Key_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_Key_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_Key_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_Key_value_Validate(value)
 		}
 	}
 

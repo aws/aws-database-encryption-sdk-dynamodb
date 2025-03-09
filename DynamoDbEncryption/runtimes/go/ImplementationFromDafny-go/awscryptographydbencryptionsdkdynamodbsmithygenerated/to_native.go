@@ -3,7 +3,6 @@
 package awscryptographydbencryptionsdkdynamodbsmithygenerated
 
 import (
-	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb/ComAmazonawsDynamodbTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb/comamazonawsdynamodbsmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyKeyStoreTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyMaterialProvidersTypes"
@@ -35,25 +34,25 @@ func CreateDynamoDbEncryptionBranchKeyIdSupplierOutput_FromDafny(dafnyOutput Aws
 
 func GetEncryptedDataKeyDescriptionInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionInput {
 
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionInput{Input: aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_FromDafny(dafnyInput.Dtor_input())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionInput{Input: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_FromDafny(dafnyInput.Dtor_input())}
 
 }
 
 func GetEncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionOutput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionOutput {
 
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionOutput{EncryptedDataKeyDescriptionOutput: aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput.Dtor_EncryptedDataKeyDescriptionOutput())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionOutput{EncryptedDataKeyDescriptionOutput: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput.Dtor_EncryptedDataKeyDescriptionOutput())}
 
 }
 
 func GetBranchKeyIdFromDdbKeyInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBranchKeyIdFromDdbKeyInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyInput {
 
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyInput{DdbKey: aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_FromDafny(dafnyInput.Dtor_ddbKey())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyInput{DdbKey: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_FromDafny(dafnyInput.Dtor_ddbKey())}
 
 }
 
 func GetBranchKeyIdFromDdbKeyOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBranchKeyIdFromDdbKeyOutput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyOutput {
 
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyOutput{BranchKeyId: aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyOutput_branchKeyId_FromDafny(dafnyOutput.Dtor_branchKeyId())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyOutput{BranchKeyId: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyOutput_branchKeyId_FromDafny(dafnyOutput.Dtor_branchKeyId())}
 
 }
 
@@ -76,7 +75,7 @@ func LegacyDynamoDbEncryptor_FromDafny(dafnyResource AwsCryptographyDbEncryption
 }
 
 func DynamoDbEncryptionException_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbEncryptionException {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbEncryptionException{Message: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_message_FromDafny(dafnyOutput.Dtor_message())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbEncryptionException{Message: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_message_FromDafny(dafnyOutput.Dtor_message())}
 
 }
 
@@ -158,16 +157,16 @@ func AsSet_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsm
 }
 
 func MultiKeyStore_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore{KeyFieldName: aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_keyFieldName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_keyFieldName()),
-		CacheTTL: aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cacheTTL()),
-		Cache:    aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cache().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore{KeyFieldName: Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_keyFieldName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_keyFieldName()),
+		CacheTTL: Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cacheTTL()),
+		Cache:    Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cache().UnwrapOr(nil)),
 	}
 
 }
 
 func SingleKeyStore_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore{KeyId: aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_keyId()),
-		CacheTTL: aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_cacheTTL()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore{KeyId: Aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_keyId()),
+		CacheTTL: Aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_cacheTTL()),
 	}
 
 }
@@ -178,13 +177,13 @@ func BeaconKeySource_FromDafny(input interface{}) awscryptographydbencryptionsdk
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Is_single() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySourceMembersingle{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_single_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_single())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_single_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_single())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Is_multi() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySourceMembermulti{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_multi_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_multi())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_multi_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_multi())),
 		}
 	}
 
@@ -198,12 +197,12 @@ func PartOnly_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamod
 }
 
 func Shared_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared{Other: aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Shared).Dtor_other())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared{Other: Aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Shared).Dtor_other())}
 
 }
 
 func SharedSet_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet{Other: aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SharedSet).Dtor_other())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet{Other: Aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SharedSet).Dtor_other())}
 
 }
 
@@ -213,25 +212,25 @@ func BeaconStyle_FromDafny(input interface{}) awscryptographydbencryptionsdkdyna
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_partOnly() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMemberpartOnly{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_partOnly_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_partOnly())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_partOnly_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_partOnly())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_shared() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMembershared{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_shared_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_shared())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_shared_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_shared())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_asSet() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMemberasSet{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_asSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_asSet())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_asSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_asSet())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_sharedSet() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMembersharedSet{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_sharedSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_sharedSet())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_sharedSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_sharedSet())),
 		}
 	}
 
@@ -240,53 +239,53 @@ func BeaconStyle_FromDafny(input interface{}) awscryptographydbencryptionsdkdyna
 }
 
 func ConstructorPart_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_name()),
-		Required: aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_required_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_required()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_name()),
+		Required: Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_required_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_required()),
 	}
 
 }
 
 func Constructor_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor{Parts: aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Constructor).Dtor_parts())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor{Parts: Aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Constructor).Dtor_parts())}
 
 }
 
 func EncryptedPart_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_name()),
-		Prefix: aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_prefix()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_name()),
+		Prefix: Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_prefix()),
 	}
 
 }
 
 func SignedPart_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_name()),
-		Prefix: aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_prefix()),
-		Loc:    aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_loc().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_name()),
+		Prefix: Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_prefix()),
+		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_loc().UnwrapOr(nil)),
 	}
 
 }
 
 func CompoundBeacon_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_name()),
-		Split:        aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_split()),
-		Encrypted:    aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_encrypted().UnwrapOr(nil)),
-		Signed:       aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_signed().UnwrapOr(nil)),
-		Constructors: aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_constructors().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_name()),
+		Split:        Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_split()),
+		Encrypted:    Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_encrypted().UnwrapOr(nil)),
+		Signed:       Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_signed().UnwrapOr(nil)),
+		Constructors: Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_constructors().UnwrapOr(nil)),
 	}
 
 }
 
 func StandardBeacon_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
-		Length: aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
-		Loc:    aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
-		Style:  aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
+		Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
+		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
+		Style:  Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
 	}
 
 }
 
 func Insert_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert{Literal: aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Insert).Dtor_literal())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert{Literal: Aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Insert).Dtor_literal())}
 
 }
 
@@ -296,34 +295,34 @@ func Lower_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsm
 }
 
 func GetPrefix_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix{Length: aws_cryptography_dbEncryptionSdk_dynamoDb_GetPrefix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetPrefix).Dtor_length())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix{Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPrefix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetPrefix).Dtor_length())}
 
 }
 
 func GetSegment_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment{Split: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_split()),
-		Index: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_index_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_index()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment{Split: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_split()),
+		Index: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_index_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_index()),
 	}
 
 }
 
 func GetSegments_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments{Split: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_split()),
-		Low:  aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_low()),
-		High: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_high()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments{Split: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_split()),
+		Low:  Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_low()),
+		High: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_high()),
 	}
 
 }
 
 func GetSubstring_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring{Low: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_low()),
-		High: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_high()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring{Low: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_low()),
+		High: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_high()),
 	}
 
 }
 
 func GetSuffix_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix{Length: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSuffix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSuffix).Dtor_length())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix{Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSuffix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSuffix).Dtor_length())}
 
 }
 
@@ -338,49 +337,49 @@ func VirtualTransform_FromDafny(input interface{}) awscryptographydbencryptionsd
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_upper() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberupper{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_upper_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_upper())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_upper_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_upper())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_lower() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberlower{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_lower_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_lower())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_lower_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_lower())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_insert() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberinsert{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_insert_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_insert())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_insert_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_insert())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_prefix() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberprefix{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_prefix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_prefix())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_prefix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_prefix())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_suffix() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersuffix{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_suffix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_suffix())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_suffix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_suffix())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_substring() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersubstring{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_substring_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_substring())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_substring_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_substring())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_segment() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersegment{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segment_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segment())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segment_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segment())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_segments() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersegments{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segments_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segments())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segments_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segments())),
 		}
 	}
 
@@ -389,28 +388,28 @@ func VirtualTransform_FromDafny(input interface{}) awscryptographydbencryptionsd
 }
 
 func VirtualPart_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart{Loc: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_loc()),
-		Trans: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_trans().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart{Loc: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_loc()),
+		Trans: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_trans().UnwrapOr(nil)),
 	}
 
 }
 
 func VirtualField_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_name()),
-		Parts: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_parts()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_name()),
+		Parts: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_parts()),
 	}
 
 }
 
 func BeaconVersion_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion{Version: aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_version()),
-		KeyStore:        aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
-		KeySource:       aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
-		StandardBeacons: aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
-		CompoundBeacons: aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
-		VirtualFields:   aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
-		EncryptedParts:  aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
-		SignedParts:     aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion{Version: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_version()),
+		KeyStore:        Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
+		KeySource:       Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
+		StandardBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
+		CompoundBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
+		VirtualFields:   Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
+		EncryptedParts:  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
+		SignedParts:     Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
 	}
 
 }
@@ -436,10 +435,10 @@ func LegacyPolicy_FromDafny(input interface{}) awscryptographydbencryptionsdkdyn
 }
 
 func LegacyOverride_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride{Policy: aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_policy()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride{Policy: Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_policy()),
 		Encryptor:                 LegacyDynamoDbEncryptor_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_encryptor()),
-		AttributeActionsOnEncrypt: aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_attributeActionsOnEncrypt()),
-		DefaultAttributeFlag:      aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFlag_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_defaultAttributeFlag().UnwrapOr(nil)),
+		AttributeActionsOnEncrypt: Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_attributeActionsOnEncrypt()),
+		DefaultAttributeFlag:      Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFlag_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_defaultAttributeFlag().UnwrapOr(nil)),
 	}
 
 }
@@ -465,21 +464,21 @@ func PlaintextOverride_FromDafny(input interface{}) awscryptographydbencryptions
 }
 
 func SearchConfig_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig{Versions: aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_versions()),
-		WriteVersion: aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_writeVersion()),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig{Versions: Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_versions()),
+		WriteVersion: Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_writeVersion()),
 	}
 
 }
 
 func DynamoDbTableEncryptionConfig_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig{LogicalTableName: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_logicalTableName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_logicalTableName()),
-		PartitionKeyName:               aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_partitionKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_partitionKeyName()),
-		SortKeyName:                    aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sortKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_sortKeyName().UnwrapOr(nil)),
-		Search:                         aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_search_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_search().UnwrapOr(nil)),
-		AttributeActionsOnEncrypt:      aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_attributeActionsOnEncrypt()),
-		AllowedUnsignedAttributes:      aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributes().UnwrapOr(nil)),
-		AllowedUnsignedAttributePrefix: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributePrefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributePrefix().UnwrapOr(nil)),
-		AlgorithmSuiteId:               aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_algorithmSuiteId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_algorithmSuiteId().UnwrapOr(nil)),
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig{LogicalTableName: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_logicalTableName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_logicalTableName()),
+		PartitionKeyName:               Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_partitionKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_partitionKeyName()),
+		SortKeyName:                    Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sortKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_sortKeyName().UnwrapOr(nil)),
+		Search:                         Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_search_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_search().UnwrapOr(nil)),
+		AttributeActionsOnEncrypt:      Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_attributeActionsOnEncrypt()),
+		AllowedUnsignedAttributes:      Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributes().UnwrapOr(nil)),
+		AllowedUnsignedAttributePrefix: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributePrefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributePrefix().UnwrapOr(nil)),
+		AlgorithmSuiteId:               Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_algorithmSuiteId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_algorithmSuiteId().UnwrapOr(nil)),
 		Keyring: func() awscryptographymaterialproviderssmithygeneratedtypes.IKeyring {
 			if input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_keyring().UnwrapOr(nil) == nil {
 				return nil
@@ -492,37 +491,37 @@ func DynamoDbTableEncryptionConfig_FromDafny(input interface{}) awscryptographyd
 			}
 			return awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_cmm().UnwrapOr(nil).(AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager))
 		}(),
-		LegacyOverride:    aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_legacyOverride().UnwrapOr(nil)),
-		PlaintextOverride: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_plaintextOverride().UnwrapOr(nil)),
+		LegacyOverride:    Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_legacyOverride().UnwrapOr(nil)),
+		PlaintextOverride: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_plaintextOverride().UnwrapOr(nil)),
 	}
 
 }
 
 func DynamoDbTablesEncryptionConfig_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTablesEncryptionConfig {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTablesEncryptionConfig{TableEncryptionConfigs: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig).Dtor_tableEncryptionConfigs())}
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTablesEncryptionConfig{TableEncryptionConfigs: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig).Dtor_tableEncryptionConfigs())}
 
 }
 
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionUnion {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInput_input_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionUnion {
 	var union awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionUnion
 
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionUnion)).Is_header() {
 		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionUnion)).Dtor_header())
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionUnionMemberheader{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_header_FromDafny(dataSource.UnwrapOr(nil))),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_header_FromDafny(dataSource.UnwrapOr(nil))),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionUnion)).Is_item() {
 		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionUnion)).Dtor_item())
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionUnionMemberitem{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_FromDafny(dataSource.UnwrapOr(nil))),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_FromDafny(dataSource.UnwrapOr(nil))),
 		}
 	}
 
 	return union
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_header_FromDafny(input interface{}) []byte {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_header_FromDafny(input interface{}) []byte {
 	return func() []byte {
 		var b []byte
 		if input == nil {
@@ -538,7 +537,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUni
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
 	var m map[string]dynamodbtypes.AttributeValue = make(map[string]dynamodbtypes.AttributeValue)
 	if input == nil {
 		return nil
@@ -548,406 +547,30 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUni
 		if !ok {
 			break
 		}
-		m[com_amazonaws_dynamodb_AttributeMap_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = com_amazonaws_dynamodb_AttributeMap_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+		m[comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeMap_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeMap_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
 	}
 	return m
 
 }
-func com_amazonaws_dynamodb_AttributeMap_key_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeMap_value_FromDafny(input interface{}) dynamodbtypes.AttributeValue {
-	var union dynamodbtypes.AttributeValue
-
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_S() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_S())
-		union = &dynamodbtypes.AttributeValueMemberS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_S_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_N() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_N())
-		union = &dynamodbtypes.AttributeValueMemberN{
-			Value: (com_amazonaws_dynamodb_AttributeValue_N_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_B() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_B())
-		union = &dynamodbtypes.AttributeValueMemberB{
-			Value: (com_amazonaws_dynamodb_AttributeValue_B_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_SS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_SS())
-		union = &dynamodbtypes.AttributeValueMemberSS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_SS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NS())
-		union = &dynamodbtypes.AttributeValueMemberNS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BS())
-		union = &dynamodbtypes.AttributeValueMemberBS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_M() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_M())
-		union = &dynamodbtypes.AttributeValueMemberM{
-			Value: (com_amazonaws_dynamodb_AttributeValue_M_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_L() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_L())
-		union = &dynamodbtypes.AttributeValueMemberL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_L_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NULL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NULL())
-		union = &dynamodbtypes.AttributeValueMemberNULL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NULL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BOOL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BOOL())
-		union = &dynamodbtypes.AttributeValueMemberBOOL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BOOL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-
-	return union
-
-}
-func com_amazonaws_dynamodb_AttributeValue_S_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeValue_N_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeValue_B_FromDafny(input interface{}) []byte {
-	return func() []byte {
-		var b []byte
-		if input == nil {
-			return nil
-		}
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return b
-			} else {
-				b = append(b, val.(byte))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeValue_SS_FromDafny(input interface{}) []string {
-	fieldValue := make([]string, 0)
-	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
-		val, ok := i()
-		if !ok {
-			break
-		}
-		fieldValue = append(fieldValue, com_amazonaws_dynamodb_StringSetAttributeValue_member_FromDafny(val))
-	}
-	return fieldValue
-}
-func com_amazonaws_dynamodb_StringSetAttributeValue_member_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeValue_NS_FromDafny(input interface{}) []string {
-	fieldValue := make([]string, 0)
-	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
-		val, ok := i()
-		if !ok {
-			break
-		}
-		fieldValue = append(fieldValue, com_amazonaws_dynamodb_NumberSetAttributeValue_member_FromDafny(val))
-	}
-	return fieldValue
-}
-func com_amazonaws_dynamodb_NumberSetAttributeValue_member_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeValue_BS_FromDafny(input interface{}) [][]byte {
-	fieldValue := make([][]byte, 0)
-	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
-		val, ok := i()
-		if !ok {
-			break
-		}
-		fieldValue = append(fieldValue, com_amazonaws_dynamodb_BinarySetAttributeValue_member_FromDafny(val))
-	}
-	return fieldValue
-}
-func com_amazonaws_dynamodb_BinarySetAttributeValue_member_FromDafny(input interface{}) []byte {
-	return func() []byte {
-		var b []byte
-		if input == nil {
-			return nil
-		}
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return b
-			} else {
-				b = append(b, val.(byte))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_AttributeValue_M_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
-	var m map[string]dynamodbtypes.AttributeValue = make(map[string]dynamodbtypes.AttributeValue)
-	if input == nil {
-		return nil
-	}
-	for i := dafny.Iterate(input.(dafny.Map).Items()); ; {
-		val, ok := i()
-		if !ok {
-			break
-		}
-		m[com_amazonaws_dynamodb_MapAttributeValue_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = com_amazonaws_dynamodb_MapAttributeValue_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
-	}
-	return m
-
-}
-func com_amazonaws_dynamodb_MapAttributeValue_key_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func com_amazonaws_dynamodb_MapAttributeValue_value_FromDafny(input interface{}) dynamodbtypes.AttributeValue {
-	var union dynamodbtypes.AttributeValue
-
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_S() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_S())
-		union = &dynamodbtypes.AttributeValueMemberS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_S_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_N() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_N())
-		union = &dynamodbtypes.AttributeValueMemberN{
-			Value: (com_amazonaws_dynamodb_AttributeValue_N_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_B() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_B())
-		union = &dynamodbtypes.AttributeValueMemberB{
-			Value: (com_amazonaws_dynamodb_AttributeValue_B_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_SS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_SS())
-		union = &dynamodbtypes.AttributeValueMemberSS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_SS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NS())
-		union = &dynamodbtypes.AttributeValueMemberNS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BS())
-		union = &dynamodbtypes.AttributeValueMemberBS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_M() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_M())
-		union = &dynamodbtypes.AttributeValueMemberM{
-			Value: (com_amazonaws_dynamodb_AttributeValue_M_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_L() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_L())
-		union = &dynamodbtypes.AttributeValueMemberL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_L_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NULL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NULL())
-		union = &dynamodbtypes.AttributeValueMemberNULL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NULL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BOOL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BOOL())
-		union = &dynamodbtypes.AttributeValueMemberBOOL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BOOL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-
-	return union
-
-}
-func com_amazonaws_dynamodb_AttributeValue_L_FromDafny(input interface{}) []dynamodbtypes.AttributeValue {
-	fieldValue := make([]dynamodbtypes.AttributeValue, 0)
-	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
-		val, ok := i()
-		if !ok {
-			break
-		}
-		fieldValue = append(fieldValue, com_amazonaws_dynamodb_ListAttributeValue_member_FromDafny(val))
-	}
-	return fieldValue
-}
-func com_amazonaws_dynamodb_ListAttributeValue_member_FromDafny(input interface{}) dynamodbtypes.AttributeValue {
-	var union dynamodbtypes.AttributeValue
-
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_S() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_S())
-		union = &dynamodbtypes.AttributeValueMemberS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_S_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_N() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_N())
-		union = &dynamodbtypes.AttributeValueMemberN{
-			Value: (com_amazonaws_dynamodb_AttributeValue_N_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_B() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_B())
-		union = &dynamodbtypes.AttributeValueMemberB{
-			Value: (com_amazonaws_dynamodb_AttributeValue_B_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_SS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_SS())
-		union = &dynamodbtypes.AttributeValueMemberSS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_SS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NS())
-		union = &dynamodbtypes.AttributeValueMemberNS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BS())
-		union = &dynamodbtypes.AttributeValueMemberBS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_M() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_M())
-		union = &dynamodbtypes.AttributeValueMemberM{
-			Value: (com_amazonaws_dynamodb_AttributeValue_M_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_L() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_L())
-		union = &dynamodbtypes.AttributeValueMemberL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_L_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NULL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NULL())
-		union = &dynamodbtypes.AttributeValueMemberNULL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NULL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BOOL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BOOL())
-		union = &dynamodbtypes.AttributeValueMemberBOOL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BOOL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-
-	return union
-
-}
-func com_amazonaws_dynamodb_AttributeValue_NULL_FromDafny(input interface{}) bool {
-	return input.(bool)
-}
-func com_amazonaws_dynamodb_AttributeValue_BOOL_FromDafny(input interface{}) bool {
-	return input.(bool)
-}
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription {
 	fieldValue := make([]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription, 0)
 	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
 		val, ok := i()
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescriptionList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescriptionList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescriptionList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription{KeyProviderId: aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_keyProviderId()),
-		KeyProviderInfo:  aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderInfo_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_keyProviderInfo().UnwrapOr(nil)),
-		BranchKeyId:      aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_branchKeyId().UnwrapOr(nil)),
-		BranchKeyVersion: aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyVersion_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_branchKeyVersion().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescriptionList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedDataKeyDescription{KeyProviderId: Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_keyProviderId()),
+		KeyProviderInfo:  Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderInfo_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_keyProviderInfo().UnwrapOr(nil)),
+		BranchKeyId:      Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_branchKeyId().UnwrapOr(nil)),
+		BranchKeyVersion: Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyVersion_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedDataKeyDescription).Dtor_branchKeyVersion().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderId_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderId_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -960,7 +583,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyPr
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderInfo_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyProviderInfo_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -976,7 +599,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_keyPr
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyId_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyId_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -992,7 +615,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branc
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyVersion_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branchKeyVersion_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -1008,7 +631,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branc
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
 	var m map[string]dynamodbtypes.AttributeValue = make(map[string]dynamodbtypes.AttributeValue)
 	if input == nil {
 		return nil
@@ -1018,12 +641,12 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddb
 		if !ok {
 			break
 		}
-		m[com_amazonaws_dynamodb_Key_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = com_amazonaws_dynamodb_Key_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+		m[comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_Key_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_Key_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
 	}
 	return m
 
 }
-func com_amazonaws_dynamodb_Key_key_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyOutput_branchKeyId_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1036,74 +659,7 @@ func com_amazonaws_dynamodb_Key_key_FromDafny(input interface{}) string {
 		}
 	}()
 }
-func com_amazonaws_dynamodb_Key_value_FromDafny(input interface{}) dynamodbtypes.AttributeValue {
-	var union dynamodbtypes.AttributeValue
-
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_S() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_S())
-		union = &dynamodbtypes.AttributeValueMemberS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_S_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_N() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_N())
-		union = &dynamodbtypes.AttributeValueMemberN{
-			Value: (com_amazonaws_dynamodb_AttributeValue_N_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_B() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_B())
-		union = &dynamodbtypes.AttributeValueMemberB{
-			Value: (com_amazonaws_dynamodb_AttributeValue_B_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_SS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_SS())
-		union = &dynamodbtypes.AttributeValueMemberSS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_SS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NS())
-		union = &dynamodbtypes.AttributeValueMemberNS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BS() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BS())
-		union = &dynamodbtypes.AttributeValueMemberBS{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BS_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_M() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_M())
-		union = &dynamodbtypes.AttributeValueMemberM{
-			Value: (com_amazonaws_dynamodb_AttributeValue_M_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_L() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_L())
-		union = &dynamodbtypes.AttributeValueMemberL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_L_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_NULL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_NULL())
-		union = &dynamodbtypes.AttributeValueMemberNULL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_NULL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-	if (input.(ComAmazonawsDynamodbTypes.AttributeValue)).Is_BOOL() {
-		var dataSource = Wrappers.Companion_Option_.Create_Some_((input.(ComAmazonawsDynamodbTypes.AttributeValue)).Dtor_BOOL())
-		union = &dynamodbtypes.AttributeValueMemberBOOL{
-			Value: (com_amazonaws_dynamodb_AttributeValue_BOOL_FromDafny(dataSource.UnwrapOr(nil))),
-		}
-	}
-
-	return union
-
-}
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyOutput_branchKeyId_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_message_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1116,7 +672,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyOutput_br
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_message_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_keyFieldName_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1129,26 +685,13 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_messa
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_keyFieldName_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cacheTTL_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cacheTTL_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.CacheType {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.CacheType {
 	var union awscryptographymaterialproviderssmithygeneratedtypes.CacheType
 	if input == nil {
 		return nil
@@ -1157,31 +700,31 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(inp
 	if (input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Is_Default() {
 
 		union = &awscryptographymaterialproviderssmithygeneratedtypes.CacheTypeMemberDefault{
-			Value: (aws_cryptography_materialProviders_CacheType_Default_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_Default())),
+			Value: (awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_CacheType_Default_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_Default())),
 		}
 	}
 	if (input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Is_No() {
 
 		union = &awscryptographymaterialproviderssmithygeneratedtypes.CacheTypeMemberNo{
-			Value: (aws_cryptography_materialProviders_CacheType_No_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_No())),
+			Value: (awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_CacheType_No_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_No())),
 		}
 	}
 	if (input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Is_SingleThreaded() {
 
 		union = &awscryptographymaterialproviderssmithygeneratedtypes.CacheTypeMemberSingleThreaded{
-			Value: (aws_cryptography_materialProviders_CacheType_SingleThreaded_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_SingleThreaded())),
+			Value: (awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_CacheType_SingleThreaded_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_SingleThreaded())),
 		}
 	}
 	if (input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Is_MultiThreaded() {
 
 		union = &awscryptographymaterialproviderssmithygeneratedtypes.CacheTypeMemberMultiThreaded{
-			Value: (aws_cryptography_materialProviders_CacheType_MultiThreaded_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_MultiThreaded())),
+			Value: (awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_CacheType_MultiThreaded_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_MultiThreaded())),
 		}
 	}
 	if (input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Is_StormTracking() {
 
 		union = &awscryptographymaterialproviderssmithygeneratedtypes.CacheTypeMemberStormTracking{
-			Value: (aws_cryptography_materialProviders_CacheType_StormTracking_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_StormTracking())),
+			Value: (awscryptographymaterialproviderssmithygenerated.Aws_cryptography_materialProviders_CacheType_StormTracking_FromDafny((input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Dtor_StormTracking())),
 		}
 	}
 	if (input.(AwsCryptographyMaterialProvidersTypes.CacheType)).Is_Shared() {
@@ -1194,139 +737,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(inp
 	return union
 
 }
-func aws_cryptography_materialProviders_CacheType_Default_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.DefaultCache {
-	return awscryptographymaterialproviderssmithygeneratedtypes.DefaultCache{EntryCapacity: aws_cryptography_materialProviders_DefaultCache_entryCapacity_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.DefaultCache).Dtor_entryCapacity())}
-}
-func aws_cryptography_materialProviders_DefaultCache_entryCapacity_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_CacheType_No_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.NoCache {
-	return awscryptographymaterialproviderssmithygeneratedtypes.NoCache{}
-}
-func aws_cryptography_materialProviders_CacheType_SingleThreaded_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.SingleThreadedCache {
-	return awscryptographymaterialproviderssmithygeneratedtypes.SingleThreadedCache{EntryCapacity: aws_cryptography_materialProviders_SingleThreadedCache_entryCapacity_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.SingleThreadedCache).Dtor_entryCapacity()),
-		EntryPruningTailSize: aws_cryptography_materialProviders_SingleThreadedCache_entryPruningTailSize_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.SingleThreadedCache).Dtor_entryPruningTailSize().UnwrapOr(nil)),
-	}
-}
-func aws_cryptography_materialProviders_SingleThreadedCache_entryCapacity_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_SingleThreadedCache_entryPruningTailSize_FromDafny(input interface{}) *int32 {
-	return func() *int32 {
-		var b int32
-		if input == nil {
-			return nil
-		}
-		b = input.(int32)
-		return &b
-	}()
-}
-func aws_cryptography_materialProviders_CacheType_MultiThreaded_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.MultiThreadedCache {
-	return awscryptographymaterialproviderssmithygeneratedtypes.MultiThreadedCache{EntryCapacity: aws_cryptography_materialProviders_MultiThreadedCache_entryCapacity_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.MultiThreadedCache).Dtor_entryCapacity()),
-		EntryPruningTailSize: aws_cryptography_materialProviders_MultiThreadedCache_entryPruningTailSize_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.MultiThreadedCache).Dtor_entryPruningTailSize().UnwrapOr(nil)),
-	}
-}
-func aws_cryptography_materialProviders_MultiThreadedCache_entryCapacity_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_MultiThreadedCache_entryPruningTailSize_FromDafny(input interface{}) *int32 {
-	return func() *int32 {
-		var b int32
-		if input == nil {
-			return nil
-		}
-		b = input.(int32)
-		return &b
-	}()
-}
-func aws_cryptography_materialProviders_CacheType_StormTracking_FromDafny(input interface{}) awscryptographymaterialproviderssmithygeneratedtypes.StormTrackingCache {
-	return awscryptographymaterialproviderssmithygeneratedtypes.StormTrackingCache{EntryCapacity: aws_cryptography_materialProviders_StormTrackingCache_entryCapacity_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_entryCapacity()),
-		EntryPruningTailSize: aws_cryptography_materialProviders_StormTrackingCache_entryPruningTailSize_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_entryPruningTailSize().UnwrapOr(nil)),
-		GracePeriod:          aws_cryptography_materialProviders_StormTrackingCache_gracePeriod_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_gracePeriod()),
-		GraceInterval:        aws_cryptography_materialProviders_StormTrackingCache_graceInterval_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_graceInterval()),
-		FanOut:               aws_cryptography_materialProviders_StormTrackingCache_fanOut_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_fanOut()),
-		InFlightTTL:          aws_cryptography_materialProviders_StormTrackingCache_inFlightTTL_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_inFlightTTL()),
-		SleepMilli:           aws_cryptography_materialProviders_StormTrackingCache_sleepMilli_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_sleepMilli()),
-		TimeUnits:            aws_cryptography_materialProviders_StormTrackingCache_timeUnits_FromDafny(input.(AwsCryptographyMaterialProvidersTypes.StormTrackingCache).Dtor_timeUnits().UnwrapOr(nil)),
-	}
-}
-func aws_cryptography_materialProviders_StormTrackingCache_entryCapacity_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_entryPruningTailSize_FromDafny(input interface{}) *int32 {
-	return func() *int32 {
-		var b int32
-		if input == nil {
-			return nil
-		}
-		b = input.(int32)
-		return &b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_gracePeriod_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_graceInterval_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_fanOut_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_inFlightTTL_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_sleepMilli_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
-	}()
-}
-func aws_cryptography_materialProviders_StormTrackingCache_timeUnits_FromDafny(input interface{}) *awscryptographymaterialproviderssmithygeneratedtypes.TimeUnits {
-	return func() *awscryptographymaterialproviderssmithygeneratedtypes.TimeUnits {
-		var u awscryptographymaterialproviderssmithygeneratedtypes.TimeUnits
-		if input == nil {
-			return nil
-		}
-		inputEnum := input.(AwsCryptographyMaterialProvidersTypes.TimeUnits)
-		index := -1
-		for allEnums := dafny.Iterate(AwsCryptographyMaterialProvidersTypes.CompanionStruct_TimeUnits_{}.AllSingletonConstructors()); ; {
-			enum, ok := allEnums()
-			if ok {
-				index++
-				if enum.(AwsCryptographyMaterialProvidersTypes.TimeUnits).Equals(inputEnum) {
-					break
-				}
-			}
-		}
-
-		return &u.Values()[index]
-	}()
-}
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1339,24 +750,24 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_cacheTTL_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_cacheTTL_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_single_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore{KeyId: aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_keyId()),
-		CacheTTL: aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_cacheTTL()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_single_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SingleKeyStore{KeyId: Aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_keyId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_keyId()),
+		CacheTTL: Aws_cryptography_dbEncryptionSdk_dynamoDb_SingleKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SingleKeyStore).Dtor_cacheTTL()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_multi_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore{KeyFieldName: aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_keyFieldName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_keyFieldName()),
-		CacheTTL: aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cacheTTL()),
-		Cache:    aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cache().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_multi_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.MultiKeyStore{KeyFieldName: Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_keyFieldName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_keyFieldName()),
+		CacheTTL: Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cacheTTL_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cacheTTL()),
+		Cache:    Aws_cryptography_dbEncryptionSdk_dynamoDb_MultiKeyStore_cache_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.MultiKeyStore).Dtor_cache().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1369,7 +780,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input inte
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1382,19 +793,19 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input i
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_partOnly_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PartOnly {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_partOnly_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PartOnly {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PartOnly{}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_shared_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared{Other: aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Shared).Dtor_other())}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_shared_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Shared{Other: Aws_cryptography_dbEncryptionSdk_dynamoDb_Shared_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Shared).Dtor_other())}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_asSet_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.AsSet {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_asSet_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.AsSet {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.AsSet{}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_sharedSet_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet{Other: aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SharedSet).Dtor_other())}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_sharedSet_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SharedSet{Other: Aws_cryptography_dbEncryptionSdk_dynamoDb_SharedSet_other_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SharedSet).Dtor_other())}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1407,26 +818,26 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_required_FromDafny(input interface{}) bool {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_required_FromDafny(input interface{}) bool {
 	return input.(bool)
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart {
 	fieldValue := make([]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart, 0)
 	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
 		val, ok := i()
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPartList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPartList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPartList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_name()),
-		Required: aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_required_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_required()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPartList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.ConstructorPart{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_name()),
+		Required: Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorPart_required_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.ConstructorPart).Dtor_required()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1439,7 +850,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(inpu
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1452,7 +863,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1465,7 +876,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input i
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1478,7 +889,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -1494,7 +905,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1507,7 +918,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(inp
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1520,7 +931,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
 	if input == nil {
 		return nil
 	}
@@ -1530,16 +941,16 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafn
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPartsList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPartsList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPartsList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_name()),
-		Prefix: aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_prefix()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPartsList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_name()),
+		Prefix: Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.EncryptedPart).Dtor_prefix()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
 	if input == nil {
 		return nil
 	}
@@ -1549,17 +960,17 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(i
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_name()),
-		Prefix: aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_prefix()),
-		Loc:    aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_loc().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_name()),
+		Prefix: Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_prefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_prefix()),
+		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SignedPart).Dtor_loc().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor {
 	if input == nil {
 		return nil
 	}
@@ -1569,14 +980,14 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromD
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor{Parts: aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Constructor).Dtor_parts())}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_ConstructorList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Constructor{Parts: Aws_cryptography_dbEncryptionSdk_dynamoDb_Constructor_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Constructor).Dtor_parts())}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1589,13 +1000,13 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(inp
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -1611,7 +1022,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(inpu
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyle {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyle {
 	var union awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyle
 	if input == nil {
 		return nil
@@ -1620,32 +1031,32 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(in
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_partOnly() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMemberpartOnly{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_partOnly_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_partOnly())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_partOnly_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_partOnly())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_shared() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMembershared{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_shared_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_shared())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_shared_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_shared())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_asSet() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMemberasSet{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_asSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_asSet())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_asSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_asSet())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Is_sharedSet() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconStyleMembersharedSet{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_sharedSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_sharedSet())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconStyle_sharedSet_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconStyle)).Dtor_sharedSet())),
 		}
 	}
 
 	return union
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1658,13 +1069,13 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetPrefix_length_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPrefix_length_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1677,13 +1088,13 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input 
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_index_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_index_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1696,68 +1107,68 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_low_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_low_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_high_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_high_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_low_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_low_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_high_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_high_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_GetSuffix_length_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSuffix_length_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_upper_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Upper {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_upper_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Upper {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Upper{}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_lower_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Lower {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_lower_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Lower {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Lower{}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_insert_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert{Literal: aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Insert).Dtor_literal())}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_insert_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.Insert{Literal: Aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Insert).Dtor_literal())}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_prefix_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix{Length: aws_cryptography_dbEncryptionSdk_dynamoDb_GetPrefix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetPrefix).Dtor_length())}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_prefix_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPrefix{Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPrefix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetPrefix).Dtor_length())}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_suffix_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix{Length: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSuffix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSuffix).Dtor_length())}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_suffix_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSuffix{Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSuffix_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSuffix).Dtor_length())}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_substring_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring{Low: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_low()),
-		High: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_high()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_substring_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSubstring{Low: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_low()),
+		High: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSubstring_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSubstring).Dtor_high()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segment_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment{Split: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_split()),
-		Index: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_index_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_index()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segment_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegment{Split: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_split()),
+		Index: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegment_index_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegment).Dtor_index()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segments_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments{Split: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_split()),
-		Low:  aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_low()),
-		High: aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_high()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segments_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetSegments{Split: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_split()),
+		Low:  Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_low_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_low()),
+		High: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetSegments_high_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetSegments).Dtor_high()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1770,7 +1181,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input i
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransform {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransform {
 	if input == nil {
 		return nil
 	}
@@ -1780,66 +1191,66 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransform {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransformList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransform {
 	var union awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransform
 
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_upper() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberupper{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_upper_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_upper())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_upper_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_upper())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_lower() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberlower{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_lower_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_lower())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_lower_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_lower())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_insert() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberinsert{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_insert_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_insert())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_insert_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_insert())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_prefix() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMemberprefix{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_prefix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_prefix())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_prefix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_prefix())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_suffix() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersuffix{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_suffix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_suffix())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_suffix_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_suffix())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_substring() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersubstring{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_substring_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_substring())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_substring_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_substring())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_segment() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersegment{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segment_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segment())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segment_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segment())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Is_segments() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualTransformMembersegments{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segments_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segments())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualTransform_segments_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualTransform)).Dtor_segments())),
 		}
 	}
 
 	return union
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -1852,29 +1263,29 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart {
 	fieldValue := make([]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart, 0)
 	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
 		val, ok := i()
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPartList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPartList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPartList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart{Loc: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_loc()),
-		Trans: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_trans().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPartList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualPart{Loc: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_loc()),
+		Trans: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualPart_trans_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualPart).Dtor_trans().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input interface{}) *awscryptographykeystoresmithygenerated.Client {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input interface{}) *awscryptographykeystoresmithygenerated.Client {
 	value, ok := input.(AwsCryptographyKeyStoreTypes.IKeyStoreClient)
 	if !ok {
 		panic("invalid type found.")
@@ -1882,44 +1293,44 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(
 	return &awscryptographykeystoresmithygenerated.Client{value}
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySource {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySource {
 	var union awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySource
 
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Is_single() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySourceMembersingle{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_single_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_single())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_single_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_single())),
 		}
 	}
 	if (input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Is_multi() {
 
 		union = &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconKeySourceMembermulti{
-			Value: (aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_multi_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_multi())),
+			Value: (Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconKeySource_multi_FromDafny((input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconKeySource)).Dtor_multi())),
 		}
 	}
 
 	return union
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
 	fieldValue := make([]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon, 0)
 	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
 		val, ok := i()
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeaconList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeaconList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeaconList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
-		Length: aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
-		Loc:    aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
-		Style:  aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeaconList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
+		Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
+		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
+		Style:  Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
 	if input == nil {
 		return nil
 	}
@@ -1929,19 +1340,19 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Fro
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeaconList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeaconList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeaconList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_name()),
-		Split:        aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_split()),
-		Encrypted:    aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_encrypted().UnwrapOr(nil)),
-		Signed:       aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_signed().UnwrapOr(nil)),
-		Constructors: aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_constructors().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeaconList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_name()),
+		Split:        Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_split_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_split()),
+		Encrypted:    Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_encrypted_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_encrypted().UnwrapOr(nil)),
+		Signed:       Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_signed_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_signed().UnwrapOr(nil)),
+		Constructors: Aws_cryptography_dbEncryptionSdk_dynamoDb_CompoundBeacon_constructors_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.CompoundBeacon).Dtor_constructors().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField {
 	if input == nil {
 		return nil
 	}
@@ -1951,16 +1362,16 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromD
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualFieldList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualFieldList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualFieldList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField{Name: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_name()),
-		Parts: aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_parts()),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualFieldList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.VirtualField{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_name()),
+		Parts: Aws_cryptography_dbEncryptionSdk_dynamoDb_VirtualField_parts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.VirtualField).Dtor_parts()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.EncryptedPart {
 	if input == nil {
 		return nil
 	}
@@ -1970,11 +1381,11 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_From
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPartsList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedPartsList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SignedPart {
 	if input == nil {
 		return nil
 	}
@@ -1984,11 +1395,11 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDaf
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
 	return func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
 		var u awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy
 		inputEnum := input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyPolicy)
@@ -2006,7 +1417,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(i
 		return u.Values()[index]
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_FromDafny(input interface{}) map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_FromDafny(input interface{}) map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
 	var m map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction = make(map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction)
 	if input == nil {
 		return nil
@@ -2016,12 +1427,12 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOn
 		if !ok {
 			break
 		}
-		m[aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+		m[Aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = Aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
 	}
 	return m
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -2034,7 +1445,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny(in
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny(input interface{}) awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny(input interface{}) awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
 	return func() awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
 		var u awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction
 		inputEnum := input.(AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.CryptoAction)
@@ -2052,7 +1463,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny(
 		return u.Values()[index]
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFlag_FromDafny(input interface{}) *awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFlag_FromDafny(input interface{}) *awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
 	return func() *awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
 		var u awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction
 		if input == nil {
@@ -2073,35 +1484,35 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFl
 		return &u.Values()[index]
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
 	fieldValue := make([]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion, 0)
 	for i := dafny.Iterate(input.(dafny.Sequence)); ; {
 		val, ok := i()
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_FromDafny(val))
+		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion{Version: aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_version()),
-		KeyStore:        aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
-		KeySource:       aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
-		StandardBeacons: aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
-		CompoundBeacons: aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
-		VirtualFields:   aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
-		EncryptedParts:  aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
-		SignedParts:     aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion{Version: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_version()),
+		KeyStore:        Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
+		KeySource:       Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
+		StandardBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
+		CompoundBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
+		VirtualFields:   Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
+		EncryptedParts:  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
+		SignedParts:     Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input interface{}) int32 {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input interface{}) int32 {
 	return func() int32 {
 		var b = input.(int32)
 		return b
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_logicalTableName_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_logicalTableName_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -2114,7 +1525,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_log
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_partitionKeyName_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_partitionKeyName_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -2127,7 +1538,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_par
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sortKeyName_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sortKeyName_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -2143,15 +1554,15 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sor
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_search_FromDafny(input interface{}) *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_search_FromDafny(input interface{}) *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig {
 	if input == nil {
 		return nil
 	}
-	return &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig{Versions: aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_versions()),
-		WriteVersion: aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_writeVersion()),
+	return &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.SearchConfig{Versions: Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_versions()),
+		WriteVersion: Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.SearchConfig).Dtor_writeVersion()),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_FromDafny(input interface{}) map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_FromDafny(input interface{}) map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction {
 	var m map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction = make(map[string]awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoAction)
 	if input == nil {
 		return nil
@@ -2161,12 +1572,12 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_att
 		if !ok {
 			break
 		}
-		m[aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+		m[Aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = Aws_cryptography_dbEncryptionSdk_dynamoDb_AttributeActions_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
 	}
 	return m
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_FromDafny(input interface{}) []string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_FromDafny(input interface{}) []string {
 	if input == nil {
 		return nil
 	}
@@ -2176,24 +1587,11 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_all
 		if !ok {
 			break
 		}
-		fieldValue = append(fieldValue, com_amazonaws_dynamodb_AttributeNameList_member_FromDafny(val))
+		fieldValue = append(fieldValue, comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeNameList_member_FromDafny(val))
 	}
 	return fieldValue
 }
-func com_amazonaws_dynamodb_AttributeNameList_member_FromDafny(input interface{}) string {
-	return func() string {
-		var s string
-		for i := dafny.Iterate(input); ; {
-			val, ok := i()
-			if !ok {
-				return s
-			} else {
-				s = s + string(val.(dafny.Char))
-			}
-		}
-	}()
-}
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributePrefix_FromDafny(input interface{}) *string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributePrefix_FromDafny(input interface{}) *string {
 	return func() *string {
 		var s string
 		if input == nil {
@@ -2209,7 +1607,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_all
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_algorithmSuiteId_FromDafny(input interface{}) *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_algorithmSuiteId_FromDafny(input interface{}) *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId {
 	return func() *awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId {
 		var u awscryptographymaterialproviderssmithygeneratedtypes.DBEAlgorithmSuiteId
 		if input == nil {
@@ -2230,17 +1628,17 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_alg
 		return &u.Values()[index]
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input interface{}) *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input interface{}) *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride {
 	if input == nil {
 		return nil
 	}
-	return &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride{Policy: aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_policy()),
+	return &awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyOverride{Policy: Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_policy()),
 		Encryptor:                 LegacyDynamoDbEncryptor_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_encryptor()),
-		AttributeActionsOnEncrypt: aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_attributeActionsOnEncrypt()),
-		DefaultAttributeFlag:      aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFlag_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_defaultAttributeFlag().UnwrapOr(nil)),
+		AttributeActionsOnEncrypt: Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_attributeActionsOnEncrypt()),
+		DefaultAttributeFlag:      Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_defaultAttributeFlag_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.LegacyOverride).Dtor_defaultAttributeFlag().UnwrapOr(nil)),
 	}
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input interface{}) *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PlaintextOverride {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input interface{}) *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PlaintextOverride {
 	return func() *awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PlaintextOverride {
 		var u awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.PlaintextOverride
 		if input == nil {
@@ -2261,7 +1659,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_pla
 		return &u.Values()[index]
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_FromDafny(input interface{}) map[string]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_tableEncryptionConfigs_FromDafny(input interface{}) map[string]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig {
 	var m map[string]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig = make(map[string]awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig)
 	if input == nil {
 		return nil
@@ -2271,12 +1669,12 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTablesEncryptionConfig_ta
 		if !ok {
 			break
 		}
-		m[aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+		m[Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
 	}
 	return m
 
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_key_FromDafny(input interface{}) string {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_key_FromDafny(input interface{}) string {
 	return func() string {
 		var s string
 		for i := dafny.Iterate(input); ; {
@@ -2289,15 +1687,15 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList
 		}
 	}()
 }
-func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_value_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig {
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig{LogicalTableName: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_logicalTableName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_logicalTableName()),
-		PartitionKeyName:               aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_partitionKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_partitionKeyName()),
-		SortKeyName:                    aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sortKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_sortKeyName().UnwrapOr(nil)),
-		Search:                         aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_search_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_search().UnwrapOr(nil)),
-		AttributeActionsOnEncrypt:      aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_attributeActionsOnEncrypt()),
-		AllowedUnsignedAttributes:      aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributes().UnwrapOr(nil)),
-		AllowedUnsignedAttributePrefix: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributePrefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributePrefix().UnwrapOr(nil)),
-		AlgorithmSuiteId:               aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_algorithmSuiteId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_algorithmSuiteId().UnwrapOr(nil)),
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList_value_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig {
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbTableEncryptionConfig{LogicalTableName: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_logicalTableName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_logicalTableName()),
+		PartitionKeyName:               Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_partitionKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_partitionKeyName()),
+		SortKeyName:                    Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_sortKeyName_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_sortKeyName().UnwrapOr(nil)),
+		Search:                         Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_search_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_search().UnwrapOr(nil)),
+		AttributeActionsOnEncrypt:      Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_attributeActionsOnEncrypt_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_attributeActionsOnEncrypt()),
+		AllowedUnsignedAttributes:      Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributes_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributes().UnwrapOr(nil)),
+		AllowedUnsignedAttributePrefix: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_allowedUnsignedAttributePrefix_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_allowedUnsignedAttributePrefix().UnwrapOr(nil)),
+		AlgorithmSuiteId:               Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_algorithmSuiteId_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_algorithmSuiteId().UnwrapOr(nil)),
 		Keyring: func() awscryptographymaterialproviderssmithygeneratedtypes.IKeyring {
 			if input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_keyring().UnwrapOr(nil) == nil {
 				return nil
@@ -2310,7 +1708,7 @@ func aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList
 			}
 			return awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_cmm().UnwrapOr(nil).(AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager))
 		}(),
-		LegacyOverride:    aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_legacyOverride().UnwrapOr(nil)),
-		PlaintextOverride: aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_plaintextOverride().UnwrapOr(nil)),
+		LegacyOverride:    Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_legacyOverride().UnwrapOr(nil)),
+		PlaintextOverride: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_plaintextOverride().UnwrapOr(nil)),
 	}
 }

@@ -50,14 +50,14 @@ func (input AuthItem) Validate() error {
 	if input.Key == nil {
 		return fmt.Errorf("input.Key is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_Validate()
 	}
 
 	return nil
 }
 
-func (input AuthItem) aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(Value PathSegment) error {
+func (input AuthItem) Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(Value PathSegment) error {
 	if Value == nil {
 		return nil
 	}
@@ -73,10 +73,10 @@ func (input AuthItem) aws_cryptography_dbEncryptionSdk_structuredEncryption_Path
 
 	return nil
 }
-func (input AuthItem) aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_Validate() error {
+func (input AuthItem) Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_key_Validate() error {
 	for _, item := range input.Key {
-		if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item) != nil {
-			return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item)
+		if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item) != nil {
+			return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item)
 		}
 	}
 
@@ -98,14 +98,14 @@ func (input CryptoItem) Validate() error {
 	if input.Key == nil {
 		return fmt.Errorf("input.Key is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_Validate()
 	}
 
 	return nil
 }
 
-func (input CryptoItem) aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(Value PathSegment) error {
+func (input CryptoItem) Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(Value PathSegment) error {
 	if Value == nil {
 		return nil
 	}
@@ -121,10 +121,10 @@ func (input CryptoItem) aws_cryptography_dbEncryptionSdk_structuredEncryption_Pa
 
 	return nil
 }
-func (input CryptoItem) aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_Validate() error {
+func (input CryptoItem) Aws_cryptography_dbEncryptionSdk_structuredEncryption_CryptoItem_key_Validate() error {
 	for _, item := range input.Key {
-		if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item) != nil {
-			return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item)
+		if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item) != nil {
+			return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_Path_member_Validate(item)
 		}
 	}
 
@@ -145,17 +145,17 @@ func (input DecryptPathStructureInput) Validate() error {
 	if input.EncryptedStructure == nil {
 		return fmt.Errorf("input.EncryptedStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_Validate()
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_Validate()
 	}
 
 	return nil
 }
 
-func (input DecryptPathStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_Validate() error {
+func (input DecryptPathStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptedStructure_Validate() error {
 	for _, item := range input.EncryptedStructure {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -164,7 +164,7 @@ func (input DecryptPathStructureInput) aws_cryptography_dbEncryptionSdk_structur
 
 	return nil
 }
-func (input DecryptPathStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_Validate() error {
+func (input DecryptPathStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureInput_encryptionContext_Validate() error {
 	for key, value := range input.EncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -191,26 +191,26 @@ func (input ParsedHeader) Validate() error {
 	if input.EncryptedDataKeys == nil {
 		return fmt.Errorf("input.EncryptedDataKeys is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_Validate()
 	}
 	if input.EncryptionContext == nil {
 		return fmt.Errorf("input.EncryptionContext is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_Validate()
 	}
 	if input.StoredEncryptionContext == nil {
 		return fmt.Errorf("input.StoredEncryptionContext is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_Validate()
 	}
 
 	return nil
 }
 
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptedDataKeys_Validate() error {
 	for _, item := range input.EncryptedDataKeys {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -219,7 +219,7 @@ func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_structuredEncryption_
 
 	return nil
 }
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_encryptionContext_Validate() error {
 	for key, value := range input.EncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -231,7 +231,7 @@ func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_structuredEncryption_
 
 	return nil
 }
-func (input ParsedHeader) aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_Validate() error {
+func (input ParsedHeader) Aws_cryptography_dbEncryptionSdk_structuredEncryption_ParsedHeader_storedEncryptionContext_Validate() error {
 	for key, value := range input.StoredEncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -257,14 +257,14 @@ func (input DecryptPathStructureOutput) Validate() error {
 	if input.PlaintextStructure == nil {
 		return fmt.Errorf("input.PlaintextStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_Validate()
 	}
 
 	return nil
 }
 
-func (input DecryptPathStructureOutput) aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_Validate() error {
+func (input DecryptPathStructureOutput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptPathStructureOutput_plaintextStructure_Validate() error {
 	for _, item := range input.PlaintextStructure {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -293,17 +293,17 @@ func (input DecryptStructureInput) Validate() error {
 	if input.EncryptedStructure == nil {
 		return fmt.Errorf("input.EncryptedStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_Validate()
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_Validate()
 	}
 
 	return nil
 }
 
-func (input DecryptStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_Validate() error {
+func (input DecryptStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptedStructure_Validate() error {
 	for _, value := range input.EncryptedStructure {
 		if value.Validate() != nil {
 			return value.Validate()
@@ -312,7 +312,7 @@ func (input DecryptStructureInput) aws_cryptography_dbEncryptionSdk_structuredEn
 
 	return nil
 }
-func (input DecryptStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_Validate() error {
+func (input DecryptStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureInput_encryptionContext_Validate() error {
 	for key, value := range input.EncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -343,14 +343,14 @@ func (input DecryptStructureOutput) Validate() error {
 	if input.PlaintextStructure == nil {
 		return fmt.Errorf("input.PlaintextStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_Validate()
 	}
 
 	return nil
 }
 
-func (input DecryptStructureOutput) aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_Validate() error {
+func (input DecryptStructureOutput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_DecryptStructureOutput_plaintextStructure_Validate() error {
 	for _, value := range input.PlaintextStructure {
 		if value.Validate() != nil {
 			return value.Validate()
@@ -376,17 +376,17 @@ func (input EncryptPathStructureInput) Validate() error {
 	if input.PlaintextStructure == nil {
 		return fmt.Errorf("input.PlaintextStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_Validate()
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_Validate()
 	}
 
 	return nil
 }
 
-func (input EncryptPathStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_Validate() error {
+func (input EncryptPathStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_plaintextStructure_Validate() error {
 	for _, item := range input.PlaintextStructure {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -395,7 +395,7 @@ func (input EncryptPathStructureInput) aws_cryptography_dbEncryptionSdk_structur
 
 	return nil
 }
-func (input EncryptPathStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_Validate() error {
+func (input EncryptPathStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureInput_encryptionContext_Validate() error {
 	for key, value := range input.EncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -418,8 +418,8 @@ func (input EncryptPathStructureOutput) Validate() error {
 	if input.EncryptedStructure == nil {
 		return fmt.Errorf("input.EncryptedStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_Validate()
 	}
 	if input.ParsedHeader.Validate() != nil {
 		return input.ParsedHeader.Validate()
@@ -428,7 +428,7 @@ func (input EncryptPathStructureOutput) Validate() error {
 	return nil
 }
 
-func (input EncryptPathStructureOutput) aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_Validate() error {
+func (input EncryptPathStructureOutput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptPathStructureOutput_encryptedStructure_Validate() error {
 	for _, item := range input.EncryptedStructure {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -459,17 +459,17 @@ func (input EncryptStructureInput) Validate() error {
 	if input.PlaintextStructure == nil {
 		return fmt.Errorf("input.PlaintextStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_Validate()
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_Validate()
 	}
 
 	return nil
 }
 
-func (input EncryptStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_Validate() error {
+func (input EncryptStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_plaintextStructure_Validate() error {
 	for _, value := range input.PlaintextStructure {
 		if value.Validate() != nil {
 			return value.Validate()
@@ -478,7 +478,7 @@ func (input EncryptStructureInput) aws_cryptography_dbEncryptionSdk_structuredEn
 
 	return nil
 }
-func (input EncryptStructureInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_Validate() error {
+func (input EncryptStructureInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureInput_encryptionContext_Validate() error {
 	for key, value := range input.EncryptionContext {
 		if !utf8.ValidString(key) {
 			return fmt.Errorf("Invalid UTF bytes %s ", key)
@@ -506,8 +506,8 @@ func (input EncryptStructureOutput) Validate() error {
 	if input.EncryptedStructure == nil {
 		return fmt.Errorf("input.EncryptedStructure is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_Validate()
 	}
 	if input.ParsedHeader.Validate() != nil {
 		return input.ParsedHeader.Validate()
@@ -516,7 +516,7 @@ func (input EncryptStructureOutput) Validate() error {
 	return nil
 }
 
-func (input EncryptStructureOutput) aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_Validate() error {
+func (input EncryptStructureOutput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_EncryptStructureOutput_encryptedStructure_Validate() error {
 	for _, value := range input.EncryptedStructure {
 		if value.Validate() != nil {
 			return value.Validate()
@@ -538,14 +538,14 @@ func (input ResolveAuthActionsInput) Validate() error {
 	if input.AuthActions == nil {
 		return fmt.Errorf("input.AuthActions is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_Validate()
 	}
 
 	return nil
 }
 
-func (input ResolveAuthActionsInput) aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_Validate() error {
+func (input ResolveAuthActionsInput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_authActions_Validate() error {
 	for _, item := range input.AuthActions {
 		if item.Validate() != nil {
 			return item.Validate()
@@ -563,14 +563,14 @@ func (input ResolveAuthActionsOutput) Validate() error {
 	if input.CryptoActions == nil {
 		return fmt.Errorf("input.CryptoActions is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_Validate()
 	}
 
 	return nil
 }
 
-func (input ResolveAuthActionsOutput) aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_Validate() error {
+func (input ResolveAuthActionsOutput) Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_Validate() error {
 	for _, item := range input.CryptoActions {
 		if item.Validate() != nil {
 			return item.Validate()

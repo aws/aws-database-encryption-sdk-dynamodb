@@ -5,7 +5,7 @@ package awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes
 import (
 	"fmt"
 
-	dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
@@ -38,8 +38,8 @@ func (input ResolveAttributesInput) Validate() error {
 	if input.Item == nil {
 		return fmt.Errorf("input.Item is required but has a nil value.")
 	}
-	if input.aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_ResolveAttributesInput_Item_Validate() != nil {
-		return input.aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_ResolveAttributesInput_Item_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_ResolveAttributesInput_Item_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_ResolveAttributesInput_Item_Validate()
 	}
 	if len(input.TableName) < 3 {
 		return fmt.Errorf("TableName has a minimum length of 3 but has the length of %d.", len(input.TableName))
@@ -56,7 +56,7 @@ func (input ResolveAttributesInput) Validate() error {
 	return nil
 }
 
-func (input ResolveAttributesInput) com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input ResolveAttributesInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -78,7 +78,7 @@ func (input ResolveAttributesInput) com_amazonaws_dynamodb_AttributeMap_value_Va
 
 	return nil
 }
-func (input ResolveAttributesInput) com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input ResolveAttributesInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -90,8 +90,8 @@ func (input ResolveAttributesInput) com_amazonaws_dynamodb_MapAttributeValue_val
 	case *dynamodbtypes.AttributeValueMemberNS:
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
-		if input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberL:
 	case *dynamodbtypes.AttributeValueMemberNULL:
@@ -103,7 +103,7 @@ func (input ResolveAttributesInput) com_amazonaws_dynamodb_MapAttributeValue_val
 
 	return nil
 }
-func (input ResolveAttributesInput) com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input ResolveAttributesInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -111,14 +111,14 @@ func (input ResolveAttributesInput) com_amazonaws_dynamodb_AttributeValue_M_Vali
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
 		}
 	}
 
 	return nil
 }
-func (input ResolveAttributesInput) com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input ResolveAttributesInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -131,8 +131,8 @@ func (input ResolveAttributesInput) com_amazonaws_dynamodb_ListAttributeValue_me
 	case *dynamodbtypes.AttributeValueMemberBS:
 	case *dynamodbtypes.AttributeValueMemberM:
 	case *dynamodbtypes.AttributeValueMemberL:
-		if input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
 		}
 	case *dynamodbtypes.AttributeValueMemberNULL:
 	case *dynamodbtypes.AttributeValueMemberBOOL:
@@ -143,16 +143,16 @@ func (input ResolveAttributesInput) com_amazonaws_dynamodb_ListAttributeValue_me
 
 	return nil
 }
-func (input ResolveAttributesInput) com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input ResolveAttributesInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
-		if input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
-			return input.com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
 		}
 	}
 
 	return nil
 }
-func (input ResolveAttributesInput) aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_ResolveAttributesInput_Item_Validate() error {
+func (input ResolveAttributesInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_ResolveAttributesInput_Item_Validate() error {
 	for key, value := range input.Item {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -160,8 +160,8 @@ func (input ResolveAttributesInput) aws_cryptography_dbEncryptionSdk_dynamoDb_tr
 		if len(key) > 65535 {
 			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
 		}
-		if input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
-			return input.com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -173,9 +173,6 @@ type ExecuteStatementInputTransformInput struct {
 }
 
 func (input ExecuteStatementInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -185,9 +182,6 @@ type ExecuteStatementInputTransformOutput struct {
 }
 
 func (input ExecuteStatementInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -197,9 +191,6 @@ type GetItemInputTransformInput struct {
 }
 
 func (input GetItemInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -209,9 +200,6 @@ type GetItemInputTransformOutput struct {
 }
 
 func (input GetItemInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -221,9 +209,6 @@ type GetItemOutputTransformOutput struct {
 }
 
 func (input GetItemOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -233,9 +218,6 @@ type BatchExecuteStatementInputTransformInput struct {
 }
 
 func (input BatchExecuteStatementInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -245,9 +227,6 @@ type BatchExecuteStatementInputTransformOutput struct {
 }
 
 func (input BatchExecuteStatementInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -257,9 +236,6 @@ type BatchExecuteStatementOutputTransformOutput struct {
 }
 
 func (input BatchExecuteStatementOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -269,9 +245,6 @@ type ExecuteTransactionInputTransformInput struct {
 }
 
 func (input ExecuteTransactionInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -281,9 +254,6 @@ type ExecuteTransactionInputTransformOutput struct {
 }
 
 func (input ExecuteTransactionInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -293,9 +263,6 @@ type ExecuteTransactionOutputTransformOutput struct {
 }
 
 func (input ExecuteTransactionOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -305,9 +272,6 @@ type TransactGetItemsOutputTransformOutput struct {
 }
 
 func (input TransactGetItemsOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -317,9 +281,6 @@ type BatchGetItemInputTransformInput struct {
 }
 
 func (input BatchGetItemInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -329,9 +290,6 @@ type BatchGetItemInputTransformOutput struct {
 }
 
 func (input BatchGetItemInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -341,9 +299,6 @@ type TransactGetItemsInputTransformInput struct {
 }
 
 func (input TransactGetItemsInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -353,9 +308,6 @@ type TransactGetItemsInputTransformOutput struct {
 }
 
 func (input TransactGetItemsInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -365,9 +317,6 @@ type TransactWriteItemsOutputTransformOutput struct {
 }
 
 func (input TransactWriteItemsOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -379,12 +328,6 @@ type GetItemOutputTransformInput struct {
 }
 
 func (input GetItemOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -394,9 +337,6 @@ type DeleteItemOutputTransformOutput struct {
 }
 
 func (input DeleteItemOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -406,9 +346,6 @@ type ExecuteStatementOutputTransformOutput struct {
 }
 
 func (input ExecuteStatementOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -418,9 +355,6 @@ type PutItemOutputTransformOutput struct {
 }
 
 func (input PutItemOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -430,9 +364,6 @@ type QueryOutputTransformOutput struct {
 }
 
 func (input QueryOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -442,9 +373,6 @@ type ScanOutputTransformOutput struct {
 }
 
 func (input ScanOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -454,9 +382,6 @@ type UpdateItemOutputTransformOutput struct {
 }
 
 func (input UpdateItemOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -468,12 +393,6 @@ type BatchExecuteStatementOutputTransformInput struct {
 }
 
 func (input BatchExecuteStatementOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -485,12 +404,6 @@ type ExecuteTransactionOutputTransformInput struct {
 }
 
 func (input ExecuteTransactionOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -500,9 +413,6 @@ type BatchGetItemOutputTransformOutput struct {
 }
 
 func (input BatchGetItemOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -514,12 +424,6 @@ type TransactGetItemsOutputTransformInput struct {
 }
 
 func (input TransactGetItemsOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -531,12 +435,6 @@ type ExecuteStatementOutputTransformInput struct {
 }
 
 func (input ExecuteStatementOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -546,9 +444,6 @@ type ScanInputTransformInput struct {
 }
 
 func (input ScanInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -558,9 +453,6 @@ type ScanInputTransformOutput struct {
 }
 
 func (input ScanInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -570,9 +462,6 @@ type BatchWriteItemInputTransformInput struct {
 }
 
 func (input BatchWriteItemInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -582,9 +471,6 @@ type BatchWriteItemInputTransformOutput struct {
 }
 
 func (input BatchWriteItemInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -596,12 +482,6 @@ type BatchGetItemOutputTransformInput struct {
 }
 
 func (input BatchGetItemOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -611,9 +491,6 @@ type DeleteItemInputTransformInput struct {
 }
 
 func (input DeleteItemInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -623,9 +500,6 @@ type DeleteItemInputTransformOutput struct {
 }
 
 func (input DeleteItemInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -635,9 +509,6 @@ type PutItemInputTransformInput struct {
 }
 
 func (input PutItemInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -647,9 +518,6 @@ type PutItemInputTransformOutput struct {
 }
 
 func (input PutItemInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -659,9 +527,6 @@ type QueryInputTransformInput struct {
 }
 
 func (input QueryInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -671,9 +536,6 @@ type QueryInputTransformOutput struct {
 }
 
 func (input QueryInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -683,9 +545,6 @@ type BatchWriteItemOutputTransformOutput struct {
 }
 
 func (input BatchWriteItemOutputTransformOutput) Validate() error {
-	if input.TransformedOutput.Validate() != nil {
-		return input.TransformedOutput.Validate()
-	}
 
 	return nil
 }
@@ -697,12 +556,6 @@ type ScanOutputTransformInput struct {
 }
 
 func (input ScanOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -712,9 +565,6 @@ type UpdateItemInputTransformInput struct {
 }
 
 func (input UpdateItemInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -724,9 +574,6 @@ type UpdateItemInputTransformOutput struct {
 }
 
 func (input UpdateItemInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -738,12 +585,6 @@ type DeleteItemOutputTransformInput struct {
 }
 
 func (input DeleteItemOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -755,12 +596,6 @@ type PutItemOutputTransformInput struct {
 }
 
 func (input PutItemOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -772,12 +607,6 @@ type QueryOutputTransformInput struct {
 }
 
 func (input QueryOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -789,12 +618,6 @@ type UpdateItemOutputTransformInput struct {
 }
 
 func (input UpdateItemOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -806,12 +629,6 @@ type BatchWriteItemOutputTransformInput struct {
 }
 
 func (input BatchWriteItemOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
@@ -821,9 +638,6 @@ type TransactWriteItemsInputTransformInput struct {
 }
 
 func (input TransactWriteItemsInputTransformInput) Validate() error {
-	if input.SdkInput.Validate() != nil {
-		return input.SdkInput.Validate()
-	}
 
 	return nil
 }
@@ -833,9 +647,6 @@ type TransactWriteItemsInputTransformOutput struct {
 }
 
 func (input TransactWriteItemsInputTransformOutput) Validate() error {
-	if input.TransformedInput.Validate() != nil {
-		return input.TransformedInput.Validate()
-	}
 
 	return nil
 }
@@ -847,12 +658,6 @@ type TransactWriteItemsOutputTransformInput struct {
 }
 
 func (input TransactWriteItemsOutputTransformInput) Validate() error {
-	if input.OriginalInput.Validate() != nil {
-		return input.OriginalInput.Validate()
-	}
-	if input.SdkOutput.Validate() != nil {
-		return input.SdkOutput.Validate()
-	}
 
 	return nil
 }
