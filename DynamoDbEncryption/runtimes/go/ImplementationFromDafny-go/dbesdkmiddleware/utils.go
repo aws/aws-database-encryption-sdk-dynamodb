@@ -665,9 +665,31 @@ func deepCopyTransactGetItem(item types.TransactGetItem) types.TransactGetItem {
 func deepCopyGet(get *types.Get) *types.Get {
 	// Deep copy the Key map in Get
 	copyKey := deepCopyAttributeMap(get.Key)
+	// Copy string pointers
+	var tableName *string
+	if get.TableName != nil {
+		t := *get.TableName
+		tableName = &t
+	}
+	// Deep copy ExpressionAttributeNames map
+	if get.ExpressionAttributeNames != nil {
+		copyExpressionAttributeNames := make(map[string]string, len(get.ExpressionAttributeNames))
+		for k, v := range get.ExpressionAttributeNames {
+			copyExpressionAttributeNames[k] = v
+		}
+	}
+
+	var ProjectionExpression *string
+	if get.ProjectionExpression != nil {
+		t := *get.ProjectionExpression
+		ProjectionExpression = &t
+	}
 
 	return &types.Get{
-		Key: copyKey,
+		Key:                      copyKey,
+		TableName:                tableName,
+		ExpressionAttributeNames: deepCopyStringMap(get.ExpressionAttributeNames),
+		ProjectionExpression:     ProjectionExpression,
 	}
 }
 
