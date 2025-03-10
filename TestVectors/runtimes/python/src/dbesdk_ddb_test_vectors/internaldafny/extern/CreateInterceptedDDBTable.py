@@ -3,7 +3,7 @@ import types
 import dbesdk_ddb_test_vectors.internaldafny.generated.CreateInterceptedDDBClient
 import aws_cryptography_internal_dynamodb.internaldafny.extern
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy import aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig
-from aws_database_encryption_sdk.encryptor.table import (
+from aws_database_encryption_sdk.encrypted.table import (
     EncryptedTable,
 )
 from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter

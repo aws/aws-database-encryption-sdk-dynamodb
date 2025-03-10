@@ -123,6 +123,11 @@ PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_database_encryption_sdk \
 	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_database_encryption_sdk \
 
+# Override default test_python to run tox environment for Dafny tests
+test_python:
+	rm -rf runtimes/python/.tox
+	python3 -m tox -c runtimes/python -e dafnytests --verbose
+
 # Constants for languages that drop extern names (Python, Go)
 
 DYNAMODB_TYPES_FILE_PATH=dafny/DynamoDbEncryption/Model/AwsCryptographyDbEncryptionSdkDynamoDbTypes.dfy

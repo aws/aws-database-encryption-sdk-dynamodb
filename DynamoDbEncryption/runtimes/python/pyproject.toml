@@ -14,8 +14,35 @@ include = ["**/internaldafny/generated/*.py"]
 python = "^3.11.0"
 aws-cryptographic-material-providers = { path = "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python", develop = false}
 
+# Package testing
+
+[tool.poetry.group.test]
+optional = true
+
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
+pytest-cov = "^6"
+
+# Package release
+
+[tool.poetry.group.release]
+optional = true
+
+[tool.poetry.group.release.dependencies]
+poetry = "1.8.3"
+twine = "5.1.1"
+wheel = "0.38.4"
+
+# Package documentation
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+toml = "^0.10.2"
+myst-parser = "^4"
+sphinx = "^7"
+sphinx_rtd_theme = "^2"
 
 [build-system]
 requires = ["poetry-core<2.0.0"]

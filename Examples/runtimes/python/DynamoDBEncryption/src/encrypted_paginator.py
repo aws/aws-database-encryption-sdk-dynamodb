@@ -13,6 +13,11 @@ primary key configuration:
 - Partition key is named "partition_key" with type (S)
 - Sort key is named "sort_key" with type (N)
 
+For more information on paginating the Scan operation, see:
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html#Scan.Pagination
+For more information on paginating the Query operation, see:
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html
+
 This example also requires access to the KMS key ARN with permissions: (TODO)
 """
 import boto3
@@ -38,7 +43,7 @@ from aws_database_encryption_sdk.encrypted.client import (
     EncryptedClient
 )
 
-def encrypted_client_put_get_example(
+def encrypted_paginator_scan_example(
     kms_key_id: str,
     dynamodb_table_name: str,
 ):
@@ -127,44 +132,88 @@ def encrypted_client_put_get_example(
     # 6. Put an item into our table using the above client.
     #    Before the item gets sent to DynamoDb, it will be encrypted
     #    client-side, according to our configuration.
-    item_to_encrypt = {
-        "partition_key": "BasicPutGetExample",
-        "sort_key": 0,
-        "attribute1": "encrypt and sign me!",
-        "attribute2": "sign me!",
-        ":attribute3": "ignore me!",
-    }
+    items = []
+    for i in range(10):
+        item_to_encrypt = {
+            "partition_key": "PythonEncryptedPaginatorSearchExample",
+            "sort_key": i,
+            "attribute1": "encrypt and sign me!",
+            "attribute2": "sign me!",
+            ":attribute3": "ignore me!",
+        }
 
-    put_item_request = {
+        put_item_request = {
+            "TableName": dynamodb_table_name,
+            "Item": item_to_encrypt,
+        }
+
+        put_item_response = encrypted_client.put_item(**put_item_request)
+
+        # print(f"{put_item_response=}")
+
+        # Demonstrate that PutItem succeeded
+        assert put_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+    ### here
+
+    encrypted_scan_paginator = encrypted_client.get_paginator("scan")
+
+    scan_item_request = {
         "TableName": dynamodb_table_name,
-        "Item": item_to_encrypt,
+        "FilterExpression": "#pk = :name and #attr3 = :ignore",
+        "ExpressionAttributeNames": {"#attr3": ":attribute3", "#pk": "partition_key"},
+        "ExpressionAttributeValues": {":ignore": {"S" : "ignore me!"}, ":name": {"S": "PythonEncryptedPaginatorSearchExample"}},
+        "PaginationConfig": {
+            # `MaxItems` configures the number of items the paginator will return before stopping the scan.
+            # Scans are expensive, and we know that we only added 10 items, so this example will stop at 10.
+            # The default is None; i.e. no size limit.
+            "MaxItems": 10,
+            # `PageSize` configures the maximum number of items that will be returned in a single page.
+            # The default is to return ~1 MB of data.
+            "PageSize": 5
+        }
     }
 
-    put_item_response = encrypted_client.put_item(**put_item_request)
+    scan_response_iterator = encrypted_scan_paginator.paginate(**scan_item_request)
 
-    print(f"{put_item_response=}")
+    scan_collected_items = []
 
-    # Demonstrate that PutItem succeeded
-    assert put_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    for scan_response_page in scan_response_iterator:
+        # print(f'{scan_response_page=}')
+        for item in scan_response_page["Items"]:
+            if int(item["sort_key"]["N"]) % 2 == 0:
+                scan_collected_items.append(item)
 
-    # 7. Get the item back from our table using the same client.
-    #    The client will decrypt the item client-side, and return
-    #    back the original item.
-    key_to_get = {
-        "partition_key": "BasicPutGetExample",
-        "sort_key": 0,
-    }
+    assert len(scan_collected_items) == 5
+    for scan_collected_item in scan_collected_items:
+        assert int(scan_collected_item["sort_key"]["N"]) % 2 == 0
+        assert scan_collected_item["attribute1"] == {"S" : "encrypt and sign me!"}
 
-    get_item_request = {
+    encrypted_query_paginator = encrypted_client.get_paginator("query")
+
+    query_item_request = {
         "TableName": dynamodb_table_name,
-        "Key": key_to_get
+        "KeyConditionExpression": "#pk = :name",
+        "FilterExpression": "#attr3 = :ignore",
+        "ExpressionAttributeNames": {"#attr3": ":attribute3", "#pk": "partition_key"},
+        "ExpressionAttributeValues": {":ignore": {"S" : "ignore me!"}, ":name": {"S": "PythonEncryptedPaginatorSearchExample"}},
     }
 
-    get_item_response = encrypted_client.get_item(**get_item_request)
+    query_response_iterator = encrypted_query_paginator.paginate(**query_item_request)
 
-    # Demonstrate that GetItem succeeded
-    assert get_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    print(f"{item_to_encrypt=}")
-    print(f"{get_item_response['Item']=}")
-    # assert get_item_response["Item"] == item_to_encrypt
-    assert get_item_response["Item"]["attribute1"] == {"S" : "encrypt and sign me!"}
+    query_collected_items = []
+
+    for query_response_page in query_response_iterator:
+        for item in query_response_page["Items"]:
+            query_collected_items.append(item)
+
+    assert len(query_collected_items) == 1
+    assert query_collected_items[0]["attribute1"] == {"S" : "encrypt and sign me!"}
+
+
+    # # Demonstrate that GetItem succeeded
+    # assert get_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    # print(f"{item_to_encrypt=}")
+    # print(f"{get_item_response['Item']=}")
+    # # assert get_item_response["Item"] == item_to_encrypt
+    # assert get_item_response["Item"]["attribute1"] == {"S" : "encrypt and sign me!"}

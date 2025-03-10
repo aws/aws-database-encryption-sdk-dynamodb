@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import boto3
 from ..beacon_config import setup_beacon_config
-from aws_database_encryption_sdk.encryptor.client import EncryptedClient
+from aws_database_encryption_sdk.encrypted.client import EncryptedClient
 from .put_requests import put_all_items_to_table
 from .query_requests import run_queries
 

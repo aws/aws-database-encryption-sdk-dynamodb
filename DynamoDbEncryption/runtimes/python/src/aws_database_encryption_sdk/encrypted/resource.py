@@ -14,7 +14,7 @@ from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeT
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
     DynamoDbEncryptionTransforms
 )
-from aws_database_encryption_sdk.encryptor.table import EncryptedTable
+from aws_database_encryption_sdk.encrypted.table import EncryptedTable
 
 class EncryptedTablesCollectionManager:
 

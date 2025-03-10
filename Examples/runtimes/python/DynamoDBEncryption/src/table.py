@@ -85,7 +85,7 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 
 # "Main"
 
-from aws_database_encryption_sdk.encryptor.table import (
+from aws_database_encryption_sdk.encrypted.table import (
     EncryptedTable
 )
 

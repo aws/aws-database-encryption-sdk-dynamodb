@@ -93,7 +93,7 @@ item_to_encrypt = {
 
 boto3_client = boto3.client("dynamodb")
 
-from aws_database_encryption_sdk.encryptor.interceptor import (
+from aws_database_encryption_sdk.encrypted.interceptor import (
     register_encryption_interceptor
 )
 

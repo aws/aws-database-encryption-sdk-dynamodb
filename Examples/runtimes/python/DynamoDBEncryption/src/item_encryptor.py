@@ -82,7 +82,7 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
     DynamoDbEncryptionTransforms
 )
-from aws_database_encryption_sdk.encryptor.item import ItemEncryptor
+from aws_database_encryption_sdk.encrypted.item import ItemEncryptor
 
 item_encryptor = ItemEncryptor(
     item_encryptor_config = item_encryptor_config
