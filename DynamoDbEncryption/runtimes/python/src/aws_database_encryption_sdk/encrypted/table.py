@@ -54,7 +54,7 @@ class EncryptedTable:
         output_client_to_resource_shape_transform_method,
         table_method,
     ):
-        """Shared logic to interface between boto3 Table operation inputs and encryption transformers."""
+        """Shared, abstracted logic to interface between boto3 Table operation inputs and encryption transformers."""
         # Table inputs are formatted as Python dictionary JSON, but encryption transformers expect DynamoDB JSON.
         # `input_resource_to_client_shape_transform_method` formats the supplied Python dictionary as DynamoDB JSON.
         input_transform_input = input_resource_to_client_shape_transform_method(operation_input)
@@ -177,7 +177,6 @@ class EncryptedTable:
         return response
 
     def update_item(self, **kwargs):
-        """Update item is not yet supported."""
         raise NotImplementedError('"update_item" is not yet implemented')
     
     def batch_writer(self, overwrite_by_pkeys=None):

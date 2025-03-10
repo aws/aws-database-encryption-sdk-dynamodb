@@ -52,44 +52,45 @@ class EncryptedPaginator:
         self,
         paginator: Paginator,
         encryption_config: DynamoDbTablesEncryptionConfig,
-        operation_name: str,
     ):
+        """Create an EncryptedPaginator.
+
+        Args:
+            paginator (Paginator): A boto3 Paginator object for DynamoDB operations.
+                This can be either a "query" or "scan" Paginator.
+            encryption_config (DynamoDbTablesEncryptionConfig): Encryption configuration object.
+        """
         self._paginator = paginator
         self._encryption_config = encryption_config
         self._transformer = DynamoDbEncryptionTransforms(
             config = encryption_config
         )
-        self._operation_name = operation_name
         
     def paginate(self, **kwargs) -> Generator[dict, None, None]:
-        """Yield a generator that will paginate through responses from the underlying paginator,
-        transparently decrypting any returned items.
+        """Yields a generator that paginates through responses from DynamoDB, decrypting items.
 
-        Note: `botocore.paginate.Paginator.paginate` yields an iterable `PageIterator` object,
-        while this `paginate` implementation yields an iterable `generator` object.
-        This `paginate` implementation can be used exactly as described in the boto3 documentation:
-        https://botocore.amazonaws.com/v1/documentation/api/latest/topics/paginators.html
-        but cannot be used with undocumented PageIterator methods (ex. `build_full_result`).
+        Note:
+            `botocore.paginate.Paginator.paginate` returns a `PageIterator` object, whereas
+            this implementation returns a Python generator. However, you can use this method
+            exactly as described in the official boto3 documentation:
+            https://botocore.amazonaws.com/v1/documentation/api/latest/topics/paginators.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the underlying paginator.
+            **kwargs: Arbitrary keyword arguments passed directly to the underlying DynamoDB paginator.
+                For a Scan operation, structure these arguments according to:
+                https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Scan.html
 
-            If this is a Scan operation, these should be structured according to:
-            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Scan.html
-
-            If this is a Query operation, these should be structured according to:
-            https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Query.html
+                For a Query operation, structure these arguments according to:
+                https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Query.html
 
         Returns:
-            Generator[dict, None, None]: A generator that yields decrypted response pages
-            
-        Raises:
-            NotImplementedError: If pagination is not supported for the operation
+            Generator[dict, None, None]: A generator yielding pages as dictionaries.
+
         """
 
-        if self._operation_name == "query":
+        if self._paginator._model.name == "Query":
             yield from self.paginate_query(**kwargs)
-        elif self._operation_name == "scan":
+        elif self._paginator._model.name == "Scan":
             yield from self.paginate_scan(**kwargs)
         else:
             raise NotImplementedError("EncryptedPaginator does not support paginating on {self._operation_name}")
@@ -123,13 +124,14 @@ class EncryptedPaginator:
 
 
         for page in sdk_page_response:
+            # boto3 docs are wrong. NextToken is never returned.
 
-            # TODO: Is this always returned? do i need to provide back
-            try:
-                next_token = page["NextToken"]
-                del page["NextToken"]
-            except KeyError:
-                pass
+            # # TODO: Is this always returned? do i need to provide back
+            # try:
+            #     next_token = page["NextToken"]
+            #     del page["NextToken"]
+            # except KeyError:
+            #     pass
 
             dbesdk_response = self._transformer.query_output_transform(
                 QueryOutputTransformInput(
@@ -172,12 +174,14 @@ class EncryptedPaginator:
 
             print(f"{page=}")
 
-            # TODO: Is this always returned? do i need to provide back
-            try:
-                next_token = page["NextToken"]
-                del page["NextToken"]
-            except KeyError:
-                next_token = None
+            # boto3 docs are wrong. NextToken is never returned.
+
+            # # TODO: Is this always returned? do i need to provide back
+            # try:
+            #     next_token = page["NextToken"]
+            #     del page["NextToken"]
+            # except KeyError:
+            #     next_token = None
 
             dbesdk_response = self._transformer.scan_output_transform(
                 ScanOutputTransformInput(
@@ -185,9 +189,6 @@ class EncryptedPaginator:
                     sdk_output = page,
                 )
             ).transformed_output
-
-            if next_token is not None:
-                dbesdk_response["NextToken"] = next_token
 
             # refactor out of client class
             # self._copy_sdk_response_to_dbesdk_response(page, dbesdk_response)
