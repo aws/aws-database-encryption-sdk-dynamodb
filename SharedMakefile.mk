@@ -6,8 +6,7 @@
 # that are shared by all libraries in this repo.
 PROJECT_ROOT := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
-# TODO: DON'T FORGET TO CHANGE THIS
-SMITHY_DAFNY_ROOT := $(PROJECT_ROOT)/../smithy-dafny
+SMITHY_DAFNY_ROOT := $(PROJECT_ROOT)/submodules/smithy-dafny
 GRADLEW := ./runtimes/java/gradlew
 
 include $(SMITHY_DAFNY_ROOT)/SmithyDafnyMakefile.mk
