@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - Golang/dev
 
 jobs:
   getVersion:
@@ -54,6 +55,11 @@ jobs:
   pr-ci-rust:
     needs: getVersion
     uses: ./.github/workflows/library_rust_tests.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-go:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_go.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   pr-ci-net-test-vectors:

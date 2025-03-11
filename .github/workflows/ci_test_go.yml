@@ -1,0 +1,84 @@
+# This workflow performs tests in Go.
+name: Library Go tests
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  testGo:
+    strategy:
+      matrix:
+        library: [DynamoDbEncryption]
+        os: [macos-13]
+        go-version: ["1.23"]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Java-Tests
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.8.0
+        with:
+          dafny-version: ${{ inputs.dafny }}
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Update project.properties if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        run: |
+          sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
+
+      # - name: Regenerate code using smithy-dafny if necessary
+      #   if: ${{ inputs.regenerate-code }}
+      #   uses: ./.github/actions/polymorph_codegen
+      #   with:
+      #     dafny: ${{ env.DAFNY_VERSION }}
+      #     library: ${{ matrix.library }}
+      #     diff-generated-code: false
+      #     update-and-regenerate-mpl: true
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Install Go imports
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
