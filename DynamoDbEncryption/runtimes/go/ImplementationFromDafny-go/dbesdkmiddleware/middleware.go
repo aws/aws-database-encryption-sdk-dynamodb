@@ -63,7 +63,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.GetItemInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.GetItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetItemInputTransformInput{
@@ -72,7 +72,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.BatchGetItemInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.BatchGetItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchGetItemInputTransformInput{
@@ -81,7 +81,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.BatchWriteItemInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.BatchWriteItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchWriteItemInputTransformInput{
@@ -90,7 +90,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.BatchExecuteStatementInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.BatchExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchExecuteStatementInputTransformInput{
@@ -99,7 +99,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.DeleteItemInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.DeleteItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.DeleteItemInputTransformInput{
@@ -108,7 +108,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.ExecuteStatementInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.ExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteStatementInputTransformInput{
@@ -117,7 +117,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.ExecuteTransactionInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.ExecuteTransactionInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteTransactionInputTransformInput{
@@ -126,7 +126,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.QueryInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.QueryInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.QueryInputTransformInput{
@@ -135,7 +135,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.ScanInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.ScanInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ScanInputTransformInput{
@@ -144,7 +144,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.TransactGetItemsInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.TransactGetItemsInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.TransactGetItemsInputTransformInput{
@@ -153,7 +153,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.TransactWriteItemsInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.TransactWriteItemsInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.TransactWriteItemsInputTransformInput{
@@ -162,7 +162,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	case *dynamodb.UpdateItemInput:
 		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.UpdateItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.UpdateItemInputTransformInput{
@@ -171,7 +171,7 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 		if err != nil {
 			return nil, err
 		}
-		v = &transformedRequest.TransformedInput
+		*v = transformedRequest.TransformedInput
 	}
 	return ctx, nil
 }
