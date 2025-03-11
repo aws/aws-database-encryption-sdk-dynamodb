@@ -56,122 +56,122 @@ func (m DBEsdkMiddleware) createRequestInterceptor() middleware.InitializeMiddle
 func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request interface{}) (context.Context, error) {
 	switch v := request.(type) {
 	case *dynamodb.PutItemInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyPutItemInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.PutItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.PutItemInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.GetItemInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyGetItemInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.GetItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetItemInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.BatchGetItemInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyBatchGetItemInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.BatchGetItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchGetItemInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.BatchWriteItemInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyBatchWriteItemInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.BatchWriteItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchWriteItemInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.BatchExecuteStatementInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyBatchExecuteStatementInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.BatchExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchExecuteStatementInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.DeleteItemInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyDeleteItemInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.DeleteItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.DeleteItemInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.ExecuteStatementInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyExecuteStatementInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.ExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteStatementInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.ExecuteTransactionInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyExecuteTransactionInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.ExecuteTransactionInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteTransactionInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.QueryInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyQueryInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.QueryInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.QueryInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.ScanInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyScanInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.ScanInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ScanInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.TransactGetItemsInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyTransactGetItemsInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.TransactGetItemsInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.TransactGetItemsInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.TransactWriteItemsInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyTransactWriteItemsInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.TransactWriteItemsInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.TransactWriteItemsInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	case *dynamodb.UpdateItemInput:
-		ctx = middleware.WithStackValue(ctx, "originalInput", *deepCopyUpdateItemInput(v))
+		ctx = middleware.WithStackValue(ctx, "originalInput", *v)
 		transformedRequest, err := m.client.UpdateItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.UpdateItemInputTransformInput{
 			SdkInput: *v,
 		})
 		if err != nil {
 			return nil, err
 		}
-		*v = transformedRequest.TransformedInput
+		v = &transformedRequest.TransformedInput
 	}
 	return ctx, nil
 }
