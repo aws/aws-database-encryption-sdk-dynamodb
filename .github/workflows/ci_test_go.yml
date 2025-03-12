@@ -74,6 +74,9 @@ jobs:
         run: |
           go install golang.org/x/tools/cmd/goimports@latest
 
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --recursive submodules/smithy-dafny
+
       - name: Regenerate code using smithy-dafny
         shell: bash
         working-directory: ./${{ matrix.library }}
