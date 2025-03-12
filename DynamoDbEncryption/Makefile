@@ -102,6 +102,8 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor
 
 # Go
+# TODO: Define the name later
+# This will probably get changes to */releases/go/* but I will bring this to the team later.
 GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb"
 
 GO_DEPENDENCY_MODULE_NAMES := \
