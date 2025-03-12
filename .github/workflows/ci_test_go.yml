@@ -35,6 +35,10 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Support longpaths
+        run: |
+          git config --global core.longpaths true
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -50,6 +54,15 @@ jobs:
         uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
           dafny-version: ${{ inputs.dafny }}
+
+      - name: Create temporary global.json
+        run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
+  
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v3
+        with:
+          distribution: "corretto"
+          java-version: "17"
 
       - name: Update MPL submodule if using MPL HEAD
         if: ${{ inputs.mpl-head == true }}
