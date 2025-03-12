@@ -17,11 +17,11 @@ jobs:
   #   uses: ./.github/workflows/library_format.yml
   #   with:
   #     dafny: ${{needs.getVersion.outputs.version}}
-  # push-ci-codegen:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_codegen.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
+  push-ci-codegen:
+    needs: getVersion
+    uses: ./.github/workflows/ci_codegen.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
   # push-ci-verification:
   #   needs: getVerifyVersion
   #   uses: ./.github/workflows/library_dafny_verification.yml
