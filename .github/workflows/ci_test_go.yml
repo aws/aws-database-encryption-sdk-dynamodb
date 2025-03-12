@@ -65,14 +65,6 @@ jobs:
         run: |
           sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
-      - name: Build ${{ matrix.library }} implementation
-        shell: bash
-        working-directory: ./${{ matrix.library }}
-        run: |
-          # This works because `node` is installed by default on GHA runners
-          CORES=$(node -e 'console.log(os.cpus().length)')
-          make transpile_go CORES=$CORES
-
       - name: Install Go
         uses: actions/setup-go@v5
         with:
@@ -81,6 +73,14 @@ jobs:
       - name: Install Go imports
         run: |
           go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_go CORES=$CORES
 
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
