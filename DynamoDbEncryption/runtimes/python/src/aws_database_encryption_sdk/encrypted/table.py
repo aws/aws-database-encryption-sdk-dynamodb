@@ -179,16 +179,18 @@ class EncryptedTable:
     def update_item(self, **kwargs):
         raise NotImplementedError('"update_item" is not yet implemented')
     
-    def batch_writer(self, overwrite_by_pkeys=None):
-        """Create a batch writer object.
+    def batch_writer(
+        self,
+        overwrite_by_pkeys: list[str] | None
+    ):
+        """Create a batch writer object that will transparently encrypt requests to DynamoDB.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
 
-        :type overwrite_by_pkeys: list(string)
-        :param overwrite_by_pkeys: De-duplicate request items in buffer if match new request
-            item on specified primary keys. i.e ``["partition_key1", "sort_key2", "sort_key3"]``
+        Parameters:
+            overwrite_by_pkeys: De-duplicate request items in buffer if match new request
+                item on specified primary keys. i.e ``["partition_key1", "sort_key2", "sort_key3"]``
         """
-        print("making encrypted client")
         encrypted_client = EncryptedClient(
             client = self._table.meta.client,
             encryption_config = self._encryption_config,

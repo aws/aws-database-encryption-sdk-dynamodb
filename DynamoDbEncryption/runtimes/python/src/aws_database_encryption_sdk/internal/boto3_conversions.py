@@ -251,3 +251,5 @@ class BotoInterfaceShapeConverter(ABC):
             table_value = self.item_collection_metrics(table_value)
             item_collection_metrics_out[table_name] = table_value
         return item_collection_metrics_out
+
+    def 

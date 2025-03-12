@@ -151,8 +151,8 @@ def encrypted_client_put_get_example(
     #    The client will decrypt the item client-side, and return
     #    back the original item.
     key_to_get = {
-        "partition_key": "BasicPutGetExample",
-        "sort_key": 0,
+        "partition_key": {"S": "BasicPutGetExample"},
+        "sort_key": {"N": "0"}
     }
 
     get_item_request = {
@@ -167,4 +167,4 @@ def encrypted_client_put_get_example(
     print(f"{item_to_encrypt=}")
     print(f"{get_item_response['Item']=}")
     # assert get_item_response["Item"] == item_to_encrypt
-    assert get_item_response["Item"]["attribute1"] == {"S" : "encrypt and sign me!"}
+    assert get_item_response["Item"]["attribute1"] == "encrypt and sign me!"

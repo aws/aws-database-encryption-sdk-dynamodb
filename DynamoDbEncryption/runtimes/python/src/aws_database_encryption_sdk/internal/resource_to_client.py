@@ -82,3 +82,40 @@ class ResourceShapeToClientShapeConverter(BotoInterfaceShapeConverter):
         # Assume the user has provided something string-like, and let Smithy-Python/DBESDK internals raise exceptions if not.
         print(f"probably a string: {condition_expression=}")
         return condition_expression
+
+    def batch_write_item_request_items(self, tables):
+        """Transform a batch write request's items to DynamoDB format."""
+        output_tables = []
+        table_names = list(tables.keys())
+        for table_name in table_names:
+            requests = tables[table_name]
+            output_requests = []
+            for request in requests:
+                request_name_list = list(request.keys())
+                if len(request_name_list) > 1:
+                    raise ValueError("Invalid JSON format")
+                request_name = request_name_list[0]
+                if request_name == "PutRequest":
+                    dict_request = dict_to_ddb(request[request_name]["Item"])
+                    boto3_request = {"Item": dict_request}
+                elif request_name == "DeleteRequest":
+                    # Delete requests are based on Keys, which are expected to already be in DynamoDB JSON.
+                    # Only Items can be in Python dictionary JSON.
+                    boto3_request = request[request_name]
+                else:
+                    raise ValueError(f"Unknown batch_write_items method key: {request_name}")
+                output_requests.append({request_name: boto3_request})
+            output_tables.append({table_name: output_requests})
+        return output_tables
+
+    def batch_get_request(self, **kwargs):
+        """Transform a batch get request to DynamoDB format."""
+        dynamodb_input = kwargs.copy()
+        tables = dynamodb_input["RequestItems"]
+        
+        for table_name, table_data in tables.items():
+            dynamodb_input["RequestItems"][table_name]["Keys"] = [
+                self.key_to_attribute_value_map(key) for key in table_data["Keys"]
+            ]
+            
+        return dynamodb_input

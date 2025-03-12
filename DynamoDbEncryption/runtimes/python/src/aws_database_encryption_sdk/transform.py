@@ -13,20 +13,47 @@ __all__ = ("dict_to_ddb", "ddb_to_dict")
 
 
 def dict_to_ddb(item: Dict[str, Any]) -> Dict[str, Any]:
-    """Converts a native Python dictionary to a raw DynamoDB item.
+    """Converts a native Python dictionary to a DynamoDB-JSON item.
 
-    :param dict item: Native item
-    :returns: DynamoDB item
+    Args:
+        item (Dict[str, Any]): Native Python dictionary.
+
+    Returns:
+        Dict[str, Any]: DynamoDB-formatted item.
     """
     serializer = TypeSerializer()
     return {key: serializer.serialize(value) for key, value in item.items()}
 
+def list_of_dict_to_list_of_ddb(items: list[Dict[str, Any]]) -> list[Dict[str, Any]]:
+    """Converts a list of Python dictionaries into a list of DynamoDB-JSON formatted items.
+
+    Args:
+        items (List[Dict[str, Any]]): List of native Python dictionaries.
+
+    Returns:
+        List[Dict[str, Any]]: List of DynamoDB-formatted items.
+    """
+    return [dict_to_ddb(item) for item in items]
 
 def ddb_to_dict(item: Dict[str, Any]) -> Dict[str, Any]:
-    """Converts a raw DynamoDB item to a native Python dictionary.
+    """Converts a DynamoDB-JSON item to a native Python dictionary.
 
-    :param dict item: DynamoDB item
-    :returns: Native item
+    Args:
+        item (Dict[str, Any]): DynamoDB-formatted item.
+
+    Returns:
+        Dict[str, Any]: Native Python dictionary.
     """
     deserializer = TypeDeserializer()
     return {key: deserializer.deserialize(value) for key, value in item.items()}
+
+def list_of_ddb_to_list_of_dict(items: list[Dict[str, Any]]) -> list[Dict[str, Any]]:
+    """Converts a list of DynamoDB-JSON formatted items to a list of Python dictionaries.
+
+    Args:
+        items (List[Dict[str, Any]]): List of DynamoDB-formatted items.
+
+    Returns:
+        List[Dict[str, Any]]: List of native Python dictionaries.
+    """
+    return [ddb_to_dict(item) for item in items]

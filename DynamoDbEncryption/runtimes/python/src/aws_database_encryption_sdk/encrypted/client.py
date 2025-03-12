@@ -1,10 +1,8 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """High-level helper class to provide an encrypting wrapper for boto3 DynamoDB clients."""
-from botocore.paginate import Paginator
 import botocore.client
-from typing import Callable, Optional
-import inspect
+from typing import Optional
 
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
     GetItemInputTransformInput,
@@ -27,32 +25,27 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 from aws_database_encryption_sdk.transform import (
     dict_to_ddb,
     ddb_to_dict,
+    list_of_ddb_to_list_of_dict,
 )
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
     DynamoDbEncryptionTransforms
 )
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTablesEncryptionConfig,
-    DynamoDbTableEncryptionConfig,
 )
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
-    DynamoDbItemEncryptorConfig,
-)
-from aws_database_encryption_sdk.encrypted.item import ItemEncryptor
 from aws_database_encryption_sdk.encrypted.paginator import EncryptedPaginator
 
-        
 
 class EncryptedClient:
-    """Wrapper class for a boto3 DynamoDB client providing transparent encryption/decryption of DynamoDB Client APIs.
+    """Wrapper for a boto3 DynamoDB client that transparently items to/from DynamoDB.
 
     This class implements the complete boto3 DynamoDB client API, allowing it to serve as a
-    drop-in replacement that transparently handles encryption and decryption of table data.
+    drop-in replacement that transparently handles encryption and decryption of items.
     
     The API matches the standard boto3 DynamoDB client interface:
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#client
 
-    The supported operations for transparent encryption/decryption are:
+    This class will encrypt/decrypt items for the following operations:
         * put_item
         * get_item
         * query
@@ -62,11 +55,11 @@ class EncryptedClient:
         * transact_get_items
         * transact_write_items
 
-    Any other operations on EncryptedClient will defer to the underlying boto3 DynamoDB client implementation.
+    Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
     Note: The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
 
-    EncryptedClient can also return an EncryptedPaginator for transparent decryption of pages.
+    EncryptedClient can also return an EncryptedPaginator for transparent decryption of paginated results.
     """
 
     _client: botocore.client.BaseClient
@@ -87,7 +80,12 @@ class EncryptedClient:
             encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
             expect_standard_dictionaries (Optional[bool]): Should we expect items to be standard Python
                 dictionaries? This should only be set to True if you are using a client obtained
-                from a service resource or table resource (ex: ``table.meta.client``). (default: False)
+                from a service resource or table resource (ex: ``table.meta.client``).
+                Note: expect_standard_dictionaries only transforms Items.
+                (e.g. if True: put_item takes in a Python dictionary; get_item returns a Python dictionary.)
+                expect_standard_dictionaries does NOT transform any other shapes.
+                (e.g. Keys, AttributeValues are NOT transformed and are expected to be formatted as DynamoDB JSON.)
+                (default: False).
         """
         self._client = client
         self._encryption_config = encryption_config
@@ -115,12 +113,15 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = "Item",
+            operation_input=kwargs,
+            input_item_key="Item",
+            input_item_transform_method=dict_to_ddb,
             input_transform_method=self._transformer.put_item_input_transform,
             input_transform_shape=PutItemInputTransformInput,
             output_transform_method=self._transformer.put_item_output_transform,
             output_transform_shape=PutItemOutputTransformInput,
+            output_item_key="Attributes",
+            output_item_transform_method=ddb_to_dict,
             client_method=self._client.put_item
         )
     
@@ -142,13 +143,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = "Key",
+            operation_input=kwargs,
+            input_item_key=None,
+            input_item_transform_method=None,
             input_transform_method=self._transformer.get_item_input_transform,
             input_transform_shape=GetItemInputTransformInput,
             output_transform_method=self._transformer.get_item_output_transform,
             output_transform_shape=GetItemOutputTransformInput,
-            client_method=self._client.get_item
+            client_method=self._client.get_item,
+            output_item_key="Item",
+            output_item_transform_method=ddb_to_dict,
         )
     
 
@@ -169,13 +173,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = "Key",
+            operation_input=kwargs,
+            input_item_key=None,
+            input_item_transform_method=None,
             input_transform_method=self._transformer.query_input_transform,
             input_transform_shape=QueryInputTransformInput,
             output_transform_method=self._transformer.query_output_transform,
             output_transform_shape=QueryOutputTransformInput,
-            client_method=self._client.query
+            client_method=self._client.query,
+            output_item_key="Items",
+            output_item_transform_method=list_of_ddb_to_list_of_dict,
         )
     
     def scan(self, **kwargs) -> dict:
@@ -195,13 +202,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = "Key",
+            operation_input=kwargs,
+            input_item_key=None,
+            input_item_transform_method=None,
             input_transform_method=self._transformer.scan_input_transform,
             input_transform_shape=ScanInputTransformInput,
             output_transform_method=self._transformer.scan_output_transform,
             output_transform_shape=ScanOutputTransformInput,
-            client_method=self._client.scan
+            client_method=self._client.scan,
+            output_item_key="Items",
+            output_item_transform_method=list_of_ddb_to_list_of_dict,
         )
     
 
@@ -222,16 +232,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = None,
+            operation_input=kwargs,
+            input_item_key="RequestItems",
+            input_item_transform_method=self._transform_batch_write_item_request_items_expect_standard_dictionaries,
             input_transform_method=self._transformer.batch_write_item_input_transform,
             input_transform_shape=BatchWriteItemInputTransformInput,
             output_transform_method=self._transformer.batch_write_item_output_transform,
             output_transform_shape=BatchWriteItemOutputTransformInput,
             client_method=self._client.batch_write_item,
-            transform_operation_input_override=self._maybe_transform_batch_write_item_request_to_dynamodb_item,
-            # transform_transformed_input_override=self._maybe_transform_batch_request_to_dict_item,
-            transform_output_override=self._maybe_transform_batch_response_to_python_dict
+            output_item_key="UnprocessedItems",
+            output_item_transform_method=self._transform_batch_write_item_unprocessed_items_expect_standard_dictionaries,
         )
     
     def batch_get_item(self, **kwargs) -> dict:
@@ -251,15 +261,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = None,
+            operation_input=kwargs,
+            input_item_key=None,
+            input_item_transform_method=None,
             input_transform_method=self._transformer.batch_get_item_input_transform,
             input_transform_shape=BatchGetItemInputTransformInput,
             output_transform_method=self._transformer.batch_get_item_output_transform,
             output_transform_shape=BatchGetItemOutputTransformInput,
             client_method=self._client.batch_get_item,
-            transform_operation_input_override=self._maybe_transform_batch_get_item_request_to_dynamodb_item,
-            transform_output_override=self._maybe_transform_batch_response_to_python_dict
+            output_item_key="Responses",
+            output_item_transform_method=self._transform_batch_get_item_responses_expect_standard_dictionaries,
         )
     
 
@@ -280,13 +291,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = "Key",
+            operation_input=kwargs,
+            input_item_key=None,
+            input_item_transform_method=None,
             input_transform_method=self._transformer.transact_get_items_input_transform,
             input_transform_shape=TransactGetItemsInputTransformInput,
             output_transform_method=self._transformer.transact_get_items_output_transform,
             output_transform_shape=TransactGetItemsOutputTransformInput,
-            client_method=self._client.transact_get_items
+            client_method=self._client.transact_get_items,
+            output_item_key="Responses",
+            output_item_transform_method=self._transform_transact_get_items_responses_expect_standard_dictionaries,
         )
 
     def transact_write_items(self, **kwargs) -> dict:
@@ -306,13 +320,16 @@ class EncryptedClient:
         See boto3 docs for complete response structure.
         """
         return self._client_operation_logic(
-            operation_input = kwargs,
-            item_key = "Key",
+            operation_input=kwargs,
+            input_item_key="TransactItems",
+            input_item_transform_method=self._transform_transact_write_items_transact_items_expect_standard_dictionaries,
             input_transform_method=self._transformer.transact_write_items_input_transform,
             input_transform_shape=TransactWriteItemsInputTransformInput,
             output_transform_method=self._transformer.transact_write_items_output_transform,
             output_transform_shape=TransactWriteItemsOutputTransformInput,
-            client_method=self._client.transact_write_items
+            client_method=self._client.transact_write_items,
+            output_item_key=None,
+            output_item_transform_method=None,
         )
 
     def update_item(self, **kwargs):
@@ -321,6 +338,8 @@ class EncryptedClient:
     def get_paginator(self, operation_name: str) -> EncryptedPaginator:
         """Get a paginator from the underlying client. If the paginator requested is for
         "scan" or "query", the paginator returned will transparently decrypt the returned items.
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#paginators
 
         Parameters:
             operation_name (str): Name of operation for which to get paginator
@@ -332,22 +351,23 @@ class EncryptedClient:
                 paginator=paginator, encryption_config=self._encryption_config
             )
         else:
-            # 
+            # The paginator can still be used for list_backups, list_tables, and list_tags_of_resource,
+            # but there is nothing to encrypt/decrypt in these operations.
             return paginator
         
     def _client_operation_logic(
         self,
         *,
         operation_input,
-        item_key,
+        input_item_key,
+        input_item_transform_method,
         input_transform_method,
         input_transform_shape,
         output_transform_method,
         output_transform_shape,
         client_method,
-        transform_operation_input_override=None,
-        transform_transformed_input_override=None,
-        transform_output_override=None,
+        output_item_key,
+        output_item_transform_method,
     ):
         """
         Shared logic to interface between boto3 Client operation inputs and encryption transformers.
@@ -355,12 +375,9 @@ class EncryptedClient:
             and boto3 Clients across all methods in this class.
         """
         # Transform input from Python dictionary JSON to DynamoDB JSON if required
-        if transform_operation_input_override:
-            sdk_input = transform_operation_input_override(**operation_input)
-        else:
-            sdk_input = self._maybe_transform_request_to_dynamodb_item(item_key=item_key, **operation_input)
-
-        print(f'{sdk_input=}')
+        sdk_input = operation_input.copy()
+        if self._expect_standard_dictionaries and input_item_transform_method and input_item_key and input_item_key in sdk_input:
+            sdk_input[input_item_key] = input_item_transform_method(operation_input[input_item_key])
 
         # Apply encryption transformation to the user-supplied input
         transformed_request = input_transform_method(
@@ -368,11 +385,6 @@ class EncryptedClient:
                 sdk_input=sdk_input
             )
         ).transformed_input
-
-        if transform_transformed_input_override:
-            transformed_request = transform_transformed_input_override(**transformed_request)
-
-        print(f'{transformed_request=}')
 
         # Call boto3 client method with transformed input and receive raw boto3 output
         sdk_response = client_method(**transformed_request)
@@ -389,27 +401,22 @@ class EncryptedClient:
         dbesdk_response = self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
 
         # Transform response from DynamoDB JSON to Python dictionary JSON if required
-        if transform_output_override:
-            dbesdk_response = transform_output_override(dbesdk_response)
-        else:
-            dbesdk_response = self._maybe_transform_response_to_python_dict(dbesdk_response)
+        if self._expect_standard_dictionaries and output_item_transform_method and output_item_key and output_item_key in dbesdk_response:
+            dbesdk_response[output_item_key] = output_item_transform_method(dbesdk_response[output_item_key])
 
         return dbesdk_response
 
-    def _maybe_transform_request_to_dynamodb_item(self, item_key, **kwargs):
-        if self._expect_standard_dictionaries:
-            dynamodb_item = dict_to_ddb(kwargs[item_key])
-            dynamodb_input = kwargs.copy()
-            dynamodb_input[item_key] = dynamodb_item
-        else:
-            dynamodb_input = kwargs.copy()
-        return dynamodb_input
+    def _transform_batch_write_item_request_items_expect_standard_dictionaries(self, tables):
+        return self._transform_map_of_table_to_list_of_requests_expect_standard_dictionaries(tables)
     
-    def _maybe_transform_batch_write_item_request_to_dynamodb_item(self, **kwargs):
-        if not self._expect_standard_dictionaries:
-            return kwargs
-        
-        tables = kwargs["RequestItems"]
+    def _transform_batch_write_item_unprocessed_items_expect_standard_dictionaries(self, tables):
+        return self._transform_map_of_table_to_list_of_requests_expect_standard_dictionaries(tables)
+    
+    def _transform_batch_get_item_responses_expect_standard_dictionaries(self, tables):
+        return self._transform_map_of_table_to_list_of_items_expect_standard_dictionaries(tables)
+
+    def _transform_map_of_table_to_list_of_requests_expect_standard_dictionaries(self, tables):
+        output_tables = {}
         table_names = list(tables.keys())
         for table_name in table_names:
             requests = tables[table_name]
@@ -423,74 +430,47 @@ class EncryptedClient:
                     dict_request = dict_to_ddb(request[request_name]["Item"])
                     boto3_request = {"Item": dict_request}
                 elif request_name == "DeleteRequest":
-                    dict_request = dict_to_ddb(request[request_name]["Key"])
-                    boto3_request = {"Key": dict_request}
-                    output_requests.append({request_name: boto3_request})
+                    # Delete requests are based on Keys, which are expected to already be in DynamoDB JSON.
+                    # Only Items can be in Python dictionary JSON.
+                    boto3_request = request[request_name]
                 else:
                     raise ValueError(f"Unknown batch_write_items method key: {request_name}")
                 output_requests.append({request_name: boto3_request})
-            kwargs["RequestItems"][table_name] = output_requests
-        return kwargs
+            output_tables[table_name] = output_requests
+        return output_tables
 
-    def _maybe_transform_batch_get_item_request_to_dynamodb_item(self, **kwargs):
-        if not self._expect_standard_dictionaries:
-            return kwargs
-        
-        tables = kwargs["RequestItems"]
+    def _transform_map_of_table_to_list_of_items_expect_standard_dictionaries(self, tables):
+        output_tables = {}
         table_names = list(tables.keys())
         for table_name in table_names:
-            keys = tables[table_name]["Keys"]
-            output_keys = []
-            for key in keys:
-                dict_key = dict_to_ddb(key)
-                output_keys.append(dict_key)
-            kwargs["RequestItems"][table_name]["Keys"] = output_keys
-        return kwargs
-    
-    def _maybe_transform_batch_request_to_dict_item(self, **kwargs):
-        # TODO: I forget what vVv meant. I think it's ok to keep the same since internal client is created internally.
-        # TODO separate standard dictionaries for this one (internal client expects dicts)
-        if not self._expect_standard_dictionaries:
-            return kwargs
-        
-        output_requests = []
+            items = tables[table_name]
+            output_items = []
+            for item in items:
+                output_items.append(ddb_to_dict(item))
+            output_tables[table_name] = output_items
+        return output_tables
 
-        tables = kwargs["RequestItems"]
-        table_names = list(tables.keys())
-        if len(tables.keys()) > 1:
-            raise ValueError("Table batch_write_item only supports 1 table in a request.")
-        table_name = table_names[0]
-        requests = tables[table_names[0]]
-        for request in requests:
-            request_name_list = list(request.keys())
-            if len(request_name_list) > 1:
-                raise ValueError("Cannot send more than one request in a single request")
-            request_name = request_name_list[0]
-            if request_name == "PutRequest":
-                dict_request = ddb_to_dict(request[request_name]["Item"])
-                boto3_request = {"Item": dict_request}
-            elif request_name == "DeleteRequest":
-                dict_request = ddb_to_dict(request[request_name]["Key"])
-                boto3_request = {"Key": dict_request}
-                output_requests.append({request_name: boto3_request})
+    def _transform_transact_get_items_responses_expect_standard_dictionaries(self, items):
+        output_items = []
+        for item in items:
+            output_items.append({"Item": ddb_to_dict(item["Item"])})
+        return output_items
+
+    def _transform_transact_write_items_transact_items_expect_standard_dictionaries(self, transact_items):
+        output_transact_items = []
+        for transact_item in transact_items:
+            if "Put" in transact_item:
+                transact_item["Put"]["Item"] = dict_to_ddb(transact_item["Put"]["Item"])
+                output_transact_items.append(transact_item)
+            elif "Delete" or "ConditionCheck" in transact_item:
+                # Delete and ConditionCheck requests are based on Keys, which are expected to already be in DynamoDB JSON.
+                output_transact_items.append(transact_item)
+            elif "Update" in transact_item:
+                # Update requests are not supported yet.
+                raise NotImplementedError('"update_item" is not yet implemented')
             else:
-                raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-            output_requests.append({request_name: boto3_request})
-        kwargs["RequestItems"][table_name] = output_requests
-        return kwargs
-    
-    def _maybe_transform_response_to_python_dict(self, response):
-        if self._expect_standard_dictionaries:
-            if "Item" in response:
-                response["Item"] = ddb_to_dict(response["Item"])
-        return response
-
-    def _maybe_transform_batch_response_to_python_dict(self, response):
-        if self._expect_standard_dictionaries:
-            if "Responses" in response:
-                for table_name, items in response["Responses"].items():
-                    response["Responses"][table_name] = [ddb_to_dict(item) for item in items]
-        return response
+                raise ValueError(f"Unknown transact_write_items method key: {transact_item}")
+        return output_transact_items
 
     def _copy_sdk_response_to_dbesdk_response(self, sdk_response, dbesdk_response):
         for sdk_response_key, sdk_response_value in sdk_response.items():
@@ -498,22 +478,10 @@ class EncryptedClient:
                 dbesdk_response[sdk_response_key] = sdk_response_value
         return dbesdk_response
 
-    def _get_protected_methods(self):
-        """Return a list of all protected methods in the given object."""
-        return [
-            name for name, member in inspect.getmembers(self, predicate=inspect.ismethod)
-            if name.startswith('_') and not name.startswith('__')
-        ]
-
-
-        
     def __getattr__(self, name):
         # Before calling __getattr__, the class will look at its own methods.
         # Any methods defined on the class are called before getting to this point.
 
-        # __getattr__ doesn't find a class' protected methods by default.
-        # if name in self._get_protected_methods():
-        #     return getattr(self, name)
         # If the class doesn't override a boto3 method, defer to boto3 now.
         if hasattr(self._client, name):
             return getattr(self._client, name)
