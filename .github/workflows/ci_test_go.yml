@@ -74,6 +74,15 @@ jobs:
         run: |
           go install golang.org/x/tools/cmd/goimports@latest
 
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
+
       - name: Build ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
