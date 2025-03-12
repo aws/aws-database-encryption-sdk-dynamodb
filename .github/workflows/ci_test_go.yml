@@ -65,14 +65,13 @@ jobs:
         run: |
           sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
-      # - name: Regenerate code using smithy-dafny if necessary
-      #   if: ${{ inputs.regenerate-code }}
-      #   uses: ./.github/actions/polymorph_codegen
-      #   with:
-      #     dafny: ${{ env.DAFNY_VERSION }}
-      #     library: ${{ matrix.library }}
-      #     diff-generated-code: false
-      #     update-and-regenerate-mpl: true
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_go CORES=$CORES
 
       - name: Install Go
         uses: actions/setup-go@v5
