@@ -64,9 +64,9 @@ PROJECT_INDEX := \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/KeyVectors/src/Index.dfy \
 	DynamoDbEncryption/dafny/StructuredEncryption/src/Index.dfy \
-	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
 
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
@@ -80,8 +80,10 @@ SERVICE_DEPS_DDBEncryption := \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
-	DynamoDbEncryption/dafny/StructuredEncryption \
+	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor \
+	DynamoDbEncryption/dafny/StructuredEncryption \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
 transpile_implementation_rust: _remove_wrapped_client_rust
@@ -141,19 +143,3 @@ purge_polymorph_code:
 		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
 		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
 		runtimes/go/TestsFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService
-
-
-_transpile_implementation_all:
-	@echo "No polymorphing of dependency"
-
-_transpile_test_all:
-	@echo "No polymorphing of dependency"
-
-_transpile_dependencies:
-	@echo "No polymorphing of dependency"
-
-_transpile_dependencies_test:
-	@echo "No polymorphing of dependency"
-
-mvn_local_deploy_dependencies:
-	@echo "No polymorphing of dependency"
