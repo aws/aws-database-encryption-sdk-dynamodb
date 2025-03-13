@@ -121,6 +121,14 @@ jobs:
         working-directory: ./${{ matrix.library }}
         run: |
           make polymorph_go
+      
+      # TODO: uncomment this
+      # - name: Copy ${{ matrix.library }} Vector Files
+      #   if: ${{ matrix.library == 'TestVectors' }}
+      #   shell: bash
+      #   working-directory: ./${{ matrix.library }}
+      #   run: |
+      #     cp runtimes/java/*.json runtimes/go/TestsFromDafny-go/
   
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
