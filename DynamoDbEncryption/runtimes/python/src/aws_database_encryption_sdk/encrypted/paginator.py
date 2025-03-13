@@ -107,7 +107,6 @@ class EncryptedPaginator:
         except KeyError:
             pass
     
-        # client_query_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **client_query_kwargs)
         transformed_request = self._transformer.query_input_transform(
             QueryInputTransformInput(
                 sdk_input = client_query_kwargs
@@ -117,11 +116,6 @@ class EncryptedPaginator:
         if pagination_config is not None:
             transformed_request["PaginationConfig"] = pagination_config
         sdk_page_response = self._paginator.paginate(**transformed_request)
-
-        print(f"{sdk_page_response=}")
-        print(f"{sdk_page_response.__dict__=}")
-
-
 
         for page in sdk_page_response:
             # boto3 docs are wrong. NextToken is never returned.

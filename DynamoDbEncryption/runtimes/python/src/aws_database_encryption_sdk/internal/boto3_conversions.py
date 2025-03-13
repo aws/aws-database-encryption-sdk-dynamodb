@@ -214,11 +214,8 @@ class BotoInterfaceShapeConverter(ABC):
     
     def batch_write_item_request(self, batch_write_item_request):
         if "RequestItems" in batch_write_item_request:
-            batch_write_item_request["RequestItems"] = self.batch_write_item_request_items(batch_write_item_request["RequestItems"])
+            batch_write_item_request["RequestItems"] = self.batch_write_item_items(batch_write_item_request["RequestItems"])
         return batch_write_item_request
-    
-    def batch_write_item_request_items(self, request_items):
-        return self.batch_write_item_items(request_items)
     
     def batch_write_item_items(self, items):
         items_out = {}
@@ -252,4 +249,57 @@ class BotoInterfaceShapeConverter(ABC):
             item_collection_metrics_out[table_name] = table_value
         return item_collection_metrics_out
 
-    def 
+    def transact_write_items_request(self, transact_write_items_request):
+        if "TransactItems" in transact_write_items_request:
+            transact_write_items_request["TransactItems"] = self.transact_write_items(transact_write_items_request["TransactItems"])
+        return transact_write_items_request
+    
+    def transact_write_items(self, transact_items):
+        output_transact_items = []
+        for transact_item in transact_items:
+            if "Put" in transact_item:
+                transact_item["Put"]["Item"] = self.item(transact_item["Put"]["Item"])
+                output_transact_items.append(transact_item)
+            elif "Delete" in transact_item:
+                transact_item["Delete"]["Key"] = self.item(transact_item["Delete"]["Key"])
+                output_transact_items.append(transact_item)
+            elif "ConditionCheck" in transact_item:
+                transact_item["ConditionCheck"]["Key"] = self.item(transact_item["ConditionCheck"]["Key"])
+                output_transact_items.append(transact_item)
+            elif "Update" in transact_item:
+                # Update requests are not supported yet.
+                raise NotImplementedError('"update_item" is not yet implemented')
+            else:
+                raise ValueError(f"Unknown transact_write_items method key: {transact_item}")
+        return output_transact_items
+
+    def transact_write_items_response(self, transact_write_items_response):
+        return transact_write_items_response
+    
+    def transact_get_items_request(self, transact_get_items_request):
+        if "TransactItems" in transact_get_items_request:
+            transact_get_items_request["TransactItems"] = self.transact_get_items(transact_get_items_request["TransactItems"])
+        return transact_get_items_request
+    
+    def transact_get_items(self, transact_items):
+        output_transact_items = []
+        for transact_item in transact_items:
+            if "Get" in transact_item:
+                transact_item["Get"]["Key"] = self.item(transact_item["Get"]["Key"])
+                output_transact_items.append(transact_item)
+            else:
+                raise ValueError(f"Unknown transact_get_items method key: {transact_item}")
+        return output_transact_items
+    
+    def transact_get_items_response(self, transact_get_items_response):
+        if "Responses" in transact_get_items_response:
+            transact_get_items_response["Responses"] = self.transact_get_items_responses(transact_get_items_response["Responses"])
+        return transact_get_items_response
+    
+    def transact_get_items_responses(self, responses):
+        responses_out = []
+        for response in responses:
+            if "Item" in response:
+                response["Item"] = self.item(response["Item"])
+            responses_out.append(response)
+        return responses_out

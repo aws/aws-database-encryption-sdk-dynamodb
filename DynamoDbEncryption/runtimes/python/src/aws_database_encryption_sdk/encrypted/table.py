@@ -1,6 +1,9 @@
-from boto3.resources.base import ServiceResource
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+"""High-level helper class to provide an encrypting wrapper for boto3 DynamoDB tables."""
 
-"""High-level helper class to provide an encrypting wrapper for boto3 DynamoDB clients."""
+from typing import Optional, Any, Dict, List
+from boto3.resources.base import ServiceResource
 from boto3.dynamodb.table import BatchWriter
 
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
@@ -25,6 +28,25 @@ from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeT
 
 
 class EncryptedTable:
+    """Wrapper for a boto3 DynamoDB table that transparently encrypts/decrypts items.
+
+    This class implements the complete boto3 DynamoDB table API, allowing it to serve as a
+    drop-in replacement that transparently handles encryption and decryption of items.
+
+    The API matches the standard boto3 DynamoDB table interface:
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table.html
+
+    This class will encrypt/decrypt items for the following operations:
+        * put_item
+        * get_item
+        * query
+        * scan
+        * batch_writer
+
+    Any other operations on this class will defer to the underlying boto3 DynamoDB table's implementation.
+
+    Note: The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
+    """
 
     def __init__(
         self,
@@ -32,29 +54,208 @@ class EncryptedTable:
         table: ServiceResource,
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
+        """
+        Parameters:
+            table (ServiceResource): Initialized boto3 DynamoDB table
+            encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
+        """
         self._table = table
         self._encryption_config = encryption_config
         self._transformer = DynamoDbEncryptionTransforms(
-            config = encryption_config
+            config=encryption_config
         )
         self._client_shape_to_resource_shape_converter = ClientShapeToResourceShapeConverter()
-        self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter(table_name = self._table.table_name)
+        self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter(
+            table_name=self._table.table_name
+        )
+
+    def put_item(self, **kwargs) -> Dict[str, Any]:
+        """Puts a single item in the table. Encrypts the item before writing to DynamoDB.
+
+        The parameters and return value match the boto3 DynamoDB table put_item API:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/put_item.html
+
+        Args:
+            Item (dict): A map of attribute name/value pairs to write to the table
+            
+        These are only a list of required args; see boto3 docs for complete request structure.
+
+        Returns:
+            dict: The response from DynamoDB.
+            
+        See boto3 docs for complete response structure.
+        """
+        return self._table_operation_logic(
+            operation_input=kwargs,
+            input_transform_method=self._transformer.put_item_input_transform,
+            input_transform_shape=PutItemInputTransformInput,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.put_item_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.put_item_request,
+            output_transform_method=self._transformer.put_item_output_transform,
+            output_transform_shape=PutItemOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.put_item_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.put_item_response,
+            table_method=self._table.put_item,
+        )
+
+    def get_item(self, **kwargs) -> Dict[str, Any]:
+        """Gets a single item from the table. Decrypts the item after reading from DynamoDB.
+
+        The parameters and return value match the boto3 DynamoDB table get_item API:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/get_item.html
+
+        Args:
+            Key (dict): The primary key of the item to retrieve
+
+        These are only a list of required args; see boto3 docs for complete request structure.
+
+        Returns:
+            dict: The response from DynamoDB containing the requested item.
+            
+        See boto3 docs for complete response structure.
+        """
+        return self._table_operation_logic(
+            operation_input=kwargs,
+            input_transform_method=self._transformer.get_item_input_transform,
+            input_transform_shape=GetItemInputTransformInput,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.get_item_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.get_item_request,
+            output_transform_method=self._transformer.get_item_output_transform,
+            output_transform_shape=GetItemOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.get_item_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.get_item_response,
+            table_method=self._table.get_item,
+        )
+
+    def query(self, **kwargs) -> Dict[str, Any]:
+        """Queries items from the table or index. Decrypts any returned items.
+
+        The parameters and return value match the boto3 DynamoDB table query API:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/query.html
+
+        Args:
+            KeyConditionExpression (str): The condition that specifies the key value(s) for items to be retrieved
+
+        These are only a list of required args; see boto3 docs for complete request structure.
+
+        Returns:
+            dict: The response from DynamoDB containing the matching items.
+            
+        See boto3 docs for complete response structure.
+        """
+        return self._table_operation_logic(
+            operation_input=kwargs,
+            input_transform_method=self._transformer.query_input_transform,
+            input_transform_shape=QueryInputTransformInput,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.query_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.query_request,
+            output_transform_method=self._transformer.query_output_transform,
+            output_transform_shape=QueryOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.query_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.query_response,
+            table_method=self._table.query,
+        )
+
+    def scan(self, **kwargs) -> Dict[str, Any]:
+        """Scans the entire table or index. Decrypts any returned items.
+
+        The parameters and return value match the boto3 DynamoDB table scan API:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/scan.html
+
+        Args:
+            FilterExpression (str, optional): A string that contains conditions that DynamoDB applies after the scan operation
+
+        These are only a list of required args; see boto3 docs for complete request structure.
+
+        Returns:
+            dict: The response from DynamoDB containing the scanned items.
+            
+        See boto3 docs for complete response structure.
+        """
+        return self._table_operation_logic(
+            operation_input=kwargs,
+            input_transform_method=self._transformer.scan_input_transform,
+            input_transform_shape=ScanInputTransformInput,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.scan_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.scan_request,
+            output_transform_method=self._transformer.scan_output_transform,
+            output_transform_shape=ScanOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.scan_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.scan_response,
+            table_method=self._table.scan,
+        )
+
+    def update_item(self, **kwargs):
+        """Not implemented. Raises NotImplementedError.
+
+        Args:
+            **kwargs: Any arguments passed to this method
+
+        Raises:
+            NotImplementedError: This operation is not yet implemented
+        """
+        raise NotImplementedError('"update_item" is not yet implemented')
+
+    def batch_writer(
+        self,
+        overwrite_by_pkeys: Optional[List[str]] = None
+    ) -> BatchWriter:
+        """Create a batch writer object that will transparently encrypt requests to DynamoDB.
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
+
+        Parameters:
+            overwrite_by_pkeys: De-duplicate request items in buffer if match new request
+                item on specified primary keys. i.e ``["partition_key1", "sort_key2", "sort_key3"]``
+
+        Returns:
+            BatchWriter: A batch writer that will transparently encrypt requests
+        """
+        encrypted_client = EncryptedClient(
+            client=self._table.meta.client,
+            encryption_config=self._encryption_config,
+            expect_standard_dictionaries=True,
+        )
+        return BatchWriter(
+            table_name=self._table.name,
+            client=encrypted_client,
+            overwrite_by_pkeys=overwrite_by_pkeys
+        )
 
     def _table_operation_logic(
         self,
         *,
-        operation_input,
-        input_transform_method,
-        input_transform_shape,
-        input_resource_to_client_shape_transform_method,
-        input_client_to_resource_shape_transform_method,
-        output_transform_method,
-        output_transform_shape,
-        output_resource_to_client_shape_transform_method,
-        output_client_to_resource_shape_transform_method,
-        table_method,
-    ):
-        """Shared, abstracted logic to interface between boto3 Table operation inputs and encryption transformers."""
+        operation_input: Dict[str, Any],
+        input_transform_method: Any,
+        input_transform_shape: Any,
+        input_resource_to_client_shape_transform_method: Any,
+        input_client_to_resource_shape_transform_method: Any,
+        output_transform_method: Any,
+        output_transform_shape: Any,
+        output_resource_to_client_shape_transform_method: Any,
+        output_client_to_resource_shape_transform_method: Any,
+        table_method: Any,
+    ) -> Dict[str, Any]:
+        """Shared logic to interface between boto3 Table operation inputs and encryption transformers.
+
+        This captures the shared pattern to call encryption/decryption transformer code
+        and boto3 Tables across all methods in this class.
+
+        Args:
+            operation_input: The input to the operation
+            input_transform_method: The method to transform the input for encryption
+            input_transform_shape: The shape of the input transform
+            input_resource_to_client_shape_transform_method: Method to transform resource shape to client shape for input
+            input_client_to_resource_shape_transform_method: Method to transform client shape to resource shape for input
+            output_transform_method: The method to transform the output for decryption
+            output_transform_shape: The shape of the output transform
+            output_resource_to_client_shape_transform_method: Method to transform resource shape to client shape for output
+            output_client_to_resource_shape_transform_method: Method to transform client shape to resource shape for output
+            table_method: The underlying table method to call
+
+        Returns:
+            dict: The transformed response from DynamoDB
+        """
         # Table inputs are formatted as Python dictionary JSON, but encryption transformers expect DynamoDB JSON.
         # `input_resource_to_client_shape_transform_method` formats the supplied Python dictionary as DynamoDB JSON.
         input_transform_input = input_resource_to_client_shape_transform_method(operation_input)
@@ -62,7 +263,7 @@ class EncryptedTable:
         # Apply encryption transformation to the user-supplied input
         input_transform_output = input_transform_method(
             input_transform_shape(
-                sdk_input = input_transform_input
+                sdk_input=input_transform_input
             )
         ).transformed_input
 
@@ -81,8 +282,8 @@ class EncryptedTable:
         # Apply encryption transformer to boto3 output
         output_transform_output = output_transform_method(
             output_transform_shape(
-                original_input = input_transform_input,
-                sdk_output = output_transform_input,
+                original_input=input_transform_input,
+                sdk_output=output_transform_input,
             )
         ).transformed_output
 
@@ -94,205 +295,40 @@ class EncryptedTable:
 
         return response
 
-    def put_item(self, **kwargs):
-        return self._table_operation_logic(
-            operation_input = kwargs,
-            input_transform_method=self._transformer.put_item_input_transform,
-            input_transform_shape=PutItemInputTransformInput,
-            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.put_item_request,
-            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.put_item_request,
-            output_transform_method=self._transformer.put_item_output_transform,
-            output_transform_shape=PutItemOutputTransformInput,
-            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.put_item_response,
-            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.put_item_response,
-            table_method=self._table.put_item
-        )
-        # input_transform_input = self._resource_shape_to_client_shape_converter.put_item_request(kwargs)
-        # input_transform_output = self._transformer.put_item_input_transform(
-        #     PutItemInputTransformInput(
-        #         sdk_input = input_transform_input
-        #     )
-        # ).transformed_input
+    def _copy_missing_sdk_output_fields_to_response(
+        self,
+        sdk_output: Dict[str, Any],
+        response: Dict[str, Any],
+        output_transform_output: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Copy any missing fields from the SDK output to the response.
 
-        # sdk_input = self._client_shape_to_resource_shape_converter.put_item_request(input_transform_output)
+        Args:
+            sdk_output: The raw SDK output
+            response: The current response
+            output_transform_output: The transformed output
 
-        # sdk_output = self._table.put_item(**sdk_input)
-
-        # output_transform_input = self._resource_shape_to_client_shape_converter.put_item_response(sdk_output)
-
-        # output_transform_output = self._transformer.put_item_output_transform(
-        #     PutItemOutputTransformInput(
-        #         original_input = input_transform_input,
-        #         sdk_output = output_transform_input,
-        #     )
-        # ).transformed_output
-
-        # response = self._client_shape_to_resource_shape_converter.put_item_response(output_transform_output)
-        # response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
-
-        # return response
-    
-    def get_item(self, **kwargs):
-        return self._table_operation_logic(
-            operation_input = kwargs,
-            input_transform_method=self._transformer.get_item_input_transform,
-            input_transform_shape=GetItemInputTransformInput,
-            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.get_item_request,
-            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.get_item_request,
-            output_transform_method=self._transformer.get_item_output_transform,
-            output_transform_shape=GetItemOutputTransformInput,
-            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.get_item_response,
-            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.get_item_response,
-            table_method=self._table.get_item
-        )
-        # input_transform_input = self._resource_shape_to_client_shape_converter.get_item_request(kwargs)
-        # input_transform_output = self._transformer.get_item_input_transform(
-        #     GetItemInputTransformInput(
-        #         sdk_input = input_transform_input
-        #     )
-        # ).transformed_input
-
-        # sdk_input = self._client_shape_to_resource_shape_converter.get_item_request(input_transform_output)
-        # sdk_output = self._table.get_item(**sdk_input)
-
-        # output_transform_input = self._resource_shape_to_client_shape_converter.get_item_response(sdk_output)
-        
-        # output_transform_output = self._transformer.get_item_output_transform(
-        #     GetItemOutputTransformInput(
-        #         original_input = input_transform_input,
-        #         sdk_output = output_transform_input,
-        #     )
-        # ).transformed_output
-
-        # response = self._client_shape_to_resource_shape_converter.get_item_response(output_transform_output)
-        # response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
-
-        # return response
-    
-    # TODO refactor across table/client/resource/more?
-    def _copy_missing_sdk_output_fields_to_response(self, sdk_output, response, output_transform_output):
+        Returns:
+            dict: The response with any missing fields copied from SDK output
+        """
         for sdk_output_key, sdk_output_value in sdk_output.items():
             if sdk_output_key not in output_transform_output:
                 response[sdk_output_key] = sdk_output_value
         return response
 
-    def update_item(self, **kwargs):
-        raise NotImplementedError('"update_item" is not yet implemented')
-    
-    def batch_writer(
-        self,
-        overwrite_by_pkeys: list[str] | None
-    ):
-        """Create a batch writer object that will transparently encrypt requests to DynamoDB.
+    def __getattr__(self, name: str) -> Any:
+        """Delegate unknown attributes to the underlying table.
 
-        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
+        Args:
+            name: The name of the attribute to get
 
-        Parameters:
-            overwrite_by_pkeys: De-duplicate request items in buffer if match new request
-                item on specified primary keys. i.e ``["partition_key1", "sort_key2", "sort_key3"]``
+        Returns:
+            Any: The attribute value from the underlying table
+
+        Raises:
+            AttributeError: If the attribute doesn't exist on the underlying table
         """
-        encrypted_client = EncryptedClient(
-            client = self._table.meta.client,
-            encryption_config = self._encryption_config,
-            expect_standard_dictionaries = True,
-        )
-        return BatchWriter(table_name=self._table.name, client=encrypted_client, overwrite_by_pkeys=overwrite_by_pkeys)
-    
-    def scan(self, **kwargs):
-        return self._table_operation_logic(
-            operation_input = kwargs,
-            input_transform_method=self._transformer.scan_input_transform,
-            input_transform_shape=ScanInputTransformInput,
-            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.scan_request,
-            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.scan_request,
-            output_transform_method=self._transformer.scan_output_transform,
-            output_transform_shape=ScanOutputTransformInput,
-            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.scan_response,
-            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.scan_response,
-            table_method=self._table.scan
-        
-        )
-        # input_transform_input = self._resource_shape_to_client_shape_converter.scan_request(kwargs)
-        # input_transform_output = self._transformer.scan_input_transform(
-        #     ScanInputTransformInput(
-        #         sdk_input = input_transform_input
-        #     )
-        # ).transformed_input
-
-        # sdk_input = self._client_shape_to_resource_shape_converter.scan_request(input_transform_output)
-
-        # sdk_output = self._table.scan(**sdk_input)
-
-        # # sdk_output is a dict, but DBESDK internals expect DDB
-
-        # output_transform_input = self._resource_shape_to_client_shape_converter.scan_response(sdk_output)
-
-        # output_transform_output = self._transformer.scan_output_transform(
-        #     ScanOutputTransformInput(
-        #         original_input = input_transform_input,
-        #         sdk_output = output_transform_input,
-        #     )
-        # ).transformed_output
-
-        # response = self._client_shape_to_resource_shape_converter.scan_response(output_transform_output)
-        # response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
-
-        # return response
-
-    def query(self, **kwargs):
-        return self._table_operation_logic(
-            operation_input = kwargs,
-            input_transform_method=self._transformer.query_input_transform,
-            input_transform_shape=QueryInputTransformInput,
-            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.query_request,
-            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.query_request,
-            output_transform_method=self._transformer.query_output_transform,
-            output_transform_shape=QueryOutputTransformInput,
-            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.query_response,
-            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.query_response,
-            table_method=self._table.query
-        )
-        # print(f"query {kwargs=}")
-        # input_transform_input = self._resource_shape_to_client_shape_converter.query_request(kwargs)
-
-        # print(f"query {input_transform_input=}")
-        # input_transform_output = self._transformer.query_input_transform(
-        #     QueryInputTransformInput(
-        #         sdk_input = input_transform_input
-        #     )
-        # ).transformed_input
-
-        # print(f"query {input_transform_output=}")
-
-        # sdk_input = self._client_shape_to_resource_shape_converter.query_request(input_transform_output)
-
-        # print(f"query {sdk_input=}")
-
-        # sdk_output = self._table.query(**sdk_input)
-
-        # output_transform_input = self._resource_shape_to_client_shape_converter.query_response(sdk_output)
-
-        # output_transform_output = self._transformer.query_output_transform(
-        #     QueryOutputTransformInput(
-        #         original_input = input_transform_input,
-        #         sdk_output = output_transform_input,
-        #     )
-        # ).transformed_output
-
-        # response = self._client_shape_to_resource_shape_converter.query_response(output_transform_output)
-        # response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
-
-        # return response
-
-    def __getattr__(self, name):
-        # Before calling __getattr__, the class will look at its own methods.
-        # Any methods defined on the class are called before getting to this point.
-
-        # __getattr__ doesn't find a class' protected methods by default.
-        # if name in self._get_protected_methods():
-        #     return getattr(self, name)
-        # If the class doesn't override a boto3 method, defer to boto3 now.
-        if hasattr(self._resource, name):
-            return getattr(self._resource, name)
+        if hasattr(self._table, name):
+            return getattr(self._table, name)
         else:
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")

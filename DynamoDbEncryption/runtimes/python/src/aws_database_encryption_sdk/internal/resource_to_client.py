@@ -85,7 +85,7 @@ class ResourceShapeToClientShapeConverter(BotoInterfaceShapeConverter):
 
     def batch_write_item_request_items(self, tables):
         """Transform a batch write request's items to DynamoDB format."""
-        output_tables = []
+        output_tables = {}
         table_names = list(tables.keys())
         for table_name in table_names:
             requests = tables[table_name]
@@ -105,7 +105,7 @@ class ResourceShapeToClientShapeConverter(BotoInterfaceShapeConverter):
                 else:
                     raise ValueError(f"Unknown batch_write_items method key: {request_name}")
                 output_requests.append({request_name: boto3_request})
-            output_tables.append({table_name: output_requests})
+            output_tables[table_name] = output_requests
         return output_tables
 
     def batch_get_request(self, **kwargs):
