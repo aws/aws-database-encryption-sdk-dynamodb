@@ -32,8 +32,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import CreateInterceptedDDBClient
   import DynamoDbItemEncryptor
 
-
-  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+  // TODO: Add extern for DEFAULT_KEYS
+  const DEFAULT_KEYS : string := "../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
 
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
