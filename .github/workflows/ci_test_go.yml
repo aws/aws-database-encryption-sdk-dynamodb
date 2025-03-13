@@ -27,7 +27,7 @@ jobs:
   testGo:
     strategy:
       matrix:
-        library: [DynamoDbEncryption]
+        library: [DynamoDbEncryption, TestVectors]
         os: [ubuntu-22.04]
         go-version: ["1.23"]
     runs-on: ${{ matrix.os }}
@@ -35,6 +35,17 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Setup Docker
+        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1-alpha
+
+      - name: Setup DynamoDB Local
+        if: matrix.library == 'TestVectors'
+        uses: rrainn/dynamodb-action@v4.0.0
+        with:
+          port: 8000
+          cors: "*"
+          
       - name: Support longpaths
         run: |
           git config --global core.longpaths true
