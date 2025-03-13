@@ -139,7 +139,7 @@ purge_polymorph_code:
 		runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
 		runtimes/go/ImplementationFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService \
 		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \ 
+		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
 		runtimes/go/TestsFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService
 
 
