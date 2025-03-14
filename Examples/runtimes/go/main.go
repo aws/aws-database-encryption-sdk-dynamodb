@@ -7,4 +7,5 @@ import (
 
 func main() {
 	keyring.AwsKmsKeyringExample(utils.KmsKeyID(), utils.DdbTableName())
+	keyring.RawAesExample(utils.DdbTableName())
 }
