@@ -97,12 +97,6 @@ jobs:
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
-      - name: Regenerate code using smithy-dafny
-        shell: bash
-        working-directory: ./${{ matrix.library }}
-        run: |
-          make polymorph_go
-
       - name: Build ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
@@ -110,6 +104,12 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_go CORES=$CORES
+
+      - name: Regenerate code using smithy-dafny
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make polymorph_go
 
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
