@@ -1,4 +1,4 @@
-module examples
+module github.com/aws/aws-database-encryption-sdk-dynamodb/examples
 
 go 1.23.2
 
