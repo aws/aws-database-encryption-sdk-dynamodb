@@ -18,6 +18,7 @@ module DynamoToStruct {
   import Seq
   import Norm = DynamoDbNormalizeNumber
   import SE = StructuredEncryptionUtil
+  import StandardLibrary.Sequence
 
   type Error = AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error
 
@@ -437,7 +438,7 @@ module DynamoToStruct {
     :- Need(|asSet| == |ns|, "Number Set had duplicate values");
     Seq.LemmaNoDuplicatesCardinalityOfSet(ns);
 
-    var normList :- Seq.MapWithResult(n => Norm.NormalizeNumber(n), ns);
+    var normList :- Sequence.MapWithResult(n => Norm.NormalizeNumber(n), ns);
     var asSet := Seq.ToSet(normList);
     :- Need(|asSet| == |normList|, "Number Set had duplicate values after normalization.");
 
@@ -454,6 +455,10 @@ module DynamoToStruct {
 
   function method BinarySetAttrToBytes(bs: BinarySetAttributeValue): (ret: Result<seq<uint8>, string>)
     ensures ret.Success? ==> Seq.HasNoDuplicates(bs)
+    ensures ret.Success? ==>
+              && U32ToBigEndian(|bs|).Success?
+              && LENGTH_LEN <= |ret.value|
+              && ret.value[..LENGTH_LEN] == U32ToBigEndian(|bs|).value
   {
     var asSet := Seq.ToSet(bs);
     :- Need(|asSet| == |bs|, "Binary Set had duplicate values");
@@ -561,14 +566,17 @@ module DynamoToStruct {
   // String Set or Number Set to Bytes
   function method {:tailrecursion} {:opaque} CollectString(
     setToSerialize : StringSetAttributeValue,
+    pos : nat := 0,
     serialized : seq<uint8> := [])
     : Result<seq<uint8>, string>
+    requires pos <= |setToSerialize|
+    decreases |setToSerialize| - pos
   {
-    if |setToSerialize| == 0 then
+    if |setToSerialize| == pos then
       Success(serialized)
     else
-      var entry :- EncodeString(setToSerialize[0]);
-      CollectString(setToSerialize[1..], serialized + entry)
+      var entry :- EncodeString(setToSerialize[pos]);
+      CollectString(setToSerialize, pos+1, serialized + entry)
   }
 
 
@@ -596,13 +604,19 @@ module DynamoToStruct {
   }
 
   // Binary Set to Bytes
-  function method {:tailrecursion} CollectBinary(setToSerialize : BinarySetAttributeValue, serialized : seq<uint8> := []) : Result<seq<uint8>, string>
+  function method {:tailrecursion} CollectBinary(
+    setToSerialize : BinarySetAttributeValue,
+    pos : nat := 0,
+    serialized : seq<uint8> := []
+  ) : Result<seq<uint8>, string>
+    requires pos <= |setToSerialize|
+    decreases |setToSerialize| - pos
   {
-    if |setToSerialize| == 0 then
+    if |setToSerialize| == pos then
       Success(serialized)
     else
-      var item :- SerializeBinaryValue(setToSerialize[0]);
-      CollectBinary(setToSerialize[1..], serialized + item)
+      var item :- SerializeBinaryValue(setToSerialize[pos]);
+      CollectBinary(setToSerialize, pos+1, serialized + item)
   }
 
   // List to Bytes
@@ -641,6 +655,7 @@ module DynamoToStruct {
     if |listToSerialize| == 0 then
       Success(serialized)
     else
+      // Can't do the `pos` optimization, because I can't appease the `decreases`
       var val :- AttrToBytes(listToSerialize[0], true, depth+1);
       CollectList(listToSerialize[1..], depth, serialized + val)
   }
@@ -705,24 +720,27 @@ module DynamoToStruct {
     //# Entries in a serialized Map MUST be ordered by key value,
     //# ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
     var keys := SortedSets.ComputeSetToOrderedSequence2(mapToSerialize.Keys, CharLess);
-    CollectOrderedMapSubset(keys, mapToSerialize, serialized)
+    CollectOrderedMapSubset(keys, mapToSerialize, 0, serialized)
   }
 
   function method {:tailrecursion} {:opaque} CollectOrderedMapSubset(
     keys : seq<AttributeName>,
     mapToSerialize : map<AttributeName, seq<uint8>>,
+    pos : nat := 0,
     serialized : seq<uint8> := []
   )
     : (ret : Result<seq<uint8>, string>)
+    requires pos <= |keys|
     requires forall k <- keys :: k in mapToSerialize
     ensures (ret.Success? && |keys| == 0) ==> (ret.value == serialized)
     ensures (ret.Success? && |keys| == 0) ==> (|ret.value| == |serialized|)
+    decreases |keys| - pos
   {
-    if |keys| == 0 then
+    if |keys| == pos then
       Success(serialized)
     else
-      var data :- SerializeMapItem(keys[0], mapToSerialize[keys[0]]);
-      CollectOrderedMapSubset(keys[1..], mapToSerialize, serialized + data)
+      var data :- SerializeMapItem(keys[pos], mapToSerialize[keys[pos]]);
+      CollectOrderedMapSubset(keys, mapToSerialize, pos+1, serialized + data)
   }
 
   function method BoolToUint8(b : bool) : uint8

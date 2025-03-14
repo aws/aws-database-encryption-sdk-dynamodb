@@ -13,12 +13,22 @@ module HappyCaseTests {
   import MaterialProviders
   import StructuredDataTestFixtures
 
+  const some : UTF8.ValidUTF8Bytes :=
+    var s := [0x73, 0x6f, 0x6d, 0x65];
+    assert s == UTF8.EncodeAscii("some");
+    s
+
+  const value : UTF8.ValidUTF8Bytes :=
+    var s := [0x76, 0x61, 0x6c, 0x75, 0x65];
+    assert s == UTF8.EncodeAscii("value");
+    s
+
   method {:test} TestRoundTrip() {
     var structuredEncryption :-
       expect StructuredEncryption.StructuredEncryption(StructuredEncryption.DefaultStructuredEncryptionConfig());
     var cmm := StructuredDataTestFixtures.GetDefaultCMMWithKMSKeyring();
 
-    var encContext := map[UTF8.EncodeAscii("some") := UTF8.EncodeAscii("value")];
+    var encContext := map[some := value];
     var algSuiteId := AlgorithmSuites.DBE_ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384.id.DBE;
 
     assert  && structuredEncryption.ValidState();

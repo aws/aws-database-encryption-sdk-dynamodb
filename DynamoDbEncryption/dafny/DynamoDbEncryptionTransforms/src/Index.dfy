@@ -58,13 +58,19 @@ module
     requires tableName in config.tableEncryptionConfigs
     ensures SearchModifies(config, tableName) <= TheModifies(config)
 
-  function method {:tailrecursion} AddSignedBeaconActions(names : seq<string>, actions : ET.AttributeActions) : ET.AttributeActions
+  function method {:tailrecursion} AddSignedBeaconActions(
+    names : seq<string>,
+    actions : ET.AttributeActions,
+    pos : nat := 0
+  ) : ET.AttributeActions
     requires forall k <- names :: DDB.IsValid_AttributeName(k)
+    requires pos <= |names|
+    decreases |names| - pos
   {
-    if |names| == 0 then
+    if |names| == pos then
       actions
     else
-      AddSignedBeaconActions(names[1..], actions[names[0] := SET.SIGN_ONLY])
+      AddSignedBeaconActions(names, actions[names[0] := SET.SIGN_ONLY], pos+1)
   }
 
   predicate method IsConfigured(config : AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig, name : string)
@@ -79,11 +85,11 @@ module
   {
     forall tableName <- configs :: ValidTableConfig?(configs[tableName])
   }
-  predicate {:opaque} CorrectlyTransferedStructure?(
+  predicate {:opaque} CorrectlyTransferredStructure?(
     internalConfigs: map<string, DdbMiddlewareConfig.ValidTableConfig>,
     config: AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTablesEncryptionConfig
   )
-    ensures 0 == |internalConfigs| ==> CorrectlyTransferedStructure?(internalConfigs, config)
+    ensures 0 == |internalConfigs| ==> CorrectlyTransferredStructure?(internalConfigs, config)
   {
     forall tableName <- internalConfigs
       ::
@@ -142,7 +148,7 @@ module
       invariant forall k <- m' :: m'[k] == config.tableEncryptionConfigs[k]
       invariant forall internalConfig <- internalConfigs.Values :: internalConfig.logicalTableName in allLogicalTableNames
 
-      invariant CorrectlyTransferedStructure?(internalConfigs, config)
+      invariant CorrectlyTransferredStructure?(internalConfigs, config)
       invariant AllTableConfigsValid?(internalConfigs)
       invariant ValidConfig?(Config(internalConfigs))
 
@@ -223,10 +229,10 @@ module
         assert internalConfig.physicalTableName == tableName;
       }
 
-      assert CorrectlyTransferedStructure?(internalConfigs, config) by {
-        reveal CorrectlyTransferedStructure?();
+      assert CorrectlyTransferredStructure?(internalConfigs, config) by {
+        reveal CorrectlyTransferredStructure?();
         reveal ConfigsMatch();
-        assert CorrectlyTransferedStructure?(internalConfigs - {tableName}, config);
+        assert CorrectlyTransferredStructure?(internalConfigs - {tableName}, config);
         assert ConfigsMatch(tableName, internalConfig, inputConfig);
       }
 
