@@ -17,8 +17,8 @@ module WrappedDDBEncryptionMain {
   import KeyVectors
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
 
-
-  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+  // TODO: Add extern for DEFAULT_KEYS
+  const DEFAULT_KEYS : string := "../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
 
   method AddJson(prev : TestVectorConfig, file : string, keyVectors: KeyVectors.KeyVectorsClient)
     returns (output : Result<TestVectorConfig, string>)
