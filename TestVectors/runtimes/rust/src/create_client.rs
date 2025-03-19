@@ -27,7 +27,7 @@ impl _CreateInterceptedDDBClient_Compile::_default {
 
     let table_configs = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_transforms::conversions::dynamo_db_tables_encryption_config::_dynamo_db_tables_encryption_config::plain_from_dafny(config);
     let shared_config = DAFNY_TOKIO_RUNTIME.block_on(aws_config::load_defaults(
-      aws_config::BehaviorVersion::v2024_03_28()));
+      aws_config::BehaviorVersion::latest()));
 
       let shared_config = shared_config
         .to_builder()
@@ -49,7 +49,7 @@ impl _CreateInterceptedDDBClient_Compile::_default {
   -> Rc<_Wrappers_Compile::Result<Object<dyn IDynamoDBClient>, Rc<Error>>>
   {
     let shared_config = DAFNY_TOKIO_RUNTIME.block_on(aws_config::load_defaults(
-            aws_config::BehaviorVersion::v2024_03_28()));
+            aws_config::BehaviorVersion::latest()));
 
     let shared_config = shared_config
         .to_builder()
