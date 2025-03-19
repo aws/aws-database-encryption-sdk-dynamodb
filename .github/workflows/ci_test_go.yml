@@ -133,3 +133,9 @@ jobs:
         working-directory: ./${{ matrix.library }}
         run: |
           make test_go
+
+      - name: Test Examples
+        if: matrix.library == 'DynamoDbEncryption'
+        working-directory: ./Examples/runtimes/go
+        run: |
+          go run main.go
