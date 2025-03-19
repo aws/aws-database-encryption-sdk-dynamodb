@@ -12,6 +12,8 @@ replace github.com/aws/aws-cryptographic-material-providers-library/releases/go/
 
 replace github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms => ../../../submodules/MaterialProviders/ComAmazonawsKms/runtimes/go/ImplementationFromDafny-go/
 
+replace github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library => ../../../submodules/MaterialProviders/StandardLibrary/runtimes/go/ImplementationFromDafny-go/
+
 require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
 	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
