@@ -189,7 +189,7 @@ func (m DBEsdkMiddleware) createResponseInterceptor() middleware.FinalizeMiddlew
 			return result, metadata, err
 		}
 		// Then intercept the response
-		m.handleResponseInterception(ctx, result.Result)
+		err = m.handleResponseInterception(ctx, result.Result)
 		return result, metadata, err
 	})
 }
