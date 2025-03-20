@@ -51,7 +51,7 @@ module DdbMiddlewareConfig {
       versions <- (set configValue <- config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions),
       keyStore <- (set version <- versions :: version.keySource.store),
       obj <- keyStore.Modifies
-      {:nowarn} :: obj
+             {:nowarn} :: obj
 
   }
 
