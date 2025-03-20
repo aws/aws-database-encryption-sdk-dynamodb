@@ -13,9 +13,9 @@ include $(SMITHY_DAFNY_ROOT)/SmithyDafnyMakefile.mk
 
 VERIFY_TIMEOUT := 250
 
-verify:DAFNY_OPTIONS=--allow-warnings --allow-external-contracts --log-format csv
-verify_single:DAFNY_OPTIONS=--allow-warnings --allow-external-contracts --log-format csv
-verify_service:DAFNY_OPTIONS=--allow-warnings --allow-external-contracts --log-format csv
+verify:DAFNY_OPTIONS=--allow-deprecation --allow-external-contracts --log-format csv
+verify_single:DAFNY_OPTIONS=--allow-deprecation --allow-external-contracts --log-format csv
+verify_service:DAFNY_OPTIONS=--allow-deprecation --allow-external-contracts --log-format csv
 
 transpile_implementation_net: DAFNY_OPTIONS=--allow-warnings --compile-suffix --legacy-module-names --allow-external-contracts
 transpile_test_net: DAFNY_OPTIONS=--allow-warnings --include-test-runner --compile-suffix --legacy-module-names --allow-external-contracts
