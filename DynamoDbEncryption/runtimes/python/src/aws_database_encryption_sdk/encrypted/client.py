@@ -3,6 +3,7 @@
 """High-level helper class to provide an encrypting wrapper for boto3 DynamoDB clients."""
 import botocore.client
 from typing import Optional, Any, Dict, List
+from copy import deepcopy
 
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
     GetItemInputTransformInput,
@@ -22,12 +23,6 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
     QueryInputTransformInput,
     QueryOutputTransformInput,
 )
-from aws_database_encryption_sdk.transform import (
-    dict_to_ddb,
-    ddb_to_dict,
-    list_of_ddb_to_list_of_dict,
-    list_of_dict_to_list_of_ddb,
-)
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
     DynamoDbEncryptionTransforms
 )
@@ -37,9 +32,9 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 from aws_database_encryption_sdk.encrypted.paginator import EncryptedPaginator
 from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
 from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
-from aws_database_encryption_sdk.internal.utils import _copy_sdk_response_to_dbesdk_response
+from aws_database_encryption_sdk.encrypted.boto3_interface import EncryptedBotoInterface
 
-class EncryptedClient:
+class EncryptedClient(EncryptedBotoInterface):
     """Wrapper for a boto3 DynamoDB client that transparently encrypts/decrypts items.
 
     This class implements the complete boto3 DynamoDB client API, allowing it to serve as a
@@ -84,8 +79,8 @@ class EncryptedClient:
             expect_standard_dictionaries (Optional[bool]): Does the underlying boto3 client expect items to be standard Python
                 dictionaries? This should only be set to True if you are using a client obtained
                 from a service resource or table resource (ex: `table.meta.client`).
-                If this is True, the client will expect item-like shapes to be standard Python dictionaries (default: False).
-                
+                If this is True, EncryptedClient will expect item-like shapes to be
+                standard Python dictionaries (default: False).
         """
         self._client = client
         self._encryption_config = encryption_config
@@ -94,7 +89,6 @@ class EncryptedClient:
         )
         self._expect_standard_dictionaries = expect_standard_dictionaries
         self._resource_to_client_shape_converter = ResourceShapeToClientShapeConverter()
-        # 
         self._client_to_resource_shape_converter = ClientShapeToResourceShapeConverter(delete_table_name=False)
 
     def put_item(self, **kwargs) -> Dict[str, Any]:
@@ -402,10 +396,10 @@ class EncryptedClient:
             dict: The transformed response from DynamoDB
         """
         # Transform input from Python dictionary JSON to DynamoDB JSON if required
-        sdk_input = operation_input.copy()
+        sdk_input = deepcopy(operation_input)
         if self._expect_standard_dictionaries:
-            if "TableName" in operation_input:
-                self._resource_to_client_shape_converter.table_name = operation_input["TableName"]
+            if "TableName" in sdk_input:
+                self._resource_to_client_shape_converter.table_name = sdk_input["TableName"]
             sdk_input = input_item_to_ddb_transform_method(sdk_input)
 
         # Apply encryption transformation to the user-supplied input
@@ -433,26 +427,18 @@ class EncryptedClient:
         ).transformed_output
 
         # Copy any missing fields from the SDK output to the response
-        dbesdk_response = _copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
+        dbesdk_response = self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
 
         if self._expect_standard_dictionaries:
             dbesdk_response = output_item_to_dict_transform_method(dbesdk_response)
 
         return dbesdk_response
 
-    def __getattr__(self, name: str) -> Any:
-        """Delegate unknown attributes to the underlying client.
-
-        Args:
-            name: The name of the attribute to get
-
+    @property
+    def _boto_client_attr_name(self) -> str:
+        """Name of the attribute containing the underlying boto3 client.
+        
         Returns:
-            Any: The attribute value from the underlying client
-
-        Raises:
-            AttributeError: If the attribute doesn't exist on the underlying client
+            str: '_client'
         """
-        if hasattr(self._client, name):
-            return getattr(self._client, name)
-        else:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return '_client'

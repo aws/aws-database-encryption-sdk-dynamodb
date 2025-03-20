@@ -1,7 +1,6 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """High-level helper class to provide an encrypting wrapper for boto3 DynamoDB tables."""
-
 from typing import Optional, Any, Dict, List
 from boto3.resources.base import ServiceResource
 from boto3.dynamodb.table import BatchWriter
@@ -25,9 +24,9 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 )
 from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
 from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
+from aws_database_encryption_sdk.encrypted.boto3_interface import EncryptedBotoInterface
 
-
-class EncryptedTable:
+class EncryptedTable(EncryptedBotoInterface):
     """Wrapper for a boto3 DynamoDB table that transparently encrypts/decrypts items.
 
     This class implements the complete boto3 DynamoDB table API, allowing it to serve as a
@@ -41,11 +40,12 @@ class EncryptedTable:
         * get_item
         * query
         * scan
-        * batch_writer
 
-    Any other operations on this class will defer to the underlying boto3 DynamoDB table's implementation.
+    Any other operations on this class will defer to the underlying boto3 DynamoDB Table's implementation.
 
     Note: The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
+
+    EncryptedTable can also return a BatchWriter for transparent encryption of batch write requests.
     """
 
     def __init__(
@@ -87,12 +87,12 @@ class EncryptedTable:
         """
         return self._table_operation_logic(
             operation_input=kwargs,
-            input_transform_method=self._transformer.put_item_input_transform,
-            input_transform_shape=PutItemInputTransformInput,
+            input_encryption_transform_method=self._transformer.put_item_input_transform,
+            input_encryption_transform_shape=PutItemInputTransformInput,
             input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.put_item_request,
             input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.put_item_request,
-            output_transform_method=self._transformer.put_item_output_transform,
-            output_transform_shape=PutItemOutputTransformInput,
+            output_encryption_transform_method=self._transformer.put_item_output_transform,
+            output_encryption_transform_shape=PutItemOutputTransformInput,
             output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.put_item_response,
             output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.put_item_response,
             table_method=self._table.put_item,
@@ -116,12 +116,12 @@ class EncryptedTable:
         """
         return self._table_operation_logic(
             operation_input=kwargs,
-            input_transform_method=self._transformer.get_item_input_transform,
-            input_transform_shape=GetItemInputTransformInput,
+            input_encryption_transform_method=self._transformer.get_item_input_transform,
+            input_encryption_transform_shape=GetItemInputTransformInput,
             input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.get_item_request,
             input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.get_item_request,
-            output_transform_method=self._transformer.get_item_output_transform,
-            output_transform_shape=GetItemOutputTransformInput,
+            output_encryption_transform_method=self._transformer.get_item_output_transform,
+            output_encryption_transform_shape=GetItemOutputTransformInput,
             output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.get_item_response,
             output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.get_item_response,
             table_method=self._table.get_item,
@@ -145,12 +145,12 @@ class EncryptedTable:
         """
         return self._table_operation_logic(
             operation_input=kwargs,
-            input_transform_method=self._transformer.query_input_transform,
-            input_transform_shape=QueryInputTransformInput,
+            input_encryption_transform_method=self._transformer.query_input_transform,
+            input_encryption_transform_shape=QueryInputTransformInput,
             input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.query_request,
             input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.query_request,
-            output_transform_method=self._transformer.query_output_transform,
-            output_transform_shape=QueryOutputTransformInput,
+            output_encryption_transform_method=self._transformer.query_output_transform,
+            output_encryption_transform_shape=QueryOutputTransformInput,
             output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.query_response,
             output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.query_response,
             table_method=self._table.query,
@@ -174,12 +174,12 @@ class EncryptedTable:
         """
         return self._table_operation_logic(
             operation_input=kwargs,
-            input_transform_method=self._transformer.scan_input_transform,
-            input_transform_shape=ScanInputTransformInput,
+            input_encryption_transform_method=self._transformer.scan_input_transform,
+            input_encryption_transform_shape=ScanInputTransformInput,
             input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.scan_request,
             input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.scan_request,
-            output_transform_method=self._transformer.scan_output_transform,
-            output_transform_shape=ScanOutputTransformInput,
+            output_encryption_transform_method=self._transformer.scan_output_transform,
+            output_encryption_transform_shape=ScanOutputTransformInput,
             output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.scan_response,
             output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.scan_response,
             table_method=self._table.scan,
@@ -214,6 +214,8 @@ class EncryptedTable:
         encrypted_client = EncryptedClient(
             client=self._table.meta.client,
             encryption_config=self._encryption_config,
+            # The boto3 client comes from the underlying table, which is a ServiceResource.
+            # ServiceResource clients expect standard dictionaries, not DynamoDB JSON.
             expect_standard_dictionaries=True,
         )
         return BatchWriter(
@@ -226,31 +228,33 @@ class EncryptedTable:
         self,
         *,
         operation_input: Dict[str, Any],
-        input_transform_method: Any,
-        input_transform_shape: Any,
+        input_encryption_transform_method: Any,
+        input_encryption_transform_shape: Any,
         input_resource_to_client_shape_transform_method: Any,
         input_client_to_resource_shape_transform_method: Any,
-        output_transform_method: Any,
-        output_transform_shape: Any,
+        output_encryption_transform_method: Any,
+        output_encryption_transform_shape: Any,
         output_resource_to_client_shape_transform_method: Any,
         output_client_to_resource_shape_transform_method: Any,
         table_method: Any,
     ) -> Dict[str, Any]:
-        """Shared logic to interface between boto3 Table operation inputs and encryption transformers.
-
-        This captures the shared pattern to call encryption/decryption transformer code
-        and boto3 Tables across all methods in this class.
+        """Shared logic to interface between user-supplied input, encryption/decryption transformers,
+        and boto3 Tables.
 
         Args:
-            operation_input: The input to the operation
-            input_transform_method: The method to transform the input for encryption
-            input_transform_shape: The shape of the input transform
-            input_resource_to_client_shape_transform_method: Method to transform resource shape to client shape for input
-            input_client_to_resource_shape_transform_method: Method to transform client shape to resource shape for input
-            output_transform_method: The method to transform the output for decryption
-            output_transform_shape: The shape of the output transform
-            output_resource_to_client_shape_transform_method: Method to transform resource shape to client shape for output
-            output_client_to_resource_shape_transform_method: Method to transform client shape to resource shape for output
+            operation_input: User-supplied input to the operation
+            input_encryption_transform_method: The method to transform the input for encryption/decryption
+            input_encryption_transform_shape: The shape to supply to the input encryption/decryption transform
+            input_resource_to_client_shape_transform_method: Method to transform resource-formatted input shape
+                to client-formattted input shape
+            input_client_to_resource_shape_transform_method: Method to transform client-formatted input shape
+                to resource-formattted input shape
+            output_encryption_transform_method: The method to transform the output for encryption/decryption
+            output_encryption_transform_shape: The shape to supply to the output encryption/decryption transform
+            output_resource_to_client_shape_transform_method: Method to transform resource-formatted output shape
+                to client-formattted output shape
+            output_client_to_resource_shape_transform_method: Method to transform client-formatted output shape
+                to resource-formattted output shape
             table_method: The underlying table method to call
 
         Returns:
@@ -261,74 +265,45 @@ class EncryptedTable:
         input_transform_input = input_resource_to_client_shape_transform_method(operation_input)
 
         # Apply encryption transformation to the user-supplied input
-        input_transform_output = input_transform_method(
-            input_transform_shape(
+        input_transform_output = input_encryption_transform_method(
+            input_encryption_transform_shape(
                 sdk_input=input_transform_input
             )
         ).transformed_input
 
         # The encryption transformation result is formatted in DynamoDB JSON,
-        #   but the underlying table expects Python dictionary JSON.
+        #   but the underlying boto3 table expects Python dictionary JSON.
         # `input_client_to_resource_shape_transform_method` formats the transformation as Python dictionary JSON.
         sdk_input = input_client_to_resource_shape_transform_method(input_transform_output)
 
         # Call boto3 Table method with Python-dictionary-JSON-formatted, encryption-transformed input,
-        #   and receive Python-dictionary-JSON-formatted, raw boto3 output.
+        #   and receive Python-dictionary-JSON-formatted boto3 output.
         sdk_output = table_method(**sdk_input)
 
         # Format Python dictionary JSON-formatted SDK output as DynamoDB JSON for encryption transformer
         output_transform_input = output_resource_to_client_shape_transform_method(sdk_output)
 
         # Apply encryption transformer to boto3 output
-        output_transform_output = output_transform_method(
-            output_transform_shape(
+        output_transform_output = output_encryption_transform_method(
+            output_encryption_transform_shape(
                 original_input=input_transform_input,
                 sdk_output=output_transform_input,
             )
         ).transformed_output
 
         # Format DynamoDB JSON-formatted encryption transformation result as Python dictionary JSON
-        response = output_client_to_resource_shape_transform_method(output_transform_output)
+        dbesdk_response = output_client_to_resource_shape_transform_method(output_transform_output)
         # Copy any missing fields from the SDK output to the response
-        #   (e.g. `ConsumedCapacity` on `batch_write_item`)
-        response = self._copy_missing_sdk_output_fields_to_response(sdk_output, response, output_transform_output)
+        #   (e.g. `ConsumedCapacity`)
+        dbesdk_response = self._copy_sdk_response_to_dbesdk_response(sdk_output, dbesdk_response)
 
-        return response
+        return dbesdk_response
 
-    def _copy_missing_sdk_output_fields_to_response(
-        self,
-        sdk_output: Dict[str, Any],
-        response: Dict[str, Any],
-        output_transform_output: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Copy any missing fields from the SDK output to the response.
-
-        Args:
-            sdk_output: The raw SDK output
-            response: The current response
-            output_transform_output: The transformed output
-
+    @property
+    def _boto_client_attr_name(self) -> str:
+        """Name of the attribute containing the underlying boto3 client.
+        
         Returns:
-            dict: The response with any missing fields copied from SDK output
+            str: '_table'
         """
-        for sdk_output_key, sdk_output_value in sdk_output.items():
-            if sdk_output_key not in output_transform_output:
-                response[sdk_output_key] = sdk_output_value
-        return response
-
-    def __getattr__(self, name: str) -> Any:
-        """Delegate unknown attributes to the underlying table.
-
-        Args:
-            name: The name of the attribute to get
-
-        Returns:
-            Any: The attribute value from the underlying table
-
-        Raises:
-            AttributeError: If the attribute doesn't exist on the underlying table
-        """
-        if hasattr(self._table, name):
-            return getattr(self._table, name)
-        else:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        return '_table'

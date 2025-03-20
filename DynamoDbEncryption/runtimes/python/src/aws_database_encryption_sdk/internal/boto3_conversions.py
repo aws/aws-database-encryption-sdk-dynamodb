@@ -87,7 +87,7 @@ class BotoInterfaceShapeConverter(ABC):
         if "Expected" in put_item_request:
             put_item_request["Expected"] = self.expected(put_item_request["Expected"])
         if "ExpressionAttributeValues" in put_item_request:
-            put_item_request["Expected"] = self.expression_attribute_values(put_item_request["ExpressionAttributeValues"])
+            put_item_request["ExpressionAttributeValues"] = self.expression_attribute_values(put_item_request["ExpressionAttributeValues"])
         return put_item_request
 
     def attributes(self, attributes):
@@ -183,7 +183,7 @@ class BotoInterfaceShapeConverter(ABC):
         keys_out = {}
         for table_name, table_value in request_items.items():
             if "Keys" in table_value:
-                table_value["Keys"] = self.key_to_attribute_value_list(table_value["Keys"])
+                table_value["Keys"] = self.keys(table_value["Keys"])
             keys_out[table_name] = table_value
         return keys_out
 

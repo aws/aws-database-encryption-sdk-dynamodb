@@ -15,20 +15,41 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
     DynamoDbEncryptionTransforms
 )
 from aws_database_encryption_sdk.encrypted.table import EncryptedTable
+from aws_database_encryption_sdk.encrypted.boto3_interface import EncryptedBotoInterface
 
-class EncryptedTablesCollectionManager:
+class EncryptedTablesCollectionManager(EncryptedBotoInterface):
+    """Tables collection manager that provides EncryptedTable objects.
+
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html
+
+    :param collection: Pre-configured boto3 DynamoDB table collection manager
+    :type collection: boto3.resources.collection.CollectionManager
+    :param CryptographicMaterialsProvider materials_provider: Cryptographic materials provider to use
+    :param AttributeActions attribute_actions: Table-level configuration of how to encrypt/sign attributes
+    :param TableInfoCache table_info_cache: Local cache from which to obtain TableInfo data
+    """
 
     def __init__(
         self,
+        *,
         collection: CollectionManager,
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
         self._collection = collection
         self._encryption_config = encryption_config
 
-    # def _transform_table:
+    def _transform_table(
+        self,
+        method: Callable,
+        **kwargs,
+    ):
+        for table in method(**kwargs):
+            yield EncryptedTable(
+                table=table,
+                encryption_config=self._encryption_config
+            )
 
-class EncryptedResource:
+class EncryptedResource(EncryptedBotoInterface):
     def __init__(
         self,
         resource: ServiceResource,

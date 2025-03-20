@@ -6,7 +6,7 @@ from botocore.paginate import (
     PageIterator,
 )
 import botocore.client
-from typing import Callable, Optional
+from typing import Callable, Optional, Any, Dict
 import inspect
 from typing import Generator
 
@@ -42,9 +42,9 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
     DynamoDbItemEncryptorConfig,
 )
-from aws_database_encryption_sdk.encrypted.item import ItemEncryptor
+from aws_database_encryption_sdk.encrypted.boto3_interface import EncryptedBotoInterface
 
-class EncryptedPaginator:
+class EncryptedPaginator(EncryptedBotoInterface):
     """
     Wrapping class for botocore.paginate.Paginator that decrypts returned items before returning them.
     """
@@ -70,13 +70,15 @@ class EncryptedPaginator:
         """Yields a generator that paginates through responses from DynamoDB, decrypting items.
 
         Note:
-            `botocore.paginate.Paginator.paginate` returns a `PageIterator` object, whereas
-            this implementation returns a Python generator. However, you can use this method
-            exactly as described in the official boto3 documentation:
+            Calling `botocore.paginate.Paginator`'s `paginate` method for Query or Scan
+            returns a `PageIterator` object, but this implementation returns a Python generator.
+            However, you can use this generator to iterate exactly as described in the official
+            boto3 documentation:
             https://botocore.amazonaws.com/v1/documentation/api/latest/topics/paginators.html
+            Any other operations on this class will defer to the underlying boto3 Paginator's implementation.
 
         Args:
-            **kwargs: Arbitrary keyword arguments passed directly to the underlying DynamoDB paginator.
+            **kwargs: Keyword arguments passed directly to the underlying DynamoDB paginator.
                 For a Scan operation, structure these arguments according to:
                 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Scan.html
 
@@ -89,112 +91,74 @@ class EncryptedPaginator:
         """
 
         if self._paginator._model.name == "Query":
-            yield from self.paginate_query(**kwargs)
+            yield from self._paginate_query(**kwargs)
         elif self._paginator._model.name == "Scan":
-            yield from self.paginate_scan(**kwargs)
+            yield from self._paginate_scan(**kwargs)
         else:
-            raise NotImplementedError("EncryptedPaginator does not support paginating on {self._operation_name}")
+            yield from self._paginator.paginate(**kwargs)
 
-    def paginate_query(self, **paginate_query_kwargs):
+    def _paginate_query(self, **paginate_query_kwargs):
+        return self._paginate_request(
+            paginate_kwargs = paginate_query_kwargs,
+            input_transform_method = self._transformer.query_input_transform,
+            input_transform_shape = QueryInputTransformInput,
+            output_transform_method = self._transformer.query_output_transform,
+            output_transform_shape = QueryOutputTransformInput,
+        )
+
+    def _paginate_scan(self, **paginate_scan_kwargs):
+        return self._paginate_request(
+            paginate_kwargs = paginate_scan_kwargs,
+            input_transform_method = self._transformer.scan_input_transform,
+            input_transform_shape = ScanInputTransformInput,
+            output_transform_method = self._transformer.scan_output_transform,
+            output_transform_shape = ScanOutputTransformInput,
+        )
+
+    def _paginate_request(
+        self,
+        *,
+        paginate_kwargs: Dict[str, Any],
+        input_transform_method: Callable,
+        input_transform_shape: Any,
+        output_transform_method: Callable,
+        output_transform_shape: Any,
+    ):
+        client_kwargs = paginate_kwargs.copy()
         try:
-            pagination_config = paginate_query_kwargs["PaginationConfig"]
+            # Remove PaginationConfig from the request if it exists.
+            # The input_transform_method does not expect it.
+            # It is added back to the request sent to the SDK.
+            pagination_config = client_kwargs["PaginationConfig"]
+            del client_kwargs["PaginationConfig"]
         except KeyError:
             pagination_config = None
-    
-        client_query_kwargs = paginate_query_kwargs
-        try:
-            del client_query_kwargs["PaginationConfig"]
-        except KeyError:
-            pass
-    
-        transformed_request = self._transformer.query_input_transform(
-            QueryInputTransformInput(
-                sdk_input = client_query_kwargs
+        
+        transformed_request = input_transform_method(
+            input_transform_shape(
+                sdk_input = client_kwargs
             )
         ).transformed_input
 
         if pagination_config is not None:
             transformed_request["PaginationConfig"] = pagination_config
+        
         sdk_page_response = self._paginator.paginate(**transformed_request)
-
+            
         for page in sdk_page_response:
-            # boto3 docs are wrong. NextToken is never returned.
-
-            # # TODO: Is this always returned? do i need to provide back
-            # try:
-            #     next_token = page["NextToken"]
-            #     del page["NextToken"]
-            # except KeyError:
-            #     pass
-
-            dbesdk_response = self._transformer.query_output_transform(
-                QueryOutputTransformInput(
-                    original_input = client_query_kwargs,
+            dbesdk_response = output_transform_method(
+                output_transform_shape(
+                    original_input = client_kwargs,
                     sdk_output = page,
                 )
             ).transformed_output
-
-            # refactor out of client class
-            # self._copy_sdk_response_to_dbesdk_response(page, dbesdk_response)
-            # self._maybe_transform_response_to_python_dict(dbesdk_response)
             yield dbesdk_response
 
-    def paginate_scan(self, **paginate_scan_kwargs):
-        try:
-            pagination_config = paginate_scan_kwargs["PaginationConfig"]
-        except KeyError:
-            pagination_config = None
-    
-        client_scan_kwargs = paginate_scan_kwargs
-        try:
-            del client_scan_kwargs["PaginationConfig"]
-        except KeyError:
-            pass
-    
-        # client_scan_input = self._maybe_transform_request_to_dynamodb_item(item_key = "Key", **client_scan_kwargs)
-        transformed_request = self._transformer.scan_input_transform(
-            ScanInputTransformInput(
-                sdk_input = client_scan_kwargs
-            )
-        ).transformed_input
-
-        if pagination_config is not None:
-            transformed_request["PaginationConfig"] = pagination_config
-
-        print(f"{transformed_request=}")
-        sdk_page_response = self._paginator.paginate(**transformed_request)
-
-        for page in sdk_page_response:
-
-            print(f"{page=}")
-
-            # boto3 docs are wrong. NextToken is never returned.
-
-            # # TODO: Is this always returned? do i need to provide back
-            # try:
-            #     next_token = page["NextToken"]
-            #     del page["NextToken"]
-            # except KeyError:
-            #     next_token = None
-
-            dbesdk_response = self._transformer.scan_output_transform(
-                ScanOutputTransformInput(
-                    original_input = client_scan_kwargs,
-                    sdk_output = page,
-                )
-            ).transformed_output
-
-            # refactor out of client class
-            # self._copy_sdk_response_to_dbesdk_response(page, dbesdk_response)
-            # self._maybe_transform_response_to_python_dict(dbesdk_response)
-            yield dbesdk_response
-
-    def __getattr__(self, name):
-        # Before calling __getattr__, the class will look at its own methods.
-        # Any methods defined on the class are called before getting to this point.
-
-        # If the class doesn't override a boto3 method, defer to boto3 now.
-        if hasattr(self._paginator, name):
-            return getattr(self._paginator, name)
-        else:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+    @property
+    def _boto_client_attr_name(self) -> str:
+        """Name of the attribute containing the underlying boto3 client.
+        
+        Returns:
+            str: '_paginator'
+        """
+        return '_paginator'

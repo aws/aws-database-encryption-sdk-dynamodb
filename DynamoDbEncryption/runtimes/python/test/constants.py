@@ -20,6 +20,7 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 from aws_database_encryption_sdk.encrypted.client import (
     EncryptedClient
 )
+import pytest
 
 MPL_CLIENT: AwsCryptographicMaterialProviders = AwsCryptographicMaterialProviders(
     config=MaterialProvidersConfig()
@@ -58,4 +59,3 @@ INTEG_TEST_DEFAULT_TABLE_CONFIGS = DynamoDbTablesEncryptionConfig(
         INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME : INTEG_TEST_DEFAULT_TABLE_CONFIG
     }
 )
-

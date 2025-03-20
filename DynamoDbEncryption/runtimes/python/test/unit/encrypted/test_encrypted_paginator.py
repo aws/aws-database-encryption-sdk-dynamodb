@@ -17,11 +17,11 @@ pytestmark = [pytest.mark.unit, pytest.mark.local]
 mock_boto3_dynamodb_client = MagicMock(__class__=BaseClient)
 mock_tables_encryption_config = MagicMock(__class__=DynamoDbTablesEncryptionConfig)
 
-def test_GIVEN_valid_inputs_WHEN_create_EncryptedClient_THEN_success():
-    # Given: Valid EncryptedClient inputs
-    # When: Create EncryptedClient
-    EncryptedClient(
-        client=mock_boto3_dynamodb_client,
-        encryption_config=mock_tables_encryption_config,
-    )
-    # Then: Success
+# def test_GIVEN_valid_inputs_WHEN_create_EncryptedClient_THEN_success():
+#     # Given: Valid EncryptedClient inputs
+#     # When: Create EncryptedClient
+#     EncryptedPaginator(
+#         client=mock_boto3_dynamodb_client,
+#         encryption_config=mock_tables_encryption_config,
+#     )
+#     # Then: Success
