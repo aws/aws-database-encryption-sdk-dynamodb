@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup MPL Dafny
-        uses: ./.github/actions/setup_dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.mpl-dafny }}
 
@@ -73,7 +73,7 @@ jobs:
           make build_java CORES=$CORES
 
       - name: Setup DBESDK Dafny
-        uses: ./.github/actions/setup_dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 
