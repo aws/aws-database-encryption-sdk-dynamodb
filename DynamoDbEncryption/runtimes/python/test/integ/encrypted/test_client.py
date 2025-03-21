@@ -34,8 +34,8 @@ from ...dict_formatted_requests import (
     basic_put_item_request_dict,
     basic_get_item_request_dict,
     basic_query_request_dict,
-    basic_batch_put_item_request_dict,
-    basic_batch_delete_item_request_dict,
+    basic_batch_write_item_put_request_dict,
+    basic_batch_write_item_delete_request_dict,
     basic_batch_get_item_request_dict,
     basic_transact_write_item_put_request_dict,
     basic_transact_write_item_delete_request_dict,
@@ -162,13 +162,13 @@ def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passe
 @pytest.fixture
 def batch_write_item_put_request(expect_standard_dictionaries, multiple_test_items):
     if expect_standard_dictionaries:
-        return basic_batch_put_item_request_dict(multiple_test_items)
+        return basic_batch_write_item_put_request_dict(multiple_test_items)
     return basic_batch_put_item_request_ddb(multiple_test_items)
 
 @pytest.fixture
 def batch_write_item_delete_request(expect_standard_dictionaries, multiple_test_keys):
     if expect_standard_dictionaries:
-        return basic_batch_delete_item_request_dict(multiple_test_keys)
+        return basic_batch_write_item_delete_request_dict(multiple_test_keys)
     return basic_batch_delete_item_request_ddb(multiple_test_keys)
 
 @pytest.fixture

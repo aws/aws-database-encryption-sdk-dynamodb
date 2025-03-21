@@ -7,12 +7,12 @@ class BotoInterfaceShapeConverter(ABC):
     """
     Class modelling transformations between boto3 DynamoDB client and resource shapes.
     
-    Context: DBESDK DynamoDB provides encrypted interfaces for boto3 DynamoDB resources (ex. Table, Resource).
+    DBESDK for DynamoDB provides encrypted interfaces for boto3 DynamoDB resources (ex. Table, Resource).
     boto3 resource methods accept different input shapes than boto3 clients, and return different output shapes.
-    (The members of these shapes are the same, but in some cases, the shapes themselves are different.)
+    (The members of these shapes are the same, but some shapes are formatted differently.)
 
     DBESDK DynamoDB has an internal transformer layer that performs encryption, decryption, and query modification.
-    This transformer layer only accepts client shapes.
+    This transformer layer only accepts client-formatted shapes.
 
     This class exists to transform from/to resource shapes to/from client shapes
         for the internal DBESDK DynamoDB transformer layer.
@@ -29,29 +29,33 @@ class BotoInterfaceShapeConverter(ABC):
 
     @abstractmethod
     def expression(self, condition_expression, expression_attribute_names, expression_attribute_values):
-        pass
+        raise NotImplementedError("Must be implemented by subclasses")
 
     def key_conditions(self, key_conditions):
-        return self.key_to_attribute_value_list(key_conditions)
+        return self.key_to_attribute_value_with_comparison_operator_list(key_conditions)
 
     def query_filter(self, query_filter):
-        return self.key_to_attribute_value_list(query_filter)
+        return self.key_to_attribute_value_with_comparison_operator_list(query_filter)
 
-    def key_to_attribute_value_list(self, key_to_attribute_value_list):
-        list_out = []
-        for elem in key_to_attribute_value_list:
-            list_out.append(self.item(elem))
-        return list_out
+    def key_to_attribute_value_with_comparison_operator_list(self, key_to_attribute_value_with_comparison_operator_list):
+        key_names = key_to_attribute_value_with_comparison_operator_list.keys()
+        key_conditions_out = {}
+        for key_name in key_names:
+            value = key_to_attribute_value_with_comparison_operator_list[key_name]
+            key_conditions_out[key_name] = value
+            if "AttributeValueList" in value:
+                key_conditions_out[key_name]["AttributeValueList"] = self.attribute_value_list(value["AttributeValueList"])
+        return key_conditions_out
 
     def exclusive_start_key(self, exclusive_start_key):
         return self.item(exclusive_start_key)
 
-    def expression_attribute_values(self, exclusive_start_key):
-        return self.item(exclusive_start_key)
+    def expression_attribute_values(self, expression_attribute_values):
+        return self.item(expression_attribute_values)
 
     @abstractmethod
     def attribute_value(self, attribute_value):
-        pass
+        raise NotImplementedError("Must be implemented by subclasses")
 
     def attribute_value_list(self, attribute_value_list):
         list_out = []
@@ -61,7 +65,7 @@ class BotoInterfaceShapeConverter(ABC):
 
     @abstractmethod
     def item(self, item):
-        pass
+        raise NotImplementedError("Must be implemented by subclasses")
 
     def items(self, items):
         items_out = []
@@ -153,6 +157,7 @@ class BotoInterfaceShapeConverter(ABC):
         request[expression_key] = self.expression(request[expression_key], expression_attribute_names, expression_attribute_values)
     
     def query_request(self, query_request):
+        print(f"{query_request=}")
         if "KeyConditions" in query_request:
             query_request["KeyConditions"] = self.key_conditions(query_request["KeyConditions"])
         if "QueryFilter" in query_request:
@@ -164,7 +169,9 @@ class BotoInterfaceShapeConverter(ABC):
         if "KeyConditionExpression" in query_request:
             self._handle_expression_with_expression_attributes(query_request, "KeyConditionExpression")
         if "ExpressionAttributeValues" in query_request:
+            print(f"pre {query_request['ExpressionAttributeValues']=}")
             query_request["ExpressionAttributeValues"] = self.expression_attribute_values(query_request["ExpressionAttributeValues"])
+            print(f"post {query_request['ExpressionAttributeValues']=}")
         return query_request
 
     def query_response(self, query_response):

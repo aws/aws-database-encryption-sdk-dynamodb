@@ -5,6 +5,7 @@ from botocore.paginate import (
     Paginator,
     PageIterator,
 )
+from copy import deepcopy
 import botocore.client
 from typing import Callable, Optional, Any, Dict
 import inspect
@@ -43,6 +44,8 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
     DynamoDbItemEncryptorConfig,
 )
 from aws_database_encryption_sdk.encrypted.boto3_interface import EncryptedBotoInterface
+from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
+from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
 
 class EncryptedPaginator(EncryptedBotoInterface):
     """
@@ -52,6 +55,7 @@ class EncryptedPaginator(EncryptedBotoInterface):
         self,
         paginator: Paginator,
         encryption_config: DynamoDbTablesEncryptionConfig,
+        expect_standard_dictionaries: Optional[bool] = False,
     ):
         """Create an EncryptedPaginator.
 
@@ -65,7 +69,12 @@ class EncryptedPaginator(EncryptedBotoInterface):
         self._transformer = DynamoDbEncryptionTransforms(
             config = encryption_config
         )
-        
+        self._expect_standard_dictionaries = expect_standard_dictionaries
+        self._resource_to_client_shape_converter = ResourceShapeToClientShapeConverter()
+        self._client_to_resource_shape_converter = ClientShapeToResourceShapeConverter(delete_table_name=False)
+        print(f"{self._paginator=}")
+        print(f"{self._paginator._model.name=}")
+
     def paginate(self, **kwargs) -> Generator[dict, None, None]:
         """Yields a generator that paginates through responses from DynamoDB, decrypting items.
 
@@ -100,8 +109,12 @@ class EncryptedPaginator(EncryptedBotoInterface):
     def _paginate_query(self, **paginate_query_kwargs):
         return self._paginate_request(
             paginate_kwargs = paginate_query_kwargs,
+            input_item_to_ddb_transform_method = self._resource_to_client_shape_converter.query_request,
+            input_item_to_dict_transform_method = self._client_to_resource_shape_converter.query_request,
             input_transform_method = self._transformer.query_input_transform,
             input_transform_shape = QueryInputTransformInput,
+            output_item_to_ddb_transform_method = self._resource_to_client_shape_converter.query_response,
+            output_item_to_dict_transform_method = self._client_to_resource_shape_converter.query_response,
             output_transform_method = self._transformer.query_output_transform,
             output_transform_shape = QueryOutputTransformInput,
         )
@@ -109,8 +122,12 @@ class EncryptedPaginator(EncryptedBotoInterface):
     def _paginate_scan(self, **paginate_scan_kwargs):
         return self._paginate_request(
             paginate_kwargs = paginate_scan_kwargs,
+            input_item_to_ddb_transform_method = self._resource_to_client_shape_converter.scan_request,
+            input_item_to_dict_transform_method = self._client_to_resource_shape_converter.scan_request,
             input_transform_method = self._transformer.scan_input_transform,
             input_transform_shape = ScanInputTransformInput,
+            output_item_to_ddb_transform_method = self._resource_to_client_shape_converter.scan_response,
+            output_item_to_dict_transform_method = self._client_to_resource_shape_converter.scan_response,
             output_transform_method = self._transformer.scan_output_transform,
             output_transform_shape = ScanOutputTransformInput,
         )
@@ -119,12 +136,16 @@ class EncryptedPaginator(EncryptedBotoInterface):
         self,
         *,
         paginate_kwargs: Dict[str, Any],
+        input_item_to_ddb_transform_method: Callable,
+        input_item_to_dict_transform_method: Callable,
         input_transform_method: Callable,
         input_transform_shape: Any,
+        output_item_to_ddb_transform_method: Callable,
+        output_item_to_dict_transform_method: Callable,
         output_transform_method: Callable,
         output_transform_shape: Any,
     ):
-        client_kwargs = paginate_kwargs.copy()
+        client_kwargs = deepcopy(paginate_kwargs)
         try:
             # Remove PaginationConfig from the request if it exists.
             # The input_transform_method does not expect it.
@@ -133,6 +154,11 @@ class EncryptedPaginator(EncryptedBotoInterface):
             del client_kwargs["PaginationConfig"]
         except KeyError:
             pagination_config = None
+
+        if self._expect_standard_dictionaries:
+            if "TableName" in client_kwargs:
+                self._resource_to_client_shape_converter.table_name = client_kwargs["TableName"]
+            client_kwargs = input_item_to_ddb_transform_method(client_kwargs)
         
         transformed_request = input_transform_method(
             input_transform_shape(
@@ -140,18 +166,30 @@ class EncryptedPaginator(EncryptedBotoInterface):
             )
         ).transformed_input
 
+        if self._expect_standard_dictionaries:
+            transformed_request = input_item_to_dict_transform_method(transformed_request)
+
         if pagination_config is not None:
             transformed_request["PaginationConfig"] = pagination_config
         
         sdk_page_response = self._paginator.paginate(**transformed_request)
-            
+        
         for page in sdk_page_response:
+            if self._expect_standard_dictionaries:
+                page = output_item_to_ddb_transform_method(page)
+
             dbesdk_response = output_transform_method(
                 output_transform_shape(
                     original_input = client_kwargs,
                     sdk_output = page,
                 )
             ).transformed_output
+
+            dbesdk_response = self._copy_sdk_response_to_dbesdk_response(page, dbesdk_response)
+
+            if self._expect_standard_dictionaries:
+                dbesdk_response = output_item_to_dict_transform_method(dbesdk_response)           
+
             yield dbesdk_response
 
     @property

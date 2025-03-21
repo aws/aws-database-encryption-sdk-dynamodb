@@ -25,6 +25,7 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
 from aws_database_encryption_sdk.internal.resource_to_client import ResourceShapeToClientShapeConverter
 from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
 from aws_database_encryption_sdk.encrypted.boto3_interface import EncryptedBotoInterface
+from typing import Callable
 
 class EncryptedTable(EncryptedBotoInterface):
     """Wrapper for a boto3 DynamoDB table that transparently encrypts/decrypts items.
@@ -228,15 +229,15 @@ class EncryptedTable(EncryptedBotoInterface):
         self,
         *,
         operation_input: Dict[str, Any],
-        input_encryption_transform_method: Any,
+        input_encryption_transform_method: Callable,
         input_encryption_transform_shape: Any,
-        input_resource_to_client_shape_transform_method: Any,
-        input_client_to_resource_shape_transform_method: Any,
-        output_encryption_transform_method: Any,
+        input_resource_to_client_shape_transform_method: Callable,
+        input_client_to_resource_shape_transform_method: Callable,
+        output_encryption_transform_method: Callable,
         output_encryption_transform_shape: Any,
-        output_resource_to_client_shape_transform_method: Any,
+        output_resource_to_client_shape_transform_method: Callable,
         output_client_to_resource_shape_transform_method: Any,
-        table_method: Any,
+        table_method: Callable,
     ) -> Dict[str, Any]:
         """Shared logic to interface between user-supplied input, encryption/decryption transformers,
         and boto3 Tables.

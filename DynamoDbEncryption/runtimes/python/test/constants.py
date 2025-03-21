@@ -17,6 +17,9 @@ from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsd
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
 )
+from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
+    DynamoDbItemEncryptorConfig,
+)
 from aws_database_encryption_sdk.encrypted.client import (
     EncryptedClient
 )
@@ -58,4 +61,13 @@ INTEG_TEST_DEFAULT_TABLE_CONFIGS = DynamoDbTablesEncryptionConfig(
     table_encryption_configs = {
         INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME : INTEG_TEST_DEFAULT_TABLE_CONFIG
     }
+)
+INTEG_TEST_DEFAULT_ITEM_ENCRYPTOR_CONFIG = DynamoDbItemEncryptorConfig(
+    logical_table_name = INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+    partition_key_name = INTEG_TEST_DEFAULT_PARTITION_KEY_NAME,
+    sort_key_name = INTEG_TEST_DEFAULT_SORT_KEY_NAME,
+    attribute_actions_on_encrypt = INTEG_TEST_DEFAULT_ATTRIBUTE_ACTIONS_ON_ENCRYPT,
+    keyring = INTEG_TEST_DEFAULT_KEYRING,
+    algorithm_suite_id = INTEG_TEST_DEFAULT_ALGORITHM_SUITE_ID,
+    allowed_unsigned_attribute_prefix = INTEG_TEST_DEFAULT_UNSIGNED_ATTRIBUTE_PREFIX,
 )

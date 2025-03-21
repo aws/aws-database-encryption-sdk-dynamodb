@@ -53,9 +53,9 @@ class EncryptedClient(EncryptedBotoInterface):
         * transact_get_items
         * transact_write_items
 
-    Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
+    The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
 
-    Note: The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
+    Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
     EncryptedClient can also return an EncryptedPaginator for transparent decryption of paginated results.
     """
@@ -210,7 +210,8 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def batch_write_item(self, **kwargs) -> Dict[str, Any]:
-        """Puts or deletes multiple items in one or more tables. Encrypts items before writing.
+        """Puts or deletes multiple items in one or more tables.
+        For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB batch_write_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
@@ -297,7 +298,8 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def transact_write_items(self, **kwargs) -> Dict[str, Any]:
-        """Performs multiple write operations in a single transaction. Encrypts items before writing.
+        """Performs multiple write operations in a single transaction.
+        For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB transact_write_items API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_write_items.html
@@ -354,7 +356,8 @@ class EncryptedClient(EncryptedBotoInterface):
         if operation_name in ("scan", "query"):
             return EncryptedPaginator(
                 paginator=paginator,
-                encryption_config=self._encryption_config
+                encryption_config=self._encryption_config,
+                expect_standard_dictionaries=self._expect_standard_dictionaries
             )
         else:
             # The paginator can still be used for list_backups, list_tables, and list_tags_of_resource,
@@ -365,15 +368,15 @@ class EncryptedClient(EncryptedBotoInterface):
         self,
         *,
         operation_input: Dict[str, Any],
-        input_item_to_ddb_transform_method: Optional[callable],
-        input_item_to_dict_transform_method: Optional[callable],
+        input_item_to_ddb_transform_method: callable,
+        input_item_to_dict_transform_method: callable,
         input_transform_method: Any,
         input_transform_shape: Any,
         output_transform_method: Any,
         output_transform_shape: Any,
         client_method: Any,
-        output_item_to_ddb_transform_method: Optional[callable],
-        output_item_to_dict_transform_method: Optional[callable],
+        output_item_to_ddb_transform_method: callable,
+        output_item_to_dict_transform_method: callable,
     ) -> Dict[str, Any]:
         """Shared logic to interface between boto3 Client operation inputs and encryption transformers.
 

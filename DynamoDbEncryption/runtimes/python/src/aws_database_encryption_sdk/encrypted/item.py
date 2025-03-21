@@ -73,7 +73,9 @@ class ItemEncryptor:
         ...     'some': 'data',
         ...     'more': 5
         ... }
-        >>> encrypted_item, header = item_encryptor.encrypt_python_item(plaintext_item)
+        >>> encrypt_output = item_encryptor.encrypt_python_item(plaintext_item)
+        >>> encrypted_item = encrypt_output.encrypted_item
+        >>> header = encrypt_output.parsed_header
         """
         plaintext_ddb_item = dict_to_ddb(plaintext_dict_item)
         encrypted_ddb_item: EncryptItemOutput = self.encrypt_dynamodb_item(plaintext_ddb_item)
@@ -112,7 +114,9 @@ class ItemEncryptor:
         ...     'some': {'S': 'data'},
         ...     'more': {'N': '5'}
         ... }
-        >>> encrypted_item, header = item_encryptor.encrypt_dynamodb_item(plaintext_item)
+        >>> encrypt_output = item_encryptor.encrypt_dynamodb_item(plaintext_item)
+        >>> encrypted_item = encrypt_output.encrypted_item
+        >>> header = encrypt_output.parsed_header
         """
         return self.encrypt_item(
             EncryptItemInput(
@@ -145,11 +149,13 @@ class ItemEncryptor:
         ...     'some': {'S': 'data'},
         ...     'more': {'N': '5'}
         ... }
-        >>> encrypted_item, header = item_encryptor.encrypt_item(
+        >>> encrypt_output = item_encryptor.encrypt_item(
         ...     EncryptItemInput(
         ...         plaintext_ddb_item = plaintext_item
         ...     )
         ... )
+        >>> encrypted_item = encrypt_output.encrypted_item
+        >>> header = encrypt_output.parsed_header
         """
         return self._internal_client.encrypt_item(encrypt_item_input)
 
@@ -189,7 +195,9 @@ class ItemEncryptor:
         ...     'some': b'ENCRYPTED_DATA',
         ...     'more': b'ENCRYPTED_DATA',
         ... }
-        >>> plaintext_item, header = item_encryptor.decrypt_python_item(encrypted_item)
+        >>> decrypt_output = item_encryptor.decrypt_python_item(encrypted_item)
+        >>> plaintext_item = decrypt_output.plaintext_item
+        >>> header = decrypt_output.parsed_header
         """
         encrypted_ddb_item = dict_to_ddb(encrypted_dict_item)
         plaintext_ddb_item: DecryptItemOutput = self.decrypt_dynamodb_item(encrypted_ddb_item)
@@ -227,7 +235,9 @@ class ItemEncryptor:
         ...     'some': {'B': b'ENCRYPTED_DATA'},
         ...     'more': {'B': b'ENCRYPTED_DATA'}
         ... }
-        >>> decrypted_item, header = item_encryptor.decrypt_dynamodb_item(encrypted_item)
+        >>> decrypt_output = item_encryptor.decrypt_dynamodb_item(encrypted_item)
+        >>> plaintext_item = decrypt_output.plaintext_item
+        >>> header = decrypt_output.parsed_header
         """
         return self.decrypt_item(
             DecryptItemInput(
@@ -265,5 +275,7 @@ class ItemEncryptor:
         ...         encrypted_item = encrypted_item,
         ...     )
         ... )
+        >>> plaintext_item = decrypted_item.plaintext_item
+        >>> header = decrypted_item.parsed_header
         """
         return self._internal_client.decrypt_item(decrypt_item_input)
