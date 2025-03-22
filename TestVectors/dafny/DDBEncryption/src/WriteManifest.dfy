@@ -401,8 +401,7 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);
-    var jsonBv := BytesBv(jsonBytes);
-    var x := FileIO.WriteBytesToFile(fileName, jsonBv);
+    var x := FileIO.WriteBytesToFile(fileName, jsonBytes);
     expect x.Success?;
     return Success(true);
   }

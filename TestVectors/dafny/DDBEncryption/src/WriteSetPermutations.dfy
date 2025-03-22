@@ -117,11 +117,6 @@ module {:options "-functionSyntax:4"} WriteSetPermutations {
     return recs1 + recs2 + recs3 + recs4;
   }
 
-  function BytesBv(bits: seq<BoundedInts.uint8>): seq<bv8>
-  {
-    seq(|bits|, i requires 0 <= i < |bits| => bits[i] as bv8)
-  }
-
   method WriteSetPermutations()
   {
     var configs := GetConfigs();
@@ -132,11 +127,10 @@ module {:options "-functionSyntax:4"} WriteSetPermutations {
                           ]))]);
 
     var jsonBytes :- expect API.Serialize(whole);
-    var jsonBv := BytesBv(jsonBytes);
 
     var _ :- expect FileIO.WriteBytesToFile(
       "PermTest.json",
-      jsonBv
+      jsonBytes
     );
   }
 }

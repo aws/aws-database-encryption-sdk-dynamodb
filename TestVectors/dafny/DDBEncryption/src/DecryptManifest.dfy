@@ -118,8 +118,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
   {
     var timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Decrypt : ", inFile, "\n";
-    var configBv :- expect FileIO.ReadBytesFromFile(inFile);
-    var configBytes := BvToBytes(configBv);
+    var configBytes :- expect FileIO.ReadBytesFromFile(inFile);
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " File Read.\n";
     var json :- expect API.Deserialize(configBytes);
