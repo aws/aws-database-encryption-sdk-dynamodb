@@ -26,12 +26,11 @@ module WrappedDDBEncryptionMain {
     modifies keyVectors.Modifies
     ensures keyVectors.ValidState()
   {
-    var configBv := FileIO.ReadBytesFromFile(file);
-    if configBv.Failure? {
+    var configBytes := FileIO.ReadBytesFromFile(file);
+    if configBytes.Failure? {
       print "Failed to open ", file, " continuing anyway.\n";
       return Success(MakeEmptyTestVector());
     }
-    var configBytes := BvToBytes(configBv.value);
     var json :- expect API.Deserialize(configBytes);
     output := ParseTestVector(json, prev, keyVectors);
     if output.Failure? {

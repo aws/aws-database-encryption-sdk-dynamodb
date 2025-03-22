@@ -560,8 +560,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         jsonItems := jsonItems + [item];
       }
       var jsonBytes :- expect API.Serialize(Array(jsonItems));
-      var jsonBv := BytesBv(jsonBytes);
-      var x := FileIO.WriteBytesToFile(fileName, jsonBv);
+      var x := FileIO.WriteBytesToFile(fileName, jsonBytes);
       expect x.Success?;
     }
 
