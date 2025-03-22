@@ -31,7 +31,7 @@ module WrappedDDBEncryptionMain {
       print "Failed to open ", file, " continuing anyway.\n";
       return Success(MakeEmptyTestVector());
     }
-    var json :- expect API.Deserialize(configBytes);
+    var json :- expect API.Deserialize(configBytes.value);
     output := ParseTestVector(json, prev, keyVectors);
     if output.Failure? {
       print output.error, "\n";
