@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from boto3.dynamodb.conditions import (
     BuiltConditionExpression,
 )
+from copy import deepcopy
 
 class BotoInterfaceShapeConverter(ABC):
     """
@@ -98,6 +99,7 @@ class BotoInterfaceShapeConverter(ABC):
         return self.item(attributes)
 
     def item_collection_metrics(self, item_collection_metrics):
+        print(f"{item_collection_metrics=}")
         if "ItemCollectionKey" in item_collection_metrics:
             item_collection_metrics["ItemCollectionKey"] = self.item(item_collection_metrics["ItemCollectionKey"])
         return item_collection_metrics

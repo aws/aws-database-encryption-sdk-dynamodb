@@ -7,6 +7,9 @@ from ...ddb_formatted_requests import (
     exhaustive_query_request_ddb,
     basic_scan_request_ddb,
     exhaustive_scan_request_ddb,
+    basic_batch_get_item_request_ddb,
+    basic_batch_write_item_put_request_ddb,
+    basic_batch_write_item_delete_request_ddb,
 )
 from ...dict_formatted_requests import (
     basic_put_item_request_dict,
@@ -17,6 +20,23 @@ from ...dict_formatted_requests import (
     exhaustive_query_request_dict,
     basic_scan_request_dict,
     exhaustive_scan_request_dict,
+    basic_batch_get_item_request_dict,
+    basic_batch_write_item_put_request_dict,
+    basic_batch_write_item_delete_request_dict,
+)
+from ...responses import (
+    basic_query_response,
+    basic_scan_response,
+    exhaustive_scan_response,
+    basic_put_item_response,
+    exhaustive_put_item_response,
+    basic_get_item_response,
+    exhaustive_get_item_response,
+    exhaustive_query_response,
+    basic_batch_get_item_response,
+    exhaustive_batch_get_item_response,
+    basic_batch_write_item_put_response,
+    exhaustive_batch_write_item_put_response,
 )
 from ...items import *
 from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
@@ -86,6 +106,22 @@ def test_GIVEN_test_put_item_request_WHEN_client_to_resource_THEN_returns_dict_v
         if key != "ConditionExpression":
             assert dict_item[key] == expected_dict_request[key]
 
+
+@pytest.fixture
+def test_put_item_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_put_item_response
+    return basic_put_item_response
+
+def test_GIVEN_test_put_item_response_WHEN_client_to_resource_THEN_returns_dict_value(test_put_item_response, test_ddb_key, test_dict_key):
+    # Given: Put item response
+    response = test_put_item_response(test_ddb_key)
+    # When: Converting to resource format
+    print(f"{response=}")
+    dict_item = client_to_resource_converter.put_item_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_put_item_response(test_dict_key)
+
 @pytest.fixture
 def test_get_item_request_ddb(use_exhaustive_request):
     if use_exhaustive_request:
@@ -105,6 +141,20 @@ def test_GIVEN_test_get_item_request_WHEN_client_to_resource_THEN_returns_dict_v
     dict_item = client_to_resource_converter.get_item_request(request)
     # Then: Returns dict value
     assert dict_item == test_get_item_request_dict(test_dict_item)
+
+@pytest.fixture
+def test_get_item_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_get_item_response
+    return basic_get_item_response
+
+def test_GIVEN_test_get_item_response_WHEN_client_to_resource_THEN_returns_dict_value(test_get_item_response, test_ddb_item, test_dict_item):
+    # Given: Get item response
+    response = test_get_item_response(test_ddb_item)
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.get_item_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_get_item_response(test_dict_item)
 
 @pytest.fixture
 def test_query_request_ddb(use_exhaustive_request):
@@ -129,6 +179,20 @@ def test_GIVEN_test_query_request_WHEN_client_to_resource_THEN_returns_dict_valu
             assert_condition_expressions_are_equal(test_query_request_dict(test_dict_item), dict_item, key)
         else:
             assert dict_item[key] == test_query_request_dict(test_dict_item)[key]
+
+@pytest.fixture
+def test_query_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_query_response
+    return basic_query_response
+
+def test_GIVEN_test_query_response_WHEN_client_to_resource_THEN_returns_dict_value(test_query_response, test_ddb_item, test_dict_item):
+    # Given: Query response
+    response = test_query_response([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.query_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_query_response([test_dict_item])
 
 def get_string_for_key_condition_expression(key_condition_expression, expression_attribute_names, expression_attribute_values):
     """Get the string for the key condition expression."""
@@ -176,3 +240,92 @@ def test_GIVEN_test_scan_request_WHEN_client_to_resource_THEN_returns_dict_value
     # Then: Returns dict value
     assert dict_item == test_scan_request_dict(test_dict_item)
 
+@pytest.fixture
+def test_scan_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_scan_response
+    return basic_scan_response
+
+def test_GIVEN_test_scan_response_WHEN_client_to_resource_THEN_returns_dict_value(test_scan_response, test_ddb_item, test_dict_item, test_ddb_key, test_dict_key):
+    # Given: Scan response
+    response = test_scan_response([test_ddb_item], [test_ddb_key])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.scan_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_scan_response([test_dict_item], [test_dict_key])
+
+@pytest.fixture
+def test_batch_get_item_request_ddb():
+    return basic_batch_get_item_request_ddb
+
+@pytest.fixture
+def test_batch_get_item_request_dict():
+    return basic_batch_get_item_request_dict
+
+def test_GIVEN_test_batch_get_item_request_WHEN_client_to_resource_THEN_returns_dict_value(test_batch_get_item_request_ddb, test_batch_get_item_request_dict, test_ddb_item, test_dict_item):
+    # Given: Batch get item request
+    request = test_batch_get_item_request_ddb([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.batch_get_item_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_batch_get_item_request_dict([test_dict_item])
+
+@pytest.fixture
+def test_batch_get_item_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_batch_get_item_response
+    return basic_batch_get_item_response
+
+def test_GIVEN_test_batch_get_item_response_WHEN_client_to_resource_THEN_returns_dict_value(test_batch_get_item_response, test_ddb_item, test_dict_item):
+    # Given: Batch get item response
+    response = test_batch_get_item_response([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.batch_get_item_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_batch_get_item_response([test_dict_item])
+
+@pytest.fixture
+def test_batch_write_item_put_request_ddb():
+    return basic_batch_write_item_put_request_ddb
+
+@pytest.fixture
+def test_batch_write_item_put_request_dict():
+    return basic_batch_write_item_put_request_dict
+
+def test_GIVEN_test_batch_write_item_put_request_WHEN_client_to_resource_THEN_returns_dict_value(test_batch_write_item_put_request_ddb, test_batch_write_item_put_request_dict, test_ddb_item, test_dict_item):
+    # Given: Batch write item request
+    request = test_batch_write_item_put_request_ddb([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.batch_write_item_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_batch_write_item_put_request_dict([test_dict_item])
+
+@pytest.fixture
+def test_batch_write_item_delete_request_ddb():
+    return basic_batch_write_item_delete_request_ddb
+
+@pytest.fixture
+def test_batch_write_item_delete_request_dict():
+    return basic_batch_write_item_delete_request_dict
+
+def test_GIVEN_test_batch_write_item_delete_request_WHEN_client_to_resource_THEN_returns_dict_value(test_batch_write_item_delete_request_ddb, test_batch_write_item_delete_request_dict, test_ddb_key, test_dict_key):
+    # Given: Batch write item delete request
+    request = test_batch_write_item_delete_request_ddb([test_ddb_key])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.batch_write_item_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_batch_write_item_delete_request_dict([test_dict_key])
+
+@pytest.fixture
+def test_batch_write_item_put_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_batch_write_item_put_response
+    return basic_batch_write_item_put_response
+
+def test_GIVEN_test_batch_write_item_put_response_WHEN_client_to_resource_THEN_returns_dict_value(test_batch_write_item_put_response, test_ddb_item, test_dict_item):
+    # Given: Batch write item put response
+    response = test_batch_write_item_put_response([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.batch_write_item_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_batch_write_item_put_response([test_dict_item])

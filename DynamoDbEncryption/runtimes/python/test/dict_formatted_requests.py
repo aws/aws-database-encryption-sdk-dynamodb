@@ -21,7 +21,8 @@ def exhaustive_put_item_request_dict(item):
                 "Value": item["partition_key"]
             },
             "sort_key": {
-                "Value": item["sort_key"]
+                "AttributeValueList": [item["sort_key"]],
+                "ComparisonOperator": "EQ"
             }
         },
         "ConditionExpression": Attr("pk").not_exists() & Attr("sk").not_exists(),
@@ -155,6 +156,10 @@ def exhaustive_scan_request_dict(item):
         },
         "ExpressionAttributeValues": {
             ":a1": item["attribute1"]
+        },
+        "ExclusiveStartKey": {
+            "partition_key": item["partition_key"],
+            "sort_key": item["sort_key"]
         }
     }
     return {**base, **additional_keys}

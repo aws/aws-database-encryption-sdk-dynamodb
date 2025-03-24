@@ -17,10 +17,11 @@ def exhaustive_put_item_request_ddb(item):
         # Expected is legacy, but still in the boto3 docs.
         "Expected": {
             "partition_key": {
-                "Value": item["partition_key"]
+                "Value": item["partition_key"],
             },
             "sort_key": {
-                "Value": item["sort_key"]
+               "AttributeValueList": [item["sort_key"]],
+               "ComparisonOperator": "EQ"
             }
         },
         "ConditionExpression": "attribute_not_exists(#pk) AND attribute_not_exists(#sk)",
@@ -152,6 +153,10 @@ def exhaustive_scan_request_ddb(item):
         },
         "ExpressionAttributeValues": {
             ":a1": item["attribute1"]
+        },
+        "ExclusiveStartKey": {
+            "partition_key": item["partition_key"],
+            "sort_key": item["sort_key"]
         }
     }
     return {**base, **additional_keys}
@@ -165,14 +170,14 @@ def basic_batch_write_item_request_ddb(actions_with_items):
         }
     }
 
-def basic_batch_put_item_request_ddb(items):
+def basic_batch_write_item_put_request_ddb(items):
     actions_with_items = [
         {"PutRequest": {"Item": item}}
         for item in items
     ]
     return basic_batch_write_item_request_ddb(actions_with_items)
 
-def basic_batch_delete_item_request_ddb(keys):
+def basic_batch_write_item_delete_request_ddb(keys):
     actions_with_keys = [
         {"DeleteRequest": {"Key": key}}
         for key in keys
