@@ -132,7 +132,7 @@ module
              + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
              + (if tableConfig.search.Some? then tableConfig.search.value.versions[0].keyStore.Modifies else {})
            )
-      :: o;
+           {:nowarn} :: o; // ignore warning for missing trigger on quantifier
 
     var allLogicalTableNames := {};
     var i := 0;
