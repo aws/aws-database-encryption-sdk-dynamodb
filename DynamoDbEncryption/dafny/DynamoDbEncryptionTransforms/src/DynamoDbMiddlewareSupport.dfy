@@ -121,7 +121,10 @@ module DynamoDbMiddlewareSupport {
     .MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e))
   }
 
-  const HierarchicalKeyringId := UTF8.EncodeAscii("aws-kms-hierarchy")
+  const HierarchicalKeyringId : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x6b, 0x6d, 0x73, 0x2d, 0x68, 0x69, 0x65, 0x72, 0x61, 0x72, 0x63, 0x68, 0x79];
+    assert s == UTF8.EncodeAscii("aws-kms-hierarchy");
+    s
 
   // Return Beacon Key ID for use in beaconizing records to be written
   function method GetKeyIdFromHeader(config : ValidTableConfig, output : AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes.EncryptItemOutput) :

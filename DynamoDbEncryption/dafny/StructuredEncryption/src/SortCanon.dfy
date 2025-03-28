@@ -3,6 +3,7 @@
 
 include "../Model/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes.dfy"
 include "Util.dfy"
+include "OptimizedMergeSort.dfy"
 
 module SortCanon {
   export
@@ -22,6 +23,7 @@ module SortCanon {
   import opened Relations
   import opened Seq.MergeSort
   import opened StructuredEncryptionUtil
+  import OptimizedMergeSort
 
   predicate method AuthBelow(x: CanonAuthItem, y: CanonAuthItem) {
     Below(x.key, y.key)
@@ -148,11 +150,89 @@ module SortCanon {
     }
   }
 
-  predicate method Below(x: seq<uint8>, y: seq<uint8>) {
+  predicate Below(x: seq<uint8>, y: seq<uint8>) {
     |x| != 0 ==>
       && |y| != 0
       && x[0] <= y[0]
       && (x[0] == y[0] ==> Below(x[1..], y[1..]))
+  } by method {
+
+    // The slice x[1..], y[1..] are un-optimized operations in Dafny.
+    // This means that their usage will result in a lot of data copying.
+    // Additional, it is very likely that these size of these sequences
+    // will be less than uint64.
+    // So writing an optimized version that only works on bounded types
+    // should further optimized this hot code.
+
+    if HasUint64Len(x) && HasUint64Len(y) {
+      return BoundedBelow(x,y);
+    }
+
+    if |x| == 0 {
+      assert Below(x, y);
+      return true;
+    }
+
+    if |y| == 0 {
+      assert !Below(x, y);
+      return false;
+    }
+
+    for i := 0 to |x|
+      invariant i <= |y|
+      // The function on the initial arguments
+      // is equal to function applied to the intermediate arguments.
+      invariant Below(x, y) == Below(x[i..], y[i..])
+    {
+      if |y| <= i {
+        return false;
+      } else if y[i] < x[i] {
+        return false;
+      } else if x[i] < y[i] {
+        return true;
+      } else {
+        assert x[i] == y[i];
+      }
+    }
+
+    return true;
+  }
+
+  predicate BoundedBelow(x: seq64<uint8>, y: seq64<uint8>)
+  {
+    Below(x,y)
+  } by method {
+    var xLength := |x| as uint64;
+    var yLength := |y| as uint64;
+
+    if xLength == 0 {
+      assert BoundedBelow(x, y);
+      return true;
+    }
+
+    if yLength == 0 {
+      assert !BoundedBelow(x, y);
+      return false;
+    }
+
+    for i := 0 to xLength
+      invariant i <= yLength
+      // The function on the initial arguments
+      // is equal to function applied to the intermediate arguments.
+      invariant BoundedBelow(x, y) == BoundedBelow(x[i..], y[i..])
+    {
+      if yLength <= i {
+        return false;
+      } else if y[i] < x[i] {
+        return false;
+      } else if x[i] < y[i] {
+        return true;
+      } else {
+        assert x[i] == y[i];
+      }
+    }
+
+    return true;
   }
 
   lemma BelowIsTotal()
@@ -217,7 +297,7 @@ module SortCanon {
   {}
 
 
-  function method AuthSort(x : CanonAuthList) : (result : CanonAuthList)
+  function AuthSort(x : CanonAuthList) : (result : CanonAuthList)
     requires CanonAuthListHasNoDuplicates(x)
     ensures multiset(x) == multiset(result)
     ensures SortedBy(result, AuthBelow)
@@ -229,9 +309,14 @@ module SortCanon {
     CanonAuthListMultiNoDup(x, ret);
     assert CanonAuthListHasNoDuplicates(ret);
     ret
+  } by method {
+    AuthBelowIsTotal();
+    result := OptimizedMergeSort.MergeSortNat(x, AuthBelow);
+    CanonAuthListMultiNoDup(x, result);
+    assert CanonAuthListHasNoDuplicates(result);
   }
 
-  function method CryptoSort(x : CanonCryptoList) : (result : CanonCryptoList)
+  function CryptoSort(x : CanonCryptoList) : (result : CanonCryptoList)
     requires CanonCryptoListHasNoDuplicates(x)
     ensures multiset(x) == multiset(result)
     ensures multiset(result) == multiset(x)
@@ -244,6 +329,11 @@ module SortCanon {
     CanonCryptoListMultiNoDup(x, ret);
     assert CanonCryptoListHasNoDuplicates(ret);
     ret
+  } by method {
+    CryptoBelowIsTotal();
+    result := OptimizedMergeSort.MergeSortNat(x, CryptoBelow);
+    CanonCryptoListMultiNoDup(x, result);
+    assert CanonCryptoListHasNoDuplicates(result);
   }
 
   lemma MultisetHasNoDuplicates(xs: CanonCryptoList)
