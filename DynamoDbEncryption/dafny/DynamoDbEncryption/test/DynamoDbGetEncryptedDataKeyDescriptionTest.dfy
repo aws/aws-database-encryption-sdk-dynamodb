@@ -24,7 +24,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     assert s == UTF8.EncodeAscii("def");
     s
 
-  const awskms : UTF8.ValidUTF8Bytes :=
+  const aws_kms : UTF8.ValidUTF8Bytes :=
     var s := [0x61, 0x77, 0x73, 0x2d, 0x6b, 0x6d, 0x73];
     assert s == UTF8.EncodeAscii("aws-kms");
     s
@@ -57,7 +57,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
   const testLegend : Legend := [0x65, 0x73]
   const testEncContext : CMPEncryptionContext := map[abc := def]
   const testAwsKmsDataKey := CMP.EncryptedDataKey(
-                               keyProviderId := awskms ,
+                               keyProviderId := aws_kms ,
                                keyProviderInfo := keyproviderInfo,
                                ciphertext := [1, 2, 3, 4, 5])
   const testAwsKmsHDataKey := CMP.EncryptedDataKey(
