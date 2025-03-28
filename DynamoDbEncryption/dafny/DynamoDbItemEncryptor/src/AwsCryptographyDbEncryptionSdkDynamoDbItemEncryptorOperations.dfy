@@ -1058,11 +1058,16 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# using the configured [Attribute Flags](./ddb-table-encryption-config.md) as input.
     // Note: InternalLegacyOverride.DecryptItem checks that the legacy policy is correct.
     if config.internalLegacyOverride.Some? && config.internalLegacyOverride.value.IsLegacyInput(input) {
-      var decryptItemOutput :- config.internalLegacyOverride.value.DecryptItem(input);
-      //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
-      //# The item returned by this operation MUST be the item outputted by the
-      //# [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor).
-      return Success(decryptItemOutput);
+      if config.internalLegacyOverride.value.policy == DDBE.LegacyPolicy.FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT {
+        return Failure(E("Item is legacy encrypted, but legacy policy is FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT."));
+        // We raise this error if internalLegacyOverride is None, because they might be expecting to see it with plaintextOverride.
+      } else {
+        var decryptItemOutput :- config.internalLegacyOverride.value.DecryptItem(input);
+        //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
+        //# The item returned by this operation MUST be the item outputted by the
+        //# [Legacy Encryptor](./ddb-table-encryption-config.md#legacy-encryptor).
+        return Success(decryptItemOutput);
+      }
     }
 
     if (
