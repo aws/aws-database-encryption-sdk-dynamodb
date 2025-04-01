@@ -27,7 +27,7 @@ require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.1.0 // indirect
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.1 // indirect
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.1 // indirect
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.1.0 // indirect
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.51 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.23 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.27 // indirect
