@@ -13,11 +13,11 @@ replace (
 )
 
 require (
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.1.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.1
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.1.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.1
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.1.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/testvectors v0.0.0
 	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
 	github.com/dafny-lang/DafnyRuntimeGo/v4 v4.9.2

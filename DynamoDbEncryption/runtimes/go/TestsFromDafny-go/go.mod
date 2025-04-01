@@ -12,10 +12,10 @@ replace (
 )
 
 require (
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.1.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.1.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.1
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.1.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.0.0
 	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.2
 	github.com/aws/smithy-go v1.22.1
