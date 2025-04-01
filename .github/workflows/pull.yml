@@ -4,6 +4,11 @@ name: PR CI
 
 on:
   pull_request:
+  push:
+    branches:
+      - Golang/reviewed
+  schedule:
+    - cron: "00 16 * * 1-5"
 
 jobs:
   getVersion:
