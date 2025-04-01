@@ -39,7 +39,7 @@ jobs:
       # and to translate version strings such as "nightly-latest"
       # to an actual DAFNY_VERSION.
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 

@@ -130,7 +130,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
              + (if tableConfig.cmm.Some? then tableConfig.cmm.value.Modifies else {})
              + (if tableConfig.legacyOverride.Some? then tableConfig.legacyOverride.value.encryptor.Modifies else {})
            )
-      :: o;
+           {:nowarn} :: o; // ignore warning for missing trigger on quantifier
 
     var allLogicalTableNames := {};
     var i := 0;
