@@ -1,0 +1,4 @@
+github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0 h1:NhVxn86bWyWc/uOnE+oTikZdj75yOW6kMCfZNBf2x5E=
+github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0/go.mod h1:m3mzHKiNiSC0LWeWX6ZAxSe6mKbJHgliux1Yu/sjCYI=
+github.com/dafny-lang/DafnyRuntimeGo/v4 v4.9.2 h1:g/xAj4F7Zt9wXJ6QjfbfocVi/ZYlAFpNddHCFyfzRDg=
+github.com/dafny-lang/DafnyRuntimeGo/v4 v4.9.2/go.mod h1:l2Tm4N2DKuq3ljONC2vOATeM9PUpXbIc8SgXdwwqEto=
