@@ -3,10 +3,10 @@ module github.com/aws/aws-cryptographic-material-providers-library/releases/go/m
 go 1.23.0
 
 require (
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.2
 	github.com/aws/aws-sdk-go-v2/service/kms v1.36.0
 	github.com/aws/smithy-go v1.22.1
