@@ -220,6 +220,12 @@ def basic_transact_get_item_request_ddb(keys):
         "TransactItems": [{"Get": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys]
     }
 
+def basic_transact_write_item_condition_check_request_ddb(keys):
+    """Get a transact_write_item request in resource (ddb) format for any items."""
+    return {
+        "TransactItems": [{"ConditionCheck": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys]
+    }
+
 def basic_query_paginator_request_ddb(key):
     """Get a query paginator request in resource (ddb) format for any item."""
     return {
@@ -230,3 +236,10 @@ def basic_query_paginator_request_ddb(key):
             ":sk": key["sort_key"]
         }
     }
+
+def basic_transact_get_item_request_ddb(keys):
+    """Get a transact_get_item request in resource (ddb) format for any keys."""
+    return {
+        "TransactItems": [{"Get": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys]
+    }
+

@@ -10,6 +10,10 @@ from ...ddb_formatted_requests import (
     basic_batch_get_item_request_ddb,
     basic_batch_write_item_put_request_ddb,
     basic_batch_write_item_delete_request_ddb,
+    basic_transact_write_item_put_request_ddb,
+    basic_transact_write_item_delete_request_ddb,
+    basic_transact_write_item_condition_check_request_ddb,
+    basic_transact_get_item_request_ddb,
 )
 from ...dict_formatted_requests import (
     basic_put_item_request_dict,
@@ -23,6 +27,10 @@ from ...dict_formatted_requests import (
     basic_batch_get_item_request_dict,
     basic_batch_write_item_put_request_dict,
     basic_batch_write_item_delete_request_dict,
+    basic_transact_write_item_put_request_dict,
+    basic_transact_write_item_delete_request_dict,
+    basic_transact_write_item_condition_check_request_dict,
+    basic_transact_get_item_request_dict,
 )
 from ...responses import (
     basic_query_response,
@@ -37,6 +45,8 @@ from ...responses import (
     exhaustive_batch_get_item_response,
     basic_batch_write_item_put_response,
     exhaustive_batch_write_item_put_response,
+    basic_transact_write_items_response,
+    basic_transact_get_items_response,
 )
 from ...items import *
 from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
@@ -329,3 +339,91 @@ def test_GIVEN_test_batch_write_item_put_response_WHEN_client_to_resource_THEN_r
     dict_item = client_to_resource_converter.batch_write_item_response(response)
     # Then: Returns dict value
     assert dict_item == test_batch_write_item_put_response([test_dict_item])
+
+@pytest.fixture
+def test_transact_write_items_put_request_ddb():
+    return basic_transact_write_item_put_request_ddb
+
+@pytest.fixture
+def test_transact_write_items_put_request_dict():
+    return basic_transact_write_item_put_request_dict
+
+def test_GIVEN_test_transact_write_items_put_request_WHEN_client_to_resource_THEN_returns_dict_value(test_transact_write_items_put_request_ddb, test_transact_write_items_put_request_dict, test_ddb_item, test_dict_item):
+    # Given: Transact write item put request
+    request = test_transact_write_items_put_request_ddb([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.transact_write_items_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_transact_write_items_put_request_dict([test_dict_item])
+
+@pytest.fixture
+def test_transact_write_items_delete_request_ddb():
+    return basic_transact_write_item_delete_request_ddb
+
+@pytest.fixture
+def test_transact_write_items_delete_request_dict():
+    return basic_transact_write_item_delete_request_dict
+
+def test_GIVEN_test_transact_write_items_delete_request_WHEN_client_to_resource_THEN_returns_dict_value(test_transact_write_items_delete_request_ddb, test_transact_write_items_delete_request_dict, test_ddb_key, test_dict_key):
+    # Given: Transact write item delete request
+    request = test_transact_write_items_delete_request_ddb([test_ddb_key])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.transact_write_items_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_transact_write_items_delete_request_dict([test_dict_key])
+
+@pytest.fixture
+def test_transact_write_items_condition_check_request_ddb():
+    return basic_transact_write_item_condition_check_request_ddb
+
+@pytest.fixture
+def test_transact_write_items_condition_check_request_dict():
+    return basic_transact_write_item_condition_check_request_dict
+
+def test_GIVEN_test_transact_write_items_condition_check_request_WHEN_client_to_resource_THEN_returns_dict_value(test_transact_write_items_condition_check_request_ddb, test_transact_write_items_condition_check_request_dict, test_ddb_key, test_dict_key):
+    # Given: Transact write item condition check request
+    request = test_transact_write_items_condition_check_request_ddb([test_ddb_key])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.transact_write_items_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_transact_write_items_condition_check_request_dict([test_dict_key])
+
+@pytest.fixture
+def test_transact_write_items_response():
+    return basic_transact_write_items_response
+
+def test_GIVEN_test_transact_write_items_response_WHEN_client_to_resource_THEN_returns_dict_value(test_transact_write_items_response, test_ddb_item, test_dict_item):
+    # Given: Transact write items response
+    response = test_transact_write_items_response([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.transact_write_items_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_transact_write_items_response([test_dict_item])
+
+@pytest.fixture
+def test_transact_get_items_request_ddb():
+    return basic_transact_get_item_request_ddb
+
+@pytest.fixture
+def test_transact_get_items_request_dict():
+    return basic_transact_get_item_request_dict
+
+def test_GIVEN_test_transact_get_items_request_WHEN_client_to_resource_THEN_returns_dict_value(test_transact_get_items_request_ddb, test_transact_get_items_request_dict, test_ddb_key, test_dict_key):
+    # Given: Transact get items request
+    request = test_transact_get_items_request_ddb([test_ddb_key])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.transact_get_items_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_transact_get_items_request_dict([test_dict_key])
+
+@pytest.fixture
+def test_transact_get_items_response():
+    return basic_transact_get_items_response
+
+def test_GIVEN_test_transact_get_items_response_WHEN_client_to_resource_THEN_returns_dict_value(test_transact_get_items_response, test_ddb_item, test_dict_item):
+    # Given: Transact get items response
+    response = test_transact_get_items_response([test_ddb_item])
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.transact_get_items_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_transact_get_items_response([test_dict_item])

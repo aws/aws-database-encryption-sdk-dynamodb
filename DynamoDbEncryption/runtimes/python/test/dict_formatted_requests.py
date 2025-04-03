@@ -217,6 +217,14 @@ def basic_transact_write_item_delete_request_dict(keys):
     ]
     return basic_transact_write_item_request_dict(actions_with_keys)
 
+def basic_transact_write_item_condition_check_request_dict(keys):
+    """Get a transact_write_item condition check request in resource (dict) format for any keys."""
+    actions_with_keys = [
+        {"ConditionCheck": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}}
+        for key in keys
+    ]
+    return basic_transact_write_item_request_dict(actions_with_keys)
+
 def basic_transact_get_item_request_dict(keys):
     """Get a transact_get_item request in resource (dict) format for any keys."""
     return {

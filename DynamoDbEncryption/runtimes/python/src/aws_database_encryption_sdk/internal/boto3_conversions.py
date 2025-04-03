@@ -1,8 +1,4 @@
 from abc import ABC, abstractmethod
-from boto3.dynamodb.conditions import (
-    BuiltConditionExpression,
-)
-from copy import deepcopy
 
 class BotoInterfaceShapeConverter(ABC):
     """
@@ -12,22 +8,19 @@ class BotoInterfaceShapeConverter(ABC):
     boto3 resource methods accept different input shapes than boto3 clients, and return different output shapes.
     (The members of these shapes are the same, but some shapes are formatted differently.)
 
-    DBESDK DynamoDB has an internal transformer layer that performs encryption, decryption, and query modification.
+    DBESDK DynamoDB has an internal transformer layer that modifies requests and responses.
     This transformer layer only accepts client-formatted shapes.
 
     This class exists to transform from/to resource shapes to/from client shapes
         for the internal DBESDK DynamoDB transformer layer.
+    This class is also used to transform shapes if the EncryptedClient has expect_standard_dictionaries set to True.
 
     This class is abstract, as some specific transformations depend on the transformation direction.
-    But the structure modelling is the same for both directions, and is expressed here.
-    Implementations of this class should implement the abstract methods to perform the transformations.
+    (ex. Item, Key, AttributeValue, etc.)
+    But many transformations are the same in both directions.
+    That similarity is captured here, and implementations override the abstract methods to perform the transformations
+        specific to the transformation direction.
     """
-    # def key_condition_expression(self, key_condition_expression, expression_attribute_names, expression_attribute_values):
-    #     return self.expression(key_condition_expression, expression_attribute_names, expression_attribute_values)
-
-    # def filter_expression(self, filter_expression, expression_attribute_names, expression_attribute_values):
-    #     return self.expression(filter_expression, expression_attribute_names, expression_attribute_values)
-
     @abstractmethod
     def expression(self, condition_expression, expression_attribute_names, expression_attribute_values):
         raise NotImplementedError("Must be implemented by subclasses")
@@ -99,7 +92,6 @@ class BotoInterfaceShapeConverter(ABC):
         return self.item(attributes)
 
     def item_collection_metrics(self, item_collection_metrics):
-        print(f"{item_collection_metrics=}")
         if "ItemCollectionKey" in item_collection_metrics:
             item_collection_metrics["ItemCollectionKey"] = self.item(item_collection_metrics["ItemCollectionKey"])
         return item_collection_metrics
@@ -283,6 +275,9 @@ class BotoInterfaceShapeConverter(ABC):
         return output_transact_items
 
     def transact_write_items_response(self, transact_write_items_response):
+        if "ItemCollectionMetrics" in transact_write_items_response:
+            # TODO this works but rename/refactor
+            transact_write_items_response["ItemCollectionMetrics"] = self.batch_write_item_item_collection_metrics(transact_write_items_response["ItemCollectionMetrics"])
         return transact_write_items_response
     
     def transact_get_items_request(self, transact_get_items_request):
@@ -302,13 +297,5 @@ class BotoInterfaceShapeConverter(ABC):
     
     def transact_get_items_response(self, transact_get_items_response):
         if "Responses" in transact_get_items_response:
-            transact_get_items_response["Responses"] = self.transact_get_items_responses(transact_get_items_response["Responses"])
+            transact_get_items_response["Responses"] = self.items(transact_get_items_response["Responses"])
         return transact_get_items_response
-    
-    def transact_get_items_responses(self, responses):
-        responses_out = []
-        for response in responses:
-            if "Item" in response:
-                response["Item"] = self.item(response["Item"])
-            responses_out.append(response)
-        return responses_out
