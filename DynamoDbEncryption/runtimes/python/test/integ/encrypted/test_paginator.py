@@ -34,8 +34,7 @@ from ...items import (
     complex_item_dict,
     complex_key_dict,
 )
-from ...ddb_formatted_requests import basic_query_paginator_request_ddb, basic_put_item_request_ddb
-from ...dict_formatted_requests import basic_query_paginator_request_dict, basic_put_item_request_dict
+from ...requests import basic_query_paginator_request, basic_put_item_request_ddb, basic_put_item_request_dict
 
 BOTO3_CLIENT = boto3.client("dynamodb")
 ENCRYPTED_CLIENT = EncryptedClient(
@@ -122,8 +121,8 @@ def test_item(expect_standard_dictionaries, use_complex_item):
 @pytest.fixture
 def paginate_query_request(expect_standard_dictionaries, test_key):
     if expect_standard_dictionaries:
-        return {**basic_query_paginator_request_dict(test_key), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
-    return basic_query_paginator_request_ddb(test_key)
+        return {**basic_query_paginator_request(test_key), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    return basic_query_paginator_request(test_key)
 
 @pytest.fixture
 def put_item_request(expect_standard_dictionaries, test_item):

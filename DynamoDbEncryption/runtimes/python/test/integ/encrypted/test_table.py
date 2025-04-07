@@ -15,7 +15,7 @@ from ...constants import (
 )
 from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 from ...items import simple_item_ddb, simple_item_dict, complex_item_ddb, complex_item_dict
-from ...dict_formatted_requests import (
+from ...requests import (
     basic_put_item_request_dict,
     basic_get_item_request_dict,
     basic_query_request_dict,

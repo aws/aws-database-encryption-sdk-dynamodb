@@ -1,4 +1,4 @@
-from ...ddb_formatted_requests import (
+from ...requests import (
     basic_put_item_request_ddb,
     exhaustive_put_item_request_ddb,
     basic_get_item_request_ddb,
@@ -15,7 +15,7 @@ from ...ddb_formatted_requests import (
     basic_transact_write_item_condition_check_request_ddb,
     basic_transact_get_item_request_ddb,
 )
-from ...dict_formatted_requests import (
+from ...requests import (
     basic_put_item_request_dict,
     exhaustive_put_item_request_dict,
     basic_get_item_request_dict,
