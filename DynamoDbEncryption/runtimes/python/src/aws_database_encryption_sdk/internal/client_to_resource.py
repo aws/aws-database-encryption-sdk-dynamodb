@@ -13,44 +13,64 @@ class ClientShapeToResourceShapeConverter:
         )
 
     def condition_handler(self, expression_key, request):
+        """Returns the input condition/names/values as-is."""
+        # Conditions do not need to be converted from strings to boto3 Attrs.
+        # Resources accept either strings or Attrs.
+        condition = request[expression_key]
+
+        # This conversion in client_to_resource does not update ExpressionAttributeNames nor ExpressionAttributeValues.
+        # However, resource_to_client condition_handler may add new ExpressionAttributeNames and ExpressionAttributeValues.
+        # Smithy-generated code expects condition_handlers to return ExpressionAttributeNames and ExpressionAttributeValues.
         try:
-            identity_names =  request["ExpressionAttributeNames"]
+            names = request["ExpressionAttributeNames"]
         except KeyError:
-            identity_names = {}
+            names = None
 
         try:
-            identity_values = request["ExpressionAttributeValues"]
+            values = request["ExpressionAttributeValues"]
         except KeyError:
-            identity_values = {}
-        return request[expression_key], identity_names, identity_values
+            values = None
+        return condition, names, values
 
     def put_item_request(self, put_item_request):
-        # out = super().put_item_request(put_item_request)
         out = self.boto3_converter.PutItemInput(put_item_request)
+        # put_item requests on a boto3.resource.Table do not have a table name.
         if self.delete_table_name:
             del out["TableName"]
         return out
+    
+    def put_item_response(self, put_item_response):
+        return self.boto3_converter.PutItemOutput(put_item_response)
     
     def get_item_request(self, get_item_request):
-        # out = super().get_item_request(get_item_request)
         out = self.boto3_converter.GetItemInput(get_item_request)
+        # get_item requests on a boto3.resource.Table do not have a table name.
         if self.delete_table_name:
             del out["TableName"]
         return out
     
+    def get_item_response(self, get_item_response):
+        return self.boto3_converter.GetItemOutput(get_item_response)
+    
     def query_request(self, query_request):
-        # out = super().query_request(query_request)
         out = self.boto3_converter.QueryInput(query_request)
+        # query requests on a boto3.resource.Table do not have a table name.
         if self.delete_table_name:
             del out["TableName"]
         return out
+    
+    def query_response(self, query_response):
+        return self.boto3_converter.QueryOutput(query_response)
 
     def scan_request(self, scan_request):
-        # out = super().scan_request(scan_request)
         out = self.boto3_converter.ScanInput(scan_request)
+        # scan requests on a boto3.resource.Table do not have a table name.
         if self.delete_table_name:
             del out["TableName"]
         return out
+    
+    def scan_response(self, scan_response):
+        return self.boto3_converter.ScanOutput(scan_response)
 
     def transact_get_items_request(self, transact_get_items_request):
         return self.boto3_converter.TransactGetItemsInput(transact_get_items_request)
@@ -75,17 +95,4 @@ class ClientShapeToResourceShapeConverter:
     
     def batch_write_item_response(self, batch_write_item_response):
         return self.boto3_converter.BatchWriteItemOutput(batch_write_item_response)
-    
-    def scan_response(self, scan_response):
-        return self.boto3_converter.ScanOutput(scan_response)
-    
-    def query_response(self, query_response):
-        return self.boto3_converter.QueryOutput(query_response)
-    
-    def get_item_response(self, get_item_response):
-        return self.boto3_converter.GetItemOutput(get_item_response)
-    
-    def put_item_response(self, put_item_response):
-        return self.boto3_converter.PutItemOutput(put_item_response)
-    
     
