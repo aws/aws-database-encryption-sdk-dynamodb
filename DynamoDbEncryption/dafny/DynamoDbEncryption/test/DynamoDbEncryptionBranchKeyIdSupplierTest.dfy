@@ -26,7 +26,7 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   const logicalKeyStoreName := branchKeyStoreName
 
   // These tests require a keystore populated with a key with this Id
-  const BRANCH_KEY_ID := "75789115-1deb-4fe3-a2ec-be9e885d1945"
+  const BRANCH_KEY_ID := "3f43a9af-08c5-4317-b694-3d3e883dcaef"
   const BRANCH_KEY_ID_UTF8 := UTF8.EncodeAscii(BRANCH_KEY_ID)
   const ALTERNATE_BRANCH_KEY_ID := "4bb57643-07c1-419e-92ad-0df0df149d7c"
 
