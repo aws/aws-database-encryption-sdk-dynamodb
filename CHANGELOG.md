@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.8.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.8.0...v3.8.1) (2025-04-01)
+
+This release is available in the following languages:
+
+- Java
+
+### Fixes
+
+- return plaintext items in UnprocessedItems in BatchWriteIttem ([#1642](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1642)) ([7c7c8a1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/7c7c8a112ce0ba54e89eca6d235f6eae45cb9e65))
+
+### Maintenance
+
+- add Rust generated test vectors ([#1638](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1638)) ([a285eac](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/a285eacdd6ed9973ddfece8cfb6ffbcafda2256d))
+- bump mpl and smithy-dafny ([#1762](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1762)) ([8179af4](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8179af4f8f1d0893cccd05a6c6f2f03e45607662))
+- **dafny:** let FileIO deal in uint8 rather than bv8 ([#1746](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1746)) ([428a013](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/428a013170894c4cc2ecb2ded2662fa1de1b065e))
+- **deps:** bump actions/setup-java from 3 to 4 in /.github/workflows ([#1367](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1367)) ([f04bc40](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/f04bc401e3640355b1646c67380b950790f2019e))
+- **deps:** bump actions/setup-java from 3 to 4 in /.github/workflows ([#1654](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1654)) ([ddb69e1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ddb69e17e7a70689dd1b31d586645b4834fd9948))
+- **deps:** bump org.junit.jupiter:junit-jupiter-api ([#1656](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1656)) ([d988c6e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/d988c6ebac9379d002314f66ca819e6b49b1d3c7))
+- **deps:** bump org.junit.jupiter:junit-jupiter-engine ([#1650](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1650)) ([4f18689](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/4f18689f79243c9a5ab0f3a23108671defddeac4))
+- **deps:** bump software.amazon.awssdk:bom ([#1643](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1643)) ([4c41746](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/4c41746db618a901018aa03c679257f52b5f3558))
+- **deps:** bump software.amazon.awssdk:bom ([#1644](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1644)) ([84e2c56](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/84e2c560dbcb19eeb5cef40c1761b3d1f745841c))
+- **deps:** bump software.amazon.awssdk:core ([#1645](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1645)) ([dec98d6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/dec98d60dc642bf95b33e8a2eebd8c7ea0da41d3))
+- **GHA:** Run Java CI testing for MPL Latest Release ([#1605](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1605)) ([2eb36b3](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/2eb36b32c288f3d3b014523536b99712cfa20ebc))
+- **java:** allow local testing v3.8.0 ([#1628](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1628)) ([119a42b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/119a42b430a0469f017907dde4baa10332ea1575))
+- **java:** update versions of lombok and aws-sdk-ddb ([#1646](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1646)) ([099014e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/099014edd1d3e26bc6fc1c28bab90e69f331aefe))
+- re-enable Dafny for MacOS ([#1738](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1738)) ([6f729c3](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6f729c3a00623efbd11c2584772156926233896d))
+- Remove Dafny warnings ([#1742](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1742)) ([4a9d617](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/4a9d61735c1aa88b0ac60d8c066c21cea0af8f6c))
+- **rust:** enable wrapped client test vectors ([#1648](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1648)) ([20fee58](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/20fee581d3278bb19416bf97a15eaf6c2a660151))
+
 ## [3.8.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.7.0...v3.8.0) (2025-02-05)
 
 This release is available in the following languages:
