@@ -3,9 +3,9 @@ import boto3
 from decimal import Decimal
 from boto3.dynamodb.types import Binary
 import time
-from aws_database_encryption_sdk.encrypted.client import EncryptedClient
-from aws_database_encryption_sdk.encrypted.paginator import EncryptedPaginator
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
+from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTablesEncryptionConfig,
 )
 from ...constants import (
@@ -53,7 +53,7 @@ from ...requests import (
     basic_transact_write_item_condition_check_request_dict,
     basic_transact_get_item_request_dict,
 )
-from aws_database_encryption_sdk.transform import ddb_to_dict
+from aws_dbesdk_dynamodb.transform import ddb_to_dict
 
 @pytest.fixture(params=[True, False], ids=["standard_dicts", "ddb_json"])
 def expect_standard_dictionaries(request):
@@ -293,7 +293,6 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
 
     # Given: Valid transact_write_item delete request
     # When: transact_write_item delete
-    print(f"{transact_write_item_delete_request=}")
     transact_write_delete_response = client.transact_write_items(**transact_write_item_delete_request)
     # Then: transact_write_item delete succeeds
     assert transact_write_delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200

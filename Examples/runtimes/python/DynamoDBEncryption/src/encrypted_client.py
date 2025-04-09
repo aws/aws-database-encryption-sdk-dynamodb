@@ -27,14 +27,14 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
     CryptoAction,
 )
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
 )
-from aws_database_encryption_sdk.encrypted.client import (
+from aws_dbesdk_dynamodb.encrypted.client import (
     EncryptedClient
 )
 

@@ -10,7 +10,7 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
     CryptoAction,
 )
 
@@ -53,12 +53,12 @@ encryption_context = {
 
 unsignAttrPrefix: str = ":"
 
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
 )
 
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
     DynamoDbItemEncryptorConfig,
 )
 
@@ -74,15 +74,15 @@ item_encryptor_config = DynamoDbItemEncryptorConfig(
     algorithm_suite_id = DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384,
 )
 
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
     GetItemOutputTransformInput,
     PutItemInputTransformInput
 )
 
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
     DynamoDbEncryptionTransforms
 )
-from aws_database_encryption_sdk.encrypted.item import ItemEncryptor
+from aws_dbesdk_dynamodb.encrypted.item import ItemEncryptor
 
 item_encryptor = ItemEncryptor(
     item_encryptor_config = item_encryptor_config

@@ -6,7 +6,7 @@ from aws_cryptographic_material_providers.keystore.models import (
     KMSConfigurationKmsKeyArn,
 )
 import boto3
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     StandardBeacon,
     EncryptedPart,
     SignedPart,
@@ -25,7 +25,7 @@ from aws_cryptographic_material_providers.mpl.config import MaterialProvidersCon
 from aws_cryptographic_material_providers.mpl.models import (
     CreateAwsKmsHierarchicalKeyringInput,
 )
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
     CryptoAction,
 )
 

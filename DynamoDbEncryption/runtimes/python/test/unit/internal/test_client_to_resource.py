@@ -49,9 +49,9 @@ from ...responses import (
     basic_transact_get_items_response,
 )
 from ...items import *
-from aws_database_encryption_sdk.internal.client_to_resource import ClientShapeToResourceShapeConverter
+from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
 import pytest
-from aws_database_encryption_sdk.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
+from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
 
 client_to_resource_converter = ClientShapeToResourceShapeConverter()
 
@@ -127,7 +127,6 @@ def test_GIVEN_test_put_item_response_WHEN_client_to_resource_THEN_returns_dict_
     # Given: Put item response
     response = test_put_item_response(test_ddb_key)
     # When: Converting to resource format
-    print(f"{response=}")
     dict_item = client_to_resource_converter.put_item_response(response)
     # Then: Returns dict value
     assert dict_item == test_put_item_response(test_dict_key)
@@ -427,3 +426,16 @@ def test_GIVEN_test_transact_get_items_response_WHEN_client_to_resource_THEN_ret
     dict_item = client_to_resource_converter.transact_get_items_response(response)
     # Then: Returns dict value
     assert dict_item == test_transact_get_items_response([test_dict_item])
+
+def test_GIVEN_request_with_neither_ExpressionAttributeValues_nor_ExpressionAttributeNames_WHEN_condition_handler_THEN_returns_identity_output():
+    # Given: Request with neither ExpressionAttributeValues nor ExpressionAttributeNames
+    request = exhaustive_put_item_request_ddb(simple_item_ddb)
+    if "ExpressionAttributeValues" in request:
+        del request["ExpressionAttributeValues"]
+    if "ExpressionAttributeNames" in request:
+        del request["ExpressionAttributeNames"]
+    # When: Call condition_handler method
+    actual = client_to_resource_converter.condition_handler("ConditionExpression", request)
+    # Then: Returns "identity" output (input condition expression and no attribute names or values)
+    expected = request["ConditionExpression"], {}, {}
+    assert actual == expected

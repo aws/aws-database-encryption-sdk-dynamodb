@@ -1,6 +1,5 @@
 from boto3.dynamodb.conditions import Key, Attr
 
-
 queries = {
     "RecNum = :zero": Key("RecNum").eq(":zero"),
     "RecNum = :one": Key("RecNum").eq(":one"), 

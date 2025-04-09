@@ -3,9 +3,9 @@ import boto3
 from decimal import Decimal
 from boto3.dynamodb.types import Binary
 
-from aws_database_encryption_sdk.encrypted.table import EncryptedTable
-from aws_database_encryption_sdk.encrypted.paginator import EncryptedPaginator
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
+from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTablesEncryptionConfig,
 )
 from ...constants import (

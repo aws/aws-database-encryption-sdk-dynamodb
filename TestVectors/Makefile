@@ -108,7 +108,7 @@ SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\
 
 # Python
 
-PYTHON_MODULE_NAME=dbesdk_ddb_test_vectors
+PYTHON_MODULE_NAME=aws_dbesdk_ddb_test_vectors
 
 TRANSLATION_RECORD_PYTHON := \
     --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/smithy_dafny_standard_library/internaldafny/generated/dafny_src-py.dtr \
@@ -117,7 +117,7 @@ TRANSLATION_RECORD_PYTHON := \
     --translation-record ../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/python/src/aws_cryptography_primitives/internaldafny/generated/dafny_src-py.dtr \
 	--translation-record ../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptographic_material_providers/internaldafny/generated/dafny_src-py.dtr \
 	--translation-record ../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/python/src/aws_cryptography_materialproviders_test_vectors/internaldafny/generated/dafny_src-py.dtr \
-	--translation-record ../DynamoDbEncryption/runtimes/python/src/aws_database_encryption_sdk/internaldafny/generated/dafny_src-py.dtr
+	--translation-record ../DynamoDbEncryption/runtimes/python/src/aws_dbesdk_dynamodb/internaldafny/generated/dafny_src-py.dtr
 
 PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.primitives=aws_cryptography_primitives \
@@ -126,10 +126,10 @@ PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_material_providers \
 	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_material_providers \
 	--dependency-library-name=aws.cryptography.materialProvidersTestVectorKeys=aws_cryptography_materialproviders_test_vectors \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_database_encryption_sdk \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_database_encryption_sdk \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_database_encryption_sdk \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_dbesdk_dynamodb \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_dbesdk_dynamodb \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_dbesdk_dynamodb \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_dbesdk_dynamodb \
 
 # Constants for languages that drop extern names (Python, Go)
 

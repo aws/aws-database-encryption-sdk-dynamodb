@@ -103,7 +103,7 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 
 # Python
 
-PYTHON_MODULE_NAME=aws_database_encryption_sdk
+PYTHON_MODULE_NAME=aws_dbesdk_dynamodb
 
 TRANSLATION_RECORD_PYTHON := \
     --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/smithy_dafny_standard_library/internaldafny/generated/dafny_src-py.dtr \
@@ -118,10 +118,10 @@ PYTHON_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=com.amazonaws.dynamodb=aws_cryptography_internal_dynamodb \
 	--dependency-library-name=aws.cryptography.materialProviders=aws_cryptographic_material_providers \
 	--dependency-library-name=aws.cryptography.keyStore=aws_cryptographic_material_providers \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_database_encryption_sdk \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_database_encryption_sdk \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_database_encryption_sdk \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_database_encryption_sdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=aws_dbesdk_dynamodb \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=aws_dbesdk_dynamodb \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=aws_dbesdk_dynamodb \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=aws_dbesdk_dynamodb \
 
 # Override default test_python to run tox environment for Dafny tests
 test_python:

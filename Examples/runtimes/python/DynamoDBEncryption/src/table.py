@@ -10,7 +10,7 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
     CryptoAction,
 )
 
@@ -53,7 +53,7 @@ encryption_context = {
 
 unsignAttrPrefix: str = ":"
 
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
 )
@@ -78,14 +78,14 @@ tables_config = DynamoDbTablesEncryptionConfig(
     table_encryption_configs = table_configs
 )
 
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
     GetItemOutputTransformInput,
     PutItemInputTransformInput
 )
 
 # "Main"
 
-from aws_database_encryption_sdk.encrypted.table import (
+from aws_dbesdk_dynamodb.encrypted.table import (
     EncryptedTable
 )
 

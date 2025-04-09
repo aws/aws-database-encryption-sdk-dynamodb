@@ -2,33 +2,33 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-from aws_database_encryption_sdk.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes import (
+from aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes import (
     CreateDynamoDbEncryptionBranchKeyIdSupplierInput_CreateDynamoDbEncryptionBranchKeyIdSupplierInput as DafnyCreateDynamoDbEncryptionBranchKeyIdSupplierInput,
     CreateDynamoDbEncryptionBranchKeyIdSupplierOutput_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput as DafnyCreateDynamoDbEncryptionBranchKeyIdSupplierOutput,
     GetEncryptedDataKeyDescriptionInput_GetEncryptedDataKeyDescriptionInput as DafnyGetEncryptedDataKeyDescriptionInput,
     GetEncryptedDataKeyDescriptionOutput_GetEncryptedDataKeyDescriptionOutput as DafnyGetEncryptedDataKeyDescriptionOutput,
 )
-import aws_database_encryption_sdk.internaldafny.generated.module_
-import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy
-import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors
-from aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors import (
+import aws_dbesdk_dynamodb.internaldafny.generated.module_
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors import (
     CollectionOfErrors,
     OpaqueError,
     ServiceError,
     _smithy_error_to_dafny_error,
 )
-import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models
-import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny
 from typing import Any
 
 
 import smithy_dafny_standard_library.internaldafny.generated.Wrappers as Wrappers
-import aws_database_encryption_sdk.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes
-import aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.client as client_impl
+import aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.client as client_impl
 
 
 class DynamoDbEncryptionShim(
-    aws_database_encryption_sdk.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes.IDynamoDbEncryptionClient
+    aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes.IDynamoDbEncryptionClient
 ):
     def __init__(self, _impl: client_impl):
         self._impl = _impl
@@ -36,8 +36,8 @@ class DynamoDbEncryptionShim(
     def CreateDynamoDbEncryptionBranchKeyIdSupplier(self, input):
         try:
             smithy_client_request: (
-                aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.CreateDynamoDbEncryptionBranchKeyIdSupplierInput
-            ) = aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
+                aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.CreateDynamoDbEncryptionBranchKeyIdSupplierInput
+            ) = aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
                 input
             )
             smithy_client_response = (
@@ -46,7 +46,7 @@ class DynamoDbEncryptionShim(
                 )
             )
             return Wrappers.Result_Success(
-                aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
+                aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
                     smithy_client_response
                 )
             )
@@ -56,15 +56,15 @@ class DynamoDbEncryptionShim(
     def GetEncryptedDataKeyDescription(self, input):
         try:
             smithy_client_request: (
-                aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetEncryptedDataKeyDescriptionInput
-            ) = aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionInput(
+                aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetEncryptedDataKeyDescriptionInput
+            ) = aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionInput(
                 input
             )
             smithy_client_response = self._impl.get_encrypted_data_key_description(
                 smithy_client_request
             )
             return Wrappers.Result_Success(
-                aws_database_encryption_sdk.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutput(
+                aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutput(
                     smithy_client_response
                 )
             )
