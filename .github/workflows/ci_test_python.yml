@@ -101,25 +101,25 @@ jobs:
         # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
         # Windows is tested with non-Dafny-transpiled Python tests.
         if: ${{ matrix.os != 'windows-latest' }}
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}/runtimes/python
         shell: bash
         run: |
           tox -e dafnytests
 
       - name: Test ${{ matrix.library }} Python unit tests
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}/runtimes/python
         shell: bash
         run: |
           tox -e unit
 
       - name: Test ${{ matrix.library }} Python integration tests
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}/runtimes/python
         shell: bash
         run: |
           tox -e integ
 
       - name: Test ${{ matrix.library }} Python coverage
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./${{ matrix.library }}/runtimes/python
         shell: bash
         run: |
           tox -e encrypted-interface-coverage
