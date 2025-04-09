@@ -27,7 +27,12 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
 
   // These tests require a keystore populated with a key with this Id
   const BRANCH_KEY_ID := "3f43a9af-08c5-4317-b694-3d3e883dcaef"
-  const BRANCH_KEY_ID_UTF8 := UTF8.EncodeAscii(BRANCH_KEY_ID)
+
+  const BRANCH_KEY_ID_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x33, 0x66, 0x34, 0x33, 0x61, 0x39, 0x61, 0x66, 0x2d, 0x30, 0x38, 0x63, 0x35, 0x2d, 0x34, 0x33, 0x31, 0x37, 0x2d, 0x62, 0x36, 0x39, 0x34, 0x2d, 0x33, 0x64, 0x33, 0x65, 0x38, 0x38, 0x33, 0x64, 0x63, 0x61, 0x65, 0x66];
+    assert s == UTF8.EncodeAscii("3f43a9af-08c5-4317-b694-3d3e883dcaef");
+    s
+
   const ALTERNATE_BRANCH_KEY_ID := "4bb57643-07c1-419e-92ad-0df0df149d7c"
 
   // Constants for TestBranchKeySupplier
@@ -41,10 +46,23 @@ module DynamoDbEncryptionBranchKeyIdSupplierTest {
   const CASE_B_BYTES: seq<uint8> := STRING_TYPE_ID + [0x43, 0x41, 0x53, 0x45, 0x5f, 0x42]
   const BRANCH_KEY_ID_A := BRANCH_KEY_ID
   const BRANCH_KEY_ID_B := ALTERNATE_BRANCH_KEY_ID
-  const EC_PARTITION_NAME := UTF8.EncodeAscii("aws-crypto-partition-name")
+
+  const EC_PARTITION_NAME : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x70, 0x61, 0x72, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x2d, 0x6e, 0x61, 0x6d, 0x65];
+    assert s == UTF8.EncodeAscii("aws-crypto-partition-name");
+    s
+
   const RESERVED_PREFIX := "aws-crypto-attr."
-  const KEY_ATTR_NAME := UTF8.EncodeAscii(RESERVED_PREFIX + BRANCH_KEY)
-  const BRANCH_KEY_NAME := UTF8.EncodeAscii(BRANCH_KEY)
+
+  const KEY_ATTR_NAME : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x61, 0x74, 0x74, 0x72, 0x2e, 0x62, 0x72, 0x61, 0x6e, 0x63, 0x68, 0x4b, 0x65, 0x79];
+    assert s == UTF8.EncodeAscii(RESERVED_PREFIX + BRANCH_KEY);
+    s
+
+  const BRANCH_KEY_NAME : UTF8.ValidUTF8Bytes :=
+    var s := [0x62, 0x72, 0x61, 0x6e, 0x63, 0x68, 0x4b, 0x65, 0x79];
+    assert s == UTF8.EncodeAscii(BRANCH_KEY);
+    s
 
   method {:test} {:vcs_split_on_every_assert} TestHappyCase()
   {

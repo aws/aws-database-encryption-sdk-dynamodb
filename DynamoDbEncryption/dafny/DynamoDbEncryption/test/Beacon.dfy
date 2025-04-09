@@ -18,6 +18,11 @@ module TestBaseBeacon {
   import DDB = ComAmazonawsDynamodbTypes
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
 
+  const x123 : UTF8.ValidUTF8Bytes :=
+    var s := [0x31, 0x32, 0x33];
+    assert s == UTF8.EncodeAscii("123");
+    s
+
   method {:test} TestBeacon() {
     var primitives :- expect Primitives.AtomicPrimitives();
 
@@ -31,7 +36,7 @@ module TestBaseBeacon {
     expect bytes[7] == 0x80;
     str :- expect b.hash([], key := [1,2]);
     expect str == "80";
-    bytes :- expect bb.getHmac(UTF8.EncodeAscii("123"), key := [1,2]);
+    bytes :- expect bb.getHmac(x123, key := [1,2]);
     expect bytes[7] == 0x61;
   }
 

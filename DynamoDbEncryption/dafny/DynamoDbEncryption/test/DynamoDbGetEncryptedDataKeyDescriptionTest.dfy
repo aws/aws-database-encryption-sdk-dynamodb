@@ -14,20 +14,55 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
   import EdkWrapping
   import AlgorithmSuites
 
+  const abc : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x62, 0x63];
+    assert s == UTF8.EncodeAscii("abc");
+    s
+
+  const def : UTF8.ValidUTF8Bytes :=
+    var s := [0x64, 0x65, 0x66];
+    assert s == UTF8.EncodeAscii("def");
+    s
+
+  const aws_kms : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x6b, 0x6d, 0x73];
+    assert s == UTF8.EncodeAscii("aws-kms");
+    s
+
+  const keyproviderInfo : UTF8.ValidUTF8Bytes :=
+    var s := [0x6b, 0x65, 0x79, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f];
+    assert s == UTF8.EncodeAscii("keyproviderInfo");
+    s
+
+  const aws_kms_hierarchy : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x6b, 0x6d, 0x73, 0x2d, 0x68, 0x69, 0x65, 0x72, 0x61, 0x72, 0x63, 0x68, 0x79];
+    assert s == UTF8.EncodeAscii("aws-kms-hierarchy");
+    s
+
+  const raw_rsa : UTF8.ValidUTF8Bytes :=
+    var s := [0x72, 0x61, 0x77, 0x2d, 0x72, 0x73, 0x61];
+    assert s == UTF8.EncodeAscii("raw-rsa");
+    s
+
+  const aws_kms_rsa : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x6b, 0x6d, 0x73, 0x2d, 0x72, 0x73, 0x61];
+    assert s == UTF8.EncodeAscii("aws-kms-rsa");
+    s
+
   // THIS IS A TESTING RESOURCE DO NOT USE IN A PRODUCTION ENVIRONMENT
   const testVersion : Version := 1
   const testFlavor0 : Flavor := 0
   const testFlavor1 : Flavor := 1
   const testMsgID : MessageID := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]
   const testLegend : Legend := [0x65, 0x73]
-  const testEncContext : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def")]
+  const testEncContext : CMPEncryptionContext := map[abc := def]
   const testAwsKmsDataKey := CMP.EncryptedDataKey(
-                               keyProviderId := EncodeAscii("aws-kms") ,
-                               keyProviderInfo := EncodeAscii("keyproviderInfo"),
+                               keyProviderId := aws_kms ,
+                               keyProviderInfo := keyproviderInfo,
                                ciphertext := [1, 2, 3, 4, 5])
   const testAwsKmsHDataKey := CMP.EncryptedDataKey(
-                                keyProviderId := EncodeAscii("aws-kms-hierarchy") ,
-                                keyProviderInfo := EncodeAscii("keyproviderInfo"),
+                                keyProviderId := aws_kms_hierarchy,
+                                keyProviderInfo := keyproviderInfo,
                                 ciphertext := [
                                   64, 92, 115, 7, 85, 121, 112, 79, 69, 12, 82, 25, 67, 34,
                                   11, 66, 93, 45, 40, 23, 90, 61, 16, 28, 59, 114, 52, 122,
@@ -40,12 +75,12 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
                                   114, 76, 18, 103, 84, 34, 123, 1, 125, 61, 33, 13, 18, 81,
                                   24, 53, 53, 26, 60, 52, 85, 81, 96, 85, 72])
   const testRawRsaDataKey := CMP.EncryptedDataKey(
-                               keyProviderId := EncodeAscii("raw-rsa") ,
+                               keyProviderId := raw_rsa,
                                keyProviderInfo := [1, 2, 3, 4, 5],
                                ciphertext := [6, 7, 8, 9])
   const testAwsKmsRsaDataKey := CMP.EncryptedDataKey(
-                                  keyProviderId := EncodeAscii("aws-kms-rsa") ,
-                                  keyProviderInfo := EncodeAscii("keyproviderInfo"),
+                                  keyProviderId := aws_kms_rsa,
+                                  keyProviderInfo := keyproviderInfo,
                                   ciphertext := [1, 2, 3, 4, 5])
 
   method CreatePartialHeader(version : Version, flavor : Flavor, msgID : MessageID, legend : Legend, encContext : CMPEncryptionContext, dataKeyList : CMPEncryptedDataKeyList)

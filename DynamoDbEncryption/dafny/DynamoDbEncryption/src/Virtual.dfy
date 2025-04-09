@@ -23,11 +23,12 @@ module DdbVirtualFields {
   import DDB = ComAmazonawsDynamodbTypes
   import Seq
   import TermLoc
+  import StandardLibrary.Sequence
 
 
   function method ParseVirtualFieldConfig(vf : VirtualField) : Result<VirtField, Error>
   {
-    var parts :- Seq.MapWithResult((p : VirtualPart) => ParseVirtualPartConfig(p), vf.parts);
+    var parts :- Sequence.MapWithResult((p : VirtualPart) => ParseVirtualPartConfig(p), vf.parts);
     Success(VirtField(vf.name, parts))
   }
 

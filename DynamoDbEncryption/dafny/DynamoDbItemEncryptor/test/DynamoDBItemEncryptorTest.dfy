@@ -25,7 +25,10 @@ module DynamoDbItemEncryptorTest {
   // encrypt => encrypted fields changed, others did not
   // various errors
 
-  const PublicKeyUtf8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-public-key")
+  const PublicKeyUtf8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x2d, 0x6b, 0x65, 0x79];
+    assert s == UTF8.EncodeAscii("aws-crypto-public-key");
+    s
 
   function method DDBS(x : string) : DDB.AttributeValue {
     DDB.AttributeValue.S(x)

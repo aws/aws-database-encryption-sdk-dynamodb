@@ -140,16 +140,28 @@ module StructuredEncryptionFooter {
     }
   }
 
+  const ENCRYPTED : UTF8.ValidUTF8Bytes :=
+    var s := [0x45, 0x4e, 0x43, 0x52, 0x59, 0x50, 0x54, 0x45, 0x44];
+    assert s == UTF8.EncodeAscii("ENCRYPTED");
+    s
+
+  const PLAINTEXT : UTF8.ValidUTF8Bytes :=
+    var s := [0x50, 0x4c, 0x41, 0x49, 0x4e, 0x54, 0x45, 0x58, 0x54];
+    assert s == UTF8.EncodeAscii("PLAINTEXT");
+    s
+
+
+
   // Given a StructuredDataTerminal, return the canonical value for the type, for use in the footer checksum calculations
   function method GetCanonicalType(value : StructuredDataTerminal, isEncrypted : bool)
     : Result<Bytes, Error>
   {
     if isEncrypted then
       :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
-      Success(UInt64ToSeq((|value.value| - 2) as uint64) + UTF8.EncodeAscii("ENCRYPTED"))
+      Success(UInt64ToSeq((|value.value| - 2) as uint64) + ENCRYPTED)
     else
       :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
-      Success(UInt64ToSeq((|value.value|) as uint64) + UTF8.EncodeAscii("PLAINTEXT") + value.typeId)
+      Success(UInt64ToSeq((|value.value|) as uint64) + PLAINTEXT + value.typeId)
   }
 
   function method GetCanonicalEncryptedField(fieldName : CanonicalPath, value : StructuredDataTerminal)
@@ -169,14 +181,14 @@ module StructuredEncryptionFooter {
               && ret.value ==
                  fieldName
                  + UInt64ToSeq((|value.value| - 2) as uint64)
-                 + UTF8.EncodeAscii("ENCRYPTED")
+                 + ENCRYPTED
                  + value.value // this is 2 bytes of unencrypted type, followed by encrypted value
   {
     :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
     Success(
       fieldName
       + UInt64ToSeq((|value.value| - 2) as uint64)
-      + UTF8.EncodeAscii("ENCRYPTED")
+      + ENCRYPTED
       + value.value
     )
   }
@@ -198,7 +210,7 @@ module StructuredEncryptionFooter {
               && ret.value ==
                  fieldName
                  + UInt64ToSeq((|value.value|) as uint64)
-                 + UTF8.EncodeAscii("PLAINTEXT")
+                 + PLAINTEXT
                  + value.typeId
                  + value.value
   {
@@ -206,7 +218,7 @@ module StructuredEncryptionFooter {
     Success(
       fieldName
       + UInt64ToSeq((|value.value|) as uint64)
-      + UTF8.EncodeAscii("PLAINTEXT")
+      + PLAINTEXT
       + value.typeId
       + value.value
     )
@@ -222,19 +234,45 @@ module StructuredEncryptionFooter {
       GetCanonicalPlaintextField(data.key, data.data)
   }
 
-  function method CanonContent (
-    data : CanonCryptoList,      // remaining fields to be canonized
-    canonized : Bytes := []   // output
-  ) : Result<Bytes, Error>
+  function CanonContent (data : CanonCryptoList)
+    : Result<Bytes, Error>
   {
     if |data| == 0 then
-      Success(canonized)
+      Success([])
     else if data[0].action == DO_NOTHING then
-      CanonContent(data[1..], canonized)
+      CanonContent(data[1..])
     else
+      var tail :- CanonContent(data[1..]);
       var newPart :- GetCanonicalItem(data[0]);
-      CanonContent(data[1..], canonized + newPart)
+      Success(newPart + tail)
+  } by method {
+    var i: nat := |data|;
+    var vectors : Bytes := [];
+
+    while i != 0
+      decreases i
+      invariant Success(vectors) == CanonContent(data[i..])
+    {
+      i := i - 1;
+      if data[i].action != DO_NOTHING {
+        var test := GetCanonicalItem(data[i]);
+        if test.Failure? {
+          ghost var j := i;
+          while j != 0
+            decreases j
+            invariant Failure(test.error) == CanonContent(data[j..])
+          {
+            j := j - 1;
+          }
+          return Failure(test.error);
+        }
+        vectors := test.value + vectors;
+      }
+    }
+
+    return Success(vectors);
   }
+
 
   function method CanonRecord (
     data : CanonCryptoList,
@@ -365,13 +403,21 @@ module StructuredEncryptionFooter {
     }
   }
 
-  function method SerializeTags(tags : seq<RecipientTag>)
+  function SerializeTags(tags : seq<RecipientTag>)
     : Bytes
   {
     if |tags| == 0 then
       []
     else
       tags[0] + SerializeTags(tags[1..])
+  } by method {
+    var result : Bytes := [];
+    for i := |tags| downto 0
+      invariant result == SerializeTags(tags[i..])
+    {
+      result := tags[i] + result;
+    }
+    return result;
   }
 
   function method SerializeSig(sig : Option<Signature>)
