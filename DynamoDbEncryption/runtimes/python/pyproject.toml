@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aws-database-encryption-sdk"
+name = "aws-dbesdk-dynamodb"
 version = "0.1.0"
 description = ""
 authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]

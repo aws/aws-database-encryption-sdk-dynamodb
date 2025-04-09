@@ -444,49 +444,6 @@ class BatchExecuteStatementInputTransformOutput:
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
 
-class BatchExecuteStatementOutputTransformOutput:
-    transformed_output: dict[str, Any]
-
-    def __init__(
-        self,
-        *,
-        transformed_output: dict[str, Any],
-    ):
-        self.transformed_output = transformed_output
-
-    def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchExecuteStatementOutputTransformOutput to a
-        dictionary."""
-        return {
-            "transformed_output": self.transformed_output.as_dict(),
-        }
-
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementOutputTransformOutput":
-        """Creates a BatchExecuteStatementOutputTransformOutput from a
-        dictionary."""
-        kwargs: Dict[str, Any] = {
-            "transformed_output": d["transformed_output"],
-        }
-
-        return BatchExecuteStatementOutputTransformOutput(**kwargs)
-
-    def __repr__(self) -> str:
-        result = "BatchExecuteStatementOutputTransformOutput("
-        if self.transformed_output is not None:
-            result += f"transformed_output={repr(self.transformed_output)}"
-
-        return result + ")"
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, BatchExecuteStatementOutputTransformOutput):
-            return False
-        attributes: list[str] = [
-            "transformed_output",
-        ]
-        return all(getattr(self, a) == getattr(other, a) for a in attributes)
-
-
 class ExecuteTransactionInputTransformInput:
     sdk_input: dict[str, Any]
 
@@ -1199,58 +1156,6 @@ class UpdateItemOutputTransformOutput:
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
 
-class BatchExecuteStatementOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
-
-    def __init__(
-        self,
-        *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
-    ):
-        self.sdk_output = sdk_output
-        self.original_input = original_input
-
-    def as_dict(self) -> Dict[str, Any]:
-        """Converts the BatchExecuteStatementOutputTransformInput to a
-        dictionary."""
-        return {
-            "sdk_output": self.sdk_output.as_dict(),
-            "original_input": self.original_input.as_dict(),
-        }
-
-    @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementOutputTransformInput":
-        """Creates a BatchExecuteStatementOutputTransformInput from a
-        dictionary."""
-        kwargs: Dict[str, Any] = {
-            "sdk_output": d["sdk_output"],
-            "original_input": d["original_input"],
-        }
-
-        return BatchExecuteStatementOutputTransformInput(**kwargs)
-
-    def __repr__(self) -> str:
-        result = "BatchExecuteStatementOutputTransformInput("
-        if self.sdk_output is not None:
-            result += f"sdk_output={repr(self.sdk_output)}, "
-
-        if self.original_input is not None:
-            result += f"original_input={repr(self.original_input)}"
-
-        return result + ")"
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, BatchExecuteStatementOutputTransformInput):
-            return False
-        attributes: list[str] = [
-            "sdk_output",
-            "original_input",
-        ]
-        return all(getattr(self, a) == getattr(other, a) for a in attributes)
-
-
 class ExecuteTransactionOutputTransformInput:
     sdk_output: dict[str, Any]
     original_input: dict[str, Any]
@@ -1299,6 +1204,49 @@ class ExecuteTransactionOutputTransformInput:
         attributes: list[str] = [
             "sdk_output",
             "original_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
+
+class BatchExecuteStatementOutputTransformOutput:
+    transformed_output: dict[str, Any]
+
+    def __init__(
+        self,
+        *,
+        transformed_output: dict[str, Any],
+    ):
+        self.transformed_output = transformed_output
+
+    def as_dict(self) -> Dict[str, Any]:
+        """Converts the BatchExecuteStatementOutputTransformOutput to a
+        dictionary."""
+        return {
+            "transformed_output": self.transformed_output.as_dict(),
+        }
+
+    @staticmethod
+    def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementOutputTransformOutput":
+        """Creates a BatchExecuteStatementOutputTransformOutput from a
+        dictionary."""
+        kwargs: Dict[str, Any] = {
+            "transformed_output": d["transformed_output"],
+        }
+
+        return BatchExecuteStatementOutputTransformOutput(**kwargs)
+
+    def __repr__(self) -> str:
+        result = "BatchExecuteStatementOutputTransformOutput("
+        if self.transformed_output is not None:
+            result += f"transformed_output={repr(self.transformed_output)}"
+
+        return result + ")"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, BatchExecuteStatementOutputTransformOutput):
+            return False
+        attributes: list[str] = [
+            "transformed_output",
         ]
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
@@ -1625,6 +1573,58 @@ class BatchWriteItemInputTransformOutput:
             return False
         attributes: list[str] = [
             "transformed_input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
+
+class BatchExecuteStatementOutputTransformInput:
+    sdk_output: dict[str, Any]
+    original_input: dict[str, Any]
+
+    def __init__(
+        self,
+        *,
+        sdk_output: dict[str, Any],
+        original_input: dict[str, Any],
+    ):
+        self.sdk_output = sdk_output
+        self.original_input = original_input
+
+    def as_dict(self) -> Dict[str, Any]:
+        """Converts the BatchExecuteStatementOutputTransformInput to a
+        dictionary."""
+        return {
+            "sdk_output": self.sdk_output.as_dict(),
+            "original_input": self.original_input.as_dict(),
+        }
+
+    @staticmethod
+    def from_dict(d: Dict[str, Any]) -> "BatchExecuteStatementOutputTransformInput":
+        """Creates a BatchExecuteStatementOutputTransformInput from a
+        dictionary."""
+        kwargs: Dict[str, Any] = {
+            "sdk_output": d["sdk_output"],
+            "original_input": d["original_input"],
+        }
+
+        return BatchExecuteStatementOutputTransformInput(**kwargs)
+
+    def __repr__(self) -> str:
+        result = "BatchExecuteStatementOutputTransformInput("
+        if self.sdk_output is not None:
+            result += f"sdk_output={repr(self.sdk_output)}, "
+
+        if self.original_input is not None:
+            result += f"original_input={repr(self.original_input)}"
+
+        return result + ")"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, BatchExecuteStatementOutputTransformInput):
+            return False
+        attributes: list[str] = [
+            "sdk_output",
+            "original_input",
         ]
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 

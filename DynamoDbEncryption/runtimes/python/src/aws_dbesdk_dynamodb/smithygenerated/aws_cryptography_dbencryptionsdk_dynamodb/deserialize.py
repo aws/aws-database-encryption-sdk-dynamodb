@@ -20,9 +20,13 @@ from .errors import (
     CollectionOfErrors,
     ComAmazonawsDynamodb,
     DynamoDbEncryptionException,
+    KeyStore,
     OpaqueError,
     ServiceError,
     StructuredEncryption,
+)
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.deserialize import (
+    _deserialize_error as aws_cryptography_keystore_deserialize_error,
 )
 from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.deserialize import (
     _deserialize_error as aws_cryptography_materialproviders_deserialize_error,
@@ -91,6 +95,10 @@ def _deserialize_error(error: Error) -> ServiceError:
             aws_cryptography_materialproviders_deserialize_error(
                 error.AwsCryptographyMaterialProviders
             )
+        )
+    elif error.is_AwsCryptographyKeyStore:
+        return KeyStore(
+            aws_cryptography_keystore_deserialize_error(error.AwsCryptographyKeyStore)
         )
     elif error.is_ComAmazonawsDynamodb:
         return ComAmazonawsDynamodb(

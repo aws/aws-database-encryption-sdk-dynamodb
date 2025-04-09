@@ -3,6 +3,9 @@
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 import _dafny
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.errors import (
+    _smithy_error_to_dafny_error as aws_cryptography_keystore_smithy_error_to_dafny_error,
+)
 from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.errors import (
     _smithy_error_to_dafny_error as aws_cryptography_materialproviders_smithy_error_to_dafny_error,
 )
@@ -111,6 +114,10 @@ class AwsCryptographicMaterialProviders(
 
 class StructuredEncryption(ApiError[Literal["StructuredEncryption"]]):
     StructuredEncryption: Any
+
+
+class KeyStore(ApiError[Literal["KeyStore"]]):
+    KeyStore: Any
 
 
 class CollectionOfErrors(ApiError[Literal["CollectionOfErrors"]]):
@@ -303,6 +310,11 @@ def _smithy_error_to_dafny_error(e: ServiceError):
             aws_cryptography_dbencryptionsdk_structuredencryption_smithy_error_to_dafny_error(
                 e.message
             )
+        )
+
+    if isinstance(e, KeyStore):
+        return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error_AwsCryptographyKeyStore(
+            aws_cryptography_keystore_smithy_error_to_dafny_error(e.message)
         )
 
     if isinstance(e, CollectionOfErrors):

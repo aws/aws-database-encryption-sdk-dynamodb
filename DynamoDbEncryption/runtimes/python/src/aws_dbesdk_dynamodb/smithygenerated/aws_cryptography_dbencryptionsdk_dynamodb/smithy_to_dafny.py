@@ -329,6 +329,31 @@ def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(native_input):
             if (native_input.cache is not None)
             else (Option_None())
         ),
+        partitionId=(
+            (
+                Option_Some(
+                    Seq(
+                        "".join(
+                            [
+                                chr(int.from_bytes(pair, "big"))
+                                for pair in zip(
+                                    *[
+                                        iter(
+                                            native_input.partition_id.encode(
+                                                "utf-16-be"
+                                            )
+                                        )
+                                    ]
+                                    * 2
+                                )
+                            ]
+                        )
+                    )
+                )
+            )
+            if (native_input.partition_id is not None)
+            else (Option_None())
+        ),
     )
 
 
@@ -345,6 +370,42 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SingleKeyStore(native_input):
             )
         ),
         cacheTTL=native_input.cache_ttl,
+        cache=(
+            (
+                Option_Some(
+                    aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.smithy_to_dafny.aws_cryptography_materialproviders_CacheType(
+                        native_input.cache
+                    )
+                )
+            )
+            if (native_input.cache is not None)
+            else (Option_None())
+        ),
+        partitionId=(
+            (
+                Option_Some(
+                    Seq(
+                        "".join(
+                            [
+                                chr(int.from_bytes(pair, "big"))
+                                for pair in zip(
+                                    *[
+                                        iter(
+                                            native_input.partition_id.encode(
+                                                "utf-16-be"
+                                            )
+                                        )
+                                    ]
+                                    * 2
+                                )
+                            ]
+                        )
+                    )
+                )
+            )
+            if (native_input.partition_id is not None)
+            else (Option_None())
+        ),
     )
 
 

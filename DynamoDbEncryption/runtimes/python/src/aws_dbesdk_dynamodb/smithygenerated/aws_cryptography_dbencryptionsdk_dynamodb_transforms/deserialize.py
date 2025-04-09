@@ -40,6 +40,7 @@ from typing import Any
 
 from .dafny_protocol import DafnyResponse
 from .errors import (
+    AwsCryptographicMaterialProviders,
     CollectionOfErrors,
     ComAmazonawsDynamodb,
     DynamoDbEncryption,
@@ -48,6 +49,9 @@ from .errors import (
     OpaqueError,
     ServiceError,
     StructuredEncryption,
+)
+from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.deserialize import (
+    _deserialize_error as aws_cryptography_materialproviders_deserialize_error,
 )
 from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.shim import (
     _sdk_error_to_dafny_error as com_amazonaws_dynamodb_sdk_error_to_dafny_error,
@@ -360,6 +364,12 @@ def _deserialize_error(error: Error) -> ServiceError:
         return DynamoDbEncryption(
             aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(
                 error.AwsCryptographyDbEncryptionSdkDynamoDb
+            )
+        )
+    elif error.is_AwsCryptographyMaterialProviders:
+        return AwsCryptographicMaterialProviders(
+            aws_cryptography_materialproviders_deserialize_error(
+                error.AwsCryptographyMaterialProviders
             )
         )
     elif error.is_ComAmazonawsDynamodb:

@@ -1099,13 +1099,13 @@ def _auth_list_from_dict(given: List[Any]) -> list[AuthItem]:
 
 
 def _structured_data_map_as_dict(
-    given: dict[str, StructuredDataTerminal]
+    given: dict[str, StructuredDataTerminal],
 ) -> Dict[str, Any]:
     return {k: v.as_dict() for k, v in given.items()}
 
 
 def _structured_data_map_from_dict(
-    given: Dict[str, Any]
+    given: Dict[str, Any],
 ) -> dict[str, StructuredDataTerminal]:
     return {k: StructuredDataTerminal.from_dict(v) for k, v in given.items()}
 

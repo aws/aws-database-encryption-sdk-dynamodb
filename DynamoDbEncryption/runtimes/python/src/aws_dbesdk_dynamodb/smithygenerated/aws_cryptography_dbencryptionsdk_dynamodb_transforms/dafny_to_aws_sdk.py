@@ -266,6 +266,18 @@ def com_amazonaws_dynamodb_ConditionalOperator(dafny_input):
         raise ValueError("No recognized enum value in enum type: " + dafny_input)
 
 
+def com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input):
+    # Convert ReturnValuesOnConditionCheckFailure
+    if isinstance(dafny_input, ReturnValuesOnConditionCheckFailure_ALL__OLD):
+        return "ALL_OLD"
+
+    elif isinstance(dafny_input, ReturnValuesOnConditionCheckFailure_NONE):
+        return "NONE"
+
+    else:
+        raise ValueError("No recognized enum value in enum type: " + dafny_input)
+
+
 def com_amazonaws_dynamodb_PutItemInput(dafny_input):
     output = {}
     output["TableName"] = b"".join(
@@ -339,6 +351,13 @@ def com_amazonaws_dynamodb_PutItemInput(dafny_input):
             )
             for (key, value) in dafny_input.ExpressionAttributeValues.value.items
         }
+
+    if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
 
@@ -1280,18 +1299,6 @@ def com_amazonaws_dynamodb_Update(dafny_input):
     return output
 
 
-def com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input):
-    # Convert ReturnValuesOnConditionCheckFailure
-    if isinstance(dafny_input, ReturnValuesOnConditionCheckFailure_ALL__OLD):
-        return "ALL_OLD"
-
-    elif isinstance(dafny_input, ReturnValuesOnConditionCheckFailure_NONE):
-        return "NONE"
-
-    else:
-        raise ValueError("No recognized enum value in enum type: " + dafny_input)
-
-
 def com_amazonaws_dynamodb_TransactWriteItemsInput(dafny_input):
     output = {}
     output["TransactItems"] = [
@@ -1469,6 +1476,13 @@ def com_amazonaws_dynamodb_UpdateItemInput(dafny_input):
             for (key, value) in dafny_input.ExpressionAttributeValues.value.items
         }
 
+    if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
+
     return output
 
 
@@ -1574,6 +1588,13 @@ def com_amazonaws_dynamodb_DeleteItemInput(dafny_input):
             )
             for (key, value) in dafny_input.ExpressionAttributeValues.value.items
         }
+
+    if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
 
@@ -1731,6 +1752,13 @@ def com_amazonaws_dynamodb_ExecuteStatementInput(dafny_input):
     if dafny_input.Limit.is_Some:
         output["Limit"] = dafny_input.Limit.value
 
+    if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
+
     return output
 
 
@@ -1789,6 +1817,13 @@ def com_amazonaws_dynamodb_BatchStatementRequest(dafny_input):
 
     if dafny_input.ConsistentRead.is_Some:
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
+
+    if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
 
@@ -1851,6 +1886,16 @@ def com_amazonaws_dynamodb_BatchStatementError(dafny_input):
         output["Message"] = b"".join(
             ord(c).to_bytes(2, "big") for c in dafny_input.Message.value
         ).decode("utf-16-be")
+
+    if dafny_input.Item.is_Some:
+        output["Item"] = {
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
+                value
+            )
+            for (key, value) in dafny_input.Item.value.items
+        }
 
     return output
 
@@ -1931,6 +1976,13 @@ def com_amazonaws_dynamodb_ParameterizedStatement(dafny_input):
             )
             for list_element in dafny_input.Parameters.value
         ]
+
+    if dafny_input.ReturnValuesOnConditionCheckFailure.is_Some:
+        output["ReturnValuesOnConditionCheckFailure"] = (
+            aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
+                dafny_input.ReturnValuesOnConditionCheckFailure.value
+            )
+        )
 
     return output
 

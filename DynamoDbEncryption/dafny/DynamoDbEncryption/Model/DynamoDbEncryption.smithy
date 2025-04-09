@@ -891,15 +891,3 @@ structure DynamoDbEncryptionException {
   @required
   message: String,
 }
-
-structure ExtractAttrtibutesInput {
-  @required
-  s: string
-  ex: ExpressionAttributeNameMap
-}
-
-structure ExtractAttrtibutesOutput {
-  @required
-  s: string
-  ex: ExpressionAttributeNameMap
-}

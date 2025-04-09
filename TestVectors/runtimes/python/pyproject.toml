@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aws-database-encryption-sdk-dynamodb-test-vectors"
+name = "aws-dbesdk-dynamodb-test-vectors"
 version = "0.1.0"
 description = ""
 authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
@@ -12,7 +12,7 @@ include = ["**/internaldafny/generated/*.py"]
 
 [tool.poetry.dependencies]
 python = "^3.11.0"
-aws-database-encryption-sdk = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false}
+aws-dbesdk-dynamodb = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false}
 aws-cryptography-internal-mpl-testvectors = { path = "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/python", develop = false}
 
 [tool.poetry.group.test.dependencies]

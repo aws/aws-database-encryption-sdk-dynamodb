@@ -218,6 +218,15 @@ def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(dafny_input):
             if (dafny_input.cache.is_Some)
             else None
         ),
+        partition_id=(
+            (
+                b"".join(
+                    ord(c).to_bytes(2, "big") for c in dafny_input.partitionId.value
+                ).decode("utf-16-be")
+            )
+            if (dafny_input.partitionId.is_Some)
+            else None
+        ),
     )
 
 
@@ -227,6 +236,24 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SingleKeyStore(dafny_input):
             "utf-16-be"
         ),
         cache_ttl=dafny_input.cacheTTL,
+        cache=(
+            (
+                aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.dafny_to_smithy.aws_cryptography_materialproviders_CacheType(
+                    dafny_input.cache.value
+                )
+            )
+            if (dafny_input.cache.is_Some)
+            else None
+        ),
+        partition_id=(
+            (
+                b"".join(
+                    ord(c).to_bytes(2, "big") for c in dafny_input.partitionId.value
+                ).decode("utf-16-be")
+            )
+            if (dafny_input.partitionId.is_Some)
+            else None
+        ),
     )
 
 

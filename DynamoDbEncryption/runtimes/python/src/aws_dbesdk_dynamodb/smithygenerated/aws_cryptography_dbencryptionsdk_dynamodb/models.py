@@ -394,7 +394,7 @@ class GetEncryptedDataKeyDescriptionUnionHeader:
 class GetEncryptedDataKeyDescriptionUnionItem:
     """A DynamoDB item."""
 
-    def __init__(self, value: dict[str, Any]):
+    def __init__(self, value: "dict[str, Any]"):
         self.value = value
 
     def as_dict(self) -> Dict[str, Any]:
@@ -532,6 +532,7 @@ class MultiKeyStore:
     key_field_name: str
     cache_ttl: int
     cache: Optional[CacheType]
+    partition_id: Optional[str]
 
     def __init__(
         self,
@@ -539,6 +540,7 @@ class MultiKeyStore:
         key_field_name: str,
         cache_ttl: int,
         cache: Optional[CacheType] = None,
+        partition_id: Optional[str] = None,
     ):
         """The configuration for using multiple Beacon Keys.
 
@@ -548,10 +550,15 @@ class MultiKeyStore:
             is cached locally before it is re-retrieved from DynamoDB
             and re-authed with AWS KMS.
         :param cache: Which type of local cache to use.
+        :param partition_id: Partition ID to distinguish Beacon Key
+            Sources writing to a Shared cache. If the Partition ID is
+            the same for two Beacon Key Sources, they can share the same
+            cache entries in the Shared cache.
         """
         self.key_field_name = key_field_name
         self.cache_ttl = cache_ttl
         self.cache = cache
+        self.partition_id = partition_id
 
     def as_dict(self) -> Dict[str, Any]:
         """Converts the MultiKeyStore to a dictionary."""
@@ -562,6 +569,9 @@ class MultiKeyStore:
 
         if self.cache is not None:
             d["cache"] = self.cache.as_dict()
+
+        if self.partition_id is not None:
+            d["partition_id"] = self.partition_id
 
         return d
 
@@ -576,6 +586,9 @@ class MultiKeyStore:
         if "cache" in d:
             kwargs["cache"] = (_cache_type_from_dict(d["cache"]),)
 
+        if "partition_id" in d:
+            kwargs["partition_id"] = d["partition_id"]
+
         return MultiKeyStore(**kwargs)
 
     def __repr__(self) -> str:
@@ -587,7 +600,10 @@ class MultiKeyStore:
             result += f"cache_ttl={repr(self.cache_ttl)}, "
 
         if self.cache is not None:
-            result += f"cache={repr(self.cache)}"
+            result += f"cache={repr(self.cache)}, "
+
+        if self.partition_id is not None:
+            result += f"partition_id={repr(self.partition_id)}"
 
         return result + ")"
 
@@ -598,6 +614,7 @@ class MultiKeyStore:
             "key_field_name",
             "cache_ttl",
             "cache",
+            "partition_id",
         ]
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
@@ -605,29 +622,48 @@ class MultiKeyStore:
 class SingleKeyStore:
     key_id: str
     cache_ttl: int
+    cache: Optional[CacheType]
+    partition_id: Optional[str]
 
     def __init__(
         self,
         *,
         key_id: str,
         cache_ttl: int,
+        cache: Optional[CacheType] = None,
+        partition_id: Optional[str] = None,
     ):
         """The configuration for using a single Beacon Key.
 
         :param key_id: The Beacon Key ID.
-        :param cache_ttl: How long (in seconds) the beacon key material
-            is cached locally before it is re-retrieved from DynamoDB
-            and re-authed with AWS KMS.
+        :param cache_ttl: How long (in seconds) the beacon key material is cached
+        locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+        :param cache: Which type of local cache to use. Please see the
+        [spec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/searchable-encryption/search-config.md#key-store-cache)
+        on how to provide a cache for a SingleKeyStore.
+        :param partition_id: Partition ID to distinguish Beacon Key Sources writing to a
+        Shared cache. If the Partition ID is the same for two Beacon Key Sources, they
+        can share the same cache entries in the Shared cache.
         """
         self.key_id = key_id
         self.cache_ttl = cache_ttl
+        self.cache = cache
+        self.partition_id = partition_id
 
     def as_dict(self) -> Dict[str, Any]:
         """Converts the SingleKeyStore to a dictionary."""
-        return {
+        d: Dict[str, Any] = {
             "key_id": self.key_id,
             "cache_ttl": self.cache_ttl,
         }
+
+        if self.cache is not None:
+            d["cache"] = self.cache.as_dict()
+
+        if self.partition_id is not None:
+            d["partition_id"] = self.partition_id
+
+        return d
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "SingleKeyStore":
@@ -637,6 +673,12 @@ class SingleKeyStore:
             "cache_ttl": d["cache_ttl"],
         }
 
+        if "cache" in d:
+            kwargs["cache"] = (_cache_type_from_dict(d["cache"]),)
+
+        if "partition_id" in d:
+            kwargs["partition_id"] = d["partition_id"]
+
         return SingleKeyStore(**kwargs)
 
     def __repr__(self) -> str:
@@ -645,7 +687,13 @@ class SingleKeyStore:
             result += f"key_id={repr(self.key_id)}, "
 
         if self.cache_ttl is not None:
-            result += f"cache_ttl={repr(self.cache_ttl)}"
+            result += f"cache_ttl={repr(self.cache_ttl)}, "
+
+        if self.cache is not None:
+            result += f"cache={repr(self.cache)}, "
+
+        if self.partition_id is not None:
+            result += f"partition_id={repr(self.partition_id)}"
 
         return result + ")"
 
@@ -655,6 +703,8 @@ class SingleKeyStore:
         attributes: list[str] = [
             "key_id",
             "cache_ttl",
+            "cache",
+            "partition_id",
         ]
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
