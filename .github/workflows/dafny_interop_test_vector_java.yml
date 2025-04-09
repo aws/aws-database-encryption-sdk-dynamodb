@@ -56,7 +56,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup MPL Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.mpl-dafny }}
 
@@ -65,7 +65,6 @@ jobs:
         run: |
           git fetch
           git checkout ${{inputs.mpl-commit}}
-          git pull
           git submodule update --init --recursive
           git rev-parse HEAD
 
@@ -84,7 +83,7 @@ jobs:
           make mvn_local_deploy
 
       - name: Setup DBESDK Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dbesdk-dafny}}
 

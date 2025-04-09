@@ -93,6 +93,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
       var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
       var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
       var _ :- expect WriteManifest.Write("encrypt.json");
       var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
       var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
@@ -561,8 +562,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         jsonItems := jsonItems + [item];
       }
       var jsonBytes :- expect API.Serialize(Array(jsonItems));
-      var jsonBv := BytesBv(jsonBytes);
-      var x := FileIO.WriteBytesToFile(fileName, jsonBv);
+      var x := FileIO.WriteBytesToFile(fileName, jsonBytes);
       expect x.Success?;
     }
 

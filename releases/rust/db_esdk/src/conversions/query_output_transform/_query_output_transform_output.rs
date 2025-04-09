@@ -4,23 +4,26 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::query_output_transform::QueryOutputTransformOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::QueryOutputTransformOutput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::QueryOutputTransformOutput::QueryOutputTransformOutput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::QueryOutputTransformOutput::QueryOutputTransformOutput {
         transformedOutput: crate::deps::com_amazonaws_dynamodb::conversions::query::_query_response::to_dafny(&value.transformed_output.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::QueryOutputTransformOutput,
     >,
 ) -> crate::operation::query_output_transform::QueryOutputTransformOutput {
     crate::operation::query_output_transform::QueryOutputTransformOutput::builder()
-        .set_transformed_output(Some( crate::deps::com_amazonaws_dynamodb::conversions::query::_query_response::from_dafny(dafny_value.transformedOutput().clone())
- ))
+        .set_transformed_output(Some(
+            crate::deps::com_amazonaws_dynamodb::conversions::query::_query_response::from_dafny(
+                dafny_value.transformedOutput().clone(),
+            ),
+        ))
         .build()
         .unwrap()
 }

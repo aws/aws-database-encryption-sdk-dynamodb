@@ -6,17 +6,23 @@
 #[allow(missing_docs)]
 pub struct ExecuteStatementOutputTransformOutput {
     #[allow(missing_docs)]
-pub transformed_output: ::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput>,
+    pub transformed_output: ::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput,
+    >,
 }
 impl ExecuteStatementOutputTransformOutput {
     #[allow(missing_docs)]
-pub fn transformed_output(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput> {
-    &self.transformed_output
-}
+    pub fn transformed_output(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput,
+    > {
+        &self.transformed_output
+    }
 }
 impl ExecuteStatementOutputTransformOutput {
     /// Creates a new builder-style object to manufacture [`ExecuteStatementOutputTransformOutput`](crate::operation::execute_statement_output_transform::builders::ExecuteStatementOutputTransformOutput).
-    pub fn builder() -> crate::operation::execute_statement_output_transform::builders::ExecuteStatementOutputTransformOutputBuilder {
+    pub fn builder() -> crate::operation::execute_statement_output_transform::builders::ExecuteStatementOutputTransformOutputBuilder{
         crate::operation::execute_statement_output_transform::builders::ExecuteStatementOutputTransformOutputBuilder::default()
     }
 }
@@ -27,23 +33,39 @@ impl ExecuteStatementOutputTransformOutput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct ExecuteStatementOutputTransformOutputBuilder {
-    pub(crate) transformed_output: ::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput>,
+    pub(crate) transformed_output: ::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput,
+    >,
 }
 impl ExecuteStatementOutputTransformOutputBuilder {
     #[allow(missing_docs)]
-pub fn transformed_output(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput>) -> Self {
-    self.transformed_output = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_transformed_output(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput>) -> Self {
-    self.transformed_output = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_transformed_output(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput> {
-    &self.transformed_output
-}
+    pub fn transformed_output(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput,
+        >,
+    ) -> Self {
+        self.transformed_output = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_transformed_output(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput,
+        >,
+    ) -> Self {
+        self.transformed_output = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_transformed_output(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementOutput,
+    > {
+        &self.transformed_output
+    }
     /// Consumes the builder and constructs a [`ExecuteStatementOutputTransformOutput`](crate::operation::operation::ExecuteStatementOutputTransformOutput).
     pub fn build(
         self,

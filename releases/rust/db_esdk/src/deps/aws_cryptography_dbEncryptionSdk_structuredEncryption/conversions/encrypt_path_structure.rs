@@ -2,6 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
- pub mod _encrypt_path_structure_input;
+pub mod _encrypt_path_structure_input;
 
- pub mod _encrypt_path_structure_output;
+pub mod _encrypt_path_structure_output;

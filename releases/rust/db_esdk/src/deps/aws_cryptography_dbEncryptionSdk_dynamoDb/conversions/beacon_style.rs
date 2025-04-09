@@ -4,10 +4,10 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconStyle,
-> {
-    ::std::rc::Rc::new(match value {
+>{
+    ::dafny_runtime::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle::PartOnly(x) =>
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconStyle::partOnly {
         partOnly: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::part_only::to_dafny(&x.clone())
@@ -34,11 +34,11 @@ crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle::Shar
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconStyle,
     >,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle {
-    match &::std::rc::Rc::unwrap_or_clone(dafny_value) {
+    match &::dafny_runtime::Rc::unwrap_or_clone(dafny_value) {
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::BeaconStyle::partOnly {
     partOnly: x @ _,
 } => crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle::PartOnly(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::part_only::from_dafny(x.clone())

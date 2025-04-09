@@ -5,16 +5,22 @@
 #[allow(missing_docs)]
 pub enum PlaintextOverride {
     ForcePlaintextWriteAllowPlaintextRead,
-ForbidPlaintextWriteAllowPlaintextRead,
-ForbidPlaintextWriteForbidPlaintextRead,
+    ForbidPlaintextWriteAllowPlaintextRead,
+    ForbidPlaintextWriteForbidPlaintextRead,
 }
 
 impl ::std::fmt::Display for PlaintextOverride {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
-            PlaintextOverride::ForcePlaintextWriteAllowPlaintextRead => write!(f, "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"),
-PlaintextOverride::ForbidPlaintextWriteAllowPlaintextRead => write!(f, "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"),
-PlaintextOverride::ForbidPlaintextWriteForbidPlaintextRead => write!(f, "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ"),
+            PlaintextOverride::ForcePlaintextWriteAllowPlaintextRead => {
+                write!(f, "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ")
+            }
+            PlaintextOverride::ForbidPlaintextWriteAllowPlaintextRead => {
+                write!(f, "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ")
+            }
+            PlaintextOverride::ForbidPlaintextWriteForbidPlaintextRead => {
+                write!(f, "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ")
+            }
         }
     }
 }

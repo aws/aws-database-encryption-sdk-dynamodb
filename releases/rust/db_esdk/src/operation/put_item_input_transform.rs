@@ -20,7 +20,10 @@ impl PutItemInputTransform {
     > {
         crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HPutItemInputTransformInput_for_DynamoDbEncryptionTransforms_PutItemInputTransform(&input)
             .map_err(crate::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::conversions::put_item_input_transform::_put_item_input_transform_input::to_dafny(input);
+        let inner_input =
+            crate::conversions::put_item_input_transform::_put_item_input_transform_input::to_dafny(
+                input,
+            );
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).PutItemInputTransform(&inner_input);
         if matches!(

@@ -9,7 +9,7 @@ impl crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::client::Client {
     /// - On success, responds with [`CreateDynamoDbEncryptionBranchKeyIdSupplierOutput`](crate::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplierOutput) with field(s):
     ///   - [`branch_key_id_supplier(Option<crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef>)`](crate::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplierOutput::branch_key_id_supplier): (undocumented)
     /// - On failure, responds with [`SdkError<CreateDynamoDbEncryptionBranchKeyIdSupplierError>`](crate::operation::create_dynamo_db_encryption_branch_key_id_supplier::CreateDynamoDbEncryptionBranchKeyIdSupplierError)
-    pub fn create_dynamo_db_encryption_branch_key_id_supplier(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::builders::CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder {
+    pub fn create_dynamo_db_encryption_branch_key_id_supplier(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::builders::CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::create_dynamo_db_encryption_branch_key_id_supplier::builders::CreateDynamoDbEncryptionBranchKeyIdSupplierFluentBuilder::new(self.clone())
     }
 }

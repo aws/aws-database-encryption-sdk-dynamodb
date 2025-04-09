@@ -17,10 +17,10 @@ impl EncryptPathStructure {
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_path_structure::EncryptPathStructureOutput,
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
-    > {
+    >{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PstructuredEncryption_HEncryptPathStructureInput_for_StructuredEncryption_EncryptPathStructure(&input)
             .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::encrypt_path_structure::_encrypt_path_structure_input::to_dafny(input);
+        let inner_input = crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::encrypt_path_structure::_encrypt_path_structure_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).EncryptPathStructure(&inner_input);
         if matches!(

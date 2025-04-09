@@ -9,6 +9,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
   {
     private string _keyId;
     private int? _cacheTTL;
+    private AWS.Cryptography.MaterialProviders.CacheType _cache;
+    private string _partitionId;
     public string KeyId
     {
       get { return this._keyId; }
@@ -26,6 +28,24 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     public bool IsSetCacheTTL()
     {
       return this._cacheTTL.HasValue;
+    }
+    public AWS.Cryptography.MaterialProviders.CacheType Cache
+    {
+      get { return this._cache; }
+      set { this._cache = value; }
+    }
+    public bool IsSetCache()
+    {
+      return this._cache != null;
+    }
+    public string PartitionId
+    {
+      get { return this._partitionId; }
+      set { this._partitionId = value; }
+    }
+    public bool IsSetPartitionId()
+    {
+      return this._partitionId != null;
     }
     public void Validate()
     {

@@ -13,7 +13,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencry
     static method {:extern} Build(encryptorConfig: Types.DynamoDbItemEncryptorConfig)
       returns (output: Result<Option<InternalLegacyOverride>, Types.Error>)
 
-    const policy: DDBE.LegacyPolicy
+    const {:extern} policy: DDBE.LegacyPolicy
 
     method {:extern} EncryptItem(input: Types.EncryptItemInput)
       returns (output: Result<Types.EncryptItemOutput, Types.Error>)

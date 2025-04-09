@@ -4,17 +4,17 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::execute_statement_output_transform::ExecuteStatementOutputTransformOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ExecuteStatementOutputTransformOutput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ExecuteStatementOutputTransformOutput::ExecuteStatementOutputTransformOutput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ExecuteStatementOutputTransformOutput::ExecuteStatementOutputTransformOutput {
         transformedOutput: crate::deps::com_amazonaws_dynamodb::conversions::execute_statement::_execute_statement_response::to_dafny(&value.transformed_output.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ExecuteStatementOutputTransformOutput,
     >,
 ) -> crate::operation::execute_statement_output_transform::ExecuteStatementOutputTransformOutput {

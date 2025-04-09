@@ -24,7 +24,7 @@ pub mod software {
                             pub mod legacy {
                                 use crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::Error as DafnyError;
                                 use crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::LegacyPolicy;
-                                use ::std::rc::Rc;
+                                use ::dafny_runtime::Rc;
                                 type Legacy = ::dafny_runtime::Object<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::legacy::InternalLegacyOverride>;
 
                                 fn error(s: &str) -> Rc<DafnyError> {
@@ -58,6 +58,9 @@ pub mod software {
                                 }
 
                                 impl InternalLegacyOverride {
+                                    pub fn policy(&self) -> Rc<LegacyPolicy> {
+                                        self.r#__i_policy.clone()
+                                    }
                                     pub fn Build(
                                         config: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DynamoDbItemEncryptorConfig>,
                                     ) -> Rc<

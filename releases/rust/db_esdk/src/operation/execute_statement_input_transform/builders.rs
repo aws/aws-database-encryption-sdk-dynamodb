@@ -35,7 +35,7 @@ impl ExecuteStatementInputTransformFluentBuilder {
         }
     }
     /// Access the ExecuteStatementInputTransform as a reference.
-    pub fn as_input(&self) -> &crate::operation::execute_statement_input_transform::builders::ExecuteStatementInputTransformInputBuilder {
+    pub fn as_input(&self) -> &crate::operation::execute_statement_input_transform::builders::ExecuteStatementInputTransformInputBuilder{
         &self.inner
     }
     /// Sends the request and returns the response.
@@ -53,26 +53,44 @@ impl ExecuteStatementInputTransformFluentBuilder {
             // and smithy-rs seems to not generate a ValidationError case unless there is.
             // Vanilla smithy-rs uses SdkError::construction_failure, but we aren't using SdkError.
             .map_err(|mut e| {
-	     let msg = format!("{:?}", e);
-             crate::types::error::Error::OpaqueWithText {
-                obj: ::dafny_runtime::Object::from_ref(&mut e as &mut dyn ::std::any::Any),
-		objMessage: msg
-             }})?;
-        crate::operation::execute_statement_input_transform::ExecuteStatementInputTransform::send(&self.client, input).await
+                let msg = format!("{:?}", e);
+                crate::types::error::Error::OpaqueWithText {
+                    obj: ::dafny_runtime::Object::from_ref(&mut e as &mut ::dafny_runtime::DynAny),
+                    objMessage: msg,
+                }
+            })?;
+        crate::operation::execute_statement_input_transform::ExecuteStatementInputTransform::send(
+            &self.client,
+            input,
+        )
+        .await
     }
 
     #[allow(missing_docs)]
-pub fn sdk_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput>) -> Self {
-    self.inner = self.inner.sdk_input(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_sdk_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput>) -> Self {
-    self.inner = self.inner.set_sdk_input(input);
-    self
-}
-#[allow(missing_docs)]
-pub fn get_sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput> {
-    self.inner.get_sdk_input()
-}
+    pub fn sdk_input(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.sdk_input(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_sdk_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput,
+        >,
+    ) -> Self {
+        self.inner = self.inner.set_sdk_input(input);
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_sdk_input(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::execute_statement::ExecuteStatementInput>
+    {
+        self.inner.get_sdk_input()
+    }
 }

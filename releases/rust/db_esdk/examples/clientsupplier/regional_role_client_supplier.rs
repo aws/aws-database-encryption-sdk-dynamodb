@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aws_config::Region;
+use aws_db_esdk::com_amazonaws_kms::client::Client as kms_client;
 use aws_db_esdk::material_providers::operation::get_client::GetClientInput;
 use aws_db_esdk::material_providers::types::error::Error;
 use aws_db_esdk::material_providers::types::ClientSupplier;
-use aws_db_esdk::com_amazonaws_kms::client::Client as kms_client;
 
 /*
  Example class demonstrating an implementation of a custom client supplier.
@@ -35,7 +35,7 @@ impl ClientSupplier for RegionalRoleClientSupplier {
 
         let sdk_config = tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
-                aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()).await
+                aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await
             })
         });
         let kms_config = aws_sdk_kms::config::Builder::from(&sdk_config)

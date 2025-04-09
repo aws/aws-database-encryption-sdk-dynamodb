@@ -4,10 +4,10 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::PathSegment,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::PathSegment,
-> {
-    ::std::rc::Rc::new(match value {
+>{
+    ::dafny_runtime::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::PathSegment::Member(x) =>
     crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::PathSegment::member {
         member: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::structure_segment::to_dafny(&x.clone())
@@ -19,11 +19,11 @@ pub fn to_dafny(
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::PathSegment,
     >,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::PathSegment {
-    match &::std::rc::Rc::unwrap_or_clone(dafny_value) {
+    match &::dafny_runtime::Rc::unwrap_or_clone(dafny_value) {
         crate::r#software::amazon::cryptography::dbencryptionsdk::structuredencryption::internaldafny::types::PathSegment::member {
     member: x @ _,
 } => crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::PathSegment::Member(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::structure_segment::from_dafny(x.clone())

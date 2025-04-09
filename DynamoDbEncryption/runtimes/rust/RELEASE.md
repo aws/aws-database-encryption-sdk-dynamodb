@@ -1,6 +1,6 @@
 To publish a new version of the aws-db-esdk for version N.N.N
 
-1. Acquire the appropriate permissions
+1. acquire the AWS permissions to run the tests
 1. Ensure git checkout of main is fresh and clean
 1. ./start_release.sh N.N.N
 1. `cd ../../../releases/rust/db_esdk`

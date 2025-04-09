@@ -4,23 +4,26 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::scan_input_transform::ScanInputTransformInput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ScanInputTransformInput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ScanInputTransformInput::ScanInputTransformInput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ScanInputTransformInput::ScanInputTransformInput {
         sdkInput: crate::deps::com_amazonaws_dynamodb::conversions::scan::_scan_request::to_dafny(&value.sdk_input.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::ScanInputTransformInput,
     >,
 ) -> crate::operation::scan_input_transform::ScanInputTransformInput {
     crate::operation::scan_input_transform::ScanInputTransformInput::builder()
-        .set_sdk_input(Some( crate::deps::com_amazonaws_dynamodb::conversions::scan::_scan_request::from_dafny(dafny_value.sdkInput().clone())
- ))
+        .set_sdk_input(Some(
+            crate::deps::com_amazonaws_dynamodb::conversions::scan::_scan_request::from_dafny(
+                dafny_value.sdkInput().clone(),
+            ),
+        ))
         .build()
         .unwrap()
 }

@@ -23,7 +23,6 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import KeyVectors
 
-
   function Manifest() : (string, JSON)
   {
     var result : seq<(string, JSON)> :=
@@ -152,8 +151,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   {
     var timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Encrypt : ", inFile, "\n";
-    var configBv :- expect FileIO.ReadBytesFromFile(inFile);
-    var configBytes := BvToBytes(configBv);
+    var configBytes :- expect FileIO.ReadBytesFromFile(inFile);
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " File Read.\n";
     var json :- expect API.Deserialize(configBytes);
@@ -213,8 +211,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
 
     var final := Object(result + [("tests", Object(test))]);
     var jsonBytes :- expect API.Serialize(final);
-    var jsonBv := BytesBv(jsonBytes);
-    var x :- expect FileIO.WriteBytesToFile(outFile, jsonBv);
+    var x :- expect FileIO.WriteBytesToFile(outFile, jsonBytes);
 
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Tests Complete.\n";

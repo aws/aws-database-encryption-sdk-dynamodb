@@ -47,9 +47,11 @@ module DdbMiddlewareConfig {
   function SearchModifies(config: Config) : set<object>
   {
     //set x, y | y in config.tableEncryptionConfigs && x in OneSearchModifies(config.tableEncryptionConfigs[y]) :: x
-    set versions <- set configValue <- config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions,
-      keyStore <- set version <- versions :: version.keySource.store,
-      obj <- keyStore.Modifies | obj in keyStore.Modifies :: obj
+    set
+      versions <- (set configValue <- config.tableEncryptionConfigs.Values | configValue.search.Some? :: configValue.search.value.versions),
+      keyStore <- (set version <- versions :: version.keySource.store),
+      obj <- keyStore.Modifies
+             {:nowarn} :: obj
 
   }
 

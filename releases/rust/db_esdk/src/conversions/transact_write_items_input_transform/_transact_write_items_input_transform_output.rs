@@ -4,20 +4,21 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::transact_write_items_input_transform::TransactWriteItemsInputTransformOutput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::TransactWriteItemsInputTransformOutput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::TransactWriteItemsInputTransformOutput::TransactWriteItemsInputTransformOutput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::TransactWriteItemsInputTransformOutput::TransactWriteItemsInputTransformOutput {
         transformedInput: crate::deps::com_amazonaws_dynamodb::conversions::transact_write_items::_transact_write_items_request::to_dafny(&value.transformed_input.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::TransactWriteItemsInputTransformOutput,
     >,
-) -> crate::operation::transact_write_items_input_transform::TransactWriteItemsInputTransformOutput {
+) -> crate::operation::transact_write_items_input_transform::TransactWriteItemsInputTransformOutput
+{
     crate::operation::transact_write_items_input_transform::TransactWriteItemsInputTransformOutput::builder()
         .set_transformed_input(Some( crate::deps::com_amazonaws_dynamodb::conversions::transact_write_items::_transact_write_items_request::from_dafny(dafny_value.transformedInput().clone())
  ))

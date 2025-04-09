@@ -5,15 +5,15 @@
 
 pub fn to_dafny(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride,
-) -> ::std::rc::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride>{
-    ::std::rc::Rc::new(match value {
+) -> ::dafny_runtime::Rc<crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride>{
+    ::dafny_runtime::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride::ForcePlaintextWriteAllowPlaintextRead => crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride::FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ {},
 crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride::ForbidPlaintextWriteAllowPlaintextRead => crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride::FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ {},
 crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride::ForbidPlaintextWriteForbidPlaintextRead => crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride::FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ {},
         _ => panic!("Unknown enum variant: {}", value),
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::PlaintextOverride,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PlaintextOverride {

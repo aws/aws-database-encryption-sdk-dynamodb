@@ -6,17 +6,23 @@
 #[allow(missing_docs)]
 pub struct BatchExecuteStatementInputTransformInput {
     #[allow(missing_docs)]
-pub sdk_input: ::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput>,
+    pub sdk_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput,
+    >,
 }
 impl BatchExecuteStatementInputTransformInput {
     #[allow(missing_docs)]
-pub fn sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput> {
-    &self.sdk_input
-}
+    pub fn sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput,
+    > {
+        &self.sdk_input
+    }
 }
 impl BatchExecuteStatementInputTransformInput {
     /// Creates a new builder-style object to manufacture [`BatchExecuteStatementInputTransformInput`](crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformInput).
-    pub fn builder() -> crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformInputBuilder {
+    pub fn builder() -> crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformInputBuilder{
         crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformInputBuilder::default()
     }
 }
@@ -27,30 +33,46 @@ impl BatchExecuteStatementInputTransformInput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct BatchExecuteStatementInputTransformInputBuilder {
-    pub(crate) sdk_input: ::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput>,
+    pub(crate) sdk_input: ::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput,
+    >,
 }
 impl BatchExecuteStatementInputTransformInputBuilder {
     #[allow(missing_docs)]
-pub fn sdk_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput>) -> Self {
-    self.sdk_input = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_sdk_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput>) -> Self {
-    self.sdk_input = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_sdk_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput> {
-    &self.sdk_input
-}
+    pub fn sdk_input(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput,
+        >,
+    ) -> Self {
+        self.sdk_input = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_sdk_input(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput,
+        >,
+    ) -> Self {
+        self.sdk_input = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_sdk_input(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput,
+    > {
+        &self.sdk_input
+    }
     /// Consumes the builder and constructs a [`BatchExecuteStatementInputTransformInput`](crate::operation::operation::BatchExecuteStatementInputTransformInput).
     pub fn build(
         self,
     ) -> ::std::result::Result<
         crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformInput,
         ::aws_smithy_types::error::operation::BuildError,
-    > {
+    >{
         ::std::result::Result::Ok(crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformInput {
             sdk_input: self.sdk_input,
         })

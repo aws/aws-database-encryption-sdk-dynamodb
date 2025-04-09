@@ -546,7 +546,22 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var cache :- expect mpl.CreateCryptographicMaterialsCache(input);
 
     var client :- expect Primitives.AtomicPrimitives();
-    var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32);
+
+    // Create a test partitionIdBytes
+    var partitionIdBytes : seq<uint8> :- expect SI.GenerateUuidBytes();
+
+    // Create a random logicalKeyStoreNameBytes
+    // Ideally, this should be taken from the KeyStore store,
+    // but logicalKeyStoreName variable doesn't exist in the
+    // trait AwsCryptographyKeyStoreTypes.IKeyStoreClient
+    // Therefore, the only way to get logicalKeyStoreName is
+    // to call GetKeyStoreInfo, which we don't need to do here
+    // since this method does NOT test the shared cache
+    // which is the only place logicalKeyStoreName is used
+    // (in the cache identifier)
+    var logicalKeyStoreNameBytes : seq<uint8> :- expect SI.GenerateUuidBytes();
+
+    var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32, partitionIdBytes, logicalKeyStoreNameBytes);
 
     var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[]);
     return Success(bv);

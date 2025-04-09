@@ -6,17 +6,17 @@
 #[allow(missing_docs)]
 pub struct StructureSegment {
     #[allow(missing_docs)]
-pub key: ::std::option::Option<::std::string::String>,
+    pub key: ::std::option::Option<::std::string::String>,
 }
 impl StructureSegment {
     #[allow(missing_docs)]
-pub fn key(&self) -> &::std::option::Option<::std::string::String> {
-    &self.key
-}
+    pub fn key(&self) -> &::std::option::Option<::std::string::String> {
+        &self.key
+    }
 }
 impl StructureSegment {
     /// Creates a new builder-style object to manufacture [`StructureSegment`](crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructureSegment).
-    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::builders::StructureSegmentBuilder {
+    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::builders::StructureSegmentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::builders::StructureSegmentBuilder::default()
     }
 }
@@ -31,19 +31,19 @@ pub struct StructureSegmentBuilder {
 }
 impl StructureSegmentBuilder {
     #[allow(missing_docs)]
-pub fn key(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-    self.key = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_key(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-    self.key = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_key(&self) -> &::std::option::Option<::std::string::String> {
-    &self.key
-}
+    pub fn key(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
+        self.key = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_key(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
+        self.key = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_key(&self) -> &::std::option::Option<::std::string::String> {
+        &self.key
+    }
     /// Consumes the builder and constructs a [`StructureSegment`](crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructureSegment).
     pub fn build(
         self,

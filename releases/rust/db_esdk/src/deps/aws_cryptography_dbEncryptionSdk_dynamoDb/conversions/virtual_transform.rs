@@ -4,10 +4,10 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualTransform,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::VirtualTransform,
-> {
-    ::std::rc::Rc::new(match value {
+>{
+    ::dafny_runtime::Rc::new(match value {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualTransform::Upper(x) =>
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::VirtualTransform::upper {
         upper: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::upper::to_dafny(&x.clone())
@@ -54,11 +54,11 @@ crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualTransform:
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::VirtualTransform,
     >,
 ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualTransform {
-    match &::std::rc::Rc::unwrap_or_clone(dafny_value) {
+    match &::dafny_runtime::Rc::unwrap_or_clone(dafny_value) {
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::VirtualTransform::upper {
     upper: x @ _,
 } => crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualTransform::Upper(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::upper::from_dafny(x.clone())

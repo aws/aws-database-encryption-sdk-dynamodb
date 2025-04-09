@@ -7,8 +7,6 @@ pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::type
 
 pub mod builders;
 
-
-
 mod _auth_item;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::_auth_item::AuthItem;
 mod _crypto_item;

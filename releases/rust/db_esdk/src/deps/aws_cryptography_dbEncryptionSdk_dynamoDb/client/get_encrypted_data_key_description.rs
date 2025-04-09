@@ -9,7 +9,7 @@ impl crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::client::Client {
     /// - On success, responds with [`GetEncryptedDataKeyDescriptionOutput`](crate::operation::get_encrypted_data_key_description::GetEncryptedDataKeyDescriptionOutput) with field(s):
     ///   - [`encrypted_data_key_description_output(Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::EncryptedDataKeyDescription>>)`](crate::operation::get_encrypted_data_key_description::GetEncryptedDataKeyDescriptionOutput::encrypted_data_key_description_output): (undocumented)
     /// - On failure, responds with [`SdkError<GetEncryptedDataKeyDescriptionError>`](crate::operation::get_encrypted_data_key_description::GetEncryptedDataKeyDescriptionError)
-    pub fn get_encrypted_data_key_description(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_encrypted_data_key_description::builders::GetEncryptedDataKeyDescriptionFluentBuilder {
+    pub fn get_encrypted_data_key_description(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_encrypted_data_key_description::builders::GetEncryptedDataKeyDescriptionFluentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_encrypted_data_key_description::builders::GetEncryptedDataKeyDescriptionFluentBuilder::new(self.clone())
     }
 }

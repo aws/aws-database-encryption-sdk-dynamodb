@@ -6,13 +6,16 @@
 #[allow(missing_docs)]
 pub struct DeleteItemInputTransformOutput {
     #[allow(missing_docs)]
-pub transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>,
+    pub transformed_input:
+        ::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>,
 }
 impl DeleteItemInputTransformOutput {
     #[allow(missing_docs)]
-pub fn transformed_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput> {
-    &self.transformed_input
-}
+    pub fn transformed_input(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput> {
+        &self.transformed_input
+    }
 }
 impl DeleteItemInputTransformOutput {
     /// Creates a new builder-style object to manufacture [`DeleteItemInputTransformOutput`](crate::types::DeleteItemInputTransformOutput).
@@ -27,23 +30,32 @@ impl DeleteItemInputTransformOutput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct DeleteItemInputTransformOutputBuilder {
-    pub(crate) transformed_input: ::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>,
+    pub(crate) transformed_input:
+        ::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>,
 }
 impl DeleteItemInputTransformOutputBuilder {
     #[allow(missing_docs)]
-pub fn transformed_input(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>) -> Self {
-    self.transformed_input = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_transformed_input(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>) -> Self {
-    self.transformed_input = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_transformed_input(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput> {
-    &self.transformed_input
-}
+    pub fn transformed_input(
+        mut self,
+        input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>,
+    ) -> Self {
+        self.transformed_input = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_transformed_input(
+        mut self,
+        input: ::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput>,
+    ) -> Self {
+        self.transformed_input = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_transformed_input(
+        &self,
+    ) -> &::std::option::Option<aws_sdk_dynamodb::operation::delete_item::DeleteItemInput> {
+        &self.transformed_input
+    }
     /// Consumes the builder and constructs a [`DeleteItemInputTransformOutput`](crate::types::DeleteItemInputTransformOutput).
     pub fn build(
         self,

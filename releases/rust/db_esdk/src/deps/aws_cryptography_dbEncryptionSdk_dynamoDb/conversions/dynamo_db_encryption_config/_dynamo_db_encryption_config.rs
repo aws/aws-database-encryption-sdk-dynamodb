@@ -5,26 +5,25 @@
 
 pub fn to_dafny(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig,
-> {
-    ::std::rc::Rc::new(to_dafny_plain(value))
+>{
+    ::dafny_runtime::Rc::new(to_dafny_plain(value))
 }
 
 #[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig,
     >,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig{
     plain_from_dafny(&*dafny_value)
 }
-
 
 #[allow(dead_code)]
 pub fn to_dafny_plain(
     value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig,
-) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig {
+) -> crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig{
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig::DynamoDbEncryptionConfig {
 
     }
@@ -33,7 +32,7 @@ pub fn to_dafny_plain(
 #[allow(dead_code)]
 pub fn plain_from_dafny(
     dafny_value: &crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig,
-) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig {
+) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig{
     match dafny_value {
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::internaldafny::types::DynamoDbEncryptionConfig::DynamoDbEncryptionConfig {..} =>
             crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::dynamo_db_encryption_config::DynamoDbEncryptionConfig::builder()

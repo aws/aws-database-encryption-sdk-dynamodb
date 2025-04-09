@@ -709,6 +709,8 @@ structure KeyStoreReference {}
 //# On initialization of a Single Key Store, the caller MUST provide:
 //#  - [Beacon Key Id](#beacon-key-id)
 //#  - [cacheTTL](#cachettl)
+//#  - [cache](#key-store-cache)
+//#  - [partition-id](#partition-id)
 
 @javadoc("The configuration for using a single Beacon Key.")
 structure SingleKeyStore {
@@ -718,6 +720,10 @@ structure SingleKeyStore {
   @required
   @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
+  @documentation("Which type of local cache to use. Please see the [spec](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/specification/searchable-encryption/search-config.md#key-store-cache) on how to provide a cache for a SingleKeyStore.")
+  cache : CacheType,
+  @documentation("Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.")
+  partitionId: String
 }
 
 //= specification/searchable-encryption/search-config.md#multi-key-store-initialization
@@ -725,7 +731,8 @@ structure SingleKeyStore {
 //# On initialization of a Multi Key Store, the caller MUST provide:
 //#  - [Beacon Key Field Name](#beacon-key-field-name)
 //#  - [cacheTTL](#cachettl)
-//#  - [max cache size](#max-cache-size)
+//#  - [cache](#key-store-cache)
+//#  - [partition-id](#partition-id)
 
 @javadoc("The configuration for using multiple Beacon Keys.")
 structure MultiKeyStore {
@@ -736,7 +743,9 @@ structure MultiKeyStore {
   @javadoc("How long (in seconds) the beacon key material is cached locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.")
   cacheTTL: Integer,
   @javadoc("Which type of local cache to use.")
-  cache : CacheType
+  cache : CacheType,
+  @documentation("Partition ID to distinguish Beacon Key Sources writing to a Shared cache. If the Partition ID is the same for two Beacon Key Sources, they can share the same cache entries in the Shared cache.")
+  partitionId: String
 }
 
 //= specification/searchable-encryption/search-config.md#beacon-key-source

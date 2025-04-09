@@ -67,6 +67,8 @@ PROJECT_INDEX := \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore/src/Index.dfy \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/KeyVectors/src/Index.dfy \
 	DynamoDbEncryption/dafny/StructuredEncryption/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy \
@@ -83,7 +85,7 @@ SERVICE_DEPS_DDBEncryption := \
 	submodules/MaterialProviders/ComAmazonawsDynamodb \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
 	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
-	DynamoDbEncryption/dafny/StructuredEncryption \
+	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor \
 	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms \

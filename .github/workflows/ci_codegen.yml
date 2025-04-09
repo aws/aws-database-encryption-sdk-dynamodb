@@ -39,7 +39,7 @@ jobs:
       # and to translate version strings such as "nightly-latest"
       # to an actual DAFNY_VERSION.
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -52,7 +52,7 @@ jobs:
         run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
 
       - name: Setup Java 17 for codegen
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "corretto"
           java-version: "17"

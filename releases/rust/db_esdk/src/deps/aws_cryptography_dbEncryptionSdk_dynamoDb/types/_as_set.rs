@@ -4,15 +4,12 @@
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
 /// Attribute must be a Set. Beacon value will also be a Set.
-pub struct AsSet {
-
-}
-impl AsSet {
-
-}
+pub struct AsSet {}
+impl AsSet {}
 impl AsSet {
     /// Creates a new builder-style object to manufacture [`AsSet`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::AsSet).
-    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::builders::AsSetBuilder {
+    pub fn builder(
+    ) -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::builders::AsSetBuilder {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::builders::AsSetBuilder::default()
     }
 }
@@ -22,11 +19,8 @@ impl AsSet {
 #[derive(
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
-pub struct AsSetBuilder {
-
-}
+pub struct AsSetBuilder {}
 impl AsSetBuilder {
-
     /// Consumes the builder and constructs a [`AsSet`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::AsSet).
     pub fn build(
         self,
@@ -34,8 +28,8 @@ impl AsSetBuilder {
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::AsSet,
         ::aws_smithy_types::error::operation::BuildError,
     > {
-        ::std::result::Result::Ok(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::AsSet {
-
-        })
+        ::std::result::Result::Ok(
+            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::AsSet {},
+        )
     }
 }

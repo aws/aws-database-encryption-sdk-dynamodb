@@ -11,7 +11,7 @@ impl crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client:
     /// - On success, responds with [`ResolveAuthActionsOutput`](crate::operation::resolve_auth_actions::ResolveAuthActionsOutput) with field(s):
     ///   - [`crypto_actions(Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoItem>>)`](crate::operation::resolve_auth_actions::ResolveAuthActionsOutput::crypto_actions): (undocumented)
     /// - On failure, responds with [`SdkError<ResolveAuthActionsError>`](crate::operation::resolve_auth_actions::ResolveAuthActionsError)
-    pub fn resolve_auth_actions(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::builders::ResolveAuthActionsFluentBuilder {
+    pub fn resolve_auth_actions(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::builders::ResolveAuthActionsFluentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::resolve_auth_actions::builders::ResolveAuthActionsFluentBuilder::new(self.clone())
     }
 }

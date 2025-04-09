@@ -14,7 +14,10 @@ impl Client {
     #[track_caller]
     pub fn from_conf(
         input: crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::structured_encryption_config::StructuredEncryptionConfig,
-    ) -> Result<Self, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error> {
+    ) -> Result<
+        Self,
+        crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error,
+    > {
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PstructuredEncryption_HStructuredEncryptionConfig(&input)
             .map_err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::error::Error::wrap_validation_err)?;
         let inner =
@@ -28,7 +31,7 @@ impl Client {
             return Err(crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::conversions::error::from_dafny(inner.as_ref().error().clone()));
         }
         Ok(Self {
-            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract())
+            dafny_client: ::dafny_runtime::upcast_object()(inner.Extract()),
         })
     }
 }

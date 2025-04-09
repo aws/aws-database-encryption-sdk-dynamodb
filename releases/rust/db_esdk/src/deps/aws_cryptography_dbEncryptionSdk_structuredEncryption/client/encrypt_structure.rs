@@ -16,7 +16,7 @@ impl crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client:
     ///   - [`encrypted_structure(Option<::std::collections::HashMap<::std::string::String, crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::StructuredDataTerminal>>)`](crate::operation::encrypt_structure::EncryptStructureOutput::encrypted_structure): (undocumented)
     ///   - [`parsed_header(Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader>)`](crate::operation::encrypt_structure::EncryptStructureOutput::parsed_header): (undocumented)
     /// - On failure, responds with [`SdkError<EncryptStructureError>`](crate::operation::encrypt_structure::EncryptStructureError)
-    pub fn encrypt_structure(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::builders::EncryptStructureFluentBuilder {
+    pub fn encrypt_structure(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::builders::EncryptStructureFluentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::encrypt_structure::builders::EncryptStructureFluentBuilder::new(self.clone())
     }
 }

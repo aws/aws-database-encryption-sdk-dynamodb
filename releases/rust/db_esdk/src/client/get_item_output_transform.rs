@@ -10,7 +10,10 @@ impl crate::client::Client {
     /// - On success, responds with [`GetItemOutputTransformOutput`](crate::operation::get_item_output_transform::GetItemOutputTransformOutput) with field(s):
     ///   - [`transformed_output(Option<aws_sdk_dynamodb::operation::get_item::GetItemOutput>)`](crate::operation::get_item_output_transform::GetItemOutputTransformOutput::transformed_output): (undocumented)
     /// - On failure, responds with [`SdkError<GetItemOutputTransformError>`](crate::operation::get_item_output_transform::GetItemOutputTransformError)
-    pub fn get_item_output_transform(&self) -> crate::operation::get_item_output_transform::builders::GetItemOutputTransformFluentBuilder {
+    pub fn get_item_output_transform(
+        &self,
+    ) -> crate::operation::get_item_output_transform::builders::GetItemOutputTransformFluentBuilder
+    {
         crate::operation::get_item_output_transform::builders::GetItemOutputTransformFluentBuilder::new(self.clone())
     }
 }

@@ -52,7 +52,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -89,7 +89,7 @@ jobs:
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net
         run: |
-          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json .
+          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json ../java/decrypt_rust_*.json .
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0

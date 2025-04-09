@@ -20,7 +20,10 @@ impl QueryInputTransform {
     > {
         crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HQueryInputTransformInput_for_DynamoDbEncryptionTransforms_QueryInputTransform(&input)
             .map_err(crate::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::conversions::query_input_transform::_query_input_transform_input::to_dafny(input);
+        let inner_input =
+            crate::conversions::query_input_transform::_query_input_transform_input::to_dafny(
+                input,
+            );
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).QueryInputTransform(&inner_input);
         if matches!(

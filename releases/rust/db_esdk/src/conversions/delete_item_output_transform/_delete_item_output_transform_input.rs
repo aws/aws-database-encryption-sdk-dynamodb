@@ -4,19 +4,19 @@
 #[allow(dead_code)]
 pub fn to_dafny(
     value: crate::operation::delete_item_output_transform::DeleteItemOutputTransformInput,
-) -> ::std::rc::Rc<
+) -> ::dafny_runtime::Rc<
     crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::DeleteItemOutputTransformInput,
 >{
-    ::std::rc::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::DeleteItemOutputTransformInput::DeleteItemOutputTransformInput {
+    ::dafny_runtime::Rc::new(crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::DeleteItemOutputTransformInput::DeleteItemOutputTransformInput {
         sdkOutput: crate::deps::com_amazonaws_dynamodb::conversions::delete_item::_delete_item_response::to_dafny(&value.sdk_output.clone().unwrap())
 ,
  originalInput: crate::deps::com_amazonaws_dynamodb::conversions::delete_item::_delete_item_request::to_dafny(&value.original_input.clone().unwrap())
 ,
     })
 }
- #[allow(dead_code)]
+#[allow(dead_code)]
 pub fn from_dafny(
-    dafny_value: ::std::rc::Rc<
+    dafny_value: ::dafny_runtime::Rc<
         crate::r#software::amazon::cryptography::dbencryptionsdk::dynamodb::transforms::internaldafny::types::DeleteItemOutputTransformInput,
     >,
 ) -> crate::operation::delete_item_output_transform::DeleteItemOutputTransformInput {

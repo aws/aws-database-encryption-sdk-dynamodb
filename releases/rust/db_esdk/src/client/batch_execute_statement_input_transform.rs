@@ -9,7 +9,7 @@ impl crate::client::Client {
     /// - On success, responds with [`BatchExecuteStatementInputTransformOutput`](crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformOutput) with field(s):
     ///   - [`transformed_input(Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementInput>)`](crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformOutput::transformed_input): (undocumented)
     /// - On failure, responds with [`SdkError<BatchExecuteStatementInputTransformError>`](crate::operation::batch_execute_statement_input_transform::BatchExecuteStatementInputTransformError)
-    pub fn batch_execute_statement_input_transform(&self) -> crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformFluentBuilder {
+    pub fn batch_execute_statement_input_transform(&self) -> crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformFluentBuilder{
         crate::operation::batch_execute_statement_input_transform::builders::BatchExecuteStatementInputTransformFluentBuilder::new(self.clone())
     }
 }

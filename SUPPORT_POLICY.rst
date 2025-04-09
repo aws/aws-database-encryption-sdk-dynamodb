@@ -30,4 +30,21 @@ This table describes the current support status of each major version of the AWS
       -
       -
 
+Version Support Matrix for Rust
+===============================
+This table describes the current support status of each major version of the AWS Encryption SDK for Rust. It also shows the next status each major version will transition to, and the date at which that transition will happen.
+
+.. list-table::
+    :widths: 30 50 50 50
+    :header-rows: 1
+
+    * - Major version
+      - Current status
+      - Next status
+      - Next status date
+    * - 1.x
+      - Generally Available
+      -
+      - 
+
 .. _AWS SDKs and Tools Maintenance Policy: https://docs.aws.amazon.com/sdkref/latest/guide/maint-policy.html#version-life-cycle

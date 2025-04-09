@@ -13,7 +13,7 @@ impl crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::client:
     ///   - [`parsed_header(Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::ParsedHeader>)`](crate::operation::decrypt_path_structure::DecryptPathStructureOutput::parsed_header): (undocumented)
     ///   - [`plaintext_structure(Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoItem>>)`](crate::operation::decrypt_path_structure::DecryptPathStructureOutput::plaintext_structure): (undocumented)
     /// - On failure, responds with [`SdkError<DecryptPathStructureError>`](crate::operation::decrypt_path_structure::DecryptPathStructureError)
-    pub fn decrypt_path_structure(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::decrypt_path_structure::builders::DecryptPathStructureFluentBuilder {
+    pub fn decrypt_path_structure(&self) -> crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::decrypt_path_structure::builders::DecryptPathStructureFluentBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::operation::decrypt_path_structure::builders::DecryptPathStructureFluentBuilder::new(self.clone())
     }
 }

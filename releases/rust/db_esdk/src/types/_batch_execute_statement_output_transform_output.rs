@@ -6,13 +6,19 @@
 #[allow(missing_docs)]
 pub struct BatchExecuteStatementOutputTransformOutput {
     #[allow(missing_docs)]
-pub transformed_output: ::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput>,
+    pub transformed_output: ::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput,
+    >,
 }
 impl BatchExecuteStatementOutputTransformOutput {
     #[allow(missing_docs)]
-pub fn transformed_output(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput> {
-    &self.transformed_output
-}
+    pub fn transformed_output(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput,
+    > {
+        &self.transformed_output
+    }
 }
 impl BatchExecuteStatementOutputTransformOutput {
     /// Creates a new builder-style object to manufacture [`BatchExecuteStatementOutputTransformOutput`](crate::types::BatchExecuteStatementOutputTransformOutput).
@@ -27,23 +33,39 @@ impl BatchExecuteStatementOutputTransformOutput {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct BatchExecuteStatementOutputTransformOutputBuilder {
-    pub(crate) transformed_output: ::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput>,
+    pub(crate) transformed_output: ::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput,
+    >,
 }
 impl BatchExecuteStatementOutputTransformOutputBuilder {
     #[allow(missing_docs)]
-pub fn transformed_output(mut self, input: impl ::std::convert::Into<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput>) -> Self {
-    self.transformed_output = ::std::option::Option::Some(input.into());
-    self
-}
-#[allow(missing_docs)]
-pub fn set_transformed_output(mut self, input: ::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput>) -> Self {
-    self.transformed_output = input;
-    self
-}
-#[allow(missing_docs)]
-pub fn get_transformed_output(&self) -> &::std::option::Option<aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput> {
-    &self.transformed_output
-}
+    pub fn transformed_output(
+        mut self,
+        input: impl ::std::convert::Into<
+            aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput,
+        >,
+    ) -> Self {
+        self.transformed_output = ::std::option::Option::Some(input.into());
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn set_transformed_output(
+        mut self,
+        input: ::std::option::Option<
+            aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput,
+        >,
+    ) -> Self {
+        self.transformed_output = input;
+        self
+    }
+    #[allow(missing_docs)]
+    pub fn get_transformed_output(
+        &self,
+    ) -> &::std::option::Option<
+        aws_sdk_dynamodb::operation::batch_execute_statement::BatchExecuteStatementOutput,
+    > {
+        &self.transformed_output
+    }
     /// Consumes the builder and constructs a [`BatchExecuteStatementOutputTransformOutput`](crate::types::BatchExecuteStatementOutputTransformOutput).
     pub fn build(
         self,

@@ -20,7 +20,8 @@ impl ScanInputTransform {
     > {
         crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HScanInputTransformInput_for_DynamoDbEncryptionTransforms_ScanInputTransform(&input)
             .map_err(crate::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::conversions::scan_input_transform::_scan_input_transform_input::to_dafny(input);
+        let inner_input =
+            crate::conversions::scan_input_transform::_scan_input_transform_input::to_dafny(input);
         let inner_result =
             ::dafny_runtime::md!(client.dafny_client.clone()).ScanInputTransform(&inner_input);
         if matches!(
@@ -28,7 +29,9 @@ impl ScanInputTransform {
             crate::r#_Wrappers_Compile::Result::Success { .. }
         ) {
             Ok(
-                crate::conversions::scan_input_transform::_scan_input_transform_output::from_dafny(inner_result.value().clone()),
+                crate::conversions::scan_input_transform::_scan_input_transform_output::from_dafny(
+                    inner_result.value().clone(),
+                ),
             )
         } else {
             Err(crate::conversions::error::from_dafny(

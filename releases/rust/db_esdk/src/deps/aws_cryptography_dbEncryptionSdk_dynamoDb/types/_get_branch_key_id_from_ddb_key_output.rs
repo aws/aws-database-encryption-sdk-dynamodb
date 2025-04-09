@@ -6,17 +6,17 @@
 /// Outputs for getting the Branch Key that should be used for wrapping and unwrapping data keys.
 pub struct GetBranchKeyIdFromDdbKeyOutput {
     /// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
-pub branch_key_id: ::std::option::Option<::std::string::String>,
+    pub branch_key_id: ::std::option::Option<::std::string::String>,
 }
 impl GetBranchKeyIdFromDdbKeyOutput {
     /// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
-pub fn branch_key_id(&self) -> &::std::option::Option<::std::string::String> {
-    &self.branch_key_id
-}
+    pub fn branch_key_id(&self) -> &::std::option::Option<::std::string::String> {
+        &self.branch_key_id
+    }
 }
 impl GetBranchKeyIdFromDdbKeyOutput {
     /// Creates a new builder-style object to manufacture [`GetBranchKeyIdFromDdbKeyOutput`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetBranchKeyIdFromDdbKeyOutput).
-    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::builders::GetBranchKeyIdFromDdbKeyOutputBuilder {
+    pub fn builder() -> crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::builders::GetBranchKeyIdFromDdbKeyOutputBuilder{
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::builders::GetBranchKeyIdFromDdbKeyOutputBuilder::default()
     }
 }
@@ -31,26 +31,32 @@ pub struct GetBranchKeyIdFromDdbKeyOutputBuilder {
 }
 impl GetBranchKeyIdFromDdbKeyOutputBuilder {
     /// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
-pub fn branch_key_id(mut self, input: impl ::std::convert::Into<::std::string::String>) -> Self {
-    self.branch_key_id = ::std::option::Option::Some(input.into());
-    self
-}
-/// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
-pub fn set_branch_key_id(mut self, input: ::std::option::Option<::std::string::String>) -> Self {
-    self.branch_key_id = input;
-    self
-}
-/// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
-pub fn get_branch_key_id(&self) -> &::std::option::Option<::std::string::String> {
-    &self.branch_key_id
-}
+    pub fn branch_key_id(
+        mut self,
+        input: impl ::std::convert::Into<::std::string::String>,
+    ) -> Self {
+        self.branch_key_id = ::std::option::Option::Some(input.into());
+        self
+    }
+    /// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
+    pub fn set_branch_key_id(
+        mut self,
+        input: ::std::option::Option<::std::string::String>,
+    ) -> Self {
+        self.branch_key_id = input;
+        self
+    }
+    /// The ID of the Branch Key that should be used to wrap and unwrap data keys for this item.
+    pub fn get_branch_key_id(&self) -> &::std::option::Option<::std::string::String> {
+        &self.branch_key_id
+    }
     /// Consumes the builder and constructs a [`GetBranchKeyIdFromDdbKeyOutput`](crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetBranchKeyIdFromDdbKeyOutput).
     pub fn build(
         self,
     ) -> ::std::result::Result<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetBranchKeyIdFromDdbKeyOutput,
         ::aws_smithy_types::error::operation::BuildError,
-    > {
+    >{
         ::std::result::Result::Ok(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetBranchKeyIdFromDdbKeyOutput {
             branch_key_id: self.branch_key_id,
         })

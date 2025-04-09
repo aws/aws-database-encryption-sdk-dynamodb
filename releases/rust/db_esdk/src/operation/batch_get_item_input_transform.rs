@@ -20,9 +20,9 @@ impl BatchGetItemInputTransform {
     > {
         crate::validation::validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HBatchGetItemInputTransformInput_for_DynamoDbEncryptionTransforms_BatchGetItemInputTransform(&input)
             .map_err(crate::types::error::Error::wrap_validation_err)?;
-                let inner_input = crate::conversions::batch_get_item_input_transform::_batch_get_item_input_transform_input::to_dafny(input);
-        let inner_result =
-            ::dafny_runtime::md!(client.dafny_client.clone()).BatchGetItemInputTransform(&inner_input);
+        let inner_input = crate::conversions::batch_get_item_input_transform::_batch_get_item_input_transform_input::to_dafny(input);
+        let inner_result = ::dafny_runtime::md!(client.dafny_client.clone())
+            .BatchGetItemInputTransform(&inner_input);
         if matches!(
             inner_result.as_ref(),
             crate::r#_Wrappers_Compile::Result::Success { .. }

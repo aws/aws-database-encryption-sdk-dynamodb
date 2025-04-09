@@ -5,11 +5,12 @@
 #![deny(nonstandard_style)]
 #![deny(clippy::all)]
 #![allow(unused)]
+#![allow(clippy::result_large_err)]
 
 use aws_sdk_dynamodb::{
     config::{
-        ConfigBag, Intercept, RuntimeComponents,
         interceptors::{BeforeSerializationInterceptorContextMut, FinalizerInterceptorContextMut},
+        ConfigBag, Intercept, RuntimeComponents,
     },
     error::BoxError,
 };
@@ -89,9 +90,6 @@ impl DbEsdkInterceptor {
         Ok(DbEsdkInterceptor { client })
     }
 }
-
-unsafe impl Sync for DbEsdkInterceptor {}
-unsafe impl Send for DbEsdkInterceptor {}
 
 #[derive(Debug)]
 struct OriginalRequest(Input);

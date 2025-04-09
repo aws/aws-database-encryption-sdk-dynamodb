@@ -9,7 +9,10 @@ impl crate::client::Client {
     /// - On success, responds with [`PutItemInputTransformOutput`](crate::operation::put_item_input_transform::PutItemInputTransformOutput) with field(s):
     ///   - [`transformed_input(Option<aws_sdk_dynamodb::operation::put_item::PutItemInput>)`](crate::operation::put_item_input_transform::PutItemInputTransformOutput::transformed_input): (undocumented)
     /// - On failure, responds with [`SdkError<PutItemInputTransformError>`](crate::operation::put_item_input_transform::PutItemInputTransformError)
-    pub fn put_item_input_transform(&self) -> crate::operation::put_item_input_transform::builders::PutItemInputTransformFluentBuilder {
+    pub fn put_item_input_transform(
+        &self,
+    ) -> crate::operation::put_item_input_transform::builders::PutItemInputTransformFluentBuilder
+    {
         crate::operation::put_item_input_transform::builders::PutItemInputTransformFluentBuilder::new(self.clone())
     }
 }

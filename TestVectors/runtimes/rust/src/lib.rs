@@ -13,6 +13,7 @@ pub mod error;
 pub mod operation;
 pub mod types;
 pub mod validation;
+pub mod intercept;
 
 #[cfg(feature = "wrapped-client")]
 pub mod wrapped;

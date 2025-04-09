@@ -3,25 +3,25 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
 #[allow(missing_docs)]
-pub trait LegacyDynamoDbEncryptor {
-
-}
+pub trait LegacyDynamoDbEncryptor: Send + Sync {}
 
 #[derive(::std::clone::Clone)]
 /// A reference to a LegacyDynamoDbEncryptor
 pub struct LegacyDynamoDbEncryptorRef {
-  pub inner: ::std::rc::Rc<std::cell::RefCell<dyn LegacyDynamoDbEncryptor>>
+    pub inner: ::dafny_runtime::Rc<::dafny_runtime::RefCell<dyn LegacyDynamoDbEncryptor>>,
 }
 
-impl<T : LegacyDynamoDbEncryptor + 'static> From<T> for LegacyDynamoDbEncryptorRef {
+impl<T: LegacyDynamoDbEncryptor + 'static> From<T> for LegacyDynamoDbEncryptorRef {
     fn from(value: T) -> Self {
-        Self { inner: std::rc::Rc::new(std::cell::RefCell::new(value)) }
+        Self {
+            inner: dafny_runtime::Rc::new(::dafny_runtime::RefCell::new(value)),
+        }
     }
 }
 
 impl ::std::cmp::PartialEq for LegacyDynamoDbEncryptorRef {
     fn eq(&self, other: &LegacyDynamoDbEncryptorRef) -> bool {
-        ::std::rc::Rc::ptr_eq(&self.inner, &other.inner)
+        ::dafny_runtime::Rc::ptr_eq(&self.inner, &other.inner)
     }
 }
 
@@ -30,4 +30,3 @@ impl ::std::fmt::Debug for LegacyDynamoDbEncryptorRef {
         write!(f, "<LegacyDynamoDbEncryptorRef>")
     }
 }
-
