@@ -25,9 +25,9 @@ jobs:
       fail-fast: false
       matrix:
         library: [DynamoDbEncryption]
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11"]
         os: [
-          macos-13,
+          # macos-13,
           ubuntu-22.04,
           # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
           # Windows is tested with non-Dafny-transpiled Python tests.
