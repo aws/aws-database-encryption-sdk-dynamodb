@@ -1,5 +1,5 @@
-# This workflow performs test vectors in Python with MPL nightly latest.
-name: Library Python Test Vectors Backwards Interop Tests
+# This workflow performs test vectors in Python with the client interface.
+name: Library Python Test Vectors Client Interface Interop Tests
 
 on:
   workflow_call:
@@ -29,6 +29,7 @@ jobs:
         library: [TestVectors]
         python-version: [3.11, 3.12, 3.12]
         os: [ubuntu-22.04]
+        interface: [client, resource, table]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -97,4 +98,4 @@ jobs:
       - name: Test TestVectors
         working-directory: ./TestVectors
         run: |
-          make test_python_client_interface
+          make test_python_${{matrix.interface}}_interface
