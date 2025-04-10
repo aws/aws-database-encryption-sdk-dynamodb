@@ -22,7 +22,7 @@ public class ResolveAttributesInput {
   /**
    * The beacon version to use. Defaults to 'writeVersion'.
    */
-  private final int Version;
+  private final Integer Version;
 
   protected ResolveAttributesInput(BuilderImpl builder) {
     this.TableName = builder.TableName();
@@ -47,7 +47,7 @@ public class ResolveAttributesInput {
   /**
    * @return The beacon version to use. Defaults to 'writeVersion'.
    */
-  public int Version() {
+  public Integer Version() {
     return this.Version;
   }
 
@@ -83,12 +83,12 @@ public class ResolveAttributesInput {
     /**
      * @param Version The beacon version to use. Defaults to 'writeVersion'.
      */
-    Builder Version(int Version);
+    Builder Version(Integer Version);
 
     /**
      * @return The beacon version to use. Defaults to 'writeVersion'.
      */
-    int Version();
+    Integer Version();
 
     ResolveAttributesInput build();
   }
@@ -99,9 +99,7 @@ public class ResolveAttributesInput {
 
     protected Map<String, AttributeValue> Item;
 
-    protected int Version;
-
-    private boolean _VersionSet = false;
+    protected Integer Version;
 
     protected BuilderImpl() {}
 
@@ -109,7 +107,6 @@ public class ResolveAttributesInput {
       this.TableName = model.TableName();
       this.Item = model.Item();
       this.Version = model.Version();
-      this._VersionSet = true;
     }
 
     public Builder TableName(String TableName) {
@@ -130,13 +127,12 @@ public class ResolveAttributesInput {
       return this.Item;
     }
 
-    public Builder Version(int Version) {
+    public Builder Version(Integer Version) {
       this.Version = Version;
-      this._VersionSet = true;
       return this;
     }
 
-    public int Version() {
+    public Integer Version() {
       return this.Version;
     }
 
@@ -163,7 +159,7 @@ public class ResolveAttributesInput {
           "Missing value for required field `Item`"
         );
       }
-      if (this._VersionSet && this.Version() < 1) {
+      if (Objects.nonNull(this.Version()) && this.Version() < 1) {
         throw new IllegalArgumentException(
           "`Version` must be greater than or equal to 1"
         );
