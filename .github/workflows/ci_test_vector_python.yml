@@ -81,6 +81,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Setup Python ${{ matrix.python-version }} for running tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade tox
+          pip install poetry
+
       - name: Build Python TestVectors implementation
         shell: bash
         working-directory: ${{matrix.library}}
