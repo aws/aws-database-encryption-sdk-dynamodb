@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         library: [TestVectors]
-        python-version: [3.11, 3.12, 3.12]
+        python-version: [3.11, 3.12, 3.13]
         os: [ubuntu-22.04]
         interface: [client, resource, table]
     runs-on: ${{ matrix.os }}
