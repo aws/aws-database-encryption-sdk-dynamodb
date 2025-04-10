@@ -81,15 +81,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Build TestVectors implementation
+      - name: Build Python TestVectors implementation
         shell: bash
         working-directory: ${{matrix.library}}
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
-          make build_python CORES=$CORES
+          make transpile_python CORES=$CORES
 
-      - name: Test TestVectors
+      - name: Test Python TestVectors with ${matrix.interface} interface
         working-directory: ${{matrix.library}}
         run: |
           make test_python_${{matrix.interface}}_interface
