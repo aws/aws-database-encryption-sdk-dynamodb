@@ -57,8 +57,8 @@ Plugin: TypeAlias = Callable[[Config], None]
 class DynamoDbItemEncryptorConfig(Config):
     logical_table_name: str
     partition_key_name: dict[str, Any]
-    attribute_actions_on_encrypt: dict[str, str]
     sort_key_name: Optional[dict[str, Any]]
+    attribute_actions_on_encrypt: dict[str, str]
     allowed_unsigned_attributes: Optional[dict[str, Any]]
     allowed_unsigned_attribute_prefix: Optional[str]
     algorithm_suite_id: Optional[str]
@@ -262,11 +262,11 @@ class DynamoDbItemEncryptorConfig(Config):
         if self.partition_key_name is not None:
             result += f"partition_key_name={repr(self.partition_key_name)}, "
 
-        if self.attribute_actions_on_encrypt is not None:
-            result += f"attribute_actions_on_encrypt={repr(self.attribute_actions_on_encrypt)}, "
-
         if self.sort_key_name is not None:
             result += f"sort_key_name={repr(self.sort_key_name)}, "
+
+        if self.attribute_actions_on_encrypt is not None:
+            result += f"attribute_actions_on_encrypt={repr(self.attribute_actions_on_encrypt)}, "
 
         if self.allowed_unsigned_attributes is not None:
             result += f"allowed_unsigned_attributes={repr(self.allowed_unsigned_attributes)}, "
@@ -297,8 +297,8 @@ class DynamoDbItemEncryptorConfig(Config):
         attributes: list[str] = [
             "logical_table_name",
             "partition_key_name",
-            "attribute_actions_on_encrypt",
             "sort_key_name",
+            "attribute_actions_on_encrypt",
             "allowed_unsigned_attributes",
             "allowed_unsigned_attribute_prefix",
             "algorithm_suite_id",

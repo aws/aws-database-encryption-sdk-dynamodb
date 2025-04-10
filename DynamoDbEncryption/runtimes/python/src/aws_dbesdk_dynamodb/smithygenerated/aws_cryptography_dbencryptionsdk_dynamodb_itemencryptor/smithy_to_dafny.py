@@ -221,21 +221,6 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
                 ]
             )
         ),
-        attributeActionsOnEncrypt=Map(
-            {
-                Seq(
-                    "".join(
-                        [
-                            chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
-                        ]
-                    )
-                ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
-                    value
-                )
-                for (key, value) in native_input.attribute_actions_on_encrypt.items()
-            }
-        ),
         sortKeyName=(
             (
                 Option_Some(
@@ -260,6 +245,21 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
             )
             if (native_input.sort_key_name is not None)
             else (Option_None())
+        ),
+        attributeActionsOnEncrypt=Map(
+            {
+                Seq(
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
+                ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
+                    value
+                )
+                for (key, value) in native_input.attribute_actions_on_encrypt.items()
+            }
         ),
         allowedUnsignedAttributes=(
             (

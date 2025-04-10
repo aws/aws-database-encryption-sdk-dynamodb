@@ -77,15 +77,15 @@ structure DynamoDbItemEncryptorConfig {
     @javadoc("The name of the partition key on the table this item will be written to or was read from.")
     partitionKeyName: KeySchemaAttributeName,
 
-    @required
-    @javadoc("A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.")
-    attributeActionsOnEncrypt: AttributeActions,
-
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#dynamodb-sort-key-name
     //= type=implication
     //# This Sort Key Name MUST be a valid DynamoDB Key Schema Attribute Name
     @javadoc("If this table contains a sort key, the name of the sort key on the table this item will be written to or was read from.")
     sortKeyName: KeySchemaAttributeName,
+
+    @required
+    @javadoc("A map that describes what attributes should be encrypted and/or signed on encrypt. This map must contain all attributes that might be encountered during encryption.")
+    attributeActionsOnEncrypt: AttributeActions,
 
     //= specification/dynamodb-encryption-client/ddb-table-encryption-config.md#unauthenticated-attributes
     //= type=implication

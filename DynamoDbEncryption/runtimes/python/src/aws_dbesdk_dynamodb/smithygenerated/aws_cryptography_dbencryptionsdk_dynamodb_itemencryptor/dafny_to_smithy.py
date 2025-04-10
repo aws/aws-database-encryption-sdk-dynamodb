@@ -149,14 +149,6 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         partition_key_name=b"".join(
             ord(c).to_bytes(2, "big") for c in dafny_input.partitionKeyName
         ).decode("utf-16-be"),
-        attribute_actions_on_encrypt={
-            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
-                "utf-16-be"
-            ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
-                value
-            )
-            for (key, value) in dafny_input.attributeActionsOnEncrypt.items
-        },
         sort_key_name=(
             (
                 b"".join(
@@ -166,6 +158,14 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
             if (dafny_input.sortKeyName.is_Some)
             else None
         ),
+        attribute_actions_on_encrypt={
+            b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
+                "utf-16-be"
+            ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
+                value
+            )
+            for (key, value) in dafny_input.attributeActionsOnEncrypt.items
+        },
         allowed_unsigned_attributes=(
             (
                 [
