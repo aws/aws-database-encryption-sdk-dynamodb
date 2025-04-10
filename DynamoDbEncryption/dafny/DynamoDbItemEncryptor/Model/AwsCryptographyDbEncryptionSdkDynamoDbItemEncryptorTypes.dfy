@@ -98,8 +98,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencry
   datatype DynamoDbItemEncryptorConfig = | DynamoDbItemEncryptorConfig (
     nameonly logicalTableName: string ,
     nameonly partitionKeyName: ComAmazonawsDynamodbTypes.KeySchemaAttributeName ,
-    nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
     nameonly sortKeyName: Option<ComAmazonawsDynamodbTypes.KeySchemaAttributeName> := Option.None ,
+    nameonly attributeActionsOnEncrypt: AwsCryptographyDbEncryptionSdkDynamoDbTypes.AttributeActions ,
     nameonly allowedUnsignedAttributes: Option<ComAmazonawsDynamodbTypes.AttributeNameList> := Option.None ,
     nameonly allowedUnsignedAttributePrefix: Option<string> := Option.None ,
     nameonly algorithmSuiteId: Option<AwsCryptographyMaterialProvidersTypes.DBEAlgorithmSuiteId> := Option.None ,
