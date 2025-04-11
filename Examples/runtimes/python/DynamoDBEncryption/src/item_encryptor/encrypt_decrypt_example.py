@@ -21,32 +21,18 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 """
-
-import sys
 from typing import Dict, Any
 
-
-import boto3
-from boto3.dynamodb.types import Binary
-from decimal import Decimal
 
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
 from aws_cryptographic_material_providers.mpl.models import (
-    CreateAwsKmsMrkKeyringInput,
     CreateAwsKmsMrkMultiKeyringInput,
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
     CryptoAction,
-)
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
-    DynamoDbTableEncryptionConfig,
-    DynamoDbTablesEncryptionConfig,
-)
-from aws_dbesdk_dynamodb.encrypted.client import (
-    EncryptedClient
 )
 
 from aws_dbesdk_dynamodb.encrypted.item import (
