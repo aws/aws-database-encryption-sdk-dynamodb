@@ -85,12 +85,11 @@ jobs:
         run: |
           make transpile_python
 
-      - name: Test Examples
-        working-directory: ./Examples
+      - name: Test DynamoDbEncryption Examples
+        working-directory: ./Examples/runtimes/python
         run: |
           # Run simple examples
-          python -m pytest -s -v DynamoDBEncryption/test/
+          tox -e dynamodbencryption
           # Run migration examples
-          # python -m pytest -s -v Migration/PlaintextToAWSDBE/test/
-          # python -m pytest -s -v Migration/DDBECToAWSDBE/test/
+          # tox -e migration
 
