@@ -1,6 +1,6 @@
 import boto3
 import types
-import dbesdk_ddb_test_vectors.internaldafny.generated.CreateInterceptedDDBClient
+import aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.CreateInterceptedDDBClient
 import aws_cryptography_internal_dynamodb.internaldafny.extern
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy import aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig
 from aws_dbesdk_dynamodb.encrypted.table import (
@@ -10,7 +10,7 @@ from aws_dbesdk_dynamodb.internal.resource_to_client import ResourceShapeToClien
 from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
 from smithy_dafny_standard_library.internaldafny.generated import Wrappers
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors import _smithy_error_to_dafny_error
-from dbesdk_ddb_test_vectors.waiting_boto3_ddb_client import WaitingDynamoClient
+from aws_dbesdk_dynamodb_test_vectors.waiting_boto3_ddb_client import WaitingDynamoClient
 from aws_dbesdk_dynamodb.transform import (
     dict_to_ddb,
     ddb_to_dict,
@@ -461,4 +461,4 @@ class default__:
         except Exception as e:
             return Wrappers.Result_Failure(_smithy_error_to_dafny_error(e))
 
-dbesdk_ddb_test_vectors.internaldafny.generated.CreateInterceptedDDBClient.default__ = default__
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.CreateInterceptedDDBClient.default__ = default__

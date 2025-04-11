@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
 packages = [
-    { include = "dbesdk_ddb_test_vectors", from = "src" },
+    { include = "aws_dbesdk_dynamodb_test_vectors", from = "src" },
 ]
 # Include all of the following .gitignored files in package distributions,
 # even though it is not included in version control
@@ -17,6 +17,7 @@ aws-cryptography-internal-mpl-testvectors = { path = "../../../submodules/Materi
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
+tox = "^3"
 
 [build-system]
 requires = ["poetry-core<2.0.0"]

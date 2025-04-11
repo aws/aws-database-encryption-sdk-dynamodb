@@ -16,8 +16,8 @@ test_dir = '/'.join(__file__.split("/")[:-2])
 sys.path.append(test_dir + "/internaldafny/extern")
 sys.path.append(test_dir + "/internaldafny/generated")
 
-import dbesdk_ddb_test_vectors.internaldafny.extern.CreateInterceptedDDBClient
-import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDynamoDbItemEncryptor
+import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateInterceptedDDBClient
+import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDynamoDbItemEncryptor
 
 def test_dafny():
   from ..internaldafny.generated import __main__

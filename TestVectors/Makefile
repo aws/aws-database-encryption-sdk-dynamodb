@@ -88,7 +88,7 @@ SERVICE_DEPS_DDBEncryption := \
 	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor \
-	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms \
+	DynamoDbEncryption/dafny/StructuredEncryption \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
 SERVICE_DEPS_WrappedDynamoDbItemEncryptor := \
@@ -110,7 +110,7 @@ SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\
 
 # Python
 
-PYTHON_MODULE_NAME=aws_dbesdk_ddb_test_vectors
+PYTHON_MODULE_NAME=aws_dbesdk_dynamodb_test_vectors
 
 TRANSLATION_RECORD_PYTHON := \
     --translation-record ../submodules/MaterialProviders/StandardLibrary/runtimes/python/src/smithy_dafny_standard_library/internaldafny/generated/dafny_src-py.dtr \
@@ -147,12 +147,12 @@ _sed_types_file_add_extern:
 
 test_python_client_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python/test/client
+	python3 -m tox -c runtimes/python --workdir runtimes/python/test/client
 
 test_python_resource_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python/test/resource
+	python3 -m tox -c runtimes/python --workdir runtimes/python/test/resource
 
 test_python_table_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python/test/table
+	python3 -m tox -c runtimes/python --workdir runtimes/python/test/table

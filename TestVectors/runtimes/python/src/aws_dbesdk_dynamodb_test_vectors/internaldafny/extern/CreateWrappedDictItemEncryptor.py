@@ -1,10 +1,10 @@
 import boto3
-import dbesdk_ddb_test_vectors.internaldafny.generated.CreateWrappedItemEncryptor
+import aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.CreateWrappedItemEncryptor
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy import aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncryptorConfig
 from aws_dbesdk_dynamodb.encrypted.item import ItemEncryptor
 from smithy_dafny_standard_library.internaldafny.generated import Wrappers
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.errors import _smithy_error_to_dafny_error
-from dbesdk_ddb_test_vectors.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.shim import DynamoDbItemEncryptorShim
+from aws_dbesdk_dynamodb_test_vectors.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.shim import DynamoDbItemEncryptorShim
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.models import (
     DecryptItemInput,
     DecryptItemOutput,
@@ -83,4 +83,4 @@ class default__:
         except Exception as e:
             return Wrappers.Result_Failure(_smithy_error_to_dafny_error(e))
 
-dbesdk_ddb_test_vectors.internaldafny.generated.CreateWrappedItemEncryptor.default__ = default__
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.CreateWrappedItemEncryptor.default__ = default__

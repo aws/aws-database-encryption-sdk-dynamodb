@@ -16,8 +16,8 @@ test_dir = '/'.join(__file__.split("/")[:-2])
 sys.path.append(test_dir + "/internaldafny/extern")
 sys.path.append(test_dir + "/internaldafny/generated")
 
-import dbesdk_ddb_test_vectors.internaldafny.extern.CreateInterceptedDDBTable
-import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
+import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateInterceptedDDBTable
+import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
 
 # Remove invalid tests.
 # Supported operations on `table` that are also supported by DBESDK are:
@@ -39,9 +39,9 @@ import dbesdk_ddb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncrypt
 def EmptyTest(*args):
   pass
 
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = EmptyTest
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = EmptyTest
-dbesdk_ddb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestBatchGetItems = EmptyTest
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = EmptyTest
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = EmptyTest
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestBatchGetItems = EmptyTest
 
 def test_dafny():
   from ..internaldafny.generated import __main__
