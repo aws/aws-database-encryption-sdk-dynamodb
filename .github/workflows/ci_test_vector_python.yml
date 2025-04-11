@@ -96,7 +96,7 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_python CORES=$CORES
 
-      - name: Test Python TestVectors with ${matrix.interface} interface
+      - name: Test Python TestVectors with ${{matrix.interface}} interface
         working-directory: ${{matrix.library}}
         run: |
           make test_python_${{matrix.interface}}_interface
