@@ -1,0 +1,96 @@
+# This workflow performs tests in Python.
+name: Python Examples
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  testPython:
+    strategy:
+      matrix:
+        python-version: [3.11]
+        os: [macos-13]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Python-Tests
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup Python ${{ matrix.python-version }} for running tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade tox
+          pip install poetry
+
+      - name: Setup Dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
+        with:
+          dafny-version: ${{ inputs.dafny }}
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: DynamoDbEncryption
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
+
+      - name: Build and locally deploy dependencies for examples
+        shell: bash
+        working-directory: ./DynamoDbEncryption
+        run: |
+          make transpile_python
+
+      - name: Test Examples
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          python -m pytest -s -v DynamoDBEncryption/test/
+          # Run migration examples
+          # python -m pytest -s -v Migration/PlaintextToAWSDBE/test/
+          # python -m pytest -s -v Migration/DDBECToAWSDBE/test/
+
