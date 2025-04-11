@@ -83,7 +83,7 @@ dependencies {
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
-    implementation(platform("software.amazon.awssdk:bom:2.30.18"))
+    implementation(platform("software.amazon.awssdk:bom:2.31.20"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
