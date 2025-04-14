@@ -49,10 +49,7 @@ class ResourceShapeToClientShapeConverter:
         except KeyError:
             out_names = attribute_names_from_built_expression
         # Join existing and new values.
-        # BuiltConditionExpression returns values in resource format, but the request provides values in client format.
-        # The Smithy-generated code will handle converting the values from client to resource format.
-        # Convert the values to client format before joining.
-        attribute_values_from_built_expression = dict_to_ddb(built_condition_expression.attribute_value_placeholders)
+        attribute_values_from_built_expression = built_condition_expression.attribute_value_placeholders
         try:
             out_values = request["ExpressionAttributeValues"] | attribute_values_from_built_expression
         except KeyError:
