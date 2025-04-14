@@ -26,23 +26,48 @@ module StructuredEncryptionUtil {
   const FooterPath : Path := [member(StructureSegment(key := FooterField))]
   const HeaderPaths : seq<Path> := [HeaderPath, FooterPath]
   const ReservedCryptoContextPrefixString := "aws-crypto-"
-  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
+
+  const ReservedCryptoContextPrefixUTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d];
+    assert s == UTF8.EncodeAscii(ReservedCryptoContextPrefixString);
+    s
 
   const ATTR_PREFIX := ReservedCryptoContextPrefixString + "attr."
-  const EC_ATTR_PREFIX : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(ATTR_PREFIX)
+
+  const EC_ATTR_PREFIX : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x61, 0x74, 0x74, 0x72, 0x2e];
+    assert s == UTF8.EncodeAscii(ATTR_PREFIX);
+    s
+
   const LEGEND := ReservedCryptoContextPrefixString + "legend"
-  const LEGEND_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(LEGEND)
+
+  const LEGEND_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x6c, 0x65, 0x67, 0x65, 0x6e, 0x64];
+    assert s == UTF8.EncodeAscii(LEGEND);
+    s
+
   const LEGEND_STRING : char := 'S'
   const LEGEND_NUMBER : char := 'N'
   const LEGEND_LITERAL : char := 'L'
   const LEGEND_BINARY : char := 'B'
 
   const NULL_STR : string := "null"
-  const NULL_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(NULL_STR)
+  const NULL_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x6e, 0x75, 0x6c, 0x6c];
+    assert s == UTF8.EncodeAscii(NULL_STR);
+    s
+
   const TRUE_STR : string := "true"
-  const TRUE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(TRUE_STR)
+  const TRUE_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x74, 0x72, 0x75, 0x65];
+    assert s == UTF8.EncodeAscii(TRUE_STR);
+    s
+
   const FALSE_STR : string := "false"
-  const FALSE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(FALSE_STR)
+  const FALSE_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x66, 0x61, 0x6c, 0x73, 0x65];
+    assert s == UTF8.EncodeAscii(FALSE_STR);
+    s
 
   datatype CanonCryptoItem = CanonCryptoItem (
     key : CanonicalPath,
@@ -174,14 +199,16 @@ module StructuredEncryptionUtil {
 
   // sequences are equal if zero is returned
   // Some care should be taken to ensure that target languages don't over optimize this.
-  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, acc : bv8 := 0) : bv8
+  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : nat := 0, acc : bv8 := 0) : bv8
     requires |a| == |b|
+    requires 0 <= pos <= |a|
+    decreases |a| - pos
   {
-    if |a| == 0 then
+    if |a| == pos then
       acc
     else
-      var x := ((a[0] as bv8) ^ (b[0] as bv8));
-      ConstantTimeCompare(a[1..], b[1..], x | acc)
+      var x := ((a[pos] as bv8) ^ (b[pos] as bv8));
+      ConstantTimeCompare(a, b, pos+1, x | acc)
   }
 
   predicate method ConstantTimeEquals(a : Bytes, b : Bytes)
@@ -290,9 +317,10 @@ module StructuredEncryptionUtil {
     //# where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
     //# and `serializedValue` is the attribute's value serialized according to
     //# [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
-    ensures ret == UTF8.EncodeAscii(Base64.Encode(t.typeId + t.value))
+    ensures ret == UTF8.Encode(Base64.Encode(t.typeId + t.value)).value
   {
-    UTF8.EncodeAscii(Base64.Encode(t.typeId + t.value))
+    var base := Base64.Encode(t.typeId + t.value);
+    UTF8.Encode(base).value
   }
 
   function method DecodeTerminal(t : UTF8.ValidUTF8Bytes) : (ret : Result<StructuredDataTerminal, string>)

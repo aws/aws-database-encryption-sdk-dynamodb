@@ -33,6 +33,11 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import DynamoDbItemEncryptor
 
 
+  const abc : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x62, 0x63];
+    assert s == UTF8.EncodeAscii("abc");
+    s
+
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
 
@@ -502,7 +507,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     :- Need(|standardBeacons| > 0, "A Search Config needs at least one standard beacon.");
     var keyMaterial : KeyMaterial.KeyMaterial :=
-      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
+      KeyMaterial.StaticKeyStoreInformation("abc", abc, [1,2,3,4,5], [1,2,3,4,5]);
     var store := SKS.CreateStaticKeyStore(keyMaterial);
     var source : Types.BeaconKeySource :=
       if keySource.Some? then
@@ -527,7 +532,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     ensures output.Success? ==> output.value.ValidState() && fresh(output.value.Modifies())
   {
     var keyMaterial : KeyMaterial.KeyMaterial :=
-      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
+      KeyMaterial.StaticKeyStoreInformation("abc", abc, [1,2,3,4,5], [1,2,3,4,5]);
     var store := SKS.CreateStaticKeyStore(keyMaterial);
     var source : Types.BeaconKeySource := Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42));
 
