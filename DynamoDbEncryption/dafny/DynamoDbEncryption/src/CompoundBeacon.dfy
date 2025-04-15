@@ -20,6 +20,7 @@ module CompoundBeacon {
   import UTF8
   import Seq
   import SortedSets
+  import StandardLibrary.Sequence
 
   type Prefix = x : string | 0 < |x| witness *
 
@@ -289,7 +290,7 @@ module CompoundBeacon {
     // return all the fields involved in this beacon
     function method GetFields(virtualFields : VirtualFieldMap) : seq<string>
     {
-      Seq.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
+      Sequence.Flatten(Seq.Map((p : BeaconPart) => p.GetFields(virtualFields), parts))
     }
 
     // calculate value for a single piece of a compound beacon query string
@@ -315,9 +316,9 @@ module CompoundBeacon {
         Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
       else
         var parts := Split(value.S, split);
-        var partsUsed :- Seq.MapWithResult(s => getPartFromPrefix(s), parts);
+        var partsUsed :- Sequence.MapWithResult(s => getPartFromPrefix(s), parts);
         var _ :- ValidatePartOrder(partsUsed, value.S);
-        var beaconParts :- Seq.MapWithResult(s => FindAndCalcPart(s, keys), parts);
+        var beaconParts :- Sequence.MapWithResult(s => FindAndCalcPart(s, keys), parts);
         var lastIsPrefix :- justPrefix(Seq.Last(parts));
         if !forEquality && lastIsPrefix then
           var result := Join(beaconParts[..|parts|-1] + [Seq.Last(parts)], [split]);
@@ -534,7 +535,7 @@ module CompoundBeacon {
       requires pos < |parts|
     {
       var partNumbers : seq<nat> := seq(|parts|, (i : nat) => i as nat);
-      var _ :- Seq.MapWithResult((p : int) requires 0 <= p < |parts| => CheckOnePrefixPart(pos, p), seq(|parts|, i => i));
+      var _ :- Sequence.MapWithResult((p : int) requires 0 <= p < |parts| => CheckOnePrefixPart(pos, p), seq(|parts|, i => i));
       Success(true)
     }
 

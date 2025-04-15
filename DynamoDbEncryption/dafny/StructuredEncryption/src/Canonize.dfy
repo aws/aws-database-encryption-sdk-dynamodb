@@ -139,25 +139,28 @@ module {:options "/functionSyntax:4" } Canonize {
   opaque function {:tailrecursion} ResolveLegend(
     fields : CanonAuthList,
     legend : Header.Legend,
-    ghost origFields : CanonAuthList,
-    acc : CanonCryptoList
+    pos : nat := 0,
+    legendPos : nat := 0,
+    acc : CanonCryptoList := []
   )
     : (ret : Result<CanonCryptoList, Error>)
-    requires |fields| + |acc| == |origFields|
-    requires forall i | 0 <= i < |acc| :: Same(origFields[i], acc[i])
-    requires forall i | |acc| <= i < |origFields| :: origFields[i] == fields[i-|acc|]
+    requires 0 <= pos <= |fields|
+    requires 0 <= legendPos <= |legend|
+    requires pos == |acc|
+    requires forall i | 0 <= i < pos :: Same(fields[i], acc[i])
     ensures ret.Success? ==>
-              && |origFields| == |ret.value|
-              && forall i | 0 <= i < |origFields| :: Same(origFields[i], ret.value[i])
+              && |fields| == |ret.value|
+              && forall i | 0 <= i < |fields| :: Same(fields[i], ret.value[i])
+    decreases |fields| - pos
   {
-    if |fields| == 0 then
-      :- Need(|legend| == 0, E("Schema changed : something that was signed is now unsigned."));
+    if |fields| == pos then
+      :- Need(|legend| == legendPos, E("Schema changed : something that was signed is now unsigned."));
       Success(acc)
-    else if fields[0].action == DO_NOT_SIGN then
-      ResolveLegend(fields[1..], legend, origFields, acc + [MakeCryptoItem(fields[0], DO_NOTHING)])
+    else if fields[pos].action == DO_NOT_SIGN then
+      ResolveLegend(fields, legend, pos+1, legendPos, acc + [MakeCryptoItem(fields[pos], DO_NOTHING)])
     else
-      :- Need(0 < |legend|, E("Schema changed : something that was unsigned is now signed."));
-      ResolveLegend(fields[1..], legend[1..], origFields, acc + [MakeCryptoItem(fields[0], LegendToAction(legend[0]))])
+      :- Need(legendPos < |legend|, E("Schema changed : something that was unsigned is now signed."));
+      ResolveLegend(fields, legend, pos+1, legendPos+1, acc + [MakeCryptoItem(fields[pos], LegendToAction(legend[legendPos]))])
   }
 
   opaque function ForEncrypt(tableName : GoodString, data : CryptoList)
@@ -562,7 +565,7 @@ module {:options "/functionSyntax:4" } Canonize {
     reveal CanonAuthMatchesAuthList();
     reveal CanonCryptoMatchesAuthList();
     reveal IsCryptoSorted();
-    var canonResolved :- ResolveLegend(canonSorted, legend, canonSorted, []);
+    var canonResolved :- ResolveLegend(canonSorted, legend);
 
     assert (forall k <- data :: AuthExistsInCanonCrypto(k, canonResolved)) by {
       reveal AuthExistsInCanonCrypto();
@@ -622,17 +625,19 @@ module {:options "/functionSyntax:4" } Canonize {
     && x.action == y.action
   }
 
-  function UnCanon(input : CanonCryptoList) : (ret : CryptoList)
-    ensures
-      && |ret| == |input|
-      && (forall i | 0 <= i < |input| :: SameUnCanon(input[i], ret[i]))
+  function {:tailrecursion} UnCanon(input : CanonCryptoList, pos : nat := 0, acc : CryptoList := []) : (ret : CryptoList)
+    requires 0 <= pos <= |input|
+    requires pos == |acc|
+    requires forall i | 0 <= i < |acc| :: SameUnCanon(input[i], acc[i])
+    ensures |ret| == |input|
+    ensures forall i | 0 <= i < |input| :: SameUnCanon(input[i], ret[i])
+    decreases |input| - pos
   {
-    if |input| == 0 then
-      []
+    if |input| == pos then
+      acc
     else
-      var newItem := CryptoItem(key := input[0].origKey, data := input[0].data, action := input[0].action);
-      assert SameUnCanon(input[0], newItem);
-      [newItem] + UnCanon(input[1..])
+      var newItem := CryptoItem(key := input[pos].origKey, data := input[pos].data, action := input[pos].action);
+      UnCanon(input, pos+1, acc + [newItem])
   }
 
   lemma Update2ImpliesUpdate3()
@@ -795,17 +800,34 @@ module {:options "/functionSyntax:4" } Canonize {
     && CryptoListHasNoDuplicates(finalData)
   }
 
-  opaque function RemoveHeaderPaths(xs : CryptoList) : (ret : CryptoList)
+  opaque function {:tailrecursion} RemoveHeaderPaths(xs : CryptoList, pos : nat := 0, acc : CryptoList := []) : (ret : CryptoList)
     requires CryptoListHasNoDuplicates(xs)
+    requires 0 <= pos <= |xs|
+    requires !exists x :: x in acc && x.key in [HeaderPath, FooterPath]
+    requires !exists x :: x in acc && x.key == HeaderPath
+    requires !exists x :: x in acc && x.key == FooterPath
+    requires forall x <- acc :: x in xs[..pos]
+    requires forall i | 0 <= i < pos :: (xs[i].key in [HeaderPath, FooterPath] || xs[i] in acc)
+    // should file a ticket, because this is FALSE but verifies
+    // requires forall x <- xs :: (x.key in [HeaderPath, FooterPath] || x in acc)
+    requires CryptoListHasNoDuplicates(acc)
+
     ensures !exists x :: x in ret && x.key in [HeaderPath, FooterPath]
     ensures !exists x :: x in ret && x.key == HeaderPath
     ensures !exists x :: x in ret && x.key == FooterPath
     ensures forall x <- ret :: x in xs
-    ensures forall x <- xs :: x.key in [HeaderPath, FooterPath] || x in ret
+    ensures forall x <- xs :: (x.key in [HeaderPath, FooterPath] || x in ret)
     ensures CryptoListHasNoDuplicates(ret)
+
+    decreases |xs| - pos
   {
-    if |xs| == 0 then []
-    else (if xs[0].key in [HeaderPath, FooterPath] then [] else [xs[0]]) + RemoveHeaderPaths(xs[1..])
+    if |xs| == pos then
+      acc
+    else if xs[pos].key in [HeaderPath, FooterPath] then
+      RemoveHeaderPaths(xs, pos+1, acc)
+    else
+      assert xs[pos] !in acc;
+      RemoveHeaderPaths(xs, pos+1, acc + [xs[pos]])
   }
 
   opaque function RemoveHeaders(input : CryptoList, ghost origData : AuthList)
