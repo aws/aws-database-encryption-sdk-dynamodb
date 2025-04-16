@@ -147,12 +147,12 @@ _sed_types_file_add_extern:
 
 test_python_client_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python --workdir runtimes/python/test/client
+	python3 -m tox -c runtimes/python -e client
 
 test_python_resource_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python --workdir runtimes/python/test/resource
+	python3 -m tox -c runtimes/python -e resource
 
 test_python_table_interface:
 	rm -rf runtimes/python/.tox
-	python3 -m tox -c runtimes/python --workdir runtimes/python/test/table
+	python3 -m tox -c runtimes/python -e table
