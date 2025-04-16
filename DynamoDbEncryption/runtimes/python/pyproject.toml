@@ -45,6 +45,33 @@ myst-parser = "^4"
 sphinx = "^7"
 sphinx_rtd_theme = "^2"
 
+# Package linting
+
+[tool.poetry.group.linting]
+optional = true
+
+[tool.poetry.group.linting.dependencies]
+ruff = "^0.11.5"
+pydocstyle = "^6.3.0"
+black = "^25.1.0"
+
+[tool.ruff]
+exclude = [
+    # Don't lint Dafny-generated code
+    "internaldafny",
+    # Don't re-lint Smithy-generated code
+    "smithygenerated",
+]
+line-length=120
+indent-width=4
+target-version = "py311"
+
+[tool.pydocstyle]
+match-dir = "^(?!internal$|internaldafny$|smithygenerated$).*"
+
+[tool.black]
+exclude = "/(internal|internaldafny|smithygenerated)(/|$)"
+
 [build-system]
 requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
