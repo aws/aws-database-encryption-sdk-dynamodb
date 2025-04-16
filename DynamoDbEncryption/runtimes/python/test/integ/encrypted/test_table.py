@@ -19,6 +19,7 @@ from ...requests import (
     basic_put_item_request_dict,
     basic_get_item_request_dict,
     basic_query_request_dict,
+    basic_scan_request_dict,
 )
 
 serializer = TypeSerializer()
@@ -111,7 +112,6 @@ def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
     assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     assert "Item" not in get_response
 
-
 def test_GIVEN_items_in_table_WHEN_query_THEN_items_are_decrypted_correctly(table, test_item):
     """Test query and scan operations."""
     # Given: Simple and complex items in appropriate format for client
@@ -139,6 +139,28 @@ def test_GIVEN_items_in_table_WHEN_query_THEN_items_are_decrypted_correctly(tabl
     # # Check each test item is found in scan results
     # found_items = scan_response["Items"]
     # assert all(any(found_item == item for found_item in found_items) for item in items)
+
+@pytest.fixture
+def scan_request(encrypted, test_item):
+    if encrypted:
+        request = basic_scan_request_dict(test_item)
+        request["FilterExpression"] = request["FilterExpression"] + " AND attribute_exists (#sig)"
+        request["ExpressionAttributeNames"] = {}
+        request["ExpressionAttributeNames"]["#sig"] = "amzn-ddb-map-sig"
+        return request
+    return basic_scan_request_dict(test_item)
+
+def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(table, test_item, scan_request):
+    """Test put_item and scan operations."""
+    # Given: Simple and complex items in appropriate format for client
+    put_item_request_dict = basic_put_item_request_dict(test_item)
+    table.put_item(**put_item_request_dict)
+
+    # When: Scanning items
+    scan_request_dict = scan_request
+    scan_response = table.scan(**scan_request_dict)
+    # Then: Scan returns both test items
+    assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 def test_WHEN_update_item_THEN_raises_not_implemented_error():
     # Given: Encrypted client and update item parameters

@@ -246,6 +246,35 @@ def test_GIVEN_valid_put_and_query_requests_WHEN_put_and_query_THEN_round_trip_p
     query_response = client.query(**query_request)
     # Then: query succeeds
     assert query_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    assert len(query_response["Items"]) == 1
+    # DynamoDB JSON uses lists to represent sets, so strict equality can fail.
+    # Sort lists to ensure consistent ordering when comparing expected and actual items.
+    expected_item = sort_dynamodb_json_lists(put_item_request["Item"])
+    actual_item = sort_dynamodb_json_lists(query_response["Items"][0])
+    assert expected_item == actual_item
+
+@pytest.fixture
+def scan_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return {**basic_scan_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    return basic_scan_request_ddb(test_item)
+
+def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(client, put_item_request, scan_request):
+    # Given: Valid put_item request
+    # When: put_item
+    put_response = client.put_item(**put_item_request)
+    # Then: put_item succeeds
+    assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+    # Given: Valid scan request
+    # When: scan
+    scan_response = client.scan(**scan_request)
+    # Then: scan succeeds
+    assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    assert len(scan_response["Items"]) >= 1
+    # Can't assert anything about the scan;
+    # there are too many items.
+    # The critical test is that the scan succeeds.
 
 @pytest.fixture
 def transact_write_item_put_request(expect_standard_dictionaries, multiple_test_items):

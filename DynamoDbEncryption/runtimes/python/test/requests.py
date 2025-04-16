@@ -33,10 +33,10 @@ def base_query_request(item):
 def base_scan_request(item):
     """Base structure for scan requests."""
     return {
-        "FilterExpression": "attribute1 = :a1",
+        "FilterExpression": "attribute2 = :a2",
         "ExpressionAttributeValues": {
-            ":a1": item["attribute1"]
-        }
+            ":a2": item["attribute2"]
+        },
     }
 
 def base_batch_write_item_request(actions_with_items):

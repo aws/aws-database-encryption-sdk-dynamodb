@@ -34,7 +34,7 @@ from ...items import (
     complex_item_dict,
     complex_key_dict,
 )
-from ...requests import basic_query_paginator_request, basic_put_item_request_ddb, basic_put_item_request_dict
+from ...requests import basic_query_paginator_request, basic_put_item_request_ddb, basic_put_item_request_dict, basic_scan_request_ddb, basic_scan_request_dict
 
 BOTO3_CLIENT = boto3.client("dynamodb")
 ENCRYPTED_CLIENT = EncryptedClient(
@@ -164,6 +164,31 @@ def test_GIVEN_query_paginator_WHEN_paginate_THEN_returns_expected_items(client,
     actual_item = sort_dynamodb_json_lists(items[0])
     # Then: Items are equal
     assert expected_item == actual_item
+
+@pytest.fixture
+def paginate_scan_request(expect_standard_dictionaries, encrypted, test_item):
+    if expect_standard_dictionaries:
+        request = {**basic_scan_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    else:
+        request = basic_scan_request_ddb(test_item)
+    if encrypted:
+        request["FilterExpression"] = request["FilterExpression"] + " AND attribute_exists (#sig)"
+        request["ExpressionAttributeNames"] = {}
+        request["ExpressionAttributeNames"]["#sig"] = "amzn-ddb-map-sig"
+    return request
+
+def test_GIVEN_scan_paginator_WHEN_paginate_THEN_returns_expected_items(client, scan_paginator, paginate_scan_request, put_item_request, test_item):
+    # Given: item in table
+    client.put_item(**put_item_request)
+    # Given: Scan paginator
+    # When: Paginate
+    response = scan_paginator.paginate(**paginate_scan_request)
+    # Then: Returns encrypted items
+    items = []
+    for page in response:
+        if "Items" in page:
+            for item in page["Items"]:
+                items.append(item)
 
 # TODO: set up scan table and tests
 
