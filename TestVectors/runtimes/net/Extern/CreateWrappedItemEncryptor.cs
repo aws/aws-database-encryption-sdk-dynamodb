@@ -20,7 +20,7 @@ namespace CreateWrappedItemEncryptor_Compile
             var itemEncryptor = new DynamoDbItemEncryptor(nativeConfig);
             var wrappedEncryptor = new DynamoDbItemEncryptorShim(itemEncryptor);
 
-            return new Result_Success<IItemEncryptor, _IError>(wrappedEncryptor);
+            return new Result_Success<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.IDynamoDbItemEncryptorClient, _IError>(wrappedEncryptor);
         }
     }
 }
