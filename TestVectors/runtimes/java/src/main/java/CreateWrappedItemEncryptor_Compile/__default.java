@@ -3,11 +3,11 @@ package CreateWrappedItemEncryptor_Compile;
 import Wrappers_Compile.Result;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToDafny;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.IDynamoDbItemEncryptorClient;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
-import software.amazon.cryptography.services.dynamodb.internaldafny.Shim;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.wrapped.TestDynamoDbItemEncryptor;
 
 public class __default {
 
