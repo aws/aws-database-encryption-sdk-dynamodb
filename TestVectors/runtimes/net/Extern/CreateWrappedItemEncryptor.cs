@@ -1,7 +1,7 @@
-using Amazon.Cryptography.DatabaseEncryptionSDK.DynamoDb.ItemEncryptor;
-using Amazon.Cryptography.DatabaseEncryptionSDK.Dynamodb;
-using Amazon.Cryptography.Services.Dynamodb.Internaldafny;
-using Amazon.Cryptography.Services.Dynamodb.Internaldafny.Types;
+using AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor;
+using AWS.Cryptography.DbEncryptionSDK.Dynamodb;
+using software.amazon.cryptography.services.dynamodb.internaldafny;
+using software.amazon.cryptography.services.dynamodb.internaldafny.types;
 using Wrappers_Compile;
 using _IError = software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError;
 
