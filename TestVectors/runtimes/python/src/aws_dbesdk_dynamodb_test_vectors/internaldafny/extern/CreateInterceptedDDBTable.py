@@ -62,8 +62,8 @@ known_query_string_to_condition_map = {
     "contains(One, :oneA)": Attr("One").contains(":oneA"),
     "contains(One, :oneB)": Attr("One").contains(":oneB"),
     # Hard-coding returning the input string for these cases.
-    # These conditions test "undocumented behavior" in DynamoDB that can't be easily expressed with boto3 Conditions.
-    # The "undocumented behavior" is that `contains`' first parameter can be a value,
+    # These conditions test undocumented behavior in DynamoDB that can't be expressed with boto3 Conditions.
+    # The undocumented behavior is that `contains`' first parameter can be a value,
     #   and does not need to be an attribute name.
     # DynamoDB documentation names `contains`' first argument as `path`,
     #   and only ever documents accepting an attribute name for `path`.
@@ -71,7 +71,7 @@ known_query_string_to_condition_map = {
     #   i.e. a hardcoded string or an attribute value, 
     #   so this expression is valid.
     # But I can't find a way to express this via boto3 Conditions,
-    #   where Contains expects to have some attribute name.
+    #   where Contains requires an attribute name.
     # For these strings, do not attempt to convert to boto3 conditions,
     #   and just return the input string.
     # The input string is still passed to the table and tested.
@@ -94,138 +94,6 @@ known_query_string_to_condition_map = {
     "contains(Comp1, :cmp1d)": Attr("Comp1").contains(":cmp1d"),
     "Comp1 = :cmp1b": Attr("Comp1").eq(":cmp1b"),
 }
-
-
-def convert_client_expression_to_conditions(expression):
-    """
-    Crypto Tools internal method to convert a DynamoDB filter/key expression to boto3 Resource tokens.
-
-    THIS SHOULD NOT BE USED BY ANY EXTERNAL USERS.
-    This is a basic implementation for simple expressions that will fail with complex expressions.
-    
-    I have two suggestions for extending this to support more complex expressions:
-
-    1) To support one or a few complex expressions, consider extending the existing logic.
-
-    2) To support all expressions, consider extending DBESDK for DynamoDB's generated Dafny-Python code.
-    DBESDK for DynamoDB's generated Dafny-Python code has a DynamoDB filter/conditions expression syntax parser.
-
-    Stub code for using the parser from Dafny:
-    ```
-    from aws_dbesdk_dynamodb.internaldafny.generated.DynamoDBFilterExpr import default__ as filter_expr
-    import _dafny
-    from smithy_dafny_standard_library.internaldafny.generated import Wrappers
-
-    dafny_expr_token = filter_expr.ParseExpr(
-        _dafny.Seq(
-            expression
-        ),
-    )
-    ```
-    This will parse a _dafny.Seq of an expression and produce Dafny tokens for the expression.
-
-    Reusing this parser and extending it to support boto3 tokens this will involve:
-
-    1. Mapping Dafny tokens to boto3 Resource tokens.
-        (e.g. Dafny class Token_Between -> boto3.dynamodb.conditions.Between)
-    2. Converting Dafny token grammar to boto3 Resource token grammar.
-        (e.g.
-            Dafny: [Token_Between, Token_Open, Token_Attr, Token_And, Token_Attr, Token_Close]
-            ->
-            boto3: [Between(Attr, Attr)]
-        )
-
-    :param expression: A string of the DynamoDB client expression (e.g., "AttrName = :val").
-    :return: A boto3.dynamodb.conditions object (Key, Attr, or a combination of them).
-    """
-
-    # Recursive parser for complex expressions
-    def parse_expression(expr_tokens):
-        # simple between
-        if "BETWEEN" == expr_tokens[1].upper():
-            attr_name = expr_tokens[0]
-            value1 = expr_tokens[2]
-            value2 = expr_tokens[4]
-            return Key(attr_name).between(value1, value2)
-
-        # simple in
-        elif "IN" == expr_tokens[1].upper():
-            print(f"IN {expr_tokens=}")
-            attr_name = expr_tokens[0]
-            values_in_list = expr_tokens[3:-1]
-            for i in range(len(values_in_list)):
-                if values_in_list[i][-1] == ",":
-                    values_in_list[i] = values_in_list[i][:-1]
-            return Attr(attr_name).is_in(values_in_list)
-
-        # simple contains
-        elif "CONTAINS" == expr_tokens[0].upper():
-            attr_name = expr_tokens[2]
-            if attr_name[-1] == ",":
-                attr_name = attr_name[:-1]
-            value = expr_tokens[3]
-            return Attr(attr_name).contains(value)
-        
-        # simple begins_with
-        elif "BEGINS_WITH" == expr_tokens[0].upper():
-            attr_name = expr_tokens[2]
-            if attr_name[-1] == ",":
-                attr_name = attr_name[:-1]
-            value = expr_tokens[3]
-            return Attr(attr_name).begins_with(value)
-         
-        # Base case: Single comparison or condition
-        if "AND" not in [t.upper() for t in expr_tokens] and "OR" not in [t.upper() for t in expr_tokens]:
-
-            # simple comparison
-            attr_name = expr_tokens[0]
-            operator = expr_tokens[1].upper()
-            value = expr_tokens[2]
-
-            # Map operator to Key or Attr
-            if operator == "=":
-                return Key(attr_name).eq(value)
-            elif operator == "<":
-                return Key(attr_name).lt(value)
-            elif operator == "<=":
-                return Key(attr_name).lte(value)
-            elif operator == ">":
-                return Key(attr_name).gt(value)
-            elif operator == ">=":
-                return Key(attr_name).gte(value)
-            elif operator in ("!=", "<>"):
-                return Attr(attr_name).ne(value)
-            else:
-                raise ValueError(f"Unsupported operator: {operator}")
-
-        # Recursive case: Logical AND/OR
-        stack = []
-        current_expr = []
-
-        for token in expr_tokens:
-            if token.upper() in ("AND", "OR"):
-                left = parse_expression(current_expr)
-                current_expr = []
-                stack.append((left, token))  # Save the left condition and operator
-            else:
-                current_expr.append(token)
-
-        # Handle the final condition on the right
-        right = parse_expression(current_expr)
-
-        # Combine the stack of conditions
-        while stack:
-            left, operator = stack.pop()
-            if operator.upper() == "AND":
-                right = And(left, right)
-            elif operator.upper() == "OR":
-                right = Or(left, right)
-
-        return right
-
-    # Tokenize the expression and parse it
-    tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
-    return parse_expression(tokens)
 
 # TestVectors-only override of ._flush method:
 # persist response in self._response for TestVectors output processing.
@@ -278,7 +146,11 @@ class DynamoDBClientWrapperForDynamoDBTable:
         return client_output
 
     def batch_write_item(self, **kwargs):
-        # print(f"batch_write_item {kwargs=}")
+        table_input = self._client_shape_to_resource_shape_converter.batch_write_item_request(kwargs)
+        table_output = self._table.batch_write_item(**table_input)
+        client_output = self._resource_shape_to_client_shape_converter.batch_write_item_response(table_output)
+        return client_output
+    
         # Parse boto3 client.batch_write_item input into table.batch_writer() calls
         # client.batch_write_item: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
         # table.batch_writer(): https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
@@ -359,11 +231,13 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
     def scan(self, **kwargs):
         table_input = self._client_shape_to_resource_shape_converter.scan_request(kwargs)
+        # To exhaustively test Tables,
+        # convert the string-based KeyConditionExpression and FilterExpression
+        # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
                 query = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
-                print(f"{query=}")
                 table_input["KeyConditionExpression"] = query
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_query_string_to_condition_map:
@@ -415,18 +289,18 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
     def query(self, **kwargs):
         table_input = self._client_shape_to_resource_shape_converter.query_request(kwargs)
-        print(f"pre maybe transform {table_input=}")
+        # To exhaustively test Tables,
+        # convert the string-based KeyConditionExpression and FilterExpression
+        # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
                 query = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
-                print(f"{query=}")
                 table_input["KeyConditionExpression"] = query
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
                 table_input["FilterExpression"] = known_query_string_to_condition_map[table_input["FilterExpression"]]
-        print(f"post maybe transform {table_input=}")
         table_output = self._table.query(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.query_response(table_output)
         return client_output

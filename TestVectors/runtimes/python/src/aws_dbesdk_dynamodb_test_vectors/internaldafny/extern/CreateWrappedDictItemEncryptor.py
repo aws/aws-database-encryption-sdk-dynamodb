@@ -30,7 +30,7 @@ class DynamoDBFormatToDictFormatWrapper:
 
     Dafny TestVectors provide DynamoDB-formatted items to ItemEncryptors' encrypt_item and decrypt_item methods.
     However, the legacy Python DDBEC ItemEncryptor also supports Python dictionary-formatted items.
-    This class interfaces from Dafny TestVectors' DynamoDB-formatted items
+    This class transforms Dafny TestVectors' DynamoDB-formatted items
         to Python DBESDK's ItemEncryptor's Python dictionary-formatted encryption methods.
     """
     def __init__(self, item_encryptor):
