@@ -19,7 +19,7 @@ public class SearchConfig {
   /**
    * The searchable encryption version to use when writing new items. Must be '1'.
    */
-  private final Integer writeVersion;
+  private final int writeVersion;
 
   protected SearchConfig(BuilderImpl builder) {
     this.versions = builder.versions();
@@ -36,7 +36,7 @@ public class SearchConfig {
   /**
    * @return The searchable encryption version to use when writing new items. Must be '1'.
    */
-  public Integer writeVersion() {
+  public int writeVersion() {
     return this.writeVersion;
   }
 
@@ -62,12 +62,12 @@ public class SearchConfig {
     /**
      * @param writeVersion The searchable encryption version to use when writing new items. Must be '1'.
      */
-    Builder writeVersion(Integer writeVersion);
+    Builder writeVersion(int writeVersion);
 
     /**
      * @return The searchable encryption version to use when writing new items. Must be '1'.
      */
-    Integer writeVersion();
+    int writeVersion();
 
     SearchConfig build();
   }
@@ -76,13 +76,16 @@ public class SearchConfig {
 
     protected List<BeaconVersion> versions;
 
-    protected Integer writeVersion;
+    protected int writeVersion;
+
+    private boolean _writeVersionSet = false;
 
     protected BuilderImpl() {}
 
     protected BuilderImpl(SearchConfig model) {
       this.versions = model.versions();
       this.writeVersion = model.writeVersion();
+      this._writeVersionSet = true;
     }
 
     public Builder versions(List<BeaconVersion> versions) {
@@ -94,12 +97,13 @@ public class SearchConfig {
       return this.versions;
     }
 
-    public Builder writeVersion(Integer writeVersion) {
+    public Builder writeVersion(int writeVersion) {
       this.writeVersion = writeVersion;
+      this._writeVersionSet = true;
       return this;
     }
 
-    public Integer writeVersion() {
+    public int writeVersion() {
       return this.writeVersion;
     }
 
@@ -119,12 +123,12 @@ public class SearchConfig {
           "The size of `versions` must be less than or equal to 1"
         );
       }
-      if (Objects.isNull(this.writeVersion())) {
+      if (!this._writeVersionSet) {
         throw new IllegalArgumentException(
           "Missing value for required field `writeVersion`"
         );
       }
-      if (Objects.nonNull(this.writeVersion()) && this.writeVersion() < 1) {
+      if (this._writeVersionSet && this.writeVersion() < 1) {
         throw new IllegalArgumentException(
           "`writeVersion` must be greater than or equal to 1"
         );

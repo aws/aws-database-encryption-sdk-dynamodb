@@ -18,7 +18,7 @@ public class StandardBeacon {
   /**
    * The length of the calculated beacon.
    */
-  private final Integer length;
+  private final int length;
 
   /**
    * The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
@@ -47,7 +47,7 @@ public class StandardBeacon {
   /**
    * @return The length of the calculated beacon.
    */
-  public Integer length() {
+  public int length() {
     return this.length;
   }
 
@@ -87,12 +87,12 @@ public class StandardBeacon {
     /**
      * @param length The length of the calculated beacon.
      */
-    Builder length(Integer length);
+    Builder length(int length);
 
     /**
      * @return The length of the calculated beacon.
      */
-    Integer length();
+    int length();
 
     /**
      * @param loc The DynamoDB document path to the value this beacon will calculate over. If not specified, the beacon will calculate values for the attribute with the name specified in 'name'.
@@ -121,7 +121,9 @@ public class StandardBeacon {
 
     protected String name;
 
-    protected Integer length;
+    protected int length;
+
+    private boolean _lengthSet = false;
 
     protected String loc;
 
@@ -132,6 +134,7 @@ public class StandardBeacon {
     protected BuilderImpl(StandardBeacon model) {
       this.name = model.name();
       this.length = model.length();
+      this._lengthSet = true;
       this.loc = model.loc();
       this.style = model.style();
     }
@@ -145,12 +148,13 @@ public class StandardBeacon {
       return this.name;
     }
 
-    public Builder length(Integer length) {
+    public Builder length(int length) {
       this.length = length;
+      this._lengthSet = true;
       return this;
     }
 
-    public Integer length() {
+    public int length() {
       return this.length;
     }
 
@@ -178,17 +182,17 @@ public class StandardBeacon {
           "Missing value for required field `name`"
         );
       }
-      if (Objects.isNull(this.length())) {
+      if (!this._lengthSet) {
         throw new IllegalArgumentException(
           "Missing value for required field `length`"
         );
       }
-      if (Objects.nonNull(this.length()) && this.length() < 1) {
+      if (this._lengthSet && this.length() < 1) {
         throw new IllegalArgumentException(
           "`length` must be greater than or equal to 1"
         );
       }
-      if (Objects.nonNull(this.length()) && this.length() > 63) {
+      if (this._lengthSet && this.length() > 63) {
         throw new IllegalArgumentException(
           "`length` must be less than or equal to 63."
         );

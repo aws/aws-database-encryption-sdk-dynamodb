@@ -15,7 +15,7 @@ public class BeaconVersion {
   /**
    * The version of searchable encryption configured. This must be '1'.
    */
-  private final Integer version;
+  private final int version;
 
   /**
    * The Key Store that contains the Beacon Keys to use with searchable encryption.
@@ -66,7 +66,7 @@ public class BeaconVersion {
   /**
    * @return The version of searchable encryption configured. This must be '1'.
    */
-  public Integer version() {
+  public int version() {
     return this.version;
   }
 
@@ -131,12 +131,12 @@ public class BeaconVersion {
     /**
      * @param version The version of searchable encryption configured. This must be '1'.
      */
-    Builder version(Integer version);
+    Builder version(int version);
 
     /**
      * @return The version of searchable encryption configured. This must be '1'.
      */
-    Integer version();
+    int version();
 
     /**
      * @param keyStore The Key Store that contains the Beacon Keys to use with searchable encryption.
@@ -213,7 +213,9 @@ public class BeaconVersion {
 
   static class BuilderImpl implements Builder {
 
-    protected Integer version;
+    protected int version;
+
+    private boolean _versionSet = false;
 
     protected KeyStore keyStore;
 
@@ -233,6 +235,7 @@ public class BeaconVersion {
 
     protected BuilderImpl(BeaconVersion model) {
       this.version = model.version();
+      this._versionSet = true;
       this.keyStore = model.keyStore();
       this.keySource = model.keySource();
       this.standardBeacons = model.standardBeacons();
@@ -242,12 +245,13 @@ public class BeaconVersion {
       this.signedParts = model.signedParts();
     }
 
-    public Builder version(Integer version) {
+    public Builder version(int version) {
       this.version = version;
+      this._versionSet = true;
       return this;
     }
 
-    public Integer version() {
+    public int version() {
       return this.version;
     }
 
@@ -315,12 +319,12 @@ public class BeaconVersion {
     }
 
     public BeaconVersion build() {
-      if (Objects.isNull(this.version())) {
+      if (!this._versionSet) {
         throw new IllegalArgumentException(
           "Missing value for required field `version`"
         );
       }
-      if (Objects.nonNull(this.version()) && this.version() < 1) {
+      if (this._versionSet && this.version() < 1) {
         throw new IllegalArgumentException(
           "`version` must be greater than or equal to 1"
         );
