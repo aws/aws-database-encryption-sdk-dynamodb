@@ -14,28 +14,28 @@ module {:extern} CreateWrappedItemEncryptor {
   // The `ensures` clause is copy-pasted from the DynamoDbItemEncryptor client method's `ensures` clause.
   method {:extern} CreateWrappedItemEncryptor(config: ENC.DynamoDbItemEncryptorConfig)
     returns (output: Result<ENC.IDynamoDbItemEncryptorClient, ENC.Error>)
-    requires config.keyring.Some? ==>
-      config.keyring.value.ValidState()
-    requires config.cmm.Some? ==>
-      config.cmm.value.ValidState()
-    requires config.legacyOverride.Some? ==>
-      config.legacyOverride.value.encryptor.ValidState()
-    modifies if config.keyring.Some? then
-        config.keyring.value.Modifies
-      else {}
-    modifies if config.cmm.Some? then
-        config.cmm.value.Modifies
-      else {}
-    modifies if config.legacyOverride.Some? then
-               config.legacyOverride.value.encryptor.Modifies
-             else {}
+    // requires config.keyring.Some? ==>
+    //   config.keyring.value.ValidState()
+    // requires config.cmm.Some? ==>
+    //   config.cmm.value.ValidState()
+    // requires config.legacyOverride.Some? ==>
+    //   config.legacyOverride.value.encryptor.ValidState()
+    // modifies if config.keyring.Some? then
+    //     config.keyring.value.Modifies
+    //   else {}
+    // modifies if config.cmm.Some? then
+    //     config.cmm.value.Modifies
+    //   else {}
+    // modifies if config.legacyOverride.Some? then
+    //            config.legacyOverride.value.encryptor.Modifies
+    //          else {}
     ensures output.Success? ==>
           && output.value is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient
           && fresh(output.value)
           && fresh(output.value.History)
           && output.value.ValidState()
           && var rconfig := (output.value as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient).config;
-          && fresh(output.value.Modifies - Operations.ModifiesInternalConfig(rconfig))
+          && fresh(output.value.Modifies)
           && rconfig.logicalTableName == config.logicalTableName
           && rconfig.partitionKeyName == config.partitionKeyName
           && rconfig.sortKeyName == config.sortKeyName
