@@ -9,7 +9,7 @@ namespace CreateWrappedItemEncryptor_Compile
 {
     public partial class __default
     {
-        public static _IResult<IDynamoDbItemEncryptorClient, _IError> CreateWrappedItemEncryptor(
+        public static _IResult<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.IDynamoDbItemEncryptorClient, _IError> CreateWrappedItemEncryptor(
             software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types._IDynamoDbItemEncryptorConfig config)
         {
             var nativeConfig = AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.TypeConversion
