@@ -5,13 +5,13 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.Dynam
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
-import software.amazon.cryptography.services.dynamodb.internaldafny.types.IItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.IDynamoDbItemEncryptorClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
 import software.amazon.cryptography.services.dynamodb.internaldafny.Shim;
 
 public class __default {
 
-  public static Result<IItemEncryptor, Error> CreateWrappedItemEncryptor(
+  public static Result<IDynamoDbItemEncryptorClient, Error> CreateWrappedItemEncryptor(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbItemEncryptorConfig config
   ) {
     try {
@@ -23,7 +23,9 @@ public class __default {
         .DynamoDbItemEncryptorConfig(nativeConfig)
         .build();
 
-      final Shim wrappedEncryptor = new Shim(itemEncryptor);
+      final TestDynamoDbItemEncryptor wrappedEncryptor = new TestDynamoDbItemEncryptor.builder()
+        .impl(itemEncryptor)
+        .build();
 
       return Result.create_Success(wrappedEncryptor);
     } catch (Exception e) {
