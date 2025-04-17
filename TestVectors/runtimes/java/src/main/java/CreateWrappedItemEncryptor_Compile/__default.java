@@ -1,0 +1,33 @@
+package CreateWrappedItemEncryptor_Compile;
+
+import Wrappers_Compile.Result;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative;
+import software.amazon.cryptography.services.dynamodb.internaldafny.types.IItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
+import software.amazon.cryptography.services.dynamodb.internaldafny.Shim;
+
+public class __default {
+
+  public static Result<IItemEncryptor, Error> CreateWrappedItemEncryptor(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbItemEncryptorConfig config
+  ) {
+    try {
+      final DynamoDbItemEncryptorConfig nativeConfig =
+        ToNative.DynamoDbItemEncryptorConfig(config);
+
+      final DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor
+        .builder()
+        .DynamoDbItemEncryptorConfig(nativeConfig)
+        .build();
+
+      final Shim wrappedEncryptor = new Shim(itemEncryptor);
+
+      return Result.create_Success(wrappedEncryptor);
+    } catch (Exception e) {
+      return Result.create_Failure(ToDafny.Error((RuntimeException) e));
+    }
+  }
+}

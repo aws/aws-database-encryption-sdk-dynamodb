@@ -7,14 +7,17 @@ TRANSPILE_TESTS_IN_RUST=1
 include ../SharedMakefile.mk
 
 PROJECT_SERVICES := \
-	DDBEncryption
+	DDBEncryption \
+	WrappedDynamoDbItemEncryptor
 
 MAIN_SERVICE_FOR_RUST := DDBEncryption
 
 SMITHY_MODEL_ROOT := $(PROJECT_ROOT)/DynamoDbEncryption/dafny/DynamoDbEncryption/Model
 OUTPUT_LOCAL_SERVICE_DDBEncryption := --local-service-test
+OUTPUT_LOCAL_SERVICE_WrappedDynamoDbItemEncryptor := --local-service-test
 
 SERVICE_NAMESPACE_DDBEncryption=aws.cryptography.dbEncryptionSdk.dynamoDb
+SERVICE_NAMESPACE_WrappedDynamoDbItemEncryptor=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor
 
 MAX_RESOURCE_COUNT=10000000
 # Order is important
@@ -66,6 +69,8 @@ PROJECT_INDEX := \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy \
 	DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy \
+	DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy \
 
 STD_LIBRARY=submodules/MaterialProviders/StandardLibrary
 SMITHY_DEPS=submodules/MaterialProviders/model
@@ -83,6 +88,17 @@ SERVICE_DEPS_DDBEncryption := \
 	DynamoDbEncryption/dafny/DynamoDbEncryption \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor \
 	DynamoDbEncryption/dafny/StructuredEncryption \
+	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
+
+SERVICE_DEPS_WrappedDynamoDbItemEncryptor := \
+	submodules/MaterialProviders/AwsCryptographyPrimitives \
+	submodules/MaterialProviders/ComAmazonawsKms \
+	submodules/MaterialProviders/ComAmazonawsDynamodb \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographicMaterialProviders \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/dafny/AwsCryptographyKeyStore \
+	DynamoDbEncryption/dafny/StructuredEncryption \
+	DynamoDbEncryption/dafny/DynamoDbEncryption \
+	DynamoDbEncryption/dafny/DynamoDbItemEncryptor \
 	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders \
 
 transpile_implementation_rust: _remove_wrapped_client_rust
