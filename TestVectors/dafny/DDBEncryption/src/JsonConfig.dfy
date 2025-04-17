@@ -3,6 +3,7 @@
 
 include "JsonItem.dfy"
 include "CreateInterceptedDDBClient.dfy"
+include "CreateWrappedItemEncryptor.dfy"
 include "../../../../DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy"
 
 module {:options "-functionSyntax:4"} JsonConfig {
@@ -31,6 +32,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import ParseJsonManifests
   import CreateInterceptedDDBClient
   import DynamoDbItemEncryptor
+  import CreateWrappedItemEncryptor
+  import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
 
   const abc : UTF8.ValidUTF8Bytes :=
@@ -261,7 +264,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     ensures encryptor.Success? ==>
               && encryptor.value.ValidState()
               && fresh(encryptor.value)
-              && fresh(encryptor.value.Modifies)
+              && fresh(encryptor.value.Modifies - Operations.ModifiesInternalConfig(encryptor.value.config))
   {
     :- Need(data.Object?, "A Table Config must be an object.");
     var logicalTableName := TableName;
@@ -352,7 +355,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
         legacyOverride := legacyOverride,
         plaintextOverride := plaintextOverride
       );
-    var enc : ENC.IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
+    var enc : ENC.IDynamoDbItemEncryptorClient :- expect CreateWrappedItemEncryptor.CreateWrappedItemEncryptor(encryptorConfig);
     assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
     var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
     return Success(encr);
