@@ -257,7 +257,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
   }
 
   method GetItemEncryptor(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
-    returns (encryptor : Result<DynamoDbItemEncryptor.DynamoDbItemEncryptorClient, string>)
+    returns (encryptor : Result<ENC.IDynamoDbItemEncryptorClient, string>)
     requires keys.ValidState()
     modifies keys.Modifies
     ensures keys.ValidState()
