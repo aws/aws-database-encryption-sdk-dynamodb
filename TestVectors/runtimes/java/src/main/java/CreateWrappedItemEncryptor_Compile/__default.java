@@ -21,10 +21,10 @@ public class __default {
       final DynamoDbItemEncryptorConfig nativeConfig =
         ToNative.DynamoDbItemEncryptorConfig(config);
 
-      final DynamoDbItemEncryptor itemEncryptor =
-        DynamoDbItemEncryptor.builder()
-          .DynamoDbItemEncryptorConfig(nativeConfig)
-          .build();
+      final DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor
+        .builder()
+        .DynamoDbItemEncryptorConfig(nativeConfig)
+        .build();
 
       final TestDynamoDbItemEncryptor wrappedEncryptor =
         TestDynamoDbItemEncryptor.builder().impl(itemEncryptor).build();
