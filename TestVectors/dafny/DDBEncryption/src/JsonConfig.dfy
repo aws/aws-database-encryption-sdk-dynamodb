@@ -356,9 +356,10 @@ module {:options "-functionSyntax:4"} JsonConfig {
         plaintextOverride := plaintextOverride
       );
     var enc : ENC.IDynamoDbItemEncryptorClient :- expect CreateWrappedItemEncryptor.CreateWrappedItemEncryptor(encryptorConfig);
-    assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    return Success(encr);
+    return Success(enc);
+    // assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    // var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
+    // return Success(encr);
   }
 
   method GetOneTableConfig(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
