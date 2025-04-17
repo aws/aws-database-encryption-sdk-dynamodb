@@ -26,22 +26,24 @@ import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictIt
 # Supported operations on Resources that are also supported by DBESDK are:
 # - batch_get_item
 # - batch_write_item
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/index.html
+# 
 # However, Resources can provide Tables. 
 # Unsupported operations on Resources are that are supported by provided Tables are:
 # - put_item
 # - get_item
 # - query
 # - scan
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html#DynamoDB.Table
 # These operations will be tested on EncryptedResources via provided EncryptedTables.
+# 
 # Unsupported operations on both Resources and Tables are that are supported by DBESDK are:
 # - transact_get_items
 # - transact_write_items
-# Remove any tests that call unsupported operations.
+# Remove any tests that call unsupported operations by overriding the test method to do nothing..
 # If more tests that call these operations are added, remove them below.
-# If the list below becomes unmaintainable,
-# or if other languages add clients with unsupported operations,
-# refactor the Dafny code to conditionally call tests
-# based on whether the client supports the operation under test.
+# If the list below becomes unmaintainable, or if other languages add clients with unsupported operations,
+# refactor the Dafny code to conditionally call tests based on whether the client supports the operation under test.
 
 def EmptyTest(*args):
   pass

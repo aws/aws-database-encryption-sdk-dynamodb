@@ -20,21 +20,21 @@ import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateInterceptedDD
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
 
 # Remove invalid tests.
-# Supported operations on `table` that are also supported by DBESDK are:
+# Supported operations on Tables that are also supported by DBESDK are:
 # - put_item
 # - get_item
 # - query
 # - scan
-# Unsupported operations on `table` are that are supported by DBESDK are:
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html#DynamoDB.Table
+# 
+# Unsupported operations on Tables are that are supported by DBESDK are:
 # - transact_get_items
 # - transact_write_items
 # - batch_get_item
-# Remove any tests that call unsupported operations.
+# Remove any tests that call unsupported operations by overriding the test method to do nothing.
 # If more tests that call these operations are added, remove them below.
-# If the list below becomes unmaintainable,
-# or if other languages add clients with unsupported operations,
-# refactor the Dafny code to conditionally call tests
-# based on whether the client supports the operation under test.
+# If the list below becomes unmaintainable, or if other languages add clients with unsupported operations,
+# refactor the Dafny code to conditionally call tests based on whether the client supports the operation under test.
 
 def EmptyTest(*args):
   pass

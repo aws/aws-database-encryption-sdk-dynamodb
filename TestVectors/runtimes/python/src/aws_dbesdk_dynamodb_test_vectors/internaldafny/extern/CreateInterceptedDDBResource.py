@@ -7,7 +7,7 @@ from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource
 from smithy_dafny_standard_library.internaldafny.generated import Wrappers
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors import _smithy_error_to_dafny_error
-from aws_dbesdk_dynamodb_test_vectors.waiting_boto3_ddb_client import WaitingDynamoClient
+from aws_dbesdk_dynamodb_test_vectors.waiting_boto3_ddb_client import WaitingLocalDynamoClient
 from aws_dbesdk_dynamodb.transform import (
     dict_to_ddb,
     ddb_to_dict,
@@ -139,7 +139,7 @@ class default__:
     @staticmethod
     def CreateVanillaDDBClient():
         try:
-            return aws_cryptography_internal_dynamodb.internaldafny.extern.Com_Amazonaws_Dynamodb.default__.DynamoDBClient(WaitingDynamoClient())
+            return aws_cryptography_internal_dynamodb.internaldafny.extern.Com_Amazonaws_Dynamodb.default__.DynamoDBClient(WaitingLocalDynamoClient())
         except Exception as e:
             return Wrappers.Result_Failure(_smithy_error_to_dafny_error(e))
 
@@ -147,7 +147,7 @@ class default__:
     def CreateInterceptedDDBClient(dafny_encryption_config):
         try:
             native_encryption_config = aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(dafny_encryption_config)
-            boto3_client = WaitingDynamoClient()
+            boto3_client = WaitingLocalDynamoClient()
             table_config_names = list(native_encryption_config.table_encryption_configs.keys())
             if len(table_config_names) > 1:
                 raise ValueError("TODO more than 1 table; need EncryptedTablesManager")

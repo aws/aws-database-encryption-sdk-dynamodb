@@ -16,7 +16,10 @@ test_dir = '/'.join(__file__.split("/")[:-2])
 sys.path.append(test_dir + "/internaldafny/extern")
 sys.path.append(test_dir + "/internaldafny/generated")
 
+# Import extern to use an EncryptedClient as the wrapped DBESDK client.
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateInterceptedDDBClient
+# Import extern to use the ItemEncryptor with DDB JSON-formatted items.
+# (EncryptedClients use DDB JSON-formatted items by default.)
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDynamoDbItemEncryptor
 
 def test_dafny():
