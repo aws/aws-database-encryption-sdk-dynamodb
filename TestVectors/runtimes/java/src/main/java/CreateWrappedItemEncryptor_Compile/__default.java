@@ -23,7 +23,8 @@ public class __default {
         .DynamoDbItemEncryptorConfig(nativeConfig)
         .build();
 
-      final TestDynamoDbItemEncryptor wrappedEncryptor = new TestDynamoDbItemEncryptor.builder()
+      final TestDynamoDbItemEncryptor wrappedEncryptor = TestDynamoDbItemEncryptor
+        .builder()
         .impl(itemEncryptor)
         .build();
 

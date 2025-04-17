@@ -3,7 +3,7 @@ using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 using software.amazon.cryptography.services.dynamodb.internaldafny;
 using software.amazon.cryptography.services.dynamodb.internaldafny.types;
 using Wrappers_Compile;
-using _IError = software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError;
+using _IError = software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types._IError;
 
 namespace CreateWrappedItemEncryptor_Compile
 {
