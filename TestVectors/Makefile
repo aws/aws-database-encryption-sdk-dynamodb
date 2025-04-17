@@ -38,6 +38,7 @@ RUST_OTHER_FILES := \
 	runtimes/rust/src/ddb.rs \
 	runtimes/rust/src/concurrent_call.rs \
 	runtimes/rust/src/create_client.rs \
+	runtimes/rust/src/create_wrapped_item_encryptor.rs \
 	runtimes/rust/src/dafny_libraries.rs \
 	runtimes/rust/src/digest.rs \
 	runtimes/rust/src/ecdh.rs \
