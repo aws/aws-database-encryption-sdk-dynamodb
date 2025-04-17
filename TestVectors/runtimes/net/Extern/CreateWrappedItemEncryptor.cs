@@ -1,5 +1,5 @@
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor;
-using AWS.Cryptography.DbEncryptionSDK.Dynamodb;
+using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 using software.amazon.cryptography.services.dynamodb.internaldafny;
 using software.amazon.cryptography.services.dynamodb.internaldafny.types;
 using Wrappers_Compile;
@@ -9,8 +9,8 @@ namespace CreateWrappedItemEncryptor_Compile
 {
     public partial class __default
     {
-        public static _IResult<IItemEncryptor, _IError> CreateWrappedItemEncryptor(
-            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IDynamoDbItemEncryptorConfig config)
+        public static _IResult<IDynamoDbItemEncryptorClient, _IError> CreateWrappedItemEncryptor(
+            software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types._IDynamoDbItemEncryptorConfig config)
         {
             var nativeConfig = AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.TypeConversion
                 .FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S30_DynamoDbItemEncryptorConfig(

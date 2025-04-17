@@ -12,7 +12,7 @@ import software.amazon.cryptography.services.dynamodb.internaldafny.Shim;
 public class __default {
 
   public static Result<IDynamoDbItemEncryptorClient, Error> CreateWrappedItemEncryptor(
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.DynamoDbItemEncryptorConfig config
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DynamoDbItemEncryptorConfig config
   ) {
     try {
       final DynamoDbItemEncryptorConfig nativeConfig =
