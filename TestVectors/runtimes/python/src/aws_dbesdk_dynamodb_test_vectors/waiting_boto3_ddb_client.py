@@ -1,15 +1,16 @@
 import boto3
 
-class WaitingDynamoClient:
+class WaitingLocalDynamoClient:
     """
-    boto3 DynamoDB client wrapper that wraps `create_table` and `delete_table` methods.
+    boto3 DynamoDB client wrapper that wraps `create_table` and `delete_table` methods
+    and connects to localhost:8000.
     If these methods are called on this client, they will block returning until
         the table is created/deleted.
     This is the expected behavior of SDK clients in our Dafny code.
     All other methods besides these are unchanged and will call the boto3 client directly.
     """
     def __init__(self):
-        self._client = boto3.client("dynamodb")
+        self._client = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
             
     def __getattr__(self, name):
         if hasattr(self._client, name):
