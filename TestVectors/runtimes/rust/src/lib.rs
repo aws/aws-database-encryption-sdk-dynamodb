@@ -66,3 +66,4 @@ pub mod time;
 pub mod uuid;
 
 pub mod create_client;
+pub mod create_wrapped_item_encryptor;
