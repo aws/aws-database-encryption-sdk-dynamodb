@@ -6,7 +6,7 @@ use dafny_runtime::Object;
 use crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::IDynamoDbItemEncryptorClient;
 use crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::Error;
 use crate::implementation_from_dafny::_Wrappers_Compile;
-use aws_db_esdk::item_encryptor::client as item_encryptor_client;
+use crate::deps::aws_db_esdk::item_encryptor::client as item_encryptor_client;
 
 pub mod _CreateWrappedItemEncryptor_Compile {
     pub struct _default {}
@@ -20,7 +20,7 @@ impl _CreateWrappedItemEncryptor_Compile::_default {
         
         let item_encryptor = item_encryptor_client::Client::from_conf(native_config);
         let wrapped_encryptor = // where is this generated?
-        let dafny_encryptor = // tood find
+        let dafny_encryptor = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(wrapped_encryptor));
         
         Rc::new(crate::r#_Wrappers_Compile::Result::Success {
             value: dafny_encryptor,
