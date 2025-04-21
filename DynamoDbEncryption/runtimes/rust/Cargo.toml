@@ -18,7 +18,7 @@ readme = "README.md"
 [dependencies]
 aws-config = "1.6.0"
 aws-lc-rs = "1.12.2"
-aws-lc-sys = "0.25.0"
+aws-lc-sys = "0.28.1"
 aws-sdk-dynamodb = "1.69.0"
 aws-sdk-kms = "1.63.0"
 aws-smithy-runtime-api = {version = "1.7.4", features = ["client"] }
