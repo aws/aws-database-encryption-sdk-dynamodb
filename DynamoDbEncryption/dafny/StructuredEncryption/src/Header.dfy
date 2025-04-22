@@ -62,7 +62,7 @@ module StructuredEncryptionHeader {
     requires pos <= |data| as uint32
     requires forall i | 0 <= i < pos :: data[i].action != SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
     decreases |data| as uint32 - pos
-    ensures ret ==> (exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT)
+    ensures ret <==> (exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT)
   {
     if pos == |data| as uint32 then
       false
