@@ -52,6 +52,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
     tableEncryptionConfigs : map<ConfigName, TableConfig>,
+    largeEncryptionConfigs : map<ConfigName, TableConfig>,
     queries : seq<SimpleQuery>,
     names : DDB.ExpressionAttributeNameMap,
     values : DDB.ExpressionAttributeValueMap,
@@ -75,6 +76,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       print "DBE Test Vectors\n";
       print |globalRecords|, " records.\n";
       print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
+      print |largeEncryptionConfigs|, " largeEncryptionConfigs.\n";
       print |queries|, " queries.\n";
       print |names|, " names.\n";
       print |values|, " values.\n";
@@ -521,8 +523,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       if !DoTestConfig(config) {
         return;
       }
-      expect config in tableEncryptionConfigs;
-      var tconfig := tableEncryptionConfigs[config];
+      expect config in largeEncryptionConfigs;
+      var tconfig := largeEncryptionConfigs[config];
       var configs := Types.DynamoDbTablesEncryptionConfig (
         tableEncryptionConfigs := map[TableName := tconfig.config]
       );
@@ -1088,7 +1090,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   function MakeEmptyTestVector() : TestVectorConfig
   {
-    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [], [], [], [])
+    TestVectorConfig(MakeCreateTableInput(), [], map[], map[], [], map[], map[], [], [], [], [], [], [], [], [], [], [])
   }
 
   method ParseTestVector(data : JSON, prev : TestVectorConfig, keyVectors: KeyVectors.KeyVectorsClient)
@@ -1109,6 +1111,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var ioTests : seq<IoTest> := [];
     var gsi : seq<DDB.GlobalSecondaryIndex> := [];
     var tableEncryptionConfigs : map<string, TableConfig> := map[];
+    var largeEncryptionConfigs : map<string, TableConfig> := map[];
     var writeTests : seq<WriteTest> := [];
     var roundTripTests : seq<RoundTripTest> := [];
     var decryptTests : seq<DecryptTest> := [];
@@ -1128,6 +1131,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "IoTests" => ioTests :- GetIoTests(data.obj[i].1, keyVectors);
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
         case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1, keyVectors);
+        case "largeEncryptionConfigs" => largeEncryptionConfigs :- GetTableConfigs(data.obj[i].1, keyVectors);
         case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1, keyVectors);
         case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1, keyVectors);
         case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1, keyVectors);
@@ -1143,6 +1147,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         schemaOnEncrypt := newSchema,
         globalRecords := prev.globalRecords + records,
         tableEncryptionConfigs := prev.tableEncryptionConfigs + tableEncryptionConfigs,
+        largeEncryptionConfigs := prev.largeEncryptionConfigs + largeEncryptionConfigs,
         queries := prev.queries + queries,
         failingQueries := prev.failingQueries + failingQueries,
         names := prev.names + names,
