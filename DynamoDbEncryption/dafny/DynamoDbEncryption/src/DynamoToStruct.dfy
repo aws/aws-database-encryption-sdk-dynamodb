@@ -77,7 +77,7 @@ module DynamoToStruct {
                 && StructuredToAttr(s[kv.0]).Success?
                 && kv.1 == StructuredToAttr(s[kv.0]).value
   {
-    if forall k <- s.Keys :: IsValid_AttributeName(k) then
+    if forall k <- s :: IsValid_AttributeName(k) then
       var structuredData := map k <- s :: k := StructuredToAttr(s[k]);
       MapKeysMatchItems(s);
       MapError(SimplifyMapValue(structuredData))
@@ -477,7 +477,7 @@ module DynamoToStruct {
   // lets Dafny find the correct termination metric.
   // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
   function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
-    requires forall kv <- m.Items :: kv.1 < parent
+    requires forall k <- m :: m[k] < parent
   {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
     //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
@@ -492,7 +492,8 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-value
     //# A Map MAY hold any DynamoDB Attribute Value data type,
     //# and MAY hold values of different types.
-    var bytesResults := map kv <- m.Items :: kv.0 := AttrToBytes(kv.1, true, depth+1);
+    var bytesResults := map k <- m :: k := AttrToBytes(m[k], true, depth+1);
+
     var count :- U32ToBigEndian(|m|);
     var bytes :- SimplifyMapValue(bytesResults);
     var body :- CollectMap(bytes);
