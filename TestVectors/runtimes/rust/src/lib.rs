@@ -15,8 +15,8 @@ pub mod types;
 pub mod validation;
 pub mod intercept;
 
-#[cfg(feature = "wrapped-client")]
-pub mod wrapped;
+// removed wrapped-client feature using sed;
+// removed wrapped module using sed;
 
 mod standard_library_conversions;
 mod standard_library_externs;

@@ -3,4 +3,4 @@
 // Empty stub expected by Smithy-Dafny
 
 include "../../../../DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy"
-module WrappedItemEncryptor {}
+module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.wrapped" } WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {}

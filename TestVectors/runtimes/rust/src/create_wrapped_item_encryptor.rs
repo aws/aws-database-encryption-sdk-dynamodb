@@ -8,6 +8,7 @@ use crate::implementation_from_dafny::software::amazon::cryptography::dbencrypti
 use crate::implementation_from_dafny::_Wrappers_Compile;
 use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::client as item_encryptor_client;
 use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::wrapped::client as wrapped_item_encryptor_client;
+use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::error;
 
 pub mod _CreateWrappedItemEncryptor_Compile {
     pub struct _default {}
@@ -19,7 +20,13 @@ impl _CreateWrappedItemEncryptor_Compile::_default {
     ) -> Rc<_Wrappers_Compile::Result<Object<dyn IDynamoDbItemEncryptorClient>, Rc<Error>>> {
         let native_config = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::dynamo_db_item_encryptor_config::_dynamo_db_item_encryptor_config::plain_from_dafny(config);
         
-        let item_encryptor = item_encryptor_client::Client::from_conf(native_config);
+        let item_encryptor = match item_encryptor_client::Client::from_conf(native_config) {
+            Ok(client) => client,
+            Err(e) => return Rc::new(crate::r#_Wrappers_Compile::Result::Failure {
+                error: error::to_dafny(e),
+            }),
+        };
+        
         let wrapped_encryptor = wrapped_item_encryptor_client::Client {wrapped: item_encryptor};
         let dafny_encryptor = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(wrapped_encryptor));
         
