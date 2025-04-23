@@ -61,6 +61,7 @@ module WrappedDDBEncryptionMain {
     config :- expect AddJson(config, "data.json", keyVectors);
     config :- expect AddJson(config, "iotest.json", keyVectors);
     config :- expect AddJson(config, "PermTest.json", keyVectors);
+    config :- expect AddJson(config, "large_records.json", keyVectors);
     config.RunAllTests(keyVectors);
   }
 }
