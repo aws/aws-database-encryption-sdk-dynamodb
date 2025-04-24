@@ -12,56 +12,41 @@ module DynamoToStruct {
   import opened StandardLibrary
   import opened StandardLibrary.UInt
   import opened DynamoDbEncryptionUtil
-  import AwsCryptographyDbEncryptionSdkDynamoDbTypes
+  import Types = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import UTF8
   import SortedSets
   import Seq
   import Norm = DynamoDbNormalizeNumber
   import SE = StructuredEncryptionUtil
   import StandardLibrary.Sequence
+  import DafnyLibraries
 
-  type Error = AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error
+  type Error = Types.Error
 
   type TerminalDataMap = map<AttributeName, StructuredDataTerminal>
 
-  const UINT32_MAX : uint32 := 0xFFFF_FFFF
 
-  // TO BE DONE -- move to StandardLibrary
-  function method SeqPosToUInt32(s: seq<uint8>, pos : uint32): (x: uint32)
-    requires Add32(4,pos) as int <= |s|
-    ensures UInt32ToSeq(x) == s[pos..pos+4]
+  function method ItemToStructured2(item : AttributeMap, actions : Types.AttributeActions) : (ret : Result<TerminalDataMap, Error>)
   {
-    var x0 := s[pos] as uint32 * 0x100_0000;
-    var x1 := x0 + s[pos+1] as uint32 * 0x1_0000;
-    var x2 := x1 + s[pos+2] as uint32 * 0x100;
-    x2 + s[pos+3] as uint32
+    // var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
+    // return MakeError("Not valid attribute names : ");
+
+    var structuredMap := map k <- item | k in actions && actions[k] != DO_NOTHING :: k := AttrToStructured(item[k]);
+    MapKeysMatchItems(item);
+    MapError(SimplifyMapValue(structuredMap))
   }
 
-  function method BigEndianPosToU32(x : seq<uint8>, pos : uint32) : (ret : Result<uint32, string>)
-    requires |x| < UINT32_MAX as int
+  function method StructuredToItem2(s : TerminalDataMap, orig : AttributeMap, actions : Types.AttributeActions) : (ret : Result<AttributeMap, Error>)
   {
-    if |x| as uint32 < Add32(pos, LENGTH_LEN32) then
-      Failure("Length of 4-byte integer was less than 4")
-    else
-      Success(SeqPosToUInt32(x, pos))
-  }
+    var ddbMap := map k <- orig :: k := if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) then StructuredToAttr(s[k]) else Success(orig[k]);
+    MapKeysMatchItems(orig);
+    var oldMap :- MapError(SimplifyMapValue(ddbMap));
 
-  function method {:opaque} Add32(x : uint32, y : uint32) : (ret : uint32)
-    ensures x as uint64 + y as uint64 <= UINT32_MAX as uint64
-    ensures ret == x + y
-  {
-    var value : uint64 := x as uint64 + y as uint64;
-    assume {:axiom} value <= UINT32_MAX as uint64;
-    value as uint32
-  }
+    var ddbMap2 := map k <- s | k !in orig :: k := StructuredToAttr(s[k]);
+    MapKeysMatchItems(s);
+    var newMap :- MapError(SimplifyMapValue(ddbMap2));
 
-  function method {:opaque} Add32_3(x : uint32, y : uint32, z : uint32) : (ret : uint32)
-    ensures x as uint64 + y as uint64 + z as uint64 <= UINT32_MAX as uint64
-    ensures ret == x + y + z
-  {
-    var value : uint64 := x as uint64 + y as uint64 + z as uint64;
-    assume {:axiom} value <= UINT32_MAX as uint64;
-    value as uint32
+    Success(oldMap + newMap)
   }
 
   // This file exists for these two functions : ItemToStructured and StructuredToItem
@@ -131,6 +116,46 @@ module DynamoToStruct {
   }
 
   // everything past here is to implement those two
+
+  const UINT32_MAX : uint32 := 0xFFFF_FFFF
+
+  // TO BE DONE -- move to StandardLibrary
+  function method SeqPosToUInt32(s: seq<uint8>, pos : uint32): (x: uint32)
+    requires Add32(4,pos) as int <= |s|
+    ensures UInt32ToSeq(x) == s[pos..pos+4]
+  {
+    var x0 := s[pos] as uint32 * 0x100_0000;
+    var x1 := x0 + s[pos+1] as uint32 * 0x1_0000;
+    var x2 := x1 + s[pos+2] as uint32 * 0x100;
+    x2 + s[pos+3] as uint32
+  }
+
+  function method BigEndianPosToU32(x : seq<uint8>, pos : uint32) : (ret : Result<uint32, string>)
+    requires |x| < UINT32_MAX as int
+  {
+    if |x| as uint32 < Add32(pos, LENGTH_LEN32) then
+      Failure("Length of 4-byte integer was less than 4")
+    else
+      Success(SeqPosToUInt32(x, pos))
+  }
+
+  function method {:opaque} Add32(x : uint32, y : uint32) : (ret : uint32)
+    ensures x as uint64 + y as uint64 <= UINT32_MAX as uint64
+    ensures ret == x + y
+  {
+    var value : uint64 := x as uint64 + y as uint64;
+    assume {:axiom} value <= UINT32_MAX as uint64;
+    value as uint32
+  }
+
+  function method {:opaque} Add32_3(x : uint32, y : uint32, z : uint32) : (ret : uint32)
+    ensures x as uint64 + y as uint64 + z as uint64 <= UINT32_MAX as uint64
+    ensures ret == x + y + z
+  {
+    var value : uint64 := x as uint64 + y as uint64 + z as uint64;
+    assume {:axiom} value <= UINT32_MAX as uint64;
+    value as uint32
+  }
 
   function method MakeError<T>(s : string) : Result<T, Error> {
     Failure(Error.DynamoDbEncryptionException(message := s))
@@ -527,6 +552,7 @@ module DynamoToStruct {
               && U32ToBigEndian(|l|).Success?
               && LENGTH_LEN <= |ret.value|
               && ret.value[..LENGTH_LEN] == U32ToBigEndian(|l|).value
+    decreases l
   {
     var count :- U32ToBigEndian(|l|);
     var body :- CollectList(l, depth);
@@ -675,12 +701,7 @@ module DynamoToStruct {
   //# A List MAY hold any DynamoDB Attribute Value data type,
   //# and MAY hold values of different types.
 
-  // Can't be {:tailrecursion} because it calls AttrToBytes which might again call CollectList
-  // However, we really need this to loop and not recurse.
-  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
-  // for example, a call to CollectList somehow does not satisfy the decreases clause
-  // hence the {:verify false}
-  function {:opaque} {:verify false} {:axiom} CollectList(
+  function {:opaque} CollectListGhost(
     listToSerialize : ListAttributeValue,
     depth : uint32,
     serialized : seq<uint8> := []
@@ -689,21 +710,49 @@ module DynamoToStruct {
     requires depth <= MAX_STRUCTURE_DEPTH
     ensures (ret.Success? && |listToSerialize| == 0) ==> (ret.value == serialized)
     ensures (ret.Success? && |listToSerialize| == 0) ==> (|ret.value| == |serialized|)
+    decreases listToSerialize, 1
   {
     if |listToSerialize| == 0 then
       Success(serialized)
     else
       var val :- AttrToBytes(listToSerialize[0], true, depth+1);
-      CollectList(listToSerialize[1..], depth, serialized + val)
+      CollectListGhost(listToSerialize[1..], depth, serialized + val)
+  }
+
+  // Can't be {:tailrecursion} because it calls AttrToBytes which might again call CollectList
+  // However, we really need this to loop and not recurse.
+  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // for example, a call to CollectList somehow does not satisfy the decreases clause
+  // hence the {:verify false}
+  function {:opaque} CollectList(
+    listToSerialize : ListAttributeValue,
+    depth : uint32,
+    serialized : seq<uint8> := []
+  )
+    : (ret : Result<seq<uint8>, string>)
+    requires depth <= MAX_STRUCTURE_DEPTH
+    ensures (ret.Success? && |listToSerialize| == 0) ==> (ret.value == serialized)
+    ensures (ret.Success? && |listToSerialize| == 0) ==> (|ret.value| == |serialized|)
+    decreases listToSerialize, 2
+  {
+    CollectListGhost(listToSerialize, depth, serialized)
   }
   by method {
+    reveal CollectList();
+    reveal CollectListGhost();
     var result := serialized;
     for i := 0 to |listToSerialize|
     {
-      var val :- AttrToBytes(listToSerialize[i], true, depth+1);
-      result := result + val;
+      var val := AttrToBytes(listToSerialize[i], true, depth+1);
+      if val.Failure? {
+        ret := Failure(val.error);
+        assume {:axiom} ret == CollectListGhost(listToSerialize, depth, serialized);
+        return;
+      }
+      result := result + val.value;
     }
-    return Success(result);
+    ret := Success(result);
+    assume {:axiom} ret == CollectListGhost(listToSerialize, depth, serialized);
   }
 
   function method SerializeMapItem(key : string, value : seq<uint8>) : (ret : Result<seq<uint8>, string>)
@@ -939,16 +988,10 @@ module DynamoToStruct {
         Success((nResultList, new_pos))
   }
 
-  // Bytes to List
-  // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeList
-  // However, we really need this to loop and not recurse.
-  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
-  // for example, a call to DeserializeListEntry somehow does not satisfy the decreases clause
-  // hence the {:verify false}
-  function {:vcs_split_on_every_assert} {:opaque} {:verify false} DeserializeList(
+  function {:vcs_split_on_every_assert} {:opaque} DeserializeListGhost(
     serialized : seq<uint8>,
     pos : uint32,
-    ghost orig_pos : uint32,
+    orig_pos : uint32,
     remainingCount : uint32,
     depth : uint32,
     resultList : AttrValueAndLength
@@ -968,9 +1011,39 @@ module DynamoToStruct {
       Success(resultList)
     else
       var (newResultList, npos) :- DeserializeListEntry(serialized, pos, depth, resultList);
-      DeserializeList(serialized, npos, orig_pos, remainingCount - 1, depth, newResultList)
+      DeserializeListGhost(serialized, npos, orig_pos, remainingCount - 1, depth, newResultList)
+  }
+
+  // Bytes to List
+  // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeList
+  // However, we really need this to loop and not recurse.
+  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // for example, a call to DeserializeListEntry somehow does not satisfy the decreases clause
+  // hence the {:verify false}
+  function {:vcs_split_on_every_assert} {:opaque} DeserializeList(
+    serialized : seq<uint8>,
+    pos : uint32,
+    ghost orig_pos : uint32,
+    remainingCount : uint32,
+    depth : uint32,
+    resultList : AttrValueAndLength
+  )
+    : (ret : Result<AttrValueAndLength, string>)
+    requires |serialized| < UINT32_MAX as int
+    requires pos as int <= |serialized|
+    requires orig_pos <= pos
+    requires depth <= MAX_STRUCTURE_DEPTH
+    requires resultList.val.L?
+    ensures ret.Success? ==> ret.value.val.L?
+    requires pos == Add32(orig_pos, resultList.len)
+    ensures ret.Success? ==> ret.value.len <= |serialized| as uint32 - orig_pos
+    decreases |serialized| as uint32 - pos, 2
+  {
+    DeserializeListGhost(serialized, pos, orig_pos, remainingCount, depth, resultList)
   }
   by method {
+    reveal DeserializeListGhost();
+    reveal DeserializeList();
     var npos : uint32 := pos;
     var newResultList := resultList;
     for i := 0 to remainingCount
@@ -978,12 +1051,19 @@ module DynamoToStruct {
       invariant newResultList.val.L?
       invariant npos as int <= |serialized|
       invariant npos == Add32(orig_pos, newResultList.len)
+      invariant npos >= pos
     {
-      var test :- DeserializeListEntry(serialized, npos, depth, newResultList);
-      newResultList := test.0;
-      npos := test.1;
+      var test := DeserializeListEntry(serialized, npos, depth, newResultList);
+      if test.Failure? {
+        ret := Failure(test.error);
+        assume {:axiom} ret == DeserializeListGhost(serialized, pos, orig_pos, remainingCount, depth, resultList);
+        return;
+      }
+      newResultList := test.value.0;
+      npos := test.value.1;
     }
     ret := Success(newResultList);
+    assume {:axiom} ret == DeserializeListGhost(serialized, pos, orig_pos, remainingCount, depth, resultList);
   }
 
   function method {:vcs_split_on_every_assert} DeserializeMapEntry(
@@ -1039,17 +1119,10 @@ module DynamoToStruct {
     Success((newResultMap, pos))
   }
 
-
-  // Bytes to Map
-  // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeMap
-  // However, we really need this to loop and not recurse.
-  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
-  // for example, a call to DeserializeMapEntry somehow does not satisfy the decreases clause
-  // hence the {:verify false}
-  function {:vcs_split_on_every_assert} {:opaque} {:verify false} DeserializeMap(
+  function {:vcs_split_on_every_assert} {:opaque}  DeserializeMapGhost(
     serialized : seq<uint8>,
     pos : uint32,
-    ghost orig_pos : uint32,
+    orig_pos : uint32,
     remainingCount : uint32,
     depth : uint32,
     resultMap : AttrValueAndLength)
@@ -1068,10 +1141,38 @@ module DynamoToStruct {
       Success(resultMap)
     else
       var (newResultMap, npos) :- DeserializeMapEntry(serialized, pos, depth, resultMap);
-      DeserializeMap(serialized, npos, orig_pos, remainingCount - 1, depth, newResultMap)
+      DeserializeMapGhost(serialized, npos, orig_pos, remainingCount - 1, depth, newResultMap)
+  }
 
+  // Bytes to Map
+  // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeMap
+  // However, we really need this to loop and not recurse.
+  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // for example, a call to DeserializeMapEntry somehow does not satisfy the decreases clause
+  // hence the {:verify false}
+  function {:vcs_split_on_every_assert} {:opaque}  DeserializeMap(
+    serialized : seq<uint8>,
+    pos : uint32,
+    ghost orig_pos : uint32,
+    remainingCount : uint32,
+    depth : uint32,
+    resultMap : AttrValueAndLength)
+    : (ret : Result<AttrValueAndLength, string>)
+    requires |serialized| < UINT32_MAX as int
+    requires pos as int <= |serialized|
+    requires orig_pos <= pos
+    requires resultMap.val.M?
+    requires depth <= MAX_STRUCTURE_DEPTH
+    ensures ret.Success? ==> ret.value.val.M?
+    requires pos == Add32(orig_pos, resultMap.len)
+    ensures ret.Success? ==> ret.value.len <= |serialized| as uint32 - orig_pos
+    decreases |serialized| as uint32 - pos, 2
+  {
+    DeserializeMapGhost(serialized, pos, orig_pos, remainingCount, depth, resultMap)
   }
   by method {
+    reveal DeserializeMapGhost();
+    reveal DeserializeMap();
     var npos : uint32 := pos;
     var newResultMap := resultMap;
     for i := 0 to remainingCount
@@ -1079,12 +1180,19 @@ module DynamoToStruct {
       invariant newResultMap.val.M?
       invariant npos as int <= |serialized|
       invariant npos == Add32(orig_pos, newResultMap.len)
+      invariant npos >= pos
     {
-      var test :- DeserializeMapEntry(serialized, npos, depth, newResultMap);
-      newResultMap := test.0;
-      npos := test.1;
+      var test := DeserializeMapEntry(serialized, npos, depth, newResultMap);
+      if test.Failure? {
+        ret := Failure(test.error);
+        assume {:axiom} ret == DeserializeMapGhost(serialized, pos, orig_pos, remainingCount, depth, resultMap);
+        return;
+      }
+      newResultMap := test.value.0;
+      npos := test.value.1;
     }
     ret := Success(newResultMap);
+    assume {:axiom} ret == DeserializeMapGhost(serialized, pos, orig_pos, remainingCount, depth, resultMap);
   }
 
   // Bytes to AttributeValue
