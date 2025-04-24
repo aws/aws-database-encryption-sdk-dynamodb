@@ -31,12 +31,12 @@ module DynamoToStruct {
     // var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
     // return MakeError("Not valid attribute names : ");
 
-    var structuredMap := map k <- item | k in actions && actions[k] != DO_NOTHING :: k := AttrToStructured(item[k]);
+    var structuredMap := map k <- item | (k in actions && actions[k] != DO_NOTHING) || (ReservedPrefix <= k) :: k := AttrToStructured(item[k]);
     MapKeysMatchItems(item);
     MapError(SimplifyMapValue(structuredMap))
   }
 
-  function method StructuredToItem2(s : TerminalDataMap, orig : AttributeMap, actions : Types.AttributeActions) : (ret : Result<AttributeMap, Error>)
+  function method StructuredToItem2(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
   {
     var ddbMap := map k <- orig :: k := if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) then StructuredToAttr(s[k]) else Success(orig[k]);
     MapKeysMatchItems(orig);
@@ -405,7 +405,7 @@ module DynamoToStruct {
               && ListAttrToBytes(a.L, depth).Success?
               && ret.value[PREFIX_LEN..] == ListAttrToBytes(a.L, depth).value
               && ListAttrToBytes(a.L, depth).value[..LENGTH_LEN] == U32ToBigEndian(|a.L|).value
-              && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
+              // && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
               && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-attribute

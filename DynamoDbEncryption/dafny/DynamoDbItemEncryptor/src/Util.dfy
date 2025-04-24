@@ -18,7 +18,6 @@ module DynamoDbItemEncryptorUtil {
   const ReservedPrefix := "aws_dbe_"
   const BeaconPrefix := ReservedPrefix + "b_"
   const VersionPrefix := ReservedPrefix + "v_"
-  const MAX_ATTRIBUTE_COUNT := 100
   const UINT32_MAX : uint32 := 0xFFFF_FFFF
 
   function method E(msg : string) : Error
