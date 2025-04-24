@@ -109,7 +109,6 @@ module DynamoDbItemEncryptorTest {
       "sign4" := DDB.AttributeValue.NULL(true),
       "nothing" := DDBS("baz")
     ];
-    var expectedOutputItem := inputItem["bar" := DDB.AttributeValue.N("1234")];
 
     var encryptRes := encryptor.EncryptItem(
       Types.EncryptItemInput(
@@ -122,7 +121,7 @@ module DynamoDbItemEncryptorTest {
     }
     expect encryptRes.Success?;
     expect encryptRes.value.encryptedItem.Keys == inputItem.Keys + {SE.HeaderField, SE.FooterField};
-    expect encryptRes.value.encryptedItem["bar"] == expectedOutputItem["bar"]; // because normalized
+    expect encryptRes.value.encryptedItem["bar"] == inputItem["bar"];
     expect encryptRes.value.encryptedItem["encrypt"] != inputItem["encrypt"];
     expect encryptRes.value.encryptedItem["sign"] == inputItem["sign"];
     expect encryptRes.value.encryptedItem["sign3"] == inputItem["sign3"];
@@ -142,11 +141,11 @@ module DynamoDbItemEncryptorTest {
       print "\n", decryptRes.error, "\n";
     }
     expect decryptRes.Success?;
-    if decryptRes.value.plaintextItem != expectedOutputItem {
-      print "\nexpectedOutputItem :\n", expectedOutputItem, "\n";
+    if decryptRes.value.plaintextItem != inputItem {
+      print "\ninputItem :\n", inputItem, "\n";
       print "\nOutput Item :\n", decryptRes.value.plaintextItem, "\n";
     }
-    expect decryptRes.value.plaintextItem == expectedOutputItem;
+    expect decryptRes.value.plaintextItem == inputItem;
 
     var parsedHeader := decryptRes.value.parsedHeader;
     expect parsedHeader.Some?;

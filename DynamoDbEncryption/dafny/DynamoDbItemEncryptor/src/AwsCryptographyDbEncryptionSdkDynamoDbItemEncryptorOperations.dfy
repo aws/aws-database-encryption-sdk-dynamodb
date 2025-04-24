@@ -889,7 +889,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var encryptedData := encryptVal.encryptedStructure;
     :- Need(forall k <- encryptedData :: DDB.IsValid_AttributeName(k), E(""));
-    var ddbKey :- DynamoToStruct.StructuredToItem2(encryptedData, input.plaintextItem, config.attributeActionsOnEncrypt)
+    var ddbKey :- DynamoToStruct.StructuredToItemEncrypt(encryptedData, input.plaintextItem, config.attributeActionsOnEncrypt)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.cryptoSchema);
@@ -1112,7 +1112,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var decryptedData := decryptVal.plaintextStructure;
     :- Need(forall k <- decryptedData :: DDB.IsValid_AttributeName(k), E(""));
-    var ddbItem :- DynamoToStruct.StructuredToItem2(decryptedData, input.encryptedItem, decryptVal.cryptoSchema)
+    var ddbItem :- DynamoToStruct.StructuredToItemDecrypt(decryptedData, input.encryptedItem, decryptVal.cryptoSchema)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     var schemaToConvert := decryptVal.cryptoSchema;
