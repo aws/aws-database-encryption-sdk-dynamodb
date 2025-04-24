@@ -19,6 +19,7 @@ module DynamoDbItemEncryptorUtil {
   const BeaconPrefix := ReservedPrefix + "b_"
   const VersionPrefix := ReservedPrefix + "v_"
   const MAX_ATTRIBUTE_COUNT := 100
+  const UINT32_MAX : uint32 := 0xFFFF_FFFF
 
   function method E(msg : string) : Error
   {
@@ -181,7 +182,8 @@ module DynamoDbItemEncryptorUtil {
       Success(value)
     else if legend == SE.LEGEND_BINARY then
       var terminal :- SE.DecodeTerminal(ecValue);
-      var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false);
+      :- Need(|terminal.value| < UINT32_MAX as int, "LEGEND_BINARY too big");
+      var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, Some(|terminal.value| as uint32));
       Success(ddbAttrValue.val)
     else
       Failure("Encryption Context Legend has unexpected character : '" + [legend] + "'.")
@@ -236,7 +238,8 @@ module DynamoDbItemEncryptorUtil {
 
     // Obtain attribute value from EC kvPair value
     var terminal :- SE.DecodeTerminal(encodedAttrValue);
-    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false);
+    :- Need(|terminal.value| < UINT32_MAX as int, "Attribute Value too big");
+    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, Some(|terminal.value| as uint32));
 
     // Add to our AttributeMap
     Success(attrMap[ddbAttrName := ddbAttrValue.val])

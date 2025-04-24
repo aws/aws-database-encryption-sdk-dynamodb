@@ -24,6 +24,46 @@ module DynamoToStruct {
 
   type TerminalDataMap = map<AttributeName, StructuredDataTerminal>
 
+  const UINT32_MAX : uint32 := 0xFFFF_FFFF
+
+  // TO BE DONE -- move to StandardLibrary
+  function method SeqPosToUInt32(s: seq<uint8>, pos : uint32): (x: uint32)
+    requires Add32(4,pos) as int <= |s|
+    ensures UInt32ToSeq(x) == s[pos..pos+4]
+  {
+    var x0 := s[pos] as uint32 * 0x100_0000;
+    var x1 := x0 + s[pos+1] as uint32 * 0x1_0000;
+    var x2 := x1 + s[pos+2] as uint32 * 0x100;
+    x2 + s[pos+3] as uint32
+  }
+
+  function method BigEndianPosToU32(x : seq<uint8>, pos : uint32) : (ret : Result<uint32, string>)
+    requires |x| < UINT32_MAX as int
+  {
+    if |x| as uint32 < Add32(pos, LENGTH_LEN32) then
+      Failure("Length of 4-byte integer was less than 4")
+    else
+      Success(SeqPosToUInt32(x, pos))
+  }
+
+  function method {:opaque} Add32(x : uint32, y : uint32) : (ret : uint32)
+    ensures x as uint64 + y as uint64 <= UINT32_MAX as uint64
+    ensures ret == x + y
+  {
+    var value : uint64 := x as uint64 + y as uint64;
+    assume {:axiom} value <= UINT32_MAX as uint64;
+    value as uint32
+  }
+
+  function method {:opaque} Add32_3(x : uint32, y : uint32, z : uint32) : (ret : uint32)
+    ensures x as uint64 + y as uint64 + z as uint64 <= UINT32_MAX as uint64
+    ensures ret == x + y + z
+  {
+    var value : uint64 := x as uint64 + y as uint64 + z as uint64;
+    assume {:axiom} value <= UINT32_MAX as uint64;
+    value as uint32
+  }
+
   // This file exists for these two functions : ItemToStructured and StructuredToItem
   // which provide conversion between an AttributeMap and a StructuredDataMap
 
@@ -92,37 +132,6 @@ module DynamoToStruct {
 
   // everything past here is to implement those two
 
-  // Prove round trip. A work in progress
-  lemma RoundTripFromItem(item : AttributeValue)
-    ensures  item.B? && AttrToStructured(item).Success? ==> StructuredToAttr(AttrToStructured(item).value).Success?
-    ensures  item.NULL? && AttrToStructured(item).Success? ==>
-               && StructuredToAttr(AttrToStructured(item).value).Success?
-    ensures  item.BOOL? && AttrToStructured(item).Success? ==> StructuredToAttr(AttrToStructured(item).value).Success?
-  {
-    reveal AttrToStructured();
-    reveal StructuredToAttr();
-    reveal TopLevelAttributeToBytes();
-    reveal AttrToBytes();
-    reveal BytesToAttr();
-
-  }
-
-  // Prove round trip. A work in progress
-  lemma RoundTripFromStructured(s : StructuredDataTerminal)
-    ensures  StructuredToAttr(s).Success? && s.typeId == SE.BINARY ==>
-               && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.typeId == SE.BOOLEAN ==>
-               && AttrToStructured(StructuredToAttr(s).value).Success?
-    ensures  StructuredToAttr(s).Success? && s.typeId == SE.NULL ==>
-               && AttrToStructured(StructuredToAttr(s).value).Success?
-  {
-    reveal AttrToStructured();
-    reveal StructuredToAttr();
-    reveal TopLevelAttributeToBytes();
-    reveal AttrToBytes();
-    reveal BytesToAttr();
-  }
-
   function method MakeError<T>(s : string) : Result<T, Error> {
     Failure(Error.DynamoDbEncryptionException(message := s))
   }
@@ -156,16 +165,24 @@ module DynamoToStruct {
 
   function method  {:opaque} StructuredToAttr(s : StructuredDataTerminal) : (ret : Result<AttributeValue, string>)
   {
-    :- Need(|s.typeId| == 2, "Type ID must be two bytes");
-    var attrValueAndLength :- BytesToAttr(s.value, s.typeId, false);
-    :- Need(attrValueAndLength.len == |s.value|, "Mismatch between length of encoded data and length of data");
-    Success(attrValueAndLength.val)
+    :- Need(|s.typeId| == TYPEID_LEN, "Type ID must be two bytes");
+    :-Need(|s.value| < UINT32_MAX as int, "Structured Data Too Big.");
+    var attrValueAndLength :- BytesToAttr(s.value, s.typeId, Some(|s.value| as uint32));
+    if attrValueAndLength.len != |s.value| as uint32 then
+      Failure("Mismatch between length of encoded data and length of data")
+    else
+      Success(attrValueAndLength.val)
   }
 
   const BOOL_LEN : nat := 1   // number of bytes in an encoded boolean
   const TYPEID_LEN : nat := 2   // number of bytes in a TerminalTypeId
   const LENGTH_LEN : nat := 4 // number of bytes in an encoded count or length
   const PREFIX_LEN : nat := 6 // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
+
+  const BOOL_LEN32 : uint32 := 1   // number of bytes in an encoded boolean
+  const TYPEID_LEN32 : uint32 := 2   // number of bytes in a TerminalTypeId
+  const LENGTH_LEN32 : uint32 := 4 // number of bytes in an encoded count or length
+  const PREFIX_LEN32 : uint32 := 6 // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
   function method AttrToTypeId(a : AttributeValue) : TerminalTypeId
   {
@@ -189,9 +206,10 @@ module DynamoToStruct {
 
   // convert AttributeValue to byte sequence
   // if `prefix` is true, prefix sequence with TypeID and Length
-  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool, depth : nat := 1) : (ret : Result<seq<uint8>, string>)
+  function method {:opaque} AttrToBytes(a : AttributeValue, prefix : bool, depth : uint32 := 1) : (ret : Result<seq<uint8>, string>)
+    requires depth <= (MAX_STRUCTURE_DEPTH+1)
     decreases a
-    ensures ret.Success? && prefix ==> 6 <= |ret.value|
+    ensures ret.Success? && prefix ==> PREFIX_LEN <= |ret.value|
     ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#boolean
@@ -355,6 +373,7 @@ module DynamoToStruct {
               && (|a.L| == 0 ==> |ret.value| == LENGTH_LEN)
 
     ensures a.L? && ret.Success? && prefix ==>
+              && depth <= MAX_STRUCTURE_DEPTH
               && U32ToBigEndian(|a.L|).Success?
               && |ret.value| >= PREFIX_LEN + LENGTH_LEN
               && ret.value[0..TYPEID_LEN] == SE.LIST
@@ -372,6 +391,7 @@ module DynamoToStruct {
     //# | Key Value Pair Count   | 4        |
     //# | Key Value Pair Entries  | Variable |
     ensures a.M? && ret.Success? && !prefix ==>
+              && depth <= MAX_STRUCTURE_DEPTH
               && U32ToBigEndian(|a.M|).Success?
               && |ret.value| >= LENGTH_LEN
 
@@ -476,8 +496,9 @@ module DynamoToStruct {
   // along with the corresponding precondition,
   // lets Dafny find the correct termination metric.
   // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
-  function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
+  function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : uint32): (ret: Result<seq<uint8>, string>)
     requires forall k <- m :: m[k] < parent
+    requires depth <= MAX_STRUCTURE_DEPTH
   {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
     //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
@@ -500,7 +521,8 @@ module DynamoToStruct {
     Success(count + body)
   }
 
-  function method ListAttrToBytes(l: ListAttributeValue, depth : nat): (ret: Result<seq<uint8>, string>)
+  function method ListAttrToBytes(l: ListAttributeValue, depth : uint32): (ret: Result<seq<uint8>, string>)
+    requires depth <= MAX_STRUCTURE_DEPTH
     ensures ret.Success? ==>
               && U32ToBigEndian(|l|).Success?
               && LENGTH_LEN <= |ret.value|
@@ -544,6 +566,14 @@ module DynamoToStruct {
       Failure("Length of 4-byte integer was less than 4")
     else
       Success(SeqToUInt32(x[..LENGTH_LEN]) as nat)
+  }
+
+  function method BigEndianToU32F(x : seq<uint8>) : (ret : Result<uint32, string>)
+  {
+    if |x| < LENGTH_LEN then
+      Failure("Length of 4-byte integer was less than 4")
+    else
+      Success(SeqToUInt32(x[..LENGTH_LEN]))
   }
 
   predicate IsSorted<T>(s: seq<T>, lessThanOrEq: (T, T) -> bool) {
@@ -646,10 +676,11 @@ module DynamoToStruct {
   //# and MAY hold values of different types.
   function method {:opaque} CollectList(
     listToSerialize : ListAttributeValue,
-    depth : nat,
+    depth : uint32,
     serialized : seq<uint8> := []
   )
     : (ret : Result<seq<uint8>, string>)
+    requires depth <= MAX_STRUCTURE_DEPTH
     ensures (ret.Success? && |listToSerialize| == 0) ==> (ret.value == serialized)
     ensures (ret.Success? && |listToSerialize| == 0) ==> (|ret.value| == |serialized|)
   {
@@ -752,7 +783,7 @@ module DynamoToStruct {
   // AttributeValue with number of bytes consumed in its construction
   datatype AttrValueAndLength = AttrValueAndLength(
     val : AttributeValue,
-    len : nat
+    len : uint32
   )
 
   predicate method IsUnique<T(==)>(s : seq<T>)
@@ -763,13 +794,14 @@ module DynamoToStruct {
   // Bytes to Binary Set
   function method {:tailrecursion} {:vcs_split_on_every_assert}  {:opaque} DeserializeBinarySet(
     serialized : seq<uint8>,
-    remainingCount : nat,
-    origSerializedSize : nat,
+    remainingCount : uint32,
+    origSerializedSize : uint32,
     resultSet : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultSet.val.BS?
+    requires |serialized| < UINT32_MAX as int
     ensures ret.Success? ==> ret.value.val.BS?
-    requires |serialized| + resultSet.len == origSerializedSize
+    requires Add32(|serialized| as uint32, resultSet.len) == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
@@ -783,25 +815,26 @@ module DynamoToStruct {
     else if |serialized| < LENGTH_LEN then
       Failure("Out of bytes reading Binary Set")
     else
-      var len :- BigEndianToU32(serialized);
+      var len :- BigEndianToU32F(serialized);
       var serialized := serialized[LENGTH_LEN..];
       if |serialized| < len as int then
         Failure("Binary Set Structured Data has too few bytes")
       else
         var nattr := AttributeValue.BS(resultSet.val.BS + [serialized[..len]]);
-        DeserializeBinarySet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN))
+        DeserializeBinarySet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN32))
   }
 
   // Bytes to String Set
   function method {:tailrecursion} {:vcs_split_on_every_assert} {:opaque} DeserializeStringSet(
     serialized : seq<uint8>,
-    remainingCount : nat,
-    origSerializedSize : nat,
+    remainingCount : uint32,
+    origSerializedSize : uint32,
     resultSet : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultSet.val.SS?
+    requires |serialized| < UINT32_MAX as int
     ensures ret.Success? ==> ret.value.val.SS?
-    requires |serialized| + resultSet.len == origSerializedSize
+    requires Add32(|serialized| as uint32, resultSet.len) == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
@@ -815,26 +848,27 @@ module DynamoToStruct {
     else if |serialized| < LENGTH_LEN then
       Failure("Out of bytes reading String Set")
     else
-      var len :- BigEndianToU32(serialized);
+      var len : uint32 :- BigEndianToU32F(serialized);
       var serialized := serialized[LENGTH_LEN..];
       if |serialized| < len as int then
         Failure("String Set Structured Data has too few bytes")
       else
         var nstring :- UTF8.Decode(serialized[..len]);
         var nattr := AttributeValue.SS(resultSet.val.SS + [nstring]);
-        DeserializeStringSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN))
+        DeserializeStringSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN32))
   }
 
   // Bytes to Number Set
   function method {:tailrecursion} {:vcs_split_on_every_assert} {:opaque} DeserializeNumberSet(
     serialized : seq<uint8>,
-    remainingCount : nat,
-    origSerializedSize : nat,
+    remainingCount : uint32,
+    origSerializedSize : uint32,
     resultSet : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultSet.val.NS?
+    requires |serialized| < UINT32_MAX as int
     ensures ret.Success? ==> ret.value.val.NS?
-    requires |serialized| + resultSet.len == origSerializedSize
+    requires Add32(|serialized| as uint32, resultSet.len) == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
@@ -848,103 +882,154 @@ module DynamoToStruct {
     else if |serialized| < LENGTH_LEN then
       Failure("Out of bytes reading String Set")
     else
-      var len :- BigEndianToU32(serialized);
+      var len :- BigEndianToU32F(serialized);
       var serialized := serialized[LENGTH_LEN..];
       if |serialized| < len as int then
         Failure("Number Set Structured Data has too few bytes")
       else
         var nstring :- UTF8.Decode(serialized[..len]);
         var nattr := AttributeValue.NS(resultSet.val.NS + [nstring]);
-        DeserializeNumberSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN))
+        DeserializeNumberSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN32))
   }
 
   // Bytes to List
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeList
   function method {:vcs_split_on_every_assert} {:opaque} DeserializeList(
     serialized : seq<uint8>,
-    remainingCount : nat,
-    ghost origSerializedSize : nat,
-    depth : nat,
-    resultList : AttrValueAndLength)
+    pos : uint32,
+    ghost orig_pos : uint32,
+    remainingCount : uint32,
+    depth : uint32,
+    resultList : AttrValueAndLength
+  )
     : (ret : Result<AttrValueAndLength, string>)
+    requires |serialized| < UINT32_MAX as int
+    requires pos as int <= |serialized|
+    requires orig_pos <= pos
+    requires depth <= MAX_STRUCTURE_DEPTH
     requires resultList.val.L?
     ensures ret.Success? ==> ret.value.val.L?
-    requires |serialized| + resultList.len == origSerializedSize
-    ensures ret.Success? ==> ret.value.len <= origSerializedSize
-    decreases |serialized|
+    requires pos == Add32(orig_pos, resultList.len)
+    ensures ret.Success? ==> ret.value.len <= |serialized| as uint32 - orig_pos
+    decreases |serialized| as uint32 - pos
   {
+    var serialized_size := |serialized| as uint32;
     if remainingCount == 0 then
       Success(resultList)
-    else if |serialized| < 6 then
+    else if serialized_size-pos < PREFIX_LEN32 then
       Failure("Out of bytes reading Type of List element")
     else
-      var TerminalTypeId := serialized[0..2];
-      var serialized := serialized[2..];
-      var len :- BigEndianToU32(serialized);
-      var serialized := serialized[LENGTH_LEN..];
-      if |serialized| < len then
+      var TerminalTypeId := serialized[pos..pos+2];
+      var len : uint32 :- BigEndianPosToU32(serialized, pos+2);
+      var new_pos : uint32 := pos + PREFIX_LEN32;
+      if serialized_size - new_pos < len then
         Failure("Out of bytes reading Content of List element")
       else
-        var nval :- BytesToAttr(serialized[..len], TerminalTypeId, false, depth+1);
+        assert serialized_size == |serialized| as uint32;
+        var nval :- BytesToAttr(serialized, TerminalTypeId, Some(len), depth+1, new_pos);
         var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
-        DeserializeList(serialized[len..], remainingCount-1, origSerializedSize, depth, AttrValueAndLength(nattr, resultList.len + len + 6))
+        var nResultList := AttrValueAndLength(nattr, Add32_3(resultList.len, len, PREFIX_LEN32));
+        DeserializeList(serialized, new_pos+len, orig_pos, remainingCount-1, depth, nResultList)
   }
+
+  function method {:vcs_split_on_every_assert} DeserializeMapEntry(
+    serialized : seq<uint8>,
+    pos : uint32,
+    depth : uint32,
+    resultMap : AttrValueAndLength
+  )
+    : (ret : Result<(AttrValueAndLength, uint32), string>)
+    requires |serialized| < UINT32_MAX as int
+    requires pos as int <= |serialized|
+    requires depth <= MAX_STRUCTURE_DEPTH
+    requires resultMap.val.M?
+    ensures ret.Success? ==> pos < ret.value.1 <= |serialized| as uint32
+    decreases |serialized| as uint32 - pos, 0
+  {
+    var serialized_size := |serialized| as uint32;
+    var orig_pos := pos;
+
+    // get typeId of key
+    :- Need(PREFIX_LEN32 <= serialized_size-pos, "Out of bytes reading Map Key");
+    var TerminalTypeId_key := serialized[pos..pos+TYPEID_LEN32];
+    :- Need(TerminalTypeId_key == SE.STRING, "Key of Map is not String");
+    var pos := pos + TYPEID_LEN32;
+
+    // get key
+    var len : uint32 :- BigEndianPosToU32(serialized, pos);
+    var pos := pos + LENGTH_LEN32;
+    :- Need(len <= serialized_size-pos, "Key of Map of Structured Data has too few bytes");
+    var key :- UTF8.Decode(serialized[pos..pos+len]);
+    var pos := pos + len;
+
+    // get typeId of value
+    :- Need(2 <= serialized_size-pos, "Out of bytes reading Map Value");
+    :- Need(IsValid_AttributeName(key), "Key is not valid AttributeName");
+    var TerminalTypeId_value := serialized[pos..pos+TYPEID_LEN32];
+    var pos := pos + TYPEID_LEN32;
+
+    // get value and construct result
+    var nval :- BytesToAttr(serialized, TerminalTypeId_value, None, depth+1, pos);
+    var pos := pos + nval.len;
+
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+    //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
+
+    //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
+    //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
+
+    :- Need(key !in resultMap.val.M, "Duplicate key in map.");
+    var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
+    var newResultMap := AttrValueAndLength(nattr, Add32(resultMap.len, (pos - orig_pos)));
+
+    Success((newResultMap, pos))
+  }
+
 
   // Bytes to Map
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeMap
-  function method {:vcs_split_on_every_assert} {:opaque} DeserializeMap(
+  // However, we really need this to loop and not recurse.
+  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // hence the {:verify false}
+  function {:vcs_split_on_every_assert} {:opaque} {:verify false} DeserializeMap(
     serialized : seq<uint8>,
-    remainingCount : nat,
-    ghost origSerializedSize : nat,
-    depth : nat,
+    pos : uint32,
+    ghost orig_pos : uint32,
+    remainingCount : uint32,
+    depth : uint32,
     resultMap : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
+    requires |serialized| < UINT32_MAX as int
+    requires pos as int <= |serialized|
+    requires orig_pos <= pos
     requires resultMap.val.M?
+    requires depth <= MAX_STRUCTURE_DEPTH
     ensures ret.Success? ==> ret.value.val.M?
-    requires |serialized| + resultMap.len == origSerializedSize
-    ensures ret.Success? ==> ret.value.len <= origSerializedSize
-    decreases |serialized|
+    requires pos == Add32(orig_pos, resultMap.len)
+    ensures ret.Success? ==> ret.value.len <= |serialized| as uint32 - orig_pos
+    decreases |serialized| as uint32 - pos, 1
   {
-    ghost var serializedInitial := serialized;
-
     if remainingCount == 0 then
       Success(resultMap)
     else
-      // get typeId of key
-      :- Need(6 <= |serialized|, "Out of bytes reading Map Key");
-      var TerminalTypeId_key := serialized[0..2];
-      :- Need(TerminalTypeId_key == SE.STRING, "Key of Map is not String");
-      var serialized := serialized[2..];
+      var (newResultMap, npos) :- DeserializeMapEntry(serialized, pos, depth, resultMap);
+      DeserializeMap(serialized, npos, orig_pos, remainingCount - 1, depth, newResultMap)
 
-      // get key
-      var len :- BigEndianToU32(serialized);
-      var serialized := serialized[LENGTH_LEN..];
-      :- Need(len as int <= |serialized|, "Key of Map of Structured Data has too few bytes");
-      var key :- UTF8.Decode(serialized[..len]);
-      var serialized := serialized[len..];
-
-      assert |serialized| + 6 + len == |serializedInitial|;
-
-      // get typeId of value
-      :- Need(2 <= |serialized|, "Out of bytes reading Map Value");
-      :- Need(IsValid_AttributeName(key), "Key is not valid AttributeName");
-      var TerminalTypeId_value := serialized[0..2];
-      var serialized := serialized[2..];
-
-      // get value and construct result
-      var nval :- BytesToAttr(serialized, TerminalTypeId_value, true, depth+1);
-      var serialized := serialized[nval.len..];
-
-      //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
-      //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
-
-      //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
-      //# - Conversion from a Structured Data Map MUST fail if it has duplicate keys
-      :- Need(key !in resultMap.val.M, "Duplicate key in map.");
-      var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
-      var newResultMap := AttrValueAndLength(nattr, resultMap.len + nval.len + 8 + len);
-      assert |serialized| + newResultMap.len == origSerializedSize;
-      DeserializeMap(serialized, remainingCount - 1, origSerializedSize, depth, newResultMap)
+  }
+  by method {
+    var npos : uint32 := pos;
+    var newResultMap := resultMap;
+    for i := 0 to remainingCount
+      invariant serialized == old(serialized)
+      invariant newResultMap.val.M?
+      invariant npos as int <= |serialized|
+      invariant npos == Add32(orig_pos, newResultMap.len)
+    {
+      var test :- DeserializeMapEntry(serialized, npos, depth, newResultMap);
+      newResultMap := test.0;
+      npos := test.1;
+    }
+    ret := Success(newResultMap);
   }
 
   // Bytes to AttributeValue
@@ -952,26 +1037,28 @@ module DynamoToStruct {
   function method {:vcs_split_on_every_assert} {:opaque} BytesToAttr(
     value : seq<uint8>,
     typeId : TerminalTypeId,
-    hasLen : bool,
-    depth : nat := 1
+    totalBytes : Option<uint32>, // Some(number of bytes past pos) or None for 'read first bytes to find length'
+    depth : uint32 := 1,
+    pos : uint32 := 0    // starting position within value
   )
     : (ret : Result<AttrValueAndLength, string>)
-    ensures ret.Success? ==> ret.value.len <= |value|
+    requires |value| < UINT32_MAX as int
+    requires pos <= |value| as uint32
+    requires totalBytes.Some? ==> Add32(pos, totalBytes.value) <= |value| as uint32
+    ensures ret.Success? ==> Add32(pos, ret.value.len) <= |value| as uint32
     ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
-    decreases |value|
+    decreases |value| as uint32 - pos
   {
+    var value_size : uint32 := |value| as uint32;
     :- Need(depth <= MAX_STRUCTURE_DEPTH, "Depth of attribute structure to deserialize exceeds limit of " + MAX_STRUCTURE_DEPTH_STR);
-    var len :- if hasLen then
-                 if |value| < LENGTH_LEN then
-                   Failure("Out of bytes reading length")
-                 else
-                   BigEndianToU32(value)
-               else
-                 Success(|value|);
-    var value := if hasLen then value[LENGTH_LEN..] else value;
-    var lengthBytes := if hasLen then LENGTH_LEN else 0;
+    var len : uint32 :- if totalBytes.None? then
+                          BigEndianPosToU32(value, pos)
+                        else
+                          Success(totalBytes.value);
+    var pos := if totalBytes.None? then Add32(pos, LENGTH_LEN32) else pos;
+    var lengthBytes : uint32 := if totalBytes.None? then LENGTH_LEN32 else 0;
 
-    if |value| < len then
+    if value_size - pos < len then
       Failure("Structured Data has too few bytes")
 
     else if typeId == SE.NULL then
@@ -985,66 +1072,70 @@ module DynamoToStruct {
         Success(AttrValueAndLength(AttributeValue.NULL(true), lengthBytes))
 
     else if typeId == SE.STRING then
-      var str :- UTF8.Decode(value[..len]);
+      var str :- UTF8.Decode(value[pos..pos+len]);
       Success(AttrValueAndLength(AttributeValue.S(str), len+lengthBytes))
 
     else if typeId == SE.NUMBER then
-      var str :- UTF8.Decode(value[..len]);
+      var str :- UTF8.Decode(value[pos..pos+len]);
       Success(AttrValueAndLength(AttributeValue.N(str), len+lengthBytes))
 
     else if typeId == SE.BINARY then
-      Success(AttrValueAndLength(AttributeValue.B(value[..len]), len+lengthBytes))
+      Success(AttrValueAndLength(AttributeValue.B(value[pos..pos+len]), len+lengthBytes))
 
     else if typeId == SE.BOOLEAN then
-      if len != BOOL_LEN then
+      if len != BOOL_LEN32 then
         Failure("Boolean Structured Data has more than one byte")
-      else if value[0] == 0x00 then
-        Success(AttrValueAndLength(AttributeValue.BOOL(false), BOOL_LEN+lengthBytes))
-      else if value[0] == 0x01 then
-        Success(AttrValueAndLength(AttributeValue.BOOL(true), BOOL_LEN+lengthBytes))
+      else if value[pos] == 0x00 then
+        Success(AttrValueAndLength(AttributeValue.BOOL(false), BOOL_LEN32+lengthBytes))
+      else if value[pos] == 0x01 then
+        Success(AttrValueAndLength(AttributeValue.BOOL(true), BOOL_LEN32+lengthBytes))
       else
         Failure("Boolean Structured Data had inappropriate value")
 
     else if typeId == SE.STRING_SET then
-      if |value| < LENGTH_LEN then
+      if value_size - pos < LENGTH_LEN32 then
         Failure("String Set Structured Data has less than LENGTH_LEN bytes")
       else
-        var len :- BigEndianToU32(value);
-        var value := value[LENGTH_LEN..];
-        DeserializeStringSet(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN+lengthBytes))
+        var len : uint32 :- BigEndianPosToU32(value, pos);
+        var pos : uint32 := pos + LENGTH_LEN32;
+        DeserializeStringSet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN32+lengthBytes))
 
     else if typeId == SE.NUMBER_SET then
-      if |value| < LENGTH_LEN then
+      if value_size - pos < LENGTH_LEN32 then
         Failure("Number Set Structured Data has less than 4 bytes")
       else
-        var len :- BigEndianToU32(value);
-        var value := value[LENGTH_LEN..];
-        DeserializeNumberSet(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN + lengthBytes))
+        var len : uint32 :- BigEndianPosToU32(value, pos);
+        var pos : uint32 := pos + LENGTH_LEN32;
+        DeserializeNumberSet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN32 + lengthBytes))
 
     else if typeId == SE.BINARY_SET then
-      if |value| < LENGTH_LEN then
+      if value_size - pos < LENGTH_LEN32 then
         Failure("Binary Set Structured Data has less than LENGTH_LEN bytes")
       else
-        var len :- BigEndianToU32(value);
-        var value := value[LENGTH_LEN..];
-        DeserializeBinarySet(value, len, |value| + LENGTH_LEN + lengthBytes, AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN + lengthBytes))
+        var len : uint32 :- BigEndianPosToU32(value, pos);
+        var pos : uint32 := pos + LENGTH_LEN32;
+        DeserializeBinarySet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN32 + lengthBytes))
 
     else if typeId == SE.MAP then
-      if |value| < LENGTH_LEN then
+      if value_size < Add32(LENGTH_LEN32, pos) then
         Failure("List Structured Data has less than 4 bytes")
       else
-        var len :- BigEndianToU32(value);
-        var value := value[LENGTH_LEN..];
-        DeserializeMap(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN + lengthBytes))
+        var len : uint32 :- BigEndianPosToU32(value, pos);
+        var pos : uint32 := pos + LENGTH_LEN32;
+        var resultMap := AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN32 + lengthBytes);
+        DeserializeMap(value, pos, pos - resultMap.len, len, depth, resultMap)
 
     else if typeId == SE.LIST then
-      if |value| < LENGTH_LEN then
+      if value_size < Add32(LENGTH_LEN32, pos) then
         Failure("List Structured Data has less than 4 bytes")
       else
-        var len :- BigEndianToU32(value);
-        var value := value[LENGTH_LEN..];
-        DeserializeList(value, len, |value| + LENGTH_LEN + lengthBytes, depth, AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN + lengthBytes))
-
+        var len : uint32 :- BigEndianPosToU32(value, pos);
+        var pos : uint32 := pos + LENGTH_LEN32;
+        assert pos <= value_size;
+        assert value_size == |value| as uint32;
+        assert pos <= |value| as uint32;
+        var resultList := AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN32 + lengthBytes);
+        DeserializeList(value, pos, pos - resultList.len, len, depth, resultList)
     else
       Failure("Unsupported TerminalTypeId")
 
