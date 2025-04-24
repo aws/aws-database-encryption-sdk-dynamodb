@@ -674,7 +674,13 @@ module DynamoToStruct {
   //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#list-entry-value
   //# A List MAY hold any DynamoDB Attribute Value data type,
   //# and MAY hold values of different types.
-  function method {:opaque} CollectList(
+
+  // Can't be {:tailrecursion} because it calls AttrToBytes which might again call CollectList
+  // However, we really need this to loop and not recurse.
+  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // for example, a call to CollectList somehow does not satisfy the decreases clause
+  // hence the {:verify false}
+  function {:opaque} {:verify false} {:axiom} CollectList(
     listToSerialize : ListAttributeValue,
     depth : uint32,
     serialized : seq<uint8> := []
@@ -687,9 +693,17 @@ module DynamoToStruct {
     if |listToSerialize| == 0 then
       Success(serialized)
     else
-      // Can't do the `pos` optimization, because I can't appease the `decreases`
       var val :- AttrToBytes(listToSerialize[0], true, depth+1);
       CollectList(listToSerialize[1..], depth, serialized + val)
+  }
+  by method {
+    var result := serialized;
+    for i := 0 to |listToSerialize|
+    {
+      var val :- AttrToBytes(listToSerialize[i], true, depth+1);
+      result := result + val;
+    }
+    return Success(result);
   }
 
   function method SerializeMapItem(key : string, value : seq<uint8>) : (ret : Result<seq<uint8>, string>)
@@ -892,9 +906,46 @@ module DynamoToStruct {
         DeserializeNumberSet(serialized[len..], remainingCount-1, origSerializedSize, AttrValueAndLength(nattr, resultSet.len + len + LENGTH_LEN32))
   }
 
+  function method {:vcs_split_on_every_assert} DeserializeListEntry(
+    serialized : seq<uint8>,
+    pos : uint32,
+    depth : uint32,
+    resultList : AttrValueAndLength
+  )
+    : (ret : Result<(AttrValueAndLength, uint32), string>)
+    requires |serialized| < UINT32_MAX as int
+    requires pos as int <= |serialized|
+    requires depth <= MAX_STRUCTURE_DEPTH
+    requires resultList.val.L?
+    ensures ret.Success? ==> ret.value.0.val.L?
+    ensures ret.Success? ==> pos < ret.value.1 <= |serialized| as uint32
+    decreases |serialized| as uint32 - pos, 0
+  {
+    var serialized_size := |serialized| as uint32;
+    if serialized_size-pos < PREFIX_LEN32 then
+      Failure("Out of bytes reading Type of List element")
+    else
+      var TerminalTypeId := serialized[pos..pos+2];
+      var len : uint32 :- BigEndianPosToU32(serialized, pos+2);
+      var new_pos : uint32 := pos + PREFIX_LEN32;
+      if serialized_size - new_pos < len then
+        Failure("Out of bytes reading Content of List element")
+      else
+        assert serialized_size == |serialized| as uint32;
+        var nval :- BytesToAttr(serialized, TerminalTypeId, Some(len), depth+1, new_pos);
+        var new_pos := new_pos + nval.len;
+        var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
+        var nResultList := AttrValueAndLength(nattr, Add32(resultList.len, new_pos-pos));
+        Success((nResultList, new_pos))
+  }
+
   // Bytes to List
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeList
-  function method {:vcs_split_on_every_assert} {:opaque} DeserializeList(
+  // However, we really need this to loop and not recurse.
+  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // for example, a call to DeserializeListEntry somehow does not satisfy the decreases clause
+  // hence the {:verify false}
+  function {:vcs_split_on_every_assert} {:opaque} {:verify false} DeserializeList(
     serialized : seq<uint8>,
     pos : uint32,
     ghost orig_pos : uint32,
@@ -911,25 +962,28 @@ module DynamoToStruct {
     ensures ret.Success? ==> ret.value.val.L?
     requires pos == Add32(orig_pos, resultList.len)
     ensures ret.Success? ==> ret.value.len <= |serialized| as uint32 - orig_pos
-    decreases |serialized| as uint32 - pos
+    decreases |serialized| as uint32 - pos, 1
   {
-    var serialized_size := |serialized| as uint32;
     if remainingCount == 0 then
       Success(resultList)
-    else if serialized_size-pos < PREFIX_LEN32 then
-      Failure("Out of bytes reading Type of List element")
     else
-      var TerminalTypeId := serialized[pos..pos+2];
-      var len : uint32 :- BigEndianPosToU32(serialized, pos+2);
-      var new_pos : uint32 := pos + PREFIX_LEN32;
-      if serialized_size - new_pos < len then
-        Failure("Out of bytes reading Content of List element")
-      else
-        assert serialized_size == |serialized| as uint32;
-        var nval :- BytesToAttr(serialized, TerminalTypeId, Some(len), depth+1, new_pos);
-        var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
-        var nResultList := AttrValueAndLength(nattr, Add32_3(resultList.len, len, PREFIX_LEN32));
-        DeserializeList(serialized, new_pos+len, orig_pos, remainingCount-1, depth, nResultList)
+      var (newResultList, npos) :- DeserializeListEntry(serialized, pos, depth, resultList);
+      DeserializeList(serialized, npos, orig_pos, remainingCount - 1, depth, newResultList)
+  }
+  by method {
+    var npos : uint32 := pos;
+    var newResultList := resultList;
+    for i := 0 to remainingCount
+      invariant serialized == old(serialized)
+      invariant newResultList.val.L?
+      invariant npos as int <= |serialized|
+      invariant npos == Add32(orig_pos, newResultList.len)
+    {
+      var test :- DeserializeListEntry(serialized, npos, depth, newResultList);
+      newResultList := test.0;
+      npos := test.1;
+    }
+    ret := Success(newResultList);
   }
 
   function method {:vcs_split_on_every_assert} DeserializeMapEntry(
@@ -990,6 +1044,7 @@ module DynamoToStruct {
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeMap
   // However, we really need this to loop and not recurse.
   // This verifies without the `by method`, but Dafny is too broken to let it verify by method
+  // for example, a call to DeserializeMapEntry somehow does not satisfy the decreases clause
   // hence the {:verify false}
   function {:vcs_split_on_every_assert} {:opaque} {:verify false} DeserializeMap(
     serialized : seq<uint8>,
