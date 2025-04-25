@@ -25,7 +25,12 @@ module DynamoToStruct {
 
   type TerminalDataMap = map<AttributeName, StructuredDataTerminal>
 
+  // This file exists for ItemToStructured and StructuredToItem and their variants,
+  // which provide conversion between an AttributeMap and a StructuredDataMap
 
+
+  // Identical to ItemToStructured, except that the result does not include any attributes configured as DO_NOTHING\
+  // Such attributes are unneeded, as they do not partake in signing nor encryption
   function method ItemToStructured2(item : AttributeMap, actions : Types.AttributeActions) : (ret : Result<TerminalDataMap, Error>)
   {
     // var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
@@ -36,6 +41,9 @@ module DynamoToStruct {
     MapError(SimplifyMapValue(structuredMap))
   }
 
+  // Identical to StructuredToItem, except that any non encrypted fields in the original are passed through unchanged
+  // and only encrypted fields are run through StructuredToAttr
+  // This one is used for encryption, and so anything in s but not in orig is also kept
   function method StructuredToItemEncrypt(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
   {
     var ddbMap := map k <- orig :: k := if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) then StructuredToAttr(s[k]) else Success(orig[k]);
@@ -49,15 +57,15 @@ module DynamoToStruct {
     Success(oldMap + newMap)
   }
 
+  // Identical to StructuredToItem, except that any non encrypted fields in the original are passed through unchanged
+  // and only encrypted fields are run through StructuredToAttr\
+  // This one is used for decryption, and so anything in s but not in orig is ignored
   function method StructuredToItemDecrypt(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
   {
     var ddbMap := map k <- orig | !(ReservedPrefix <= k) :: k := if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) then StructuredToAttr(s[k]) else Success(orig[k]);
     MapKeysMatchItems(orig);
     MapError(SimplifyMapValue(ddbMap))
   }
-
-  // This file exists for these two functions : ItemToStructured and StructuredToItem
-  // which provide conversion between an AttributeMap and a StructuredDataMap
 
   // Convert AttributeMap to StructuredDataMap
   function method {:opaque} ItemToStructured(item : AttributeMap) : (ret : Result<TerminalDataMap, Error>)
@@ -146,6 +154,7 @@ module DynamoToStruct {
       Success(SeqPosToUInt32(x, pos))
   }
 
+  // This is safe because are dealing with DynamoDB items, and so no numbers wil exceed 400K
   function method {:opaque} Add32(x : uint32, y : uint32) : (ret : uint32)
     ensures x as uint64 + y as uint64 <= UINT32_MAX as uint64
     ensures ret == x + y
@@ -155,6 +164,7 @@ module DynamoToStruct {
     value as uint32
   }
 
+  // This is safe because are dealing with DynamoDB items, and so no numbers will exceed 400K
   function method {:opaque} Add32_3(x : uint32, y : uint32, z : uint32) : (ret : uint32)
     ensures x as uint64 + y as uint64 + z as uint64 <= UINT32_MAX as uint64
     ensures ret == x + y + z

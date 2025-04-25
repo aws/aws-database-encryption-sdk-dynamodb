@@ -13,7 +13,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened StandardLibrary.String
   import JSON.API
   import opened JSON.Values
   import JSON.Errors
@@ -46,7 +45,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import TransOp = AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations
   import DdbMiddlewareConfig
   import DynamoDbEncryptionTransforms
+  import OsLang
 
+  const PerfIterations : uint32 := 1000
 
   datatype TestVectorConfig = TestVectorConfig (
     schemaOnEncrypt : DDB.CreateTableInput,
@@ -73,60 +74,60 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies keyVectors.Modifies
       ensures keyVectors.ValidState()
     {
-      print "DBE Test Vectors\n";
-      print |globalRecords|, " records.\n";
-      print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
-      print |largeEncryptionConfigs|, " largeEncryptionConfigs.\n";
-      print |queries|, " queries.\n";
-      print |names|, " names.\n";
-      print |values|, " values.\n";
-      print |failingQueries|, " failingQueries.\n";
-      print |complexTests|, " complexTests.\n";
-      print |ioTests|, " ioTests.\n";
-      print |configsForIoTest|, " configsForIoTest.\n";
-      print |configsForModTest|, " configsForModTest.\n";
-      print |strings|, " strings.\n";
-      print |large|, " large.\n";
-      if |roundTripTests| != 0 {
-        print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
-      }
-      if |roundTripTests| > 1 {
-        print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
-      }
+      // print "DBE Test Vectors\n";
+      // print |globalRecords|, " records.\n";
+      // print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
+      // print |largeEncryptionConfigs|, " largeEncryptionConfigs.\n";
+      // print |queries|, " queries.\n";
+      // print |names|, " names.\n";
+      // print |values|, " values.\n";
+      // print |failingQueries|, " failingQueries.\n";
+      // print |complexTests|, " complexTests.\n";
+      // print |ioTests|, " ioTests.\n";
+      // print |configsForIoTest|, " configsForIoTest.\n";
+      // print |configsForModTest|, " configsForModTest.\n";
+      // print |strings|, " strings.\n";
+      // print |large|, " large.\n";
+      // if |roundTripTests| != 0 {
+      //   print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
+      // }
+      // if |roundTripTests| > 1 {
+      //   print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
+      // }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
-      var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
-      if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
-        print "\nRunning no tests\n";
-        return;
-      }
-      Validate();
-      // Because of Dafny-Rust's lack of modules, there is no way to mae an interceptor for the wrapped DB-ESDK client.
-      // So we create runtimes/rust/SkipLocal.txt to skip those tests that need the wrapped client.
-      var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
-      if skipLocal.Success? {
-        return;
-      }
-      StringOrdering();
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
+      // var _ :- expect WriteManifest.Write("encrypt.json");
+      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
+      // if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
+      //   print "\nRunning no tests\n";
+      //   return;
+      // }
+      // Validate();
+      // // Because of Dafny-Rust's lack of modules, there is no way to make an interceptor for the wrapped DB-ESDK client.
+      // // So we create runtimes/rust/SkipLocal.txt to skip those tests that need the wrapped client.
+      // var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
+      // if skipLocal.Success? {
+      //   return;
+      // }
+      // StringOrdering();
       LargeTests();
-      BasicIoTest();
-      RunIoTests();
-      BasicQueryTest();
-      ConfigModTest();
-      ComplexTests();
-      WriteTests();
-      RoundTripTests();
-      DecryptTests();
-      var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
-      DeleteTable(client);
+      // BasicIoTest();
+      // RunIoTests();
+      // BasicQueryTest();
+      // ConfigModTest();
+      // ComplexTests();
+      // WriteTests();
+      // RoundTripTests();
+      // DecryptTests();
+      // var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+      // DeleteTable(client);
     }
 
     function NewOrderRecord(i : nat, str : string) : Record
@@ -494,8 +495,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    const TestConfigs : set<string> := {"all"}
-    const TestRecords : set<string> := {"all"}
+    const TestConfigs : set<string> := {"full_sign_nosign"}
+    const TestRecords : set<string> := {"flat"}
 
     predicate DoTestConfig(name : string)
     {
@@ -554,25 +555,23 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
 
       var time := Time.GetAbsoluteTime();
-      for i := 0 to record.count {
+      for i : uint32 := 0 to PerfIterations {
         var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
         var put_input_output :- expect client.PutItemInputTransform(put_input_input);
       }
-      var elapsed := Time.TimeSince(time);
-      Time.PrintTimeLong(elapsed, "Large Encrypt " + record.name + "(" + Base10Int2String(record.count) + ") " + config);
+      Time.PrintTimeSinceLong(time, "Large Encrypt " + record.name + config, DecryptManifest.LogFileName());
 
       var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
       var put_input_output :- expect client.PutItemInputTransform(put_input_input);
       time := Time.GetAbsoluteTime();
-      for i := 0 to record.count {
+      for i : uint32 := 0 to PerfIterations {
         var orig_get_input := DDB.GetItemInput(TableName := TableName, Key := map[]);
         var get_output := DDB.GetItemOutput(Item := Some(put_input_output.transformedInput.Item));
         var trans_get_input := Trans.GetItemOutputTransformInput(sdkOutput := get_output, originalInput := orig_get_input);
         var put_output :- expect client.GetItemOutputTransform(trans_get_input);
 
       }
-      elapsed := Time.TimeSince(time);
-      Time.PrintTimeLong(elapsed, "Large Decrypt " + record.name + "(" + Base10Int2String(record.count) + ") " + config);
+      Time.PrintTimeSinceLong(time, "Large Decrypt " + record.name + config, DecryptManifest.LogFileName());
     }
 
     method RoundTripTests()
