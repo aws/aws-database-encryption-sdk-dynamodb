@@ -553,7 +553,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
         var put_input_output :- expect client.PutItemInputTransform(put_input_input);
       }
-      Time.PrintTimeSinceLong(time, "Large Encrypt " + record.name + config, DecryptManifest.LogFileName());
+      Time.PrintTimeSinceLong(time, "Large Encrypt " + record.name + " " + config, DecryptManifest.LogFileName());
 
       var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
       var put_input_output :- expect client.PutItemInputTransform(put_input_input);
@@ -565,7 +565,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         var put_output :- expect client.GetItemOutputTransform(trans_get_input);
 
       }
-      Time.PrintTimeSinceLong(time, "Large Decrypt " + record.name + config, DecryptManifest.LogFileName());
+      Time.PrintTimeSinceLong(time, "Large Decrypt " + record.name + " " + config, DecryptManifest.LogFileName());
     }
 
     method RoundTripTests()
