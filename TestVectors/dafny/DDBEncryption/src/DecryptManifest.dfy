@@ -113,9 +113,6 @@ module {:options "-functionSyntax:4"} DecryptManifest {
 
   function LogFileName() : Option<string>
   {
-    // if OsLang.GetOsShort() == "Windows" && OsLang.GetLanguageShort() == "Dotnet" then
-    //   "..\\..\\PerfLog.txt"
-    // else
     Some("../../PerfLog.txt")
   }
 

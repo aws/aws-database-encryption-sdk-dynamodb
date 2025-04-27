@@ -154,7 +154,7 @@ module DynamoToStruct {
       Success(SeqPosToUInt32(x, pos))
   }
 
-  // This is safe because are dealing with DynamoDB items, and so no numbers wil exceed 400K
+  // This is safe because are dealing with DynamoDB items, and so no numbers will exceed 400K
   function method {:opaque} Add32(x : uint32, y : uint32) : (ret : uint32)
     ensures x as uint64 + y as uint64 <= UINT32_MAX as uint64
     ensures ret == x + y
@@ -999,7 +999,7 @@ module DynamoToStruct {
       else
         assert serialized_size == |serialized| as uint32;
         var nval :- BytesToAttr(serialized, TerminalTypeId, Some(len), depth+1, new_pos);
-        var new_pos := new_pos + nval.len;
+        var new_pos := Add32(new_pos, nval.len);
         var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
         var nResultList := AttrValueAndLength(nattr, Add32(resultList.len, new_pos-pos));
         Success((nResultList, new_pos))
@@ -1121,7 +1121,7 @@ module DynamoToStruct {
 
     // get value and construct result
     var nval :- BytesToAttr(serialized, TerminalTypeId_value, None, depth+1, pos);
-    var pos := pos + nval.len;
+    var pos := Add32(pos, nval.len);
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
     //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
@@ -1278,7 +1278,10 @@ module DynamoToStruct {
       else
         var len : uint32 :- BigEndianPosToU32(value, pos);
         var pos : uint32 := pos + LENGTH_LEN32;
-        DeserializeStringSet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN32+lengthBytes))
+        var retval :- DeserializeStringSet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN32+lengthBytes));
+        // this is not needed with Dafny 4.10
+        assume {:axiom} Add32(pos, retval.len) <= |value| as uint32;
+        Success(retval)
 
     else if typeId == SE.NUMBER_SET then
       if value_size - pos < LENGTH_LEN32 then
@@ -1286,7 +1289,10 @@ module DynamoToStruct {
       else
         var len : uint32 :- BigEndianPosToU32(value, pos);
         var pos : uint32 := pos + LENGTH_LEN32;
-        DeserializeNumberSet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN32 + lengthBytes))
+        var retval :- DeserializeNumberSet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN32 + lengthBytes));
+        // this is not needed with Dafny 4.10
+        assume {:axiom} Add32(pos, retval.len) <= |value| as uint32;
+        Success(retval)
 
     else if typeId == SE.BINARY_SET then
       if value_size - pos < LENGTH_LEN32 then
@@ -1294,7 +1300,10 @@ module DynamoToStruct {
       else
         var len : uint32 :- BigEndianPosToU32(value, pos);
         var pos : uint32 := pos + LENGTH_LEN32;
-        DeserializeBinarySet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN32 + lengthBytes))
+        var retval :- DeserializeBinarySet(value[pos..], len, Add32_3(value_size - pos, LENGTH_LEN32, lengthBytes), AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN32 + lengthBytes));
+        // this is not needed with Dafny 4.10
+        assume {:axiom} Add32(pos, retval.len) <= |value| as uint32;
+        Success(retval)
 
     else if typeId == SE.MAP then
       if value_size < Add32(LENGTH_LEN32, pos) then
@@ -1303,7 +1312,10 @@ module DynamoToStruct {
         var len : uint32 :- BigEndianPosToU32(value, pos);
         var pos : uint32 := pos + LENGTH_LEN32;
         var resultMap := AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN32 + lengthBytes);
-        DeserializeMap(value, pos, pos - resultMap.len, len, depth, resultMap)
+        var retval :- DeserializeMap(value, pos, pos - resultMap.len, len, depth, resultMap);
+        // this is not needed with Dafny 4.10
+        assume {:axiom} Add32(pos, retval.len) <= |value| as uint32;
+        Success(retval)
 
     else if typeId == SE.LIST then
       if value_size < Add32(LENGTH_LEN32, pos) then
@@ -1315,7 +1327,10 @@ module DynamoToStruct {
         assert value_size == |value| as uint32;
         assert pos <= |value| as uint32;
         var resultList := AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN32 + lengthBytes);
-        DeserializeList(value, pos, pos - resultList.len, len, depth, resultList)
+        var retval :- DeserializeList(value, pos, pos - resultList.len, len, depth, resultList);
+        // this is not needed with Dafny 4.10
+        assume {:axiom} Add32(pos, retval.len) <= |value| as uint32;
+        Success(retval)
     else
       Failure("Unsupported TerminalTypeId")
 
