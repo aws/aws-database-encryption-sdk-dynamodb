@@ -14,15 +14,14 @@ pub mod operation;
 pub mod types;
 pub mod validation;
 pub mod intercept;
-
-// removed wrapped-client feature using sed;
-// removed wrapped module using sed;
+pub mod wrapped;
 
 mod standard_library_conversions;
 mod standard_library_externs;
 
 pub use client::Client;
 
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption;
 pub use crate::deps::aws_cryptography_keyStore;
 pub use crate::deps::aws_cryptography_materialProviders;

@@ -18,20 +18,7 @@ impl _CreateWrappedItemEncryptor_Compile::_default {
     pub fn CreateWrappedItemEncryptor(
         config: &Rc<crate::implementation_from_dafny::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DynamoDbItemEncryptorConfig>
     ) -> Rc<_Wrappers_Compile::Result<Object<dyn IDynamoDbItemEncryptorClient>, Rc<Error>>> {
-        let native_config = crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor::conversions::dynamo_db_item_encryptor_config::_dynamo_db_item_encryptor_config::plain_from_dafny(config);
-        
-        let item_encryptor = match item_encryptor_client::Client::from_conf(native_config) {
-            Ok(client) => client,
-            Err(e) => return Rc::new(crate::r#_Wrappers_Compile::Result::Failure {
-                error: error::to_dafny(e),
-            }),
-        };
-        
-        let wrapped_encryptor = wrapped_item_encryptor_client::Client {wrapped: item_encryptor};
-        let dafny_encryptor = ::dafny_runtime::upcast_object()(::dafny_runtime::object::new(wrapped_encryptor));
-        
-        Rc::new(crate::r#_Wrappers_Compile::Result::Success {
-            value: dafny_encryptor,
-        })
+        // from_conf converts Dafny config to native, constructs a native client, and wraps it in a Dafny client
+        return wrapped_item_encryptor_client::Client::from_conf(config);
     }
 }
