@@ -11,24 +11,8 @@ module {:extern} CreateWrappedItemEncryptor {
   import DynamoDbItemEncryptor
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
-  // The `ensures` clause is copy-pasted from the DynamoDbItemEncryptor client method's `ensures` clause.
   method {:extern} CreateWrappedItemEncryptor(config: ENC.DynamoDbItemEncryptorConfig)
     returns (output: Result<ENC.IDynamoDbItemEncryptorClient, ENC.Error>)
-    // requires config.keyring.Some? ==>
-    //   config.keyring.value.ValidState()
-    // requires config.cmm.Some? ==>
-    //   config.cmm.value.ValidState()
-    // requires config.legacyOverride.Some? ==>
-    //   config.legacyOverride.value.encryptor.ValidState()
-    // modifies if config.keyring.Some? then
-    //     config.keyring.value.Modifies
-    //   else {}
-    // modifies if config.cmm.Some? then
-    //     config.cmm.value.Modifies
-    //   else {}
-    // modifies if config.legacyOverride.Some? then
-    //            config.legacyOverride.value.encryptor.Modifies
-    //          else {}
     ensures output.Success? ==>
               && output.value is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient
               && fresh(output.value)

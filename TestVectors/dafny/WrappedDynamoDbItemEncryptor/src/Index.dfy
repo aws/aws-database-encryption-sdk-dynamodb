@@ -5,13 +5,13 @@
 include "../../../../DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy"
 include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypesWrapped.dfy"
 module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.wrapped" } WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {
-    
-    import ComAmazonawsDynamodbTypes
 
-    import DynamoDbItemEncryptor
+  import ComAmazonawsDynamodbTypes
 
-    function method WrappedDefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
-    {
-        DynamoDbItemEncryptor.DefaultDynamoDbItemEncryptorConfig()
-    }
+  import DynamoDbItemEncryptor
+
+  function method WrappedDefaultDynamoDbItemEncryptorConfig(): DynamoDbItemEncryptorConfig
+  {
+    DynamoDbItemEncryptor.DefaultDynamoDbItemEncryptorConfig()
+  }
 }

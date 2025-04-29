@@ -14,6 +14,7 @@ pub mod operation;
 pub mod types;
 pub mod validation;
 pub mod intercept;
+#[cfg(feature = "wrapped-client")]
 pub mod wrapped;
 
 mod standard_library_conversions;
