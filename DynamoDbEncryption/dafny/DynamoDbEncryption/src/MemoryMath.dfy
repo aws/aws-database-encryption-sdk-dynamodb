@@ -1,3 +1,6 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 // When dealing with actual data in actual memory, we can be confident that
 // none of the numbers will exceed an exabyte, so we can use uint64, rather than nat.
 // To convince Dafny that this is true, we have the following functions
