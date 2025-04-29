@@ -414,7 +414,6 @@ module DynamoToStruct {
               && ListAttrToBytes(a.L, depth).Success?
               && ret.value[PREFIX_LEN..] == ListAttrToBytes(a.L, depth).value
               && ListAttrToBytes(a.L, depth).value[..LENGTH_LEN] == U32ToBigEndian(|a.L|).value
-                 // && ret.value[PREFIX_LEN..PREFIX_LEN+LENGTH_LEN] == U32ToBigEndian(|a.L|).value
               && (|a.L| == 0 ==> |ret.value| == PREFIX_LEN + LENGTH_LEN)
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#map-attribute
@@ -737,10 +736,6 @@ module DynamoToStruct {
   }
 
   // Can't be {:tailrecursion} because it calls AttrToBytes which might again call CollectList
-  // However, we really need this to loop and not recurse.
-  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
-  // for example, a call to CollectList somehow does not satisfy the decreases clause
-  // hence the {:verify false}
   function {:opaque} CollectList(
     listToSerialize : ListAttributeValue,
     depth : uint64,
@@ -758,7 +753,8 @@ module DynamoToStruct {
     reveal CollectList();
     reveal CollectListGhost();
     var result := serialized;
-    for i := 0 to |listToSerialize|
+    MemoryMath.ValueIsSafeBecauseItIsInMemory(|listToSerialize|);
+    for i : uint64 := 0 to |listToSerialize| as uint64
     {
       var val := AttrToBytes(listToSerialize[i], true, depth+1);
       if val.Failure? {
@@ -1033,10 +1029,6 @@ module DynamoToStruct {
 
   // Bytes to List
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeList
-  // However, we really need this to loop and not recurse.
-  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
-  // for example, a call to DeserializeListEntry somehow does not satisfy the decreases clause
-  // hence the {:verify false}
   function {:vcs_split_on_every_assert} {:opaque} DeserializeList(
     serialized : seq<uint8>,
     pos : uint64,
@@ -1063,7 +1055,7 @@ module DynamoToStruct {
     reveal DeserializeList();
     var npos : uint64 := pos;
     var newResultList := resultList;
-    for i := 0 to remainingCount
+    for i : uint64 := 0 to remainingCount
       invariant serialized == old(serialized)
       invariant newResultList.val.L?
       invariant npos as int <= |serialized|
@@ -1163,10 +1155,6 @@ module DynamoToStruct {
 
   // Bytes to Map
   // Can't be {:tailrecursion} because it calls BytesToAttr which might again call DeserializeMap
-  // However, we really need this to loop and not recurse.
-  // This verifies without the `by method`, but Dafny is too broken to let it verify by method
-  // for example, a call to DeserializeMapEntry somehow does not satisfy the decreases clause
-  // hence the {:verify false}
   function {:vcs_split_on_every_assert} {:opaque}  DeserializeMap(
     serialized : seq<uint8>,
     pos : uint64,
@@ -1192,7 +1180,7 @@ module DynamoToStruct {
     reveal DeserializeMap();
     var npos : uint64 := pos;
     var newResultMap := resultMap;
-    for i := 0 to remainingCount
+    for i : uint64 := 0 to remainingCount
       invariant serialized == old(serialized)
       invariant newResultMap.val.M?
       invariant npos as int <= |serialized|
