@@ -13,7 +13,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened StandardLibrary.String
   import JSON.API
   import opened JSON.Values
   import JSON.Errors
@@ -46,7 +45,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import TransOp = AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations
   import DdbMiddlewareConfig
   import DynamoDbEncryptionTransforms
+  import OsLang
 
+  const PerfIterations : uint32 := 1000
 
   datatype TestVectorConfig = TestVectorConfig (
     schemaOnEncrypt : DDB.CreateTableInput,
@@ -109,12 +110,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         return;
       }
       Validate();
-      // Because of Dafny-Rust's lack of modules, there is no way to mae an interceptor for the wrapped DB-ESDK client.
-      // So we create runtimes/rust/SkipLocal.txt to skip those tests that need the wrapped client.
-      var skipLocal := FileIO.ReadBytesFromFile("SkipLocal.txt");
-      if skipLocal.Success? {
-        return;
-      }
       StringOrdering();
       LargeTests();
       BasicIoTest();
@@ -554,25 +549,23 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
 
       var time := Time.GetAbsoluteTime();
-      for i := 0 to record.count {
+      for i : uint32 := 0 to PerfIterations {
         var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
         var put_input_output :- expect client.PutItemInputTransform(put_input_input);
       }
-      var elapsed := Time.TimeSince(time);
-      Time.PrintTimeLong(elapsed, "Large Encrypt " + record.name + "(" + Base10Int2String(record.count) + ") " + config);
+      Time.PrintTimeSinceLong(time, "Large Encrypt " + record.name + " " + config, DecryptManifest.LogFileName());
 
       var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
       var put_input_output :- expect client.PutItemInputTransform(put_input_input);
       time := Time.GetAbsoluteTime();
-      for i := 0 to record.count {
+      for i : uint32 := 0 to PerfIterations {
         var orig_get_input := DDB.GetItemInput(TableName := TableName, Key := map[]);
         var get_output := DDB.GetItemOutput(Item := Some(put_input_output.transformedInput.Item));
         var trans_get_input := Trans.GetItemOutputTransformInput(sdkOutput := get_output, originalInput := orig_get_input);
         var put_output :- expect client.GetItemOutputTransform(trans_get_input);
 
       }
-      elapsed := Time.TimeSince(time);
-      Time.PrintTimeLong(elapsed, "Large Decrypt " + record.name + "(" + Base10Int2String(record.count) + ") " + config);
+      Time.PrintTimeSinceLong(time, "Large Decrypt " + record.name + " " + config, DecryptManifest.LogFileName());
     }
 
     method RoundTripTests()

@@ -48,7 +48,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
   datatype LargeRecord = LargeRecord (
     name : string,
-    count : nat,
     item : DDB.AttributeMap
   )
 
@@ -1433,25 +1432,18 @@ module {:options "-functionSyntax:4"} JsonConfig {
   method GetLarge(name : string, data : JSON) returns (output : Result<LargeRecord, string>)
   {
     :- Need(data.Object?, "LargeRecord must be a JSON object.");
-    var count := 0;
     var item : DDB.AttributeMap := map[];
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
-        case "Count" =>
-          :- Need(obj.1.Number?, "GetPrefix length must be a number");
-          count :- DecimalToInt(obj.1.num);
         case "Item" => var src :- JsonToDdbItem(obj.1); item := src;
         case _ => return Failure("Unexpected part of a LargeRecord : '" + obj.0 + "'");
       }
     }
-    if (count <= 0) {
-      return Failure("Missing or invalid Count in LargeRecord : '" + name + "'");
-    }
     if (|item| == 0) {
       return Failure("Missing or Empty LargeRecord : '" + name + "'");
     }
-    var record := LargeRecord(name, count, item);
+    var record := LargeRecord(name, item);
     return Success(record);
   }
 
