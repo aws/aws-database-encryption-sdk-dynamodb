@@ -14,7 +14,7 @@ module DynamoDbEncryptionUtil {
   const BeaconPrefix := "aws_dbe_b_"
   const VersionPrefix := "aws_dbe_v_"
 
-  const MAX_STRUCTURE_DEPTH : uint32 := 32
+  const MAX_STRUCTURE_DEPTH : uint64 := 32
   const MAX_STRUCTURE_DEPTH_STR := "32"
 
   type HmacKeyMap = map<string, Bytes>
