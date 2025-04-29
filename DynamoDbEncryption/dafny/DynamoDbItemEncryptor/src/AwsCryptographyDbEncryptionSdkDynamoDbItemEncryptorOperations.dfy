@@ -417,6 +417,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     ensures version == 1 <==> ret == CSE.SIGN_ONLY
     ensures version == 2 <==> ret == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
   {
+    assert StructuredEncryptionHeader.ValidVersion(version);
+    assert version == 1 || version == 2;
     if version == 2 then
       CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
     else
@@ -546,7 +548,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   // get CryptoSchema for this item
   function method ConfigToCryptoSchema(
     config : InternalConfig,
-    item : ComAmazonawsDynamodbTypes.AttributeMap)
+    item : DynamoToStruct.TerminalDataMap)
     : (ret : Result<CSE.CryptoSchemaMap, DDBE.Error>)
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
@@ -590,7 +592,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   // get AuthenticateSchema for this item
   function method ConfigToAuthenticateSchema(
     config : InternalConfig,
-    item : ComAmazonawsDynamodbTypes.AttributeMap)
+    item : DynamoToStruct.TerminalDataMap)
     : (ret : CSE.AuthenticateSchemaMap)
     requires ValidInternalConfig?(config)
 
@@ -636,6 +638,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     ensures ret.Success? ==> forall k <- ret.value.Keys :: InSignatureScope(config, k)
     ensures ret.Success? ==> forall k <- ret.value.Keys :: !ret.value[k].DO_NOTHING?
   {
+    assert forall k <- schema :: SE.IsAuthAttr(schema[k]);
+    assert forall k <- schema :: !schema[k].DO_NOTHING?;
     :- Need(forall k <- schema :: InSignatureScope(config, k),
             DynamoDbItemEncryptorException( message := "Received unexpected Crypto Schema: mismatch with signature scope"));
     :- Need(forall k <- schema :: ComAmazonawsDynamodbTypes.IsValid_AttributeName(k),
@@ -749,19 +753,19 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //= type=implication
-        //# - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
-        //# analogous to the [configured Attribute Actions](./ddb-table-encryption-config.md#attribute-actions).
-        && ConfigToCryptoSchema(config, input.plaintextItem).Success?
-        && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.cryptoSchema
-           == ConfigToCryptoSchema(config, input.plaintextItem).value
+        //# - Structured Data MUST be the Structured Data converted above.
+        && DynamoToStruct.ItemToStructured2(input.plaintextItem, config.attributeActionsOnEncrypt).Success?
+        && var plaintextStructure := DynamoToStruct.ItemToStructured2(input.plaintextItem, config.attributeActionsOnEncrypt).value;
+        && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.plaintextStructure
+           == plaintextStructure
 
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //= type=implication
-        //# - Structured Data MUST be the Structured Data converted above.
-        && DynamoToStruct.ItemToStructured(input.plaintextItem).Success?
-        && var plaintextStructure := DynamoToStruct.ItemToStructured(input.plaintextItem).value;
-        && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.plaintextStructure
-           == plaintextStructure
+        //# - Crypto Schema MUST be a [Crypto Schema](../structured-encryption/structures.md#crypto-schema)
+        //# analogous to the [configured Attribute Actions](./ddb-table-encryption-config.md#attribute-actions).
+        && ConfigToCryptoSchema(config, plaintextStructure).Success?
+        && Seq.Last(config.structuredEncryption.History.EncryptStructure).input.cryptoSchema
+           == ConfigToCryptoSchema(config, plaintextStructure).value
 
         //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
         //= type=implication
@@ -800,8 +804,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       ==>
         && output.value.encryptedItem == input.plaintextItem
         && output.value.parsedHeader == None
-
-    ensures output.Success? ==> |input.plaintextItem| <= MAX_ATTRIBUTE_COUNT
   {
     :- Need(
       && config.partitionKeyName in input.plaintextItem
@@ -810,12 +812,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
     :- Need(ContextAttrsExist(config.attributeActionsOnEncrypt, input.plaintextItem),
             E(ContextMissingMsg(config.attributeActionsOnEncrypt, input.plaintextItem)));
-
-    if |input.plaintextItem| > MAX_ATTRIBUTE_COUNT {
-      var actCount := String.Base10Int2String(|input.plaintextItem|);
-      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
-      return Failure(E("Item to encrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
-    }
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
     //# If a [Legacy Policy](./ddb-table-encryption-config.md#legacy-policy) of
@@ -839,10 +835,10 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       return Success(passthroughOutput);
     }
 
-    var plaintextStructure :- DynamoToStruct.ItemToStructured(input.plaintextItem)
+    var plaintextStructure :- DynamoToStruct.ItemToStructured2(input.plaintextItem, config.attributeActionsOnEncrypt)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
     var context :- MakeEncryptionContextForEncrypt(config, plaintextStructure);
-    var cryptoSchema :- ConfigToCryptoSchema(config, input.plaintextItem)
+    var cryptoSchema :- ConfigToCryptoSchema(config, plaintextStructure)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     //= specification/dynamodb-encryption-client/encrypt-item.md#behavior
@@ -893,7 +889,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var encryptedData := encryptVal.encryptedStructure;
     :- Need(forall k <- encryptedData :: DDB.IsValid_AttributeName(k), E(""));
-    var ddbKey :- DynamoToStruct.StructuredToItem(encryptedData)
+    var ddbKey :- DynamoToStruct.StructuredToItemEncrypt(encryptedData, input.plaintextItem, config.attributeActionsOnEncrypt)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     var parsedActions :- ConvertCryptoSchemaToAttributeActions(config, encryptVal.cryptoSchema);
@@ -959,18 +955,18 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
 
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
         //= type=implication
-        //# - Authenticate Schema MUST be a [Authenticate Schema](../structured-encryption/structures.md#crypto-schema)
-        //# built with the following requirements:
-        && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.authenticateSchema
-           == ConfigToAuthenticateSchema(config, input.encryptedItem)
+        //# - Encrypted Structured Data MUST be the Structured Data converted above.
+        && DynamoToStruct.ItemToStructured2(input.encryptedItem, config.attributeActionsOnEncrypt).Success?
+        && var plaintextStructure := DynamoToStruct.ItemToStructured2(input.encryptedItem, config.attributeActionsOnEncrypt).value;
+        && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptedStructure
+           == plaintextStructure
 
         //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
         //= type=implication
-        //# - Encrypted Structured Data MUST be the Structured Data converted above.
-        && DynamoToStruct.ItemToStructured(input.encryptedItem).Success?
-        && var plaintextStructure := DynamoToStruct.ItemToStructured(input.encryptedItem).value;
-        && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.encryptedStructure
-           == plaintextStructure
+        //# - Authenticate Schema MUST be a [Authenticate Schema](../structured-encryption/structures.md#crypto-schema)
+        //# built with the following requirements:
+        && Seq.Last(config.structuredEncryption.History.DecryptStructure).input.authenticateSchema
+           == ConfigToAuthenticateSchema(config, plaintextStructure)
 
         //= specification/dynamodb-encryption-client/decrypt-item.md#dynamodb-item-base-context
         //= type=implication
@@ -1037,13 +1033,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
         && output.value.plaintextItem == input.encryptedItem
         && output.value.parsedHeader == None
   {
-    var realCount := |set k <- input.encryptedItem | !(ReservedPrefix <= k)|;
-    if realCount > MAX_ATTRIBUTE_COUNT {
-      var actCount := String.Base10Int2String(realCount);
-      var maxCount := String.Base10Int2String(MAX_ATTRIBUTE_COUNT);
-      return Failure(E("Item to decrypt had " + actCount + " attributes, but maximum allowed is " + maxCount));
-    }
-
     :- Need(
       && config.partitionKeyName in input.encryptedItem
       && (config.sortKeyName.None? || config.sortKeyName.value in input.encryptedItem)
@@ -1081,7 +1070,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
             DynamoDbItemEncryptorException(
               message := "Encrypted item missing expected header and footer attributes"));
 
-    var encryptedStructure :- DynamoToStruct.ItemToStructured(input.encryptedItem)
+    var encryptedStructure :- DynamoToStruct.ItemToStructured2(input.encryptedItem, config.attributeActionsOnEncrypt)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
     :- Need(SE.HeaderField in input.encryptedItem, E("Header field, \"aws_dbe_head\", not in item."));
     var header := input.encryptedItem[SE.HeaderField];
@@ -1089,7 +1078,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     assert header.B?;
     :- Need(0 < |header.B|, E("Unexpected empty header field."));
     var context :- MakeEncryptionContextForDecrypt(config, header.B, encryptedStructure);
-    var authenticateSchema := ConfigToAuthenticateSchema(config, input.encryptedItem);
+    var authenticateSchema := ConfigToAuthenticateSchema(config, encryptedStructure);
 
     //= specification/dynamodb-encryption-client/decrypt-item.md#behavior
     //# This operation MUST create a
@@ -1123,7 +1112,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
       e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(DDBE.AwsCryptographyDbEncryptionSdkStructuredEncryption(e)));
     var decryptedData := decryptVal.plaintextStructure;
     :- Need(forall k <- decryptedData :: DDB.IsValid_AttributeName(k), E(""));
-    var ddbItem :- DynamoToStruct.StructuredToItem(decryptedData)
+    var ddbItem :- DynamoToStruct.StructuredToItemDecrypt(decryptedData, input.encryptedItem, decryptVal.cryptoSchema)
     .MapFailure(e => Error.AwsCryptographyDbEncryptionSdkDynamoDb(e));
 
     var schemaToConvert := decryptVal.cryptoSchema;
