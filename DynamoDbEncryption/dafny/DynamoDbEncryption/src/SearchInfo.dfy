@@ -223,6 +223,25 @@ module SearchableEncryptionInfo {
       return Success(keyLoc.keys);
     }
 
+    function method PosLongAdd(x : MP.PositiveLong, y : MP.PositiveLong) : MP.PositiveLong
+    {
+      assert MP.IsValid_PositiveLong(x);
+      assert MP.IsValid_PositiveLong(y);
+      if x as nat + y as nat < INT64_MAX_LIMIT then
+        x + y
+      else
+        INT64_MAX_LIMIT as MP.PositiveLong
+    }
+    function method PosLongSub(x : MP.PositiveLong, y : MP.PositiveLong) : MP.PositiveLong
+    {
+      assert MP.IsValid_PositiveLong(x);
+      assert MP.IsValid_PositiveLong(y);
+      if x <= y then
+        0
+      else
+        x - y
+    }
+
     // Checks if (time_now - cache creation time of the extracted cache entry) is less than the allowed
     // TTL of the current Beacon Key Source calling the getEntry method from the cache.
     // Mitigates risk if another Beacon Key Source wrote the entry with a longer TTL.
@@ -232,7 +251,10 @@ module SearchableEncryptionInfo {
       ttlSeconds: MP.PositiveLong
     ): (output: bool)
     {
-      now - creationTime <= ttlSeconds as MP.PositiveLong
+      if now <= creationTime then
+        true
+      else
+        PosLongSub(now, creationTime) <= ttlSeconds as MP.PositiveLong
     }
 
     method getKeysCache(
@@ -406,7 +428,6 @@ module SearchableEncryptionInfo {
         var keyMap :- getAllKeys(stdNames, key.value);
         var beaconKeyMaterials := rawBeaconKeyMaterials.beaconKeyMaterials.(beaconKey := None, hmacKeys := Some(keyMap));
 
-        expect now < UInt.BoundedInts.INT64_MAX - cacheTTL;
         //= specification/searchable-encryption/search-config.md#get-beacon-key-materials
         //# These materials MUST be put into the associated [Key Store Cache](#key-store-cache)
         //# with an [Expiry Time](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#expiry-time)
@@ -415,7 +436,7 @@ module SearchableEncryptionInfo {
           identifier := cacheDigest,
           materials := MP.Materials.BeaconKey(beaconKeyMaterials),
           creationTime := now,
-          expiryTime := now + cacheTTL,
+          expiryTime := PosLongAdd(now, cacheTTL),
           messagesUsed := None,
           bytesUsed := None
         );
