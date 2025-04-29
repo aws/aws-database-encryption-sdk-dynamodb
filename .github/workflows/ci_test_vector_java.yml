@@ -32,13 +32,18 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
+            macos-13,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
-      - name: Setup DynamoDB Local
+      - name: Setup Docker
+        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.0
+
+        - name: Setup DynamoDB Local
         uses: rrainn/dynamodb-action@v4.0.0
         with:
           port: 8000
