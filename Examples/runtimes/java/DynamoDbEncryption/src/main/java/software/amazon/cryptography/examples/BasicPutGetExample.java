@@ -136,32 +136,32 @@ public class BasicPutGetExample {
       )
       .build();
 
-//    // 7. Put an item into our table using the above client.
-//    //    Before the item gets sent to DynamoDb, it will be encrypted
-//    //    client-side, according to our configuration.
-//    final HashMap<String, AttributeValue> item = new HashMap<>();
-//    item.put(
-//      "partition_key",
-//      AttributeValue.builder().s("LucasTesting").build()
-//    s
-//    item.put("sort_key", AttributeValue.builder().n("0").build());
-//    item.put(
-//      "attribute1",
-//      AttributeValue.builder().s("encrypt and sign me!").build()
-//    );
-//    item.put("attribute2", AttributeValue.builder().s("sign me!").build());
-//    item.put(":attribute3", AttributeValue.builder().s("ignore me!").build());
-//
-//    final PutItemRequest putRequest = PutItemRequest
-//      .builder()
-//      .tableName(ddbTableName)
-//      .item(item)
-//      .build();
-//
-//    final PutItemResponse putResponse = ddb.putItem(putRequest);
-//
-//    // Demonstrate that PutItem succeeded
-//    assert 200 == putResponse.sdkHttpResponse().statusCode();
+    // 7. Put an item into our table using the above client.
+    //    Before the item gets sent to DynamoDb, it will be encrypted
+    //    client-side, according to our configuration.
+    final HashMap<String, AttributeValue> item = new HashMap<>();
+    item.put(
+      "partition_key",
+      AttributeValue.builder().s("BasicPutGetExample").build()
+    );
+    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put(
+      "attribute1",
+      AttributeValue.builder().s("encrypt and sign me!").build()
+    );
+    item.put("attribute2", AttributeValue.builder().s("sign me!").build());
+    item.put(":attribute3", AttributeValue.builder().s("ignore me!").build());
+
+    final PutItemRequest putRequest = PutItemRequest
+      .builder()
+      .tableName(ddbTableName)
+      .item(item)
+      .build();
+
+    final PutItemResponse putResponse = ddb.putItem(putRequest);
+
+    // Demonstrate that PutItem succeeded
+    assert 200 == putResponse.sdkHttpResponse().statusCode();
 
     // 8. Get the item back from our table using the same client.
     //    The client will decrypt the item client-side, and return
@@ -169,7 +169,7 @@ public class BasicPutGetExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("LucasTesting").build()
+      AttributeValue.builder().s("BasicPutGetExample").build()
     );
     keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
