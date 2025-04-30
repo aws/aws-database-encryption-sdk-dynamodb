@@ -14,11 +14,11 @@ module DynamoDbItemEncryptorUtil {
   import SortedSets
   import SE = StructuredEncryptionUtil
   import DynamoToStruct
+  import MemoryMath
 
   const ReservedPrefix := "aws_dbe_"
   const BeaconPrefix := ReservedPrefix + "b_"
   const VersionPrefix := ReservedPrefix + "v_"
-  const MAX_ATTRIBUTE_COUNT := 100
 
   function method E(msg : string) : Error
   {
@@ -181,7 +181,8 @@ module DynamoDbItemEncryptorUtil {
       Success(value)
     else if legend == SE.LEGEND_BINARY then
       var terminal :- SE.DecodeTerminal(ecValue);
-      var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false);
+      MemoryMath.ValueIsSafeBecauseItIsInMemory(|terminal.value|);
+      var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, Some(|terminal.value| as uint64));
       Success(ddbAttrValue.val)
     else
       Failure("Encryption Context Legend has unexpected character : '" + [legend] + "'.")
@@ -236,7 +237,8 @@ module DynamoDbItemEncryptorUtil {
 
     // Obtain attribute value from EC kvPair value
     var terminal :- SE.DecodeTerminal(encodedAttrValue);
-    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false);
+    MemoryMath.ValueIsSafeBecauseItIsInMemory(|terminal.value|);
+    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, Some(|terminal.value| as uint64));
 
     // Add to our AttributeMap
     Success(attrMap[ddbAttrName := ddbAttrValue.val])

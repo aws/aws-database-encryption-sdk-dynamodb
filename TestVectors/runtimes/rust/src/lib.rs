@@ -14,7 +14,6 @@ pub mod operation;
 pub mod types;
 pub mod validation;
 pub mod intercept;
-
 #[cfg(feature = "wrapped-client")]
 pub mod wrapped;
 
@@ -23,6 +22,7 @@ mod standard_library_externs;
 
 pub use client::Client;
 
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb_itemEncryptor;
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption;
 pub use crate::deps::aws_cryptography_keyStore;
 pub use crate::deps::aws_cryptography_materialProviders;
@@ -66,3 +66,4 @@ pub mod time;
 pub mod uuid;
 
 pub mod create_client;
+pub mod create_wrapped_item_encryptor;
