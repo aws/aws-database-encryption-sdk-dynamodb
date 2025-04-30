@@ -269,7 +269,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     ensures encryptor.Success? ==>
               && encryptor.value.ValidState()
               && fresh(encryptor.value)
-              && fresh(encryptor.value.Modifies - Operations.ModifiesInternalConfig(encryptor.value.config))
+              && fresh(encryptor.value.Modifies)
   {
     :- Need(data.Object?, "A Table Config must be an object.");
     var logicalTableName := TableName;
