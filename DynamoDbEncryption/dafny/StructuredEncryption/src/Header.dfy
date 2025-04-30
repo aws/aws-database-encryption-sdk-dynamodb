@@ -57,12 +57,23 @@ module StructuredEncryptionHeader {
   type Legend = x : seq<LegendByte> | |x| < UINT16_LIMIT
   type CMPUtf8Bytes = x : CMP.Utf8Bytes | |x| < UINT16_LIMIT
 
-  predicate method IsVersion2Schema(data : CanonCryptoList)
+  predicate method {:tailrecursion} IsVersion2Schema(data : CanonCryptoList, pos : uint32 := 0) : (ret : bool)
+    requires |data| < UINT32_LIMIT
+    requires pos <= |data| as uint32
+    requires forall i | 0 <= i < pos :: data[i].action != SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+    decreases |data| as uint32 - pos
+    ensures ret <==> (exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT)
   {
-    exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
+    if pos == |data| as uint32 then
+      false
+    else if data[pos].action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT then
+      true
+    else
+      IsVersion2Schema(data, pos+1)
   }
 
   function method VersionFromSchema(data : CanonCryptoList) : (ret : Version)
+    requires |data| < UINT32_LIMIT
     ensures (exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 2)
     ensures !(exists x <- data :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) <==> (ret == 1)
   {
@@ -229,8 +240,9 @@ module StructuredEncryptionHeader {
     //# If any [Crypto Action](./structures.md#crypto-action) is configured as
     //# [SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT Crypto Action](./structures.md#sign_and_include_in_encryption_context)
     //# the Version MUST be 0x02; otherwise, Version MUST be 0x01.
-    ensures ret.Success? ==> ret.value.version == VersionFromSchema(schema)
+    ensures ret.Success? ==> |schema| < UINT32_LIMIT && ret.value.version == VersionFromSchema(schema)
   {
+    :- Need(|schema| < UINT32_LIMIT, E("Unexpected large schema"));
     :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));
     :- Need(0 < |mat.encryptedDataKeys|, E("There must be at least one data key"));
     :- Need(|mat.encryptedDataKeys| < UINT8_LIMIT, E("Too many data keys."));

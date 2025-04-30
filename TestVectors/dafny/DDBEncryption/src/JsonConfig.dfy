@@ -49,9 +49,14 @@ module {:options "-functionSyntax:4"} JsonConfig {
     item : DDB.AttributeMap
   )
 
+  datatype LargeRecord = LargeRecord (
+    name : string,
+    item : DDB.AttributeMap
+  )
+
   datatype TableConfig = TableConfig (
     name : ConfigName,
-    config : Types.DynamoDbTableEncryptionConfig,
+    config : AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig,
     vanilla : bool
   )
 
@@ -1411,7 +1416,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(results);
   }
 
-
   method GetRecord(data : JSON) returns (output : Result<Record, string>)
   {
     var item :- JsonToDdbItem(data);
@@ -1425,4 +1429,36 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var num :- StrToNat(hash.N);
     return Success(Record(num, item));
   }
+
+  method GetLarge(name : string, data : JSON) returns (output : Result<LargeRecord, string>)
+  {
+    :- Need(data.Object?, "LargeRecord must be a JSON object.");
+    var item : DDB.AttributeMap := map[];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "Item" => var src :- JsonToDdbItem(obj.1); item := src;
+        case _ => return Failure("Unexpected part of a LargeRecord : '" + obj.0 + "'");
+      }
+    }
+    if (|item| == 0) {
+      return Failure("Missing or Empty LargeRecord : '" + name + "'");
+    }
+    var record := LargeRecord(name, item);
+    return Success(record);
+  }
+
+  method GetLarges(data : JSON) returns (output : Result<seq<LargeRecord>, string>)
+  {
+    :- Need(data.Object?, "Larges must be a JSON object.");
+    var results : seq<LargeRecord> := [];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      var record :- GetLarge(obj.0, obj.1);
+      results := results + [record];
+    }
+    return Success(results);
+  }
+
+
 }

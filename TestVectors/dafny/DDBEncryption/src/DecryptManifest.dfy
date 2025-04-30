@@ -111,12 +111,9 @@ module {:options "-functionSyntax:4"} DecryptManifest {
     }
   }
 
-  function LogFileName() : string
+  function LogFileName() : Option<string>
   {
-    if OsLang.GetOsShort() == "Windows" && OsLang.GetLanguageShort() == "Dotnet" then
-      "..\\..\\PerfLog.txt"
-    else
-      "../../PerfLog.txt"
+    Some("../../PerfLog.txt")
   }
 
   method Decrypt(inFile : string, keyVectors: KeyVectors.KeyVectorsClient)
@@ -182,7 +179,7 @@ module {:options "-functionSyntax:4"} DecryptManifest {
       :- Need(obj.1.Object?, "Value of test '" + obj.0 + "' must be an Object.");
       var _ :- OneTest(obj.0, obj.1, keyVectors);
     }
-    Time.PrintTimeSinceLong(time, "DB-ESDK-TV-Decrypt-" + inFile, Some(LogFileName()));
+    Time.PrintTimeSinceLong(time, "DB-ESDK-TV-Decrypt-" + inFile, LogFileName());
 
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Tests Complete.\n";

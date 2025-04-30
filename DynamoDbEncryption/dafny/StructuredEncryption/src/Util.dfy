@@ -220,7 +220,7 @@ module StructuredEncryptionUtil {
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
-    x.ENCRYPT_AND_SIGN? || x.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT? || x.SIGN_ONLY?
+    !x.DO_NOTHING?
   }
 
   // wrap a value in a StructuredData
