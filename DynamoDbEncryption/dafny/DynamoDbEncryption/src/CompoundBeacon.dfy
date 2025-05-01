@@ -522,12 +522,13 @@ module CompoundBeacon {
     }
 
     // OkPrefixPair, but return Result with error message
-    function method CheckOnePrefixPart(pos1 : uint64, pos2 : uint64) : (ret : Result<bool, Error>)
-      requires pos1 as nat < |parts|
-      requires pos2 as nat < |parts|
-      ensures ret.Success? ==> OkPrefixPair(pos1, pos2)
+    function method CheckOnePrefixPart(pos1 : nat, pos2 : nat) : (ret : Result<bool, Error>)
+      requires pos1 < |parts|
+      requires pos2 < |parts|
+      ensures ret.Success? ==> HasUint64Len(parts) && OkPrefixPair(pos1 as uint64, pos2 as uint64)
     {
-      if !OkPrefixPair(pos1, pos2) then
+      SequenceIsSafeBecauseItIsInMemory(parts);
+      if !OkPrefixPair(pos1 as uint64, pos2 as uint64) then
         Failure(E("Compound beacon " + base.name + " defines part " + parts[pos1].getName() + " with prefix " + parts[pos1].prefix
                   + " which is incompatible with part " + parts[pos2].getName() + " which has a prefix of " + parts[pos2].prefix + "."))
       else
@@ -538,9 +539,8 @@ module CompoundBeacon {
     function method CheckOnePrefix(pos : nat) : (ret : Result<bool, Error>)
       requires pos < |parts|
     {
-      SequenceIsSafeBecauseItIsInMemory(parts);
       var partNumbers : seq<nat> := seq(|parts|, (i : nat) => i as nat);
-      var _ :- Sequence.MapWithResult((p : int) requires 0 <= p < |parts| => CheckOnePrefixPart(pos as uint64, p as uint64), seq(|parts|, i => i));
+      var _ :- Sequence.MapWithResult((p : int) requires 0 <= p < |parts| => CheckOnePrefixPart(pos, p), seq(|parts|, i => i));
       Success(true)
     }
 
