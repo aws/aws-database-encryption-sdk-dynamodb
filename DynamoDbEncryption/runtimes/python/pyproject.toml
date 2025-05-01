@@ -78,8 +78,12 @@ select = [
 ]
 
 [tool.ruff.per-file-ignores]
-# Don't consider internal classes as "public" for linting purposes
-"src/aws_dbesdk_dynamodb/internal/*.py" = ["D100", "D101", "D102"]
+"src/aws_dbesdk_dynamodb/internal/*" = [
+    # Ignore all "public"-related linting errors for internal modules
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    # Ignore opinionated docstring linting errors for internal modules
+    "D205", "D400", "D401", "D403"
+]
 
 [tool.black]
 # Don't bother linting Dafny-generated code; don't re-lint Smithy-generated code
