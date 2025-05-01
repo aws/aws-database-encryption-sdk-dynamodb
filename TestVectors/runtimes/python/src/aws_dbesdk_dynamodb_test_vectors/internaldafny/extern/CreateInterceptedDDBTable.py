@@ -23,14 +23,14 @@ from boto3.dynamodb.types import TypeDeserializer
 # from .....test.resource_formatted_queries import (queries, complex_queries)
 
 # When querying, DBESDK DDB TestVectors will pass the Table the query as a string.
-# The Table would accept this string as-is and process it correctly.
-# But EncryptedTables have extra logic to process boto3 Conditions.
+# The Table could accept this string as-is and process it correctly.
+# However, EncryptedTables have extra logic to process boto3 Conditions.
 # We want to test this extra logic as much as possible.
 # This map converts some known query strings to equivalent Conditions.
 # TestVectors will pass the query string (map key) to the Table;
 # the Table's internal logic will look up the query string in this map:
 #  - Entry found: Query with replaced Condition
-#  - Not found: Query with original string. Table accepts passthrough strings.
+#  - Not found: Query with original string. Table accepts strings.
 # This map contains all query strings in the TestVectors' data.json as of commit
 # 4f18689f79243c9a5ab0f3a23108671defddeac4
 # If any query strings are added to TestVectors, they COULD be added here,
@@ -95,31 +95,14 @@ known_query_string_to_condition_map = {
     "Comp1 = :cmp1b": Attr("Comp1").eq(":cmp1b"),
 }
 
-# TestVectors-only override of ._flush method:
-# persist response in self._response for TestVectors output processing.
-def _flush_and_persist_response(self):
-    items_to_send = self._items_buffer[: self._flush_amount]
-    self._items_buffer = self._items_buffer[self._flush_amount :]
-    # changed from `response = ` to `self.response = `
-    self._response = self._client.batch_write_item(
-        RequestItems={self._table_name: items_to_send}
-    )
-    unprocessed_items = self._response['UnprocessedItems']
-    if not unprocessed_items:
-        unprocessed_items = {}
-    item_list = unprocessed_items.get(self._table_name, [])
-    # Any unprocessed_items are immediately added to the
-    # next batch we send.
-    self._items_buffer.extend(item_list)
-
 class DynamoDBClientWrapperForDynamoDBTable:
     """
     DBESDK TestVectors-internal wrapper class.
-    Converts boto3 DynamoDB client-formatted inputs Table-formatted inputs,
+    Converts boto3 DynamoDB client-formatted inputs to Table-formatted inputs,
         and converts Table-formatted outputs to boto3 DynamoDB client-formatted outputs.
 
     TestVectors Dafny code only knows how to interact with DynamoDB clients.
-    However, Python DDBEC and DBESDK have an EncryptedTable class that wraps boto3 DynamoDB Tables.
+    However, Python DDBEC and DBESDK have this EncryptedTable class.
     This class interfaces between Dafny TestVectors' DynamoDB client-calling code
       and Python DBESDK's EncryptedTable class.
 
@@ -150,84 +133,9 @@ class DynamoDBClientWrapperForDynamoDBTable:
         table_output = self._table.batch_write_item(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.batch_write_item_response(table_output)
         return client_output
-    
-        # Parse boto3 client.batch_write_item input into table.batch_writer() calls
-        # client.batch_write_item: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
-        # table.batch_writer(): https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
-        tables = kwargs["RequestItems"]
-        table_names = list(tables.keys())
-        if len(tables.keys()) > 1:
-            raise ValueError("Table batch_write_item only supports 1 table in a request.")
-        requests = tables[table_names[0]]
-        with self._table.batch_writer() as batch:
-
-            batch._flush=types.MethodType(_flush_and_persist_response, batch)
-
-            for request in requests:
-                request_name_list = list(request.keys())
-                if len(request_name_list) > 1:
-                    raise ValueError("Cannot send more than one request in a single request")
-                request_name = request_name_list[0]
-                if request_name == "PutRequest":
-                    dict_request = ddb_to_dict(request[request_name]["Item"])
-                    boto3_request = {"Item": dict_request}
-                    batch.put_item(**boto3_request)
-                    # dynamodb_request = request[request_name]
-                    # print(f"{dynamodb_request}")
-                    # batch.put_item(**dynamodb_request)
-                elif request_name == "DeleteRequest":
-                    batch.delete_item(Key=ddb_to_dict(request["Key"]))
-                else:
-                    raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-        return batch._response
 
     def batch_get_item(self, **kwargs):
         raise NotImplementedError("batch_get_item not supported on table interface; remove tests calling this")
-        # batch_get_item doesn't exist on boto3 tables.
-        # For TestVector compatibility, just make a series of get_item calls,
-        # and massage inputs/outputs into expected formats.
-        # tables = kwargs["RequestItems"]
-        # table_names = list(tables.keys())
-        # if len(tables.keys()) > 1:
-        #     raise ValueError("Table batch_get_item only supports 1 table in a request.")
-        # table_name = table_names[0]
-        # requests = tables[table_name]
-
-        # outputs = []
-        # for request in requests["Keys"]:
-        #     output = self._table.get_item(Key = ddb_to_dict(request))
-        #     outputs.append(dict_to_ddb(output["Item"]))
-
-        # # boto3 client batch_get_item return shape
-        # return {
-        #     "Responses": {
-        #         table_name: outputs
-        #     }
-        # }
-
-        # with self._table.batch_writer() as batch:
-
-        #     batch._flush=types.MethodType(_flush_and_persist_response, batch)
-
-        #     for request in requests:
-        #         request_name_list = list(request.keys())
-        #         if len(request_name_list) > 1:
-        #             raise ValueError("Cannot send more than one request in a single request")
-        #         request_name = request_name_list[0]
-        #         if request_name == "PutRequest":
-        #             dict_request = ddb_to_dict(request[request_name]["Item"])
-        #             boto3_request = {"Item": dict_request}
-        #             batch.put_item(**boto3_request)
-        #             # dynamodb_request = request[request_name]
-        #             # print(f"{dynamodb_request}")
-        #             # batch.put_item(**dynamodb_request)
-        #         elif request_name == "DeleteRequest":
-        #             batch.delete_item(Key=ddb_to_dict(request["Key"]))
-        #         else:
-        #             raise ValueError(f"Unknown batch_write_items method key: {request_name}")
-        # print(f"batch_get_item output {batch._response=}")
-        # return batch._response
-
 
     def scan(self, **kwargs):
         table_input = self._client_shape_to_resource_shape_converter.scan_request(kwargs)
@@ -249,43 +157,9 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
     def transact_get_items(self, **kwargs):
         raise NotImplementedError("transact_get_items not supported on table interface; remove tests calling this")
-        # Parse client transact_get_items shape into series of table get_item calls
-        # ddb_requests = kwargs["TransactItems"]
-        # responses = []
-        # for request in ddb_requests:
-        #     get_request = request["Get"]
-        #     ddb_key = get_request["Key"]
-        #     dict_key = ddb_to_dict(ddb_key)
-        #     get_request["Key"] = dict_key
-        #     del get_request["TableName"]
-
-        #     table_response = self._table.get_item(**get_request)
-
-        #     dict_item = table_response["Item"]
-        #     ddb_item = dict_to_ddb(dict_item)
-        #     table_response["Item"] = ddb_item
-        #     responses.append(table_response)
-        # return {"Responses": responses}
 
     def transact_write_items(self, **kwargs):
         raise NotImplementedError("transact_write_items not supported on table interface; remove tests calling this")
-        # Parse client transact_get_items shape into series of table get_item calls
-        # ddb_requests = kwargs["TransactItems"]
-        # responses = []
-        # for request in ddb_requests:
-        #     get_request = request["Get"]
-        #     ddb_key = get_request["Key"]
-        #     dict_key = ddb_to_dict(ddb_key)
-        #     get_request["Key"] = dict_key
-        #     del get_request["TableName"]
-
-        #     table_response = self._table.get_item(**get_request)
-
-        #     dict_item = table_response["Item"]
-        #     ddb_item = dict_to_ddb(dict_item)
-        #     table_response["Item"] = ddb_item
-        #     responses.append(table_response)
-        # return {"Responses": responses}
 
     def query(self, **kwargs):
         table_input = self._client_shape_to_resource_shape_converter.query_request(kwargs)
@@ -311,7 +185,6 @@ class DynamoDBClientWrapperForDynamoDBTable:
     def create_table(self, **kwargs):
         return self._client.create_table(**kwargs)
 
-
 class default__:
     @staticmethod
     def CreateVanillaDDBClient():
@@ -327,7 +200,8 @@ class default__:
             boto3_client = WaitingLocalDynamoClient()
             table_config_names = list(native_encryption_config.table_encryption_configs.keys())
             if len(table_config_names) > 1:
-                raise ValueError("TODO more than 1 table; need EncryptedTablesManager")
+                # If needed, this could be supported by setting up an EncryptedTablesManager
+                raise ValueError(">1 table not supported")
             table = boto3.resource('dynamodb').Table(table_config_names[0])
             encrypted_table = EncryptedTable(table = table, encryption_config = native_encryption_config)
             wrapped_encrypted_table = DynamoDBClientWrapperForDynamoDBTable(table = encrypted_table, client = boto3_client)

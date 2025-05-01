@@ -52,12 +52,11 @@ optional = true
 
 [tool.poetry.group.linting.dependencies]
 ruff = "^0.11.5"
-pydocstyle = "^6.3.0"
 black = "^25.1.0"
 
 [tool.ruff]
 exclude = [
-    # Don't lint Dafny-generated code
+    # Don't bother linting Dafny-generated code
     "internaldafny",
     # Don't re-lint Smithy-generated code
     "smithygenerated",
@@ -65,12 +64,26 @@ exclude = [
 line-length=120
 indent-width=4
 target-version = "py311"
+select = [
+    # pycodestyle: spacing, line length
+    "E",
+    # pyflakes: unused imports/variables
+    "F",
+    # isort: import sorting
+    "I",
+    # pydocstyle: docstring style
+    "D",
+    # pyupgrade: auto-upgrade syntax if possible
+    "UP",
+]
 
-[tool.pydocstyle]
-match-dir = "^(?!internal$|internaldafny$|smithygenerated$).*"
+[tool.ruff.per-file-ignores]
+# Don't consider internal classes as "public" for linting purposes
+"src/aws_dbesdk_dynamodb/internal/*.py" = ["D100", "D101", "D102"]
 
 [tool.black]
-exclude = "/(internal|internaldafny|smithygenerated)(/|$)"
+# Don't bother linting Dafny-generated code; don't re-lint Smithy-generated code
+exclude = "/(internaldafny|smithygenerated)(/|$)"
 
 [build-system]
 requires = ["poetry-core<2.0.0"]

@@ -5,14 +5,14 @@
 For information on how types are serializes, see:
 https://boto3.amazonaws.com/v1/documentation/api/latest/_modules/boto3/dynamodb/types.html
 """
-from typing import Any, Dict
+from typing import Any
 
 from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 
 __all__ = ("dict_to_ddb", "ddb_to_dict")
 
 
-def dict_to_ddb(item: Dict[str, Any]) -> Dict[str, Any]:
+def dict_to_ddb(item: dict[str, Any]) -> dict[str, Any]:
     """Converts a native Python dictionary to a DynamoDB-JSON item.
 
     Args:
@@ -20,11 +20,13 @@ def dict_to_ddb(item: Dict[str, Any]) -> Dict[str, Any]:
 
     Returns:
         Dict[str, Any]: DynamoDB-formatted item.
+
     """
     serializer = TypeSerializer()
     return {key: serializer.serialize(value) for key, value in item.items()}
 
-def list_of_dict_to_list_of_ddb(items: list[Dict[str, Any]]) -> list[Dict[str, Any]]:
+
+def list_of_dict_to_list_of_ddb(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Converts a list of Python dictionaries into a list of DynamoDB-JSON formatted items.
 
     Args:
@@ -32,10 +34,12 @@ def list_of_dict_to_list_of_ddb(items: list[Dict[str, Any]]) -> list[Dict[str, A
 
     Returns:
         List[Dict[str, Any]]: List of DynamoDB-formatted items.
+
     """
     return [dict_to_ddb(item) for item in items]
 
-def ddb_to_dict(item: Dict[str, Any]) -> Dict[str, Any]:
+
+def ddb_to_dict(item: dict[str, Any]) -> dict[str, Any]:
     """Converts a DynamoDB-JSON item to a native Python dictionary.
 
     Args:
@@ -43,11 +47,13 @@ def ddb_to_dict(item: Dict[str, Any]) -> Dict[str, Any]:
 
     Returns:
         Dict[str, Any]: Native Python dictionary.
+
     """
     deserializer = TypeDeserializer()
     return {key: deserializer.deserialize(value) for key, value in item.items()}
 
-def list_of_ddb_to_list_of_dict(items: list[Dict[str, Any]]) -> list[Dict[str, Any]]:
+
+def list_of_ddb_to_list_of_dict(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Converts a list of DynamoDB-JSON formatted items to a list of Python dictionaries.
 
     Args:
@@ -55,5 +61,6 @@ def list_of_ddb_to_list_of_dict(items: list[Dict[str, Any]]) -> list[Dict[str, A
 
     Returns:
         List[Dict[str, Any]]: List of native Python dictionaries.
+
     """
     return [ddb_to_dict(item) for item in items]

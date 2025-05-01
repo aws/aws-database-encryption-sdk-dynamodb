@@ -1,7 +1,19 @@
+from collections.abc import Callable, Generator
+from copy import deepcopy
+from typing import Any
+
 from boto3.resources.base import ServiceResource
 from boto3.resources.collection import CollectionManager
+
+from aws_dbesdk_dynamodb.encrypted.boto3_interface import EncryptedBotoInterface
+from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
+from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
+from aws_dbesdk_dynamodb.internal.resource_to_client import ResourceShapeToClientShapeConverter
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTablesEncryptionConfig,
+)
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
+    DynamoDbEncryptionTransforms,
 )
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
     BatchGetItemInputTransformInput,
@@ -9,15 +21,6 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
     BatchWriteItemInputTransformInput,
     BatchWriteItemOutputTransformInput,
 )
-from aws_dbesdk_dynamodb.internal.resource_to_client import ResourceShapeToClientShapeConverter
-from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
-    DynamoDbEncryptionTransforms
-)
-from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
-from aws_dbesdk_dynamodb.encrypted.boto3_interface import EncryptedBotoInterface
-from typing import Callable, Dict, Any, Optional, Generator
-from copy import deepcopy
 
 
 class EncryptedTablesCollectionManager(EncryptedBotoInterface):
@@ -43,42 +46,46 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
 
     def all(self) -> Generator[EncryptedTable, None, None]:
         """Creates an iterable of all EncryptedTable resources in the collection.
-        
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#DynamoDB.ServiceResource.all
-        
+
         Returns:
             Generator[EncryptedTable, None, None]: An iterable of EncryptedTable objects
+
         """
         yield from self._transform_table(self._collection.all)
-    
+
     def filter(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Creates an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method. 
-        
+        """Creates an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#filter
 
         Returns:
             Generator[EncryptedTable, None, None]: An iterable of EncryptedTable objects
+
         """
         yield from self._transform_table(self._collection.filter, **kwargs)
-    
+
     def limit(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Creates an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method. 
-        
+        """Creates an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#limit
 
         Returns:
             Generator[EncryptedTable, None, None]: An iterable of EncryptedTable objects
+
         """
         yield from self._transform_table(self._collection.limit, **kwargs)
-    
+
     def page_size(self, **kwargs) -> Generator[EncryptedTable, None, None]:
         """Creates an iterable of all EncryptedTable resources in the collection,
         but limits the number of items returned by each service call by the specified amount.
-        
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#page_size
 
         Returns:
             Generator[EncryptedTable, None, None]: An iterable of EncryptedTable objects
+
         """
         yield from self._transform_table(self._collection.page_size, **kwargs)
 
@@ -88,19 +95,18 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         **kwargs,
     ) -> Generator[EncryptedTable, None, None]:
         for table in method(**kwargs):
-            yield EncryptedTable(
-                table=table,
-                encryption_config=self._encryption_config
-            )
+            yield EncryptedTable(table=table, encryption_config=self._encryption_config)
 
     @property
     def _boto_client_attr_name(self) -> str:
         """Name of the attribute containing the underlying boto3 client.
-        
+
         Returns:
             str: '_collection'
+
         """
-        return '_collection'
+        return "_collection"
+
 
 class EncryptedResource(EncryptedBotoInterface):
     def __init__(
@@ -111,19 +117,16 @@ class EncryptedResource(EncryptedBotoInterface):
     ):
         self._resource = resource
         self._encryption_config = encryption_config
-        self._transformer = DynamoDbEncryptionTransforms(
-            config = encryption_config
-        )
+        self._transformer = DynamoDbEncryptionTransforms(config=encryption_config)
         self._client_shape_to_resource_shape_converter = ClientShapeToResourceShapeConverter()
         self._resource_shape_to_client_shape_converter = ResourceShapeToClientShapeConverter()
         self.tables = EncryptedTablesCollectionManager(
-            collection=self._resource.tables,
-            encryption_config=self._encryption_config
+            collection=self._resource.tables, encryption_config=self._encryption_config
         )
-    
+
     def Table(self, name):
         """Creates an EncryptedTable resource.
-        
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/Table.html
 
         Args:
@@ -131,12 +134,10 @@ class EncryptedResource(EncryptedBotoInterface):
 
         Returns:
             EncryptedTable: An EncryptedTable resource
+
         """
-        return EncryptedTable(
-            table=self._resource.Table(name),
-            encryption_config=self._encryption_config
-        )
-        
+        return EncryptedTable(table=self._resource.Table(name), encryption_config=self._encryption_config)
+
     def batch_get_item(self, **kwargs):
         """Gets multiple items from one or more tables. Decrypts any returned items.
 
@@ -150,22 +151,23 @@ class EncryptedResource(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB containing the requested items.
-            
+
         See boto3 docs for complete response structure.
+
         """
         return self._resource_operation_logic(
-            operation_input = kwargs,
-            input_resource_to_client_shape_transform_method = self._resource_shape_to_client_shape_converter.batch_get_item_request,
-            input_client_to_resource_shape_transform_method = self._client_shape_to_resource_shape_converter.batch_get_item_request,
-            input_encryption_transform_method = self._transformer.batch_get_item_input_transform,
-            input_encryption_transform_shape = BatchGetItemInputTransformInput,
-            output_encryption_transform_method = self._transformer.batch_get_item_output_transform,
-            output_encryption_transform_shape = BatchGetItemOutputTransformInput,
-            output_resource_to_client_shape_transform_method = self._resource_shape_to_client_shape_converter.batch_get_item_response,
-            output_client_to_resource_shape_transform_method = self._client_shape_to_resource_shape_converter.batch_get_item_response,
-            resource_method = self._resource.batch_get_item,
+            operation_input=kwargs,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.batch_get_item_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.batch_get_item_request,
+            input_encryption_transform_method=self._transformer.batch_get_item_input_transform,
+            input_encryption_transform_shape=BatchGetItemInputTransformInput,
+            output_encryption_transform_method=self._transformer.batch_get_item_output_transform,
+            output_encryption_transform_shape=BatchGetItemOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.batch_get_item_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.batch_get_item_response,
+            resource_method=self._resource.batch_get_item,
         )
-    
+
     def batch_write_item(self, **kwargs):
         """Puts or deletes multiple items in one or more tables.
         For put operations, encrypts items before writing.
@@ -180,26 +182,27 @@ class EncryptedResource(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB.
-            
+
         See boto3 docs for complete response structure.
+
         """
         return self._resource_operation_logic(
-            operation_input = kwargs,
-            input_resource_to_client_shape_transform_method = self._resource_shape_to_client_shape_converter.batch_write_item_request,
-            input_client_to_resource_shape_transform_method = self._client_shape_to_resource_shape_converter.batch_write_item_request,
-            input_encryption_transform_method = self._transformer.batch_write_item_input_transform,
-            input_encryption_transform_shape = BatchWriteItemInputTransformInput,
-            output_encryption_transform_method = self._transformer.batch_write_item_output_transform,
-            output_encryption_transform_shape = BatchWriteItemOutputTransformInput,
-            output_resource_to_client_shape_transform_method = self._resource_shape_to_client_shape_converter.batch_write_item_response,
-            output_client_to_resource_shape_transform_method = self._client_shape_to_resource_shape_converter.batch_write_item_response,
-            resource_method = self._resource.batch_write_item,
+            operation_input=kwargs,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.batch_write_item_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.batch_write_item_request,
+            input_encryption_transform_method=self._transformer.batch_write_item_input_transform,
+            input_encryption_transform_shape=BatchWriteItemInputTransformInput,
+            output_encryption_transform_method=self._transformer.batch_write_item_output_transform,
+            output_encryption_transform_shape=BatchWriteItemOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.batch_write_item_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.batch_write_item_response,
+            resource_method=self._resource.batch_write_item,
         )
-    
+
     def _resource_operation_logic(
         self,
         *,
-        operation_input: Dict[str, Any],
+        operation_input: dict[str, Any],
         input_resource_to_client_shape_transform_method: Callable,
         input_client_to_resource_shape_transform_method: Callable,
         input_encryption_transform_method: Callable,
@@ -217,9 +220,7 @@ class EncryptedResource(EncryptedBotoInterface):
 
         # Apply encryption transformation to the user-supplied input
         input_transform_output = input_encryption_transform_method(
-            input_encryption_transform_shape(
-                sdk_input=input_transform_input
-            )
+            input_encryption_transform_shape(sdk_input=input_transform_input)
         ).transformed_input
 
         # The encryption transformation result is formatted in DynamoDB JSON,
@@ -253,8 +254,9 @@ class EncryptedResource(EncryptedBotoInterface):
     @property
     def _boto_client_attr_name(self) -> str:
         """Name of the attribute containing the underlying boto3 client.
-        
+
         Returns:
             str: '_resource'
+
         """
-        return '_resource'
+        return "_resource"

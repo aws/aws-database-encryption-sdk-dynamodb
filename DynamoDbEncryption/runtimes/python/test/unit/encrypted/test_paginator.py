@@ -24,6 +24,7 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
     QueryInputTransformInput,
 )
 
+
 def test_GIVEN_paginator_not_query_nor_scan_WHEN_paginate_THEN_defers_to_underlying_paginator():
     # Given: A paginator that is not a Query or Scan paginator
     underlying_paginator = MagicMock(__class__=Paginator)
@@ -38,6 +39,7 @@ def test_GIVEN_paginator_not_query_nor_scan_WHEN_paginate_THEN_defers_to_underly
     # Then: Call goes to underlying paginator
     underlying_paginator.paginate.assert_called_once()
 
+
 def test_GIVEN_kwargs_has_PaginationConfig_WHEN_paginate_THEN_PaginationConfig_is_added_back_to_request():
     mock_underlying_paginator = MagicMock(__class__=Paginator)
     mock_underlying_paginator._model.name = "Query"
@@ -46,7 +48,7 @@ def test_GIVEN_kwargs_has_PaginationConfig_WHEN_paginate_THEN_PaginationConfig_i
         encryption_config=mock_tables_encryption_config,
     )
     mock_input_transform_method = MagicMock()
-    mock_input_transform_method.return_value = QueryInputTransformOutput(transformed_input={'TableName': 'test-table'})
+    mock_input_transform_method.return_value = QueryInputTransformOutput(transformed_input={"TableName": "test-table"})
     paginator._transformer.query_input_transform = mock_input_transform_method
     # Given: A kwargs that has a PaginationConfig
     kwargs_without_pagination_config = {

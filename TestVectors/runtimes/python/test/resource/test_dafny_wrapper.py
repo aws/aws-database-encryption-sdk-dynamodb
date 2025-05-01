@@ -45,11 +45,17 @@ import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictIt
 # If the list below becomes unmaintainable, or if other languages add clients with unsupported operations,
 # refactor the Dafny code to conditionally call tests based on whether the client supports the operation under test.
 
-def EmptyTest(*args):
-  pass
+def EmptyTest(*args, **kwargs):
+  print(f"Skipping test {kwargs['test_name']} because {kwargs['reason']}")
 
-aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = EmptyTest
-aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = EmptyTest
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = EmptyTest(
+  test_name="BasicIoTestTransactWriteItems",
+  reason="neither DDB resources nor DDB tables support transact_write_items"
+)
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = EmptyTest(
+  test_name="BasicIoTestTransactGetItems",
+  reason="neither DDB resources nor DDB tables support transact_get_items"
+)
 
 def test_dafny():
   from ..internaldafny.generated import __main__

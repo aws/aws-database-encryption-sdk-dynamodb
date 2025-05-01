@@ -6,62 +6,47 @@ from boto3.dynamodb.conditions import Attr, Key
 
 # Base request structures that are shared between DDB and dict formats
 
+
 def base_put_item_request(item):
     """Base structure for put_item requests."""
-    return {
-        "Item": item
-    }
+    return {"Item": item}
+
 
 def base_get_item_request(item):
     """Base structure for get_item requests."""
-    return {
-        "Key": {
-            "partition_key": item["partition_key"],
-            "sort_key": item["sort_key"]
-        }
-    }
+    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}
+
 
 def base_query_request(item):
     """Base structure for query requests."""
     return {
         "KeyConditionExpression": "partition_key = :pk",
-        "ExpressionAttributeValues": {
-            ":pk": item["partition_key"]
-        }
+        "ExpressionAttributeValues": {":pk": item["partition_key"]},
     }
+
 
 def base_scan_request(item):
     """Base structure for scan requests."""
     return {
         "FilterExpression": "attribute2 = :a2",
-        "ExpressionAttributeValues": {
-            ":a2": item["attribute2"]
-        },
+        "ExpressionAttributeValues": {":a2": item["attribute2"]},
     }
+
 
 def base_batch_write_item_request(actions_with_items):
     """Base structure for batch_write_item requests."""
-    return {
-        "RequestItems": {
-            INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: actions_with_items
-        }
-    }
+    return {"RequestItems": {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: actions_with_items}}
+
 
 def base_batch_get_item_request(keys):
     """Base structure for batch_get_item requests."""
-    return {
-        "RequestItems": {
-            INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: {
-                "Keys": keys
-            }
-        }
-    }
+    return {"RequestItems": {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: {"Keys": keys}}}
+
 
 def base_transact_write_item_request(actions_with_items):
     """Base structure for transact_write_item requests."""
-    return {
-        "TransactItems": actions_with_items
-    }
+    return {"TransactItems": actions_with_items}
+
 
 def base_transact_get_item_request(keys):
     """Base structure for transact_get_item requests."""
@@ -69,7 +54,9 @@ def base_transact_get_item_request(keys):
         "TransactItems": [{"Get": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys]
     }
 
+
 # Base exhaustive request structures that are shared between DDB and dict formats
+
 
 def base_exhaustive_put_item_request(item):
     """Base structure for exhaustive put_item requests."""
@@ -79,24 +66,16 @@ def base_exhaustive_put_item_request(item):
             "partition_key": {
                 "Value": item["partition_key"],
             },
-            "sort_key": {
-               "AttributeValueList": [item["sort_key"]],
-               "ComparisonOperator": "EQ"
-            }
+            "sort_key": {"AttributeValueList": [item["sort_key"]], "ComparisonOperator": "EQ"},
         },
-        "ExpressionAttributeNames": {
-            "#pk": "partition_key",
-            "#sk": "sort_key"
-        },
-        "ExpressionAttributeValues": {
-            ":pk": item["partition_key"],
-            ":sk": item["sort_key"]
-        },
+        "ExpressionAttributeNames": {"#pk": "partition_key", "#sk": "sort_key"},
+        "ExpressionAttributeValues": {":pk": item["partition_key"], ":sk": item["sort_key"]},
         "ReturnConsumedCapacity": "TOTAL",
         "ReturnItemCollectionMetrics": "SIZE",
         "ReturnValues": "ALL_OLD",
-        "ReturnValuesOnConditionCheckFailure": "ALL_OLD"
+        "ReturnValuesOnConditionCheckFailure": "ALL_OLD",
     }
+
 
 def base_exhaustive_get_item_request(item):
     """Base structure for exhaustive get_item requests."""
@@ -108,11 +87,12 @@ def base_exhaustive_get_item_request(item):
             "#pk": "partition_key",
             "#sk": "sort_key",
             "#a1": "attribute1",
-            "#a2": "attribute2"
+            "#a2": "attribute2",
         },
         "ConsistentRead": True,
-        "AttributesToGet": ["partition_key", "sort_key", "attribute1", "attribute2"]
+        "AttributesToGet": ["partition_key", "sort_key", "attribute1", "attribute2"],
     }
+
 
 def base_exhaustive_query_request(item):
     """Base structure for exhaustive query requests."""
@@ -120,24 +100,11 @@ def base_exhaustive_query_request(item):
         "IndexName": "index_name",
         "Select": "SPECIFIC_ATTRIBUTES",
         "AttributesToGet": ["partition_key", "sort_key", "attribute1", "attribute2"],
-        "KeyConditions": {
-            "partition_key": {
-                "AttributeValueList": [item["partition_key"]],
-                "ComparisonOperator": "EQ"
-            }
-        },
-        "QueryFilter": {
-            "attribute1": {
-                "AttributeValueList": [item["attribute1"]],
-                "ComparisonOperator": "EQ"
-            }
-        },
+        "KeyConditions": {"partition_key": {"AttributeValueList": [item["partition_key"]], "ComparisonOperator": "EQ"}},
+        "QueryFilter": {"attribute1": {"AttributeValueList": [item["attribute1"]], "ComparisonOperator": "EQ"}},
         "ConditionalOperator": "AND",
         "ScanIndexForward": True,
-        "ExclusiveStartKey": {
-            "partition_key": item["partition_key"],
-            "sort_key": item["sort_key"]
-        },
+        "ExclusiveStartKey": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]},
         "ReturnConsumedCapacity": "TOTAL",
         "ProjectionExpression": "partition_key, sort_key, attribute1, attribute2",
         "FilterExpression": "attribute1 = :a1",
@@ -145,13 +112,11 @@ def base_exhaustive_query_request(item):
             "#pk": "partition_key",
             "#sk": "sort_key",
             "#a1": "attribute1",
-            "#a2": "attribute2"
+            "#a2": "attribute2",
         },
-        "ExpressionAttributeValues": {
-            ":pk": item["partition_key"],
-            ":a1": item["attribute1"]
-        },
+        "ExpressionAttributeValues": {":pk": item["partition_key"], ":a1": item["attribute1"]},
     }
+
 
 def base_exhaustive_scan_request(item):
     """Base structure for exhaustive scan requests."""
@@ -159,36 +124,24 @@ def base_exhaustive_scan_request(item):
         "IndexName": "index_name",
         "AttributesToGet": ["partition_key", "sort_key", "attribute1", "attribute2"],
         "Select": "SPECIFIC_ATTRIBUTES",
-        "ScanFilter": {
-            "attribute1": {
-                "AttributeValueList": [item["attribute1"]],
-                "ComparisonOperator": "EQ"
-            }
-        },
+        "ScanFilter": {"attribute1": {"AttributeValueList": [item["attribute1"]], "ComparisonOperator": "EQ"}},
         "ConditionalOperator": "AND",
         "ReturnConsumedCapacity": "TOTAL",
         "ReturnItemCollectionMetrics": "SIZE",
-        "ExpressionAttributeNames": {
-            "#a1": "attribute1"
-        },
-        "ExpressionAttributeValues": {
-            ":a1": item["attribute1"]
-        },
-        "ExclusiveStartKey": {
-            "partition_key": item["partition_key"],
-            "sort_key": item["sort_key"]
-        }
+        "ExpressionAttributeNames": {"#a1": "attribute1"},
+        "ExpressionAttributeValues": {":a1": item["attribute1"]},
+        "ExclusiveStartKey": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]},
     }
 
+
 # DDB format request functions
+
 
 def basic_put_item_request_ddb(item):
     """Get a put_item request in DDB format for any item."""
     base = base_put_item_request(item)
-    return {
-        "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-        **base
-    }
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
 
 def exhaustive_put_item_request_ddb(item):
     """Get a put_item request in DDB format for any item."""
@@ -197,13 +150,12 @@ def exhaustive_put_item_request_ddb(item):
     additional_keys["ConditionExpression"] = "attribute_not_exists(#pk) AND attribute_not_exists(#sk)"
     return {**base, **additional_keys}
 
+
 def basic_get_item_request_ddb(item):
     """Get a get_item request in DDB format for any item."""
     base = base_get_item_request(item)
-    return {
-        "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-        **base
-    }
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
 
 def exhaustive_get_item_request_ddb(item):
     """Get a get_item request in DDB format for any item."""
@@ -211,13 +163,12 @@ def exhaustive_get_item_request_ddb(item):
     additional_keys = base_exhaustive_get_item_request(item)
     return {**base, **additional_keys}
 
+
 def basic_query_request_ddb(item):
     """Get a query request in DDB format for any item."""
     base = base_query_request(item)
-    return {
-        "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-        **base
-    }
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
 
 def exhaustive_query_request_ddb(item):
     """Query request with all possible parameters.
@@ -228,13 +179,12 @@ def exhaustive_query_request_ddb(item):
     additional_keys = base_exhaustive_query_request(item)
     return {**base, **additional_keys}
 
+
 def basic_scan_request_ddb(item):
     """Get a scan request in DDB format for any item."""
     base = base_scan_request(item)
-    return {
-        "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-        **base
-    }
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
 
 def exhaustive_scan_request_ddb(item):
     """Get a scan request in DDB format for any item."""
@@ -242,78 +192,77 @@ def exhaustive_scan_request_ddb(item):
     additional_keys = base_exhaustive_scan_request(item)
     return {**base, **additional_keys}
 
+
 def basic_batch_write_item_request_ddb(actions_with_items):
     """Get a batch_write_item request in DDB format for any items."""
     return base_batch_write_item_request(actions_with_items)
 
+
 def basic_batch_write_item_put_request_ddb(items):
     """Get a batch_write_item put request in DDB format for any items."""
-    actions_with_items = [
-        {"PutRequest": {"Item": item}}
-        for item in items
-    ]
+    actions_with_items = [{"PutRequest": {"Item": item}} for item in items]
     return basic_batch_write_item_request_ddb(actions_with_items)
+
 
 def basic_batch_write_item_delete_request_ddb(keys):
     """Get a batch_write_item delete request in DDB format for any keys."""
-    actions_with_keys = [
-        {"DeleteRequest": {"Key": key}}
-        for key in keys
-    ]
+    actions_with_keys = [{"DeleteRequest": {"Key": key}} for key in keys]
     return basic_batch_write_item_request_ddb(actions_with_keys)
+
 
 def basic_batch_get_item_request_ddb(keys):
     """Get a batch_get_item request in DDB format for any keys."""
     return base_batch_get_item_request(keys)
 
+
 def basic_transact_write_item_request_ddb(actions_with_items):
     """Get a transact_write_item request in DDB format for any items."""
     return base_transact_write_item_request(actions_with_items)
 
+
 def basic_transact_write_item_put_request_ddb(items):
     """Get a transact_write_item put request in DDB format for any items."""
     actions_with_items = [
-        {"Put": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Item": item}}
-        for item in items
+        {"Put": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Item": item}} for item in items
     ]
     return basic_transact_write_item_request_ddb(actions_with_items)
 
+
 def basic_transact_write_item_delete_request_ddb(keys):
     """Get a transact_write_item delete request in DDB format for any keys."""
-    actions_with_keys = [
-        {"Delete": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}}
-        for key in keys
-    ]
+    actions_with_keys = [{"Delete": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys]
     return basic_transact_write_item_request_ddb(actions_with_keys)
+
 
 def basic_transact_write_item_condition_check_request_ddb(keys):
     """Get a transact_write_item condition check request in DDB format for any keys."""
     actions_with_keys = [
-        {"ConditionCheck": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}}
-        for key in keys
+        {"ConditionCheck": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys
     ]
     return basic_transact_write_item_request_ddb(actions_with_keys)
+
 
 def basic_transact_get_item_request_ddb(keys):
     """Get a transact_get_item request in DDB format for any keys."""
     return base_transact_get_item_request(keys)
+
 
 def basic_query_paginator_request(key):
     """Get a query paginator request in DDB format for any item."""
     return {
         "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         "KeyConditionExpression": "partition_key = :pk AND sort_key = :sk",
-        "ExpressionAttributeValues": {
-            ":pk": key["partition_key"],
-            ":sk": key["sort_key"]
-        }
+        "ExpressionAttributeValues": {":pk": key["partition_key"], ":sk": key["sort_key"]},
     }
 
+
 # Dict format request functions
+
 
 def basic_put_item_request_dict(item):
     """Get a put_item request in dict format for any item."""
     return base_put_item_request(item)
+
 
 def exhaustive_put_item_request_dict(item):
     """Get a put_item request in dict format for any item."""
@@ -322,9 +271,11 @@ def exhaustive_put_item_request_dict(item):
     additional_keys["ConditionExpression"] = Attr("#pk").not_exists() & Attr("#sk").not_exists()
     return {**base, **additional_keys}
 
+
 def basic_get_item_request_dict(item):
     """Get a get_item request in dict format for any item."""
     return base_get_item_request(item)
+
 
 def exhaustive_get_item_request_dict(item):
     """Get a get_item request in dict format for any item."""
@@ -332,20 +283,20 @@ def exhaustive_get_item_request_dict(item):
     additional_keys = base_exhaustive_get_item_request(item)
     return {**base, **additional_keys}
 
+
 def basic_query_request_dict(item):
     """Get a query request in dict format for any item."""
     base = base_query_request(item)
     # Override base KeyConditionExpression to use ConditionExpressions
     return base
 
+
 def basic_query_request_dict_condition_expression(item):
     """Get a query request in dict format for any item."""
     base = base_query_request(item)
     # Override base KeyConditionExpression to use ConditionExpressions
-    return {
-        "KeyConditionExpression": Key("partition_key").eq(item["partition_key"]),
-        **base
-    }
+    return {"KeyConditionExpression": Key("partition_key").eq(item["partition_key"]), **base}
+
 
 def exhaustive_query_request_dict(item):
     """Get a query request in dict format for any item."""
@@ -353,9 +304,11 @@ def exhaustive_query_request_dict(item):
     additional_keys = base_exhaustive_query_request(item)
     return {**base, **additional_keys}
 
+
 def basic_scan_request_dict(item):
     """Get a scan request in dict format for any item."""
     return base_scan_request(item)
+
 
 def exhaustive_scan_request_dict(item):
     """Get a scan request in dict format for any item."""
@@ -363,58 +316,56 @@ def exhaustive_scan_request_dict(item):
     additional_keys = base_exhaustive_scan_request(item)
     return {**base, **additional_keys}
 
+
 def basic_batch_write_item_request_dict(actions_with_items):
     """Get a batch_write_item request in dict format for any items."""
     return base_batch_write_item_request(actions_with_items)
 
+
 def basic_batch_write_item_put_request_dict(items):
     """Get a batch_put_item request in dict format for any items."""
-    actions_with_items = [
-        {"PutRequest": {"Item": item}}
-        for item in items
-    ]
+    actions_with_items = [{"PutRequest": {"Item": item}} for item in items]
     return basic_batch_write_item_request_dict(actions_with_items)
+
 
 def basic_batch_write_item_delete_request_dict(keys):
     """Get a batch_write_item delete request in dict format for any keys."""
-    actions_with_keys = [
-        {"DeleteRequest": {"Key": key}}
-        for key in keys
-    ]
+    actions_with_keys = [{"DeleteRequest": {"Key": key}} for key in keys]
     return basic_batch_write_item_request_dict(actions_with_keys)
+
 
 def basic_batch_get_item_request_dict(keys):
     """Get a batch_get_item request in dict format for any keys."""
     return base_batch_get_item_request(keys)
 
+
 def basic_transact_write_item_request_dict(actions_with_items):
     """Get a transact_write_item request in dict format for any items."""
     return base_transact_write_item_request(actions_with_items)
 
+
 def basic_transact_write_item_put_request_dict(items):
     """Get a transact_write_item put request in dict format for any items."""
     actions_with_items = [
-        {"Put": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Item": item}}
-        for item in items
+        {"Put": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Item": item}} for item in items
     ]
     return basic_transact_write_item_request_dict(actions_with_items)
 
+
 def basic_transact_write_item_delete_request_dict(keys):
     """Get a transact_write_item delete request in dict format for any keys."""
-    actions_with_keys = [
-        {"Delete": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}}
-        for key in keys
-    ]
+    actions_with_keys = [{"Delete": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys]
     return basic_transact_write_item_request_dict(actions_with_keys)
+
 
 def basic_transact_write_item_condition_check_request_dict(keys):
     """Get a transact_write_item condition check request in dict format for any keys."""
     actions_with_keys = [
-        {"ConditionCheck": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}}
-        for key in keys
+        {"ConditionCheck": {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, "Key": key}} for key in keys
     ]
     return basic_transact_write_item_request_dict(actions_with_keys)
 
+
 def basic_transact_get_item_request_dict(keys):
     """Get a transact_get_item request in dict format for any keys."""
-    return base_transact_get_item_request(keys) 
+    return base_transact_get_item_request(keys)

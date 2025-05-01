@@ -1,9 +1,12 @@
-
 from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedTablesCollectionManager
 from mock import MagicMock
+
 
 def test_WHEN_boto3_client_attr_name_THEN_returns_expected_value():
     # Given: EncryptedResource
     assert EncryptedResource(resource=MagicMock(), encryption_config=MagicMock())._boto_client_attr_name == "_resource"
     # And: EncryptedTablesCollectionManager
-    assert EncryptedTablesCollectionManager(collection=MagicMock(), encryption_config=MagicMock())._boto_client_attr_name == "_collection"
+    assert (
+        EncryptedTablesCollectionManager(collection=MagicMock(), encryption_config=MagicMock())._boto_client_attr_name
+        == "_collection"
+    )

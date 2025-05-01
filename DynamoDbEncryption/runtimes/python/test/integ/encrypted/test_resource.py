@@ -8,16 +8,21 @@ from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 
 from ...items import simple_item_dict, complex_item_dict, simple_key_dict, complex_key_dict
 
-from ...requests import basic_batch_write_item_put_request_dict, basic_batch_get_item_request_dict, basic_batch_write_item_delete_request_dict
-
+from ...requests import (
+    basic_batch_write_item_put_request_dict,
+    basic_batch_get_item_request_dict,
+    basic_batch_write_item_delete_request_dict,
+)
 
 
 @pytest.fixture(params=[True, False], ids=["encrypted", "plaintext"])
 def encrypted(request):
     return request.param
 
+
 def plaintext_resource():
     return boto3.resource("dynamodb")
+
 
 def encrypted_resource():
     return EncryptedResource(
@@ -25,16 +30,19 @@ def encrypted_resource():
         encryption_config=INTEG_TEST_DEFAULT_TABLE_CONFIGS,
     )
 
+
 @pytest.fixture
 def resource(encrypted):
     if encrypted:
         return encrypted_resource()
     else:
         return plaintext_resource()
-    
+
+
 @pytest.fixture
 def tables(resource):
     return resource.tables
+
 
 def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
     resource,
@@ -59,6 +67,7 @@ def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
     assert batch_get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     assert len(batch_get_response["Responses"][INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME]) == 0
 
+
 def test_GIVEN_encrypted_resource_WHEN_Table_THEN_returns_encrypted_table_with_correct_arguments():
     # Given: Encrypted resource
     resource = encrypted_resource()
@@ -68,6 +77,7 @@ def test_GIVEN_encrypted_resource_WHEN_Table_THEN_returns_encrypted_table_with_c
     assert isinstance(table, EncryptedTable)
     assert table.name == INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
     assert table._encryption_config == resource._encryption_config
+
 
 def test_GIVEN_encrypted_resource_WHEN_tables_THEN_returns_encrypted_tables_collection_manager():
     # Given: Encrypted resource
@@ -88,6 +98,7 @@ def test_GIVEN_encrypted_resource_WHEN_tables_THEN_returns_encrypted_tables_coll
         assert isinstance(table, EncryptedTable)
         assert table._encryption_config == resource._encryption_config
 
+
 def test_GIVEN_tables_WHEN_all_THEN_returns_tables(
     tables,
 ):
@@ -101,6 +112,7 @@ def test_GIVEN_tables_WHEN_all_THEN_returns_tables(
     table_names = [table.name for table in tables_list]
     # "All tables" includes the integ test table
     assert INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME in table_names
+
 
 def test_GIVEN_tables_WHEN_filter_THEN_returns_tables(
     tables,
@@ -119,6 +131,7 @@ def test_GIVEN_tables_WHEN_filter_THEN_returns_tables(
     # The filter request started from the integ test table, not inclusive; it should not be in the list
     assert INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME not in table_names
 
+
 def test_GIVEN_tables_WHEN_limit_THEN_returns_tables(
     tables,
 ):
@@ -129,6 +142,7 @@ def test_GIVEN_tables_WHEN_limit_THEN_returns_tables(
         tables_list.append(table)
     # Then: Returns tables
     assert len(tables_list) == 1
+
 
 def test_GIVEN_tables_WHEN_page_size_THEN_returns_tables(
     tables,

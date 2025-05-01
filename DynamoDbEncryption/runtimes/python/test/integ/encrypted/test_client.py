@@ -13,9 +13,19 @@ from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_ATTRIBUTE_ACTIONS_ON_ENCRYPT,
 )
-from ...items import simple_item_ddb, simple_item_dict, complex_item_ddb, complex_item_dict, simple_key_ddb, simple_key_dict, complex_key_ddb, complex_key_dict
+from ...items import (
+    simple_item_ddb,
+    simple_item_dict,
+    complex_item_ddb,
+    complex_item_dict,
+    simple_key_ddb,
+    simple_key_dict,
+    complex_key_ddb,
+    complex_key_dict,
+)
 
 from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
+
 serializer = TypeSerializer()
 deserializer = TypeDeserializer()
 
@@ -55,9 +65,11 @@ from ...requests import (
 )
 from aws_dbesdk_dynamodb.transform import ddb_to_dict
 
+
 @pytest.fixture(params=[True, False], ids=["standard_dicts", "ddb_json"])
 def expect_standard_dictionaries(request):
     return request.param
+
 
 def encrypted_client(expect_standard_dictionaries):
     return EncryptedClient(
@@ -66,6 +78,7 @@ def encrypted_client(expect_standard_dictionaries):
         expect_standard_dictionaries=expect_standard_dictionaries,
     )
 
+
 def plaintext_client(expect_standard_dictionaries):
     if expect_standard_dictionaries:
         client = boto3.resource("dynamodb").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME).meta.client
@@ -73,9 +86,11 @@ def plaintext_client(expect_standard_dictionaries):
         client = boto3.client("dynamodb")
     return client
 
+
 @pytest.fixture(params=[True, False], ids=["encrypted", "plaintext"])
 def encrypted(request):
     return request.param
+
 
 @pytest.fixture
 def client(encrypted, expect_standard_dictionaries):
@@ -84,9 +99,11 @@ def client(encrypted, expect_standard_dictionaries):
     else:
         return plaintext_client(expect_standard_dictionaries)
 
+
 @pytest.fixture(params=[True, False], ids=["complex_item", "simple_item"])
 def use_complex_item(request):
     return request.param
+
 
 @pytest.fixture
 def test_item(expect_standard_dictionaries, use_complex_item):
@@ -99,6 +116,7 @@ def test_item(expect_standard_dictionaries, use_complex_item):
         return complex_item_ddb
     return simple_item_ddb
 
+
 @pytest.fixture
 def test_key(expect_standard_dictionaries, use_complex_item):
     """Get a single test item in the appropriate format for the client."""
@@ -110,6 +128,7 @@ def test_key(expect_standard_dictionaries, use_complex_item):
         return complex_key_ddb
     return simple_key_ddb
 
+
 @pytest.fixture
 def multiple_test_items(expect_standard_dictionaries):
     """Get two test items in the appropriate format for the client."""
@@ -117,12 +136,14 @@ def multiple_test_items(expect_standard_dictionaries):
         return [simple_item_dict, complex_item_dict]
     return [simple_item_ddb, complex_item_ddb]
 
+
 @pytest.fixture
 def multiple_test_keys(expect_standard_dictionaries):
     """Get two test keys in the appropriate format for the client."""
     if expect_standard_dictionaries:
         return [simple_key_dict, complex_key_dict]
     return [simple_key_ddb, complex_key_ddb]
+
 
 @pytest.fixture
 def put_item_request(expect_standard_dictionaries, test_item):
@@ -132,6 +153,7 @@ def put_item_request(expect_standard_dictionaries, test_item):
         return {**basic_put_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_put_item_request_ddb(test_item)
 
+
 @pytest.fixture
 def get_item_request(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
@@ -139,6 +161,7 @@ def get_item_request(expect_standard_dictionaries, test_item):
         # with an added "TableName" key.
         return {**basic_get_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_get_item_request_ddb(test_item)
+
 
 def sort_dynamodb_json_lists(obj):
     """Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
@@ -153,7 +176,10 @@ def sort_dynamodb_json_lists(obj):
             return obj  # Not all lists are sortable; ex. complex_item_ddb's "list" attribute
     return obj
 
-def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passes(client, put_item_request, get_item_request):
+
+def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passes(
+    client, put_item_request, get_item_request
+):
     # Given: Valid put_item request
     # When: put_item
     put_response = client.put_item(**put_item_request)
@@ -171,11 +197,13 @@ def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passe
     actual_item = sort_dynamodb_json_lists(get_response["Item"])
     assert expected_item == actual_item
 
+
 @pytest.fixture
 def batch_write_item_put_request(expect_standard_dictionaries, multiple_test_items):
     if expect_standard_dictionaries:
         return basic_batch_write_item_put_request_dict(multiple_test_items)
     return basic_batch_write_item_put_request_ddb(multiple_test_items)
+
 
 @pytest.fixture
 def batch_write_item_delete_request(expect_standard_dictionaries, multiple_test_keys):
@@ -183,13 +211,17 @@ def batch_write_item_delete_request(expect_standard_dictionaries, multiple_test_
         return basic_batch_write_item_delete_request_dict(multiple_test_keys)
     return basic_batch_write_item_delete_request_ddb(multiple_test_keys)
 
+
 @pytest.fixture
 def batch_get_item_request(expect_standard_dictionaries, multiple_test_keys):
     if expect_standard_dictionaries:
         return basic_batch_get_item_request_dict(multiple_test_keys)
     return basic_batch_get_item_request_ddb(multiple_test_keys)
 
-def test_GIVEN_valid_batch_write_and_get_requests_WHEN_batch_write_and_get_THEN_round_trip_passes(client, multiple_test_items, batch_write_item_put_request, batch_get_item_request, batch_write_item_delete_request):
+
+def test_GIVEN_valid_batch_write_and_get_requests_WHEN_batch_write_and_get_THEN_round_trip_passes(
+    client, multiple_test_items, batch_write_item_put_request, batch_get_item_request, batch_write_item_delete_request
+):
     # Given: Valid batch_write_item put request
     # When: batch_write_item put
     batch_write_response = client.batch_write_item(**batch_write_item_put_request)
@@ -205,12 +237,8 @@ def test_GIVEN_valid_batch_write_and_get_requests_WHEN_batch_write_and_get_THEN_
     retrieved_items = batch_get_response["Responses"][INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME]
     assert len(retrieved_items) > 0
     assert len(retrieved_items) == len(multiple_test_items)
-    expected_items = [
-        sort_dynamodb_json_lists(expected_item) for expected_item in multiple_test_items
-    ]
-    actual_items = [
-        sort_dynamodb_json_lists(actual_item) for actual_item in retrieved_items
-    ]
+    expected_items = [sort_dynamodb_json_lists(expected_item) for expected_item in multiple_test_items]
+    actual_items = [sort_dynamodb_json_lists(actual_item) for actual_item in retrieved_items]
     for actual_item in actual_items:
         assert actual_item in expected_items
 
@@ -228,13 +256,17 @@ def test_GIVEN_valid_batch_write_and_get_requests_WHEN_batch_write_and_get_THEN_
     # Then: All items are deleted
     retrieved_items = batch_get_response["Responses"]
 
+
 @pytest.fixture
 def query_request(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
         return {**basic_query_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_query_request_ddb(test_item)
 
-def test_GIVEN_valid_put_and_query_requests_WHEN_put_and_query_THEN_round_trip_passes(client, put_item_request, query_request):
+
+def test_GIVEN_valid_put_and_query_requests_WHEN_put_and_query_THEN_round_trip_passes(
+    client, put_item_request, query_request
+):
     # Given: Valid put_item request
     # When: put_item
     put_response = client.put_item(**put_item_request)
@@ -253,13 +285,17 @@ def test_GIVEN_valid_put_and_query_requests_WHEN_put_and_query_THEN_round_trip_p
     actual_item = sort_dynamodb_json_lists(query_response["Items"][0])
     assert expected_item == actual_item
 
+
 @pytest.fixture
 def scan_request(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
         return {**basic_scan_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_scan_request_ddb(test_item)
 
-def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(client, put_item_request, scan_request):
+
+def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(
+    client, put_item_request, scan_request
+):
     # Given: Valid put_item request
     # When: put_item
     put_response = client.put_item(**put_item_request)
@@ -276,17 +312,20 @@ def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_pas
     # there are too many items.
     # The critical test is that the scan succeeds.
 
+
 @pytest.fixture
 def transact_write_item_put_request(expect_standard_dictionaries, multiple_test_items):
     if expect_standard_dictionaries:
         return basic_transact_write_item_put_request_dict(multiple_test_items)
     return basic_transact_write_item_put_request_ddb(multiple_test_items)
 
+
 @pytest.fixture
 def transact_write_item_delete_request(expect_standard_dictionaries, multiple_test_keys):
     if expect_standard_dictionaries:
         return basic_transact_write_item_delete_request_dict(multiple_test_keys)
     return basic_transact_write_item_delete_request_ddb(multiple_test_keys)
+
 
 @pytest.fixture
 def transact_get_item_request(expect_standard_dictionaries, multiple_test_keys):
@@ -295,7 +334,14 @@ def transact_get_item_request(expect_standard_dictionaries, multiple_test_keys):
     return basic_transact_get_item_request_ddb(multiple_test_keys)
 
 
-def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get_THEN_round_trip_passes(client, multiple_test_items, transact_write_item_put_request, transact_write_item_delete_request, transact_get_item_request, batch_get_item_request):
+def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get_THEN_round_trip_passes(
+    client,
+    multiple_test_items,
+    transact_write_item_put_request,
+    transact_write_item_delete_request,
+    transact_get_item_request,
+    batch_get_item_request,
+):
     # Given: Valid transact_write_item put request
     # When: transact_write_item put
     transact_write_put_response = client.transact_write_items(**transact_write_item_put_request)
@@ -311,12 +357,8 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
     retrieved_items = transact_get_response["Responses"]
     assert len(retrieved_items) > 0
     assert len(retrieved_items) == len(multiple_test_items)
-    expected_items = [
-        sort_dynamodb_json_lists(expected_item) for expected_item in multiple_test_items
-    ]
-    actual_items = [
-        sort_dynamodb_json_lists(actual_item) for actual_item in retrieved_items
-    ]
+    expected_items = [sort_dynamodb_json_lists(expected_item) for expected_item in multiple_test_items]
+    actual_items = [sort_dynamodb_json_lists(actual_item) for actual_item in retrieved_items]
     for actual_item in actual_items:
         assert actual_item["Item"] in expected_items
 
@@ -326,6 +368,7 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
     # Then: transact_write_item delete succeeds
     assert transact_write_delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
+
 def test_WHEN_update_item_THEN_raises_not_implemented_error():
     """Test that update_item raises NotImplementedError."""
     # Given: Encrypted client and update item parameters
@@ -333,16 +376,12 @@ def test_WHEN_update_item_THEN_raises_not_implemented_error():
     with pytest.raises(NotImplementedError):
         encrypted_client(expect_standard_dictionaries=False).update_item(
             TableName=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-            Key={
-                "partition_key": "test-key",
-                "sort_key": 1
-            },
+            Key={"partition_key": "test-key", "sort_key": 1},
             UpdateExpression="SET attribute1 = :val",
-            ExpressionAttributeValues={
-                ":val": {"S": "new value"}
-            }
+            ExpressionAttributeValues={":val": {"S": "new value"}},
         )
     # Then: NotImplementedError is raised
+
 
 def test_WHEN_get_paginator_THEN_correct_paginator_is_returned():
     """Test get_paginator for scan and query operations."""
@@ -357,6 +396,7 @@ def test_WHEN_get_paginator_THEN_correct_paginator_is_returned():
     list_backups_paginator = encrypted_client(expect_standard_dictionaries=False).get_paginator("list_backups")
     # Then: Query paginator is returned
     assert not isinstance(list_backups_paginator, EncryptedPaginator)
+
 
 def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     """Test that calling a passthrough method returns the correct response."""

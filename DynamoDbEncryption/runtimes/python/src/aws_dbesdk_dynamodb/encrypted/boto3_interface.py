@@ -1,13 +1,16 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import abc
-from typing import Any, Dict
 from abc import abstractmethod
+from typing import Any
+
 
 class EncryptedBotoInterface(abc.ABC):
     """Interface for encrypted boto3 interfaces."""
 
-    def _copy_sdk_response_to_dbesdk_response(self, sdk_response: Dict[str, Any], dbesdk_response: Dict[str, Any]) -> Dict[str, Any]:
+    def _copy_sdk_response_to_dbesdk_response(
+        self, sdk_response: dict[str, Any], dbesdk_response: dict[str, Any]
+    ) -> dict[str, Any]:
         """Copy any missing fields from the SDK response to the DBESDK response.
 
         Args:
@@ -16,6 +19,7 @@ class EncryptedBotoInterface(abc.ABC):
 
         Returns:
             dict: The DBESDK response with any missing fields copied from SDK response
+
         """
         for sdk_response_key, sdk_response_value in sdk_response.items():
             if sdk_response_key not in dbesdk_response:
@@ -38,6 +42,7 @@ class EncryptedBotoInterface(abc.ABC):
 
         Raises:
             AttributeError: If the attribute doesn't exist on the underlying client
+
         """
         client_attr = getattr(self, self._boto_client_attr_name)
         if hasattr(client_attr, name):

@@ -19,6 +19,7 @@ from botocore.client import BaseClient
 mock_boto3_dynamodb_client = MagicMock(__class__=BaseClient)
 mock_tables_encryption_config = MagicMock(__class__=DynamoDbTablesEncryptionConfig)
 
+
 def test_GIVEN_valid_inputs_WHEN_create_EncryptedClient_THEN_success():
     # Given: Valid EncryptedClient inputs
     # When: Create EncryptedClient
@@ -28,11 +29,12 @@ def test_GIVEN_valid_inputs_WHEN_create_EncryptedClient_THEN_success():
     )
     # Then: Success
 
+
 def test_GIVEN_invalid_class_attribute_WHEN_getattr_THEN_raise_error():
     some_unknown_attribute = "not_a_valid_attribute_on_EncryptedClient_nor_boto3_client"
-    
+
     # Create a mock with a specific spec that excludes our unknown attribute
-    mock_boto3_dynamodb_client = MagicMock(spec=['put_item', 'get_item', 'query', 'scan'])
+    mock_boto3_dynamodb_client = MagicMock(spec=["put_item", "get_item", "query", "scan"])
     encrypted_client = EncryptedClient(
         client=mock_boto3_dynamodb_client,
         encryption_config=mock_tables_encryption_config,

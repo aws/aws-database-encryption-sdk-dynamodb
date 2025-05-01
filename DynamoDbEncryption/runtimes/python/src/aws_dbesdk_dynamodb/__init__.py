@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Initialize generated Dafny
-from .internaldafny.generated import module_
-
 # Initialize externs
 from .internaldafny import extern
+from .internaldafny.generated import module_
 
 """
 boto3 uses Python's decimal library to deserialize numbers retrieved by resources
@@ -27,8 +26,9 @@ By default, boto3 will treat both "Rounded" and "Inexact" as unacceptable.
 
 For DBESDK DynamoDB, change the DynamoDB context to treat "Rounded" as acceptable.
 """
-import boto3.dynamodb.types
 from decimal import Rounded
+
+import boto3.dynamodb.types
 
 old_context = boto3.dynamodb.types.DYNAMODB_CONTEXT
 old_traps = old_context.__getattribute__("traps")

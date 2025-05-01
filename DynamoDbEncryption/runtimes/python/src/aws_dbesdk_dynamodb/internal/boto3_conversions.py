@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
+
 class BotoInterfaceShapeConverter(ABC):
-    """
-    Class modelling transformations between boto3 DynamoDB client and resource shapes.
-    
+    """Class modelling transformations between boto3 DynamoDB client and resource shapes.
+
     DBESDK for DynamoDB provides encrypted interfaces for boto3 DynamoDB resources (ex. Table, Resource).
     boto3 resource methods accept different input shapes than boto3 clients, and return different output shapes.
     (The members of these shapes are the same, but some shapes are formatted differently.)
@@ -21,6 +21,7 @@ class BotoInterfaceShapeConverter(ABC):
     That similarity is captured here, and implementations override the abstract methods to perform the transformations
         specific to the transformation direction.
     """
+
     @abstractmethod
     def expression(self, condition_expression, expression_attribute_names, expression_attribute_values):
         raise NotImplementedError("Must be implemented by subclasses")
@@ -31,14 +32,18 @@ class BotoInterfaceShapeConverter(ABC):
     def query_filter(self, query_filter):
         return self.key_to_attribute_value_with_comparison_operator_list(query_filter)
 
-    def key_to_attribute_value_with_comparison_operator_list(self, key_to_attribute_value_with_comparison_operator_list):
+    def key_to_attribute_value_with_comparison_operator_list(
+        self, key_to_attribute_value_with_comparison_operator_list
+    ):
         key_names = key_to_attribute_value_with_comparison_operator_list.keys()
         key_conditions_out = {}
         for key_name in key_names:
             value = key_to_attribute_value_with_comparison_operator_list[key_name]
             key_conditions_out[key_name] = value
             if "AttributeValueList" in value:
-                key_conditions_out[key_name]["AttributeValueList"] = self.attribute_value_list(value["AttributeValueList"])
+                key_conditions_out[key_name]["AttributeValueList"] = self.attribute_value_list(
+                    value["AttributeValueList"]
+                )
         return key_conditions_out
 
     def exclusive_start_key(self, exclusive_start_key):
@@ -85,7 +90,9 @@ class BotoInterfaceShapeConverter(ABC):
         if "Expected" in put_item_request:
             put_item_request["Expected"] = self.expected(put_item_request["Expected"])
         if "ExpressionAttributeValues" in put_item_request:
-            put_item_request["ExpressionAttributeValues"] = self.expression_attribute_values(put_item_request["ExpressionAttributeValues"])
+            put_item_request["ExpressionAttributeValues"] = self.expression_attribute_values(
+                put_item_request["ExpressionAttributeValues"]
+            )
         return put_item_request
 
     def attributes(self, attributes):
@@ -100,23 +107,27 @@ class BotoInterfaceShapeConverter(ABC):
         if "Attributes" in put_item_response:
             put_item_response["Attributes"] = self.attributes(put_item_response["Attributes"])
         if "ItemCollectionMetrics" in put_item_response:
-            put_item_response["ItemCollectionMetrics"] = self.item_collection_metrics(put_item_response["ItemCollectionMetrics"])
+            put_item_response["ItemCollectionMetrics"] = self.item_collection_metrics(
+                put_item_response["ItemCollectionMetrics"]
+            )
         return put_item_response
-    
+
     def get_item_request(self, get_item_request):
         if "Key" in get_item_request:
             get_item_request["Key"] = self.item(get_item_request["Key"])
         return get_item_request
-    
+
     def get_item_response(self, get_item_response):
         if "Item" in get_item_response:
             get_item_response["Item"] = self.item(get_item_response["Item"])
         return get_item_response
-    
+
     def scan_filter(self, scan_filter):
         for scan_filter_key, scan_filter_value in scan_filter.items():
             if "AttributeValueList" in scan_filter_value:
-                scan_filter_value["AttributeValueList"] = self.attribute_value_list(scan_filter_value["AttributeValueList"])
+                scan_filter_value["AttributeValueList"] = self.attribute_value_list(
+                    scan_filter_value["AttributeValueList"]
+                )
             scan_filter[scan_filter_key] = scan_filter_value
         return scan_filter
 
@@ -128,16 +139,18 @@ class BotoInterfaceShapeConverter(ABC):
         if "FilterExpression" in scan_request:
             self._handle_expression_with_expression_attributes(scan_request, "FilterExpression")
         if "ExpressionAttributeValues" in scan_request:
-            scan_request["ExpressionAttributeValues"] = self.expression_attribute_values(scan_request["ExpressionAttributeValues"])
+            scan_request["ExpressionAttributeValues"] = self.expression_attribute_values(
+                scan_request["ExpressionAttributeValues"]
+            )
         return scan_request
-    
+
     def scan_response(self, scan_response):
         if "Items" in scan_response:
             scan_response["Items"] = self.items(scan_response["Items"])
         if "LastEvaluatedKey" in scan_response:
             scan_response["LastEvaluatedKey"] = self.last_evaluated_key(scan_response["LastEvaluatedKey"])
         return scan_response
-    
+
     def _handle_expression_with_expression_attributes(self, request, expression_key):
         # Pass the resource-formatted expression attribute values to the converter
         if "ExpressionAttributeValues" in request:
@@ -148,8 +161,10 @@ class BotoInterfaceShapeConverter(ABC):
             expression_attribute_names = request["ExpressionAttributeNames"]
         else:
             expression_attribute_names = {}
-        request[expression_key] = self.expression(request[expression_key], expression_attribute_names, expression_attribute_values)
-    
+        request[expression_key] = self.expression(
+            request[expression_key], expression_attribute_names, expression_attribute_values
+        )
+
     def query_request(self, query_request):
         print(f"{query_request=}")
         if "KeyConditions" in query_request:
@@ -164,7 +179,9 @@ class BotoInterfaceShapeConverter(ABC):
             self._handle_expression_with_expression_attributes(query_request, "KeyConditionExpression")
         if "ExpressionAttributeValues" in query_request:
             print(f"pre {query_request['ExpressionAttributeValues']=}")
-            query_request["ExpressionAttributeValues"] = self.expression_attribute_values(query_request["ExpressionAttributeValues"])
+            query_request["ExpressionAttributeValues"] = self.expression_attribute_values(
+                query_request["ExpressionAttributeValues"]
+            )
             print(f"post {query_request['ExpressionAttributeValues']=}")
         return query_request
 
@@ -174,10 +191,12 @@ class BotoInterfaceShapeConverter(ABC):
         if "LastEvaluatedKey" in query_response:
             query_response["LastEvaluatedKey"] = self.last_evaluated_key(query_response["LastEvaluatedKey"])
         return query_response
-    
+
     def batch_get_item_request(self, batch_get_item_request):
         if "RequestItems" in batch_get_item_request:
-            batch_get_item_request["RequestItems"] = self.batch_get_item_request_items(batch_get_item_request["RequestItems"])
+            batch_get_item_request["RequestItems"] = self.batch_get_item_request_items(
+                batch_get_item_request["RequestItems"]
+            )
         return batch_get_item_request
 
     def batch_get_item_request_items(self, request_items):
@@ -192,16 +211,18 @@ class BotoInterfaceShapeConverter(ABC):
         if "Responses" in batch_get_item_response:
             batch_get_item_response["Responses"] = self.responses(batch_get_item_response["Responses"])
         if "UnprocessedKeys" in batch_get_item_response:
-            batch_get_item_response["UnprocessedKeys"] = self.unprocessed_keys(batch_get_item_response["UnprocessedKeys"])
+            batch_get_item_response["UnprocessedKeys"] = self.unprocessed_keys(
+                batch_get_item_response["UnprocessedKeys"]
+            )
         return batch_get_item_response
-    
+
     def responses(self, responses):
         responses_out = {}
         for table_name, table_value in responses.items():
             table_value = self.items(table_value)
             responses_out[table_name] = table_value
         return responses_out
-    
+
     def unprocessed_keys(self, unprocessed_keys):
         unprocessed_keys_out = {}
         for table_name, table_value in unprocessed_keys.items():
@@ -209,15 +230,17 @@ class BotoInterfaceShapeConverter(ABC):
                 table_value["Keys"] = self.keys(table_value["Keys"])
             unprocessed_keys_out[table_name] = table_value
         return unprocessed_keys_out
-    
+
     def keys(self, keys):
         return self.items(keys)
-    
+
     def batch_write_item_request(self, batch_write_item_request):
         if "RequestItems" in batch_write_item_request:
-            batch_write_item_request["RequestItems"] = self.batch_write_item_items(batch_write_item_request["RequestItems"])
+            batch_write_item_request["RequestItems"] = self.batch_write_item_items(
+                batch_write_item_request["RequestItems"]
+            )
         return batch_write_item_request
-    
+
     def batch_write_item_items(self, items):
         items_out = {}
         for table_name, table_value in items.items():
@@ -232,14 +255,18 @@ class BotoInterfaceShapeConverter(ABC):
                 request_out.append(request)
             items_out[table_name] = request_out
         return items_out
-    
+
     def batch_write_item_response(self, batch_write_item_response):
         if "UnprocessedItems" in batch_write_item_response:
-            batch_write_item_response["UnprocessedItems"] = self.unprocessed_items(batch_write_item_response["UnprocessedItems"])
+            batch_write_item_response["UnprocessedItems"] = self.unprocessed_items(
+                batch_write_item_response["UnprocessedItems"]
+            )
         if "ItemCollectionMetrics" in batch_write_item_response:
-            batch_write_item_response["ItemCollectionMetrics"] = self.batch_write_item_item_collection_metrics(batch_write_item_response["ItemCollectionMetrics"])
+            batch_write_item_response["ItemCollectionMetrics"] = self.batch_write_item_item_collection_metrics(
+                batch_write_item_response["ItemCollectionMetrics"]
+            )
         return batch_write_item_response
-    
+
     def unprocessed_items(self, unprocessed_items):
         return self.batch_write_item_items(unprocessed_items)
 
@@ -252,9 +279,11 @@ class BotoInterfaceShapeConverter(ABC):
 
     def transact_write_items_request(self, transact_write_items_request):
         if "TransactItems" in transact_write_items_request:
-            transact_write_items_request["TransactItems"] = self.transact_write_items(transact_write_items_request["TransactItems"])
+            transact_write_items_request["TransactItems"] = self.transact_write_items(
+                transact_write_items_request["TransactItems"]
+            )
         return transact_write_items_request
-    
+
     def transact_write_items(self, transact_items):
         output_transact_items = []
         for transact_item in transact_items:
@@ -277,14 +306,18 @@ class BotoInterfaceShapeConverter(ABC):
     def transact_write_items_response(self, transact_write_items_response):
         if "ItemCollectionMetrics" in transact_write_items_response:
             # TODO this works but rename/refactor
-            transact_write_items_response["ItemCollectionMetrics"] = self.batch_write_item_item_collection_metrics(transact_write_items_response["ItemCollectionMetrics"])
+            transact_write_items_response["ItemCollectionMetrics"] = self.batch_write_item_item_collection_metrics(
+                transact_write_items_response["ItemCollectionMetrics"]
+            )
         return transact_write_items_response
-    
+
     def transact_get_items_request(self, transact_get_items_request):
         if "TransactItems" in transact_get_items_request:
-            transact_get_items_request["TransactItems"] = self.transact_get_items(transact_get_items_request["TransactItems"])
+            transact_get_items_request["TransactItems"] = self.transact_get_items(
+                transact_get_items_request["TransactItems"]
+            )
         return transact_get_items_request
-    
+
     def transact_get_items(self, transact_items):
         output_transact_items = []
         for transact_item in transact_items:
@@ -294,7 +327,7 @@ class BotoInterfaceShapeConverter(ABC):
             else:
                 raise ValueError(f"Unknown transact_get_items method key: {transact_item}")
         return output_transact_items
-    
+
     def transact_get_items_response(self, transact_get_items_response):
         if "Responses" in transact_get_items_response:
             transact_get_items_response["Responses"] = self.items(transact_get_items_response["Responses"])
