@@ -45,7 +45,7 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         self._encryption_config = encryption_config
 
     def all(self) -> Generator[EncryptedTable, None, None]:
-        """Creates an iterable of all EncryptedTable resources in the collection.
+        """Create an iterable of all EncryptedTable resources in the collection.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#DynamoDB.ServiceResource.all
 
@@ -56,7 +56,7 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         yield from self._transform_table(self._collection.all)
 
     def filter(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Creates an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
+        """Create an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#filter
 
@@ -67,7 +67,7 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         yield from self._transform_table(self._collection.filter, **kwargs)
 
     def limit(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Creates an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
+        """Create an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#limit
 
@@ -78,8 +78,9 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         yield from self._transform_table(self._collection.limit, **kwargs)
 
     def page_size(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Creates an iterable of all EncryptedTable resources in the collection,
-        but limits the number of items returned by each service call by the specified amount.
+        """Create an iterable of all EncryptedTable resources in the collection.
+
+        This limits the number of items returned by each service call by the specified amount.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#page_size
 
@@ -109,12 +110,38 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
 
 
 class EncryptedResource(EncryptedBotoInterface):
+    """Wrapper for a boto3 DynamoDB resource.
+
+    This class implements the complete boto3 DynamoDB resource API, allowing it to serve as a
+    drop-in replacement that transparently handles encryption and decryption of items.
+
+    The API matches the standard boto3 DynamoDB resource interface:
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/index.html
+
+    This class will encrypt/decrypt items for the following operations:
+        * batch_get_item
+        * batch_write_item
+
+    Calling Table() will return an EncryptedTable object.
+
+    Any other operations on this class will defer to the underlying boto3 DynamoDB resource's implementation
+        and will not be encrypted/decrypted.
+
+    """
+
     def __init__(
         self,
         *,
         resource: ServiceResource,
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
+        """Create an EncryptedResource object.
+
+        Args:
+            resource (ServiceResource): Initialized boto3 DynamoDB resource
+            encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
+
+        """
         self._resource = resource
         self._encryption_config = encryption_config
         self._transformer = DynamoDbEncryptionTransforms(config=encryption_config)
@@ -125,12 +152,12 @@ class EncryptedResource(EncryptedBotoInterface):
         )
 
     def Table(self, name):
-        """Creates an EncryptedTable resource.
+        """Create an EncryptedTable resource.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/Table.html
 
         Args:
-            name (str): The EncryptedTable's name. This must be set.
+            name (str): The EncryptedTable's name identifier. This must be set.
 
         Returns:
             EncryptedTable: An EncryptedTable resource
@@ -139,20 +166,16 @@ class EncryptedResource(EncryptedBotoInterface):
         return EncryptedTable(table=self._resource.Table(name), encryption_config=self._encryption_config)
 
     def batch_get_item(self, **kwargs):
-        """Gets multiple items from one or more tables. Decrypts any returned items.
+        """Get multiple items from one or more tables. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB batch_get_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/batch_get_item.html
 
         Args:
-            RequestItems (dict): A map of table names to lists of keys to retrieve
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_get_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the requested items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 batch_get_item API response.
 
         """
         return self._resource_operation_logic(
@@ -170,20 +193,17 @@ class EncryptedResource(EncryptedBotoInterface):
 
     def batch_write_item(self, **kwargs):
         """Put or delete multiple items in one or more tables.
+
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB batch_write_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/batch_write_item.html
 
         Args:
-            RequestItems (dict): A map of table names to lists of write operations
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_write_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 batch_write_item API response.
 
         """
         return self._resource_operation_logic(

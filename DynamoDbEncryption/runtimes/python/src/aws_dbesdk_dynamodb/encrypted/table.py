@@ -44,11 +44,12 @@ class EncryptedTable(EncryptedBotoInterface):
         * query
         * scan
 
-    Any other operations on this class will defer to the underlying boto3 DynamoDB Table's implementation.
+    Calling batch_writer() will return a BatchWriter that transparently encrypts batch write requests.
+
+    Any other operations on this class will defer to the underlying boto3 DynamoDB Table's implementation
+        and will not be encrypted/decrypted.
 
     Note: The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
-
-    EncryptedTable can also return a BatchWriter for transparent encryption of batch write requests.
     """
 
     def __init__(
@@ -61,7 +62,8 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Args:
             table (ServiceResource): Initialized boto3 DynamoDB table
-            encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
+            encryption_config (DynamoDbTablesEncryptionConfig): Initialized
+                ~aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.DynamoDbTablesEncryptionConfig~
 
         """
         self._table = table
@@ -79,10 +81,10 @@ class EncryptedTable(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/put_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
+            dict: The response from DynamoDB. This matches the boto3 put_item API response.
 
         """
         return self._table_operation_logic(
@@ -105,10 +107,10 @@ class EncryptedTable(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/get_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 get_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
+            dict: The response from DynamoDB. This matches the boto3 get_item API response.
 
         """
         return self._table_operation_logic(
@@ -131,10 +133,10 @@ class EncryptedTable(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/query.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 query API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
+            dict: The response from DynamoDB. This matches the boto3 query API response.
 
         """
         return self._table_operation_logic(
@@ -157,10 +159,10 @@ class EncryptedTable(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/scan.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 scan API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
+            dict: The response from DynamoDB. This matches the boto3 scan API response.
 
         """
         return self._table_operation_logic(
