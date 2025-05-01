@@ -34,7 +34,8 @@ class InternalDBESDKDynamoDBConditionExpressionBuilder:
     def build_expression(
         self, condition, attribute_name_placeholders, attribute_value_placeholders, is_key_condition=False
     ):
-        """Builds the condition expression and the dictionary of placeholders.
+        """
+        Builds the condition expression and the dictionary of placeholders.
 
         :type condition: ConditionBase
         :param condition: A condition to be built into a condition expression

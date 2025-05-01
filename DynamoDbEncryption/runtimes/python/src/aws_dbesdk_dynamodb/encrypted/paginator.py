@@ -35,12 +35,18 @@ class EncryptedPaginator(EncryptedBotoInterface):
         encryption_config: DynamoDbTablesEncryptionConfig,
         expect_standard_dictionaries: bool | None = False,
     ):
-        """Create an EncryptedPaginator.
+        """
+        Create an EncryptedPaginator.
 
         Args:
             paginator (Paginator): A boto3 Paginator object for DynamoDB operations.
                 This can be either a "query" or "scan" Paginator.
             encryption_config (DynamoDbTablesEncryptionConfig): Encryption configuration object.
+            expect_standard_dictionaries (Optional[bool]): Does the underlying boto3 client expect items
+                to be standard Python dictionaries? This should only be set to True if you are using a
+                client obtained from a service resource or table resource (ex: `table.meta.client`).
+                If this is True, EncryptedClient will expect item-like shapes to be
+                standard Python dictionaries (default: False).
 
         """
         self._paginator = paginator
@@ -49,16 +55,15 @@ class EncryptedPaginator(EncryptedBotoInterface):
         self._expect_standard_dictionaries = expect_standard_dictionaries
         self._resource_to_client_shape_converter = ResourceShapeToClientShapeConverter()
         self._client_to_resource_shape_converter = ClientShapeToResourceShapeConverter(delete_table_name=False)
-        print(f"{self._paginator=}")
-        print(f"{self._paginator._model.name=}")
 
     def paginate(self, **kwargs) -> Generator[dict, None, None]:
-        """Yields a generator that paginates through responses from DynamoDB, decrypting items.
+        """
+        Yield a generator that paginates through responses from DynamoDB, decrypting items.
 
         Note:
             Calling `botocore.paginate.Paginator`'s `paginate` method for Query or Scan
             returns a `PageIterator` object, but this implementation returns a Python generator.
-            However, you can use this generator to iterate exactly as described in the official
+            However, you can use this generator to iterate exactly as described in the
             boto3 documentation:
             https://botocore.amazonaws.com/v1/documentation/api/latest/topics/paginators.html
             Any other operations on this class will defer to the underlying boto3 Paginator's implementation.
@@ -166,7 +171,8 @@ class EncryptedPaginator(EncryptedBotoInterface):
 
     @property
     def _boto_client_attr_name(self) -> str:
-        """Name of the attribute containing the underlying boto3 client.
+        """
+        Name of the attribute containing the underlying boto3 client.
 
         Returns:
             str: '_paginator'

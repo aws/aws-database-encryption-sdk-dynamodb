@@ -1,3 +1,6 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+"""High-level helper classes to provide encrypting wrappers for boto3 DynamoDB resources."""
 from collections.abc import Callable, Generator
 from copy import deepcopy
 from typing import Any
@@ -24,15 +27,13 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 
 
 class EncryptedTablesCollectionManager(EncryptedBotoInterface):
-    """Tables collection manager that provides EncryptedTable objects.
+    """
+    Tables collection manager that provides EncryptedTable objects.
 
+    The API matches boto3's tables collection manager interface:
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html
 
-    :param collection: Pre-configured boto3 DynamoDB table collection manager
-    :type collection: boto3.resources.collection.CollectionManager
-    :param CryptographicMaterialsProvider materials_provider: Cryptographic materials provider to use
-    :param AttributeActions attribute_actions: Table-level configuration of how to encrypt/sign attributes
-    :param TableInfoCache table_info_cache: Local cache from which to obtain TableInfo data
+    All operations on this class will yield EncryptedTable objects.
     """
 
     def __init__(
@@ -41,11 +42,20 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         collection: CollectionManager,
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
+        """
+        Create an EncryptedTablesCollectionManager object.
+
+        Args:
+            collection (CollectionManager): Pre-configured boto3 DynamoDB table collection manager
+            encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
+
+        """
         self._collection = collection
         self._encryption_config = encryption_config
 
     def all(self) -> Generator[EncryptedTable, None, None]:
-        """Create an iterable of all EncryptedTable resources in the collection.
+        """
+        Create an iterable of all EncryptedTable resources in the collection.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#DynamoDB.ServiceResource.all
 
@@ -56,7 +66,8 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         yield from self._transform_table(self._collection.all)
 
     def filter(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Create an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
+        """
+        Create an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#filter
 
@@ -67,7 +78,8 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         yield from self._transform_table(self._collection.filter, **kwargs)
 
     def limit(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Create an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
+        """
+        Create an iterable of all EncryptedTable resources in the collection filtered by kwargs passed to method.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html#limit
 
@@ -78,7 +90,8 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         yield from self._transform_table(self._collection.limit, **kwargs)
 
     def page_size(self, **kwargs) -> Generator[EncryptedTable, None, None]:
-        """Create an iterable of all EncryptedTable resources in the collection.
+        """
+        Create an iterable of all EncryptedTable resources in the collection.
 
         This limits the number of items returned by each service call by the specified amount.
 
@@ -100,7 +113,8 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
 
     @property
     def _boto_client_attr_name(self) -> str:
-        """Name of the attribute containing the underlying boto3 client.
+        """
+        Name of the attribute containing the underlying boto3 client.
 
         Returns:
             str: '_collection'
@@ -110,7 +124,8 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
 
 
 class EncryptedResource(EncryptedBotoInterface):
-    """Wrapper for a boto3 DynamoDB resource.
+    """
+    Wrapper for a boto3 DynamoDB resource.
 
     This class implements the complete boto3 DynamoDB resource API, allowing it to serve as a
     drop-in replacement that transparently handles encryption and decryption of items.
@@ -135,7 +150,8 @@ class EncryptedResource(EncryptedBotoInterface):
         resource: ServiceResource,
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
-        """Create an EncryptedResource object.
+        """
+        Create an EncryptedResource object.
 
         Args:
             resource (ServiceResource): Initialized boto3 DynamoDB resource
@@ -152,7 +168,8 @@ class EncryptedResource(EncryptedBotoInterface):
         )
 
     def Table(self, name):
-        """Create an EncryptedTable resource.
+        """
+        Create an EncryptedTable resource.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/Table.html
 
@@ -166,7 +183,8 @@ class EncryptedResource(EncryptedBotoInterface):
         return EncryptedTable(table=self._resource.Table(name), encryption_config=self._encryption_config)
 
     def batch_get_item(self, **kwargs):
-        """Get multiple items from one or more tables. Decrypts any returned items.
+        """
+        Get multiple items from one or more tables. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB batch_get_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/batch_get_item.html
@@ -192,7 +210,8 @@ class EncryptedResource(EncryptedBotoInterface):
         )
 
     def batch_write_item(self, **kwargs):
-        """Put or delete multiple items in one or more tables.
+        """
+        Put or delete multiple items in one or more tables.
 
         For put operations, encrypts items before writing.
 
@@ -273,7 +292,8 @@ class EncryptedResource(EncryptedBotoInterface):
 
     @property
     def _boto_client_attr_name(self) -> str:
-        """Name of the attribute containing the underlying boto3 client.
+        """
+        Name of the attribute containing the underlying boto3 client.
 
         Returns:
             str: '_resource'

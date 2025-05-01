@@ -16,7 +16,8 @@ class ResourceShapeToClientShapeConverter:
         self.expression_builder = InternalDBESDKDynamoDBConditionExpressionBuilder()
 
     def condition_handler(self, expression_key, request):
-        """Converts an object from boto3.dynamodb.conditions to a string
+        """
+        Converts an object from boto3.dynamodb.conditions to a string
         and updates ExpressionAttributeNames and ExpressionAttributeValues with any new names/values.
         The ExpressionAttributeValues are returned in resource format (Python dictionaries).
         """

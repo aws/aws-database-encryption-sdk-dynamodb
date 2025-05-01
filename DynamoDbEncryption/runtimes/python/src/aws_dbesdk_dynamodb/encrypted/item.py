@@ -30,11 +30,11 @@ class ItemEncryptor:
         self,
         item_encryptor_config: DynamoDbItemEncryptorConfig,
     ):
-        """Create an ItemEncryptor.
+        """
+        Create an ItemEncryptor.
 
-        Parameters
-        ----------
-        item_encryptor_config (DynamoDbItemEncryptorConfig): Encryption configuration object.
+        Args:
+            item_encryptor_config (DynamoDbItemEncryptorConfig): Encryption configuration object.
 
         """
         self._internal_client = DynamoDbItemEncryptor(config=item_encryptor_config)
@@ -43,7 +43,8 @@ class ItemEncryptor:
         self,
         plaintext_dict_item: dict[str, Any],
     ) -> EncryptItemOutput:
-        """Encrypt a Python dictionary.
+        """
+        Encrypt a Python dictionary.
 
         This method will transform the Python dictionary into DynamoDB JSON,
             encrypt the DynamoDB JSON,
@@ -59,19 +60,17 @@ class ItemEncryptor:
         (Alternatively, you can use this library's EncryptedTable or EncryptedResource interfaces
             to transparently encrypt items without an intermediary ItemEncryptor.)
 
-        Parameters
-        ----------
-        plaintext_dict_item (dict[str, Any]): A standard Python dictionary.
+        Args:
+            plaintext_dict_item (dict[str, Any]): A standard Python dictionary.
 
-        Returns
-        -------
-        EncryptItemOutput: Structure containing the following fields:
-            - `encrypted_item` (dict[str, Any]): The encrypted Python dictionary.
-                **Note:** The item was encrypted as DynamoDB JSON, then transformed to a Python dictionary.
-            - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (parsed `aws_dbe_head` value).
+        Returns:
+            EncryptItemOutput: Structure containing the following fields:
+                - `encrypted_item` (dict[str, Any]): The encrypted Python dictionary.
+                    **Note:** The item was encrypted as DynamoDB JSON, then transformed to a Python dictionary.
+                - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (parsed
+                    `aws_dbe_head` value).
 
         Example:
-
         >>> plaintext_item = {
         ...     'some': 'data',
         ...     'more': 5
@@ -90,7 +89,8 @@ class ItemEncryptor:
         self,
         plaintext_dynamodb_item: dict[str, dict[str, Any]],
     ) -> EncryptItemOutput:
-        """Encrypt DynamoDB-formatted JSON.
+        """
+        Encrypt DynamoDB-formatted JSON.
 
         boto3 DynamoDB clients expect items formatted as DynamoDB JSON:
         https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html
@@ -99,19 +99,16 @@ class ItemEncryptor:
         (Alternatively, you can use this library's EncryptedClient interface
             to transparently encrypt items without an intermediary ItemEncryptor.)
 
-        Parameters
-        ----------
-        plaintext_dynamodb_item (dict[str, dict[str, Any]]): The item to encrypt formatted as DynamoDB JSON.
+        Args:
+            plaintext_dynamodb_item (dict[str, dict[str, Any]]): The item to encrypt formatted as DynamoDB JSON.
 
-        Returns
-        -------
-        EncryptItemOutput: Structure containing the following fields:
-            - `encrypted_item` (dict[str, Any]): A dictionary containing the encrypted DynamoDB item
-                formatted as DynamoDB JSON.
-            - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (`aws_dbe_head` value).
+        Returns:
+            EncryptItemOutput: Structure containing the following fields:
+                - `encrypted_item` (dict[str, Any]): A dictionary containing the encrypted DynamoDB item
+                    formatted as DynamoDB JSON.
+                - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (`aws_dbe_head` value).
 
         Example:
-
         >>> plaintext_item = {
         ...     'some': {'S': 'data'},
         ...     'more': {'N': '5'}
@@ -127,24 +124,23 @@ class ItemEncryptor:
         self,
         encrypt_item_input: EncryptItemInput,
     ) -> EncryptItemOutput:
-        """Encrypt a DynamoDB item.
+        """
+        Encrypt a DynamoDB item.
 
         The input item should contain a dictionary formatted as DynamoDB JSON:
         https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html
 
-        Parameters
-        ----------
-        encrypt_item_input (EncryptItemInput): Structure containing the following field:
-            - `plaintext_item` (dict[str, Any]): The item to encrypt formatted as DynamoDB JSON.
+        Args:
+            encrypt_item_input (EncryptItemInput): Structure containing the following field:
+                - `plaintext_item` (dict[str, Any]): The item to encrypt formatted as DynamoDB JSON.
 
-        Returns
-        -------
-        EncryptItemOutput: Structure containing the following fields:
-            - `encrypted_item` (dict[str, Any]): The encrypted DynamoDB item formatted as DynamoDB JSON.
-            - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (`aws_dbe_head` value).
+        Returns:
+            EncryptItemOutput: Structure containing the following fields:
+                - `encrypted_item` (dict[str, Any]): The encrypted DynamoDB item formatted as DynamoDB JSON.
+                - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header
+                    (`aws_dbe_head` value).
 
         Example:
-
         >>> plaintext_item = {
         ...     'some': {'S': 'data'},
         ...     'more': {'N': '5'}
@@ -164,7 +160,8 @@ class ItemEncryptor:
         self,
         encrypted_dict_item: dict[str, Any],
     ) -> DecryptItemOutput:
-        """Decrypt a Python dictionary.
+        """
+        Decrypt a Python dictionary.
 
         This method will transform the Python dictionary into DynamoDB JSON,
             decrypt the DynamoDB JSON,
@@ -180,19 +177,17 @@ class ItemEncryptor:
         (Alternatively, you can use this library's EncryptedTable or EncryptedResource interfaces
             to transparently decrypt items without an intermediary ItemEncryptor.)
 
-        Parameters
-        ----------
-        encrypted_dict_item (dict[str, Any]): A standard Python dictionary with encrypted values.
+        Args:
+            encrypted_dict_item (dict[str, Any]): A standard Python dictionary with encrypted values.
 
-        Returns
-        -------
-        DecryptItemOutput: Structure containing the following fields:
-            - `plaintext_item` (dict[str, Any]): The decrypted Python dictionary.
-                **Note:** The item was decrypted as DynamoDB JSON, then transformed to a Python dictionary.
-            - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (parsed `aws_dbe_head` value).
+        Returns:
+            DecryptItemOutput: Structure containing the following fields:
+                - `plaintext_item` (dict[str, Any]): The decrypted Python dictionary.
+                    **Note:** The item was decrypted as DynamoDB JSON, then transformed to a Python dictionary.
+                - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header
+                    (parsed `aws_dbe_head` value).
 
         Example:
-
         >>> encrypted_item = {
         ...     'some': b'ENCRYPTED_DATA',
         ...     'more': b'ENCRYPTED_DATA',
@@ -211,7 +206,8 @@ class ItemEncryptor:
         self,
         encrypted_dynamodb_item: dict[str, dict[str, Any]],
     ) -> DecryptItemOutput:
-        """Decrypt DynamoDB-formatted JSON.
+        """
+        Decrypt DynamoDB-formatted JSON.
 
         boto3 DynamoDB clients return items formatted as DynamoDB JSON:
         https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html
@@ -220,18 +216,15 @@ class ItemEncryptor:
         (Alternatively, you can use this library's EncryptedClient interface
             to transparently decrypt items without an intermediary ItemEncryptor.)
 
-        Parameters
-        ----------
-        encrypted_ddb_item (dict[str, dict[str, Any]]): The item to decrypt formatted as DynamoDB JSON.
+        Args:
+            encrypted_dynamodb_item (dict[str, dict[str, Any]]): The item to decrypt formatted as DynamoDB JSON.
 
-        Returns
-        -------
-        DecryptItemOutput: Structure containing the following fields:
-            - `plaintext_item` (dict[str, Any]): The plaintext DynamoDB item formatted as DynamoDB JSON.
-            - `parsed_header` (Optional[ParsedHeader]): The decrypted DynamoDB item's header (`aws_dbe_head` value).
+        Returns:
+            DecryptItemOutput: Structure containing the following fields:
+                - `plaintext_item` (dict[str, Any]): The plaintext DynamoDB item formatted as DynamoDB JSON.
+                - `parsed_header` (Optional[ParsedHeader]): The decrypted DynamoDB item's header (`aws_dbe_head` value).
 
         Example:
-
         >>> encrypted_item = {
         ...     'some': {'B': b'ENCRYPTED_DATA'},
         ...     'more': {'B': b'ENCRYPTED_DATA'}
@@ -247,24 +240,22 @@ class ItemEncryptor:
         self,
         decrypt_item_input: DecryptItemInput,
     ) -> DecryptItemOutput:
-        """Decrypt a DynamoDB item.
+        """
+        Decrypt a DynamoDB item.
 
         The input item should contain a dictionary formatted as DynamoDB JSON:
         https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html
 
-        Parameters
-        ----------
-        decrypt_item_input (DecryptItemInput): Structure containing the following field:
-            - `encrypted_item` (dict[str, Any]): The item to decrypt formatted as DynamoDB JSON.
+        Args:
+            decrypt_item_input (DecryptItemInput): Structure containing the following field:
+                - `encrypted_item` (dict[str, Any]): The item to decrypt formatted as DynamoDB JSON.
 
-        Returns
-        -------
-        DecryptItemOutput: Structure containing the following fields:
-            - `plaintext_item` (dict[str, Any]): The decrypted DynamoDB item formatted as DynamoDB JSON.
-            - `parsed_header` (Optional[ParsedHeader]): The decrypted DynamoDB item's header (`aws_dbe_head` value).
+        Returns:
+            DecryptItemOutput: Structure containing the following fields:
+                - `plaintext_item` (dict[str, Any]): The decrypted DynamoDB item formatted as DynamoDB JSON.
+                - `parsed_header` (Optional[ParsedHeader]): The decrypted DynamoDB item's header (`aws_dbe_head` value).
 
         Example:
-
         >>> encrypted_item = {
         ...     'some': {'B': b'ENCRYPTED_DATA'},
         ...     'more': {'B': b'ENCRYPTED_DATA'}

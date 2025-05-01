@@ -1,5 +1,6 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+"""Interface for encrypted boto3 interfaces."""
 import abc
 from abc import abstractmethod
 from typing import Any
@@ -11,7 +12,8 @@ class EncryptedBotoInterface(abc.ABC):
     def _copy_sdk_response_to_dbesdk_response(
         self, sdk_response: dict[str, Any], dbesdk_response: dict[str, Any]
     ) -> dict[str, Any]:
-        """Copy any missing fields from the SDK response to the DBESDK response.
+        """
+        Copy any missing fields from the SDK response to the DBESDK response.
 
         Args:
             sdk_response: The raw SDK response
@@ -32,7 +34,8 @@ class EncryptedBotoInterface(abc.ABC):
         """Name of the attribute containing the underlying boto3 client."""
 
     def __getattr__(self, name: str) -> Any:
-        """Delegate unknown attributes to the underlying client.
+        """
+        Delegate unknown attributes to the underlying client.
 
         Args:
             name: The name of the attribute to get

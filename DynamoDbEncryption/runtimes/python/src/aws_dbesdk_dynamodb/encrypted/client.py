@@ -37,7 +37,8 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 
 
 class EncryptedClient(EncryptedBotoInterface):
-    """Wrapper for a boto3 DynamoDB client that transparently encrypts/decrypts items.
+    """
+    Wrapper for a boto3 DynamoDB client that transparently encrypts/decrypts items.
 
     This class implements the complete boto3 DynamoDB client API, allowing it to serve as a
     drop-in replacement that transparently handles encryption and decryption of items.
@@ -74,14 +75,17 @@ class EncryptedClient(EncryptedBotoInterface):
         encryption_config: DynamoDbTablesEncryptionConfig,
         expect_standard_dictionaries: bool | None = False,
     ):
-        """Parameters
-        client (botocore.client.BaseClient): Initialized boto3 DynamoDB client
-        encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
-        expect_standard_dictionaries (Optional[bool]): Does the underlying boto3 client expect items to be standard Python
-            dictionaries? This should only be set to True if you are using a client obtained
-            from a service resource or table resource (ex: `table.meta.client`).
-            If this is True, EncryptedClient will expect item-like shapes to be
-            standard Python dictionaries (default: False).
+        """
+        Create an EncryptedClient object.
+
+        Args:
+            client (botocore.client.BaseClient): Initialized boto3 DynamoDB client
+            encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
+            expect_standard_dictionaries (Optional[bool]): Does the underlying boto3 client expect items
+                to be standard Python dictionaries? This should only be set to True if you are using a
+                client obtained from a service resource or table resource (ex: `table.meta.client`).
+                If this is True, EncryptedClient will expect item-like shapes to be
+                standard Python dictionaries (default: False).
 
         """
         self._client = client
@@ -92,21 +96,17 @@ class EncryptedClient(EncryptedBotoInterface):
         self._client_to_resource_shape_converter = ClientShapeToResourceShapeConverter(delete_table_name=False)
 
     def put_item(self, **kwargs) -> dict[str, Any]:
-        """Puts a single item in a table. Encrypts the item before writing to DynamoDB.
+        """
+        Put a single item to a table. Encrypts the item before writing to DynamoDB.
 
         The parameters and return value match the boto3 DynamoDB put_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html
 
         Args:
-            TableName (str): Name of the table to write to
-            Item (dict): A map of attribute name/value pairs to write to the table
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 put_item API response.
 
         """
         return self._client_operation_logic(
@@ -123,21 +123,17 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def get_item(self, **kwargs) -> dict[str, Any]:
-        """Gets a single item from a table. Decrypts the item after reading from DynamoDB.
+        """
+        Get a single item from a table. Decrypts the item after reading from DynamoDB.
 
         The parameters and return value match the boto3 DynamoDB get_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/get_item.html
 
         Args:
-            TableName (str): Name of the table to read from
-            Key (dict): The primary key of the item to retrieve
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 get_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the requested item.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 get_item API response.
 
         """
         return self._client_operation_logic(
@@ -154,20 +150,17 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def query(self, **kwargs) -> dict[str, Any]:
-        """Queries items from a table or index. Decrypts any returned items.
+        """
+        Query items from a table or index. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB query API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/query.html
 
         Args:
-            TableName (str): Name of the table to query
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 query API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the matching items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 query API response.
 
         """
         return self._client_operation_logic(
@@ -184,20 +177,17 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def scan(self, **kwargs) -> dict[str, Any]:
-        """Scans an entire table or index. Decrypts any returned items.
+        """
+        Scan an entire table or index. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB scan API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/scan.html
 
         Args:
-            TableName (str): Name of the table to scan
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 scan API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the scanned items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 scan API response.
 
         """
         return self._client_operation_logic(
@@ -214,21 +204,19 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def batch_write_item(self, **kwargs) -> dict[str, Any]:
-        """Puts or deletes multiple items in one or more tables.
+        """
+        Put or delete multiple items in one or more tables.
+
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB batch_write_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
 
         Args:
-            RequestItems (dict): A map of table names to lists of write operations
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_write_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 batch_write_item API response.
 
         """
         return self._client_operation_logic(
@@ -245,20 +233,17 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def batch_get_item(self, **kwargs) -> dict[str, Any]:
-        """Gets multiple items from one or more tables. Decrypts any returned items.
+        """
+        Get multiple items from one or more tables. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB batch_get_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_get_item.html
 
         Args:
-            RequestItems (dict): A map of table names to lists of keys to retrieve
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_get_item API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the requested items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 batch_get_item API response.
 
         """
         return self._client_operation_logic(
@@ -275,20 +260,18 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def transact_get_items(self, **kwargs) -> dict[str, Any]:
-        """Gets multiple items in a single transaction. Decrypts any returned items.
+        """
+        Get multiple items in a single transaction. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB transact_get_items API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_get_items.html
 
         Args:
-            TransactItems (list): List of operations to perform in the transaction
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 transact_get_items API
+                parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the requested items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 transact_get_items API response.
 
         """
         return self._client_operation_logic(
@@ -305,21 +288,20 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def transact_write_items(self, **kwargs) -> dict[str, Any]:
-        """Performs multiple write operations in a single transaction.
+        """
+        Perform multiple write operations in a single transaction.
+        
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB transact_write_items API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_write_items.html
 
         Args:
-            TransactItems (list): List of operations to perform in the transaction
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 transact_write_items API
+                parameters.
 
         Returns:
-            dict: The response from DynamoDB.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB. This matches the boto3 transact_write_items API response.
 
         """
         return self._client_operation_logic(
@@ -336,7 +318,8 @@ class EncryptedClient(EncryptedBotoInterface):
         )
 
     def update_item(self, **kwargs):
-        """Not implemented. Raises NotImplementedError.
+        """
+        Not implemented. Raises NotImplementedError.
 
         Args:
             **kwargs: Any arguments passed to this method
@@ -348,8 +331,11 @@ class EncryptedClient(EncryptedBotoInterface):
         raise NotImplementedError('"update_item" is not yet implemented')
 
     def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
-        """Get a paginator from the underlying client. If the paginator requested is for
-        "scan" or "query", the paginator returned will transparently decrypt the returned items.
+        """
+        Get a paginator from the underlying client.
+        
+        If the paginator requested is for  "scan" or "query", the paginator returned will
+        transparently decrypt the returned items.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#paginators
 
@@ -388,22 +374,27 @@ class EncryptedClient(EncryptedBotoInterface):
         output_item_to_ddb_transform_method: callable,
         output_item_to_dict_transform_method: callable,
     ) -> dict[str, Any]:
-        """Shared logic to interface between boto3 Client operation inputs and encryption transformers.
+        """
+        Shared logic to interface between boto3 Client operation inputs and encryption transformers.
 
         This captures the shared pattern to call encryption/decryption transformer code
         and boto3 Clients across all methods in this class.
 
         Args:
             operation_input: The input to the operation
-            input_item_to_ddb_transform_method: Method to transform input items from standard dictionaries to DynamoDB JSON
-            input_item_to_dict_transform_method: Method to transform input items from DynamoDB JSON to standard dictionaries
+            input_item_to_ddb_transform_method: Method to transform input items from standard dictionaries
+                to DynamoDB JSON
+            input_item_to_dict_transform_method: Method to transform input items from DynamoDB JSON
+                to standard dictionaries
             input_transform_method: The method to transform the input for encryption
             input_transform_shape: The shape of the input transform
             output_transform_method: The method to transform the output for decryption
             output_transform_shape: The shape of the output transform
             client_method: The underlying client method to call
-            output_item_to_ddb_transform_method: Method to transform output items from standard dictionaries to DynamoDB JSON
-            output_item_to_dict_transform_method: Method to transform output items from DynamoDB JSON to standard dictionaries
+            output_item_to_ddb_transform_method: Method to transform output items from standard dictionaries
+                to DynamoDB JSON
+            output_item_to_dict_transform_method: Method to transform output items from DynamoDB JSON
+                to standard dictionaries
 
         Returns:
             dict: The transformed response from DynamoDB
@@ -446,10 +437,11 @@ class EncryptedClient(EncryptedBotoInterface):
 
     @property
     def _boto_client_attr_name(self) -> str:
-        """Name of the attribute containing the underlying boto3 client.
+        """
+        Name of the attribute containing the underlying boto3 client.
 
         Returns:
             str: '_client'
 
         """
-        return "_client"
+        return "_client"    

@@ -1,10 +1,11 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+"""Initialization code for AWS DBESDK for DynamoDB."""
 
 # Initialize generated Dafny, then initialize externs
 # Disable sorting imports; this order initializes code in the required order
 # (generated Dafny, then externs)
-# ruff: noqa: I001
+# ruff: noqa: I001, F401
 from .internaldafny.generated import module_
 from .internaldafny import extern
 
@@ -28,6 +29,8 @@ By default, boto3 will treat both "Rounded" and "Inexact" as unacceptable.
 
 For DBESDK DynamoDB, change the DynamoDB context to treat "Rounded" as acceptable.
 """
+# Keep these imports down here for clarity
+# ruff: noqa: E402
 from decimal import Rounded
 
 import boto3.dynamodb.types

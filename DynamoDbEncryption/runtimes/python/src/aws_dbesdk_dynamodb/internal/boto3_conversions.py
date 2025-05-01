@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 
 
 class BotoInterfaceShapeConverter(ABC):
-    """Class modelling transformations between boto3 DynamoDB client and resource shapes.
+    """
+    Class modelling transformations between boto3 DynamoDB client and resource shapes.
 
     DBESDK for DynamoDB provides encrypted interfaces for boto3 DynamoDB resources (ex. Table, Resource).
     boto3 resource methods accept different input shapes than boto3 clients, and return different output shapes.
