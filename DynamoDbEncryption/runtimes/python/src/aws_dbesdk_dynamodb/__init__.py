@@ -1,10 +1,15 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Disable sorting imports; this order initializes code in the required order
+# (generated Dafny, then externs)
+# ruff: noqa: I
 # Initialize generated Dafny
-# Initialize externs
-from .internaldafny import extern
 from .internaldafny.generated import module_
+
+# Initialize externs
+# noqa: F401, F403
+from .internaldafny import extern
 
 """
 boto3 uses Python's decimal library to deserialize numbers retrieved by resources
