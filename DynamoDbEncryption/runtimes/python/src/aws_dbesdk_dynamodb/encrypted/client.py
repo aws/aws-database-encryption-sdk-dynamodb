@@ -290,7 +290,7 @@ class EncryptedClient(EncryptedBotoInterface):
     def transact_write_items(self, **kwargs) -> dict[str, Any]:
         """
         Perform multiple write operations in a single transaction.
-        
+
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB transact_write_items API:
@@ -333,7 +333,7 @@ class EncryptedClient(EncryptedBotoInterface):
     def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
         """
         Get a paginator from the underlying client.
-        
+
         If the paginator requested is for  "scan" or "query", the paginator returned will
         transparently decrypt the returned items.
 
@@ -444,4 +444,4 @@ class EncryptedClient(EncryptedBotoInterface):
             str: '_client'
 
         """
-        return "_client"    
+        return "_client"
