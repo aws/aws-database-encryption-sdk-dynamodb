@@ -18,9 +18,12 @@ class ClientShapeToResourceShapeConverter:
         # Resources accept either strings or Attrs.
         condition = request[expression_key]
 
-        # This conversion in client_to_resource does not update ExpressionAttributeNames nor ExpressionAttributeValues.
-        # However, resource_to_client condition_handler may add new ExpressionAttributeNames and ExpressionAttributeValues.
-        # Smithy-generated code expects condition_handlers to return ExpressionAttributeNames and ExpressionAttributeValues.
+        # This conversion in client_to_resource does not update neither
+        # ExpressionAttributeNames nor ExpressionAttributeValues.
+        # However, resource_to_client condition_handler may add new
+        # ExpressionAttributeNames and ExpressionAttributeValues.
+        # Smithy-generated code expects condition_handlers to return
+        # ExpressionAttributeNames and ExpressionAttributeValues.
         try:
             names = request["ExpressionAttributeNames"]
         except KeyError:

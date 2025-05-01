@@ -5,11 +5,10 @@
 # (generated Dafny, then externs)
 # ruff: noqa: I
 # Initialize generated Dafny
-from .internaldafny.generated import module_
-
 # Initialize externs
 # noqa: F401, F403
 from .internaldafny import extern
+from .internaldafny.generated import module_
 
 """
 boto3 uses Python's decimal library to deserialize numbers retrieved by resources

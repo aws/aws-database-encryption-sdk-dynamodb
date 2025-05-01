@@ -169,7 +169,7 @@ class EncryptedResource(EncryptedBotoInterface):
         )
 
     def batch_write_item(self, **kwargs):
-        """Puts or deletes multiple items in one or more tables.
+        """Put or delete multiple items in one or more tables.
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB batch_write_item API:

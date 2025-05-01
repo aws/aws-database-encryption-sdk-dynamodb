@@ -57,9 +57,11 @@ class EncryptedTable(EncryptedBotoInterface):
         table: ServiceResource,
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
-        """Parameters
-        table (ServiceResource): Initialized boto3 DynamoDB table
-        encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
+        """Create an EncryptedTable object.
+
+        Args:
+            table (ServiceResource): Initialized boto3 DynamoDB table
+            encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
 
         """
         self._table = table
@@ -71,20 +73,16 @@ class EncryptedTable(EncryptedBotoInterface):
         )
 
     def put_item(self, **kwargs) -> dict[str, Any]:
-        """Puts a single item in the table. Encrypts the item before writing to DynamoDB.
+        """Put a single item to the table. Encrypts the item before writing to DynamoDB.
 
         The parameters and return value match the boto3 DynamoDB table put_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/put_item.html
 
         Args:
-            Item (dict): A map of attribute name/value pairs to write to the table
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
 
         Returns:
-            dict: The response from DynamoDB.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
 
         """
         return self._table_operation_logic(
@@ -101,20 +99,16 @@ class EncryptedTable(EncryptedBotoInterface):
         )
 
     def get_item(self, **kwargs) -> dict[str, Any]:
-        """Gets a single item from the table. Decrypts the item after reading from DynamoDB.
+        """Get a single item from the table. Decrypts the item after reading from DynamoDB.
 
         The parameters and return value match the boto3 DynamoDB table get_item API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/get_item.html
 
         Args:
-            Key (dict): The primary key of the item to retrieve
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the requested item.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
 
         """
         return self._table_operation_logic(
@@ -131,20 +125,16 @@ class EncryptedTable(EncryptedBotoInterface):
         )
 
     def query(self, **kwargs) -> dict[str, Any]:
-        """Queries items from the table or index. Decrypts any returned items.
+        """Query items from the table or index. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB table query API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/query.html
 
         Args:
-            KeyConditionExpression (str): The condition that specifies the key value(s) for items to be retrieved
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the matching items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
 
         """
         return self._table_operation_logic(
@@ -161,20 +151,16 @@ class EncryptedTable(EncryptedBotoInterface):
         )
 
     def scan(self, **kwargs) -> dict[str, Any]:
-        """Scans the entire table or index. Decrypts any returned items.
+        """Scan the entire table or index. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB table scan API:
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/scan.html
 
         Args:
-            FilterExpression (str, optional): A string that contains conditions that DynamoDB applies after the scan operation
-
-        These are only a list of required args; see boto3 docs for complete request structure.
+            **kwargs: Keyword arguments to pass to the scan operation. These match the boto3 scan API parameters.
 
         Returns:
-            dict: The response from DynamoDB containing the scanned items.
-
-        See boto3 docs for complete response structure.
+            dict: The response from DynamoDB containing the scanned items. This matches the boto3 scan API response.
 
         """
         return self._table_operation_logic(
@@ -207,13 +193,11 @@ class EncryptedTable(EncryptedBotoInterface):
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/batch_writer.html
 
-        Parameters
-        ----------
+        Args:
             overwrite_by_pkeys: De-duplicate request items in buffer if match new request
                 item on specified primary keys. i.e ``["partition_key1", "sort_key2", "sort_key3"]``
 
-        Returns
-        -------
+        Returns:
             BatchWriter: A batch writer that will transparently encrypt requests
 
         """
@@ -240,8 +224,7 @@ class EncryptedTable(EncryptedBotoInterface):
         output_client_to_resource_shape_transform_method: Any,
         table_method: Callable,
     ) -> dict[str, Any]:
-        """Shared logic to interface between user-supplied input, encryption/decryption transformers,
-        and boto3 Tables.
+        """Interface between user-supplied input, encryption/decryption transformers, and boto3 Tables.
 
         Args:
             operation_input: User-supplied input to the operation
