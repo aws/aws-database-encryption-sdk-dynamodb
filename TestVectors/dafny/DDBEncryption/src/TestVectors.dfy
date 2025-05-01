@@ -667,13 +667,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         results[i] := FullSearch(client, queries[i]);
       }
 
-      var configs := tableEncryptionConfigs.Keys;
-      while configs != {}
-        decreases |configs|
-        invariant forall k <- configs :: k in tableEncryptionConfigs
+      var configs := SortedSets.ComputeSetToOrderedSequence2(tableEncryptionConfigs.Keys, CharLess);
+      for i := 0 to |configs|
       {
-        var config :| config in configs;
-        configs := configs - { config };
+        var config := configs[i];
         BasicQueryTestConfig(tableEncryptionConfigs[config], results, globalRecords);
       }
     }
