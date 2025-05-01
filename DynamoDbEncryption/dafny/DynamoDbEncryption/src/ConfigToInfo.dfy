@@ -23,6 +23,7 @@ module SearchConfigToInfo {
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
   import opened StandardLibrary.String
+  import opened MemoryMath
   import MaterialProviders
   import SortedSets
 
@@ -757,14 +758,14 @@ module SearchConfigToInfo {
   function method MakeDefaultConstructor(
     parts : seq<CB.BeaconPart>,
     ghost allParts : seq<CB.BeaconPart>,
-    ghost numNon : nat,
+    ghost numNon : uint64,
     converted : seq<CB.ConstructorPart> := []
   )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts| + |converted|
     requires |allParts| == |parts| + |converted|
     requires parts == allParts[|converted|..]
-    requires numNon <= |allParts|
+    requires numNon as nat <= |allParts|
     requires CB.OrderedParts(allParts, numNon)
     requires forall i | 0 <= i < |converted| ::
                && converted[i].part == allParts[i]
@@ -887,12 +888,12 @@ module SearchConfigToInfo {
     constructors : Option<ConstructorList>,
     name : string,
     parts : seq<CB.BeaconPart>,
-    ghost numSigned : nat
+    ghost numSigned : uint64
   )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
-    requires numSigned <= |parts|
+    requires numSigned as nat <= |parts|
     requires CB.OrderedParts(parts, numSigned)
     ensures ret.Success? ==>
               && (constructors.None? ==> |ret.value| == 1)
@@ -1065,7 +1066,8 @@ module SearchConfigToInfo {
     :- Need(beacon.constructors.Some? || |signedParts| != 0 || |encryptedParts| != 0,
             E("Compound beacon " + beacon.name + " defines no constructors, and also no local parts. Cannot make a default constructor from global parts."));
 
-    var numNon := |signed|;
+    SequenceIsSafeBecauseItIsInMemory(signed);
+    var numNon := |signed| as uint64;
     assert CB.OrderedParts(signed, numNon);
     var allParts := signed + encrypted;
     assert CB.OrderedParts(allParts, numNon);
