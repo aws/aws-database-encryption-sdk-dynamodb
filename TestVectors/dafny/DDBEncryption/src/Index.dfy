@@ -4,6 +4,7 @@
 include "LibraryIndex.dfy"
 include "TestVectors.dfy"
 include "WriteSetPermutations.dfy"
+include "../../WrappedDynamoDbItemEncryptor/src/Index.dfy"
 
 module WrappedDDBEncryptionMain {
   import opened Wrappers
@@ -16,6 +17,7 @@ module WrappedDDBEncryptionMain {
   import opened JSONHelpers
   import KeyVectors
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
+  import WrappedItemEncryptor
 
 
   const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
