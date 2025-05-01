@@ -3,7 +3,6 @@
 
 include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTypes.dfy"
 include "NormalizeNumber.dfy"
-include "MemoryMath.dfy"
 
 module DynamoToStruct {
 
@@ -21,7 +20,7 @@ module DynamoToStruct {
   import SE = StructuredEncryptionUtil
   import StandardLibrary.Sequence
   import DafnyLibraries
-  import MemoryMath
+  import opened MemoryMath
 
   type Error = Types.Error
 
@@ -132,34 +131,19 @@ module DynamoToStruct {
       MakeError("Not valid attribute names : " + attrNameList)
   }
 
-  // everything past here is to implement those two
-  const UINT64_MAX := 0xFFFF_FFFF_FFFF_FFFF
-
-  // TO BE DONE -- move to StandardLibrary
-  function method SeqPosToUInt32(s: seq<uint8>, pos : uint64): (x: uint32)
-    requires |s| < UINT64_MAX as nat
-    requires MemoryMath.Add(4,pos) as int <= |s|
-    ensures UInt32ToSeq(x) == s[pos..pos+4]
-  {
-    var x0 := s[pos] as uint32 * 0x100_0000;
-    var x1 := x0 + s[pos+1] as uint32 * 0x1_0000;
-    var x2 := x1 + s[pos+2] as uint32 * 0x100;
-    x2 + s[pos+3] as uint32
-  }
-
   function method BigEndianPosToU32(x : seq<uint8>, pos : uint64) : (ret : Result<uint32, string>)
-    requires |x| < UINT64_MAX
+    requires HasUint64Len(x)
   {
-    if |x| as uint64 < MemoryMath.Add(pos, LENGTH_LEN64) then
+    if |x| as uint64 < Add(pos, LENGTH_LEN64) then
       Failure("Length of 4-byte integer was less than 4")
     else
       Success(SeqPosToUInt32(x, pos))
   }
 
   function method BigEndianPosToU32As64(x : seq<uint8>, pos : uint64) : (ret : Result<uint64, string>)
-    requires |x| < UINT64_MAX
+    requires HasUint64Len(x)
   {
-    if |x| as uint64 < MemoryMath.Add(pos, LENGTH_LEN64) then
+    if |x| as uint64 < Add(pos, LENGTH_LEN64) then
       Failure("Length of 4-byte integer was less than 4")
     else
       Success(SeqPosToUInt32(x, pos) as uint64)
@@ -198,8 +182,8 @@ module DynamoToStruct {
 
   function method  {:opaque} StructuredToAttr(s : StructuredDataTerminal) : (ret : Result<AttributeValue, string>)
   {
-    MemoryMath.ValueIsSafeBecauseItIsInMemory(|s.value|);
-    MemoryMath.ValueIsSafeBecauseItIsInMemory(|s.typeId|);
+    SequenceIsSafeBecauseItIsInMemory(s.value);
+    SequenceIsSafeBecauseItIsInMemory(s.typeId);
     :- Need(|s.typeId| as uint64 == TYPEID_LEN64, "Type ID must be two bytes");
     var attrValueAndLength :- BytesToAttr(s.value, s.typeId, Some(|s.value| as uint64));
     if attrValueAndLength.len != |s.value| as uint64 then
@@ -588,7 +572,7 @@ module DynamoToStruct {
   function method U32ToBigEndian(x : nat) : (ret : Result<seq<uint8>, string>)
     ensures ret.Success? ==> |ret.value| == LENGTH_LEN
   {
-    if x > 0xffff_ffff then
+    if !HasUint32Size(x) then
       Failure("Length was too big")
     else
       Success(UInt32ToSeq(x as uint32))
@@ -639,13 +623,14 @@ module DynamoToStruct {
   // String Set or Number Set to Bytes
   function method {:tailrecursion} {:opaque} CollectString(
     setToSerialize : StringSetAttributeValue,
-    pos : nat := 0,
+    pos : uint64 := 0,
     serialized : seq<uint8> := [])
     : Result<seq<uint8>, string>
-    requires pos <= |setToSerialize|
-    decreases |setToSerialize| - pos
+    requires pos as nat <= |setToSerialize|
+    decreases |setToSerialize| - pos as nat
   {
-    if |setToSerialize| == pos then
+    SequenceIsSafeBecauseItIsInMemory(setToSerialize);
+    if |setToSerialize| as uint64 == pos then
       Success(serialized)
     else
       var entry :- EncodeString(setToSerialize[pos]);
@@ -679,13 +664,14 @@ module DynamoToStruct {
   // Binary Set to Bytes
   function method {:tailrecursion} CollectBinary(
     setToSerialize : BinarySetAttributeValue,
-    pos : nat := 0,
+    pos : uint64 := 0,
     serialized : seq<uint8> := []
   ) : Result<seq<uint8>, string>
-    requires pos <= |setToSerialize|
-    decreases |setToSerialize| - pos
+    requires pos as nat <= |setToSerialize|
+    decreases |setToSerialize| - pos as nat
   {
-    if |setToSerialize| == pos then
+    SequenceIsSafeBecauseItIsInMemory(setToSerialize);
+    if |setToSerialize| as uint64 == pos then
       Success(serialized)
     else
       var item :- SerializeBinaryValue(setToSerialize[pos]);
@@ -753,7 +739,7 @@ module DynamoToStruct {
     reveal CollectList();
     reveal CollectListGhost();
     var result := serialized;
-    MemoryMath.ValueIsSafeBecauseItIsInMemory(|listToSerialize|);
+    ValueIsSafeBecauseItIsInMemory(|listToSerialize|);
     for i : uint64 := 0 to |listToSerialize| as uint64
     {
       var val := AttrToBytes(listToSerialize[i], true, depth+1);
@@ -834,17 +820,18 @@ module DynamoToStruct {
   function method {:tailrecursion} {:opaque} CollectOrderedMapSubset(
     keys : seq<AttributeName>,
     mapToSerialize : map<AttributeName, seq<uint8>>,
-    pos : nat := 0,
+    pos : uint64 := 0,
     serialized : seq<uint8> := []
   )
     : (ret : Result<seq<uint8>, string>)
-    requires pos <= |keys|
+    requires pos as nat <= |keys|
     requires forall k <- keys :: k in mapToSerialize
     ensures (ret.Success? && |keys| == 0) ==> (ret.value == serialized)
     ensures (ret.Success? && |keys| == 0) ==> (|ret.value| == |serialized|)
-    decreases |keys| - pos
+    decreases |keys| - pos as nat
   {
-    if |keys| == pos then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == pos then
       Success(serialized)
     else
       var data :- SerializeMapItem(keys[pos], mapToSerialize[keys[pos]]);
@@ -875,9 +862,9 @@ module DynamoToStruct {
     resultSet : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultSet.val.BS?
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     ensures ret.Success? ==> ret.value.val.BS?
-    requires MemoryMath.Add(|serialized| as uint64, resultSet.len) == origSerializedSize
+    requires Add(|serialized| as uint64, resultSet.len) == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
@@ -908,9 +895,9 @@ module DynamoToStruct {
     resultSet : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultSet.val.SS?
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     ensures ret.Success? ==> ret.value.val.SS?
-    requires MemoryMath.Add(|serialized| as uint64, resultSet.len) == origSerializedSize
+    requires Add(|serialized| as uint64, resultSet.len) == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
@@ -942,9 +929,9 @@ module DynamoToStruct {
     resultSet : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
     requires resultSet.val.NS?
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     ensures ret.Success? ==> ret.value.val.NS?
-    requires MemoryMath.Add(|serialized| as uint64, resultSet.len) == origSerializedSize
+    requires Add(|serialized| as uint64, resultSet.len) == origSerializedSize
     ensures ret.Success? ==> ret.value.len <= origSerializedSize
 
     //= specification/dynamodb-encryption-client/ddb-item-conversion.md#duplicates
@@ -975,7 +962,7 @@ module DynamoToStruct {
     resultList : AttrValueAndLength
   )
     : (ret : Result<(AttrValueAndLength, uint64), string>)
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     requires pos as int <= |serialized|
     requires depth <= MAX_STRUCTURE_DEPTH
     requires resultList.val.L?
@@ -995,9 +982,9 @@ module DynamoToStruct {
       else
         assert serialized_size == |serialized| as uint64;
         var nval :- BytesToAttr(serialized, TerminalTypeId, Some(len), depth+1, new_pos);
-        var new_pos := MemoryMath.Add(new_pos, nval.len);
+        var new_pos := Add(new_pos, nval.len);
         var nattr := AttributeValue.L(resultList.val.L + [nval.val]);
-        var nResultList := AttrValueAndLength(nattr, MemoryMath.Add(resultList.len, new_pos-pos));
+        var nResultList := AttrValueAndLength(nattr, Add(resultList.len, new_pos-pos));
         Success((nResultList, new_pos))
   }
 
@@ -1010,13 +997,13 @@ module DynamoToStruct {
     resultList : AttrValueAndLength
   )
     : (ret : Result<AttrValueAndLength, string>)
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     requires pos as int <= |serialized|
     requires orig_pos <= pos
     requires depth <= MAX_STRUCTURE_DEPTH
     requires resultList.val.L?
     ensures ret.Success? ==> ret.value.val.L?
-    requires pos == MemoryMath.Add(orig_pos, resultList.len)
+    requires pos == Add(orig_pos, resultList.len)
     ensures ret.Success? ==> ret.value.len <= |serialized| as uint64 - orig_pos
     decreases |serialized| as uint64 - pos, 1
   {
@@ -1038,13 +1025,13 @@ module DynamoToStruct {
     resultList : AttrValueAndLength
   )
     : (ret : Result<AttrValueAndLength, string>)
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     requires pos as int <= |serialized|
     requires orig_pos <= pos
     requires depth <= MAX_STRUCTURE_DEPTH
     requires resultList.val.L?
     ensures ret.Success? ==> ret.value.val.L?
-    requires pos == MemoryMath.Add(orig_pos, resultList.len)
+    requires pos == Add(orig_pos, resultList.len)
     ensures ret.Success? ==> ret.value.len <= |serialized| as uint64 - orig_pos
     decreases |serialized| as uint64 - pos, 2
   {
@@ -1059,7 +1046,7 @@ module DynamoToStruct {
       invariant serialized == old(serialized)
       invariant newResultList.val.L?
       invariant npos as int <= |serialized|
-      invariant npos == MemoryMath.Add(orig_pos, newResultList.len)
+      invariant npos == Add(orig_pos, newResultList.len)
       invariant npos >= pos
     {
       var test := DeserializeListEntry(serialized, npos, depth, newResultList);
@@ -1082,7 +1069,7 @@ module DynamoToStruct {
     resultMap : AttrValueAndLength
   )
     : (ret : Result<(AttrValueAndLength, uint64), string>)
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     requires pos as int <= |serialized|
     requires depth <= MAX_STRUCTURE_DEPTH
     requires resultMap.val.M?
@@ -1113,7 +1100,7 @@ module DynamoToStruct {
 
     // get value and construct result
     var nval :- BytesToAttr(serialized, TerminalTypeId_value, None, depth+1, pos);
-    var pos := MemoryMath.Add(pos, nval.len);
+    var pos := Add(pos, nval.len);
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
     //# This sequence MUST NOT contain duplicate [Map Keys](#map-key).
@@ -1123,7 +1110,7 @@ module DynamoToStruct {
 
     :- Need(key !in resultMap.val.M, "Duplicate key in map.");
     var nattr := AttributeValue.M(resultMap.val.M[key := nval.val]);
-    var newResultMap := AttrValueAndLength(nattr, MemoryMath.Add(resultMap.len, (pos - orig_pos)));
+    var newResultMap := AttrValueAndLength(nattr, Add(resultMap.len, (pos - orig_pos)));
 
     Success((newResultMap, pos))
   }
@@ -1136,13 +1123,13 @@ module DynamoToStruct {
     depth : uint64,
     resultMap : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     requires pos as int <= |serialized|
     requires orig_pos <= pos
     requires resultMap.val.M?
     requires depth <= MAX_STRUCTURE_DEPTH
     ensures ret.Success? ==> ret.value.val.M?
-    requires pos == MemoryMath.Add(orig_pos, resultMap.len)
+    requires pos == Add(orig_pos, resultMap.len)
     ensures ret.Success? ==> ret.value.len <= |serialized| as uint64 - orig_pos
     decreases |serialized| as uint64 - pos, 1
   {
@@ -1163,13 +1150,13 @@ module DynamoToStruct {
     depth : uint64,
     resultMap : AttrValueAndLength)
     : (ret : Result<AttrValueAndLength, string>)
-    requires |serialized| < UINT64_MAX as int
+    requires HasUint64Len(serialized)
     requires pos as int <= |serialized|
     requires orig_pos <= pos
     requires resultMap.val.M?
     requires depth <= MAX_STRUCTURE_DEPTH
     ensures ret.Success? ==> ret.value.val.M?
-    requires pos == MemoryMath.Add(orig_pos, resultMap.len)
+    requires pos == Add(orig_pos, resultMap.len)
     ensures ret.Success? ==> ret.value.len <= |serialized| as uint64 - orig_pos
     decreases |serialized| as uint64 - pos, 2
   {
@@ -1184,7 +1171,7 @@ module DynamoToStruct {
       invariant serialized == old(serialized)
       invariant newResultMap.val.M?
       invariant npos as int <= |serialized|
-      invariant npos == MemoryMath.Add(orig_pos, newResultMap.len)
+      invariant npos == Add(orig_pos, newResultMap.len)
       invariant npos >= pos
     {
       var test := DeserializeMapEntry(serialized, npos, depth, newResultMap);
@@ -1210,10 +1197,10 @@ module DynamoToStruct {
     pos : uint64 := 0    // starting position within value
   )
     : (ret : Result<AttrValueAndLength, string>)
-    requires |value| < UINT64_MAX as int
+    requires HasUint64Len(value)
     requires pos <= |value| as uint64
-    requires totalBytes.Some? ==> MemoryMath.Add(pos, totalBytes.value) <= |value| as uint64
-    ensures ret.Success? ==> MemoryMath.Add(pos, ret.value.len) <= |value| as uint64
+    requires totalBytes.Some? ==> Add(pos, totalBytes.value) <= |value| as uint64
+    ensures ret.Success? ==> Add(pos, ret.value.len) <= |value| as uint64
     ensures MAX_STRUCTURE_DEPTH < depth ==> ret.Failure?
     decreases |value| as uint64 - pos
   {
@@ -1223,7 +1210,7 @@ module DynamoToStruct {
                           BigEndianPosToU32As64(value, pos)
                         else
                           Success(totalBytes.value);
-    var pos := if totalBytes.None? then MemoryMath.Add(pos, LENGTH_LEN64) else pos;
+    var pos := if totalBytes.None? then Add(pos, LENGTH_LEN64) else pos;
     var lengthBytes : uint64 := if totalBytes.None? then LENGTH_LEN64 else 0;
 
     if value_size - pos < len then
@@ -1266,9 +1253,9 @@ module DynamoToStruct {
       else
         var len : uint64 :- BigEndianPosToU32As64(value, pos);
         var pos : uint64 := pos + LENGTH_LEN64;
-        var retval :- DeserializeStringSet(value[pos..], len, MemoryMath.Add3(value_size - pos, LENGTH_LEN64, lengthBytes), AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN64+lengthBytes));
+        var retval :- DeserializeStringSet(value[pos..], len, Add3(value_size - pos, LENGTH_LEN64, lengthBytes), AttrValueAndLength(AttributeValue.SS([]), LENGTH_LEN64+lengthBytes));
         // this is not needed with Dafny 4.10
-        assume {:axiom} MemoryMath.Add(pos, retval.len) <= |value| as uint64;
+        assume {:axiom} Add(pos, retval.len) <= |value| as uint64;
         Success(retval)
 
     else if typeId == SE.NUMBER_SET then
@@ -1277,9 +1264,9 @@ module DynamoToStruct {
       else
         var len : uint64 :- BigEndianPosToU32As64(value, pos);
         var pos : uint64 := pos + LENGTH_LEN64;
-        var retval :- DeserializeNumberSet(value[pos..], len, MemoryMath.Add3(value_size - pos, LENGTH_LEN64, lengthBytes), AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN64 + lengthBytes));
+        var retval :- DeserializeNumberSet(value[pos..], len, Add3(value_size - pos, LENGTH_LEN64, lengthBytes), AttrValueAndLength(AttributeValue.NS([]), LENGTH_LEN64 + lengthBytes));
         // this is not needed with Dafny 4.10
-        assume {:axiom} MemoryMath.Add(pos, retval.len) <= |value| as uint64;
+        assume {:axiom} Add(pos, retval.len) <= |value| as uint64;
         Success(retval)
 
     else if typeId == SE.BINARY_SET then
@@ -1288,13 +1275,13 @@ module DynamoToStruct {
       else
         var len : uint64 :- BigEndianPosToU32As64(value, pos);
         var pos : uint64 := pos + LENGTH_LEN64;
-        var retval :- DeserializeBinarySet(value[pos..], len, MemoryMath.Add3(value_size - pos, LENGTH_LEN64, lengthBytes), AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN64 + lengthBytes));
+        var retval :- DeserializeBinarySet(value[pos..], len, Add3(value_size - pos, LENGTH_LEN64, lengthBytes), AttrValueAndLength(AttributeValue.BS([]), LENGTH_LEN64 + lengthBytes));
         // this is not needed with Dafny 4.10
-        assume {:axiom} MemoryMath.Add(pos, retval.len) <= |value| as uint64;
+        assume {:axiom} Add(pos, retval.len) <= |value| as uint64;
         Success(retval)
 
     else if typeId == SE.MAP then
-      if value_size < MemoryMath.Add(LENGTH_LEN64, pos) then
+      if value_size < Add(LENGTH_LEN64, pos) then
         Failure("List Structured Data has less than 4 bytes")
       else
         var len : uint64 :- BigEndianPosToU32As64(value, pos);
@@ -1302,11 +1289,11 @@ module DynamoToStruct {
         var resultMap := AttrValueAndLength(AttributeValue.M(map[]), LENGTH_LEN64 + lengthBytes);
         var retval :- DeserializeMap(value, pos, pos - resultMap.len, len, depth, resultMap);
         // this is not needed with Dafny 4.10
-        assume {:axiom} MemoryMath.Add(pos, retval.len) <= |value| as uint64;
+        assume {:axiom} Add(pos, retval.len) <= |value| as uint64;
         Success(retval)
 
     else if typeId == SE.LIST then
-      if value_size < MemoryMath.Add(LENGTH_LEN64, pos) then
+      if value_size < Add(LENGTH_LEN64, pos) then
         Failure("List Structured Data has less than 4 bytes")
       else
         var len : uint64 :- BigEndianPosToU32As64(value, pos);
@@ -1317,7 +1304,7 @@ module DynamoToStruct {
         var resultList := AttrValueAndLength(AttributeValue.L([]), LENGTH_LEN64 + lengthBytes);
         var retval :- DeserializeList(value, pos, pos - resultList.len, len, depth, resultList);
         // this is not needed with Dafny 4.10
-        assume {:axiom} MemoryMath.Add(pos, retval.len) <= |value| as uint64;
+        assume {:axiom} Add(pos, retval.len) <= |value| as uint64;
         Success(retval)
     else
       Failure("Unsupported TerminalTypeId")

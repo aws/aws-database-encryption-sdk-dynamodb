@@ -23,6 +23,7 @@ module StructuredEncryptionFooter {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
+  import opened MemoryMath
   import Primitives = AtomicPrimitives
   import Materials
   import Header = StructuredEncryptionHeader
@@ -157,10 +158,10 @@ module StructuredEncryptionFooter {
     : Result<Bytes, Error>
   {
     if isEncrypted then
-      :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
+      :- Need(2 <= |value.value| && HasUint64Len(value.value), E("Bad length."));
       Success(UInt64ToSeq((|value.value| - 2) as uint64) + ENCRYPTED)
     else
-      :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
+      :- Need(HasUint64Len(value.value), E("Bad length."));
       Success(UInt64ToSeq((|value.value|) as uint64) + PLAINTEXT + value.typeId)
   }
 
@@ -177,14 +178,15 @@ module StructuredEncryptionFooter {
               //# | "ENCRYPTED" | 9 | Literal Ascii text |
               //# | TypeID | 2 | the type ID of the unencrypted Terminal |
               //# | value | Variable | the encrypted Terminal value |
-              && 2 <= |value.value| < UINT64_LIMIT
+              && 2 <= |value.value|
+              && HasUint64Len(value.value)
               && ret.value ==
                  fieldName
                  + UInt64ToSeq((|value.value| - 2) as uint64)
                  + ENCRYPTED
                  + value.value // this is 2 bytes of unencrypted type, followed by encrypted value
   {
-    :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
+    :- Need(2 <= |value.value| && HasUint64Len(value.value), E("Bad length."));
     Success(
       fieldName
       + UInt64ToSeq((|value.value| - 2) as uint64)
@@ -206,7 +208,7 @@ module StructuredEncryptionFooter {
               //# | "PLAINTEXT" | 9 | Literal Ascii text |
               //# | TypeID | 2 | the type ID of the Terminal |
               //# | value | Variable | the Terminal value |
-              && |value.value| < UINT64_LIMIT
+              && HasUint64Len(value.value)
               && ret.value ==
                  fieldName
                  + UInt64ToSeq((|value.value|) as uint64)
@@ -214,7 +216,7 @@ module StructuredEncryptionFooter {
                  + value.typeId
                  + value.value
   {
-    :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
+    :- Need(HasUint64Len(value.value), E("Bad length."));
     Success(
       fieldName
       + UInt64ToSeq((|value.value|) as uint64)
@@ -246,7 +248,8 @@ module StructuredEncryptionFooter {
       var newPart :- GetCanonicalItem(data[0]);
       Success(newPart + tail)
   } by method {
-    var i: nat := |data|;
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var i: uint64 := |data| as uint64;
     var vectors : Bytes := [];
 
     while i != 0
@@ -293,7 +296,7 @@ module StructuredEncryptionFooter {
               && CanonContent(data).Success?
               && var canon := CanonContent(data).value;
               && var AAD := Header.SerializeContext(enc);
-              && |AAD| < UINT64_LIMIT
+              && HasUint64Len(AAD)
               && var len := UInt64ToSeq(|AAD| as uint64);
               && ret.value ==
                  header
@@ -303,7 +306,7 @@ module StructuredEncryptionFooter {
   {
     var canon :- CanonContent(data);
     var AAD := Header.SerializeContext(enc);
-    :- Need(|AAD| < UINT64_LIMIT, E("AAD too long."));
+    :- Need(HasUint64Len(AAD), E("AAD too long."));
     var len := UInt64ToSeq(|AAD| as uint64);
     Success(header + len + AAD + canon)
   }
@@ -412,7 +415,8 @@ module StructuredEncryptionFooter {
       tags[0] + SerializeTags(tags[1..])
   } by method {
     var result : Bytes := [];
-    for i := |tags| downto 0
+    SequenceIsSafeBecauseItIsInMemory(tags);
+    for i : uint64 := |tags| as uint64 downto 0
       invariant result == SerializeTags(tags[i..])
     {
       result := tags[i] + result;

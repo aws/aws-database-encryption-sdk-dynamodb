@@ -8,6 +8,7 @@ module StructuredEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened MemoryMath
 
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -182,7 +183,7 @@ module StructuredEncryptionUtil {
   type GoodString = x : string | ValidString(x)
   predicate method ValidString(x : string)
   {
-    && |x| <  UINT64_LIMIT
+    && HasUint64Len(x)
     && UTF8.Encode(x).Success?
   }
 
@@ -199,12 +200,13 @@ module StructuredEncryptionUtil {
 
   // sequences are equal if zero is returned
   // Some care should be taken to ensure that target languages don't over optimize this.
-  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : nat := 0, acc : bv8 := 0) : bv8
+  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : uint64 := 0, acc : bv8 := 0) : bv8
     requires |a| == |b|
-    requires 0 <= pos <= |a|
-    decreases |a| - pos
+    requires 0 <= pos as nat <= |a|
+    decreases |a| - pos as nat
   {
-    if |a| == pos then
+    SequenceIsSafeBecauseItIsInMemory(a);
+    if |a| as uint64 == pos then
       acc
     else
       var x := ((a[pos] as bv8) ^ (b[pos] as bv8));
@@ -288,7 +290,8 @@ module StructuredEncryptionUtil {
   {
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
     var ret : map<string, string> := map[];
-    for i := 0 to |keys| {
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    for i : uint64 := 0 to |keys| as uint64 {
       var key :- expect UTF8.Decode(keys[i]);
       var value :- expect UTF8.Decode(ec[keys[i]]);
       ret := ret[key := value];
