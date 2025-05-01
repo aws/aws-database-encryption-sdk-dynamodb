@@ -99,4 +99,5 @@ jobs:
       - name: Test Python TestVectors with ${{matrix.interface}} interface
         working-directory: ${{matrix.library}}
         run: |
+          cp ../java/*.json runtimes/python/
           make test_python_${{matrix.interface}}_interface
