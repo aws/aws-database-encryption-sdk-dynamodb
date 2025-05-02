@@ -14,7 +14,6 @@ module CompoundBeacon {
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
-  import opened MemoryMath
 
   import Prim = AwsCryptographyPrimitivesTypes
   import Primitives = AtomicPrimitives
@@ -91,11 +90,11 @@ module CompoundBeacon {
     base : BeaconBase,
     split : char,
     parts : seq<BeaconPart>, // Signed followed by Encrypted
-    numSigned : uint64,
+    numSigned : nat,
     construct : ConstructorList
   )
     : (ret : Result<ValidCompoundBeacon, Error>)
-    requires numSigned as nat <= |parts|
+    requires numSigned <= |parts|
     requires OrderedParts(parts, numSigned)
 
     //= specification/searchable-encryption/beacons.md#initialization-failure
@@ -111,26 +110,25 @@ module CompoundBeacon {
 
   // are the parts properly ordered?
   // that is, with the signed parts followed the encrypted parts
-  predicate OrderedParts(p : seq<BeaconPart>, n : uint64)
-    requires n as nat <= |p|
+  predicate OrderedParts(p : seq<BeaconPart>, n : nat)
+    requires n <= |p|
   {
-    SequenceIsSafeBecauseItIsInMemory(p);
-    && (forall x : uint64 | 0 <= x < n :: p[x].Signed?)
-    && (forall x : uint64 | n <= x < |p| as uint64 :: p[x].Encrypted?)
+    && (forall x | 0 <= x < n :: p[x].Signed?)
+    && (forall x | n <= x < |p| :: p[x].Encrypted?)
   }
 
   datatype CompoundBeacon = CompoundBeacon(
     base : BeaconBase,
     split : char,
     parts : seq<BeaconPart>,
-    numSigned : uint64,
+    numSigned : nat,
     construct : ConstructorList
   ) {
 
     predicate ValidState()
     {
       && ValidPrefixSet()
-      && numSigned as nat <= |parts|
+      && numSigned <= |parts|
       && OrderedParts(parts, numSigned)
     }
 
@@ -138,9 +136,8 @@ module CompoundBeacon {
     // that is, no ambiguity when determining which prefix is used in a value
     predicate ValidPrefixSet()
     {
-      SequenceIsSafeBecauseItIsInMemory(parts);
-      forall x : uint64, y : uint64
-        | 0 <= x < |parts| as uint64 && x < y < |parts| as uint64
+      forall x : nat, y : nat
+        | 0 <= x < |parts| && x < y < |parts|
         :: OkPrefixPair(x, y)
     }
 
@@ -163,8 +160,7 @@ module CompoundBeacon {
 
     // Does this beacon have any encrypted parts
     predicate method isEncrypted() {
-      SequenceIsSafeBecauseItIsInMemory(parts);
-      numSigned < |parts| as uint64
+      numSigned < |parts|
     }
 
     // find the part whose prefix matches this value
@@ -513,9 +509,9 @@ module CompoundBeacon {
     }
 
     // true is neither part's prefix is a prefix of the other
-    predicate method OkPrefixPair(pos1 : uint64, pos2 : uint64)
-      requires pos1 as nat < |parts|
-      requires pos2 as nat< |parts|
+    predicate method OkPrefixPair(pos1 : nat, pos2 : nat)
+      requires pos1 < |parts|
+      requires pos2 < |parts|
     {
       || pos1 == pos2
       || OkPrefixStringPair(parts[pos1].prefix, parts[pos2].prefix)
@@ -525,10 +521,9 @@ module CompoundBeacon {
     function method CheckOnePrefixPart(pos1 : nat, pos2 : nat) : (ret : Result<bool, Error>)
       requires pos1 < |parts|
       requires pos2 < |parts|
-      ensures ret.Success? ==> HasUint64Len(parts) && OkPrefixPair(pos1 as uint64, pos2 as uint64)
+      ensures ret.Success? ==> OkPrefixPair(pos1, pos2)
     {
-      SequenceIsSafeBecauseItIsInMemory(parts);
-      if !OkPrefixPair(pos1 as uint64, pos2 as uint64) then
+      if !OkPrefixPair(pos1, pos2) then
         Failure(E("Compound beacon " + base.name + " defines part " + parts[pos1].getName() + " with prefix " + parts[pos1].prefix
                   + " which is incompatible with part " + parts[pos2].getName() + " which has a prefix of " + parts[pos2].prefix + "."))
       else
@@ -545,14 +540,13 @@ module CompoundBeacon {
     }
 
     // error if any part's prefix is a prefix of another part's prefix
-    function method {:tailrecursion} ValidPrefixSetResultPos(index : uint64) : (ret : Result<bool, Error>)
-      decreases |parts| - index as nat
+    function method {:tailrecursion} ValidPrefixSetResultPos(index : nat) : (ret : Result<bool, Error>)
+      decreases |parts| - index
     {
-      SequenceIsSafeBecauseItIsInMemory(parts);
-      if |parts| as uint64 <= index then
+      if |parts| <= index then
         Success(true)
       else
-        var _ :- CheckOnePrefix(index as nat);
+        var _ :- CheckOnePrefix(index);
         ValidPrefixSetResultPos(index+1)
     }
 
@@ -560,10 +554,9 @@ module CompoundBeacon {
     function method ValidPrefixSetResult() : (ret : Result<bool, Error>)
       ensures ret.Success? ==> ValidPrefixSet() && ret.value
     {
-      SequenceIsSafeBecauseItIsInMemory(parts);
       var _ :- ValidPrefixSetResultPos(0);
-      if forall x : uint64, y : uint64
-           | 0 <= x < |parts| as uint64 && x < y < |parts| as uint64
+      if forall x : nat, y : nat
+           | 0 <= x < |parts| && x < y < |parts|
            :: OkPrefixPair(x, y) then
         Success(true)
       else

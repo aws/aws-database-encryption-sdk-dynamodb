@@ -766,7 +766,7 @@ module SearchConfigToInfo {
     requires |allParts| == |parts| + |converted|
     requires parts == allParts[|converted|..]
     requires numNon as nat <= |allParts|
-    requires CB.OrderedParts(allParts, numNon)
+    requires CB.OrderedParts(allParts, numNon as nat)
     requires forall i | 0 <= i < |converted| ::
                && converted[i].part == allParts[i]
                && converted[i].required
@@ -777,7 +777,7 @@ module SearchConfigToInfo {
                  //= type=implication
                  //# * This default constructor MUST be all of the signed parts,
                  //# followed by all the encrypted parts, all parts being required.
-              && CB.OrderedParts(allParts, numNon)
+              && CB.OrderedParts(allParts, numNon as nat)
               && (forall i | 0 <= i < |ret.value[0].parts| ::
                     && ret.value[0].parts[i].part == allParts[i]
                     && ret.value[0].parts[i].required)
@@ -894,7 +894,7 @@ module SearchConfigToInfo {
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
     requires numSigned as nat <= |parts|
-    requires CB.OrderedParts(parts, numSigned)
+    requires CB.OrderedParts(parts, numSigned as nat)
     ensures ret.Success? ==>
               && (constructors.None? ==> |ret.value| == 1)
               && (constructors.Some? ==> |ret.value| == |constructors.value|)
@@ -1068,9 +1068,9 @@ module SearchConfigToInfo {
 
     SequenceIsSafeBecauseItIsInMemory(signed);
     var numNon := |signed| as uint64;
-    assert CB.OrderedParts(signed, numNon);
+    assert CB.OrderedParts(signed, numNon as nat);
     var allParts := signed + encrypted;
-    assert CB.OrderedParts(allParts, numNon);
+    assert CB.OrderedParts(allParts, numNon as nat);
 
     var isSignedBeacon := |encrypted| == 0;
     var _ :- BeaconNameAllowed(outer, virtualFields, beacon.name, "CompoundBeacon", isSignedBeacon);
@@ -1089,7 +1089,7 @@ module SearchConfigToInfo {
       ),
       beacon.split[0],
       allParts,
-      numNon,
+      numNon as nat,
       constructors
     )
   }
