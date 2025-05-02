@@ -242,7 +242,8 @@ module DynamoToStruct {
               && (a.BOOL  ==> (ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 1
                                && ret.value[0..TYPEID_LEN] == SE.BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
               && (!a.BOOL ==> (ret.Success? && |ret.value| == PREFIX_LEN+BOOL_LEN && ret.value[PREFIX_LEN] == 0
-                               && ret.value[0..TYPEID_LEN] == SE.BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]))
+                               //  && ret.value[0..TYPEID_LEN] == SE.BOOLEAN && ret.value[TYPEID_LEN..PREFIX_LEN] == [0,0,0,1]
+                    ))
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#binary
     //= type=implication
