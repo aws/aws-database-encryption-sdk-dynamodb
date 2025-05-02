@@ -172,7 +172,7 @@ class EncryptedTable(EncryptedBotoInterface):
         Returns:
             dict: The response from DynamoDB. This matches the boto3 scan API response.
                 The "Items" field will be decrypted locally after being read from DynamoDB.
-                
+
         """
         return self._table_operation_logic(
             operation_input=kwargs,
