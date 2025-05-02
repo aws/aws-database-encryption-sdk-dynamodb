@@ -1,41 +1,26 @@
 import boto3
-from boto3.dynamodb.types import Binary
-from decimal import Decimal
+import pytest
 
-from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
-from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
-from aws_cryptographic_material_providers.mpl.models import (
-    CreateAwsKmsMrkKeyringInput,
-    CreateAwsKmsMrkMultiKeyringInput,
-    DBEAlgorithmSuiteId,
-)
-from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
-    CryptoAction,
-)
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
-    DynamoDbTableEncryptionConfig,
-    DynamoDbTablesEncryptionConfig,
-)
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
+
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
 )
 from ...items import (
-    simple_item_ddb,
-    simple_key_ddb,
     complex_item_ddb,
-    complex_key_ddb,
-    simple_item_dict,
-    simple_key_dict,
     complex_item_dict,
+    complex_key_ddb,
     complex_key_dict,
+    simple_item_ddb,
+    simple_item_dict,
+    simple_key_ddb,
+    simple_key_dict,
 )
 from ...requests import (
-    basic_query_paginator_request,
     basic_put_item_request_ddb,
     basic_put_item_request_dict,
+    basic_query_paginator_request,
     basic_scan_request_ddb,
     basic_scan_request_dict,
 )
@@ -44,10 +29,6 @@ BOTO3_CLIENT = boto3.client("dynamodb")
 ENCRYPTED_CLIENT = EncryptedClient(client=BOTO3_CLIENT, encryption_config=INTEG_TEST_DEFAULT_TABLE_CONFIGS)
 SCAN_PAGINATOR = ENCRYPTED_CLIENT.get_paginator("scan")
 QUERY_PAGINATOR = ENCRYPTED_CLIENT.get_paginator("query")
-# TODO: this is a scary thought, but I should explore this
-# BOTO3_CLIENT_FROM_TABLE = boto3.client("dynamodb", region_name="us-east-1").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
-
-import pytest
 
 
 @pytest.fixture(params=[True, False], ids=["standard_dicts", "ddb_json"])
@@ -148,9 +129,11 @@ def put_item_request(expect_standard_dictionaries, test_item):
 
 
 def sort_dynamodb_json_lists(obj):
-    """Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
+    """
+    Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
     DynamoDB JSON uses lists to represent sets, so strict equality can fail.
-    Sort lists to ensure consistent ordering when comparing expected and actual items."""
+    Sort lists to ensure consistent ordering when comparing expected and actual items.
+    """
     if isinstance(obj, dict):
         return {k: sort_dynamodb_json_lists(v) for k, v in obj.items()}
     elif isinstance(obj, list):

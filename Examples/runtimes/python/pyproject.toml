@@ -15,3 +15,35 @@ tox = "^3"
 [build-system]
 requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+# Package linting
+
+[tool.poetry.group.linting]
+optional = true
+
+[tool.poetry.group.linting.dependencies]
+ruff = "^0.11.5"
+black = "^25.1.0"
+
+[tool.ruff]
+line-length=120
+indent-width=4
+target-version = "py311"
+
+[tool.ruff.lint]
+# Choose linting tools
+select = [
+    # pycodestyle: spacing, line length
+    "E",
+    # pyflakes: unused imports/variables
+    "F",
+    # isort: import sorting
+    "I",
+    # pydocstyle: docstring style
+    "D",
+]
+# Ignore incompatible linting options
+ignore=[
+    "D203", # `incorrect-blank-line-before-class`; incompatible with `no-blank-line-before-class` (D211)
+    "D212", # `multi-line-summary-first-line`; incompatible with `multi-line-summary-second-line` (D213)
+]

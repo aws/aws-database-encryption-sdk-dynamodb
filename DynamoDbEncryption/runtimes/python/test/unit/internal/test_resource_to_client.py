@@ -1,58 +1,67 @@
-from ...requests import (
-    basic_put_item_request_ddb,
-    exhaustive_put_item_request_ddb,
-    basic_get_item_request_ddb,
-    exhaustive_get_item_request_ddb,
-    basic_query_request_ddb,
-    exhaustive_query_request_ddb,
-    basic_scan_request_ddb,
-    exhaustive_scan_request_ddb,
-    basic_batch_get_item_request_ddb,
-    basic_batch_write_item_put_request_ddb,
-    basic_batch_write_item_delete_request_ddb,
-    basic_transact_write_item_put_request_ddb,
-    basic_transact_write_item_delete_request_ddb,
-    basic_transact_write_item_condition_check_request_ddb,
-    basic_transact_get_item_request_ddb,
+import pytest
+
+from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
+from aws_dbesdk_dynamodb.internal.resource_to_client import ResourceShapeToClientShapeConverter
+
+from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
+from ...items import (
+    complex_item_ddb,
+    complex_item_dict,
+    complex_key_ddb,
+    complex_key_dict,
+    simple_item_ddb,
+    simple_item_dict,
+    simple_key_ddb,
+    simple_key_dict,
 )
 from ...requests import (
-    basic_put_item_request_dict,
-    exhaustive_put_item_request_dict,
-    basic_get_item_request_dict,
-    exhaustive_get_item_request_dict,
-    basic_query_request_dict,
-    exhaustive_query_request_dict,
-    basic_scan_request_dict,
-    exhaustive_scan_request_dict,
+    basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
-    basic_batch_write_item_put_request_dict,
+    basic_batch_write_item_delete_request_ddb,
     basic_batch_write_item_delete_request_dict,
-    basic_transact_write_item_put_request_dict,
-    basic_transact_write_item_delete_request_dict,
-    basic_transact_write_item_condition_check_request_dict,
+    basic_batch_write_item_put_request_ddb,
+    basic_batch_write_item_put_request_dict,
+    basic_get_item_request_ddb,
+    basic_get_item_request_dict,
+    basic_put_item_request_ddb,
+    basic_put_item_request_dict,
+    basic_query_request_ddb,
+    basic_query_request_dict,
+    basic_scan_request_ddb,
+    basic_scan_request_dict,
+    basic_transact_get_item_request_ddb,
     basic_transact_get_item_request_dict,
+    basic_transact_write_item_condition_check_request_ddb,
+    basic_transact_write_item_condition_check_request_dict,
+    basic_transact_write_item_delete_request_ddb,
+    basic_transact_write_item_delete_request_dict,
+    basic_transact_write_item_put_request_ddb,
+    basic_transact_write_item_put_request_dict,
+    exhaustive_get_item_request_ddb,
+    exhaustive_get_item_request_dict,
+    exhaustive_put_item_request_ddb,
+    exhaustive_put_item_request_dict,
+    exhaustive_query_request_ddb,
+    exhaustive_query_request_dict,
+    exhaustive_scan_request_ddb,
+    exhaustive_scan_request_dict,
 )
 from ...responses import (
+    basic_batch_get_item_response,
+    basic_batch_write_item_put_response,
+    basic_get_item_response,
+    basic_put_item_response,
     basic_query_response,
     basic_scan_response,
-    exhaustive_scan_response,
-    basic_put_item_response,
-    exhaustive_put_item_response,
-    basic_get_item_response,
-    exhaustive_get_item_response,
-    exhaustive_query_response,
-    basic_batch_get_item_response,
-    exhaustive_batch_get_item_response,
-    basic_batch_write_item_put_response,
-    exhaustive_batch_write_item_put_response,
-    basic_transact_write_items_response,
     basic_transact_get_items_response,
+    basic_transact_write_items_response,
+    exhaustive_batch_get_item_response,
+    exhaustive_batch_write_item_put_response,
+    exhaustive_get_item_response,
+    exhaustive_put_item_response,
+    exhaustive_query_response,
+    exhaustive_scan_response,
 )
-from ...items import *
-from aws_dbesdk_dynamodb.internal.resource_to_client import ResourceShapeToClientShapeConverter
-import pytest
-from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
-from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
 
 resource_to_client_converter = ResourceShapeToClientShapeConverter(table_name=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
 
@@ -114,9 +123,11 @@ def test_put_item_request_dict(use_exhaustive_request):
 
 
 def sort_dynamodb_json_lists(obj):
-    """Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
+    """
+    Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
     DynamoDB JSON uses lists to represent sets, so strict equality can fail.
-    Sort lists to ensure consistent ordering when comparing expected and actual items."""
+    Sort lists to ensure consistent ordering when comparing expected and actual items.
+    """
     if isinstance(obj, dict):
         return {k: sort_dynamodb_json_lists(v) for k, v in obj.items()}
     elif isinstance(obj, list):
@@ -154,10 +165,10 @@ def test_GIVEN_put_item_request_without_table_name_WHEN_resource_to_client_THEN_
     # Given: ResourceShapeToClientShapeConverter without table name
     resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
     # Given: Put item request without table name
-    request = basic_put_item_request_dict(simple_item_dict)
-    # When: Converting to resource format
+    # Then: Raises ValueError
     with pytest.raises(ValueError):
-        resource_to_client_converter_without_table_name.put_item_request(request)
+        # When: Converting to resource format
+        resource_to_client_converter_without_table_name.put_item_request(test_put_item_request_dict)
 
 
 @pytest.fixture
@@ -211,10 +222,10 @@ def test_GIVEN_get_item_request_without_table_name_WHEN_resource_to_client_THEN_
     # Given: ResourceShapeToClientShapeConverter without table name
     resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
     # Given: Get item request without table name
-    request = basic_get_item_request_dict(simple_item_dict)
-    # When: Converting to resource format
+    # Then: Raises ValueError
     with pytest.raises(ValueError):
-        resource_to_client_converter_without_table_name.get_item_request(request)
+        # When: Converting to resource format
+        resource_to_client_converter_without_table_name.get_item_request(test_get_item_request_dict)
 
 
 @pytest.fixture
@@ -366,10 +377,10 @@ def test_GIVEN_query_request_without_table_name_WHEN_resource_to_client_THEN_rai
     # Given: ResourceShapeToClientShapeConverter without table name
     resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
     # Given: Query request without table name
-    request = basic_query_request_dict(simple_item_dict)
-    # When: Converting to resource format
+    # Then: Raises ValueError
     with pytest.raises(ValueError):
-        resource_to_client_converter_without_table_name.query_request(request)
+        # When: Converting to resource format
+        resource_to_client_converter_without_table_name.query_request(test_query_request_dict)
 
 
 @pytest.fixture
@@ -479,10 +490,10 @@ def test_GIVEN_scan_request_without_table_name_WHEN_resource_to_client_THEN_rais
     # Given: ResourceShapeToClientShapeConverter without table name
     resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
     # Given: Scan request without table name
-    request = basic_scan_request_dict(simple_item_dict)
-    # When: Converting to resource format
+    # Then: Raises ValueError
     with pytest.raises(ValueError):
-        resource_to_client_converter_without_table_name.scan_request(request)
+        # When: Converting to resource format
+        resource_to_client_converter_without_table_name.scan_request(test_scan_request_dict)
 
 
 @pytest.fixture
@@ -784,6 +795,7 @@ def test_GIVEN_test_transact_get_items_response_WHEN_resource_to_client_THEN_ret
     assert actual_ddb_response == expected_ddb_response
 
 
+# ruff: noqa: E501
 def test_GIVEN_request_with_neither_ExpressionAttributeValues_nor_ExpressionAttributeNames_WHEN_condition_handler_THEN_returns_BuiltConditionExpression_output():
     # Given: Request with neither ExpressionAttributeValues nor ExpressionAttributeNames
     request = exhaustive_put_item_request_dict(simple_item_dict)
@@ -793,7 +805,8 @@ def test_GIVEN_request_with_neither_ExpressionAttributeValues_nor_ExpressionAttr
         del request["ExpressionAttributeNames"]
     actual = resource_to_client_converter.condition_handler("ConditionExpression", request)
     # Reset expression_builder numbering to make test equality easier
-    # (ex. Instead of starting names at '#n2', it starts at '#n0' and can equal the `actual` expression string that starts at '#n0')
+    # (ex. Instead of starting names at '#n2', it starts at '#n0'
+    # and can equal the `actual` expression string that starts at '#n0')
     resource_to_client_converter.expression_builder.reset()
     expected = resource_to_client_converter.expression_builder.build_expression(request["ConditionExpression"], {}, {})
 

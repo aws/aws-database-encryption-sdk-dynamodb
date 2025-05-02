@@ -1,5 +1,6 @@
-from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedTablesCollectionManager
 from mock import MagicMock
+
+from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedTablesCollectionManager
 
 
 def test_WHEN_boto3_client_attr_name_THEN_returns_expected_value():

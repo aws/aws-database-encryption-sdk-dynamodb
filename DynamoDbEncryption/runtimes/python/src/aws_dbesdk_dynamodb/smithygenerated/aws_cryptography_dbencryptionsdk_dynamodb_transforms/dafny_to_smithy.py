@@ -309,9 +309,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesInput(
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models.ResolveAttributesInput(
-        table_name=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-        ).decode("utf-16-be"),
+        table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be"),
         item={
             b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
                 "utf-16-be"

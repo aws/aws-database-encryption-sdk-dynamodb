@@ -400,26 +400,30 @@ class EncryptedClient(EncryptedBotoInterface):
             dict: The transformed response from DynamoDB
 
         """
-        # Transform input from Python dictionary JSON to DynamoDB JSON if required
+        # If _expect_standard_dictionaries is true, input items are expected to be standard dictionaries,
+        # and need to be converted to DDB-JSON before encryption.
         sdk_input = deepcopy(operation_input)
         if self._expect_standard_dictionaries:
             if "TableName" in sdk_input:
                 self._resource_to_client_shape_converter.table_name = sdk_input["TableName"]
             sdk_input = input_item_to_ddb_transform_method(sdk_input)
 
-        # Apply encryption transformation to the user-supplied input
+        # Apply DBESDK transformation to the input
         transformed_request = input_transform_method(input_transform_shape(sdk_input=sdk_input)).transformed_input
 
+        # If _expect_standard_dictionaries is true, the boto3 client expects items to be standard dictionaries,
+        # and needs to convert the DDB-JSON to a standard dictionary before passing the request to the boto3 client.
         if self._expect_standard_dictionaries:
             transformed_request = input_item_to_dict_transform_method(transformed_request)
 
-        # Call boto3 client method with transformed input and receive raw boto3 output
         sdk_response = client_method(**transformed_request)
 
+        # If _expect_standard_dictionaries is true, the boto3 client returns items as standard dictionaries,
+        # and needs to convert the standard dictionary to DDB-JSON before passing the response to the DBESDK.
         if self._expect_standard_dictionaries:
             sdk_response = output_item_to_ddb_transform_method(sdk_response)
 
-        # Apply encryption transformation to the boto3 output
+        # Apply DBESDK transformation to the boto3 output
         dbesdk_response = output_transform_method(
             output_transform_shape(
                 original_input=sdk_input,
@@ -427,9 +431,11 @@ class EncryptedClient(EncryptedBotoInterface):
             )
         ).transformed_output
 
-        # Copy any missing fields from the SDK output to the response
+        # Copy any missing fields from the SDK output to the response (e.g. ConsumedCapacity)
         dbesdk_response = self._copy_sdk_response_to_dbesdk_response(sdk_response, dbesdk_response)
 
+        # If _expect_standard_dictionaries is true, output items are expected to be standard dictionaries,
+        # and need to be converted from DDB-JSON to a standard dictionary before returning the response.
         if self._expect_standard_dictionaries:
             dbesdk_response = output_item_to_dict_transform_method(dbesdk_response)
 

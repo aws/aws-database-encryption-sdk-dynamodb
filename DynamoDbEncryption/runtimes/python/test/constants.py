@@ -1,18 +1,11 @@
-import boto3
-from boto3.dynamodb.types import Binary
-from decimal import Decimal
-
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
 from aws_cryptographic_material_providers.mpl.models import (
-    CreateAwsKmsMrkKeyringInput,
     CreateAwsKmsMrkMultiKeyringInput,
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
-    CryptoAction,
-)
+
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
@@ -20,8 +13,9 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config import (
     DynamoDbItemEncryptorConfig,
 )
-from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
-import pytest
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
+    CryptoAction,
+)
 
 MPL_CLIENT: AwsCryptographicMaterialProviders = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
 INTEG_TEST_DEFAULT_KMS_KEY_ID = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"

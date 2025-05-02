@@ -81,12 +81,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyInput(
         ddbKey=Map(
             {
                 Seq(
-                    "".join(
-                        [
-                            chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
-                        ]
-                    )
+                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -104,9 +99,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyOutput(
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.branch_key_id.encode("utf-16-be"))] * 2
-                    )
+                    for pair in zip(*[iter(native_input.branch_key_id.encode("utf-16-be"))] * 2)
                 ]
             )
         ),
@@ -150,8 +143,8 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnio
         native_input,
         aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetEncryptedDataKeyDescriptionUnionHeader,
     ):
-        GetEncryptedDataKeyDescriptionUnion_union_value = (
-            GetEncryptedDataKeyDescriptionUnion_header(Seq(native_input.value))
+        GetEncryptedDataKeyDescriptionUnion_union_value = GetEncryptedDataKeyDescriptionUnion_header(
+            Seq(native_input.value)
         )
     elif isinstance(
         native_input,
@@ -162,10 +155,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnio
                 {
                     Seq(
                         "".join(
-                            [
-                                chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
-                            ]
+                            [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
                         )
                     ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                         value
@@ -175,9 +165,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnio
             )
         )
     else:
-        raise ValueError(
-            "No recognized union value in union type: " + str(native_input)
-        )
+        raise ValueError("No recognized union value in union type: " + str(native_input))
 
     return GetEncryptedDataKeyDescriptionUnion_union_value
 
@@ -213,9 +201,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(native
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.key_provider_id.encode("utf-16-be"))] * 2
-                    )
+                    for pair in zip(*[iter(native_input.key_provider_id.encode("utf-16-be"))] * 2)
                 ]
             )
         ),
@@ -226,16 +212,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(native
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.key_provider_info.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
-                                )
+                                for pair in zip(*[iter(native_input.key_provider_info.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -251,16 +228,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(native
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.branch_key_id.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
-                                )
+                                for pair in zip(*[iter(native_input.branch_key_id.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -276,16 +244,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(native
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.branch_key_version.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
-                                )
+                                for pair in zip(*[iter(native_input.branch_key_version.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -311,9 +270,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.key_field_name.encode("utf-16-be"))] * 2
-                    )
+                    for pair in zip(*[iter(native_input.key_field_name.encode("utf-16-be"))] * 2)
                 ]
             )
         ),
@@ -336,16 +293,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.partition_id.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
-                                )
+                                for pair in zip(*[iter(native_input.partition_id.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -361,12 +309,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SingleKeyStore(native_input):
     return DafnySingleKeyStore(
         keyId=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.key_id.encode("utf-16-be"))] * 2
-                    )
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.key_id.encode("utf-16-be"))] * 2)]
             )
         ),
         cacheTTL=native_input.cache_ttl,
@@ -388,16 +331,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SingleKeyStore(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.partition_id.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
-                                )
+                                for pair in zip(*[iter(native_input.partition_id.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -429,9 +363,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_BeaconKeySource(native_input):
             )
         )
     else:
-        raise ValueError(
-            "No recognized union value in union type: " + str(native_input)
-        )
+        raise ValueError("No recognized union value in union type: " + str(native_input))
 
     return BeaconKeySource_union_value
 
@@ -444,10 +376,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_Shared(native_input):
     return DafnyShared(
         other=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.other.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.other.encode("utf-16-be"))] * 2)]
             )
         ),
     )
@@ -457,10 +386,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SharedSet(native_input):
     return DafnySharedSet(
         other=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.other.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.other.encode("utf-16-be"))] * 2)]
             )
         ),
     )
@@ -504,9 +430,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_BeaconStyle(native_input):
             )
         )
     else:
-        raise ValueError(
-            "No recognized union value in union type: " + str(native_input)
-        )
+        raise ValueError("No recognized union value in union type: " + str(native_input))
 
     return BeaconStyle_union_value
 
@@ -515,10 +439,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_ConstructorPart(native_input):
     return DafnyConstructorPart(
         name=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)]
             )
         ),
         required=native_input.required,
@@ -542,20 +463,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedPart(native_input):
     return DafnyEncryptedPart(
         name=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)]
             )
         ),
         prefix=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.prefix.encode("utf-16-be"))] * 2
-                    )
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.prefix.encode("utf-16-be"))] * 2)]
             )
         ),
     )
@@ -565,20 +478,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SignedPart(native_input):
     return DafnySignedPart(
         name=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)]
             )
         ),
         prefix=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.prefix.encode("utf-16-be"))] * 2
-                    )
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.prefix.encode("utf-16-be"))] * 2)]
             )
         ),
         loc=(
@@ -588,9 +493,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SignedPart(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[iter(native_input.loc.encode("utf-16-be"))] * 2
-                                )
+                                for pair in zip(*[iter(native_input.loc.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -606,18 +509,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_CompoundBeacon(native_input):
     return DafnyCompoundBeacon(
         name=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)]
             )
         ),
         split=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.split.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.split.encode("utf-16-be"))] * 2)]
             )
         ),
         encrypted=(
@@ -679,10 +576,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_StandardBeacon(native_input):
     return DafnyStandardBeacon(
         name=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)]
             )
         ),
         length=native_input.length,
@@ -693,9 +587,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_StandardBeacon(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[iter(native_input.loc.encode("utf-16-be"))] * 2
-                                )
+                                for pair in zip(*[iter(native_input.loc.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -724,9 +616,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_Insert(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.literal.encode("utf-16-be"))] * 2
-                    )
+                    for pair in zip(*[iter(native_input.literal.encode("utf-16-be"))] * 2)
                 ]
             )
         ),
@@ -747,10 +637,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetSegment(native_input):
     return DafnyGetSegment(
         split=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.split.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.split.encode("utf-16-be"))] * 2)]
             )
         ),
         index=native_input.index,
@@ -761,10 +648,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetSegments(native_input):
     return DafnyGetSegments(
         split=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.split.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.split.encode("utf-16-be"))] * 2)]
             )
         ),
         low=native_input.low,
@@ -863,9 +747,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_VirtualTransform(native_input):
             )
         )
     else:
-        raise ValueError(
-            "No recognized union value in union type: " + str(native_input)
-        )
+        raise ValueError("No recognized union value in union type: " + str(native_input))
 
     return VirtualTransform_union_value
 
@@ -874,10 +756,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_VirtualPart(native_input):
     return DafnyVirtualPart(
         loc=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.loc.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.loc.encode("utf-16-be"))] * 2)]
             )
         ),
         trans=(
@@ -903,10 +782,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_VirtualField(native_input):
     return DafnyVirtualField(
         name=Seq(
             "".join(
-                [
-                    chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)
-                ]
+                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.name.encode("utf-16-be"))] * 2)]
             )
         ),
         parts=Seq(
@@ -1043,12 +919,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_LegacyOverride(native_input):
         attributeActionsOnEncrypt=Map(
             {
                 Seq(
-                    "".join(
-                        [
-                            chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
-                        ]
-                    )
+                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )
@@ -1105,9 +976,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.logical_table_name.encode("utf-16-be"))] * 2
-                    )
+                    for pair in zip(*[iter(native_input.logical_table_name.encode("utf-16-be"))] * 2)
                 ]
             )
         ),
@@ -1115,9 +984,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(
-                        *[iter(native_input.partition_key_name.encode("utf-16-be"))] * 2
-                    )
+                    for pair in zip(*[iter(native_input.partition_key_name.encode("utf-16-be"))] * 2)
                 ]
             )
         ),
@@ -1128,16 +995,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.sort_key_name.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
-                                )
+                                for pair in zip(*[iter(native_input.sort_key_name.encode("utf-16-be"))] * 2)
                             ]
                         )
                     )
@@ -1160,12 +1018,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
         attributeActionsOnEncrypt=Map(
             {
                 Seq(
-                    "".join(
-                        [
-                            chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
-                        ]
-                    )
+                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )
@@ -1181,10 +1034,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
                                 "".join(
                                     [
                                         chr(int.from_bytes(pair, "big"))
-                                        for pair in zip(
-                                            *[iter(list_element.encode("utf-16-be"))]
-                                            * 2
-                                        )
+                                        for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
                                     ]
                                 )
                             )
@@ -1204,14 +1054,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
                             [
                                 chr(int.from_bytes(pair, "big"))
                                 for pair in zip(
-                                    *[
-                                        iter(
-                                            native_input.allowed_unsigned_attribute_prefix.encode(
-                                                "utf-16-be"
-                                            )
-                                        )
-                                    ]
-                                    * 2
+                                    *[iter(native_input.allowed_unsigned_attribute_prefix.encode("utf-16-be"))] * 2
                                 )
                             ]
                         )
@@ -1302,12 +1145,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(
         tableEncryptionConfigs=Map(
             {
                 Seq(
-                    "".join(
-                        [
-                            chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
-                        ]
-                    )
+                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
                     value
                 )

@@ -256,28 +256,27 @@ class EncryptedTable(EncryptedBotoInterface):
             dict: The transformed response from DynamoDB
 
         """
-        # Table inputs are formatted as Python dictionary JSON, but encryption transformers expect DynamoDB JSON.
-        # `input_resource_to_client_shape_transform_method` formats the supplied Python dictionary as DynamoDB JSON.
+        # EncryptedTable inputs are formatted as standard dictionaries, but DBESDK transformations expect DynamoDB JSON.
+        # Convert from standard dictionaries to DynamoDB JSON.
         input_transform_input = input_resource_to_client_shape_transform_method(operation_input)
 
-        # Apply encryption transformation to the user-supplied input
+        # Apply DBESDK transformation to the input
         input_transform_output = input_encryption_transform_method(
             input_encryption_transform_shape(sdk_input=input_transform_input)
         ).transformed_input
 
         # The encryption transformation result is formatted in DynamoDB JSON,
-        #   but the underlying boto3 table expects Python dictionary JSON.
-        # `input_client_to_resource_shape_transform_method` formats the transformation as Python dictionary JSON.
+        # but the underlying boto3 table expects standard dictionaries.
+        # Convert from DynamoDB JSON to standard dictionaries.
         sdk_input = input_client_to_resource_shape_transform_method(input_transform_output)
 
-        # Call boto3 Table method with Python-dictionary-JSON-formatted, encryption-transformed input,
-        #   and receive Python-dictionary-JSON-formatted boto3 output.
         sdk_output = table_method(**sdk_input)
 
-        # Format Python dictionary JSON-formatted SDK output as DynamoDB JSON for encryption transformer
+        # Table outputs are formatted as standard dictionaries, but DBESDK transformations expect DynamoDB JSON.
+        # Convert from standard dictionaries to DynamoDB JSON.
         output_transform_input = output_resource_to_client_shape_transform_method(sdk_output)
 
-        # Apply encryption transformer to boto3 output
+        # Apply DBESDK transformation to boto3 output
         output_transform_output = output_encryption_transform_method(
             output_encryption_transform_shape(
                 original_input=input_transform_input,
@@ -285,10 +284,12 @@ class EncryptedTable(EncryptedBotoInterface):
             )
         ).transformed_output
 
-        # Format DynamoDB JSON-formatted encryption transformation result as Python dictionary JSON
+        # EncryptedTable outputs are formatted as standard dictionaries,
+        # but DBESDK transformations provide DynamoDB JSON.
+        # Convert from DynamoDB JSON to standard dictionaries.
         dbesdk_response = output_client_to_resource_shape_transform_method(output_transform_output)
-        # Copy any missing fields from the SDK output to the response
-        #   (e.g. `ConsumedCapacity`)
+
+        # Copy any missing fields from the SDK output to the response (e.g. `ConsumedCapacity`)
         dbesdk_response = self._copy_sdk_response_to_dbesdk_response(sdk_output, dbesdk_response)
 
         return dbesdk_response

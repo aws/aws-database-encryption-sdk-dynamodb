@@ -1,57 +1,66 @@
-from ...requests import (
-    basic_put_item_request_ddb,
-    exhaustive_put_item_request_ddb,
-    basic_get_item_request_ddb,
-    exhaustive_get_item_request_ddb,
-    basic_query_request_ddb,
-    exhaustive_query_request_ddb,
-    basic_scan_request_ddb,
-    exhaustive_scan_request_ddb,
-    basic_batch_get_item_request_ddb,
-    basic_batch_write_item_put_request_ddb,
-    basic_batch_write_item_delete_request_ddb,
-    basic_transact_write_item_put_request_ddb,
-    basic_transact_write_item_delete_request_ddb,
-    basic_transact_write_item_condition_check_request_ddb,
-    basic_transact_get_item_request_ddb,
+import pytest
+
+from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
+from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
+
+from ...items import (
+    complex_item_ddb,
+    complex_item_dict,
+    complex_key_ddb,
+    complex_key_dict,
+    simple_item_ddb,
+    simple_item_dict,
+    simple_key_ddb,
+    simple_key_dict,
 )
 from ...requests import (
-    basic_put_item_request_dict,
-    exhaustive_put_item_request_dict,
-    basic_get_item_request_dict,
-    exhaustive_get_item_request_dict,
-    basic_query_request_dict,
-    exhaustive_query_request_dict,
-    basic_scan_request_dict,
-    exhaustive_scan_request_dict,
+    basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
-    basic_batch_write_item_put_request_dict,
+    basic_batch_write_item_delete_request_ddb,
     basic_batch_write_item_delete_request_dict,
-    basic_transact_write_item_put_request_dict,
-    basic_transact_write_item_delete_request_dict,
-    basic_transact_write_item_condition_check_request_dict,
+    basic_batch_write_item_put_request_ddb,
+    basic_batch_write_item_put_request_dict,
+    basic_get_item_request_ddb,
+    basic_get_item_request_dict,
+    basic_put_item_request_ddb,
+    basic_put_item_request_dict,
+    basic_query_request_ddb,
+    basic_query_request_dict,
+    basic_scan_request_ddb,
+    basic_scan_request_dict,
+    basic_transact_get_item_request_ddb,
     basic_transact_get_item_request_dict,
+    basic_transact_write_item_condition_check_request_ddb,
+    basic_transact_write_item_condition_check_request_dict,
+    basic_transact_write_item_delete_request_ddb,
+    basic_transact_write_item_delete_request_dict,
+    basic_transact_write_item_put_request_ddb,
+    basic_transact_write_item_put_request_dict,
+    exhaustive_get_item_request_ddb,
+    exhaustive_get_item_request_dict,
+    exhaustive_put_item_request_ddb,
+    exhaustive_put_item_request_dict,
+    exhaustive_query_request_ddb,
+    exhaustive_query_request_dict,
+    exhaustive_scan_request_ddb,
+    exhaustive_scan_request_dict,
 )
 from ...responses import (
+    basic_batch_get_item_response,
+    basic_batch_write_item_put_response,
+    basic_get_item_response,
+    basic_put_item_response,
     basic_query_response,
     basic_scan_response,
-    exhaustive_scan_response,
-    basic_put_item_response,
-    exhaustive_put_item_response,
-    basic_get_item_response,
-    exhaustive_get_item_response,
-    exhaustive_query_response,
-    basic_batch_get_item_response,
-    exhaustive_batch_get_item_response,
-    basic_batch_write_item_put_response,
-    exhaustive_batch_write_item_put_response,
-    basic_transact_write_items_response,
     basic_transact_get_items_response,
+    basic_transact_write_items_response,
+    exhaustive_batch_get_item_response,
+    exhaustive_batch_write_item_put_response,
+    exhaustive_get_item_response,
+    exhaustive_put_item_response,
+    exhaustive_query_response,
+    exhaustive_scan_response,
 )
-from ...items import *
-from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
-import pytest
-from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
 
 client_to_resource_converter = ClientShapeToResourceShapeConverter()
 
@@ -532,6 +541,7 @@ def test_GIVEN_test_transact_get_items_response_WHEN_client_to_resource_THEN_ret
     assert dict_item == test_transact_get_items_response([test_dict_item])
 
 
+# ruff: noqa: E501
 def test_GIVEN_request_with_neither_ExpressionAttributeValues_nor_ExpressionAttributeNames_WHEN_condition_handler_THEN_returns_identity_output():
     # Given: Request with neither ExpressionAttributeValues nor ExpressionAttributeNames
     request = exhaustive_put_item_request_ddb(simple_item_ddb)

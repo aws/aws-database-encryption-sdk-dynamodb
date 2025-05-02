@@ -1,69 +1,49 @@
-import pytest
 import boto3
-from decimal import Decimal
-from boto3.dynamodb.types import Binary
-import time
+import pytest
+from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
+
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
-    DynamoDbTablesEncryptionConfig,
-)
+
 from ...constants import (
-    INTEG_TEST_DEFAULT_TABLE_CONFIGS,
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-    INTEG_TEST_DEFAULT_ATTRIBUTE_ACTIONS_ON_ENCRYPT,
+    INTEG_TEST_DEFAULT_TABLE_CONFIGS,
 )
 from ...items import (
-    simple_item_ddb,
-    simple_item_dict,
     complex_item_ddb,
     complex_item_dict,
-    simple_key_ddb,
-    simple_key_dict,
     complex_key_ddb,
     complex_key_dict,
+    simple_item_ddb,
+    simple_item_dict,
+    simple_key_ddb,
+    simple_key_dict,
 )
-
-from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
+from ...requests import (
+    basic_batch_get_item_request_ddb,
+    basic_batch_get_item_request_dict,
+    basic_batch_write_item_delete_request_ddb,
+    basic_batch_write_item_delete_request_dict,
+    basic_batch_write_item_put_request_ddb,
+    basic_batch_write_item_put_request_dict,
+    basic_get_item_request_ddb,
+    basic_get_item_request_dict,
+    basic_put_item_request_ddb,
+    basic_put_item_request_dict,
+    basic_query_request_ddb,
+    basic_query_request_dict,
+    basic_scan_request_ddb,
+    basic_scan_request_dict,
+    basic_transact_get_item_request_ddb,
+    basic_transact_get_item_request_dict,
+    basic_transact_write_item_delete_request_ddb,
+    basic_transact_write_item_delete_request_dict,
+    basic_transact_write_item_put_request_ddb,
+    basic_transact_write_item_put_request_dict,
+)
 
 serializer = TypeSerializer()
 deserializer = TypeDeserializer()
-
-from ...requests import (
-    basic_put_item_request_ddb,
-    exhaustive_put_item_request_ddb,
-    basic_get_item_request_ddb,
-    exhaustive_get_item_request_ddb,
-    basic_query_request_ddb,
-    exhaustive_query_request_ddb,
-    basic_scan_request_ddb,
-    exhaustive_scan_request_ddb,
-    basic_batch_get_item_request_ddb,
-    basic_batch_write_item_put_request_ddb,
-    basic_batch_write_item_delete_request_ddb,
-    basic_transact_write_item_put_request_ddb,
-    basic_transact_write_item_delete_request_ddb,
-    basic_transact_write_item_condition_check_request_ddb,
-    basic_transact_get_item_request_ddb,
-)
-from ...requests import (
-    basic_put_item_request_dict,
-    exhaustive_put_item_request_dict,
-    basic_get_item_request_dict,
-    exhaustive_get_item_request_dict,
-    basic_query_request_dict,
-    exhaustive_query_request_dict,
-    basic_scan_request_dict,
-    exhaustive_scan_request_dict,
-    basic_batch_get_item_request_dict,
-    basic_batch_write_item_put_request_dict,
-    basic_batch_write_item_delete_request_dict,
-    basic_transact_write_item_put_request_dict,
-    basic_transact_write_item_delete_request_dict,
-    basic_transact_write_item_condition_check_request_dict,
-    basic_transact_get_item_request_dict,
-)
-from aws_dbesdk_dynamodb.transform import ddb_to_dict
 
 
 @pytest.fixture(params=[True, False], ids=["standard_dicts", "ddb_json"])
@@ -164,9 +144,11 @@ def get_item_request(expect_standard_dictionaries, test_item):
 
 
 def sort_dynamodb_json_lists(obj):
-    """Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
+    """
+    Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
     DynamoDB JSON uses lists to represent sets, so strict equality can fail.
-    Sort lists to ensure consistent ordering when comparing expected and actual items."""
+    Sort lists to ensure consistent ordering when comparing expected and actual items.
+    """
     if isinstance(obj, dict):
         return {k: sort_dynamodb_json_lists(v) for k, v in obj.items()}
     elif isinstance(obj, list):

@@ -1,3 +1,4 @@
+"""Test constants."""
 
 TEST_KEYSTORE_NAME = "KeyStoreDdbTable"
 TEST_LOGICAL_KEYSTORE_NAME = "KeyStoreDdbTable"

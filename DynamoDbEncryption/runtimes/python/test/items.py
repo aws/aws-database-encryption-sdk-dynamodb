@@ -1,4 +1,3 @@
-import pytest
 from decimal import Decimal
 
 simple_item_ddb = {

@@ -1,28 +1,25 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pytest
+from botocore.client import BaseClient
+from botocore.paginate import Paginator
 from mock import MagicMock
 
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
-    DynamoDbTablesEncryptionConfig,
-)
 from aws_dbesdk_dynamodb.encrypted.client import (
     EncryptedPaginator,
 )
-
-from botocore.client import BaseClient
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
+    DynamoDbTablesEncryptionConfig,
+)
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
+    QueryInputTransformInput,
+    QueryInputTransformOutput,
+)
 
 pytestmark = [pytest.mark.unit, pytest.mark.local]
 
 mock_boto3_dynamodb_client = MagicMock(__class__=BaseClient)
 mock_tables_encryption_config = MagicMock(__class__=DynamoDbTablesEncryptionConfig)
-
-from botocore.paginate import Paginator
-
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
-    QueryInputTransformOutput,
-    QueryInputTransformInput,
-)
 
 
 def test_GIVEN_paginator_not_query_nor_scan_WHEN_paginate_THEN_defers_to_underlying_paginator():

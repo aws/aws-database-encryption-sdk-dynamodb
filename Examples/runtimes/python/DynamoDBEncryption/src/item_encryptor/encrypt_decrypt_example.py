@@ -1,6 +1,5 @@
 """
-This example sets up an ItemEncryptor and uses
-its APIs to encrypt and decrypt items in 3 different formats.
+Set up an ItemEncryptor and use its APIs to encrypt and decrypt items in 3 different formats.
 
 You should use the ItemEncryptor
 if you already have an item to encrypt or decrypt,
@@ -21,8 +20,8 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 """
-from typing import Dict, Any
 
+from typing import Any, Dict
 
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
@@ -31,32 +30,28 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
+from aws_dbesdk_dynamodb.encrypted.item import (
+    DecryptItemInput,
+    DynamoDbItemEncryptorConfig,
+    EncryptItemInput,
+    ItemEncryptor,
+)
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
     CryptoAction,
 )
 
-from aws_dbesdk_dynamodb.encrypted.item import (
-    ItemEncryptor,
-    DynamoDbItemEncryptorConfig,
-    EncryptItemInput,
-    DecryptItemInput,
-)
 
 def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
+    """Encrypt and decrypt an item with an ItemEncryptor."""
     # 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     #    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     #    We will use the `CreateMrkMultiKeyring` method to create this keyring,
     #    as it will correctly handle both single region and Multi-Region KMS Keys.
-    mat_prov: AwsCryptographicMaterialProviders = AwsCryptographicMaterialProviders(
-        config=MaterialProvidersConfig()
+    mat_prov: AwsCryptographicMaterialProviders = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
+    kms_mrk_multi_keyring_input: CreateAwsKmsMrkMultiKeyringInput = CreateAwsKmsMrkMultiKeyringInput(
+        generator=kms_key_id,
     )
-    kms_mrk_multi_keyring_input: CreateAwsKmsMrkMultiKeyringInput =\
-        CreateAwsKmsMrkMultiKeyringInput(
-            generator=kms_key_id,
-        )
-    kms_mrk_multi_keyring: IKeyring = mat_prov.create_aws_kms_mrk_multi_keyring(
-        input=kms_mrk_multi_keyring_input
-    )
+    kms_mrk_multi_keyring: IKeyring = mat_prov.create_aws_kms_mrk_multi_keyring(input=kms_mrk_multi_keyring_input)
 
     # 2. Configure which attributes are encrypted and/or signed when writing new items.
     #    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -118,7 +113,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
         # This is also the default algorithm suite if one is not specified in this config.
         # For more information on supported algorithm suites, see:
         #   https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/supported-algorithms.html
-        algorithm_suite_id=DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
+        algorithm_suite_id=DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384,
     )
 
     # 5. Create the DynamoDb Item Encryptor
@@ -133,9 +128,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
         ":attribute3": "ignore me!",
     }
 
-    encrypt_output = item_encryptor.encrypt_python_item(
-        plaintext_dict_item
-    )
+    encrypt_output = item_encryptor.encrypt_python_item(plaintext_dict_item)
     encrypted_dict_item = encrypt_output.encrypted_item
 
     # Demonstrate that the item has been encrypted according to the configuration
@@ -151,9 +144,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert encrypted_dict_item["attribute1"] != plaintext_dict_item["attribute1"]
 
     # 7. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
-    decrypt_output = item_encryptor.decrypt_python_item(
-        encrypted_dict_item
-    )
+    decrypt_output = item_encryptor.decrypt_python_item(encrypted_dict_item)
     decrypted_dict_item = decrypt_output.plaintext_item
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
@@ -169,9 +160,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
         "attribute2": {"S": "sign me!"},
         ":attribute3": {"S": "ignore me!"},
     }
-    encrypt_output = item_encryptor.encrypt_dynamodb_item(
-        plaintext_dynamodb_item
-    )
+    encrypt_output = item_encryptor.encrypt_dynamodb_item(plaintext_dynamodb_item)
     encrypted_dynamodb_item = encrypt_output.encrypted_item
 
     # Demonstrate that the item has been encrypted according to the configuration
@@ -187,9 +176,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert encrypted_dynamodb_item["attribute1"] != plaintext_dynamodb_item["attribute1"]
 
     # 9. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
-    decrypt_output = item_encryptor.decrypt_dynamodb_item(
-        encrypted_dynamodb_item
-    )
+    decrypt_output = item_encryptor.decrypt_dynamodb_item(encrypted_dynamodb_item)
     decrypted_dynamodb_item = decrypt_output.plaintext_item
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
@@ -198,12 +185,8 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert decrypted_dynamodb_item["attribute1"] == {"S": "encrypt and sign me!"}
 
     # 10. Directly encrypt a DBESDK shape item using the ItemEncryptor
-    encrypt_item_input: EncryptItemInput = EncryptItemInput(
-        plaintext_item=plaintext_dynamodb_item
-    )
-    encrypt_item_output = item_encryptor.encrypt_item(
-        encrypt_item_input
-    )
+    encrypt_item_input: EncryptItemInput = EncryptItemInput(plaintext_item=plaintext_dynamodb_item)
+    encrypt_item_output = item_encryptor.encrypt_item(encrypt_item_input)
     encrypted_item = encrypt_item_output.encrypted_item
 
     # Demonstrate that the item has been encrypted according to the configuration
@@ -219,15 +202,11 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert encrypted_item["attribute1"] != plaintext_dynamodb_item["attribute1"]
 
     # 11. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
-    decrypt_item_input: DecryptItemInput = DecryptItemInput(
-        encrypted_item=encrypted_item
-    )
-    decrypt_output = item_encryptor.decrypt_item(
-        decrypt_item_input
-    )
+    decrypt_item_input: DecryptItemInput = DecryptItemInput(encrypted_item=encrypted_item)
+    decrypt_output = item_encryptor.decrypt_item(decrypt_item_input)
     decrypted_item = decrypt_output.plaintext_item
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
     assert decrypted_item["partition_key"] == {"S": "ItemEncryptDecryptExample"}
     assert decrypted_item["sort_key"] == {"N": "0"}
-    assert decrypted_item["attribute1"] == {"S": "encrypt and sign me!"} 
+    assert decrypted_item["attribute1"] == {"S": "encrypt and sign me!"}

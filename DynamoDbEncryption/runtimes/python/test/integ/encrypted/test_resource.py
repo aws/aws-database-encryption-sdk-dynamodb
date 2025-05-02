@@ -1,17 +1,15 @@
 import boto3
 import pytest
 
-from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, INTEG_TEST_DEFAULT_TABLE_CONFIGS
-
 from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedTablesCollectionManager
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 
-from ...items import simple_item_dict, complex_item_dict, simple_key_dict, complex_key_dict
-
+from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, INTEG_TEST_DEFAULT_TABLE_CONFIGS
+from ...items import complex_item_dict, complex_key_dict, simple_item_dict, simple_key_dict
 from ...requests import (
-    basic_batch_write_item_put_request_dict,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_dict,
+    basic_batch_write_item_put_request_dict,
 )
 
 

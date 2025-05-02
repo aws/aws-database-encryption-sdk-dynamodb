@@ -1,3 +1,5 @@
+"""Searchable encryption test constants."""
+
 # Our tests require access to DDB Tables with these name
 SIMPLE_BEACON_TEST_DDB_TABLE_NAME = "SimpleBeaconTestTable"
 UNIT_INSPECTION_TEST_DDB_TABLE_NAME = "UnitInspectionTestTable"

@@ -1,23 +1,17 @@
-import pytest
 import boto3
-from decimal import Decimal
-from boto3.dynamodb.types import Binary
+import pytest
+from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
-from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models import (
-    DynamoDbTablesEncryptionConfig,
-)
+
 from ...constants import (
-    INTEG_TEST_DEFAULT_TABLE_CONFIGS,
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-    INTEG_TEST_DEFAULT_ATTRIBUTE_ACTIONS_ON_ENCRYPT,
+    INTEG_TEST_DEFAULT_TABLE_CONFIGS,
 )
-from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
-from ...items import simple_item_ddb, simple_item_dict, complex_item_ddb, complex_item_dict
+from ...items import complex_item_dict, simple_item_dict
 from ...requests import (
-    basic_put_item_request_dict,
     basic_get_item_request_dict,
+    basic_put_item_request_dict,
     basic_query_request_dict,
     basic_scan_request_dict,
 )
@@ -48,8 +42,10 @@ def encrypted(request):
 
 @pytest.fixture
 def table(encrypted):
-    """Create a table client.
-    Use both to test that the same input can be provided to both boto3 and the EncryptedTable."""
+    """
+    Create a table client.
+    Use both to test that the same input can be provided to both boto3 and the EncryptedTable.
+    """
     if encrypted:
         return encrypted_table()
     else:

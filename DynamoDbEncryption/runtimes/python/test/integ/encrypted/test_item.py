@@ -1,15 +1,19 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+"""Integration tests for the ItemEncryptor."""
 import pytest
+
+from aws_dbesdk_dynamodb.encrypted.item import ItemEncryptor
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.models import (
     DecryptItemInput,
     EncryptItemInput,
 )
-from aws_dbesdk_dynamodb.encrypted.item import ItemEncryptor
+
 from ...constants import INTEG_TEST_DEFAULT_ITEM_ENCRYPTOR_CONFIG
-from ...items import simple_item_dict, complex_item_dict, simple_item_ddb, complex_item_ddb
+from ...items import complex_item_ddb, complex_item_dict, simple_item_ddb, simple_item_dict
 
 
+# Creates a matrix
 @pytest.fixture(params=[True, False], ids=["complex_item", "simple_item"])
 def use_complex_item(request):
     return request.param

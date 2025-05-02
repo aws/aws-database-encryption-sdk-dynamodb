@@ -10,10 +10,11 @@ which will execute the `internaldafny_test_executor.py` file in the `dafny` dire
 
 import sys
 
-internaldafny_dir = '/'.join(__file__.split("/")[:-1])
+internaldafny_dir = "/".join(__file__.split("/")[:-1])
 
 sys.path.append(internaldafny_dir + "/extern")
 sys.path.append(internaldafny_dir + "/generated")
 
+
 def test_dafny():
-  from .generated import __main__
+    from .generated import __main__

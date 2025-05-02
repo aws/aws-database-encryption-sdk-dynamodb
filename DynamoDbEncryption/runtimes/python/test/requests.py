@@ -1,8 +1,8 @@
 """Request constants for DynamoDB operations."""
 
-from .constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
-from .items import simple_item_ddb, simple_item_dict, complex_item_ddb, complex_item_dict
 from boto3.dynamodb.conditions import Attr, Key
+
+from .constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
 
 # Base request structures that are shared between DDB and dict formats
 
@@ -171,10 +171,12 @@ def basic_query_request_ddb(item):
 
 
 def exhaustive_query_request_ddb(item):
-    """Query request with all possible parameters.
+    """
+    Query request with all possible parameters.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format."""
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     base = basic_query_request_ddb(item)
     additional_keys = base_exhaustive_query_request(item)
     return {**base, **additional_keys}
