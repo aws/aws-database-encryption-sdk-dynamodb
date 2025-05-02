@@ -279,7 +279,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 transact_get_items API response.
-                
+
         """
         return self._client_operation_logic(
             operation_input=kwargs,
