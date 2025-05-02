@@ -70,8 +70,8 @@ jobs:
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
-      - name: Test DynamoDbEncryption Examples
-        working-directory: ./Examples/runtimes/python
+      - name: Run static analysis
+        working-directory: ./DynamoDbEncryption/runtimes/python
         run: |
           tox -e ruff
           tox -e black-check
