@@ -49,6 +49,7 @@ jobs:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Python-Tests
+          role-duration-seconds: 7200
 
       - uses: actions/checkout@v3
         with:
