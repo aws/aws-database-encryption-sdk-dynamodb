@@ -78,6 +78,7 @@ class EncryptedPaginator(EncryptedBotoInterface):
 
         Returns:
             Generator[dict, None, None]: A generator yielding pages as dictionaries.
+                The items in the pages will be decrypted locally after being read from DynamoDB.
 
         """
         if self._paginator._model.name == "Query":

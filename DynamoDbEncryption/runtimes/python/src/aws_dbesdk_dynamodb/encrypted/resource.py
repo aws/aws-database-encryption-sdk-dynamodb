@@ -194,6 +194,7 @@ class EncryptedResource(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 batch_get_item API response.
+                The "Responses" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._resource_operation_logic(
@@ -220,6 +221,8 @@ class EncryptedResource(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_write_item API parameters.
+                Any put operations in the "RequestItems" argument will be encrypted locally
+                before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 batch_write_item API response.

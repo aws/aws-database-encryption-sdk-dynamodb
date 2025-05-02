@@ -104,6 +104,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
+                The "Item" argument will be encrypted locally before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 put_item API response.
@@ -134,6 +135,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 get_item API response.
+                The "Item" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -161,6 +163,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 query API response.
+                The "Items" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -188,6 +191,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 scan API response.
+                The "Items" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -214,6 +218,8 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_write_item API parameters.
+                Any put operations in the "RequestItems" argument will be encrypted locally
+                before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 batch_write_item API response.
@@ -244,6 +250,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 batch_get_item API response.
+                The "Responses" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -272,7 +279,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 transact_get_items API response.
-
+                
         """
         return self._client_operation_logic(
             operation_input=kwargs,
@@ -298,7 +305,8 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 transact_write_items API
-                parameters.
+                parameters. Any put operations in the "TransactItems" argument will be encrypted locally
+                before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 transact_write_items API response.

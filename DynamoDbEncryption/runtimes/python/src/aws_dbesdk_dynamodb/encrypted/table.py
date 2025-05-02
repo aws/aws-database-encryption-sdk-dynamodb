@@ -84,6 +84,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
+                The "Item" field will be encrypted locally before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 put_item API response.
@@ -114,6 +115,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 get_item API response.
+                The "Item" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -141,6 +143,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 query API response.
+                The "Items" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -168,7 +171,8 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 scan API response.
-
+                The "Items" field will be decrypted locally after being read from DynamoDB.
+                
         """
         return self._table_operation_logic(
             operation_input=kwargs,
