@@ -5,7 +5,6 @@ package keyring
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"reflect"
 
@@ -14,6 +13,7 @@ import (
 	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	dbesdkstructuredencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/dbesdkmiddleware"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -45,22 +45,15 @@ import (
    - Sort key is named "sort_key" with type (S)
 */
 
-func RawAesExample(ddbTableName string) {
-	aesKeyBytes, err := generateAes256KeyBytes()
-	if err != nil {
-		panic(err)
-	}
+func RawAesExample(ddbTableName, keyNamespace, keyName string, aesKeyBytes []byte) {
+	// Initialize the mpl client
+	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
+	utils.HandleError(err)
+
 	// 1. Create the keyring.
 	//    The DynamoDb encryption client uses this to encrypt and decrypt items.
 
-	// Initialize the mpl client
-	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
-	if err != nil {
-		panic(err)
-	}
 	// Create the Raw Aes Keyring
-	var keyNamespace = "my-key-namespace"
-	var keyName = "my-aes-key-name"
 	rawAesKeyRingInput := mpltypes.CreateRawAesKeyringInput{
 		KeyName:      keyName,
 		KeyNamespace: keyNamespace,
@@ -68,9 +61,7 @@ func RawAesExample(ddbTableName string) {
 		WrappingAlg:  mpltypes.AesWrappingAlgAlgAes256GcmIv12Tag16,
 	}
 	rawAesKeyring, err := matProv.CreateRawAesKeyring(context.Background(), rawAesKeyRingInput)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// 2. Configure which attributes are encrypted and/or signed when writing new items.
 	//    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
 	//    we must explicitly configure how they should be treated during item encryption:
@@ -132,14 +123,10 @@ func RawAesExample(ddbTableName string) {
 
 	// Create DBESDK middleware
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(listOfTableConfigs)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// Create aws config
 	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	ddb := dynamodb.NewFromConfig(cfg, dbEsdkMiddleware.CreateMiddleware())
 
 	// 6. Put an item into our table using the above client.
@@ -155,9 +142,7 @@ func RawAesExample(ddbTableName string) {
 		Item:      item,
 	}
 	_, err = ddb.PutItem(context.TODO(), putInput)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// 7. Get the item back from our table using the same client.
 	//    The client will decrypt the item client-side, and return
 	//    back the original item.
@@ -176,22 +161,10 @@ func RawAesExample(ddbTableName string) {
 		ConsistentRead: aws.Bool(true),
 	}
 	result, err := ddb.GetItem(context.TODO(), getInput)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// Verify the decrypted item
 	if !reflect.DeepEqual(item, result.Item) {
 		panic("Decrypted item does not match original item")
 	}
 	fmt.Println("Raw Aes Example successful.")
-}
-
-func generateAes256KeyBytes() ([]byte, error) {
-	key := make([]byte, 32) // 256 bits = 32 bytes
-	// Use crypto/rand for cryptographically secure random numbers
-	_, err := rand.Read(key)
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
 }

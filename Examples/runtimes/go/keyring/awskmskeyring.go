@@ -13,6 +13,7 @@ import (
 	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	dbesdkstructuredencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/dbesdkmiddleware"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -40,27 +41,21 @@ func AwsKmsKeyringExample(kmsKeyID, ddbTableName string) {
 	//    We will use the `CreateMrkMultiKeyring` method to create this keyring,
 	//    as it will correctly handle both single region and Multi-Region KMS Keys.
 	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// Create KMS client
 	kmsClient := kms.NewFromConfig(cfg, func(o *kms.Options) {
 		o.Region = "us-west-2"
 	})
 	// Initialize the mpl client
 	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// Create the Aws Kms Keyring
 	awsKmsKeyringInput := mpltypes.CreateAwsKmsKeyringInput{
 		KmsClient: kmsClient,
 		KmsKeyId:  kmsKeyID,
 	}
 	keyring, err := matProv.CreateAwsKmsKeyring(context.Background(), awsKmsKeyringInput)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 
 	// 2. Configure which attributes are encrypted and/or signed when writing new items.
 	//    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -109,7 +104,7 @@ func AwsKmsKeyringExample(kmsKeyID, ddbTableName string) {
 	// 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
 	partitionKey := "partition_key"
 	sortKeyName := "sort_key"
-	algorithmSuiteId := mpltypes.DBEAlgorithmSuiteIdAlgAes256GcmHkdfSha512CommitKeyEcdsaP384SymsigHmacSha384
+	algorithmSuiteID := mpltypes.DBEAlgorithmSuiteIdAlgAes256GcmHkdfSha512CommitKeyEcdsaP384SymsigHmacSha384
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
 		LogicalTableName:               ddbTableName,
 		PartitionKeyName:               partitionKey,
@@ -117,7 +112,7 @@ func AwsKmsKeyringExample(kmsKeyID, ddbTableName string) {
 		AttributeActionsOnEncrypt:      attributeActions,
 		Keyring:                        keyring,
 		AllowedUnsignedAttributePrefix: &allowedUnsignedAttributePrefix,
-		AlgorithmSuiteId:               &algorithmSuiteId,
+		AlgorithmSuiteId:               &algorithmSuiteID,
 	}
 	tableConfigsMap := make(map[string]dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig)
 	tableConfigsMap[ddbTableName] = tableConfig
@@ -126,9 +121,7 @@ func AwsKmsKeyringExample(kmsKeyID, ddbTableName string) {
 	}
 	// 5. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(listOfTableConfigs)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	ddb := dynamodb.NewFromConfig(cfg, dbEsdkMiddleware.CreateMiddleware())
 
 	// 6. Put an item into our table using the above client.
@@ -146,9 +139,7 @@ func AwsKmsKeyringExample(kmsKeyID, ddbTableName string) {
 		Item:      item,
 	}
 	_, err = ddb.PutItem(context.TODO(), putInput)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 
 	// 7. Get the item back from our table using the same client.
 	//    The client will decrypt the item client-side, and return
@@ -168,9 +159,7 @@ func AwsKmsKeyringExample(kmsKeyID, ddbTableName string) {
 		ConsistentRead: aws.Bool(true),
 	}
 	result, err := ddb.GetItem(context.TODO(), getInput)
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleError(err)
 	// Verify the decrypted item
 	if !reflect.DeepEqual(item, result.Item) {
 		panic("Decrypted item does not match original item")
