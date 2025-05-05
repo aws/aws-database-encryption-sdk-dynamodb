@@ -12,4 +12,5 @@ func main() {
 	keyring.RawAesExample(utils.DdbTableName(), utils.KeyNamespace(), utils.KeyName(), utils.GenerateAes256KeyBytes())
 	itemencryptor.ItemEncryptDecryptExample(utils.KmsKeyID(), utils.DdbTableName())
 	misc.GetEncryptedDataKeyDescriptionExample(utils.KmsKeyID(), utils.DdbTableName())
+	misc.MultiPutGetExample(utils.KmsKeyID(), utils.DdbTableName())
 }
