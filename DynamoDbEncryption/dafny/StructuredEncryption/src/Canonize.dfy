@@ -11,6 +11,7 @@ module {:options "/functionSyntax:4" } Canonize {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened MemoryMath
   import Header = StructuredEncryptionHeader
   import Paths = StructuredEncryptionPaths
   import SortCanon
@@ -139,27 +140,28 @@ module {:options "/functionSyntax:4" } Canonize {
   opaque function {:tailrecursion} ResolveLegend(
     fields : CanonAuthList,
     legend : Header.Legend,
-    pos : nat := 0,
-    legendPos : nat := 0,
+    pos : uint64 := 0,
+    legendPos : uint64 := 0,
     acc : CanonCryptoList := []
   )
     : (ret : Result<CanonCryptoList, Error>)
-    requires 0 <= pos <= |fields|
-    requires 0 <= legendPos <= |legend|
-    requires pos == |acc|
+    requires 0 <= pos as nat <= |fields|
+    requires 0 <= legendPos as nat <= |legend|
+    requires pos as nat == |acc|
     requires forall i | 0 <= i < pos :: Same(fields[i], acc[i])
     ensures ret.Success? ==>
               && |fields| == |ret.value|
               && forall i | 0 <= i < |fields| :: Same(fields[i], ret.value[i])
-    decreases |fields| - pos
+    decreases |fields| - pos as nat
   {
-    if |fields| == pos then
-      :- Need(|legend| == legendPos, E("Schema changed : something that was signed is now unsigned."));
+    SequenceIsSafeBecauseItIsInMemory(fields);
+    if |fields| as uint64 == pos then
+      :- Need(|legend| as uint64 == legendPos, E("Schema changed : something that was signed is now unsigned."));
       Success(acc)
     else if fields[pos].action == DO_NOT_SIGN then
       ResolveLegend(fields, legend, pos+1, legendPos, acc + [MakeCryptoItem(fields[pos], DO_NOTHING)])
     else
-      :- Need(legendPos < |legend|, E("Schema changed : something that was unsigned is now signed."));
+      :- Need(legendPos < |legend| as uint64, E("Schema changed : something that was unsigned is now signed."));
       ResolveLegend(fields, legend, pos+1, legendPos+1, acc + [MakeCryptoItem(fields[pos], LegendToAction(legend[legendPos]))])
   }
 
@@ -625,15 +627,16 @@ module {:options "/functionSyntax:4" } Canonize {
     && x.action == y.action
   }
 
-  function {:tailrecursion} UnCanon(input : CanonCryptoList, pos : nat := 0, acc : CryptoList := []) : (ret : CryptoList)
-    requires 0 <= pos <= |input|
-    requires pos == |acc|
+  function {:tailrecursion} UnCanon(input : CanonCryptoList, pos : uint64 := 0, acc : CryptoList := []) : (ret : CryptoList)
+    requires 0 <= pos as nat <= |input|
+    requires pos as nat == |acc|
     requires forall i | 0 <= i < |acc| :: SameUnCanon(input[i], acc[i])
     ensures |ret| == |input|
     ensures forall i | 0 <= i < |input| :: SameUnCanon(input[i], ret[i])
-    decreases |input| - pos
+    decreases |input| - pos as nat
   {
-    if |input| == pos then
+    SequenceIsSafeBecauseItIsInMemory(input);
+    if |input| as uint64 == pos then
       acc
     else
       var newItem := CryptoItem(key := input[pos].origKey, data := input[pos].data, action := input[pos].action);
@@ -800,9 +803,9 @@ module {:options "/functionSyntax:4" } Canonize {
     && CryptoListHasNoDuplicates(finalData)
   }
 
-  opaque function {:tailrecursion} RemoveHeaderPaths(xs : CryptoList, pos : nat := 0, acc : CryptoList := []) : (ret : CryptoList)
+  opaque function {:tailrecursion} RemoveHeaderPaths(xs : CryptoList, pos : uint64 := 0, acc : CryptoList := []) : (ret : CryptoList)
     requires CryptoListHasNoDuplicates(xs)
-    requires 0 <= pos <= |xs|
+    requires 0 <= pos as nat <= |xs|
     requires !exists x :: x in acc && x.key in [HeaderPath, FooterPath]
     requires !exists x :: x in acc && x.key == HeaderPath
     requires !exists x :: x in acc && x.key == FooterPath
@@ -819,9 +822,10 @@ module {:options "/functionSyntax:4" } Canonize {
     ensures forall x <- xs :: (x.key in [HeaderPath, FooterPath] || x in ret)
     ensures CryptoListHasNoDuplicates(ret)
 
-    decreases |xs| - pos
+    decreases |xs| - pos as nat
   {
-    if |xs| == pos then
+    SequenceIsSafeBecauseItIsInMemory(xs);
+    if |xs| as uint64 == pos then
       acc
     else if xs[pos].key in [HeaderPath, FooterPath] then
       RemoveHeaderPaths(xs, pos+1, acc)

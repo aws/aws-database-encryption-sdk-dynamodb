@@ -36,7 +36,7 @@ module TermLoc {
     | Map(key : string)
 
   type Bytes = seq<uint8>
-  type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
+  type SelectorList = x : seq<Selector> | HasUint64Len(x)
 
   //= specification/searchable-encryption/virtual.md#terminal-location
   //= type=implication
@@ -45,7 +45,8 @@ module TermLoc {
   type TermLoc = x : seq<Selector> | ValidTermLoc(x) witness *
   predicate method ValidTermLoc(s : seq<Selector>)
   {
-    && 0 < |s| < UINT64_LIMIT
+    && 0 < |s|
+    && HasUint64Len(s)
     && s[0].Map?
   }
 
@@ -231,7 +232,7 @@ module TermLoc {
       Failure(E("List index must end with ]"))
     else
       var num :- GetNumber(s[1..|s|-1]);
-      :- Need(num < UINT64_LIMIT, E("Array selector exceeds maximum."));
+      :- Need(HasUint64Size(num), E("Array selector exceeds maximum."));
       Success(List(num as uint64))
   }
 
@@ -243,7 +244,7 @@ module TermLoc {
     var pos := FindStartOfNext(s[1..]);
     var end := if pos.None? then |s| else pos.value + 1;
     var sel : Selector :- GetSelector(s[..end]);
-    :- Need(|acc|+1 < UINT64_LIMIT, E("Selector Overflow"));
+    :- Need(HasUint64Size(|acc|+1), E("Selector Overflow"));
     if pos.None? then
       Success(acc + [sel])
     else
@@ -263,7 +264,7 @@ module TermLoc {
     else
       var name := s[..pos.value];
       var selectors :- GetSelectors(s[pos.value..]);
-      :- Need(|selectors|+1 < UINT64_LIMIT, E("Selector Overflow"));
+      :- Need(HasUint64Size(|selectors|+1), E("Selector Overflow"));
       Success([Map(name)] + selectors)
   }
 

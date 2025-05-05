@@ -13,6 +13,7 @@ include "Canonize.dfy"
 module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations {
   import opened StructuredEncryptionUtil
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import opened MemoryMath
 
   import Base64
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -128,22 +129,24 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
 
   // Return the sum of the sizes of the given fields
   function {:opaque}  SumValueSize(fields : CanonCryptoList)
-    : nat
+    : uint64
   {
     if |fields| == 0 then
       0
     else if fields[0].action == ENCRYPT_AND_SIGN then
-      |fields[0].data.value| + SumValueSize(fields[1..])
+      SequenceIsSafeBecauseItIsInMemory(fields[0].data.value);
+      Add(|fields[0].data.value| as uint64, SumValueSize(fields[1..]))
     else
       SumValueSize(fields[1..])
   } by method {
     reveal SumValueSize();
-    var sum : nat := 0;
+    var sum : uint64 := 0;
     for i := |fields| downto 0
       invariant sum == SumValueSize(fields[i..])
     {
       if fields[i].action == ENCRYPT_AND_SIGN {
-        sum := |fields[i].data.value| + sum;
+        SequenceIsSafeBecauseItIsInMemory(fields[i].data.value);
+        sum := Add(|fields[i].data.value| as uint64, sum);
       }
     }
     return sum;
@@ -269,19 +272,20 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     output := GetV2EncryptionContext2(contextAttrs);
   }
 
-  function {:opaque} Find(haystack : CryptoList, needle : Path, start : nat := 0) : (res : Result<nat, Error>)
-    requires start <= |haystack|
+  function {:opaque} Find(haystack : CryptoList, needle : Path, start : uint64 := 0) : (res : Result<uint64, Error>)
+    requires start as nat <= |haystack|
     requires forall i | 0 <= i < start :: haystack[i].key != needle
     ensures (exists x <- haystack :: x.key == needle) <==> res.Success?
     ensures (forall x <- haystack :: x.key != needle) <==> res.Failure?
     ensures (forall x <- haystack :: x.key != needle) <==> res == Failure(E("Not Found"))
     ensures res.Success? ==>
-              && 0 <= res.value < |haystack|
+              && 0 <= res.value as nat < |haystack|
               && haystack[res.value].key == needle
               && (forall i | 0 <= i < res.value :: haystack[i].key != needle)
-    decreases |haystack| - start
+    decreases |haystack| - start as nat
   {
-    if |haystack| == start then
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    if |haystack| as uint64 == start then
       Failure(E("Not Found"))
     else if haystack[start].key == needle then
       Success(start)
@@ -289,7 +293,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       Find(haystack, needle, start + 1)
   }
   by method {
-    for i := 0 to |haystack|
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    for i : uint64 := 0 to |haystack| as uint64
       invariant forall x <- haystack[..i] :: x.key != needle
     {
       if haystack[i].key == needle {
@@ -299,18 +304,19 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return Failure(E("Not Found"));
   }
 
-  function {:opaque} FindAuth(haystack : AuthList, needle : Path, start : nat := 0) : (res : Option<nat>)
-    requires start <= |haystack|
+  function {:opaque} FindAuth(haystack : AuthList, needle : Path, start : uint64 := 0) : (res : Option<uint64>)
+    requires start as nat <= |haystack|
     requires forall i | 0 <= i < start :: haystack[i].key != needle
     ensures (exists x <- haystack :: x.key == needle) <==> res.Some?
     ensures (forall x <- haystack :: x.key != needle) <==> res == None
     ensures res.Some? ==>
-              && 0 <= res.value < |haystack|
+              && 0 <= res.value as nat < |haystack|
               && haystack[res.value].key == needle
               && (forall i | 0 <= i < res.value :: haystack[i].key != needle)
-    decreases |haystack| - start
+    decreases |haystack| - start as nat
   {
-    if |haystack| == start then
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    if |haystack| as uint64 == start then
       None
     else if haystack[start].key == needle then
       Some(start)
@@ -318,7 +324,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       FindAuth(haystack, needle, start + 1)
   }
   by method {
-    for i := 0 to |haystack|
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    for i : uint64 := 0 to |haystack| as uint64
       invariant forall x <- haystack[..i] :: x.key != needle
     {
       if haystack[i].key == needle {
@@ -328,22 +335,23 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     return None;
   }
 
-  function {:opaque} CountEncrypted(list : CanonCryptoList) : nat
+  function {:opaque} CountEncrypted(list : CanonCryptoList) : uint64
   {
     if |list| == 0 then
       0
     else if list[0].action == ENCRYPT_AND_SIGN then
-      1 + CountEncrypted(list[1..])
+      Add(1, CountEncrypted(list[1..]))
     else
       CountEncrypted(list[1..])
   } by method {
     reveal CountEncrypted();
-    var result : nat := 0;
-    for i := |list| downto 0
+    SequenceIsSafeBecauseItIsInMemory(list);
+    var result : uint64 := 0;
+    for i : uint64 := |list| as uint64 downto 0
       invariant result == CountEncrypted(list[i..])
     {
       if list[i].action == ENCRYPT_AND_SIGN {
-        result := result + 1;
+        result := Add(result, 1);
       }
     }
     return result;
@@ -444,18 +452,18 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     cryptoSchema: CryptoSchemaMap,
-    pos : nat := 0,
+    pos : uint64 := 0,
     acc : CryptoList := []
   )
     : (ret : Result<CryptoList, Error>)
-    requires 0 <= pos <= |keys|
-    requires |acc| == pos
+    requires 0 <= pos as nat <= |keys|
+    requires |acc| == pos as nat
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in cryptoSchema
     requires forall k <- acc :: |k.key| == 1
     requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(keys[i])
     requires Seq.HasNoDuplicates(keys)
-    decreases |keys| - pos
+    decreases |keys| - pos as nat
 
     ensures ret.Success? ==>
               && (forall k <- ret.value :: |k.key| == 1)
@@ -463,7 +471,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     reveal Seq.HasNoDuplicates();
     Paths.StringToUniPathUnique();
-    if |keys| == pos then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == pos then
       Success(acc)
     else
       var key := keys[pos];
@@ -488,26 +497,27 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     authSchema: AuthenticateSchemaMap,
-    pos : nat := 0,
+    pos : uint64 := 0,
     acc : AuthList := []
   )
     : (ret : Result<AuthList, Error>)
-    requires 0 <= pos <= |keys|
-    requires |acc| == pos
+    requires 0 <= pos as nat <= |keys|
+    requires |acc| == pos as nat
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in authSchema
     requires forall k <- acc :: |k.key| == 1
     requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(keys[i])
     requires AuthListHasNoDuplicates(acc)
     requires Seq.HasNoDuplicates(keys)
-    decreases |keys| - pos
+    decreases |keys| - pos as nat
 
     ensures ret.Success? ==>
               && (forall k <- ret.value :: |k.key| == 1)
               && AuthListHasNoDuplicates(ret.value)
   {
     reveal Seq.HasNoDuplicates();
-    if |keys| == pos then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == pos then
       Success(acc)
     else
       var key := keys[pos];
@@ -528,20 +538,21 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     BuildAuthMap2(keys, plaintextStructure, authSchema)
   }
 
-  function method {:tailrecursion} UnBuildCryptoMap(list : CryptoList, pos : nat := 0, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
+  function method {:tailrecursion} UnBuildCryptoMap(list : CryptoList, pos : uint64 := 0, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
     (res : Result<(StructuredDataMap, CryptoSchemaMap), Error>)
-    requires 0 <= pos <= |list|
-    requires |dataSoFar| == pos
-    requires |actionsSoFar| <= pos
+    requires 0 <= pos as nat <= |list|
+    requires |dataSoFar| == pos as nat
+    requires |actionsSoFar| <= pos as nat
     requires forall k <- actionsSoFar :: k in dataSoFar
     requires (forall v :: v in actionsSoFar.Values ==> IsAuthAttr(v))
     requires forall k <- list :: |k.key| == 1
-    decreases |list| - pos
+    decreases |list| - pos as nat
     ensures res.Success? ==>
               && (forall k <- res.value.1 :: k in res.value.0)
               && (forall v :: v in res.value.1.Values ==> IsAuthAttr(v))
   {
-    if |list| == pos then
+    SequenceIsSafeBecauseItIsInMemory(list);
+    if |list| as uint64 == pos then
       Success((dataSoFar, actionsSoFar))
     else
       var key :- Paths.UniPathToString(list[pos].key);
@@ -811,8 +822,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       cmm,
       Some(encryptionContext),
       input.algorithmSuiteId,
-      CountEncrypted(canonData),
-      SumValueSize(canonData));
+      CountEncrypted(canonData) as nat,
+      SumValueSize(canonData) as nat);
 
     var key : Key := mat.plaintextDataKey.value;
     var alg := mat.algorithmSuite;
