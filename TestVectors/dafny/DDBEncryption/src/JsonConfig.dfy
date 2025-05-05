@@ -3,6 +3,7 @@
 
 include "JsonItem.dfy"
 include "CreateInterceptedDDBClient.dfy"
+include "CreateWrappedItemEncryptor.dfy"
 include "../../../../DynamoDbEncryption/dafny/DynamoDbItemEncryptor/src/Index.dfy"
 
 module {:options "-functionSyntax:4"} JsonConfig {
@@ -31,7 +32,14 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import ParseJsonManifests
   import CreateInterceptedDDBClient
   import DynamoDbItemEncryptor
+  import CreateWrappedItemEncryptor
+  import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
+
+  const abc : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x62, 0x63];
+    assert s == UTF8.EncodeAscii("abc");
+    s
 
   predicate IsValidInt32(x: int)  { -0x8000_0000 <= x < 0x8000_0000}
   type ConfigName = string
@@ -41,9 +49,14 @@ module {:options "-functionSyntax:4"} JsonConfig {
     item : DDB.AttributeMap
   )
 
+  datatype LargeRecord = LargeRecord (
+    name : string,
+    item : DDB.AttributeMap
+  )
+
   datatype TableConfig = TableConfig (
     name : ConfigName,
-    config : Types.DynamoDbTableEncryptionConfig,
+    config : AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig,
     vanilla : bool
   )
 
@@ -249,7 +262,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
   }
 
   method GetItemEncryptor(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
-    returns (encryptor : Result<DynamoDbItemEncryptor.DynamoDbItemEncryptorClient, string>)
+    returns (encryptor : Result<ENC.IDynamoDbItemEncryptorClient, string>)
     requires keys.ValidState()
     modifies keys.Modifies
     ensures keys.ValidState()
@@ -347,10 +360,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
         legacyOverride := legacyOverride,
         plaintextOverride := plaintextOverride
       );
-    var enc : ENC.IDynamoDbItemEncryptorClient :- expect DynamoDbItemEncryptor.DynamoDbItemEncryptor(encryptorConfig);
-    assert enc is DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    var encr := enc as DynamoDbItemEncryptor.DynamoDbItemEncryptorClient;
-    return Success(encr);
+    var enc : ENC.IDynamoDbItemEncryptorClient :- expect CreateWrappedItemEncryptor.CreateWrappedItemEncryptor(encryptorConfig);
+    return Success(enc);
   }
 
   method GetOneTableConfig(name : string, data : JSON, keys: KeyVectors.KeyVectorsClient)
@@ -502,7 +513,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     :- Need(|standardBeacons| > 0, "A Search Config needs at least one standard beacon.");
     var keyMaterial : KeyMaterial.KeyMaterial :=
-      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
+      KeyMaterial.StaticKeyStoreInformation("abc", abc, [1,2,3,4,5], [1,2,3,4,5]);
     var store := SKS.CreateStaticKeyStore(keyMaterial);
     var source : Types.BeaconKeySource :=
       if keySource.Some? then
@@ -527,7 +538,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     ensures output.Success? ==> output.value.ValidState() && fresh(output.value.Modifies())
   {
     var keyMaterial : KeyMaterial.KeyMaterial :=
-      KeyMaterial.StaticKeyStoreInformation("abc", UTF8.EncodeAscii("abc"), [1,2,3,4,5], [1,2,3,4,5]);
+      KeyMaterial.StaticKeyStoreInformation("abc", abc, [1,2,3,4,5], [1,2,3,4,5]);
     var store := SKS.CreateStaticKeyStore(keyMaterial);
     var source : Types.BeaconKeySource := Types.single(Types.SingleKeyStore(keyId := "foo", cacheTTL := 42));
 
@@ -1405,7 +1416,6 @@ module {:options "-functionSyntax:4"} JsonConfig {
     return Success(results);
   }
 
-
   method GetRecord(data : JSON) returns (output : Result<Record, string>)
   {
     var item :- JsonToDdbItem(data);
@@ -1419,4 +1429,36 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var num :- StrToNat(hash.N);
     return Success(Record(num, item));
   }
+
+  method GetLarge(name : string, data : JSON) returns (output : Result<LargeRecord, string>)
+  {
+    :- Need(data.Object?, "LargeRecord must be a JSON object.");
+    var item : DDB.AttributeMap := map[];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      match obj.0 {
+        case "Item" => var src :- JsonToDdbItem(obj.1); item := src;
+        case _ => return Failure("Unexpected part of a LargeRecord : '" + obj.0 + "'");
+      }
+    }
+    if (|item| == 0) {
+      return Failure("Missing or Empty LargeRecord : '" + name + "'");
+    }
+    var record := LargeRecord(name, item);
+    return Success(record);
+  }
+
+  method GetLarges(data : JSON) returns (output : Result<seq<LargeRecord>, string>)
+  {
+    :- Need(data.Object?, "Larges must be a JSON object.");
+    var results : seq<LargeRecord> := [];
+    for i := 0 to |data.obj| {
+      var obj := data.obj[i];
+      var record :- GetLarge(obj.0, obj.1);
+      results := results + [record];
+    }
+    return Success(results);
+  }
+
+
 }
