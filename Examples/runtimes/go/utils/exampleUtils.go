@@ -44,8 +44,8 @@ func AreMapsEqual(map1, map2 map[string]string) bool {
 }
 
 func HandleError(err error) {
-	// Error handling is limited to panic for simplicity.
-	// In production code, errors should be properly handled.
+	// Error handling is limited to panic for demonstration purposes only.
+	// In your code, errors should be properly handled.
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +53,8 @@ func HandleError(err error) {
 
 func GenerateAes256KeyBytes() []byte {
 	key := make([]byte, aesKeyBytes)
-	// Using crypto/rand for cryptographically secure random numbers for simplicity of examples.
+	// crypto/rand is used here for demonstration.
+	// In your code, you should implement a key generation strategy that meets your security needs.
 	_, err := rand.Read(key)
 	HandleError(err)
 	return key
