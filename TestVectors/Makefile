@@ -218,7 +218,7 @@ _polymorph_go: purge_polymorph_code
 # https://taskei.amazon.dev/tasks/CrypTool-5283
 purge_polymorph_code:
 	find .. -name "shim.go" | xargs sed -i $(SED_PARAMETER) 's/(_static \*CompanionStruct_Default___)//g'
-	rm -rf runtimes/go/*/aws*smithygenerated* \
+	rm -rf runtimes/go/*/*smithygenerated* \
 		runtimes/go/*/Wrapped*Service
 
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_PRIMITIVES=runtimes/rust/src/deps/aws_cryptography_primitives.rs
