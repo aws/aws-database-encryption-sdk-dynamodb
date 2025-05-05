@@ -192,11 +192,23 @@ INDEX_FILE_PATH=dafny/DDBEncryption/src/LibraryIndex.dfy
 INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.wrapped\"} WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
 INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
 
+ITEMENCRYPTOR_INDEX_FILE_PATH=dafny/WrappedDynamoDbItemEncryptor/src/Index.dfy
+ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.wrapped\" } WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {"
+ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {"
+
 _sed_types_file_remove_extern:
 	echo "no types file"
 
 _sed_types_file_add_extern:
 	echo "no types file"
+
+_sed_index_file_add_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(INDEX_FILE_PATH) SED_BEFORE_STRING=$(INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(INDEX_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING)
+
+_sed_index_file_remove_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(INDEX_FILE_PATH) SED_BEFORE_STRING=$(INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(INDEX_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING)
 
 _polymorph_go: purge_polymorph_code
 
@@ -206,12 +218,8 @@ _polymorph_go: purge_polymorph_code
 # https://taskei.amazon.dev/tasks/CrypTool-5283
 purge_polymorph_code:
 	find .. -name "shim.go" | xargs sed -i $(SED_PARAMETER) 's/(_static \*CompanionStruct_Default___)//g'
-	rm -rf runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
-		runtimes/go/ImplementationFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
-		runtimes/go/TestsFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService
+	rm -rf runtimes/go/*/*smithygenerated* \
+		runtimes/go/*/Wrapped*Service
 
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_PRIMITIVES=runtimes/rust/src/deps/aws_cryptography_primitives.rs
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_KEYSTORE=runtimes/rust/src/deps/aws_cryptography_keyStore.rs
