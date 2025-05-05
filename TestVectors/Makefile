@@ -218,12 +218,8 @@ _polymorph_go: purge_polymorph_code
 # https://taskei.amazon.dev/tasks/CrypTool-5283
 purge_polymorph_code:
 	find .. -name "shim.go" | xargs sed -i $(SED_PARAMETER) 's/(_static \*CompanionStruct_Default___)//g'
-	rm -rf runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
-		runtimes/go/ImplementationFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
-		runtimes/go/TestsFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService
+	rm -rf runtimes/go/*/aws*smithygenerated* \
+		runtimes/go/*/Wrapped*Service
 
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_PRIMITIVES=runtimes/rust/src/deps/aws_cryptography_primitives.rs
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_KEYSTORE=runtimes/rust/src/deps/aws_cryptography_keyStore.rs
@@ -246,3 +242,21 @@ _remove_wrapped_client_rust:
 	$(MAKE) _sed_file SED_FILE_PATH=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_DYNAMODB) SED_BEFORE_STRING=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_FROM_2) SED_AFTER_STRING=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_TO_2)
 	$(MAKE) _sed_file SED_FILE_PATH=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_DYNAMODB_STRUCTURED_ENCRYPTION) SED_BEFORE_STRING=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_FROM_1) SED_AFTER_STRING=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_TO_1)
 	$(MAKE) _sed_file SED_FILE_PATH=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_DYNAMODB_STRUCTURED_ENCRYPTION) SED_BEFORE_STRING=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_FROM_2) SED_AFTER_STRING=$(REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_TO_2)
+
+_polymorph_dependencies:
+	@echo "No polymorphing of dependency"
+
+_transpile_implementation_all:
+	@echo "No polymorphing of dependency"
+
+_transpile_test_all:
+	@echo "No polymorphing of dependency"
+
+_transpile_dependencies:
+	@echo "No polymorphing of dependency"
+
+_transpile_dependencies_test:
+	@echo "No polymorphing of dependency"
+
+mvn_local_deploy_dependencies:
+	@echo "No polymorphing of dependency"
