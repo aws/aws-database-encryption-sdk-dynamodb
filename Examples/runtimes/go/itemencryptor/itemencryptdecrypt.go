@@ -5,6 +5,7 @@ package itemencryptor
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	mpl "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygenerated"
@@ -142,24 +143,38 @@ func Itemencryptdecrypt(kmsKeyID, ddbTableName string) {
 	encryptItemOutput, err := itemEncryptorClient.EncryptItem(context.Background(), *encryptItemInput)
 	utils.HandleError(err)
 
-	// Check if partition_key is "ItemEncryptDecryptExample"
-	if partitionKeyAttr, ok := encryptItemOutput.EncryptedItem["partition_key"].(*types.AttributeValueMemberS); ok {
+	// Demonstrate that the item has been encrypted
+	encryptedItem := encryptItemOutput.EncryptedItem
+	// Check partition_key is still a string and equals "ItemEncryptDecryptExample"
+	if partitionKeyAttr, ok := encryptedItem["partition_key"].(*types.AttributeValueMemberS); ok {
 		if partitionKeyAttr.Value != "ItemEncryptDecryptExample" {
 			panic("Partition key is not 'ItemEncryptDecryptExample'")
 		}
 	} else {
-		// Handle the case where partition_key is not a string attribute
 		panic("Partition key is not a string attribute or doesn't exist")
 	}
-
-	decryptItemInput := &dbesdkitemencryptortypes.DecryptItemInput{
-		EncryptedItem: encryptItemOutput.EncryptedItem,
+	// Check sort_key is a string and equals "0"
+	if sortKeyAttr, ok := encryptedItem["sort_key"].(*types.AttributeValueMemberS); ok {
+		if sortKeyAttr.Value != "0" {
+			panic("Sort key is not '0'")
+		}
+	} else {
+		panic("Sort key is not a string attribute or doesn't exist")
+	}
+	// Check attribute1 is binary (encrypted) and not a string anymore
+	if _, ok := encryptedItem["attribute1"].(*types.AttributeValueMemberB); !ok {
+		panic("attribute1 is not binary. It might not be encrypted.")
 	}
 
+	// 7. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
+	decryptItemInput := &dbesdkitemencryptortypes.DecryptItemInput{
+		EncryptedItem: encryptedItem,
+	}
 	decryptedItem, err := itemEncryptorClient.DecryptItem(context.Background(), *decryptItemInput)
 	utils.HandleError(err)
 
 	if !reflect.DeepEqual(item, decryptedItem.PlaintextItem) {
 		panic("Decrypted item does not match original item")
 	}
+	fmt.Println("Item Encryptor example successful")
 }
