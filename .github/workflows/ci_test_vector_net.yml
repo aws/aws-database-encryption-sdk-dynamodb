@@ -28,12 +28,17 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
+            macos-13,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
+      - name: Setup Docker
+        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.0
+
       - name: Setup DynamoDB Local
         uses: rrainn/dynamodb-action@v4.0.0
         with:
@@ -89,7 +94,7 @@ jobs:
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net
         run: |
-          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json ../java/decrypt_rust_*.json .
+          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json ../java/decrypt_rust_*.json ../java/large_records.json .
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0

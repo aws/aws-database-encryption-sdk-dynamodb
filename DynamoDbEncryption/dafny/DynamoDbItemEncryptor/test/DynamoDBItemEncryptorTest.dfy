@@ -25,7 +25,10 @@ module DynamoDbItemEncryptorTest {
   // encrypt => encrypted fields changed, others did not
   // various errors
 
-  const PublicKeyUtf8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-public-key")
+  const PublicKeyUtf8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x2d, 0x6b, 0x65, 0x79];
+    assert s == UTF8.EncodeAscii("aws-crypto-public-key");
+    s
 
   function method DDBS(x : string) : DDB.AttributeValue {
     DDB.AttributeValue.S(x)
@@ -106,7 +109,6 @@ module DynamoDbItemEncryptorTest {
       "sign4" := DDB.AttributeValue.NULL(true),
       "nothing" := DDBS("baz")
     ];
-    var expectedOutputItem := inputItem["bar" := DDB.AttributeValue.N("1234")];
 
     var encryptRes := encryptor.EncryptItem(
       Types.EncryptItemInput(
@@ -119,7 +121,7 @@ module DynamoDbItemEncryptorTest {
     }
     expect encryptRes.Success?;
     expect encryptRes.value.encryptedItem.Keys == inputItem.Keys + {SE.HeaderField, SE.FooterField};
-    expect encryptRes.value.encryptedItem["bar"] == expectedOutputItem["bar"]; // because normalized
+    expect encryptRes.value.encryptedItem["bar"] == inputItem["bar"];
     expect encryptRes.value.encryptedItem["encrypt"] != inputItem["encrypt"];
     expect encryptRes.value.encryptedItem["sign"] == inputItem["sign"];
     expect encryptRes.value.encryptedItem["sign3"] == inputItem["sign3"];
@@ -139,11 +141,11 @@ module DynamoDbItemEncryptorTest {
       print "\n", decryptRes.error, "\n";
     }
     expect decryptRes.Success?;
-    if decryptRes.value.plaintextItem != expectedOutputItem {
-      print "\nexpectedOutputItem :\n", expectedOutputItem, "\n";
+    if decryptRes.value.plaintextItem != inputItem {
+      print "\ninputItem :\n", inputItem, "\n";
       print "\nOutput Item :\n", decryptRes.value.plaintextItem, "\n";
     }
-    expect decryptRes.value.plaintextItem == expectedOutputItem;
+    expect decryptRes.value.plaintextItem == inputItem;
 
     var parsedHeader := decryptRes.value.parsedHeader;
     expect parsedHeader.Some?;
@@ -602,10 +604,10 @@ module DynamoDbItemEncryptorTest {
     expect parsedHeader.value.selectorContext == map["bar" := DDB.AttributeValue.S("key")];
   }
 
-  method {:test} TestMaxRoundTrip() {
+  method {:test} TestLargeRoundTrip() {
     var inputItem : DDB.AttributeMap := map["bar" := DDBS("key")];
     var actions : DDBE.AttributeActions := map["bar" := CSE.SIGN_ONLY];
-    for i := 0 to (MAX_ATTRIBUTE_COUNT-1) {
+    for i := 0 to 500 {
       var str := String.Base10Int2String(i);
       expect DDB.IsValid_AttributeName(str);
       inputItem := inputItem[str := DDBS(str)];
@@ -645,27 +647,5 @@ module DynamoDbItemEncryptorTest {
     expect |parsedHeader.value.storedEncryptionContext| == 1;
     expect PublicKeyUtf8 in parsedHeader.value.storedEncryptionContext.Keys;
     expect |parsedHeader.value.encryptedDataKeys| == 1;
-  }
-
-  method {:test} TestTooManyAttributes() {
-    var inputItem : DDB.AttributeMap := map["bar" := DDBS("key")];
-    var actions : DDBE.AttributeActions := map["bar" := CSE.SIGN_ONLY];
-    for i := 0 to MAX_ATTRIBUTE_COUNT {
-      var str := String.Base10Int2String(i);
-      expect DDB.IsValid_AttributeName(str);
-      inputItem := inputItem[str := DDBS(str)];
-      actions := actions[str := CSE.ENCRYPT_AND_SIGN];
-    }
-    var config := TestFixtures.GetEncryptorConfigFromActions(actions);
-    var encryptor := TestFixtures.GetDynamoDbItemEncryptorFrom(config);
-
-    var encryptRes := encryptor.EncryptItem(
-      Types.EncryptItemInput(
-        plaintextItem:=inputItem
-      )
-    );
-
-    expect encryptRes.Failure?;
-    expect encryptRes.error == E("Item to encrypt had 101 attributes, but maximum allowed is 100");
   }
 }

@@ -4,6 +4,7 @@
 include "LibraryIndex.dfy"
 include "TestVectors.dfy"
 include "WriteSetPermutations.dfy"
+include "../../WrappedDynamoDbItemEncryptor/src/Index.dfy"
 
 module WrappedDDBEncryptionMain {
   import opened Wrappers
@@ -16,6 +17,7 @@ module WrappedDDBEncryptionMain {
   import opened JSONHelpers
   import KeyVectors
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
+  import WrappedItemEncryptor
 
   // TODO: Add extern for DEFAULT_KEYS
   const DEFAULT_KEYS : string := "../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
@@ -61,6 +63,7 @@ module WrappedDDBEncryptionMain {
     config :- expect AddJson(config, "data.json", keyVectors);
     config :- expect AddJson(config, "iotest.json", keyVectors);
     config :- expect AddJson(config, "PermTest.json", keyVectors);
+    config :- expect AddJson(config, "large_records.json", keyVectors);
     config.RunAllTests(keyVectors);
   }
 }
