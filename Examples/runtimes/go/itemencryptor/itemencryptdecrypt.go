@@ -38,7 +38,7 @@ primary key configuration:
 - Sort key is named "sort_key" with type (S)
 */
 
-func Itemencryptdecrypt(kmsKeyID, ddbTableName string) {
+func ItemEncryptDecryptExample(kmsKeyID, ddbTableName string) {
 	// 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
 	//    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
 	//    We will use the `CreateMrkMultiKeyring` method to create this keyring,
