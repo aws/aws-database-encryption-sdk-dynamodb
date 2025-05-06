@@ -10,6 +10,8 @@ import (
 func main() {
 	keyring.AwsKmsKeyringExample(utils.KmsKeyID(), utils.DdbTableName())
 	keyring.RawAesExample(utils.DdbTableName(), utils.KeyNamespace(), utils.KeyName(), utils.GenerateAes256KeyBytes())
+	publicKeyBlock, privateKeyBlock := utils.GenerateKeyPair()
+	keyring.RawRsaExample(utils.DdbTableName(), utils.KeyNamespace(), utils.KeyName(), publicKeyBlock, privateKeyBlock)
 	itemencryptor.ItemEncryptDecryptExample(utils.KmsKeyID(), utils.DdbTableName())
 	misc.GetEncryptedDataKeyDescriptionExample(utils.KmsKeyID(), utils.DdbTableName())
 	misc.MultiPutGetExample(utils.KmsKeyID(), utils.DdbTableName())
