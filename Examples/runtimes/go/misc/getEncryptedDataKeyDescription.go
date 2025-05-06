@@ -44,17 +44,21 @@ func GetEncryptedDataKeyDescriptionExample(kmsKeyID, ddbTableName string) {
 	}
 	returnedItem, err := ddb.GetItem(context.TODO(), getInput)
 	utils.HandleError(err)
-	// inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberitem{
-	// 	Value: returnedItem.Item,
+	inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberitem{
+		Value: returnedItem.Item,
+	}
+
+	// The code below shows how we can send header as the input to the DynamoDB. This code is written to demo the
+	// alternative approach. So, it is commented.
+	// headerAttribute := "aws_dbe_head"
+	// headerBytes, ok := returnedItem.Item[headerAttribute].(*types.AttributeValueMemberB)
+	// if !ok {
+	// 	panic("attribute1 is not binary. It might not be encrypted.")
 	// }
-	headerAttribute := "aws_dbe_head"
-	headerBytes, ok := returnedItem.Item[headerAttribute].(*types.AttributeValueMemberB)
-	if !ok {
-		panic("attribute1 is not binary. It might not be encrypted.")
-	}
-	inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberheader{
-		Value: headerBytes.Value,
-	}
+	// inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberheader{
+	// 	Value: headerBytes.Value,
+	// }
+
 	encryptedDataKeyDescriptionInput := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionInput{
 		Input: &inputUnion,
 	}
