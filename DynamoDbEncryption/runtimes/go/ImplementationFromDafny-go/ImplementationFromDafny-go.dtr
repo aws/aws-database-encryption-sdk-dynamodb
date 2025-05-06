@@ -1,0 +1,191 @@
+file_format_version = "1.0"
+dafny_version = "4.9.0.0"
+[options_by_module.AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.StructuredEncryptionUtil]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.Sets]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.StructuredEncryptionPaths]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.StructuredEncryptionHeader]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.StructuredEncryptionFooter]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.OptimizedMergeSort]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.SortCanon]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.Canonize]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.StructuredEncryptionCrypt]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.Maps]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.StructuredEncryption]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbTypes]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbEncryptionUtil]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbNormalizeNumber]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.MemoryMath]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoToStruct]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbItemEncryptorUtil]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.InternalLegacyOverride]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbItemEncryptor]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbService]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbEncryptionBranchKeyIdSupplier]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbEncryption]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.TermLoc]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DdbVirtualFields]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbUpdateExpr]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.BaseBeacon]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.CompoundBeacon]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.SearchableEncryptionInfo]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDBFilterExpr]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDBSupport]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.SearchConfigToInfo]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DdbMiddlewareConfig]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DdbStatement]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbMiddlewareSupport]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.PutItemTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.GetItemTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.UpdateItemTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.BatchWriteItemTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.TransactWriteItemsTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.BatchGetItemTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.ScanTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.QueryTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.TransactGetItemsTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DeleteItemTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.ExecuteStatementTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.BatchExecuteStatementTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.ExecuteTransactionTransform]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AttributeResolver]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false
+[options_by_module.DynamoDbEncryptionTransforms]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb"
+legacy-module-names = false

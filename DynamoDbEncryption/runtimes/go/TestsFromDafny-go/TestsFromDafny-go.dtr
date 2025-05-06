@@ -1,0 +1,98 @@
+file_format_version = "1.0"
+dafny_version = "4.9.0.0"
+[options_by_module.StructuredDataTestFixtures]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.HappyCaseTests]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.PathsTests]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestHeader]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestStructuredEncryptionCrypt]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.BeaconTestFixtures]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestFixtures]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.DynamoDbItemEncryptorTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.GetItemTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.DdbStatementTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.ExecuteTransactionTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.BatchWriteItemTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TransactGetItemsTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.BatchExecuteStatementTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.BatchGetItemTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.ScanTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.UpdateItemTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.ExecuteStatementTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TransactWriteItemsTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.PutItemTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.DeleteItemTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.QueryTransformTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestDynamoDBFilterExpr]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestBaseBeacon]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.DynamoToStructTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestUpdateExpr]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestDdbVirtualFields]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestDynamoDBConfigToInfo]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestDDBSupport]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.TestNormalizeNumber]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.DynamoDbEncryptionBranchKeyIdSupplierTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
+[options_by_module.DynamoDbGetEncryptedDataKeyDescriptionTest]
+go-module-name = "github.com/aws/aws-database-encryption-sdk-dynamodb/test"
+legacy-module-names = false
