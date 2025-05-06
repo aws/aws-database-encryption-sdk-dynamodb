@@ -21,8 +21,22 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+/*
+This example sets up DynamoDb Encryption for the AWS SDK client
+and uses the low level PutItem and GetItem DDB APIs to demonstrate
+putting a client-side encrypted item into DynamoDb
+and then retrieving and decrypting that item from DynamoDb.
+
+Running this example requires access to the DDB Table whose name
+is provided in CLI arguments.
+This table must be configured with the following
+primary key configuration:
+  - Partition key is named "partition_key" with type (S)
+  - Sort key is named "sort_key" with type (N)
+*/
 func MultiPutGetExample(kmsKeyID, ddbTableName string) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
+	utils.HandleError(err)
 	// Initialize the mpl client
 	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
 	utils.HandleError(err)
@@ -30,9 +44,9 @@ func MultiPutGetExample(kmsKeyID, ddbTableName string) {
 	//    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
 	//    We will use the `CreateAwsKmsMultiKeyring` method to create this keyring,
 	//    as it will correctly handle both single region and Multi-Region KMS Keys.
-	generatorKeyId := kmsKeyID
+	generatorKeyID := kmsKeyID
 	awsKmsMultiKeyringInput := mpltypes.CreateAwsKmsMultiKeyringInput{
-		Generator: &generatorKeyId,
+		Generator: &generatorKeyID,
 	}
 	keyring, err := matProv.CreateAwsKmsMultiKeyring(context.Background(), awsKmsMultiKeyringInput)
 	utils.HandleError(err)
@@ -92,7 +106,15 @@ func MultiPutGetExample(kmsKeyID, ddbTableName string) {
 		AttributeActionsOnEncrypt:      attributeActions,
 		Keyring:                        keyring,
 		AllowedUnsignedAttributePrefix: &allowedUnsignedAttributePrefix,
-		AlgorithmSuiteId:               &algorithmSuiteID,
+		// Specifying an algorithm suite is not required,
+		// but is done here to demonstrate how to do so.
+		// We suggest using the
+		// `ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384` suite,
+		// which includes AES-GCM with key derivation, signing, and key commitment.
+		// This is also the default algorithm suite if one is not specified in this config.
+		// For more information on supported algorithm suites, see:
+		//   https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/supported-algorithms.html
+		AlgorithmSuiteId: &algorithmSuiteID,
 	}
 	tableConfigsMap := make(map[string]dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig)
 	tableConfigsMap[ddbTableName] = tableConfig
@@ -108,7 +130,7 @@ func MultiPutGetExample(kmsKeyID, ddbTableName string) {
 	//    Before the item gets sent to DynamoDb, it will be encrypted
 	//    client-side, according to our configuration.
 	item := map[string]types.AttributeValue{
-		"partition_key": &types.AttributeValueMemberS{Value: "BasicPutGetExample"},
+		"partition_key": &types.AttributeValueMemberS{Value: "WriteItemExample"},
 		"sort_key":      &types.AttributeValueMemberN{Value: "0"},
 		"attribute1":    &types.AttributeValueMemberS{Value: "encrypt and sign me!"},
 		"attribute2":    &types.AttributeValueMemberS{Value: "sign me!"},
@@ -138,7 +160,7 @@ func MultiPutGetExample(kmsKeyID, ddbTableName string) {
 	//    The client will decrypt the item client-side, and return
 	//    back the original item.
 	key := map[string]types.AttributeValue{
-		"partition_key": &types.AttributeValueMemberS{Value: "BasicPutGetExample"},
+		"partition_key": &types.AttributeValueMemberS{Value: "WriteItemExample"},
 		"sort_key":      &types.AttributeValueMemberN{Value: "0"},
 	}
 	getInput := &dynamodb.GetItemInput{
