@@ -29,7 +29,7 @@ func GetEncryptedDataKeyDescriptionExample(kmsKeyID, ddbTableName string) {
 	// 2. Create a Amazon DynamoDB Client and retrieve item from DynamoDB table
 	ddb := dynamodb.NewFromConfig(cfg)
 
-	// 3. Get the item from the dynamoDB table and prepare input for the GetEncryptedDataKeyDescription method.
+	// 3. Extract the item from the dynamoDB table and prepare input for the GetEncryptedDataKeyDescription method.
 	// Here, we are sending dynamodb item but you can also input the header itself by extracting the header from
 	// "aws_dbe_head" attribute in the dynamoDB item. The part of the code where we send input as the header is commented.
 	getInput := &dynamodb.GetItemInput{
@@ -44,9 +44,16 @@ func GetEncryptedDataKeyDescriptionExample(kmsKeyID, ddbTableName string) {
 	}
 	returnedItem, err := ddb.GetItem(context.TODO(), getInput)
 	utils.HandleError(err)
-
-	inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberitem{
-		Value: returnedItem.Item,
+	// inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberitem{
+	// 	Value: returnedItem.Item,
+	// }
+	headerAttribute := "aws_dbe_head"
+	headerBytes, ok := returnedItem.Item[headerAttribute].(*types.AttributeValueMemberB)
+	if !ok {
+		panic("attribute1 is not binary. It might not be encrypted.")
+	}
+	inputUnion := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionUnionMemberheader{
+		Value: headerBytes.Value,
 	}
 	encryptedDataKeyDescriptionInput := dbesdkdynamodbencryptiontypes.GetEncryptedDataKeyDescriptionInput{
 		Input: &inputUnion,
