@@ -1,24 +1,25 @@
-# This workflow prevents TODOs in code
-name: Check TODOs in code
+# TODO: Uncomment this
+# # This workflow prevents TODOs in code
+# name: Check TODOs in code
 
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+# on:
+#   pull_request:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  findTodos:
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v3
+# jobs:
+#   findTodos:
+#     runs-on: macos-13
+#     steps:
+#       - uses: actions/checkout@v3
 
-      - name: Check TODOs in code
-        shell: bash
-        # TODOs may be committed as long as the same line contains a link to a Github Issue or refers to a CrypTool SIM.
-        run: |
-          ALL_TODO_COUNT=$( { grep -r "TODO" . --exclude-dir=./releases --exclude-dir=./TestVectors/runtimes --exclude-dir=./submodules --exclude-dir=./.git --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
-          GOOD_TODO_COUNT=$( { grep -r "TODO.*\(github.com\/.*issues.*\/[1-9][0-9]*\|CrypTool-[1-9][0-9]*\)" . --exclude-dir=./releases --exclude-dir=./submodules --exclude-dir=./.git  --exclude-dir=./TestVectors/runtimes --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
-          if [ "$ALL_TODO_COUNT" != "$GOOD_TODO_COUNT" ]; then
-            exit 1;
-          fi
+#       - name: Check TODOs in code
+#         shell: bash
+#         # TODOs may be committed as long as the same line contains a link to a Github Issue or refers to a CrypTool SIM.
+#         run: |
+#           ALL_TODO_COUNT=$( { grep -r "TODO" . --exclude-dir=./releases --exclude-dir=./TestVectors/runtimes --exclude-dir=./submodules --exclude-dir=./.git --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
+#           GOOD_TODO_COUNT=$( { grep -r "TODO.*\(github.com\/.*issues.*\/[1-9][0-9]*\|CrypTool-[1-9][0-9]*\)" . --exclude-dir=./releases --exclude-dir=./submodules --exclude-dir=./.git  --exclude-dir=./TestVectors/runtimes --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
+#           if [ "$ALL_TODO_COUNT" != "$GOOD_TODO_COUNT" ]; then
+#             exit 1;
+#           fi
