@@ -596,7 +596,7 @@ module DynamoToStruct {
     ensures ret.Success? ==> |ret.value| == LENGTH_LEN
     ensures ret == U32ToBigEndian(x as nat)
   {
-    if x > 0xffff_ffff then
+    if !HasUint32Size(x) then
       Failure("Length was too big")
     else
       Success(UInt32ToSeq(x as uint32))

@@ -32,39 +32,12 @@ module TermLoc {
   import Seq
   import DynamoToStruct
 
-  // function method {:tailrecursion} CountEven(x : seq<uint8>, pos : nat) : nat
-  //   requires pos <= |x|
-  //   decreases |x| - pos
-  // {
-  //   if pos == |x| then
-  //     0
-  //   else if x[0] % 2 == 0 then
-  //     1 + CountEven(x, pos+1)
-  //   else
-  //     CountEven(x, pos+1)
-  // }
-
-  function method {:tailrecursion} CountEven(x : seq<uint8>, pos : uint64 := 0) : (ret : uint64)
-    requires pos as nat <= |x|
-    ensures ret as nat <= |x| - pos as nat
-    decreases |x| - pos as nat
-  {
-    SequenceIsSafeBecauseItIsInMemory(x);
-    if pos == |x| as uint64 then
-      0
-    else if x[0] % 2 == 0 then
-      1 + CountEven(x, pos+1)
-    else
-      CountEven(x, pos+1)
-  }
-
   datatype Selector =
     | List(pos : uint64)
     | Map(key : string)
 
   type Bytes = seq<uint8>
-  type SelectorList = x : seq<Selector> | HasUint64Len(x)
-
+  type SelectorList = seq<Selector>
   //= specification/searchable-encryption/virtual.md#terminal-location
   //= type=implication
   //# A Terminal Location specification MUST be a list of one more [Segments](#segments),
@@ -73,7 +46,6 @@ module TermLoc {
   predicate method ValidTermLoc(s : seq<Selector>)
   {
     && 0 < |s|
-    && HasUint64Len(s)
     && s[0].Map?
   }
 
@@ -265,8 +237,9 @@ module TermLoc {
     if s[|s|-1] != ']' then
       Failure(E("List index must end with ]"))
     else
-      var num : uint64 :- GetNumber(s[1..|s|-1]);
-      Success(List(num))
+      var num :- GetNumber(s[1..|s|-1]);
+      :- Need(num < UINT64_LIMIT, E("Array selector exceeds maximum."));
+      Success(List(num as uint64))
   }
 
   // convert string to SelectorList

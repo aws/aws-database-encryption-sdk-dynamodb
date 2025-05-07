@@ -824,8 +824,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       cmm,
       Some(encryptionContext),
       input.algorithmSuiteId,
-      CountEncrypted(canonData),
-      SumValueSize(canonData));
+      CountEncrypted(canonData) as nat,
+      SumValueSize(canonData) as nat);
 
     var key : Key := mat.plaintextDataKey.value;
     var alg := mat.algorithmSuite;

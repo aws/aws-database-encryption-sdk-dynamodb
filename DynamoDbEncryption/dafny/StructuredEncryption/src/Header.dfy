@@ -14,7 +14,6 @@ module StructuredEncryptionHeader {
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
   import opened StandardLibrary.MemoryMath
-
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
   import SortedSets
@@ -617,6 +616,7 @@ module StructuredEncryptionHeader {
       Success(deserialized)
     else
       :- Need(|deserialized.0| as uint64 + 1  < UINT16_LIMIT as uint64, E("Too much context"));
+
       var kv :- GetOneKVPair(data, deserialized.1 as uint64);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
