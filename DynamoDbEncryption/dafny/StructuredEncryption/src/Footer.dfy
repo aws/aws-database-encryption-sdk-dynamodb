@@ -159,8 +159,8 @@ module StructuredEncryptionFooter {
   function method GetCanonicalType(value : StructuredDataTerminal, isEncrypted : bool)
     : Result<Bytes, Error>
   {
-      SequenceIsSafeBecauseItIsInMemory(value.value);
-      var value_len : uint64 := |value.value| as uint64;
+    SequenceIsSafeBecauseItIsInMemory(value.value);
+    var value_len : uint64 := |value.value| as uint64;
     if isEncrypted then
       :- Need(2 <= value_len, E("Bad length."));
       Success(UInt64ToSeq((value_len - 2) as uint64) + ENCRYPTED)

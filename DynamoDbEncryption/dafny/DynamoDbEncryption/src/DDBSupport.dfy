@@ -266,7 +266,7 @@ module DynamoDBSupport {
         req.FilterExpression,
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
-        SequenceIsSafeBecauseItIsInMemory(newItems);
+      SequenceIsSafeBecauseItIsInMemory(newItems);
       :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
@@ -336,7 +336,7 @@ module DynamoDBSupport {
         req.FilterExpression,
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
-        SequenceIsSafeBecauseItIsInMemory(newItems);
+      SequenceIsSafeBecauseItIsInMemory(newItems);
       :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=

@@ -824,8 +824,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       cmm,
       Some(encryptionContext),
       input.algorithmSuiteId,
-      CountEncrypted(canonData) as nat,
-      SumValueSize(canonData) as nat);
+      CountEncrypted(canonData),
+      SumValueSize(canonData));
 
     var key : Key := mat.plaintextDataKey.value;
     var alg := mat.algorithmSuite;
@@ -854,7 +854,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     var headerAttribute := ValueToData(headerSerialized, BYTES_TYPE_ID);
 
     SequenceIsSafeBecauseItIsInMemory(canonData);
-    :- Need(|canonData| as uint64 < Crypt.ONE_THIRD_MAX_INT32 as uint64, E("Too many encrypted fields"));
+    :- Need(|canonData| as uint64 < Crypt.ONE_THIRD_MAX_INT as uint64, E("Too many encrypted fields"));
     // input canonData has all input fields, none encrypted
     // output canonData has all input fields, some encrypted
     var encryptedItems : CanonCryptoList :- Crypt.Encrypt(config.primitives, alg, key, head, canonData, input.tableName, input.plaintextStructure);

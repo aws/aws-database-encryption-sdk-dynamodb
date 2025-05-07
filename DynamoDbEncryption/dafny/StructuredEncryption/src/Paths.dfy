@@ -58,22 +58,22 @@ module StructuredEncryptionPaths {
     requires ValidPath(path)
 
     ensures  HasUint64Len(path) && ret ==
-            //= specification/structured-encryption/header.md#canonical-path
-            //= type=implication
-            //# The canonical path MUST start with the UTF8 encoded table name.
-            UTF8.Encode(table).value
-            //= specification/structured-encryption/header.md#canonical-path
-            //= type=implication
-            //# This MUST be followed by the depth of the Terminal within Structured Data.
-            + UInt64ToSeq(|path| as uint64)
-            //= specification/structured-encryption/header.md#canonical-path
-            //= type=implication
-            //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
-            + MakeCanonicalPath(path)
+                                   //= specification/structured-encryption/header.md#canonical-path
+                                   //= type=implication
+                                   //# The canonical path MUST start with the UTF8 encoded table name.
+                                   UTF8.Encode(table).value
+                                   //= specification/structured-encryption/header.md#canonical-path
+                                   //= type=implication
+                                   //# This MUST be followed by the depth of the Terminal within Structured Data.
+                                   + UInt64ToSeq(|path| as uint64)
+                                   //= specification/structured-encryption/header.md#canonical-path
+                                   //= type=implication
+                                   //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
+                                   + MakeCanonicalPath(path)
   {
     SequenceIsSafeBecauseItIsInMemory(path);
     var tableName := UTF8.Encode(table).value;
-    var depth := UInt64ToSeq(|path| as uint64);  
+    var depth := UInt64ToSeq(|path| as uint64);
     var path := MakeCanonicalPath(path);
     tableName + depth + path
   }

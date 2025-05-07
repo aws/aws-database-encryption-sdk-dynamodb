@@ -30,9 +30,8 @@ module StructuredEncryptionCrypt {
     // import Relations
   import opened Canonize
 
-  const ONE_THIRD_MAX_INT := 1431655765
-  const ONE_THIRD_MAX_INT32 : uint32 := ONE_THIRD_MAX_INT as uint32
-  
+  const ONE_THIRD_MAX_INT : uint32 := 1431655765
+
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
@@ -42,13 +41,13 @@ module StructuredEncryptionCrypt {
               //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
               //# of the aes256ctr_stream
               //# of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
-              && offset < ONE_THIRD_MAX_INT32
+              && offset < ONE_THIRD_MAX_INT
               && |ret.value| == KeySize+NonceSize
               && |ret.value| == 44
               && AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).Success?
               && ret.value == AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).value
   {
-    :- Need(offset < ONE_THIRD_MAX_INT32, E("Too many encrypted fields."));
+    :- Need(offset < ONE_THIRD_MAX_INT, E("Too many encrypted fields."));
     var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize64+NonceSize64) as uint32);
     keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
@@ -399,10 +398,11 @@ module StructuredEncryptionCrypt {
   {
     var result : CanonCryptoList := [];
     var pos : uint32 := 0;
-    :- Need(|data| < UINT32_LIMIT, E("Too many fields."));
-    for i := 0 to |data|
+    SequenceIsSafeBecauseItIsInMemory(data);
+    :- Need(|data| as uint64 < UINT32_LIMIT as uint64, E("Too many fields."));
+    for i : uint64 := 0 to |data| as uint64
       invariant pos <= (i as uint32)
-      invariant |result| == i
+      invariant |result| == i as nat
       invariant forall x | 0 <= x < |result| :: Updated(data[x], result[x], mode)
     {
       if data[i].action == ENCRYPT_AND_SIGN {
