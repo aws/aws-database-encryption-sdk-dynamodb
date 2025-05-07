@@ -7,93 +7,91 @@ on:
   push:
     branches:
       - Golang/reviewed
-  schedule:
-    - cron: "00 16 * * 1-5"
 
 jobs:
   getVersion:
     uses: ./.github/workflows/dafny_version.yml
   getVerifyVersion:
     uses: ./.github/workflows/dafny_verify_version.yml
-  # pr-ci-format:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/library_format.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-codegen:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_codegen.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-verification:
-  #   needs: getVerifyVersion
-  #   uses: ./.github/workflows/library_dafny_verification.yml
-  #   with:
-  #     dafny: ${{needs.getVerifyVersion.outputs.version}}
-  # pr-ci-test-vector-verification:
-  #   needs: getVerifyVersion
-  #   uses: ./.github/workflows/test_vector_verification.yml
-  #   with:
-  #     dafny: ${{needs.getVerifyVersion.outputs.version}}
-  # pr-ci-java:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_test_java.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-java-test-vectors:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_test_vector_java.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-java-examples:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_examples_java.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-net:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_test_net.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-rust:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/library_rust_tests.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-format:
+    needs: getVersion
+    uses: ./.github/workflows/library_format.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-codegen:
+    needs: getVersion
+    uses: ./.github/workflows/ci_codegen.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-verification:
+    needs: getVerifyVersion
+    uses: ./.github/workflows/library_dafny_verification.yml
+    with:
+      dafny: ${{needs.getVerifyVersion.outputs.version}}
+  pr-ci-test-vector-verification:
+    needs: getVerifyVersion
+    uses: ./.github/workflows/test_vector_verification.yml
+    with:
+      dafny: ${{needs.getVerifyVersion.outputs.version}}
+  pr-ci-java:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-java-test-vectors:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_vector_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-java-examples:
+    needs: getVersion
+    uses: ./.github/workflows/ci_examples_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-net:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-rust:
+    needs: getVersion
+    uses: ./.github/workflows/library_rust_tests.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
   pr-ci-go:
     needs: getVersion
     uses: ./.github/workflows/ci_test_go.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-net-test-vectors:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_test_vector_net.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-net-examples:
-  #   needs: getVersion
-  #   uses: ./.github/workflows/ci_examples_net.yml
-  #   with:
-  #     dafny: ${{needs.getVersion.outputs.version}}
-  # pr-ci-all-required:
-  #   if: always()
-  #   needs:
-  #     - getVersion
-  #     - getVerifyVersion
-  #     - pr-ci-format
-  #     - pr-ci-codegen
-  #     - pr-ci-verification
-  #     - pr-ci-test-vector-verification
-  #     - pr-ci-java
-  #     - pr-ci-java-test-vectors
-  #     - pr-ci-java-examples
-  #     - pr-ci-net
-  #     - pr-ci-rust
-  #     - pr-ci-net-test-vectors
-  #     - pr-ci-net-examples
-    # runs-on: ubuntu-22.04
-    # steps:
-    #   - name: Verify all required jobs passed
-    #     uses: re-actors/alls-green@release/v1
-    #     with:
-    #       jobs: ${{ toJSON(needs) }}
+  pr-ci-net-test-vectors:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_vector_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-net-examples:
+    needs: getVersion
+    uses: ./.github/workflows/ci_examples_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-all-required:
+    if: always()
+    needs:
+      - getVersion
+      - getVerifyVersion
+      - pr-ci-format
+      - pr-ci-codegen
+      - pr-ci-verification
+      - pr-ci-test-vector-verification
+      - pr-ci-java
+      - pr-ci-java-test-vectors
+      - pr-ci-java-examples
+      - pr-ci-net
+      - pr-ci-rust
+      - pr-ci-net-test-vectors
+      - pr-ci-net-examples
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Verify all required jobs passed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
