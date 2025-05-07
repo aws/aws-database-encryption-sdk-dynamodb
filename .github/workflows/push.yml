@@ -1,11 +1,10 @@
 # This workflow runs for every push to main
-# TODO: CI for Go
 name: Push CI
 
 on:
   push:
     branches:
-      - Golang/reviewed
+      - main
 
 jobs:
   getVersion:

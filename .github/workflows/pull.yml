@@ -1,12 +1,8 @@
 # This workflow runs for every pull request
-# TODO: CI for Go
 name: PR CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - Golang/reviewed
 
 jobs:
   getVersion:
