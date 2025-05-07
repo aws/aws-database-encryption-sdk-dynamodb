@@ -736,6 +736,12 @@ module StructuredEncryptionHeader {
     var cipher := data[pos+part2Size+2..pos+part3Size];
 
     var edk : CMPEncryptedDataKey := CMP.EncryptedDataKey(keyProviderId := provId, keyProviderInfo := provInfo, ciphertext := cipher);
+
+    assert provIdSize as nat == |edk.keyProviderId|;
+    assert data[pos..pos+2] == UInt16ToSeq(provIdSize as uint16);
+    assert data[pos+2..pos+2+provIdSize] == edk.keyProviderId;
+    assert provInfoSize as nat == |edk.keyProviderInfo|;
+    assert data[pos+part1Size..pos+part1Size+2] == UInt16ToSeq(provInfoSize as uint16);
     assert SerializeOneDataKey(edk) == data[pos..pos + part3Size];
     Success((edk, part3Size))
   }
