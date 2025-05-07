@@ -25,6 +25,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import StandardLibrary.String
   import StructuredEncryptionHeader
+  import opened StandardLibrary.MemoryMath
 
   datatype Config = Config(
     nameonly version : StructuredEncryptionHeader.Version,
@@ -187,9 +188,9 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     //# If the Version Number is not 1 or 2, the operation MUST return an error.
     ensures ((header[0] != 1) && (header[0] != 2)) ==> ret.Failure?
   {
-    if header[0] == 2 then
+    if header[0 as uint32] == 2 then
       MakeEncryptionContextV2(config, item)
-    else if header[0] == 1 then
+    else if header[0 as uint32] == 1 then
       MakeEncryptionContextV1(config, item)
     else
       Failure(E("Header attribute has unexpected version number"))
@@ -654,7 +655,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
   {
     // We happen to order these values, but this ordering MUST NOT be relied upon.
     var keys := SortedSets.ComputeSetToOrderedSequence2(item.Keys, CharLess);
-    if |keys| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == 0 then
       "item is empty"
     else
       Join(keys, " ")
@@ -693,10 +695,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
                  && actions[k] == CSE.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT
                  && k !in item;
     var missing := SortedSets.ComputeSetToOrderedSequence2(s, CharLess);
-    if |missing| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(missing);
+    if |missing| as uint64 == 0 then
       "No missing SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT attributes."
-    else if |missing| == 1 then
-      "Attribute " + missing[0] + " was configured with SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT but was not present in item to be encrypted."
+    else if |missing| as uint64 == 1 then
+      "Attribute " + missing[0 as uint32] + " was configured with SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT but was not present in item to be encrypted."
     else
       "These attributes were configured with SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT but were not present in item to be encrypted."
       + Join(missing, ",")
@@ -1076,7 +1079,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
     var header := input.encryptedItem[SE.HeaderField];
     :- Need(header.B?, E("Header field, \"aws_dbe_head\", not binary"));
     assert header.B?;
-    :- Need(0 < |header.B|, E("Unexpected empty header field."));
+    SequenceIsSafeBecauseItIsInMemory(header.B);
+    :- Need(0 < |header.B| as uint64, E("Unexpected empty header field."));
     var context :- MakeEncryptionContextForDecrypt(config, header.B, encryptedStructure);
     var authenticateSchema := ConfigToAuthenticateSchema(config, encryptedStructure);
 

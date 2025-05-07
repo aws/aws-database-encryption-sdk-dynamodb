@@ -16,6 +16,7 @@ module DynamoDbMiddlewareSupport {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import opened BS = DynamoDBSupport
   import opened DdbMiddlewareConfig
   import AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
@@ -26,21 +27,23 @@ module DynamoDbMiddlewareSupport {
 
   predicate method NoMap<X,Y>(m : Option<map<X,Y>>)
   {
-    m.None? || |m.value| == 0
+    OptionalMapIsSafeBecauseItIsInMemory(m);
+    m.None? || |m.value| as uint64 == 0
   }
 
   predicate method NoList<X>(m : Option<seq<X>>)
   {
-    m.None? || |m.value| == 0
+    OptionalSequenceIsSafeBecauseItIsInMemory(m);
+    m.None? || |m.value| as uint64 == 0
   }
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // Generally this means that no attribute names starts with "aws_dbe_"
-  function method {:opaque} IsWriteable(config : ValidTableConfig, item : DDB.AttributeMap)
-    : Result<bool, Error>
+  method {:opaque} IsWriteable(config : ValidTableConfig, item : DDB.AttributeMap)
+    returns (ret : Result<bool, Error>)
   {
-    BS.IsWriteable(item)
-    .MapFailure(e => E(e))
+    var is_writable := BS.IsWriteable(item);
+    return is_writable.MapFailure(e => E(e));
   }
 
   // IsSigned returned whether this attribute is signed according to this config
@@ -160,9 +163,10 @@ module DynamoDbMiddlewareSupport {
       //# then `beacon key id` MUST be obtained from [Get beacon key id from parsed header](#get-beacon-key-id-from-parsed-header).
       :- Need(output.parsedHeader.Some?, E("In multi-tenant mode, the parsed header is required."));
       var keys := output.parsedHeader.value.encryptedDataKeys;
-      :- Need(|keys| == 1, E("Encrypt header has more than one Encrypted Data Key"));
-      :- Need(keys[0].keyProviderId == HierarchicalKeyringId, E("In multi-tenant mode, keyProviderId must be aws-kms-hierarchy"));
-      var keyId :- UTF8.Decode(keys[0].keyProviderInfo).MapFailure(e => E(e));
+      SequenceIsSafeBecauseItIsInMemory(keys);
+      :- Need(|keys| as uint64 == 1, E("Encrypt header has more than one Encrypted Data Key"));
+      :- Need(keys[0 as uint32].keyProviderId == HierarchicalKeyringId, E("In multi-tenant mode, keyProviderId must be aws-kms-hierarchy"));
+      var keyId :- UTF8.Decode(keys[0 as uint32].keyProviderInfo).MapFailure(e => E(e));
       Success(Some(keyId))
     else
       //= specification/searchable-encryption/search-config.md#get-beacon-key-after-encrypt

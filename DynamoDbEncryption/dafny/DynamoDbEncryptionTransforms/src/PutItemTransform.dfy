@@ -34,18 +34,6 @@ module PutItemTransform {
               //# specifically Expected and ConditionalOperator MUST NOT be set.
               && NoMap(input.sdkInput.Expected) && input.sdkInput.ConditionalOperator.None?
 
-              // && var oldHistory := old(tableConfig.itemEncryptor.History.EncryptItem);
-              // && var newHistory := tableConfig.itemEncryptor.History.EncryptItem;
-              // && |newHistory| == |oldHistory|+1
-              // && Seq.Last(newHistory).output.Success?
-              // && var encryptInput := Seq.Last(newHistory).input;
-              // && var encryptOutput := Seq.Last(newHistory).output.value;
-
-              //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
-              //= type=implication
-              //# The Item MUST be [writable](ddb-support.md#writable).
-              && IsWriteable(tableConfig, input.sdkInput.Item).Success?
-
               //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
               //= type=implication
               //# The ConditionExpression MUST be [valid](ddb-support.md#testconditionexpression).
@@ -63,6 +51,8 @@ module PutItemTransform {
     :- Need(NoMap(input.sdkInput.Expected), E("Legacy parameter 'Expected' not supported in PutItem with Encryption."));
     :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in PutItem with Encryption."));
 
+    //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-putitem
+    //# The Item MUST be [writable](ddb-support.md#writable).
     var _ :- IsWriteable(tableConfig, input.sdkInput.Item);
     var _ :- TestConditionExpression(tableConfig,
                                      input.sdkInput.ConditionExpression,

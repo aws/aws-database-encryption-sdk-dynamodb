@@ -19,6 +19,7 @@ module DynamoDBSupport {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
   import opened SearchableEncryptionInfo
@@ -33,23 +34,30 @@ module DynamoDBSupport {
   // At the moment, this means that no attribute names starts with "aws_dbe_",
   // as all other attribute names would need to be configured, and all the
   // other weird constraints were checked at configuration time.
-  function method IsWriteable(item : DDB.AttributeMap)
-    : (ret : Result<bool, string>)
+  method IsWriteable(item : DDB.AttributeMap)
+    returns (ret : Result<bool, string>)
     //= specification/dynamodb-encryption-client/ddb-support.md#writable
     //= type=implication
     //# Writeable MUST reject any item containing an attribute which begins with `aws_dbe_`.
     ensures ret.Success? ==> forall k <- item :: !(ReservedPrefix <= k)
   {
-    if forall k <- item :: !(ReservedPrefix <= k) then
-      Success(true)
-    else
-      var bad := set k <- item | ReservedPrefix <= k;
-      // We happen to order these values, but this ordering MUST NOT be relied upon.
-      var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
-      if |badSeq| == 0 then
-        Failure("")
-      else
-        Failure("Writing reserved attributes not allowed : " + Join(badSeq, "\n"))
+    var keys := SortedSets.ComputeSetToOrderedSequence2(item.Keys, CharLess);
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    var rp := ReservedPrefix; // because the constant ReservedPrefix is actual an expensive function call
+    for i : uint64 := 0 to |keys| as uint64
+      invariant forall j | 0 <= j < i :: !(ReservedPrefix <= keys[j])
+    {
+      if rp <= keys[i] {
+        var result := "Writing reserved attributes not allowed : ";
+        for j : uint64 := i to |keys| as uint64 {
+          if rp <= keys[i] {
+            result := result + keys[i] + "\n";
+          }
+        }
+        return Failure(result);
+      }
+    }
+    return Success(true);
   }
 
   function method GetEncryptedAttributes(
@@ -83,7 +91,8 @@ module DynamoDBSupport {
   {
     if expr.Some? then
       var attrs := GetEncryptedAttributes(actions, expr, attrNames);
-      if |attrs| == 0 then
+      SequenceIsSafeBecauseItIsInMemory(attrs);
+      if |attrs| as uint64 == 0 then
         Success(true)
       else
         Failure("Condition Expressions forbidden on encrypted attributes : " + Join(attrs, ","))
@@ -121,7 +130,8 @@ module DynamoDBSupport {
     if expr.Some? then
       var attrs := Update.ExtractAttributes(expr.value, attrNames);
       var encryptedAttrs := Seq.Filter(s => IsSigned(actions, s), attrs);
-      if |encryptedAttrs| == 0 then
+      SequenceIsSafeBecauseItIsInMemory(encryptedAttrs);
+      if |encryptedAttrs| as uint64 == 0 then
         Success(true)
       else
         Failure("Update Expressions forbidden on signed attributes : " + Join(encryptedAttrs, ","))
@@ -169,11 +179,13 @@ module DynamoDBSupport {
       //# if the constructed compound beacon does not match
       //# the existing attribute value AddSignedBeacons MUST fail.
       var badAttrs := set k <- newAttrs | k in item && item[k] != newAttrs[k] :: k;
-      :- Need(|badAttrs| == 0, E("Signed beacons have generated values different from supplied values."));
+      SetIsSafeBecauseItIsInMemory(badAttrs);
+      :- Need(|badAttrs| as uint64 == 0, E("Signed beacons have generated values different from supplied values."));
       var version : DDB.AttributeMap := map[VersionTag := DS(" ")];
       var both := newAttrs.Keys * item.Keys;
       var bad := set k <- both | newAttrs[k] != item[k];
-      if 0 < |bad| {
+      SetIsSafeBecauseItIsInMemory(bad);
+      if 0 < |bad| as uint64 {
         // We happen to order these values, but this ordering MUST NOT be relied upon.
         var badSeq := SortedSets.ComputeSetToOrderedSequence2(bad, CharLess);
         return Failure(E("Supplied Beacons do not match calculated beacons : " + Join(badSeq, ", ")));
@@ -254,7 +266,8 @@ module DynamoDBSupport {
         req.FilterExpression,
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
-      :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+        SequenceIsSafeBecauseItIsInMemory(newItems);
+      :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
         if resp.Count.Some? then
@@ -323,7 +336,8 @@ module DynamoDBSupport {
         req.FilterExpression,
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues);
-      :- Need(|newItems| < INT32_MAX_LIMIT, DynamoDbEncryptionUtil.E("This is impossible."));
+        SequenceIsSafeBecauseItIsInMemory(newItems);
+      :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
       var count :=
         if resp.Count.Some? then
@@ -344,14 +358,15 @@ module DynamoDBSupport {
     requires forall x <- results :: x in bv.virtualFields
     ensures output.Success? ==> forall x <- output.value :: x in bv.virtualFields
   {
-    if |fields| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(fields);
+    if |fields| as uint64 == 0 then
       Success(results)
     else
-      var optValue :- GetVirtField(bv.virtualFields[fields[0]], item);
+      var optValue :- GetVirtField(bv.virtualFields[fields[0 as uint32]], item);
       if optValue.Some? then
-        GetVirtualFieldsLoop(fields[1..], bv, item, results[fields[0] := optValue.value])
+        GetVirtualFieldsLoop(fields[1 as uint32..], bv, item, results[fields[0 as uint32] := optValue.value])
       else
-        GetVirtualFieldsLoop(fields[1..], bv, item, results)
+        GetVirtualFieldsLoop(fields[1 as uint32..], bv, item, results)
   }
 
   method GetVirtualFields(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)
@@ -371,18 +386,19 @@ module DynamoDBSupport {
     requires forall x <- results :: x in bv.beacons
     ensures output.Success? ==> forall x <- output.value :: x in bv.beacons
   {
-    if |fields| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(fields);
+    if |fields| as uint64  == 0 then
       Success(results)
     else
-      var beacon := bv.beacons[fields[0]];
+      var beacon := bv.beacons[fields[0 as uint32]];
       if beacon.Compound? then
         var optValue :- beacon.cmp.getNaked(item, bv.virtualFields);
         if optValue.Some? then
-          GetCompoundBeaconsLoop(fields[1..], bv, item, results[fields[0] := optValue.value])
+          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, results[fields[0] := optValue.value])
         else
-          GetCompoundBeaconsLoop(fields[1..], bv, item, results)
+          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, results)
       else
-        GetCompoundBeaconsLoop(fields[1..], bv, item, results)
+        GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, results)
   }
 
   method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)

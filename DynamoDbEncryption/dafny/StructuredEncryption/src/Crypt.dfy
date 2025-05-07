@@ -13,6 +13,7 @@ module StructuredEncryptionCrypt {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
   import opened DafnyLibraries
@@ -29,6 +30,9 @@ module StructuredEncryptionCrypt {
     // import Relations
   import opened Canonize
 
+  const ONE_THIRD_MAX_INT := 1431655765
+  const ONE_THIRD_MAX_INT32 : uint32 := ONE_THIRD_MAX_INT as uint32
+  
   function method FieldKey(HKDFOutput : Bytes, offset : uint32)
     : (ret : Result<Bytes, Error>)
     requires |HKDFOutput| == KeySize
@@ -38,14 +42,14 @@ module StructuredEncryptionCrypt {
               //# The `FieldKey` for a given key and offset MUST be the first 44 bytes
               //# of the aes256ctr_stream
               //# of the `FieldRootKey` and the `FieldKeyNonce` of three times the given offset.
-              && offset as nat * 3 < UINT32_LIMIT
+              && offset < ONE_THIRD_MAX_INT32
               && |ret.value| == KeySize+NonceSize
               && |ret.value| == 44
               && AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).Success?
               && ret.value == AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32).value
   {
-    :- Need(offset as nat * 3 < UINT32_LIMIT, E("Too many encrypted fields."));
-    var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize+NonceSize) as uint32);
+    :- Need(offset < ONE_THIRD_MAX_INT32, E("Too many encrypted fields."));
+    var keyR := AesKdfCtr.Stream(FieldKeyNonce(offset * 3), HKDFOutput, (KeySize64+NonceSize64) as uint32);
     keyR.MapFailure(e => AwsCryptographyPrimitives(e))
   }
 
@@ -71,7 +75,7 @@ module StructuredEncryptionCrypt {
             + UInt32ToSeq(offset)
   {
     AwsDbeField
-    + [(KeySize+NonceSize) as uint8] // length
+    + [(KeySize64+NonceSize64) as uint8] // length
     + UInt32ToSeq(offset)
   }
 
@@ -481,10 +485,10 @@ module StructuredEncryptionCrypt {
     var fieldKey :- FieldKey(fieldRootKey, offset);
     //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `Cipherkey` MUST be the first 32 bytes of the `FieldKey`
-    var cipherkey : Key := fieldKey[0..KeySize];
+    var cipherkey : Key := fieldKey[..KeySize64];
     //= specification/structured-encryption/encrypt-path-structure.md#calculate-cipherkey-and-nonce
     //# The `Nonce` MUST be the remaining 12 bytes of the `FieldKey`
-    var nonce : Nonce := fieldKey[KeySize..];
+    var nonce : Nonce := fieldKey[KeySize64..];
     var value := data.value;
 
     //= specification/structured-encryption/encrypt-path-structure.md#encrypted-terminal-value
@@ -506,7 +510,7 @@ module StructuredEncryptionCrypt {
 
     var encOutR := client.AESEncrypt(encInput);
     var encOut :- encOutR.MapFailure(e => AwsCryptographyPrimitives(e));
-    :- Need (|encOut.authTag| == AuthTagSize, E("Auth Tag Wrong Size."));
+    :- Need (|encOut.authTag| as uint64 == AuthTagSize64, E("Auth Tag Wrong Size."));
     return Success(ValueToData(data.typeId + encOut.cipherText + encOut.authTag, BYTES_TYPE_ID));
   }
 
@@ -534,11 +538,11 @@ module StructuredEncryptionCrypt {
     ensures client.ValidState()
   {
     var dataKey :- FieldKey(fieldRootKey, offset);
-    var encryptionKey : Key := dataKey[0..KeySize];
-    var nonce : Nonce := dataKey[KeySize..];
+    var encryptionKey : Key := dataKey[..KeySize64];
+    var nonce : Nonce := dataKey[KeySize64..];
     var value := data.value;
-
-    :- Need((AuthTagSize+2) <= |value|, E("cipherTxt too short."));
+    SequenceIsSafeBecauseItIsInMemory(value);
+    :- Need((AuthTagSize64+2) <= |value| as uint64, E("cipherTxt too short."));
 
     //= specification/structured-encryption/decrypt-path-structure.md#terminal-data-decryption
     //# The input [Terminal Value](./structures.md#terminal-value) MUST be deserialized as follows:
@@ -560,13 +564,13 @@ module StructuredEncryptionCrypt {
       encAlg := alg.encrypt.AES_GCM,
       iv := nonce,
       key := encryptionKey,
-      cipherTxt := value[TYPEID_LEN..|value| - AuthTagSize],
+      cipherTxt := value[TYPEID_LEN64..|value| as uint64- AuthTagSize64],
       aad := path,
-      authTag := value[|value|-AuthTagSize..]
+      authTag := value[|value| as uint64-AuthTagSize64..]
     );
 
     var decOutR := client.AESDecrypt(decInput);
     var decOut :- decOutR.MapFailure(e => AwsCryptographyPrimitives(e));
-    return Success(ValueToData(decOut, value[..TYPEID_LEN]));
+    return Success(ValueToData(decOut, value[..TYPEID_LEN64]));
   }
 }
