@@ -19,12 +19,13 @@ module StructuredEncryptionPaths {
     | List(pos : uint64)
     | Map(key : GoodString)
 
-  type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
+  type SelectorList = x : seq<Selector> | HasUint64Len(x)
   type TerminalSelector = x : seq<Selector> | ValidTerminalSelector(x) witness *
 
   predicate method ValidTerminalSelector(s : seq<Selector>)
   {
-    && 0 < |s| < UINT64_LIMIT
+    && 0 < |s|
+    && HasUint64Len(s)
     && s[0].Map?
   }
 
@@ -48,7 +49,7 @@ module StructuredEncryptionPaths {
 
   predicate method ValidPath(path : Path)
   {
-    && |path| < UINT64_LIMIT
+    && HasUint64Len(path)
     && forall x <- path :: ValidString(x.member.key)
   }
 

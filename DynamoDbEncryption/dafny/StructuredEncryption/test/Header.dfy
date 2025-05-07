@@ -114,7 +114,7 @@ module TestHeader {
     var newCont := GetContext(serCont);
     expect newCont.Success?;
     expect newCont.value.0 == cont;
-    expect newCont.value.1 == |serCont|;
+    expect newCont.value.1 == |serCont| as uint64;
 
     var badSerCont := [
       0,3, // three items

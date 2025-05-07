@@ -13,6 +13,7 @@ module StructuredEncryptionHeader {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
+  import opened MemoryMath
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
@@ -383,11 +384,12 @@ module StructuredEncryptionHeader {
               //= type=implication
               //# The length of this serialized value (in bytes) MUST equal the number of authenticated fields indicated
               //# by the caller's [Authenticate Schema](./structures.md#authenticate-schema).
-              && |ret.value| == CountAuthAttrs(schema)
+              && |ret.value| == CountAuthAttrs(schema) as nat
   {
     var legend :- MakeLegend2(schema);
     var authCount := CountAuthAttrs(schema);
-    :- Need(authCount == |legend|, E("Internal Error : bad legend calculation."));
+    SequenceIsSafeBecauseItIsInMemory(legend);
+    :- Need(authCount == |legend| as uint64, E("Internal Error : bad legend calculation."));
     Success(legend)
   }
 
@@ -399,14 +401,15 @@ module StructuredEncryptionHeader {
   // Create a Legend for the given attrs of the Schema
   function method {:tailrecursion} MakeLegend2(
     data : CanonCryptoList,
-    pos : nat := 0,
+    pos : uint64 := 0,
     serialized : Legend := EmptyLegend
   )
     : (ret : Result<Legend, Error>)
-    requires 0 <= pos <= |data|
-    decreases |data| - pos
+    requires 0 <= pos as nat <= |data|
+    decreases |data| - pos as nat
   {
-    if |data| == pos then
+    SequenceIsSafeBecauseItIsInMemory(data);
+    if |data| as uint64 == pos then
       Success(serialized)
     else if IsAuthAttr(data[pos].action) then
       :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
@@ -447,15 +450,16 @@ module StructuredEncryptionHeader {
   }
 
   // How many elements of Schema are included in the signature?
-  function method CountAuthAttrs(data : CanonCryptoList, pos : nat := 0, acc : nat := 0)
-    : nat
-    requires 0 <= pos <= |data|
-    decreases |data| - pos
+  function method CountAuthAttrs(data : CanonCryptoList, pos : uint64 := 0, acc : uint64 := 0)
+    : uint64
+    requires 0 <= pos as nat <= |data|
+    decreases |data| - pos as nat
   {
-    if |data| == pos then
+    SequenceIsSafeBecauseItIsInMemory(data);
+    if |data| as uint64 == pos then
       acc
     else if IsAuthAttr(data[pos].action) then
-      CountAuthAttrs(data, pos+1, acc+1)
+      CountAuthAttrs(data, pos+1, Add(acc, 1))
     else
       CountAuthAttrs(data, pos+1, acc)
   }
@@ -480,16 +484,18 @@ module StructuredEncryptionHeader {
 
   // Bytes to Legend
   function method GetLegend(data : Bytes)
-    : (ret : Result<(Legend, nat), Error>)
+    : (ret : Result<(Legend, uint64), Error>)
     ensures ret.Success? ==>
-              && ret.value.1 <= |data|
-              && ret.value.1 == |ret.value.0| + 2
+              && ret.value.1 as nat <= |data|
+              && ret.value.1 as nat == |ret.value.0| + 2
               && ret.value.0 == data[2..ret.value.1]
   {
-    :- Need(2 <= |data|, E("Unexpected end of header data."));
-    var len := SeqPosToUInt16(data, 0);
-    var size := len as nat + 2;
-    :- Need(size <= |data|, E("Unexpected end of header data."));
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var data_size : uint64 := |data| as uint64;
+    :- Need(2 <= data_size, E("Unexpected end of header data."));
+    var len := SeqPosToUInt16(data, 0) as uint64;
+    var size := Add(len, 2);
+    :- Need(size <= data_size, E("Unexpected end of header data."));
     var legend := data[2..size];
     :- Need(forall x <- legend :: ValidLegendByte(x), E("Invalid byte in stored legend"));
     Success((legend, size))
@@ -497,58 +503,71 @@ module StructuredEncryptionHeader {
 
   // Bytes to Encryption Context
   function method GetContext(data : Bytes)
-    : (ret : Result<(CMPEncryptionContext, nat), Error>)
+    : (ret : Result<(CMPEncryptionContext, uint64), Error>)
     ensures ret.Success? ==>
-              && ret.value.1 <= |data|
+              && ret.value.1 as nat <= |data|
     ensures (
+              && HasUint64Len(data)
               && 2 <= |data|
-              && GetContext2(SeqPosToUInt16(data, 0) as nat, data, (map[], 2)).Success?
+              && GetContext2(SeqPosToUInt16(data, 0) as uint64, data, (map[], 2)).Success?
             ) ==> ret.Success?
   {
-    :- Need(2 <= |data|, E("Unexpected end of header data."));
-    var count := SeqPosToUInt16(data, 0) as nat;
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var data_size : uint64 := |data| as uint64;
+    :- Need(2 <= data_size, E("Unexpected end of header data."));
+    var count := SeqPosToUInt16(data, 0) as uint64;
     var context :- GetContext2(count, data, (map[], 2));
     Success(context)
   }
 
   // Bytes to one Key Value pair
-  function method GetOneKVPair(data : Bytes, pos : nat)
-    : (ret : Result<(CMPUtf8Bytes, CMPUtf8Bytes, nat), Error>)
+  function method GetOneKVPair(data : Bytes, pos : uint64)
+    : (ret : Result<(CMPUtf8Bytes, CMPUtf8Bytes, uint64), Error>)
     ensures ret.Success? ==>
-              && ret.value.2 + pos <= |data|
+              && HasUint64Len(data)
+              && Add(ret.value.2, pos) <= |data| as uint64
     ensures (
-              && 2 + pos <= |data|
-              && var keyLen := SeqPosToUInt16(data, pos) as nat;
-              && keyLen + 4 + pos <= |data|
-              && UTF8.ValidUTF8Seq(data[2+pos..keyLen+2+pos])
-              && var valueLen := SeqPosToUInt16(data, keyLen+2+pos) as nat;
-              && keyLen + valueLen + 4 + pos <= |data|
-              && UTF8.ValidUTF8Seq(data[keyLen+4+pos..keyLen + valueLen + 4 + pos])
+              && HasUint64Len(data)
+              && var data_size : uint64 := |data| as uint64;
+              && Add(2, pos) <= data_size
+              && var keyLen := SeqPosToUInt16(data, pos) as uint64;
+              && Add3(keyLen, 4, pos) <= data_size
+              && var key := data[2+pos..Add3(keyLen, 2, pos)];
+              && UTF8.ValidUTF8Seq(key)
+              && var valueLen := SeqPosToUInt16(data, keyLen+2+pos) as uint64;
+              && var kvLen := 2 + keyLen + 2 + valueLen;
+              && Add(kvLen, pos) <= data_size
+              && var value := data[keyLen+4+pos..kvLen+pos];
+              && UTF8.ValidUTF8Seq(value)
             ) <==> ret.Success? && SerializeOneKVPair(ret.value.0, ret.value.1) == data[pos..pos+ret.value.2]
   {
-    :- Need(2 + pos <= |data|, E("Unexpected end of header data."));
-    var keyLen := SeqPosToUInt16(data, pos) as nat;
-    :- Need(keyLen + 4 +pos <= |data|, E("Unexpected end of header data."));
-    var key := data[2+pos..keyLen+2+pos];
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var data_size : uint64 := |data| as uint64;
+    :- Need(Add(2, pos) <= data_size, E("Unexpected end of header data."));
+    var keyLen := SeqPosToUInt16(data, pos) as uint64;
+    :- Need(Add3(keyLen, 4, pos) <= data_size, E("Unexpected end of header data."));
+    var key := data[2+pos..Add3(keyLen, 2, pos)];
     :- Need(UTF8.ValidUTF8Seq(key), E("Invalid UTF8 found in header."));
-    var valueLen := SeqPosToUInt16(data, keyLen+2+pos) as nat;
+    var valueLen := SeqPosToUInt16(data, Add3(keyLen, 2, pos)) as uint64;
     var kvLen := 2 + keyLen + 2 + valueLen;
-    :- Need(kvLen + pos <= |data|, E("Unexpected end of header data."));
+    :- Need(Add(kvLen, pos) <= data_size as uint64, E("Unexpected end of header data."));
     var value := data[keyLen+4+pos..kvLen+pos];
     :- Need(UTF8.ValidUTF8Seq(value), E("Invalid UTF8 found in header."));
     Success((key, value, kvLen))
   }
 
-  predicate method {:tailrecursion} BytesLess(a: Bytes, b : Bytes, pos : nat := 0)
-    requires 0 <= pos <= |a|
-    requires 0 <= pos <= |b|
-    decreases |a| - pos
+  predicate method {:tailrecursion} BytesLess(a: Bytes, b : Bytes, pos : uint64 := 0)
+    requires 0 <= pos as nat <= |a|
+    requires 0 <= pos as nat <= |b|
+    decreases |a| - pos as nat
   {
+    SequenceIsSafeBecauseItIsInMemory(a);
+    SequenceIsSafeBecauseItIsInMemory(b);
     if a == b then
       false
-    else if |a| == pos then
+    else if |a| as uint64 == pos then
       true
-    else if |b| == pos then
+    else if |b| as uint64 == pos then
       false
     else if a[pos] != b[pos] then
       a[pos] < b[pos]
@@ -558,21 +577,21 @@ module StructuredEncryptionHeader {
 
   // For "count" items, Deserialize key value pairs into an Encryption Context
   function method {:tailrecursion} GetContext2(
-    count : nat,
+    count : uint64,
     data : Bytes,
-    deserialized : (CMPEncryptionContext, nat),
+    deserialized : (CMPEncryptionContext, uint64),
     prevKey : CMPUtf8Bytes := [])
-    : (ret : Result<(CMPEncryptionContext, nat), Error>)
-    requires deserialized.1 <= |data|
+    : (ret : Result<(CMPEncryptionContext, uint64), Error>)
+    requires deserialized.1 as nat <= |data|
     ensures ret.Success? ==>
-              && ret.value.1 <= |data|
-              && (count > 0 ==> GetOneKVPair(data, deserialized.1).Success?)
+              && ret.value.1 as nat <= |data|
+              && (count > 0 ==> GetOneKVPair(data, deserialized.1 as uint64).Success?)
   {
     if count == 0 then
       Success(deserialized)
     else
       :- Need(|deserialized.0| + 1  < UINT16_LIMIT, E("Too much context"));
-      var kv :- GetOneKVPair(data, deserialized.1);
+      var kv :- GetOneKVPair(data, deserialized.1 as uint64);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
       // if the previous key is always less than the current key, there can be no duplicates
@@ -581,7 +600,7 @@ module StructuredEncryptionHeader {
       //# These entries MUST have entries sorted, by key,
       //# in ascending order according to the UTF-8 encoded binary value.
       :- Need(BytesLess(prevKey, kv.0), E("Context keys out of order."));
-      GetContext2(count-1, data, (deserialized.0[kv.0 := kv.1], deserialized.1 + kv.2), kv.0)
+      GetContext2(count-1, data, (deserialized.0[kv.0 := kv.1], Add(deserialized.1, kv.2)), kv.0)
   }
 
   // Encryption Context to Bytes
@@ -659,33 +678,38 @@ module StructuredEncryptionHeader {
   }
 
   // Bytes to Data Key
-  function method {:vcs_split_on_every_assert} GetOneDataKey(data : Bytes, pos : nat)
-    : (ret : Result<(CMPEncryptedDataKey, nat), Error>)
+  function method {:vcs_split_on_every_assert} GetOneDataKey(data : Bytes, pos : uint64)
+    : (ret : Result<(CMPEncryptedDataKey, uint64), Error>)
     ensures ret.Success? ==>
-              && ret.value.1 + pos <= |data|
-              && |SerializeOneDataKey(ret.value.0)| == ret.value.1
-              && SerializeOneDataKey(ret.value.0) == data[pos..pos+ret.value.1]
+              && HasUint64Len(data)
+              && var data_size : uint64 := |data| as uint64;
+              && Add(ret.value.1, pos) <= |data| as uint64
+              && |SerializeOneDataKey(ret.value.0)| == ret.value.1 as nat
+              && SerializeOneDataKey(ret.value.0) == data[pos..Add(pos, ret.value.1 as uint64)]
   {
-    :- Need(2 + pos < |data|, E("Unexpected end of header data."));
-    var provIdSize := SeqPosToUInt16(data, pos) as nat;
-    :- Need(provIdSize + 2 + pos < |data|, E("Unexpected end of header data."));
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var data_size : uint64 := |data| as uint64;
+
+    :- Need(Add(2, pos) < data_size, E("Unexpected end of header data."));
+    var provIdSize := SeqPosToUInt16(data, pos) as uint64;
+    :- Need(Add3(provIdSize, 2, pos) < data_size, E("Unexpected end of header data."));
     var provId := data[pos+2..pos+2+provIdSize];
     :- Need(UTF8.ValidUTF8Seq(provId), E("Invalid UTF8 found in header."));
     var part1Size := 2 + provIdSize;
 
-    :- Need(part1Size+2 + pos <= |data|, E("Unexpected end of header data."));
-    var provInfoSize := SeqPosToUInt16(data, pos+part1Size) as nat;
-    :- Need(part1Size + provInfoSize + 2 + pos < |data|, E("Unexpected end of header data."));
-    var provInfo := data[pos+part1Size+2..pos+part1Size+2+provInfoSize];
+    :- Need(Add3(part1Size, 2, pos) <= data_size, E("Unexpected end of header data."));
+    var provInfoSize := SeqPosToUInt16(data, pos+part1Size) as uint64;
     var part2Size := part1Size + 2 + provInfoSize;
+    :- Need(Add(part2Size, pos) < data_size, E("Unexpected end of header data."));
+    var provInfo := data[pos+part1Size+2..pos+part1Size+2+provInfoSize];
 
-    :- Need(part2Size+2+pos <= |data|, E("Unexpected end of header data."));
-    var cipherSize := SeqPosToUInt16(data, pos+part2Size) as nat;
-    :- Need(part2Size + cipherSize + 2 + pos <= |data|, E("Unexpected end of header data."));
-    var cipher := data[pos+part2Size+2..pos+part2Size+2+cipherSize];
+    :- Need(Add3(part2Size, 2, pos) <= data_size, E("Unexpected end of header data."));
+    var cipherSize := SeqPosToUInt16(data, pos+part2Size) as uint64;
     var part3Size := part2Size + 2 + cipherSize;
+    :- Need(Add(part3Size, pos) <= data_size, E("Unexpected end of header data."));
+    var cipher := data[pos+part2Size+2..pos+part2Size+2+cipherSize];
 
-    var edk := CMP.EncryptedDataKey(keyProviderId := provId, keyProviderInfo := provInfo, ciphertext := cipher);
+    var edk : CMPEncryptedDataKey := CMP.EncryptedDataKey(keyProviderId := provId, keyProviderInfo := provInfo, ciphertext := cipher);
     Success((edk, part3Size))
   }
 
@@ -693,15 +717,16 @@ module StructuredEncryptionHeader {
   function method {:tailrecursion} SerializeContext2(
     keys : seq<CMPUtf8Bytes>,
     x : CMPEncryptionContext,
-    pos : nat := 0,
+    pos : uint64 := 0,
     acc : Bytes := []
   )
     : (ret : Bytes)
     requires forall k <- keys :: k in x
-    requires 0 <= pos <= |keys|
-    decreases |keys| - pos
+    requires 0 <= pos as nat <= |keys|
+    decreases |keys| - pos as nat
   {
-    if |keys| == pos then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == pos then
       acc
     else
       SerializeContext2(keys, x, pos+1, acc + SerializeOneKVPair(keys[pos], x[keys[pos]]))
@@ -729,14 +754,15 @@ module StructuredEncryptionHeader {
   // Data Keys to Bytes
   function method {:tailrecursion} SerializeDataKeys2(
     x : CMPEncryptedDataKeyListEmptyOK,
-    pos : nat := 0,
+    pos : uint64 := 0,
     acc : Bytes := []
   )
     : (ret : Bytes)
-    requires 0 <= pos <= |x|
-    decreases |x| - pos
+    requires 0 <= pos as nat <= |x|
+    decreases |x| - pos as nat
   {
-    if |x| == pos then
+    SequenceIsSafeBecauseItIsInMemory(x);
+    if |x| as uint64 == pos then
       acc
     else
       SerializeDataKeys2(x, pos+1, acc + SerializeOneDataKey(x[pos]))
@@ -744,16 +770,16 @@ module StructuredEncryptionHeader {
 
   // Bytes to Data Key List
   function method GetDataKeys(data : Bytes)
-    : (ret : Result<(CMPEncryptedDataKeyList, nat), Error>)
+    : (ret : Result<(CMPEncryptedDataKeyList, uint64), Error>)
     ensures ret.Success? ==>
-              && ret.value.1 <= |data|
+              && ret.value.1 as nat <= |data|
               && 1 <= |data|
               && 1 <= ret.value.1
               && |ret.value.0| == data[0] as nat
-              && GetDataKeys2(|ret.value.0|, |ret.value.0|, data, ([], 1)).Success?
+              && GetDataKeys2(|ret.value.0| as uint64, |ret.value.0| as uint64, data, ([], 1)).Success?
   {
     :- Need(1 <= |data|, E("Unexpected end of header data."));
-    var count := data[0] as nat;
+    var count := data[0] as uint64;
     var keys :- GetDataKeys2(count, count, data, ([], 1));
     if |keys.0| == 0 then
       Failure(E("At least one Data Key required"))
@@ -763,18 +789,18 @@ module StructuredEncryptionHeader {
 
   // Convert "count" items from Bytes to Data Keys
   function method {:tailrecursion} GetDataKeys2(
-    count : nat,
-    origCount : nat,
+    count : uint64,
+    origCount : uint64,
     data : Bytes,
-    deserialized : (CMPEncryptedDataKeyListEmptyOK, nat))
-    : (ret : Result<(CMPEncryptedDataKeyListEmptyOK, nat), Error>)
-    requires deserialized.1 <= |data|
-    requires origCount == count + |deserialized.0|
+    deserialized : (CMPEncryptedDataKeyListEmptyOK, uint64))
+    : (ret : Result<(CMPEncryptedDataKeyListEmptyOK, uint64), Error>)
+    requires deserialized.1 as nat <= |data|
+    requires origCount as nat == count as nat + |deserialized.0|
     ensures ret.Success? ==>
-              && ret.value.1 <= |data|
+              && ret.value.1 as nat <= |data|
               && ret.value.1 >= deserialized.1
-              && (count > 0 ==> GetOneDataKey(data, deserialized.1).Success?)
-              && |ret.value.0| == origCount
+              && (count > 0 ==> GetOneDataKey(data, deserialized.1 as uint64).Success?)
+              && |ret.value.0| == origCount as nat
   {
     if count == 0 then
       Success(deserialized)
@@ -782,7 +808,7 @@ module StructuredEncryptionHeader {
     if |deserialized.0| >= 255 then
       Failure(E("Too Many Data Keys"))
     else
-      var edk :- GetOneDataKey(data, deserialized.1);
+      var edk :- GetOneDataKey(data, deserialized.1 as uint64);
       assert SerializeOneDataKey(edk.0) == data[deserialized.1..deserialized.1+edk.1];
       GetDataKeys2(count-1, origCount, data, (deserialized.0 + [edk.0], deserialized.1+edk.1))
   }
@@ -804,8 +830,8 @@ module StructuredEncryptionHeader {
     ensures GetLegend(SerializeLegend(x)).Success?
     ensures var ret := GetLegend(SerializeLegend(x)).value;
             && ret.0 == x
-            && ret.1 == |x| + 2
-            && ret.1 == |SerializeLegend(x)|
+            && ret.1 as nat == |x| + 2
+            && ret.1 as nat == |SerializeLegend(x)|
   {}
 
   // GetLegend ==> SerializeLegend
@@ -833,7 +859,7 @@ module StructuredEncryptionHeader {
   }
 
   // GetOneKVPair ==> SerializeOneKVPair
-  lemma GetOneKVPairRoundTrip(data : Bytes, pos : nat)
+  lemma GetOneKVPairRoundTrip(data : Bytes, pos : uint64)
     requires GetOneKVPair(data, pos).Success?
     ensures
       && var cont := GetOneKVPair(data, pos).value;
@@ -846,7 +872,7 @@ module StructuredEncryptionHeader {
       && var data := SerializeOneDataKey(k);
       && GetOneDataKey(data, 0).Success?
       && GetOneDataKey(data, 0).value.0 == k
-      && GetOneDataKey(data, 0).value.1 == |data|
+      && GetOneDataKey(data, 0).value.1 as nat == |data|
   {
     var data := SerializeOneDataKey(k);
     assert 2 <= |data|;
