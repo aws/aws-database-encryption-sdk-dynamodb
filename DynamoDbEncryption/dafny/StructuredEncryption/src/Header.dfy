@@ -13,7 +13,7 @@ module StructuredEncryptionHeader {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes

@@ -251,7 +251,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations refines Abs
               SORT_NAME !in ret.value
   {
     UTF8.EncodeAsciiUnique();
-    :- Need(config.partitionKeyName in item, DDBError("Partition key " + config.partitionKeyName + " not found in Item to be encrypted or decrypted"));
+    :- FNeed(config.partitionKeyName in item, () => DDBError("Partition key " + config.partitionKeyName + " not found in Item to be encrypted or decrypted"));
     var logicalTableName : ValidUTF8Bytes :- DDBEncode(config.logicalTableName);
     var partitionName : ValidUTF8Bytes :- DDBEncode(config.partitionKeyName);
     var partitionKeyName : ValidUTF8Bytes :- EncodeName(config.partitionKeyName);

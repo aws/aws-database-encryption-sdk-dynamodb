@@ -8,7 +8,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
   import Relations
   import BoundedInts
   import InternalModule = Seq.MergeSort
-  import MemoryMath
+  import StandardLibrary.MemoryMath
 
   predicate HasUint64Len<T>(s: seq<T>) {
     |s| < BoundedInts.TWO_TO_THE_64

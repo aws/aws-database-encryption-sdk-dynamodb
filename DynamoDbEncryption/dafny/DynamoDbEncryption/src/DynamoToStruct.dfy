@@ -20,7 +20,7 @@ module DynamoToStruct {
   import SE = StructuredEncryptionUtil
   import StandardLibrary.Sequence
   import DafnyLibraries
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
 
   type Error = Types.Error
 
@@ -126,7 +126,7 @@ module DynamoToStruct {
       var badNames := set k <- s | !IsValid_AttributeName(k) :: k;
       OneBadKey(s, badNames, IsValid_AttributeName);
       // We happen to order these values, but this ordering MUST NOT be relied upon.
-      var orderedAttrNames := SetToOrderedSequence(badNames, CharLess);
+      var orderedAttrNames := SortedSets.ComputeSetToOrderedSequence2(badNames, CharLess);
       var attrNameList := Join(orderedAttrNames, ",");
       MakeError("Not valid attribute names : " + attrNameList)
   }
@@ -1369,7 +1369,7 @@ module DynamoToStruct {
       var badValues := FlattenErrors(m);
       assert(|badValues| > 0);
       // We happen to order these values, but this ordering MUST NOT be relied upon.
-      var badValueSeq := SetToOrderedSequence(badValues, CharLess);
+      var badValueSeq := SortedSets.ComputeSetToOrderedSequence2(badValues, CharLess);
       Failure(Join(badValueSeq, "\n"))
   }
 }

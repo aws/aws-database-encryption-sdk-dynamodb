@@ -26,10 +26,37 @@ module TermLoc {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
+  import opened StandardLibrary.MemoryMath
   import StandardLibrary.String
   import DDB = ComAmazonawsDynamodbTypes
   import Seq
   import DynamoToStruct
+
+  // function method {:tailrecursion} CountEven(x : seq<uint8>, pos : nat) : nat
+  //   requires pos <= |x|
+  //   decreases |x| - pos
+  // {
+  //   if pos == |x| then
+  //     0
+  //   else if x[0] % 2 == 0 then
+  //     1 + CountEven(x, pos+1)
+  //   else
+  //     CountEven(x, pos+1)
+  // }
+
+  function method {:tailrecursion} CountEven(x : seq<uint8>, pos : uint64 := 0) : (ret : uint64)
+    requires pos as nat <= |x|
+    ensures ret as nat <= |x| - pos as nat
+    decreases |x| - pos as nat
+  {
+    SequenceIsSafeBecauseItIsInMemory(x);
+    if pos == |x| as uint64 then
+      0
+    else if x[0] % 2 == 0 then
+      1 + CountEven(x, pos+1)
+    else
+      CountEven(x, pos+1)
+  }
 
   datatype Selector =
     | List(pos : uint64)
@@ -175,9 +202,9 @@ module TermLoc {
   // return the number of characters until the next part begins
   // that is, '[' or '.'
   function method  {:opaque} FindStartOfNext(s : string)
-    : (index : Option<nat>)
+    : (index : Option<uint64>)
     ensures index.Some? ==>
-              && index.value < |s|
+              && index.value as nat < |s|
               && (s[index.value] == '.' || s[index.value] == '[')
               && '.' !in s[..index.value]
               && '[' !in s[..index.value]
@@ -199,13 +226,20 @@ module TermLoc {
   }
 
   // read an unsigned decimal number, return value and length
-  function method {:opaque} GetNumber(s : string, acc : nat := 0)
-    : Result<nat, Error>
+  // error if value exceeds 2^64
+  function method {:opaque} GetNumber(s : string, acc : uint64 := 0, pos : uint64 := 0)
+    : Result<uint64, Error>
+    requires pos as nat <= |s|
+    decreases |s| - pos as nat
   {
-    if |s| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if |s| as uint64 == pos then
       Success(acc)
     else if '0' <= s[0] <= '9' then
-      GetNumber(s[1..], acc * 10 + s[0] as nat - '0' as nat)
+      if acc < 0xfff_ffff_ffff_ffff then
+        GetNumber(s, acc * 10 + s[0] as uint64 - '0' as uint64, Add(pos, 1))
+      else
+        Failure(E("Number is too big for list index : " + s))
     else
       Failure(E("Unexpected character in number : " + [s[0]]))
   }
@@ -231,9 +265,8 @@ module TermLoc {
     if s[|s|-1] != ']' then
       Failure(E("List index must end with ]"))
     else
-      var num :- GetNumber(s[1..|s|-1]);
-      :- Need(HasUint64Size(num), E("Array selector exceeds maximum."));
-      Success(List(num as uint64))
+      var num : uint64 :- GetNumber(s[1..|s|-1]);
+      Success(List(num))
   }
 
   // convert string to SelectorList
@@ -241,8 +274,9 @@ module TermLoc {
     : Result<SelectorList, Error>
     requires |s| > 0 && (s[0] == '.' || s[0] == '[')
   {
+    SequenceIsSafeBecauseItIsInMemory(s);
     var pos := FindStartOfNext(s[1..]);
-    var end := if pos.None? then |s| else pos.value + 1;
+    var end := if pos.None? then |s| as uint64 else Add(pos.value, 1);
     var sel : Selector :- GetSelector(s[..end]);
     :- Need(HasUint64Size(|acc|+1), E("Selector Overflow"));
     if pos.None? then

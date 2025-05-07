@@ -8,7 +8,7 @@ module StructuredEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
 
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes

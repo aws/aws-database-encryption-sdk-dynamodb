@@ -23,7 +23,7 @@ module StructuredEncryptionFooter {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
   import Primitives = AtomicPrimitives
   import Materials
   import Header = StructuredEncryptionHeader

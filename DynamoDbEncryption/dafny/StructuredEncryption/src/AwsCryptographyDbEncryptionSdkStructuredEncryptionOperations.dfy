@@ -13,7 +13,7 @@ include "Canonize.dfy"
 module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations {
   import opened StructuredEncryptionUtil
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
 
   import Base64
   import CMP = AwsCryptographyMaterialProvidersTypes
