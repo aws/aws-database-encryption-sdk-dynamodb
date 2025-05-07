@@ -45,7 +45,7 @@ jobs:
         with:
           port: 8000
           cors: "*"
-          
+
       - name: Support longpaths
         run: |
           git config --global core.longpaths true
@@ -68,7 +68,7 @@ jobs:
 
       - name: Create temporary global.json
         run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
-  
+
       - name: Setup Java 17 for codegen
         uses: actions/setup-java@v3
         with:
@@ -104,7 +104,7 @@ jobs:
         run: |
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
-      
+
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
@@ -121,14 +121,14 @@ jobs:
         working-directory: ./${{ matrix.library }}
         run: |
           make polymorph_go
-      
+
       - name: Copy ${{ matrix.library }} Vector Files
         if: ${{ matrix.library == 'TestVectors' }}
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
           cp runtimes/java/*.json runtimes/go/TestsFromDafny-go/
-  
+
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
         run: |
