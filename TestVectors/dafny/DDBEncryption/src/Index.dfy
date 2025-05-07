@@ -19,8 +19,14 @@ module WrappedDDBEncryptionMain {
   import KeyVectorsTypes = AwsCryptographyMaterialProvidersTestVectorKeysTypes
   import WrappedItemEncryptor
 
-  // TODO: Add extern for DEFAULT_KEYS
-  const DEFAULT_KEYS : string := "../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
+  function method GetDefaultKeysPath(): string
+  {
+    var mplKeysPath := "submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json";
+    if OsLang.GetLanguageShort() == "Go" then
+      "../../../../" + mplKeysPath
+    else
+      "../../../" + mplKeysPath
+  }
 
   method AddJson(prev : TestVectorConfig, file : string, keyVectors: KeyVectors.KeyVectorsClient)
     returns (output : Result<TestVectorConfig, string>)
@@ -52,7 +58,7 @@ module WrappedDDBEncryptionMain {
     // Parsing JSON is very slow in Python. Parse JSON as infrequently as possible.
     var keyVectors :- expect KeyVectors.KeyVectors(
       KeyVectorsTypes.KeyVectorsConfig(
-        keyManifestPath := DEFAULT_KEYS
+        keyManifestPath := GetDefaultKeysPath()
       )
     );
 
