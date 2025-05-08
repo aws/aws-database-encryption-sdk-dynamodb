@@ -83,6 +83,7 @@ jobs:
       - pr-ci-java-examples
       - pr-ci-net
       - pr-ci-rust
+      - pr-ci-go
       - pr-ci-net-test-vectors
       - pr-ci-net-examples
     runs-on: ubuntu-22.04
