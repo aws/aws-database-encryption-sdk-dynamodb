@@ -23,7 +23,7 @@ module SearchConfigToInfo {
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
   import opened StandardLibrary.String
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
   import MaterialProviders
   import SortedSets
 

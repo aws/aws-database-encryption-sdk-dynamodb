@@ -11,7 +11,7 @@ module {:options "/functionSyntax:4" } Canonize {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
   import Header = StructuredEncryptionHeader
   import Paths = StructuredEncryptionPaths
   import SortCanon

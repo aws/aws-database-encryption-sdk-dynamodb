@@ -20,6 +20,7 @@ module SortCanon {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import opened Relations
   import opened Seq.MergeSort
   import opened StructuredEncryptionUtil
@@ -156,46 +157,9 @@ module SortCanon {
       && x[0] <= y[0]
       && (x[0] == y[0] ==> Below(x[1..], y[1..]))
   } by method {
-
-    // The slice x[1..], y[1..] are un-optimized operations in Dafny.
-    // This means that their usage will result in a lot of data copying.
-    // Additional, it is very likely that these size of these sequences
-    // will be less than uint64.
-    // So writing an optimized version that only works on bounded types
-    // should further optimized this hot code.
-
-    if HasUint64Len(x) && HasUint64Len(y) {
-      return BoundedBelow(x,y);
-    }
-
-    if |x| == 0 {
-      assert Below(x, y);
-      return true;
-    }
-
-    if |y| == 0 {
-      assert !Below(x, y);
-      return false;
-    }
-
-    for i := 0 to |x|
-      invariant i <= |y|
-      // The function on the initial arguments
-      // is equal to function applied to the intermediate arguments.
-      invariant Below(x, y) == Below(x[i..], y[i..])
-    {
-      if |y| <= i {
-        return false;
-      } else if y[i] < x[i] {
-        return false;
-      } else if x[i] < y[i] {
-        return true;
-      } else {
-        assert x[i] == y[i];
-      }
-    }
-
-    return true;
+    SequenceIsSafeBecauseItIsInMemory(x);
+    SequenceIsSafeBecauseItIsInMemory(y);
+    return BoundedBelow(x,y);
   }
 
   predicate BoundedBelow(x: seq64<uint8>, y: seq64<uint8>)

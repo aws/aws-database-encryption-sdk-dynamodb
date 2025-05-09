@@ -8,9 +8,10 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
   import Relations
   import BoundedInts
   import InternalModule = Seq.MergeSort
-  import MemoryMath
+  import opened StandardLibrary.MemoryMath
+  import opened StandardLibrary.UInt
 
-  predicate HasUint64Len<T>(s: seq<T>) {
+  ghost predicate HasUint64Len<T>(s: seq<T>) {
     |s| < BoundedInts.TWO_TO_THE_64
   }
 
@@ -34,7 +35,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     InternalModule.MergeSortBy(s, lessThanOrEq)
   }
   by method {
-    if |s| <= 1 {
+    if |s| as uint64 <= 1 {
       return s;
     } else {
 
@@ -45,13 +46,13 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
       // So writing an optimized version that only works on bounded types
       // should further optimized this hot code.
 
-      var left := new T[|s|](i requires 0 <= i < |s| => s[i]);
-      var right := new T[|s|](i requires 0 <= i < |s| => s[i]);
-      var lo, hi := 0, right.Length;
+      var left := new T[|s| as uint64](i requires 0 <= i < |s| => s[i as uint64]);
+      var right := new T[|s| as uint64](i requires 0 <= i < |s| => s[i as uint64]);
+      ghost var lo, hi := 0, right.Length;
 
       label BEFORE_WORK:
 
-      var boundedLo: BoundedInts.uint64, boundedHi: BoundedInts.uint64 := 0, right.Length as BoundedInts.uint64;
+      var boundedLo: uint64, boundedHi: uint64 := 0, right.Length as uint64;
       ghost var _ := MergeSortMethod(left, right, lessThanOrEq, boundedLo, boundedHi, Right);
 
       result :=  right[..];
@@ -95,7 +96,7 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
   function {:isolate_assertions} MergeSortNat<T(!new)>(s: seq<T>, lessThanOrEq: (T, T) -> bool): (result :seq<T>)
     requires Relations.TotalOrdering(lessThanOrEq)
   {
-    MemoryMath.SequenceIsSafeBecauseItIsInMemory(s);
+    SequenceIsSafeBecauseItIsInMemory(s);
     MergeSort(s, lessThanOrEq)
   }
 
@@ -111,16 +112,16 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     left: array<T>,
     right: array<T>,
     lessThanOrEq: (T, T) -> bool,
-    lo: BoundedInts.uint64,
-    hi: BoundedInts.uint64,
+    lo: uint64,
+    hi: uint64,
     where: PlaceResults
   )
     returns (resultPlacement: ResultPlacement)
     requires Relations.TotalOrdering(lessThanOrEq)
     requires left.Length < BoundedInts.TWO_TO_THE_64
     requires right.Length < BoundedInts.TWO_TO_THE_64
-    requires lo < hi <= left.Length as BoundedInts.uint64
-    requires hi <= right.Length as BoundedInts.uint64
+    requires lo < hi <= left.Length as uint64
+    requires hi <= right.Length as uint64
     requires left != right
     // reads left, right
     modifies left, right
@@ -241,16 +242,16 @@ module {:options "-functionSyntax:4"} OptimizedMergeSort {
     nameonly left: array<T>,
     nameonly right: array<T>,
     nameonly lessThanOrEq: (T, T) -> bool,
-    nameonly lo: BoundedInts.uint64,
-    nameonly mid: BoundedInts.uint64,
-    nameonly hi: BoundedInts.uint64
+    nameonly lo: uint64,
+    nameonly mid: uint64,
+    nameonly hi: uint64
   )
     requires Relations.TotalOrdering(lessThanOrEq)
     requires
       && left.Length < BoundedInts.TWO_TO_THE_64
       && right.Length < BoundedInts.TWO_TO_THE_64
-    requires lo <= mid <= hi <= left.Length as BoundedInts.uint64
-    requires  hi <= right.Length as BoundedInts.uint64 && left != right
+    requires lo <= mid <= hi <= left.Length as uint64
+    requires  hi <= right.Length as uint64 && left != right
     // We store "left" in [lo..mid]
     requires Relations.SortedBy(left[lo..mid], lessThanOrEq)
     // We store "right" in [mid..hi]
