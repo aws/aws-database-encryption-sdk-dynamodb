@@ -143,8 +143,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
                         raise ValueError(f"Unknown request type: {item}")
         # There isn't a shape for the output, but luckily the output can be an empty dict:
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
-        table_output = {}
-        client_output = self._resource_shape_to_client_shape_converter.batch_write_item_response(table_output)
+        client_output = {}
         return client_output
 
     def batch_get_item(self, **kwargs):
