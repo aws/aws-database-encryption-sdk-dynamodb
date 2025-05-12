@@ -130,7 +130,14 @@ class DynamoDBClientWrapperForDynamoDBTable:
 
     def batch_write_item(self, **kwargs):
         table_input = self._client_shape_to_resource_shape_converter.batch_write_item_request(kwargs)
-        table_output = self._table.batch_write_item(**table_input)
+        # table_output = self._table.batch_write_item(**table_input)
+        batch_writer = self._table.batch_writer()
+        for item in table_input["Items"]:
+            if "PutRequest" in item:
+                batch_writer.put_item(item["PutRequest"]["Item"])
+            elif "DeleteRequest" in item:
+                batch_writer.delete_item(item["DeleteRequest"]["Key"])
+        table_output = batch_writer.close()
         client_output = self._resource_shape_to_client_shape_converter.batch_write_item_response(table_output)
         return client_output
 

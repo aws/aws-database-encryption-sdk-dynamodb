@@ -39,7 +39,6 @@ INTEG_TEST_DEFAULT_SORT_KEY_NAME = "sort_key"
 INTEG_TEST_DEFAULT_ALGORITHM_SUITE_ID = (
     DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384
 )
-# 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
 INTEG_TEST_DEFAULT_TABLE_CONFIG = DynamoDbTableEncryptionConfig(
     logical_table_name=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     partition_key_name=INTEG_TEST_DEFAULT_PARTITION_KEY_NAME,

@@ -57,9 +57,16 @@ def base_transact_get_item_request(keys):
 
 # Base exhaustive request structures that are shared between DDB and dict formats
 
+# No exhaustive requests are intended to be able to be used as real requests.
+# Some parameters conflict with each other when sent to DynamoDB.
+# These are only intended to test the conversion of the request from client to resource format.
 
 def base_exhaustive_put_item_request(item):
-    """Base structure for exhaustive put_item requests."""
+    """Base structure for exhaustive put_item requests.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     return {
         # Expected is legacy, but still in the boto3 docs.
         "Expected": {
@@ -78,7 +85,11 @@ def base_exhaustive_put_item_request(item):
 
 
 def base_exhaustive_get_item_request(item):
-    """Base structure for exhaustive get_item requests."""
+    """Base structure for exhaustive get_item requests.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     return {
         "ReturnConsumedCapacity": "TOTAL",
         "ReturnItemCollectionMetrics": "SIZE",
@@ -95,7 +106,11 @@ def base_exhaustive_get_item_request(item):
 
 
 def base_exhaustive_query_request(item):
-    """Base structure for exhaustive query requests."""
+    """Base structure for exhaustive query requests.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     return {
         "IndexName": "index_name",
         "Select": "SPECIFIC_ATTRIBUTES",
@@ -119,7 +134,11 @@ def base_exhaustive_query_request(item):
 
 
 def base_exhaustive_scan_request(item):
-    """Base structure for exhaustive scan requests."""
+    """Base structure for exhaustive scan requests.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     return {
         "IndexName": "index_name",
         "AttributesToGet": ["partition_key", "sort_key", "attribute1", "attribute2"],
@@ -267,8 +286,14 @@ def basic_put_item_request_dict(item):
 
 
 def exhaustive_put_item_request_dict(item):
-    """Get a put_item request in dict format for any item."""
+    """Get a put_item request in dict format for any item.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     base = basic_put_item_request_dict(item)
+    # Replace the default ConditionExpression string with a ConditionExpression object
+    # to increase test coverage.
     additional_keys = base_exhaustive_put_item_request(item)
     additional_keys["ConditionExpression"] = Attr("#pk").not_exists() & Attr("#sk").not_exists()
     return {**base, **additional_keys}
@@ -280,7 +305,11 @@ def basic_get_item_request_dict(item):
 
 
 def exhaustive_get_item_request_dict(item):
-    """Get a get_item request in dict format for any item."""
+    """Get a get_item request in dict format for any item.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     base = basic_get_item_request_dict(item)
     additional_keys = base_exhaustive_get_item_request(item)
     return {**base, **additional_keys}
@@ -296,12 +325,17 @@ def basic_query_request_dict(item):
 def basic_query_request_dict_condition_expression(item):
     """Get a query request in dict format for any item."""
     base = base_query_request(item)
-    # Override base KeyConditionExpression to use ConditionExpressions
+    # Replace the default KeyConditionExpression string with a ConditionExpression object
+    # to increase test coverage.
     return {"KeyConditionExpression": Key("partition_key").eq(item["partition_key"]), **base}
 
 
 def exhaustive_query_request_dict(item):
-    """Get a query request in dict format for any item."""
+    """Get a query request in dict format for any item.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     base = basic_query_request_dict(item)
     additional_keys = base_exhaustive_query_request(item)
     return {**base, **additional_keys}
@@ -313,7 +347,11 @@ def basic_scan_request_dict(item):
 
 
 def exhaustive_scan_request_dict(item):
-    """Get a scan request in dict format for any item."""
+    """Get a scan request in dict format for any item.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """
     base = basic_scan_request_dict(item)
     additional_keys = base_exhaustive_scan_request(item)
     return {**base, **additional_keys}

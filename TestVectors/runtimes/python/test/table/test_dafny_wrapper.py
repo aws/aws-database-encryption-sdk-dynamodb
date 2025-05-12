@@ -9,7 +9,7 @@ which will execute the `internaldafny_test_executor.py` file in the `dafny` dire
 """
 
 import sys
-
+from functools import partial
 # Different from standard test_dafny_wrapper due to weird test structure.
 test_dir = '/'.join(__file__.split("/")[:-2])
 
@@ -39,15 +39,18 @@ import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictIt
 def EmptyTest(*args, **kwargs):
   print(f"Skipping test {kwargs['test_name']} because {kwargs['reason']}")
 
-aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = EmptyTest(
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactGetItems = partial(
+  EmptyTest,
   test_name="BasicIoTestTransactGetItems",
   reason="DDB tables do not support transact_get_items"
 )
-aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = EmptyTest(
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestTransactWriteItems = partial(
+  EmptyTest,
   test_name="BasicIoTestTransactWriteItems",
   reason="DDB tables do not support transact_write_items"
 )
-aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestBatchGetItems = EmptyTest(
+aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.DdbEncryptionTestVectors.TestVectorConfig.BasicIoTestBatchGetItems = partial(
+  EmptyTest,
   test_name="BasicIoTestBatchGetItems",
   reason="DDB tables do not support batch_get_item"
 )
