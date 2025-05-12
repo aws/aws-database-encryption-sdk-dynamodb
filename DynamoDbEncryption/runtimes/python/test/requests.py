@@ -61,8 +61,10 @@ def base_transact_get_item_request(keys):
 # Some parameters conflict with each other when sent to DynamoDB.
 # These are only intended to test the conversion of the request from client to resource format.
 
+
 def base_exhaustive_put_item_request(item):
-    """Base structure for exhaustive put_item requests.
+    """
+    Base structure for exhaustive put_item requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -85,7 +87,8 @@ def base_exhaustive_put_item_request(item):
 
 
 def base_exhaustive_get_item_request(item):
-    """Base structure for exhaustive get_item requests.
+    """
+    Base structure for exhaustive get_item requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -106,7 +109,8 @@ def base_exhaustive_get_item_request(item):
 
 
 def base_exhaustive_query_request(item):
-    """Base structure for exhaustive query requests.
+    """
+    Base structure for exhaustive query requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -134,7 +138,8 @@ def base_exhaustive_query_request(item):
 
 
 def base_exhaustive_scan_request(item):
-    """Base structure for exhaustive scan requests.
+    """
+    Base structure for exhaustive scan requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -286,7 +291,8 @@ def basic_put_item_request_dict(item):
 
 
 def exhaustive_put_item_request_dict(item):
-    """Get a put_item request in dict format for any item.
+    """
+    Get a put_item request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -305,7 +311,8 @@ def basic_get_item_request_dict(item):
 
 
 def exhaustive_get_item_request_dict(item):
-    """Get a get_item request in dict format for any item.
+    """
+    Get a get_item request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -331,7 +338,8 @@ def basic_query_request_dict_condition_expression(item):
 
 
 def exhaustive_query_request_dict(item):
-    """Get a query request in dict format for any item.
+    """
+    Get a query request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.
@@ -347,7 +355,8 @@ def basic_scan_request_dict(item):
 
 
 def exhaustive_scan_request_dict(item):
-    """Get a scan request in dict format for any item.
+    """
+    Get a scan request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
     This is only intended to test the conversion of the request from client to resource format.

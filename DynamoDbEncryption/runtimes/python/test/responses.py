@@ -7,7 +7,8 @@ def basic_put_item_response(item):
 
 
 def exhaustive_put_item_response(item):
-    """Get a put_item response in resource (ddb) format for any item.
+    """
+    Get a put_item response in resource (ddb) format for any item.
     This is not intended to be a real response that DynamoDB would return,
     but the response should contain additional attributes that DynamoDB could return.
     This is only intended to exhaustively test the conversion of the request from client to resource format.
@@ -31,7 +32,8 @@ def basic_get_item_response(item):
 
 
 def exhaustive_get_item_response(item):
-    """Get a get_item response in resource (ddb) format for any item.
+    """
+    Get a get_item response in resource (ddb) format for any item.
     This is not intended to be a real response that DynamoDB would return,
     but the response should contain additional attributes that DynamoDB could return.
     This is only intended to exhaustively test the conversion of the request from client to resource format.
@@ -54,7 +56,8 @@ def basic_query_response(items):
 
 
 def exhaustive_query_response(items):
-    """Get a query response in resource (ddb) format for any items.
+    """
+    Get a query response in resource (ddb) format for any items.
     This is not intended to be a real response that DynamoDB would return,
     but the response should contain additional attributes that DynamoDB could return.
     This is only intended to exhaustively test the conversion of the request from client to resource format.
@@ -74,7 +77,8 @@ def basic_scan_response(items, keys):
 
 
 def exhaustive_scan_response(items, keys):
-    """Get a scan response in resource (ddb) format for any items.
+    """
+    Get a scan response in resource (ddb) format for any items.
     This is not intended to be a real response that DynamoDB would return,
     but the response should contain additional attributes that DynamoDB could return.
     This is only intended to exhaustively test the conversion of the request from client to resource format.
@@ -95,7 +99,8 @@ def basic_batch_get_item_response(items):
 
 
 def exhaustive_batch_get_item_response(items):
-    """Get a batch_get_item response in resource (ddb) format for any items.
+    """
+    Get a batch_get_item response in resource (ddb) format for any items.
     This is not intended to be a real response that DynamoDB would return,
     but the response should contain additional attributes that DynamoDB could return.
     This is only intended to exhaustively test the conversion of the request from client to resource format.
@@ -119,7 +124,8 @@ def basic_batch_write_item_put_response(items):
 
 
 def exhaustive_batch_write_item_put_response(items):
-    """Get a batch_write_item response in resource (ddb) format for any items.
+    """
+    Get a batch_write_item response in resource (ddb) format for any items.
     This is not intended to be a real response that DynamoDB would return,
     but the response should contain additional attributes that DynamoDB could return.
     This is only intended to exhaustively test the conversion of the request from client to resource format.
