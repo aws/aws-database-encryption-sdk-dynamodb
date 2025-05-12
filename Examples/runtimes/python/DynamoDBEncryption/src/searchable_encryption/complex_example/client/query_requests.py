@@ -142,9 +142,8 @@ def run_query_3(ddb_client, table_name):
     # Check known values in the response
     found_known_value_item = False
     for item in response["Items"]:
-        if item["partition_key"] == "reservation1":
-            found_known_value_item = True
         if item["partition_key"]["S"] == "reservation1":
+            found_known_value_item = True
             assert item["Subject"]["S"] == "Scan beacons"
             assert item["Location"]["M"]["Building"]["S"] == "SEA33"
             assert {"S": "barney@gmail.com"} in item["Attendees"]["L"]

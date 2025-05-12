@@ -151,7 +151,7 @@ class default__:
             table_config_names = list(native_encryption_config.table_encryption_configs.keys())
             if len(table_config_names) > 1:
                 raise ValueError("TODO more than 1 table; need EncryptedTablesManager")
-            # table = boto3.resource('dynamodb').Table(table_config_names[0])
+            # For TestVectors, use local DynamoDB endpoint
             resource = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
             encrypted_resource = EncryptedResource(resource = resource, encryption_config = native_encryption_config)
             wrapped_encrypted_resource = DynamoDBClientWrapperForDynamoDBResource(resource = encrypted_resource, client = boto3_client)
