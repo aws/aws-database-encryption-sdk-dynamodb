@@ -38,7 +38,9 @@ old_context = boto3.dynamodb.types.DYNAMODB_CONTEXT
 try:
     old_traps = old_context.__getattribute__("traps")
 except AttributeError:
-    raise AttributeError("boto3.dynamodb.types.DYNAMODB_CONTEXT must have a 'traps' attribute to use DBESDK for DynamoDB.")
+    raise AttributeError(
+        "boto3.dynamodb.types.DYNAMODB_CONTEXT must have a 'traps' attribute to use DBESDK for DynamoDB."
+    )
 
 # traps structure: {k (trap class) : v (True if trap should raise Exception; False otherwise)}
 old_traps[Rounded] = False

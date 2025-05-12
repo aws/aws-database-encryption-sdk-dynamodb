@@ -1,6 +1,7 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Run all queries on the EncryptedClient."""
+import time
 
 
 def run_queries(ddb_client, table_name):
@@ -477,6 +478,9 @@ def run_query_14(ddb_client, table_name):
 
     Key condition: PK3=city SK3 begins_with(building.floor.desk).
     """
+    # GSIs do not update instantly
+    # so if the results come back empty
+    # we retry after a short sleep
     for i in range(10):
         response = ddb_client.query(
             TableName=table_name,
@@ -500,8 +504,10 @@ def run_query_14(ddb_client, table_name):
                 assert item["EmployeeID"]["S"] == "emp_001"
                 assert item["Location"]["M"]["Desk"]["S"] == "3"
 
-        assert found_known_value_item
-        break
+        if found_known_value_item:
+            break
+
+        time.sleep(1)
 
     # Assert the value was found inside the loop
     assert found_known_value_item
