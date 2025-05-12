@@ -152,7 +152,7 @@ class default__:
             if len(table_config_names) > 1:
                 raise ValueError("TODO more than 1 table; need EncryptedTablesManager")
             # table = boto3.resource('dynamodb').Table(table_config_names[0])
-            resource = boto3.resource('dynamodb')
+            resource = boto3.resource('dynamodb', endpoint_url="http://localhost:8000")
             encrypted_resource = EncryptedResource(resource = resource, encryption_config = native_encryption_config)
             wrapped_encrypted_resource = DynamoDBClientWrapperForDynamoDBResource(resource = encrypted_resource, client = boto3_client)
             return aws_cryptography_internal_dynamodb.internaldafny.extern.Com_Amazonaws_Dynamodb.default__.DynamoDBClient(wrapped_encrypted_resource)

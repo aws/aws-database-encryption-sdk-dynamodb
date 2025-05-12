@@ -202,7 +202,7 @@ class default__:
             if len(table_config_names) > 1:
                 # If needed, this could be supported by setting up an EncryptedTablesManager
                 raise ValueError(">1 table not supported")
-            table = boto3.resource('dynamodb').Table(table_config_names[0])
+            table = boto3.resource('dynamodb', endpoint_url="http://localhost:8000").Table(table_config_names[0])
             encrypted_table = EncryptedTable(table = table, encryption_config = native_encryption_config)
             wrapped_encrypted_table = DynamoDBClientWrapperForDynamoDBTable(table = encrypted_table, client = boto3_client)
             return aws_cryptography_internal_dynamodb.internaldafny.extern.Com_Amazonaws_Dynamodb.default__.DynamoDBClient(wrapped_encrypted_table)
