@@ -23,6 +23,7 @@ module StructuredEncryptionFooter {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
+  import opened StandardLibrary.MemoryMath
   import Primitives = AtomicPrimitives
   import Materials
   import Header = StructuredEncryptionHeader
@@ -34,11 +35,10 @@ module StructuredEncryptionFooter {
   import StandardLibrary.String
   import Seq
 
-  const RecipientTagSize := 48
-  //const SignatureSize := 96
-  const SignatureSize := 103
-  type RecipientTag = x : Bytes | |x| == RecipientTagSize witness *
-  type Signature = x : Bytes | |x| == SignatureSize witness *
+  const RecipientTagSize : uint64 := 48
+  const SignatureSize : uint64 := 103
+  type RecipientTag = x : Bytes | |x| == RecipientTagSize as nat witness *
+  type Signature = x : Bytes | |x| == SignatureSize as nat witness *
 
   //= specification/structured-encryption/footer.md#footer-format
   //= type=implication
@@ -92,7 +92,9 @@ module StructuredEncryptionFooter {
       requires client.ValidState()
       ensures client.ValidState()
     {
-      :- Need(|edks| == |tags|, E("There are a different number of recipient tags in the stored header than there are in the decryption materials."));
+      SequenceIsSafeBecauseItIsInMemory(edks);
+      SequenceIsSafeBecauseItIsInMemory(tags);
+      :- Need(|edks| as uint64 == |tags| as uint64, E("There are a different number of recipient tags in the stored header than there are in the decryption materials."));
       var canonicalHash :- CanonHash(data, header, mat.encryptionContext);
 
       var input := Prim.HMacInput (
@@ -103,10 +105,11 @@ module StructuredEncryptionFooter {
       var hashR := client.HMac(input);
       var hash :- hashR.MapFailure(e => AwsCryptographyPrimitives(e));
       // is there any way to get "48" from alg.symmetricSignature.HMAC?
-      :- Need(|hash| == 48, E("Bad hash length"));
+      SequenceIsSafeBecauseItIsInMemory(hash);
+      :- Need(|hash| as uint64 == 48, E("Bad hash length"));
 
       var foundTag := false;
-      for i := 0 to |tags| {
+      for i : uint64 := 0 to |tags| as uint64 {
         //= specification/structured-encryption/footer.md#recipient-tag-verification
         //# Recipient Tag comparisons MUST be constant time operations.
         if ConstantTimeEquals(hash, tags[i]) {
@@ -156,12 +159,14 @@ module StructuredEncryptionFooter {
   function method GetCanonicalType(value : StructuredDataTerminal, isEncrypted : bool)
     : Result<Bytes, Error>
   {
+    SequenceIsSafeBecauseItIsInMemory(value.value);
+    var value_len : uint64 := |value.value| as uint64;
     if isEncrypted then
-      :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
-      Success(UInt64ToSeq((|value.value| - 2) as uint64) + ENCRYPTED)
+      :- Need(2 <= value_len, E("Bad length."));
+      Success(UInt64ToSeq((value_len - 2) as uint64) + ENCRYPTED)
     else
-      :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
-      Success(UInt64ToSeq((|value.value|) as uint64) + PLAINTEXT + value.typeId)
+      :- Need(HasUint64Len(value.value), E("Bad length."));
+      Success(UInt64ToSeq((value_len) as uint64) + PLAINTEXT + value.typeId)
   }
 
   function method GetCanonicalEncryptedField(fieldName : CanonicalPath, value : StructuredDataTerminal)
@@ -177,17 +182,19 @@ module StructuredEncryptionFooter {
               //# | "ENCRYPTED" | 9 | Literal Ascii text |
               //# | TypeID | 2 | the type ID of the unencrypted Terminal |
               //# | value | Variable | the encrypted Terminal value |
-              && 2 <= |value.value| < UINT64_LIMIT
+              && 2 <= |value.value|
+              && HasUint64Len(value.value)
               && ret.value ==
                  fieldName
                  + UInt64ToSeq((|value.value| - 2) as uint64)
                  + ENCRYPTED
                  + value.value // this is 2 bytes of unencrypted type, followed by encrypted value
   {
-    :- Need(2 <= |value.value| < UINT64_LIMIT, E("Bad length."));
+    SequenceIsSafeBecauseItIsInMemory(value.value);
+    :- Need(2 <= |value.value| as uint64, E("Bad length."));
     Success(
       fieldName
-      + UInt64ToSeq((|value.value| - 2) as uint64)
+      + UInt64ToSeq((|value.value| as uint64 - 2) as uint64)
       + ENCRYPTED
       + value.value
     )
@@ -206,7 +213,7 @@ module StructuredEncryptionFooter {
               //# | "PLAINTEXT" | 9 | Literal Ascii text |
               //# | TypeID | 2 | the type ID of the Terminal |
               //# | value | Variable | the Terminal value |
-              && |value.value| < UINT64_LIMIT
+              && HasUint64Len(value.value)
               && ret.value ==
                  fieldName
                  + UInt64ToSeq((|value.value|) as uint64)
@@ -214,7 +221,7 @@ module StructuredEncryptionFooter {
                  + value.typeId
                  + value.value
   {
-    :- Need(|value.value| < UINT64_LIMIT, E("Bad length."));
+    :- Need(HasUint64Len(value.value), E("Bad length."));
     Success(
       fieldName
       + UInt64ToSeq((|value.value|) as uint64)
@@ -246,7 +253,8 @@ module StructuredEncryptionFooter {
       var newPart :- GetCanonicalItem(data[0]);
       Success(newPart + tail)
   } by method {
-    var i: nat := |data|;
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var i: uint64 := |data| as uint64;
     var vectors : Bytes := [];
 
     while i != 0
@@ -293,7 +301,7 @@ module StructuredEncryptionFooter {
               && CanonContent(data).Success?
               && var canon := CanonContent(data).value;
               && var AAD := Header.SerializeContext(enc);
-              && |AAD| < UINT64_LIMIT
+              && HasUint64Len(AAD)
               && var len := UInt64ToSeq(|AAD| as uint64);
               && ret.value ==
                  header
@@ -303,7 +311,7 @@ module StructuredEncryptionFooter {
   {
     var canon :- CanonContent(data);
     var AAD := Header.SerializeContext(enc);
-    :- Need(|AAD| < UINT64_LIMIT, E("AAD too long."));
+    :- Need(HasUint64Len(AAD), E("AAD too long."));
     var len := UInt64ToSeq(|AAD| as uint64);
     Success(header + len + AAD + canon)
   }
@@ -353,8 +361,9 @@ module StructuredEncryptionFooter {
   {
     var canonicalHash :- CanonHash(data, header, mat.encryptionContext);
     var tags : seq<RecipientTag> := [];
-    for i := 0 to |mat.encryptedDataKeys|
-      invariant |tags| == i
+    SequenceIsSafeBecauseItIsInMemory(mat.encryptedDataKeys);
+    for i : uint64 := 0 to |mat.encryptedDataKeys| as uint64
+      invariant |tags| == i as nat
     {
       //= specification/structured-encryption/footer.md#recipient-tags
       //# the Recipient Tag MUST be MUST be calculated over the [Canonical Hash](#canonical-hash)
@@ -371,7 +380,8 @@ module StructuredEncryptionFooter {
       var hashR := client.HMac(input);
       var hash :- hashR.MapFailure(e => AwsCryptographyPrimitives(e));
       // is there any way to get "48" from alg.symmetricSignature.HMAC?
-      :- Need(|hash| == 48, E("Bad hash length"));
+      SequenceIsSafeBecauseItIsInMemory(hash);
+      :- Need(|hash| as uint64 == 48, E("Bad hash length"));
 
       //= specification/structured-encryption/footer.md#recipient-tags
       //# the HMAC values MUST have the same order as the
@@ -395,8 +405,8 @@ module StructuredEncryptionFooter {
       );
       var sigR := client.ECDSASign(verInput);
       var sig :- sigR.MapFailure(e => AwsCryptographyPrimitives(e));
-      //assert |sig| == SignatureSize;
-      :- Need(|sig| == SignatureSize, E("Signature is " + String.Base10Int2String(|sig|) + " bytes, should have been " + String.Base10Int2String(SignatureSize) + " bytes."));
+      SequenceIsSafeBecauseItIsInMemory(sig);
+      :- Need(|sig| as uint64 == SignatureSize, E("Signature is " + String.Base10Int2String(|sig|) + " bytes, should have been " + String.Base10Int2String(SignatureSize as nat) + " bytes."));
       return Success(Footer(tags, Some(sig)));
     } else {
       return Success(Footer(tags, None));
@@ -412,7 +422,8 @@ module StructuredEncryptionFooter {
       tags[0] + SerializeTags(tags[1..])
   } by method {
     var result : Bytes := [];
-    for i := |tags| downto 0
+    SequenceIsSafeBecauseItIsInMemory(tags);
+    for i : uint64 := |tags| as uint64 downto 0
       invariant result == SerializeTags(tags[i..])
     {
       result := tags[i] + result;
@@ -431,24 +442,27 @@ module StructuredEncryptionFooter {
 
   function method GatherTags(data : Bytes)
     : seq<RecipientTag>
-    requires |data| % RecipientTagSize == 0
+    requires |data| % RecipientTagSize as nat == 0
   {
-    if |data| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(data);
+    if |data| as uint64 == 0 then
       []
     else
-      [data[0..RecipientTagSize]] + GatherTags(data[RecipientTagSize..])
+      [data[0 as uint32..RecipientTagSize]] + GatherTags(data[RecipientTagSize..])
   }
 
   function method DeserializeFooter(data : Bytes, hasSig : bool)
     : Result<Footer, Error>
   {
+    SequenceIsSafeBecauseItIsInMemory(data);
+    var data_len : uint64 := |data| as uint64;
     if hasSig then
-      :- Need((|data| - SignatureSize)  % RecipientTagSize == 0, E("Mangled signed footer has strange size"));
-      :- Need(|data| >= RecipientTagSize + SignatureSize, E("Footer too short."));
-      Success(Footer(GatherTags(data[..|data|-SignatureSize]), Some(data[|data|-SignatureSize..])))
+      :- Need(data_len >= RecipientTagSize + SignatureSize, E("Footer too short."));
+      :- Need((data_len - SignatureSize) % RecipientTagSize == 0, E("Mangled signed footer has strange size"));
+      Success(Footer(GatherTags(data[..data_len-SignatureSize]), Some(data[data_len-SignatureSize..])))
     else
-      :- Need(|data| % RecipientTagSize == 0, E("Mangled unsigned footer has strange size"));
-      :- Need(|data| >= RecipientTagSize, E("Footer too short."));
+      :- Need(data_len % RecipientTagSize == 0, E("Mangled unsigned footer has strange size"));
+      :- Need(data_len >= RecipientTagSize, E("Footer too short."));
       Success(Footer(GatherTags(data), None))
   }
 }

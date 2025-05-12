@@ -224,7 +224,7 @@ module TestStructuredEncryptionCrypt {
       expect IsHexString(FieldKeyTestVector[i].input);
       var input := FromHexString(FieldKeyTestVector[i].input);
       expect ToHexString(input) == FieldKeyTestVector[i].input;
-      expect |input| == KeySize;
+      expect |input| == KeySize64 as nat;
       expect FieldKeyTestVector[i].offset as nat * 3 < UINT32_LIMIT;
       var result :- expect FieldKey(input, FieldKeyTestVector[i].offset);
       if ToHexString(result) != FieldKeyTestVector[i].output {

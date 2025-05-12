@@ -8,13 +8,14 @@ module DynamoDbItemEncryptorUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
+
   import UTF8
   import MPL = AwsCryptographyMaterialProvidersTypes
   import DDB = ComAmazonawsDynamodbTypes
   import SortedSets
   import SE = StructuredEncryptionUtil
   import DynamoToStruct
-  import MemoryMath
 
   const ReservedPrefix := "aws_dbe_"
   const BeaconPrefix := ReservedPrefix + "b_"
@@ -192,25 +193,27 @@ module DynamoDbItemEncryptorUtil {
     keys : seq<UTF8.ValidUTF8Bytes>,
     context : MPL.EncryptionContext,
     legend : string,
-    keyPos : nat := 0,
-    legendPos : nat := 0,
+    keyPos : uint64 := 0,
+    legendPos : uint64 := 0,
     attrMap : DDB.AttributeMap := map[]
   )
     : Result<DDB.AttributeMap, string>
     requires forall k <- keys :: k in context
-    requires keyPos <= |keys|
-    requires legendPos <= |legend|
-    decreases |keys| - keyPos
+    requires keyPos as nat <= |keys|
+    requires legendPos as nat <= |legend|
+    decreases |keys| - keyPos as nat
   {
-    if |keys| == keyPos then
-      if |legend| == legendPos then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    SequenceIsSafeBecauseItIsInMemory(legend);
+    if |keys| as uint64 == keyPos then
+      if |legend| as uint64 == legendPos then
         Success(attrMap)
       else
         Failure("Encryption Context Legend is too long.")
     else
       var key : UTF8.ValidUTF8Bytes := keys[keyPos];
       if SE.EC_ATTR_PREFIX < key then
-        :- Need(legendPos < |legend|, "Encryption Context Legend is too short.");
+        :- Need(legendPos < |legend| as uint64, "Encryption Context Legend is too short.");
         var attrName :- GetAttributeName(key);
         var attrValue :- GetAttrValue(context[key], legend[legendPos]);
         GetV2AttrMap(keys, context, legend, keyPos+1, legendPos+1, attrMap[attrName := attrValue])

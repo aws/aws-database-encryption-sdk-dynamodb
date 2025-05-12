@@ -8,6 +8,7 @@ module StructuredEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
 
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -110,12 +111,16 @@ module StructuredEncryptionUtil {
 
   predicate method CryptoListHasNoDuplicatesFromSet(xs: CryptoList)
   {
-    |CryptoListToSet(xs)| == |xs|
+    SequenceIsSafeBecauseItIsInMemory(xs);
+    SetIsSafeBecauseItIsInMemory(CryptoListToSet(xs));
+    |CryptoListToSet(xs)| as uint64 == |xs| as uint64
   }
 
   predicate method AuthListHasNoDuplicatesFromSet(xs: AuthList)
   {
-    |AuthListToSet(xs)| == |xs|
+    SequenceIsSafeBecauseItIsInMemory(xs);
+    SetIsSafeBecauseItIsInMemory(AuthListToSet(xs));
+    |AuthListToSet(xs)| as uint64 == |xs| as uint64
   }
 
   predicate CryptoListHasNoDuplicates(xs: CryptoList)
@@ -150,17 +155,22 @@ module StructuredEncryptionUtil {
     ensures FooterField == "aws_dbe_foot"
   {}
 
-  const TYPEID_LEN := 2
+  ghost const TYPEID_LEN := 2
+  const TYPEID_LEN64 : uint64 := 2
   const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF]
   lemma BYTES_TYPE_ID_OK()
     ensures |BYTES_TYPE_ID| == TYPEID_LEN
   {}
 
   // Currently, only one set of sizes are supported
-  const KeySize := 32 // 256 bits, for 256-bit AES keys
-  const NonceSize := 12 // 96 bits, per AES-GCM nonces
-  const AuthTagSize := 16
-  const MSGID_LEN := 32
+  ghost const KeySize := 32 // 256 bits, for 256-bit AES keys
+  ghost const NonceSize := 12 // 96 bits, per AES-GCM nonces
+  ghost const AuthTagSize := 16
+  ghost const MSGID_LEN := 32
+  const KeySize64 : uint64 := 32 // 256 bits, for 256-bit AES keys
+  const NonceSize64 : uint64 := 12 // 96 bits, per AES-GCM nonces
+  const AuthTagSize64 : uint64 := 16
+  const MSGID_LEN64 : uint64  := 32
   const DbeAlgorithmFamily : uint8 := 0x67
 
   lemma ValidSuiteSizes(alg : CMP.AlgorithmSuiteInfo)
@@ -182,7 +192,7 @@ module StructuredEncryptionUtil {
   type GoodString = x : string | ValidString(x)
   predicate method ValidString(x : string)
   {
-    && |x| <  UINT64_LIMIT
+    && HasUint64Len(x)
     && UTF8.Encode(x).Success?
   }
 
@@ -199,12 +209,13 @@ module StructuredEncryptionUtil {
 
   // sequences are equal if zero is returned
   // Some care should be taken to ensure that target languages don't over optimize this.
-  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : nat := 0, acc : bv8 := 0) : bv8
+  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : uint64 := 0, acc : bv8 := 0) : bv8
     requires |a| == |b|
-    requires 0 <= pos <= |a|
-    decreases |a| - pos
+    requires 0 <= pos as nat <= |a|
+    decreases |a| - pos as nat
   {
-    if |a| == pos then
+    SequenceIsSafeBecauseItIsInMemory(a);
+    if |a| as uint64 == pos then
       acc
     else
       var x := ((a[pos] as bv8) ^ (b[pos] as bv8));
@@ -288,7 +299,8 @@ module StructuredEncryptionUtil {
   {
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
     var ret : map<string, string> := map[];
-    for i := 0 to |keys| {
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    for i : uint64 := 0 to |keys| as uint64 {
       var key :- expect UTF8.Decode(keys[i]);
       var value :- expect UTF8.Decode(ec[keys[i]]);
       ret := ret[key := value];
@@ -327,9 +339,10 @@ module StructuredEncryptionUtil {
   {
     var utf8DecodedVal :- UTF8.Decode(t);
     var base64DecodedVal :- Base64.Decode(utf8DecodedVal);
-    :- Need(|base64DecodedVal| >= 2, "Invalid serialization of DDB Attribute in encryption context.");
-    var typeId := base64DecodedVal[..2];
-    var serializedValue := base64DecodedVal[2..];
+    SequenceIsSafeBecauseItIsInMemory(base64DecodedVal);
+    :- Need(|base64DecodedVal| as uint64 >= 2, "Invalid serialization of DDB Attribute in encryption context.");
+    var typeId := base64DecodedVal[..2 as uint32];
+    var serializedValue := base64DecodedVal[2 as uint32..];
     Success(StructuredDataTerminal(value := serializedValue, typeId := typeId))
   }
 
