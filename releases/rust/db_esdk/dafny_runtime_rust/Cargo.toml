@@ -1,5 +1,5 @@
 [package]
-name = "dafny_runtime"
+name = "dafny-runtime"
 version = "0.3.0"
 edition = "2021"
 keywords = ["dafny"]
