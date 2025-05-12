@@ -507,7 +507,7 @@ def run_query_14(ddb_client, table_name):
         if found_known_value_item:
             break
 
-        time.sleep(1)
+        time.sleep(0.2)
 
     # Assert the value was found inside the loop
     assert found_known_value_item

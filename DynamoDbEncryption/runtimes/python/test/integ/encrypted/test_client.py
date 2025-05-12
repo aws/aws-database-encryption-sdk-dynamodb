@@ -292,7 +292,7 @@ def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_pas
     assert len(scan_response["Items"]) >= 1
     # Can't assert anything about the scan;
     # there are too many items.
-    # The critical test is that the scan succeeds.
+    # The critical assertion is that the scan succeeds.
 
 
 @pytest.fixture
