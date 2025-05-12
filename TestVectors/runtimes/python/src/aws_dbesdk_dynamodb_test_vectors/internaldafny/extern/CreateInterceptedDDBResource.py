@@ -109,11 +109,11 @@ class DynamoDBClientWrapperForDynamoDBResource:
         # Resources don't have query, but our EncryptedResources can provide EncryptedTables that do support query.
         # This path tests that the EncryptedTables provided by EncryptedResources can used for query.
         table_name = kwargs["TableName"]
-        table_input = self._client_shape_to_resource_shape_converter.put_item_request(kwargs)
+        table_input = self._client_shape_to_resource_shape_converter.query_request(kwargs)
         encrypted_table = self._resource.Table(table_name)
         table_output = encrypted_table.query(**table_input)
         table_shape_converter = ResourceShapeToClientShapeConverter(table_name=table_name)
-        client_output = table_shape_converter.put_item_response(table_output)
+        client_output = table_shape_converter.query_response(table_output)
         return client_output
 
     def transact_get_items(self, **kwargs):
