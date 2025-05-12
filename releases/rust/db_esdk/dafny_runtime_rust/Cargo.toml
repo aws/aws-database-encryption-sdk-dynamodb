@@ -2,6 +2,12 @@
 name = "dafny_runtime"
 version = "0.3.0"
 edition = "2021"
+keywords = ["dafny"]
+license = "ISC AND (Apache-2.0 OR ISC)"
+description = "dafny-runtime is the runtime support library for Rust code gerated from Dafny."
+repository = "https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk/dafny_runtime_rust"
+authors = ["AWS-CryptoTools"]
+readme = "README.md"
 
 [dependencies]
 once_cell = "1.21.3"
