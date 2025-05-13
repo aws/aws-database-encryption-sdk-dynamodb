@@ -49,20 +49,20 @@ class EncryptedClient(EncryptedBotoInterface):
 
     This class will encrypt/decrypt items for the following operations:
 
-        * `put_item`
-        * `get_item`
-        * `query`
-        * `scan`
-        * `batch_write_item`
-        * `batch_get_item`
-        * `transact_get_items`
-        * `transact_write_items`
+        * ``put_item``
+        * ``get_item``
+        * ``query``
+        * ``scan``
+        * ``batch_write_item``
+        * ``batch_get_item``
+        * ``transact_get_items``
+        * ``transact_write_items``
 
-    The `update_item` operation is not currently supported. Calling this operation will raise `NotImplementedError`.
+    The ``update_item`` operation is not currently supported. Calling this operation will raise ``NotImplementedError``.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
-    `EncryptedClient` can also return an `EncryptedPaginator` for transparent decryption of paginated results.
+    ``EncryptedClient`` can also return an ``EncryptedPaginator`` for transparent decryption of paginated results.
     """
 
     _client: botocore.client.BaseClient
@@ -78,15 +78,15 @@ class EncryptedClient(EncryptedBotoInterface):
         expect_standard_dictionaries: bool | None = False,
     ):
         """
-        Create an `EncryptedClient` object.
+        Create an ``EncryptedClient`` object.
 
         Args:
             client (botocore.client.BaseClient): Initialized boto3 DynamoDB client
             encryption_config (DynamoDbTablesEncryptionConfig): Initialized DynamoDbTablesEncryptionConfig
             expect_standard_dictionaries (Optional[bool]): Does the underlying boto3 client expect items
                 to be standard Python dictionaries? This should only be set to True if you are using a
-                client obtained from a service resource or table resource (ex: `table.meta.client`).
-                If this is True, EncryptedClient will expect item-like shapes to be
+                client obtained from a service resource or table resource (ex: ``table.meta.client``).
+                If this is True, ``EncryptedClient`` will expect item-like shapes to be
                 standard Python dictionaries (default: False).
 
         """
