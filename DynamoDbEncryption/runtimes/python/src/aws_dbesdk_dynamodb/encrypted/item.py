@@ -72,13 +72,13 @@ class ItemEncryptor:
                   (parsed `aws_dbe_head` value).
 
         Example:
-        >>> plaintext_item = {
-        ...     'some': 'data',
-        ...     'more': 5
-        ... }
-        >>> encrypt_output = item_encryptor.encrypt_python_item(plaintext_item)
-        >>> encrypted_item = encrypt_output.encrypted_item
-        >>> header = encrypt_output.parsed_header
+            >>> plaintext_item = {
+            ...     'some': 'data',
+            ...     'more': 5
+            ... }
+            >>> encrypt_output = item_encryptor.encrypt_python_item(plaintext_item)
+            >>> encrypted_item = encrypt_output.encrypted_item
+            >>> header = encrypt_output.parsed_header
 
         """
         plaintext_ddb_item = dict_to_ddb(plaintext_dict_item)
