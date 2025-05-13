@@ -91,9 +91,6 @@ impl DbEsdkInterceptor {
     }
 }
 
-unsafe impl Sync for DbEsdkInterceptor {}
-unsafe impl Send for DbEsdkInterceptor {}
-
 #[derive(Debug)]
 struct OriginalRequest(Input);
 
