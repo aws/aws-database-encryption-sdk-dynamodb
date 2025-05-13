@@ -27,18 +27,17 @@ jobs:
         library: [DynamoDbEncryption]
         python-version: ["3.11"]
         os: [
-          # macos-13,
-          ubuntu-22.04,
-          # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
-          # Windows is tested with non-Dafny-transpiled Python tests.
-          # windows-latest
-        ]
+            # macos-13,
+            ubuntu-22.04,
+            # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
+            # Windows is tested with non-Dafny-transpiled Python tests.
+            # windows-latest
+          ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
-
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
@@ -127,4 +126,3 @@ jobs:
           tox -e encrypted-interface-coverage
           tox -e client-to-resource-conversions-coverage
           tox -e resource-to-client-conversions-coverage
-

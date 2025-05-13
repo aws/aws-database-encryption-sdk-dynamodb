@@ -21,8 +21,8 @@ Please **do not** create a public GitHub issue.
 
 ### Required Prerequisites
 
-* Python 3.11+
-* aws-cryptographic-material-providers 1.10.0+
+- Python 3.11+
+- aws-cryptographic-material-providers 1.10.0+
 
 ### Installation
 

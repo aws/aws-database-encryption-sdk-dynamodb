@@ -101,16 +101,16 @@ class EncryptedClient(EncryptedBotoInterface):
         """
         Put a single item to a table. Encrypts the item before writing to DynamoDB.
 
-        The parameters and return value match the boto3 DynamoDB put_item API:
+        The input and output dicts' keys match the input and output dicts' keys for the boto3 DynamoDB `put_item` API:
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 `put_item` API parameters' argument names.
             The "Item" argument will be encrypted locally before being written to DynamoDB.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 put_item API response.
+            dict: The response from DynamoDB. This matches the boto3 `put_item` API response shape.
 
         """
         return self._client_operation_logic(
@@ -131,6 +131,7 @@ class EncryptedClient(EncryptedBotoInterface):
         Get a single item from a table. Decrypts the item after reading from DynamoDB.
 
         The parameters and return value match the boto3 DynamoDB get_item API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/get_item.html
 
         Args:
@@ -159,6 +160,7 @@ class EncryptedClient(EncryptedBotoInterface):
         Query items from a table or index. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB query API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/query.html
 
         Args:
@@ -187,6 +189,7 @@ class EncryptedClient(EncryptedBotoInterface):
         Scan an entire table or index. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB scan API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/scan.html
 
         Args:
@@ -217,6 +220,7 @@ class EncryptedClient(EncryptedBotoInterface):
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB batch_write_item API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
 
         Args:
@@ -246,6 +250,7 @@ class EncryptedClient(EncryptedBotoInterface):
         Get multiple items from one or more tables. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB batch_get_item API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_get_item.html
 
         Args:
@@ -274,6 +279,7 @@ class EncryptedClient(EncryptedBotoInterface):
         Get multiple items in a single transaction. Decrypts any returned items.
 
         The parameters and return value match the boto3 DynamoDB transact_get_items API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_get_items.html
 
         Args:
@@ -304,6 +310,7 @@ class EncryptedClient(EncryptedBotoInterface):
         For put operations, encrypts items before writing.
 
         The parameters and return value match the boto3 DynamoDB transact_write_items API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_write_items.html
 
         Args:

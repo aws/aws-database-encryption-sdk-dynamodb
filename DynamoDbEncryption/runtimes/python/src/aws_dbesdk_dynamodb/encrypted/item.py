@@ -31,7 +31,7 @@ class ItemEncryptor:
         item_encryptor_config: DynamoDbItemEncryptorConfig,
     ):
         """
-        Create an ItemEncryptor.
+        Create an `ItemEncryptor`.
 
         Args:
             item_encryptor_config (DynamoDbItemEncryptorConfig): Encryption configuration object.
@@ -58,8 +58,8 @@ class ItemEncryptor:
         boto3 DynamoDB Tables and Resources expect items formatted as native Python dictionaries.
         Use this method to encrypt an item if you intend to pass the encrypted item
         to a boto3 DynamoDB Table or Resource interface to store it.
-        (Alternatively, you can use this library's EncryptedTable or EncryptedResource interfaces
-        to transparently encrypt items without an intermediary ItemEncryptor.)
+        (Alternatively, you can use this library's `EncryptedTable` or `EncryptedResource` interfaces
+        to transparently encrypt items without an intermediary `ItemEncryptor`.)
 
         Args:
             plaintext_dict_item (dict[str, Any]): A standard Python dictionary.
@@ -100,8 +100,8 @@ class ItemEncryptor:
 
         Use this method to encrypt an item if you intend to pass the encrypted item
         to a boto3 DynamoDB client to store it.
-        (Alternatively, you can use this library's EncryptedClient interface
-        to transparently encrypt items without an intermediary ItemEncryptor.)
+        (Alternatively, you can use this library's `EncryptedClient` interface
+        to transparently encrypt items without an intermediary `ItemEncryptor`.)
 
         Args:
             plaintext_dynamodb_item (dict[str, dict[str, Any]]): The item to encrypt formatted as DynamoDB JSON.
@@ -184,8 +184,8 @@ class ItemEncryptor:
         boto3 DynamoDB Tables and Resources return items formatted as native Python dictionaries.
         Use this method to decrypt an item if you retrieve the encrypted item
         from a boto3 DynamoDB Table or Resource interface.
-        (Alternatively, you can use this library's EncryptedTable or EncryptedResource interfaces
-        to transparently decrypt items without an intermediary ItemEncryptor.)
+        (Alternatively, you can use this library's `EncryptedTable` or `EncryptedResource` interfaces
+        to transparently decrypt items without an intermediary `ItemEncryptor`.)
 
         Args:
             encrypted_dict_item (dict[str, Any]): A standard Python dictionary with encrypted values.
@@ -226,8 +226,8 @@ class ItemEncryptor:
 
         Use this method to decrypt an item if you retrieved the encrypted item
         from a boto3 DynamoDB client.
-        (Alternatively, you can use this library's EncryptedClient interface
-        to transparently decrypt items without an intermediary ItemEncryptor.)
+        (Alternatively, you can use this library's `EncryptedClient` interface
+        to transparently decrypt items without an intermediary `ItemEncryptor`.)
 
         Args:
             encrypted_dynamodb_item (dict[str, dict[str, Any]]): The item to decrypt formatted as DynamoDB JSON.
