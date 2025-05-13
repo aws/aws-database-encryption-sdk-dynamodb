@@ -1,12 +1,10 @@
 # Python AWS Database Encryption SDK for DynamoDB
 
 [![MPL-python-tests](https://github.com/aws/aws-database-encryption-sdk-dynamodb/actions/workflows/push.yml/badge.svg)](https://github.com/aws/aws-database-encryption-sdk-dynamodb/actions/workflows/push.yml)
-
 [![Code style: black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
-
 [![Documentation Status](https://readthedocs.org/projects/aws-dbesdk-dynamodb-python/badge/)](https://aws-dbesdk-dynamodb-python.readthedocs.io/en/latest/)
 
-These are the docs for the Python AWS Database Encryption SDK for DynamoDB.
+Documentation for the Python AWS Database Encryption SDK for DynamoDB.
 
 The latest full documentation can be found at [Read the Docs](https://aws-dbesdk-dynamodb-python.readthedocs.io/en/latest/).
 

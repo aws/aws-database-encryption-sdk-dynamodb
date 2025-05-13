@@ -44,23 +44,25 @@ class EncryptedClient(EncryptedBotoInterface):
     drop-in replacement that transparently handles encryption and decryption of items.
 
     The API matches the standard boto3 DynamoDB client interface:
+
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#client
 
     This class will encrypt/decrypt items for the following operations:
-        * put_item
-        * get_item
-        * query
-        * scan
-        * batch_write_item
-        * batch_get_item
-        * transact_get_items
-        * transact_write_items
 
-    The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
+        * `put_item`
+        * `get_item`
+        * `query`
+        * `scan`
+        * `batch_write_item`
+        * `batch_get_item`
+        * `transact_get_items`
+        * `transact_write_items`
+
+    The `update_item` operation is not currently supported. Calling this operation will raise `NotImplementedError`.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
-    EncryptedClient can also return an EncryptedPaginator for transparent decryption of paginated results.
+    `EncryptedClient` can also return an `EncryptedPaginator` for transparent decryption of paginated results.
     """
 
     _client: botocore.client.BaseClient
@@ -76,7 +78,7 @@ class EncryptedClient(EncryptedBotoInterface):
         expect_standard_dictionaries: bool | None = False,
     ):
         """
-        Create an EncryptedClient object.
+        Create an `EncryptedClient` object.
 
         Args:
             client (botocore.client.BaseClient): Initialized boto3 DynamoDB client
@@ -100,11 +102,12 @@ class EncryptedClient(EncryptedBotoInterface):
         Put a single item to a table. Encrypts the item before writing to DynamoDB.
 
         The parameters and return value match the boto3 DynamoDB put_item API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
-                The "Item" argument will be encrypted locally before being written to DynamoDB.
+            The "Item" argument will be encrypted locally before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 put_item API response.
@@ -135,7 +138,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 get_item API response.
-                The "Item" field will be decrypted locally after being read from DynamoDB.
+            The "Item" field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
