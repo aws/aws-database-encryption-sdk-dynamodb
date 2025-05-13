@@ -1,5 +1,6 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import boto3
-import types
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.CreateInterceptedDDBClient
 import aws_cryptography_internal_dynamodb.internaldafny.extern
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy import aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig
@@ -25,7 +26,7 @@ from boto3.dynamodb.types import TypeDeserializer
 # When querying, DBESDK DDB TestVectors will pass the Table the query as a string.
 # The Table could accept this string as-is and process it correctly.
 # However, EncryptedTables have extra logic to process boto3 Conditions.
-# We want to test this extra logic as much as possible.
+# I want to test this extra logic as much as possible.
 # This map converts some known query strings to equivalent Conditions.
 # TestVectors will pass the query string (map key) to the Table;
 # the Table's internal logic will look up the query string in this map:
@@ -82,17 +83,17 @@ known_query_string_to_condition_map = {
     # "Complex" queries
     "Comp1 := :cmp1a": Attr("Comp1").eq(":cmp1a"),
     "begins_with(Comp1, :cmp1c)": Attr("Comp1").begins_with(":cmp1c"),
-    # Another query that can't be translated to boto3 Conditions,
-    # since attribute values aren't attribute names.
-    # Pass the original string through.
-    ":cmp1c <= Comp1": ":cmp1c <= Comp1",
-
     "cmp1c < Comp1": Attr("cmp1c").lt("Comp1"),
     "cmp1c = Comp1": Attr("cmp1c").eq("Comp1"),
     "begins_with(Comp1, :cmp1d)": Attr("Comp1").begins_with(":cmp1d"),
     "contains(Comp1, :cmp1c)": Attr("Comp1").contains(":cmp1c"),
     "contains(Comp1, :cmp1d)": Attr("Comp1").contains(":cmp1d"),
     "Comp1 = :cmp1b": Attr("Comp1").eq(":cmp1b"),
+
+    # Another query that can't be translated to boto3 Conditions,
+    # since attribute values aren't attribute names.
+    # Pass the original string through.
+    ":cmp1c <= Comp1": ":cmp1c <= Comp1",
 }
 
 class DynamoDBClientWrapperForDynamoDBTable:

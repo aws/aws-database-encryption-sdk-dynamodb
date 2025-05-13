@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 """
 Set up an ItemEncryptor and use its APIs to encrypt and decrypt items in 3 different formats.
 
@@ -45,7 +47,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     """Encrypt and decrypt an item with an ItemEncryptor."""
     # 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     #    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
-    #    We will use the `CreateMrkMultiKeyring` method to create this keyring,
+    #    We will use the `CreateAwsKmsMrkMultiKeyringInput` method to create this keyring,
     #    as it will correctly handle both single region and Multi-Region KMS Keys.
     mat_prov: AwsCryptographicMaterialProviders = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
     kms_mrk_multi_keyring_input: CreateAwsKmsMrkMultiKeyringInput = CreateAwsKmsMrkMultiKeyringInput(
