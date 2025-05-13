@@ -7,6 +7,15 @@
 from .internaldafny.generated import module_
 from .internaldafny import extern
 
+# Export user-friendly access paths
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb as dynamodb
+import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption as structured_encryption
+
+__all__ = [
+    dynamodb,
+    structured_encryption,
+]
+
 """
 boto3 uses Python's decimal library to deserialize numbers retrieved by resources
     (Tables, etc.) from strings to `decimal.Decimal`s.
