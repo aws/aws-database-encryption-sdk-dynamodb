@@ -30,7 +30,7 @@ build:
 
 # Build documentation in the doc/ directory with Sphinx
 sphinx:
-  configuration: DynamoDbEncryption/runtimes/python/doc/conf.py
+  configuration: DynamoDbEncryption/runtimes/python/docs/conf.py
 
 # Need all submodules to transpile
 submodules:
