@@ -65,10 +65,11 @@ class ItemEncryptor:
 
         Returns:
             EncryptItemOutput: Structure containing the following fields:
-                - `encrypted_item` (dict[str, Any]): The encrypted Python dictionary.
-                    **Note:** The item was encrypted as DynamoDB JSON, then transformed to a Python dictionary.
-                - `parsed_header` (Optional[ParsedHeader]): The encrypted DynamoDB item's header (parsed
-                `aws_dbe_head` value).
+
+                - encrypted_item (dict[str, Any]): The encrypted Python dictionary.
+                  **Note:** The item was encrypted as DynamoDB JSON, then transformed to a Python dictionary.
+                - parsed_header (Optional[ParsedHeader]): The encrypted DynamoDB item's header
+                  (parsed `aws_dbe_head` value).
 
         Example:
         >>> plaintext_item = {
