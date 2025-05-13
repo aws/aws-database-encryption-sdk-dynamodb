@@ -71,6 +71,10 @@ jobs:
         run: |
           sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
+      - name: Install Smithy-Dafny codegen dependencies
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
         uses: ./.github/actions/polymorph_codegen
