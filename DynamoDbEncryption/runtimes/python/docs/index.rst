@@ -17,7 +17,8 @@ Modules
     aws_dbesdk_dynamodb.encrypted.paginator
     aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models
     aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models
-    
+    aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.models
+    aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config
 
 .. include:: ../../../../CHANGELOG.md
     :parser: myst_parser.docutils_
