@@ -111,7 +111,8 @@ class ItemEncryptor:
 
                 - **encrypted_item** (*dict[str, Any]*): A dictionary containing the encrypted DynamoDB item
                   formatted as DynamoDB JSON.
-                - **parsed_header** (*Optional[ParsedHeader]*): The encrypted DynamoDB item's header (`aws_dbe_head` value).
+                - **parsed_header** (*Optional[ParsedHeader]*): The encrypted DynamoDB item's header
+                  (`aws_dbe_head` value).
 
         Example:
             >>> plaintext_item = {
@@ -235,7 +236,8 @@ class ItemEncryptor:
             DecryptItemOutput: Structure containing the following fields:
 
                 - **plaintext_item** (*dict[str, Any]*): The plaintext DynamoDB item formatted as DynamoDB JSON.
-                - **parsed_header** (*Optional[ParsedHeader]*): The decrypted DynamoDB item's header (`aws_dbe_head` value).
+                - **parsed_header** (*Optional[ParsedHeader]*): The decrypted DynamoDB item's header
+                  (`aws_dbe_head` value).
 
         Example:
             >>> encrypted_item = {
@@ -269,7 +271,8 @@ class ItemEncryptor:
             DecryptItemOutput: Structure containing the following fields:
 
                 - **plaintext_item** (*dict[str, Any]*): The decrypted DynamoDB item formatted as DynamoDB JSON.
-                - **parsed_header** (*Optional[ParsedHeader]*): The decrypted DynamoDB item's header (`aws_dbe_head` value).
+                - **parsed_header** (*Optional[ParsedHeader]*): The decrypted DynamoDB item's header
+                  (`aws_dbe_head` value).
 
         Example:
             >>> encrypted_item = {
