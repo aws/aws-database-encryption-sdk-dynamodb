@@ -1,4 +1,5 @@
-import boto3
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.generated.CreateWrappedItemEncryptor
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy import aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncryptorConfig
 from aws_dbesdk_dynamodb.encrypted.item import ItemEncryptor
@@ -6,18 +7,8 @@ from smithy_dafny_standard_library.internaldafny.generated import Wrappers
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.errors import _smithy_error_to_dafny_error
 from aws_dbesdk_dynamodb_test_vectors.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.shim import DynamoDbItemEncryptorShim
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.models import (
-    DecryptItemInput,
     DecryptItemOutput,
-    EncryptItemInput,
     EncryptItemOutput,
-)
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.smithy_to_dafny import (
-    aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemOutput as SmithyToDafnyEncryptItemOutput,
-    aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemOutput as SmithyToDafnyDecryptItemOutput,
-)
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.dafny_to_smithy import (
-    aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemInput as DafnyToSmithyEncryptItemInput,
-    aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemInput as DafnyToSmithyDecryptItemInput,
 )
 from aws_dbesdk_dynamodb.transform import (
     dict_to_ddb,
@@ -32,6 +23,7 @@ class DynamoDBFormatToDictFormatWrapper:
     However, the legacy Python DDBEC ItemEncryptor also supports Python dictionary-formatted items.
     This class transforms Dafny TestVectors' DynamoDB-formatted items
         to Python DBESDK's ItemEncryptor's Python dictionary-formatted encryption methods.
+    This improves the test coverage of the ItemEncryptor.
     """
     def __init__(self, item_encryptor):
         self._item_encryptor = item_encryptor

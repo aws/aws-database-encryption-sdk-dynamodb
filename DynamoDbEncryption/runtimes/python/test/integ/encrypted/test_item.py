@@ -13,7 +13,10 @@ from ...constants import INTEG_TEST_DEFAULT_ITEM_ENCRYPTOR_CONFIG
 from ...items import complex_item_ddb, complex_item_dict, simple_item_ddb, simple_item_dict
 
 
-# Creates a matrix
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# use_complex_item = True -> "complex_item"
+# use_complex_item = False -> "simple_item"
 @pytest.fixture(params=[True, False], ids=["complex_item", "simple_item"])
 def use_complex_item(request):
     return request.param
