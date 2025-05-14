@@ -431,7 +431,7 @@ class EncryptedClient(EncryptedBotoInterface):
         transformed_request = input_transform_method(input_transform_shape(sdk_input=sdk_input)).transformed_input
 
         # If _expect_standard_dictionaries is true, the boto3 client expects items to be standard dictionaries,
-        # and needs to convert the DDB-JSON to a standard dictionary before passing the request to the boto3 client.
+        # and need to be converted from DDB-JSON to a standard dictionary before being passed to the boto3 client.
         if self._expect_standard_dictionaries:
             transformed_request = input_item_to_dict_transform_method(transformed_request)
 

@@ -31,6 +31,7 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
     Collection manager that provides EncryptedTable objects.
 
     The API matches boto3's tables collection manager interface:
+
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html
 
     All operations on this class will yield EncryptedTable objects.

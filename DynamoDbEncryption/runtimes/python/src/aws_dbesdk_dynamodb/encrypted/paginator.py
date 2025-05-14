@@ -138,13 +138,18 @@ class EncryptedPaginator(EncryptedBotoInterface):
         except KeyError:
             pagination_config = None
 
+        # If _expect_standard_dictionaries is true, input items are expected to be standard dictionaries,
+        # and need to be converted to DDB-JSON before encryption.
         if self._expect_standard_dictionaries:
             if "TableName" in client_kwargs:
                 self._resource_to_client_shape_converter.table_name = client_kwargs["TableName"]
             client_kwargs = input_item_to_ddb_transform_method(client_kwargs)
 
+        # Apply DBESDK transformations to the input
         transformed_request = input_transform_method(input_transform_shape(sdk_input=client_kwargs)).transformed_input
 
+        # If _expect_standard_dictionaries is true, the boto3 client expects items to be standard dictionaries,
+        # and need to be converted from DDB-JSON to a standard dictionary before being passed to the boto3 client.
         if self._expect_standard_dictionaries:
             transformed_request = input_item_to_dict_transform_method(transformed_request)
 
@@ -154,9 +159,12 @@ class EncryptedPaginator(EncryptedBotoInterface):
         sdk_page_response = self._paginator.paginate(**transformed_request)
 
         for page in sdk_page_response:
+            # If _expect_standard_dictionaries is true, the boto3 client returns items as standard dictionaries,
+            # and needs to convert the standard dictionary to DDB-JSON before passing the response to the DBESDK.
             if self._expect_standard_dictionaries:
                 page = output_item_to_ddb_transform_method(page)
 
+            # Apply DBESDK transformation to the boto3 output
             dbesdk_response = output_transform_method(
                 output_transform_shape(
                     original_input=client_kwargs,
@@ -164,8 +172,11 @@ class EncryptedPaginator(EncryptedBotoInterface):
                 )
             ).transformed_output
 
+            # Copy any missing fields from the SDK output to the response (e.g. ConsumedCapacity)
             dbesdk_response = self._copy_sdk_response_to_dbesdk_response(page, dbesdk_response)
 
+            # If _expect_standard_dictionaries is true, the boto3 client expects items to be standard dictionaries,
+            # and need to be converted from DDB-JSON to a standard dictionary before returning the response.
             if self._expect_standard_dictionaries:
                 dbesdk_response = output_item_to_dict_transform_method(dbesdk_response)
 
