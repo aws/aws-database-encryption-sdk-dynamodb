@@ -1,6 +1,5 @@
 import boto3
 import pytest
-from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 
@@ -15,9 +14,6 @@ from ...requests import (
     basic_query_request_dict,
     basic_scan_request_dict,
 )
-
-serializer = TypeSerializer()
-deserializer = TypeDeserializer()
 
 
 def encrypted_table():
