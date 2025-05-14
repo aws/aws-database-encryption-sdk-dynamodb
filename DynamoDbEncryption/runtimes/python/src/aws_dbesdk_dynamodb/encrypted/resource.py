@@ -34,7 +34,7 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
 
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html
 
-    All operations on this class will yield EncryptedTable objects.
+    All operations on this class will yield ``EncryptedTable`` objects.
     """
 
     def __init__(
@@ -44,7 +44,7 @@ class EncryptedTablesCollectionManager(EncryptedBotoInterface):
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
         """
-        Create an EncryptedTablesCollectionManager object.
+        Create an ``EncryptedTablesCollectionManager`` object.
 
         Args:
             collection (CollectionManager): Pre-configured boto3 DynamoDB table collection manager
@@ -136,6 +136,7 @@ class EncryptedResource(EncryptedBotoInterface):
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/index.html
 
     This class will encrypt/decrypt items for the following operations:
+
         * ``batch_get_item``
         * ``batch_write_item``
 

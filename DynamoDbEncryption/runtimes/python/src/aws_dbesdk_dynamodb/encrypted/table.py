@@ -42,6 +42,7 @@ class EncryptedTable(EncryptedBotoInterface):
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html
 
     This class will encrypt/decrypt items for the following operations:
+
         * ``put_item``
         * ``get_item``
         * ``query``
@@ -52,7 +53,7 @@ class EncryptedTable(EncryptedBotoInterface):
     Calling ``batch_writer()`` will return a ``BatchWriter`` that transparently encrypts batch write requests.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB Table's implementation
-        and will not be encrypted/decrypted.
+    and will not be encrypted/decrypted.
     """
 
     def __init__(

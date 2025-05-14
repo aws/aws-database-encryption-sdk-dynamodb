@@ -73,6 +73,7 @@ class EncryptedPaginator(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments passed directly to the underlying DynamoDB paginator.
+
                 For a Scan operation, structure these arguments according to:
 
                 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Scan.html
