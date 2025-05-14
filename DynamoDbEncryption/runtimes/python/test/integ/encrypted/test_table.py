@@ -15,6 +15,7 @@ from ...requests import (
     basic_scan_request_dict,
 )
 
+
 def encrypted_table():
     """Create an encrypted table."""
     table = boto3.resource("dynamodb").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)

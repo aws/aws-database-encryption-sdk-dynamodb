@@ -3,8 +3,6 @@ import pytest
 
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 
-from . import sort_dynamodb_json_lists
-
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
@@ -25,6 +23,7 @@ from ...requests import (
     basic_query_paginator_request,
     basic_scan_paginator_request,
 )
+from . import sort_dynamodb_json_lists
 
 
 # Creates a matrix of tests for each value in param,
@@ -77,6 +76,7 @@ def query_paginator(client):
 @pytest.fixture
 def scan_paginator(client):
     return client.get_paginator("scan")
+
 
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
@@ -133,6 +133,7 @@ def put_item_request(expect_standard_dictionaries, test_item):
         # with an added "TableName" key.
         return {**basic_put_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_put_item_request_ddb(test_item)
+
 
 def test_GIVEN_query_paginator_WHEN_paginate_THEN_returns_expected_items(
     client, query_paginator, paginate_query_request, put_item_request, test_item

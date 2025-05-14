@@ -281,6 +281,7 @@ def basic_query_paginator_request(key):
         "ExpressionAttributeValues": {":pk": key["partition_key"], ":sk": key["sort_key"]},
     }
 
+
 def basic_scan_paginator_request(item):
     """Get a scan paginator request in DDB format for any item."""
     return {

@@ -62,6 +62,7 @@ def test_GIVEN_kwargs_has_PaginationConfig_WHEN_paginate_THEN_PaginationConfig_i
         QueryInputTransformInput(sdk_input=kwargs_without_pagination_config)
     )
 
+
 def test_GIVEN_invalid_class_attribute_WHEN_getattr_THEN_raise_error():
     # Create a mock with a specific spec that excludes our unknown attribute
     mock_boto3_dynamodb_client = MagicMock(spec=["put_item", "get_item", "query", "scan"])
