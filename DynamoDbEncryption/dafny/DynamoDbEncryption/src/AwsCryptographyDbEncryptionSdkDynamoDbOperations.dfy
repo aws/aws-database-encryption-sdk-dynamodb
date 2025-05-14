@@ -10,10 +10,11 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
   import AlgorithmSuites
   import Header = StructuredEncryptionHeader
   import opened DynamoDbEncryptionUtil
+  import opened StandardLibrary.MemoryMath
 
-  const SALT_LENGTH := 16
-  const IV_LENGTH := 12
-  const VERSION_LENGTH := 16
+  const SALT_LENGTH : uint64 := 16
+  const IV_LENGTH : uint64 := 12
+  const VERSION_LENGTH : uint64 := 16
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {true}
@@ -70,7 +71,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
     var list : EncryptedDataKeyDescriptionList := [];
     //= specification/dynamodb-encryption-client/ddb-get-encrypted-data-key-description.md#behavior
     //# - For every Data Key in Data Keys, the operation MUST attempt to extract a description of the Data Key.
-    for i := 0 to |datakeys| {
+    for i : uint64 := 0 to |datakeys| as uint64 {
       var extractedKeyProviderId :- UTF8.Decode(datakeys[i].keyProviderId).MapFailure(e => E(e));
       var extractedKeyProviderIdInfo:= Option.None;
       var expectedBranchKeyVersion := Option.None;
@@ -91,7 +92,8 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
           var EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX := SALT_LENGTH + IV_LENGTH;
           var EDK_CIPHERTEXT_VERSION_INDEX := EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX + VERSION_LENGTH;
           :- Need(EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX < EDK_CIPHERTEXT_VERSION_INDEX, E("Wrong branch key version index."));
-          :- Need(|providerWrappedMaterial| >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
+          SequenceIsSafeBecauseItIsInMemory(providerWrappedMaterial);
+          :- Need(|providerWrappedMaterial| as uint64 >= EDK_CIPHERTEXT_VERSION_INDEX, E("Incorrect ciphertext structure length."));
           var branchKeyVersionUuid := providerWrappedMaterial[EDK_CIPHERTEXT_BRANCH_KEY_VERSION_INDEX .. EDK_CIPHERTEXT_VERSION_INDEX];
           var maybeBranchKeyVersion :- UUID.FromByteArray(branchKeyVersionUuid).MapFailure(e => E(e));
           expectedBranchKeyVersion := Some(maybeBranchKeyVersion);

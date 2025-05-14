@@ -8,7 +8,7 @@ module DynamoDbItemEncryptorUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened MemoryMath
+  import opened StandardLibrary.MemoryMath
 
   import UTF8
   import MPL = AwsCryptographyMaterialProvidersTypes

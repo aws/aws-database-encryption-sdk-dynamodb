@@ -26,6 +26,7 @@ module TermLoc {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import opened DynamoDbEncryptionUtil
+  import opened StandardLibrary.MemoryMath
   import StandardLibrary.String
   import DDB = ComAmazonawsDynamodbTypes
   import Seq
@@ -36,8 +37,7 @@ module TermLoc {
     | Map(key : string)
 
   type Bytes = seq<uint8>
-  type SelectorList = x : seq<Selector> | HasUint64Len(x)
-
+  type SelectorList = seq<Selector>
   //= specification/searchable-encryption/virtual.md#terminal-location
   //= type=implication
   //# A Terminal Location specification MUST be a list of one more [Segments](#segments),
@@ -45,39 +45,40 @@ module TermLoc {
   type TermLoc = x : seq<Selector> | ValidTermLoc(x) witness *
   predicate method ValidTermLoc(s : seq<Selector>)
   {
-    && 0 < |s|
-    && HasUint64Len(s)
-    && s[0].Map?
+    SequenceIsSafeBecauseItIsInMemory(s);
+    && 0 < |s| as uint64
+    && s[0 as uint32].Map?
   }
 
   function method TermLocToString(t : TermLoc) : string
   {
-    t[0].key + SelectorListToString(t[1..])
+    t[0 as uint32].key + SelectorListToString(t[1 as uint32..])
   }
   function method SelectorListToString(s : SelectorList) : string
   {
-    if |s| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if |s| as uint64 == 0 then
       ""
-    else if s[0].Map? then
-      "." + s[0].key + SelectorListToString(s[1..])
+    else if s[0 as uint32].Map? then
+      "." + s[0 as uint32].key + SelectorListToString(s[1 as uint32..])
     else
-      "[" + String.Base10Int2String(s[0].pos as int) + "]" + SelectorListToString(s[1..])
+      "[" + String.Base10Int2String(s[0 as uint32].pos as int) + "]" + SelectorListToString(s[1 as uint32..])
   }
 
   // return true if item does not have the given terminal
   predicate method LacksAttribute(t : TermLoc, item : DDB.AttributeMap)
   {
-    t[0].key !in item
+    t[0 as uint32].key !in item
   }
 
   // return the AttributeValue for the given terminal in the given item
   function method TermToAttr(t : TermLoc, item : DDB.AttributeMap, names : Option<DDB.ExpressionAttributeNameMap>)
     : Option<DDB.AttributeValue>
   {
-    if t[0].key !in item then
+    if t[0 as uint32].key !in item then
       None
     else
-      var res := GetTerminal(item[t[0].key], t[1..], names);
+      var res := GetTerminal(item[t[0 as uint32].key], t[1 as uint32..], names);
       if res.Success? then
         Some(res.value)
       else
@@ -116,7 +117,8 @@ module TermLoc {
   )
     : Result<DDB.AttributeValue, Error>
   {
-    if |parts| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(parts);
+    if |parts| as uint64 == 0 then
       Success(v)
     else
       match v {
@@ -129,22 +131,23 @@ module TermLoc {
         case BOOL(b) => Failure(E("Found boolean with parts left over."))
         case NULL(n) => Failure(E("Found null with parts left over."))
         case L(l) =>
-          if !parts[0].List? then
+          SequenceIsSafeBecauseItIsInMemory(l);
+          if !parts[0 as uint32].List? then
             Failure(E("Tried to access list with key"))
-          else if |l| <= parts[0].pos as int then
+          else if |l| as uint64 <= parts[0 as uint32].pos then
             Failure(E("Tried to access beyond the end of the list"))
           else
-            GetTerminal(l[parts[0].pos], parts[1..], names)
+            GetTerminal(l[parts[0 as uint32].pos], parts[1 as uint32..], names)
         case M(m) =>
-          if !parts[0].Map? then
+          if !parts[0 as uint32].Map? then
             Failure(E("Tried to access map with index"))
-          else if parts[0].key !in m then
-            if names.Some? && parts[0].key in names.value && names.value[parts[0].key] in m then
-              GetTerminal(m[names.value[parts[0].key]], parts[1..], names)
+          else if parts[0 as uint32].key !in m then
+            if names.Some? && parts[0 as uint32].key in names.value && names.value[parts[0 as uint32].key] in m then
+              GetTerminal(m[names.value[parts[0 as uint32].key]], parts[1 as uint32..], names)
             else
-              Failure(E("Tried to access " + parts[0].key + " which is not in the map."))
+              Failure(E("Tried to access " + parts[0 as uint32].key + " which is not in the map."))
           else
-            GetTerminal(m[parts[0].key], parts[1..], names)
+            GetTerminal(m[parts[0 as uint32].key], parts[1 as uint32..], names)
       }
   }
 
@@ -175,9 +178,9 @@ module TermLoc {
   // return the number of characters until the next part begins
   // that is, '[' or '.'
   function method  {:opaque} FindStartOfNext(s : string)
-    : (index : Option<nat>)
+    : (index : Option<uint64>)
     ensures index.Some? ==>
-              && index.value < |s|
+              && index.value as nat < |s|
               && (s[index.value] == '.' || s[index.value] == '[')
               && '.' !in s[..index.value]
               && '[' !in s[..index.value]
@@ -199,15 +202,22 @@ module TermLoc {
   }
 
   // read an unsigned decimal number, return value and length
-  function method {:opaque} GetNumber(s : string, acc : nat := 0)
-    : Result<nat, Error>
+  // error if value exceeds 2^64
+  function method {:opaque} GetNumber(s : string, acc : uint64 := 0, pos : uint64 := 0)
+    : Result<uint64, Error>
+    requires pos as nat <= |s|
+    decreases |s| - pos as nat
   {
-    if |s| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if |s| as uint64 == pos then
       Success(acc)
-    else if '0' <= s[0] <= '9' then
-      GetNumber(s[1..], acc * 10 + s[0] as nat - '0' as nat)
+    else if '0' <= s[0 as uint32] <= '9' then
+      if acc < 0xfff_ffff_ffff_ffff then
+        GetNumber(s, acc * 10 + s[0 as uint32] as uint64 - '0' as uint64, Add(pos, 1))
+      else
+        Failure(E("Number is too big for list index : " + s))
     else
-      Failure(E("Unexpected character in number : " + [s[0]]))
+      Failure(E("Unexpected character in number : " + [s[0 as uint32]]))
   }
 
   // convert string to Selector
@@ -225,15 +235,15 @@ module TermLoc {
               && (s[0] == '.' ==> ret.value.Map?)
               && (s[0] == '[' ==> ret.value.List?)
   {
-    if s[0] == '.' then
-      Success(Map(s[1..]))
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if s[0 as uint32] == '.' then
+      Success(Map(s[1 as uint32..]))
     else
-    if s[|s|-1] != ']' then
+    if s[|s| as uint64 - 1] != ']' then
       Failure(E("List index must end with ]"))
     else
-      var num :- GetNumber(s[1..|s|-1]);
-      :- Need(HasUint64Size(num), E("Array selector exceeds maximum."));
-      Success(List(num as uint64))
+      var num :- GetNumber(s[1 as uint32..|s| as uint64 - 1]);
+      Success(List(num))
   }
 
   // convert string to SelectorList
@@ -241,10 +251,10 @@ module TermLoc {
     : Result<SelectorList, Error>
     requires |s| > 0 && (s[0] == '.' || s[0] == '[')
   {
-    var pos := FindStartOfNext(s[1..]);
-    var end := if pos.None? then |s| else pos.value + 1;
+    SequenceIsSafeBecauseItIsInMemory(s);
+    var pos := FindStartOfNext(s[1 as uint32..]);
+    var end := if pos.None? then |s| as uint64 else Add(pos.value, 1);
     var sel : Selector :- GetSelector(s[..end]);
-    :- Need(HasUint64Size(|acc|+1), E("Selector Overflow"));
     if pos.None? then
       Success(acc + [sel])
     else
@@ -256,7 +266,8 @@ module TermLoc {
     : (ret : Result<TermLoc, Error>)
     ensures ret.Success? ==> 0 < |ret.value|
   {
-    :- Need(0 < |s|, E("Path specification must not be empty."));
+    SequenceIsSafeBecauseItIsInMemory(s);
+    :- Need(0 < |s| as uint64, E("Path specification must not be empty."));
     var pos := FindStartOfNext(s);
     if pos.None? then
       var m := Map(s);
@@ -264,7 +275,6 @@ module TermLoc {
     else
       var name := s[..pos.value];
       var selectors :- GetSelectors(s[pos.value..]);
-      :- Need(HasUint64Size(|selectors|+1), E("Selector Overflow"));
       Success([Map(name)] + selectors)
   }
 

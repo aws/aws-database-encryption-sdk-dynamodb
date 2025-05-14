@@ -13,8 +13,7 @@ module StructuredEncryptionHeader {
   import opened StandardLibrary.UInt
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened StructuredEncryptionUtil
-  import opened MemoryMath
-
+  import opened StandardLibrary.MemoryMath
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
   import SortedSets
@@ -26,11 +25,16 @@ module StructuredEncryptionHeader {
   import Functions
   import MaterialProviders
 
-  const VERSION_LEN := 1
-  const FLAVOR_LEN := 1
-  const COMMITMENT_LEN := 32
-  const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
-  const UINT8_LIMIT := 256
+  ghost const VERSION_LEN := 1
+  ghost const FLAVOR_LEN := 1
+  ghost const COMMITMENT_LEN := 32
+  ghost const PREFIX_LEN := VERSION_LEN + FLAVOR_LEN + MSGID_LEN
+  const VERSION_LEN64 : uint64 := 1
+  const FLAVOR_LEN64 : uint64 := 1
+  const COMMITMENT_LEN64 : uint64 := 32
+  const PREFIX_LEN64 : uint64 := VERSION_LEN64 + FLAVOR_LEN64 + MSGID_LEN64
+  ghost const UINT8_LIMIT := 256
+  const UINT8_LIMIT64 : uint64 := 256
   const ENCRYPT_AND_SIGN_LEGEND : uint8 := 0x65
   const SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT_LEGEND : uint8 := 0x63
   const SIGN_ONLY_LEGEND : uint8 := 0x73
@@ -101,15 +105,29 @@ module StructuredEncryptionHeader {
   }
 
   predicate method ValidEncryptionContext(x : CMP.EncryptionContext) {
-    && |x| < UINT16_LIMIT
-    && (forall k <- x :: |k| < UINT16_LIMIT && |x[k]| < UINT16_LIMIT)
+    MapIsSafeBecauseItIsInMemory(x);
+    assert forall k <-x :: HasUint64Len(k) by {
+      forall k <- x {
+        SequenceIsSafeBecauseItIsInMemory(k);
+      }
+    }
+    assert forall k <-x :: HasUint64Len(x[k]) by {
+      forall k <- x {
+        SequenceIsSafeBecauseItIsInMemory(x[k]);
+      }
+    }
+    && |x| as uint64 < UINT16_LIMIT as uint64
+    && (forall k <- x :: |k| as uint64 < UINT16_LIMIT as uint64 && |x[k]| as uint64 < UINT16_LIMIT as uint64)
   }
 
   predicate method ValidEncryptedDataKey(x : CMP.EncryptedDataKey)
   {
-    && |x.keyProviderId| < UINT16_LIMIT
-    && |x.keyProviderInfo| < UINT16_LIMIT
-    && |x.ciphertext| < UINT16_LIMIT
+    SequenceIsSafeBecauseItIsInMemory(x.keyProviderId);
+    SequenceIsSafeBecauseItIsInMemory(x.keyProviderInfo);
+    SequenceIsSafeBecauseItIsInMemory(x.ciphertext);
+    && |x.keyProviderId| as uint64 < UINT16_LIMIT as uint64
+    && |x.keyProviderInfo| as uint64 < UINT16_LIMIT as uint64
+    && |x.ciphertext| as uint64 < UINT16_LIMIT as uint64
   }
 
   // header without commitment
@@ -174,9 +192,10 @@ module StructuredEncryptionHeader {
                 //# Header commitment comparisons MUST be constant time operations.
                 && ConstantTimeEquals(storedCommitment, calcCommitment)
     {
-      :- Need(COMMITMENT_LEN < |data|, E("Serialized header too short"));
-      var storedCommitment := data[|data|-COMMITMENT_LEN..];
-      var calcCommitment :- CalculateHeaderCommitment(client, alg, commitKey, data[..|data|-COMMITMENT_LEN]);
+      SequenceIsSafeBecauseItIsInMemory(data);
+      :- Need(COMMITMENT_LEN64 < |data| as uint64, E("Serialized header too short"));
+      var storedCommitment := data[|data| as uint64-COMMITMENT_LEN64..];
+      var calcCommitment :- CalculateHeaderCommitment(client, alg, commitKey, data[..|data|as uint64-COMMITMENT_LEN64]);
       :- Need(ConstantTimeEquals(storedCommitment, calcCommitment), E("Key commitment mismatch."));
       Success(true)
     }
@@ -243,14 +262,17 @@ module StructuredEncryptionHeader {
     //# the Version MUST be 0x02; otherwise, Version MUST be 0x01.
     ensures ret.Success? ==> |schema| < UINT32_LIMIT && ret.value.version == VersionFromSchema(schema)
   {
-    :- Need(|schema| < UINT32_LIMIT, E("Unexpected large schema"));
+    SequenceIsSafeBecauseItIsInMemory(schema);
+    SequenceIsSafeBecauseItIsInMemory(mat.encryptedDataKeys);
+    SequenceIsSafeBecauseItIsInMemory(mat.algorithmSuite.binaryId);
+    :- Need(|schema| as uint64 < UINT32_LIMIT as uint64, E("Unexpected large schema"));
     :- Need(ValidEncryptionContext(mat.encryptionContext), E("Invalid Encryption Context"));
-    :- Need(0 < |mat.encryptedDataKeys|, E("There must be at least one data key"));
-    :- Need(|mat.encryptedDataKeys| < UINT8_LIMIT, E("Too many data keys."));
+    :- Need(0 < |mat.encryptedDataKeys| as uint64, E("There must be at least one data key"));
+    :- Need(|mat.encryptedDataKeys| as uint64 < UINT8_LIMIT64, E("Too many data keys."));
     :- Need(forall x | x in mat.encryptedDataKeys :: ValidEncryptedDataKey(x), E("Invalid Data Key"));
-    :- Need(|mat.algorithmSuite.binaryId| == 2, E("Invalid Algorithm Suite Binary ID"));
-    :- Need(mat.algorithmSuite.binaryId[0] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
-    :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1]), E("Algorithm Suite has unexpected flavor."));
+    :- Need(|mat.algorithmSuite.binaryId| as uint64 == 2, E("Invalid Algorithm Suite Binary ID"));
+    :- Need(mat.algorithmSuite.binaryId[0 as uint32] == DbeAlgorithmFamily, E("Algorithm Suite not suitable for structured encryption."));
+    :- Need(ValidFlavor(mat.algorithmSuite.binaryId[1 as uint32]), E("Algorithm Suite has unexpected flavor."));
     var legend :- MakeLegend(schema);
 
     //= specification/structured-encryption/encrypt-path-structure.md#header-field
@@ -263,7 +285,7 @@ module StructuredEncryptionHeader {
     :- Need(ValidEncryptionContext(storedEC), E("Invalid Encryption Context"));
     Success(PartialHeader(
               version := VersionFromSchema(schema),
-              flavor := mat.algorithmSuite.binaryId[1],
+              flavor := mat.algorithmSuite.binaryId[1 as uint32],
               msgID := msgID,
               legend := legend,
               encContext := storedEC,
@@ -277,9 +299,9 @@ module StructuredEncryptionHeader {
     ensures ret.Success? ==>
               && PREFIX_LEN <= |data|
               && var v := ret.value;
-              && v.version == data[0]
+              && v.version == data[0 as uint32]
               && ValidVersion(v.version)
-              && v.flavor == data[1]
+              && v.flavor == data[1 as uint32]
               && ValidFlavor(v.flavor)
               && v.msgID == data[VERSION_LEN+FLAVOR_LEN..PREFIX_LEN]
               && var legendData := data[PREFIX_LEN..];
@@ -291,13 +313,14 @@ module StructuredEncryptionHeader {
               && var contextAndLen := GetContext(contextData).value;
               && v.encContext == contextAndLen.0
   {
-    :- Need(PREFIX_LEN <= |data|, E("Serialized PartialHeader too short."));
-    var version := data[0];
+    SequenceIsSafeBecauseItIsInMemory(data);
+    :- Need(PREFIX_LEN64 <= |data| as uint64, E("Serialized PartialHeader too short."));
+    var version := data[0 as uint32];
     :- Need(ValidVersion(version), E("Invalid Version Number"));
-    var flavor := data[1];
+    var flavor := data[1 as uint32];
     :- Need(ValidFlavor(flavor), E("Invalid Flavor"));
-    var msgID := data[2..PREFIX_LEN];
-    var legendData := data[PREFIX_LEN..];
+    var msgID := data[2 as uint32..PREFIX_LEN64];
+    var legendData := data[PREFIX_LEN64..];
 
     var legendAndLen :- GetLegend(legendData);
     var legend := legendAndLen.0;
@@ -311,8 +334,9 @@ module StructuredEncryptionHeader {
     var dataKeys := keysAndLen.0;
     var trailingData := keysData[keysAndLen.1..];
 
-    :- Need(|trailingData| >= COMMITMENT_LEN, E("Invalid header serialization: unexpected end of data."));
-    :- Need(|trailingData| <= COMMITMENT_LEN, E("Invalid header serialization: unexpected bytes."));
+    SequenceIsSafeBecauseItIsInMemory(trailingData);
+    :- Need(|trailingData| as uint64 >= COMMITMENT_LEN64, E("Invalid header serialization: unexpected end of data."));
+    :- Need(|trailingData| as uint64 <= COMMITMENT_LEN64, E("Invalid header serialization: unexpected bytes."));
     assert |trailingData| == COMMITMENT_LEN;
     Success(PartialHeader(
               version := version,
@@ -356,13 +380,14 @@ module StructuredEncryptionHeader {
                  );
     var outputR := client.HMac(input);
     var output :- outputR.MapFailure(e => AwsCryptographyPrimitives(e));
-    if |output| < COMMITMENT_LEN then
+    SequenceIsSafeBecauseItIsInMemory(output);
+    if |output| as uint64 < COMMITMENT_LEN64 then
       Failure(E("HMAC did not produce enough bits"))
     else
-      Success(output[..COMMITMENT_LEN])
+      Success(output[..COMMITMENT_LEN64])
   }
 
-  function method ToUInt16(x : nat)
+  function ToUInt16(x : nat)
     : (ret : Result<uint16, Error>)
     ensures x < UINT16_LIMIT ==> ret.Success?
   {
@@ -412,7 +437,7 @@ module StructuredEncryptionHeader {
     if |data| as uint64 == pos then
       Success(serialized)
     else if IsAuthAttr(data[pos].action) then
-      :- Need((|serialized| + 1) < UINT16_LIMIT, E("Legend Too Long."));
+      :- Need((|serialized| as uint64 + 1) < UINT16_LIMIT as uint64, E("Legend Too Long."));
       var legendChar := GetActionLegend(data[pos].action);
       MakeLegend2(data, pos+1, serialized + [legendChar])
     else
@@ -496,7 +521,7 @@ module StructuredEncryptionHeader {
     var len := SeqPosToUInt16(data, 0) as uint64;
     var size := Add(len, 2);
     :- Need(size <= data_size, E("Unexpected end of header data."));
-    var legend := data[2..size];
+    var legend := data[2 as uint32..size];
     :- Need(forall x <- legend :: ValidLegendByte(x), E("Invalid byte in stored legend"));
     Success((legend, size))
   }
@@ -590,7 +615,8 @@ module StructuredEncryptionHeader {
     if count == 0 then
       Success(deserialized)
     else
-      :- Need(|deserialized.0| + 1  < UINT16_LIMIT, E("Too much context"));
+      :- Need(|deserialized.0| as uint64 + 1  < UINT16_LIMIT as uint64, E("Too much context"));
+
       var kv :- GetOneKVPair(data, deserialized.1 as uint64);
       //= specification/structured-encryption/header.md#key-value-pair-entries
       //# This sequence MUST NOT contain duplicate entries.
@@ -685,7 +711,7 @@ module StructuredEncryptionHeader {
               && var data_size : uint64 := |data| as uint64;
               && Add(ret.value.1, pos) <= |data| as uint64
               && |SerializeOneDataKey(ret.value.0)| == ret.value.1 as nat
-              && SerializeOneDataKey(ret.value.0) == data[pos..Add(pos, ret.value.1 as uint64)]
+              && SerializeOneDataKey(ret.value.0) == data[pos..pos + ret.value.1]
   {
     SequenceIsSafeBecauseItIsInMemory(data);
     var data_size : uint64 := |data| as uint64;
@@ -701,15 +727,22 @@ module StructuredEncryptionHeader {
     var provInfoSize := SeqPosToUInt16(data, pos+part1Size) as uint64;
     var part2Size := part1Size + 2 + provInfoSize;
     :- Need(Add(part2Size, pos) < data_size, E("Unexpected end of header data."));
-    var provInfo := data[pos+part1Size+2..pos+part1Size+2+provInfoSize];
+    var provInfo := data[pos+part1Size+2..pos+part2Size];
 
     :- Need(Add3(part2Size, 2, pos) <= data_size, E("Unexpected end of header data."));
     var cipherSize := SeqPosToUInt16(data, pos+part2Size) as uint64;
     var part3Size := part2Size + 2 + cipherSize;
     :- Need(Add(part3Size, pos) <= data_size, E("Unexpected end of header data."));
-    var cipher := data[pos+part2Size+2..pos+part2Size+2+cipherSize];
+    var cipher := data[pos+part2Size+2..pos+part3Size];
 
     var edk : CMPEncryptedDataKey := CMP.EncryptedDataKey(keyProviderId := provId, keyProviderInfo := provInfo, ciphertext := cipher);
+
+    assert provIdSize as nat == |edk.keyProviderId|;
+    assert data[pos..pos+2] == UInt16ToSeq(provIdSize as uint16);
+    assert data[pos+2..pos+2+provIdSize] == edk.keyProviderId;
+    assert provInfoSize as nat == |edk.keyProviderInfo|;
+    assert data[pos+part1Size..pos+part1Size+2] == UInt16ToSeq(provInfoSize as uint16);
+    assert SerializeOneDataKey(edk) == data[pos..pos + part3Size];
     Success((edk, part3Size))
   }
 
@@ -778,10 +811,11 @@ module StructuredEncryptionHeader {
               && |ret.value.0| == data[0] as nat
               && GetDataKeys2(|ret.value.0| as uint64, |ret.value.0| as uint64, data, ([], 1)).Success?
   {
-    :- Need(1 <= |data|, E("Unexpected end of header data."));
-    var count := data[0] as uint64;
+    SequenceIsSafeBecauseItIsInMemory(data);
+    :- Need(1 <= |data| as uint64, E("Unexpected end of header data."));
+    var count := data[0 as uint32] as uint64;
     var keys :- GetDataKeys2(count, count, data, ([], 1));
-    if |keys.0| == 0 then
+    if |keys.0| as uint64 == 0 then
       Failure(E("At least one Data Key required"))
     else
       Success(keys)
@@ -802,10 +836,10 @@ module StructuredEncryptionHeader {
               && (count > 0 ==> GetOneDataKey(data, deserialized.1 as uint64).Success?)
               && |ret.value.0| == origCount as nat
   {
+
     if count == 0 then
       Success(deserialized)
-    else
-    if |deserialized.0| >= 255 then
+    else if |deserialized.0| as uint64 >= 255 then
       Failure(E("Too Many Data Keys"))
     else
       var edk :- GetOneDataKey(data, deserialized.1 as uint64);
