@@ -1,6 +1,6 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-"""Top-level class for encrypting and decrypting individual DynamoDB items."""
+"""Class for encrypting and decrypting individual DynamoDB items."""
 from typing import Any
 
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.client import (
