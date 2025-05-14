@@ -32,7 +32,9 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-
+from aws_dbesdk_dynamodb.encrypted.item import (
+    ItemEncryptor,
+)
 from aws_dbesdk_dynamodb.structures.item_encryptor import (
     DecryptItemInput,
     DynamoDbItemEncryptorConfig,
@@ -40,9 +42,6 @@ from aws_dbesdk_dynamodb.structures.item_encryptor import (
 )
 from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
-)
-from aws_dbesdk_dynamodb.encrypted.item import (
-    ItemEncryptor,
 )
 
 

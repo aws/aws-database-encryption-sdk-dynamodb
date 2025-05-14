@@ -7,8 +7,6 @@ from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
 
-from . import sort_dynamodb_json_lists
-
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
@@ -45,9 +43,11 @@ from ...requests import (
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
 )
+from . import sort_dynamodb_json_lists
 
 serializer = TypeSerializer()
 deserializer = TypeDeserializer()
+
 
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
@@ -73,6 +73,7 @@ def plaintext_client(expect_standard_dictionaries):
         client = boto3.client("dynamodb")
     return client
 
+
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
 # encrypted = True -> "encrypted"
@@ -88,6 +89,7 @@ def client(encrypted, expect_standard_dictionaries):
         return encrypted_client(expect_standard_dictionaries)
     else:
         return plaintext_client(expect_standard_dictionaries)
+
 
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
@@ -154,6 +156,7 @@ def get_item_request(expect_standard_dictionaries, test_item):
         # with an added "TableName" key.
         return {**basic_get_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_get_item_request_ddb(test_item)
+
 
 def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passes(
     client, put_item_request, get_item_request
