@@ -4,11 +4,11 @@
 [![Code style: black](https://img.shields.io/badge/code_style-black-000000.svg)](https://github.com/ambv/black)
 [![Documentation Status](https://readthedocs.org/projects/aws-dbesdk-dynamodb-python/badge/)](https://aws-dbesdk-dynamodb-python.readthedocs.io/en/latest/)
 
-Documentation for the Python AWS Database Encryption SDK for DynamoDB.
+This is the official implementation of the AWS Database Encryption SDK for DynamoDB in Python.
 
-The latest full documentation can be found at [Read the Docs](https://aws-dbesdk-dynamodb-python.readthedocs.io/en/latest/).
+The latest documentation can be found at [Read the Docs](https://aws-dbesdk-dynamodb-python.readthedocs.io/en/latest/).
 
-Find us on [GitHub](https://github.com/aws/aws-database-encryption-sdk-dynamodb).
+Find the source code on [GitHub](https://github.com/aws/aws-database-encryption-sdk-dynamodb).
 
 ## Security
 

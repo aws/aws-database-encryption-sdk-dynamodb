@@ -107,7 +107,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. These match the boto3 `put_item` API parameters' argument names.
-            The "Item" argument will be encrypted locally before being written to DynamoDB.
+                The "Item" argument will be encrypted locally before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 `put_item` API response shape.

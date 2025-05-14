@@ -1,8 +1,6 @@
 .. include:: ../README.md
     :parser: myst_parser.docutils_
 
-.. include:: ../../../../README.md
-    :parser: myst_parser.docutils_
 
 *******
 Modules
@@ -20,6 +18,14 @@ Modules
     aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models
     aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.models
     aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config
+
+
+The content below applies to all languages of the AWS DBESDK for DynamoDB.
+
+----
+
+.. include:: ../../../../README.md
+    :parser: myst_parser.docutils_
 
 .. include:: ../../../../CHANGELOG.md
     :parser: myst_parser.docutils_
