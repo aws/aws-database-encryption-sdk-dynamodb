@@ -5046,6 +5046,7 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementError(
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DCode(&input.r#code)?;
     validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DMessage(&input.r#message)?;
+    validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DItem(&input.r#item)?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DCode(
@@ -5056,6 +5057,19 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DCode(
     }
     let input = input.as_ref().unwrap();
 
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DItem(
+    input: &::std::option::Option<
+        ::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>,
+    >,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    validate_com_Pamazonaws_Pdynamodb_HAttributeMap(input)?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementError_DMessage(
@@ -5077,6 +5091,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest(
     validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest_DParameters(&input.r#parameters)?;
     validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest_DConsistentRead(
         &input.r#consistent_read,
+    )?;
+    validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
     )?;
     Ok(())
 }
@@ -5105,6 +5122,16 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest_DParamete
     ));
     }
     validate_com_Pamazonaws_Pdynamodb_HPreparedStatementParameters(input)?;
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest_DReturnValuesOnConditionCheckFailure(
+    input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HBatchStatementRequest_DStatement(
@@ -5840,6 +5867,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput(
     validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DExpressionAttributeValues(
         &input.r#expression_attribute_values,
     )?;
+    validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_for_DynamoDB__20120810_DeleteItem(
@@ -5866,6 +5896,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_for_DynamoDB__2
     )?;
     validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DExpressionAttributeValues(
         &input.r#expression_attribute_values,
+    )?;
+    validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
     )?;
     Ok(())
 }
@@ -5974,6 +6007,16 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DReturnItemColl
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DReturnValues(
     input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValue>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HDeleteItemInput_DReturnValuesOnConditionCheckFailure(
+    input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure>,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     if input.is_none() {
         return ::std::result::Result::Ok(());
@@ -6098,6 +6141,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput(
         &input.r#return_consumed_capacity,
     )?;
     validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DLimit(&input.r#limit)?;
+    validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_for_DynamoDB__20120810_ExecuteStatement(
@@ -6113,6 +6159,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_for_Dynam
         &input.r#return_consumed_capacity,
     )?;
     validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DLimit(&input.r#limit)?;
+    validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DConsistentRead(
@@ -6183,6 +6232,16 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DParamete
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DReturnConsumedCapacity(
     input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnConsumedCapacity>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HExecuteStatementInput_DReturnValuesOnConditionCheckFailure(
+    input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure>,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     if input.is_none() {
         return ::std::result::Result::Ok(());
@@ -7290,6 +7349,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement(
         input.r#statement.clone(),
     ))?;
     validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement_DParameters(&input.r#parameters)?;
+    validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement_DParameters(
@@ -7307,6 +7369,16 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement_DParamet
     ));
     }
     validate_com_Pamazonaws_Pdynamodb_HPreparedStatementParameters(input)?;
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement_DReturnValuesOnConditionCheckFailure(
+    input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HParameterizedStatement_DStatement(
@@ -7532,6 +7604,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HPutItemInput(
     validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DExpressionAttributeValues(
         &input.r#expression_attribute_values,
     )?;
+    validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HPutItemInput_for_DynamoDB__20120810_PutItem(
@@ -7558,6 +7633,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HPutItemInput_for_DynamoDB__2012
     )?;
     validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DExpressionAttributeValues(
         &input.r#expression_attribute_values,
+    )?;
+    validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
     )?;
     Ok(())
 }
@@ -7666,6 +7744,16 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DReturnItemCollect
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DReturnValues(
     input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValue>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HPutItemInput_DReturnValuesOnConditionCheckFailure(
+    input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure>,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     if input.is_none() {
         return ::std::result::Result::Ok(());
@@ -9099,6 +9187,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput(
     validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DExpressionAttributeValues(
         &input.r#expression_attribute_values,
     )?;
+    validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_for_DynamoDB__20120810_UpdateItem(
@@ -9131,6 +9222,9 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_for_DynamoDB__2
     )?;
     validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DExpressionAttributeValues(
         &input.r#expression_attribute_values,
+    )?;
+    validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DReturnValuesOnConditionCheckFailure(
+        &input.r#return_values_on_condition_check_failure,
     )?;
     Ok(())
 }
@@ -9255,6 +9349,16 @@ pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DReturnItemColl
 }
 pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DReturnValues(
     input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValue>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    Ok(())
+}
+pub(crate) fn validate_com_Pamazonaws_Pdynamodb_HUpdateItemInput_DReturnValuesOnConditionCheckFailure(
+    input: &::std::option::Option<aws_sdk_dynamodb::types::ReturnValuesOnConditionCheckFailure>,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     if input.is_none() {
         return ::std::result::Result::Ok(());
