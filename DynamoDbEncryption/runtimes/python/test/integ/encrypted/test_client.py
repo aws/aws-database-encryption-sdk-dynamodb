@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import boto3
 import pytest
 from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
@@ -41,11 +43,16 @@ from ...requests import (
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
 )
+from . import sort_dynamodb_json_lists
 
 serializer = TypeSerializer()
 deserializer = TypeDeserializer()
 
 
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# expect_standard_dictionaries = True -> "standard_dicts"
+# expect_standard_dictionaries = False -> "ddb_json"
 @pytest.fixture(params=[True, False], ids=["standard_dicts", "ddb_json"])
 def expect_standard_dictionaries(request):
     return request.param
@@ -67,6 +74,10 @@ def plaintext_client(expect_standard_dictionaries):
     return client
 
 
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# encrypted = True -> "encrypted"
+# encrypted = False -> "plaintext"
 @pytest.fixture(params=[True, False], ids=["encrypted", "plaintext"])
 def encrypted(request):
     return request.param
@@ -80,6 +91,10 @@ def client(encrypted, expect_standard_dictionaries):
         return plaintext_client(expect_standard_dictionaries)
 
 
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# use_complex_item = True -> "complex_item"
+# use_complex_item = False -> "simple_item"
 @pytest.fixture(params=[True, False], ids=["complex_item", "simple_item"])
 def use_complex_item(request):
     return request.param
@@ -141,22 +156,6 @@ def get_item_request(expect_standard_dictionaries, test_item):
         # with an added "TableName" key.
         return {**basic_get_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_get_item_request_ddb(test_item)
-
-
-def sort_dynamodb_json_lists(obj):
-    """
-    Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
-    DynamoDB JSON uses lists to represent sets, so strict equality can fail.
-    Sort lists to ensure consistent ordering when comparing expected and actual items.
-    """
-    if isinstance(obj, dict):
-        return {k: sort_dynamodb_json_lists(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        try:
-            return sorted(obj)  # Sort lists for consistent comparison
-        except TypeError:
-            return obj  # Not all lists are sortable; ex. complex_item_ddb's "list" attribute
-    return obj
 
 
 def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passes(

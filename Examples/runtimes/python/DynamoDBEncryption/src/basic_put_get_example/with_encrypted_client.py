@@ -20,11 +20,11 @@ from aws_cryptographic_material_providers.mpl.models import (
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
-from aws_dbesdk_dynamodb.models.dynamodb import (
+from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
 )
-from aws_dbesdk_dynamodb.models.structured_encryption import (
+from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
 )
 
