@@ -10,7 +10,7 @@ For example, if you are using DynamoDb Streams,
 you may already be working with an encrypted item obtained from
 DynamoDb, and want to directly decrypt the item.
 
-This example demonstrates the 3 formats the Item Encryptor can accept:
+This example demonstrates the 3 formats the ItemEncryptor can accept:
 - Python dictionaries (encrypt_python_item, decrypt_python_item)
 - DynamoDB JSON (encrypt_dynamodb_item, decrypt_dynamodb_item)
 - DBESDK shapes (encrypt_item, decrypt_item)
@@ -32,14 +32,17 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_dbesdk_dynamodb.encrypted.item import (
+
+from aws_dbesdk_dynamodb.structures.item_encryptor import (
     DecryptItemInput,
     DynamoDbItemEncryptorConfig,
     EncryptItemInput,
-    ItemEncryptor,
 )
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models import (
+from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
+)
+from aws_dbesdk_dynamodb.encrypted.item import (
+    ItemEncryptor,
 )
 
 
@@ -121,7 +124,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     # 5. Create the DynamoDb Item Encryptor
     item_encryptor = ItemEncryptor(config)
 
-    # 6. Directly encrypt a Python dictionary item using the ItemEncryptor
+    # 6. Encrypt a Python dictionary using the ItemEncryptor
     plaintext_dict_item: Dict[str, Any] = {
         "partition_key": "ItemEncryptDecryptExample",
         "sort_key": 0,
@@ -134,6 +137,7 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     encrypted_dict_item = encrypt_output.encrypted_item
 
     # Demonstrate that the item has been encrypted according to the configuration
+    # We do this for demonstration only, and you do not need to do this in your code.
     # Our configuration specified that the partition key should be SIGN_ONLY,
     # so it should not have been encrypted
     assert encrypted_dict_item["partition_key"] == "ItemEncryptDecryptExample"
@@ -145,16 +149,20 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert "attribute1" in encrypted_dict_item
     assert encrypted_dict_item["attribute1"] != plaintext_dict_item["attribute1"]
 
-    # 7. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
+    # Here, you could use a standard boto3 DynamoDB Table or Resource to store the item in a DynamoDB Table.
+    # For this example, we will not do that, but will continue to work with the encrypted item.
+
+    # 7. Decrypt the encrypted item using the DynamoDb Item Encryptor
     decrypt_output = item_encryptor.decrypt_python_item(encrypted_dict_item)
     decrypted_dict_item = decrypt_output.plaintext_item
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
+    # We do this for demonstration only, and you do not need to do this in your code.
     assert decrypted_dict_item["partition_key"] == "ItemEncryptDecryptExample"
     assert decrypted_dict_item["sort_key"] == 0
     assert decrypted_dict_item["attribute1"] == "encrypt and sign me!"
 
-    # 8. Directly encrypt a DynamoDB JSON item using the ItemEncryptor
+    # 8. Encrypt a DynamoDB JSON item using the ItemEncryptor
     plaintext_dynamodb_item: Dict[str, Any] = {
         "partition_key": {"S": "ItemEncryptDecryptExample"},
         "sort_key": {"N": "0"},
@@ -165,7 +173,11 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     encrypt_output = item_encryptor.encrypt_dynamodb_item(plaintext_dynamodb_item)
     encrypted_dynamodb_item = encrypt_output.encrypted_item
 
-    # Demonstrate that the item has been encrypted according to the configuration
+    # Here, you could use a standard boto3 DynamoDB Client to store the item in a DynamoDB Table.
+    # For this example, we will not do that, but will continue to work with the encrypted item.
+
+    # Demonstrate that the item has been encrypted according to the configuration.
+    # We do this for demonstration only, and you do not need to do this in your code.
     # Our configuration specified that the partition key should be SIGN_ONLY,
     # so it should not have been encrypted
     assert encrypted_dynamodb_item["partition_key"] == {"S": "ItemEncryptDecryptExample"}
@@ -177,21 +189,26 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert "attribute1" in encrypted_dynamodb_item
     assert encrypted_dynamodb_item["attribute1"] != plaintext_dynamodb_item["attribute1"]
 
-    # 9. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
+    # 9. Decrypt the encrypted item using the DynamoDb Item Encryptor
     decrypt_output = item_encryptor.decrypt_dynamodb_item(encrypted_dynamodb_item)
     decrypted_dynamodb_item = decrypt_output.plaintext_item
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
+    # We do this for demonstration only, and you do not need to do this in your code.
     assert decrypted_dynamodb_item["partition_key"] == {"S": "ItemEncryptDecryptExample"}
     assert decrypted_dynamodb_item["sort_key"] == {"N": "0"}
     assert decrypted_dynamodb_item["attribute1"] == {"S": "encrypt and sign me!"}
 
-    # 10. Directly encrypt a DBESDK shape item using the ItemEncryptor
+    # 10. Encrypt a DBESDK shape item using the ItemEncryptor
     encrypt_item_input: EncryptItemInput = EncryptItemInput(plaintext_item=plaintext_dynamodb_item)
     encrypt_item_output = item_encryptor.encrypt_item(encrypt_item_input)
     encrypted_item = encrypt_item_output.encrypted_item
 
-    # Demonstrate that the item has been encrypted according to the configuration
+    # Here, you could use a standard boto3 DynamoDB Client to store the item in a DynamoDB Table.
+    # For this example, we will not do that, but will continue to work with the encrypted item.
+
+    # Demonstrate that the item has been encrypted according to the configuration.
+    # We do this for demonstration only, and you do not need to do this in your code.
     # Our configuration specified that the partition key should be SIGN_ONLY,
     # so it should not have been encrypted
     assert encrypted_item["partition_key"] == {"S": "ItemEncryptDecryptExample"}
@@ -203,12 +220,13 @@ def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
     assert "attribute1" in encrypted_item
     assert encrypted_item["attribute1"] != plaintext_dynamodb_item["attribute1"]
 
-    # 11. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
+    # 11. Decrypt the encrypted item using the DynamoDb Item Encryptor
     decrypt_item_input: DecryptItemInput = DecryptItemInput(encrypted_item=encrypted_item)
     decrypt_output = item_encryptor.decrypt_item(decrypt_item_input)
     decrypted_item = decrypt_output.plaintext_item
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
+    # We do this for demonstration only, and you do not need to do this in your code.
     assert decrypted_item["partition_key"] == {"S": "ItemEncryptDecryptExample"}
     assert decrypted_item["sort_key"] == {"N": "0"}
     assert decrypted_item["attribute1"] == {"S": "encrypt and sign me!"}
