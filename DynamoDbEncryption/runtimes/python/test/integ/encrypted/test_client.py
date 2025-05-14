@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import boto3
 import pytest
 from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
@@ -45,7 +47,10 @@ from ...requests import (
 serializer = TypeSerializer()
 deserializer = TypeDeserializer()
 
-
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# expect_standard_dictionaries = True -> "standard_dicts"
+# expect_standard_dictionaries = False -> "ddb_json"
 @pytest.fixture(params=[True, False], ids=["standard_dicts", "ddb_json"])
 def expect_standard_dictionaries(request):
     return request.param
@@ -66,7 +71,10 @@ def plaintext_client(expect_standard_dictionaries):
         client = boto3.client("dynamodb")
     return client
 
-
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# encrypted = True -> "encrypted"
+# encrypted = False -> "plaintext"
 @pytest.fixture(params=[True, False], ids=["encrypted", "plaintext"])
 def encrypted(request):
     return request.param
@@ -79,7 +87,10 @@ def client(encrypted, expect_standard_dictionaries):
     else:
         return plaintext_client(expect_standard_dictionaries)
 
-
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# use_complex_item = True -> "complex_item"
+# use_complex_item = False -> "simple_item"
 @pytest.fixture(params=[True, False], ids=["complex_item", "simple_item"])
 def use_complex_item(request):
     return request.param
