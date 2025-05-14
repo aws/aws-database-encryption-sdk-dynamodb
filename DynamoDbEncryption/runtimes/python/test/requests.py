@@ -281,6 +281,14 @@ def basic_query_paginator_request(key):
         "ExpressionAttributeValues": {":pk": key["partition_key"], ":sk": key["sort_key"]},
     }
 
+def basic_scan_paginator_request(item):
+    """Get a scan paginator request in DDB format for any item."""
+    return {
+        "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+        "FilterExpression": "partition_key = :pk AND sort_key = :sk",
+        "ExpressionAttributeValues": {":pk": item["partition_key"], ":sk": item["sort_key"]},
+    }
+
 
 # Dict format request functions
 

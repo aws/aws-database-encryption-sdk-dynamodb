@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import boto3
 import pytest
-from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
@@ -44,9 +43,6 @@ from ...requests import (
     basic_transact_write_item_put_request_dict,
 )
 from . import sort_dynamodb_json_lists
-
-serializer = TypeSerializer()
-deserializer = TypeDeserializer()
 
 
 # Creates a matrix of tests for each value in param,
