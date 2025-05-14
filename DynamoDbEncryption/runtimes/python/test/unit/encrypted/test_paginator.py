@@ -61,3 +61,17 @@ def test_GIVEN_kwargs_has_PaginationConfig_WHEN_paginate_THEN_PaginationConfig_i
     mock_input_transform_method.assert_called_once_with(
         QueryInputTransformInput(sdk_input=kwargs_without_pagination_config)
     )
+
+def test_GIVEN_invalid_class_attribute_WHEN_getattr_THEN_raise_error():
+    # Create a mock with a specific spec that excludes our unknown attribute
+    mock_boto3_dynamodb_client = MagicMock(spec=["put_item", "get_item", "query", "scan"])
+    encrypted_paginator = EncryptedPaginator(
+        paginator=mock_boto3_dynamodb_client,
+        encryption_config=mock_tables_encryption_config,
+    )
+
+    # Then: AttributeError is raised
+    with pytest.raises(AttributeError):
+        # Given: Invalid class attribute: not_a_valid_attribute_on_EncryptedClient_nor_boto3_client
+        # When: getattr is called
+        encrypted_paginator.not_a_valid_attribute_on_EncryptedPaginator_nor_boto3_paginator()
