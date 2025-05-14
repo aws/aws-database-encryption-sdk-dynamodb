@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """High-level helper class to provide an encrypting wrapper for boto3 DynamoDB tables."""
 from collections.abc import Callable
+from copy import deepcopy
 from typing import Any
 
 from boto3.dynamodb.table import BatchWriter
@@ -38,9 +39,10 @@ class EncryptedTable(EncryptedBotoInterface):
 
     The API matches the standard boto3 DynamoDB table interface:
 
-    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table.html
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html
 
     This class will encrypt/decrypt items for the following operations:
+
         * ``put_item``
         * ``get_item``
         * ``query``
@@ -51,7 +53,7 @@ class EncryptedTable(EncryptedBotoInterface):
     Calling ``batch_writer()`` will return a ``BatchWriter`` that transparently encrypts batch write requests.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB Table's implementation
-        and will not be encrypted/decrypted.
+    and will not be encrypted/decrypted.
     """
 
     def __init__(
@@ -119,7 +121,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 Table ``get_item`` response syntax.
-                The value in ``"Item"`` will be decrypted locally after being read from DynamoDB.
+            The value in ``"Item"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -149,7 +151,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 Table ``query`` response syntax.
-                The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
+            The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -179,7 +181,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 Table ``scan`` response syntax.
-                The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
+            The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -268,9 +270,10 @@ class EncryptedTable(EncryptedBotoInterface):
             dict: The transformed response from DynamoDB
 
         """
+        table_input = deepcopy(operation_input)
         # EncryptedTable inputs are formatted as standard dictionaries, but DBESDK transformations expect DynamoDB JSON.
         # Convert from standard dictionaries to DynamoDB JSON.
-        input_transform_input = input_resource_to_client_shape_transform_method(operation_input)
+        input_transform_input = input_resource_to_client_shape_transform_method(table_input)
 
         # Apply DBESDK transformation to the input
         input_transform_output = input_encryption_transform_method(
