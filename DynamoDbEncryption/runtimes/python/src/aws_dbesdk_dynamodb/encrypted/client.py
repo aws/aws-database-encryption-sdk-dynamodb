@@ -106,8 +106,8 @@ class EncryptedClient(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``put_item`` request syntax.
-                The value in ``"Item"`` will be encrypted locally before being written to DynamoDB.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``put_item`` request
+                syntax. The value in ``"Item"`` will be encrypted locally before being written to DynamoDB.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 client ``put_item`` response syntax.
@@ -135,7 +135,8 @@ class EncryptedClient(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/get_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``get_item`` request syntax.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``get_item`` request
+                syntax.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 client ``get_item`` response syntax.
