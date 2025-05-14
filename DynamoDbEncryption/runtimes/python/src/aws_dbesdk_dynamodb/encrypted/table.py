@@ -37,20 +37,21 @@ class EncryptedTable(EncryptedBotoInterface):
     drop-in replacement that transparently handles encryption and decryption of items.
 
     The API matches the standard boto3 DynamoDB table interface:
+
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table.html
 
     This class will encrypt/decrypt items for the following operations:
-        * put_item
-        * get_item
-        * query
-        * scan
+        * ``put_item``
+        * ``get_item``
+        * ``query``
+        * ``scan``
 
-    Calling batch_writer() will return a BatchWriter that transparently encrypts batch write requests.
+    The ``update_item`` operation is not currently supported. Calling this operation will raise ``NotImplementedError``.
+
+    Calling ``batch_writer()`` will return a ``BatchWriter`` that transparently encrypts batch write requests.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB Table's implementation
         and will not be encrypted/decrypted.
-
-    Note: The update_item operation is not currently supported. Calling this operation will raise NotImplementedError.
     """
 
     def __init__(
@@ -60,7 +61,7 @@ class EncryptedTable(EncryptedBotoInterface):
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
         """
-        Create an EncryptedTable object.
+        Create an ``EncryptedTable`` object.
 
         Args:
             table (ServiceResource): Initialized boto3 DynamoDB table
@@ -79,15 +80,16 @@ class EncryptedTable(EncryptedBotoInterface):
         """
         Put a single item to the table. Encrypts the item before writing to DynamoDB.
 
-        The parameters and return value match the boto3 DynamoDB table put_item API:
+        The input and output syntaxes match those for the boto3 DynamoDB table ``put_item`` API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/put_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 put_item API parameters.
-                The "Item" field will be encrypted locally before being written to DynamoDB.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 Table ``put_item`` request
+                syntax. The value in ``"Item"`` will be encrypted locally before being written to DynamoDB.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 put_item API response.
+            dict: The response from DynamoDB. This matches the boto3 ``put_item`` response syntax.
 
         """
         return self._table_operation_logic(
@@ -107,15 +109,17 @@ class EncryptedTable(EncryptedBotoInterface):
         """
         Get a single item from the table. Decrypts the item after reading from DynamoDB.
 
-        The parameters and return value match the boto3 DynamoDB table get_item API:
+        The input and output syntaxes match those for the boto3 DynamoDB table ``get_item`` API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/get_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 get_item API parameters.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 Table ``get_item`` request
+                syntax.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 get_item API response.
-                The "Item" field will be decrypted locally after being read from DynamoDB.
+            dict: The response from DynamoDB. This matches the boto3 Table ``get_item`` response syntax.
+                The value in ``"Item"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -135,15 +139,17 @@ class EncryptedTable(EncryptedBotoInterface):
         """
         Query items from the table or index. Decrypts any returned items.
 
-        The parameters and return value match the boto3 DynamoDB table query API:
+        The input and output syntaxes match those for the boto3 DynamoDB table ``query`` API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/query.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 query API parameters.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 Table ``query`` request
+                syntax.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 query API response.
-                The "Items" field will be decrypted locally after being read from DynamoDB.
+            dict: The response from DynamoDB. This matches the boto3 Table ``query`` response syntax.
+                The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -163,15 +169,17 @@ class EncryptedTable(EncryptedBotoInterface):
         """
         Scan the entire table or index. Decrypts any returned items.
 
-        The parameters and return value match the boto3 DynamoDB table scan API:
+        The input and output syntaxes match those for the boto3 DynamoDB table ``scan`` API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/scan.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 scan API parameters.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 Table ``scan`` request
+                syntax.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 scan API response.
-                The "Items" field will be decrypted locally after being read from DynamoDB.
+            dict: The response from DynamoDB. This matches the boto3 Table ``scan`` response syntax.
+                The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -189,7 +197,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
     def update_item(self, **kwargs):
         """
-        Not implemented. Raises NotImplementedError.
+        Not implemented. Raises ``NotImplementedError``.
 
         Args:
             **kwargs: Any arguments passed to this method
