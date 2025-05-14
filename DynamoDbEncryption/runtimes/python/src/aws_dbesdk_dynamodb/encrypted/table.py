@@ -38,7 +38,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
     The API matches the standard boto3 DynamoDB table interface:
 
-    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table.html
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html
 
     This class will encrypt/decrypt items for the following operations:
         * ``put_item``
@@ -119,7 +119,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 Table ``get_item`` response syntax.
-                The value in ``"Item"`` will be decrypted locally after being read from DynamoDB.
+            The value in ``"Item"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -149,7 +149,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 Table ``query`` response syntax.
-                The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
+            The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(
@@ -179,7 +179,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 Table ``scan`` response syntax.
-                The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
+            The value in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._table_operation_logic(

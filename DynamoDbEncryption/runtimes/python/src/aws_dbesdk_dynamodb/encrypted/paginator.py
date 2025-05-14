@@ -27,10 +27,11 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 
 
 class EncryptedPaginator(EncryptedBotoInterface):
-    """Wrapping class for botocore.paginate.Paginator that decrypts returned items before returning them."""
+    """Wrapping class for the boto3 Paginator that decrypts returned items before returning them."""
 
     def __init__(
         self,
+        *,
         paginator: Paginator,
         encryption_config: DynamoDbTablesEncryptionConfig,
         expect_standard_dictionaries: bool | None = False,

@@ -28,7 +28,7 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 
 class EncryptedTablesCollectionManager(EncryptedBotoInterface):
     """
-    Tables collection manager that provides EncryptedTable objects.
+    Collection manager that provides EncryptedTable objects.
 
     The API matches boto3's tables collection manager interface:
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/tables.html
@@ -131,16 +131,17 @@ class EncryptedResource(EncryptedBotoInterface):
     drop-in replacement that transparently handles encryption and decryption of items.
 
     The API matches the standard boto3 DynamoDB resource interface:
+
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/index.html
 
     This class will encrypt/decrypt items for the following operations:
-        * batch_get_item
-        * batch_write_item
+        * ``batch_get_item``
+        * ``batch_write_item``
 
-    Calling Table() will return an EncryptedTable object.
+    Calling ``Table()`` will return an ``EncryptedTable`` object.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB resource's implementation
-        and will not be encrypted/decrypted.
+    and will not be encrypted/decrypted.
 
     """
 
@@ -151,7 +152,7 @@ class EncryptedResource(EncryptedBotoInterface):
         encryption_config: DynamoDbTablesEncryptionConfig,
     ):
         """
-        Create an EncryptedResource object.
+        Create an ``EncryptedResource`` object.
 
         Args:
             resource (ServiceResource): Initialized boto3 DynamoDB resource
@@ -169,7 +170,7 @@ class EncryptedResource(EncryptedBotoInterface):
 
     def Table(self, name):
         """
-        Create an EncryptedTable resource.
+        Create an ``EncryptedTable`` resource.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/Table.html
 
@@ -177,7 +178,7 @@ class EncryptedResource(EncryptedBotoInterface):
             name (str): The EncryptedTable's name identifier. This must be set.
 
         Returns:
-            EncryptedTable: An EncryptedTable resource
+            EncryptedTable: An ``EncryptedTable`` resource
 
         """
         return EncryptedTable(table=self._resource.Table(name), encryption_config=self._encryption_config)
@@ -186,15 +187,17 @@ class EncryptedResource(EncryptedBotoInterface):
         """
         Get multiple items from one or more tables. Decrypts any returned items.
 
-        The parameters and return value match the boto3 DynamoDB batch_get_item API:
+        The input and output syntaxes match those for the boto3 DynamoDB resource ``batch_get_item`` API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/batch_get_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_get_item API parameters.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 resource ``batch_get_item``
+                request syntax.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 batch_get_item API response.
-                The "Responses" field will be decrypted locally after being read from DynamoDB.
+            dict: The response from DynamoDB. This matches the boto3 resource ``batch_get_item`` response syntax.
+            The ``"Responses"`` field will be decrypted locally after being read from DynamoDB.
 
         """
         return self._resource_operation_logic(
@@ -216,16 +219,17 @@ class EncryptedResource(EncryptedBotoInterface):
 
         For put operations, encrypts items before writing.
 
-        The parameters and return value match the boto3 DynamoDB batch_write_item API:
+        The input and output syntaxes match those for the boto3 DynamoDB resource ``batch_write_item`` API:
+
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/service-resource/batch_write_item.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. These match the boto3 batch_write_item API parameters.
-                Any put operations in the "RequestItems" argument will be encrypted locally
-                before being written to DynamoDB.
+            **kwargs: Keyword arguments to pass to the operation. These match the boto3 resource
+                ``batch_write_item`` request syntax. Any ``"PutRequest"`` values in the ``"RequestItems"``
+                argument will be encrypted locally before being written to DynamoDB.
 
         Returns:
-            dict: The response from DynamoDB. This matches the boto3 batch_write_item API response.
+            dict: The response from DynamoDB. This matches the boto3 resource ``batch_write_item`` response syntax.
 
         """
         return self._resource_operation_logic(
