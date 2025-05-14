@@ -110,7 +110,7 @@ def encrypted_table_put_get_example(
     table_configs[dynamodb_table_name] = table_config
     tables_config = DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
 
-    # 5. Create the EncryptedClient
+    # 5. Create the EncryptedTable
     encrypted_table = EncryptedTable(
         table=boto3.resource("dynamodb").Table(dynamodb_table_name),
         encryption_config=tables_config,
@@ -128,7 +128,6 @@ def encrypted_table_put_get_example(
     }
 
     put_item_request = {
-        "TableName": dynamodb_table_name,
         "Item": item_to_encrypt,
     }
 
@@ -142,7 +141,7 @@ def encrypted_table_put_get_example(
     #    back the original item.
     key_to_get = {"partition_key": "BasicPutGetExample", "sort_key": 0}
 
-    get_item_request = {"TableName": dynamodb_table_name, "Key": key_to_get}
+    get_item_request = {"Key": key_to_get}
 
     get_item_response = encrypted_table.get_item(**get_item_request)
 
