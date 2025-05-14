@@ -8,12 +8,10 @@ Modules
 
 .. automodule:: aws_dbesdk_dynamodb.models
    :members:
-   :imported-members:
    :undoc-members:
 
 .. automodule:: aws_dbesdk_dynamodb.models.dynamodb
    :members:
-   :imported-members:
    :undoc-members:
 
 .. autosummary::
