@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """High-level helper class to provide an encrypting wrapper for boto3 DynamoDB tables."""
 from collections.abc import Callable
+from copy import deepcopy
 from typing import Any
 
 from boto3.dynamodb.table import BatchWriter
@@ -268,9 +269,10 @@ class EncryptedTable(EncryptedBotoInterface):
             dict: The transformed response from DynamoDB
 
         """
+        table_input = deepcopy(operation_input)
         # EncryptedTable inputs are formatted as standard dictionaries, but DBESDK transformations expect DynamoDB JSON.
         # Convert from standard dictionaries to DynamoDB JSON.
-        input_transform_input = input_resource_to_client_shape_transform_method(operation_input)
+        input_transform_input = input_resource_to_client_shape_transform_method(table_input)
 
         # Apply DBESDK transformation to the input
         input_transform_output = input_encryption_transform_method(

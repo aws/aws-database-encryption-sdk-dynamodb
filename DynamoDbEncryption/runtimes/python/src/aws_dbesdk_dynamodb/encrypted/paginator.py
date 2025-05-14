@@ -1,6 +1,6 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-"""High-level helper class to provide an encrypting wrapper for boto3 DynamoDB clients."""
+"""High-level helper class to provide an encrypting wrapper for boto3 DynamoDB paginators."""
 from collections.abc import Callable, Generator
 from copy import deepcopy
 from typing import Any
@@ -45,7 +45,7 @@ class EncryptedPaginator(EncryptedBotoInterface):
             encryption_config (DynamoDbTablesEncryptionConfig): Encryption configuration object.
             expect_standard_dictionaries (Optional[bool]): Does the underlying boto3 client expect items
                 to be standard Python dictionaries? This should only be set to True if you are using a
-                client obtained from a service resource or table resource (ex: `table.meta.client`).
+                client obtained from a service resource or table resource (ex: ``table.meta.client``).
                 If this is True, EncryptedClient will expect item-like shapes to be
                 standard Python dictionaries (default: False).
 
@@ -62,24 +62,28 @@ class EncryptedPaginator(EncryptedBotoInterface):
         Yield a generator that paginates through responses from DynamoDB, decrypting items.
 
         Note:
-            Calling `botocore.paginate.Paginator`'s `paginate` method for Query or Scan
-            returns a `PageIterator` object, but this implementation returns a Python generator.
+            Calling ``botocore.paginate.Paginator``'s ``paginate`` method for Query or Scan
+            returns a ``PageIterator`` object, but this implementation returns a Python generator.
             However, you can use this generator to iterate exactly as described in the
             boto3 documentation:
+
             https://botocore.amazonaws.com/v1/documentation/api/latest/topics/paginators.html
+
             Any other operations on this class will defer to the underlying boto3 Paginator's implementation.
 
         Args:
             **kwargs: Keyword arguments passed directly to the underlying DynamoDB paginator.
                 For a Scan operation, structure these arguments according to:
+
                 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Scan.html
 
                 For a Query operation, structure these arguments according to:
+
                 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/paginator/Query.html
 
         Returns:
             Generator[dict, None, None]: A generator yielding pages as dictionaries.
-                The items in the pages will be decrypted locally after being read from DynamoDB.
+            The items in the pages will be decrypted locally after being read from DynamoDB.
 
         """
         if self._paginator._model.name == "Query":
