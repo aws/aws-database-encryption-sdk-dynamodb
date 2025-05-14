@@ -7,6 +7,8 @@ from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
 
+from . import sort_dynamodb_json_lists
+
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
@@ -152,23 +154,6 @@ def get_item_request(expect_standard_dictionaries, test_item):
         # with an added "TableName" key.
         return {**basic_get_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_get_item_request_ddb(test_item)
-
-
-def sort_dynamodb_json_lists(obj):
-    """
-    Utility that recursively sorts all lists in a DynamoDB JSON-like structure.
-    DynamoDB JSON uses lists to represent sets, so strict equality can fail.
-    Sort lists to ensure consistent ordering when comparing expected and actual items.
-    """
-    if isinstance(obj, dict):
-        return {k: sort_dynamodb_json_lists(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        try:
-            return sorted(obj)  # Sort lists for consistent comparison
-        except TypeError:
-            return obj  # Not all lists are sortable; ex. complex_item_ddb's "list" attribute
-    return obj
-
 
 def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passes(
     client, put_item_request, get_item_request
