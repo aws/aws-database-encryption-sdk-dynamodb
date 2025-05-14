@@ -139,7 +139,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 ``get_item`` response syntax.
-                The value in ``"Item"`` field be decrypted locally after being read from DynamoDB.
+            The value in ``"Item"`` field be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -197,7 +197,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 ``scan`` response syntax.
-                The values in ``"Items"`` will be decrypted locally after being read from DynamoDB.
+            The values in ``"Items"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -225,7 +225,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Args:
             **kwargs: Keyword arguments to pass to the operation. This matches the boto3 ``batch_write_item``
-                request syntax. Any ``"PutRequest"`` values in the ``"RequestItems"`` argument will be encrypted
+                request syntax. Items in ``"PutRequest"`` values in the ``"RequestItems"`` argument will be encrypted
                 locally before being written to DynamoDB.
 
         Returns:
@@ -259,7 +259,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 ``batch_get_item`` response syntax.
-                The values in ``"Responses"`` will be decrypted locally after being read from DynamoDB.
+            The values in ``"Responses"`` will be decrypted locally after being read from DynamoDB.
 
         """
         return self._client_operation_logic(
@@ -363,7 +363,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
         Returns:
             EncryptedPaginator | botocore.client.Paginator: An EncryptedPaginator that will transparently decrypt items
-                for ``scan``/``query`` operations; for other operations, the standard paginator.
+            for ``scan``/``query`` operations; for other operations, the standard paginator.
 
         """
         paginator = self._client.get_paginator(operation_name)
