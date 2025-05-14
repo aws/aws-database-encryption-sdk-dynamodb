@@ -34,6 +34,7 @@ def plaintext_table():
     table = boto3.resource("dynamodb").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
     return table
 
+
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
 # encrypted = True -> "encrypted"
@@ -41,6 +42,7 @@ def plaintext_table():
 @pytest.fixture(params=[True, False], ids=["encrypted", "plaintext"])
 def encrypted(request):
     return request.param
+
 
 @pytest.fixture
 def table(encrypted):
@@ -140,6 +142,7 @@ def test_GIVEN_items_in_table_WHEN_query_THEN_items_are_decrypted_correctly(tabl
     assert query_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     assert len(query_response["Items"]) == 1
     assert query_response["Items"][0] == put_item_request_dict["Item"]
+
 
 @pytest.fixture
 def scan_request(encrypted, test_item):
