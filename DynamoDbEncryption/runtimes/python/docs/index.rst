@@ -6,14 +6,6 @@
 Modules
 *******
 
-.. automodule:: aws_dbesdk_dynamodb.models
-   :members:
-   :undoc-members:
-
-.. automodule:: aws_dbesdk_dynamodb.models.dynamodb
-   :members:
-   :undoc-members:
-
 .. autosummary::
     :toctree: generated
 
