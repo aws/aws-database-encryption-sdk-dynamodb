@@ -34,11 +34,13 @@ def plaintext_table():
     table = boto3.resource("dynamodb").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
     return table
 
-
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# encrypted = True -> "encrypted"
+# encrypted = False -> "plaintext"
 @pytest.fixture(params=[True, False], ids=["encrypted", "plaintext"])
 def encrypted(request):
     return request.param
-
 
 @pytest.fixture
 def table(encrypted):
@@ -52,6 +54,10 @@ def table(encrypted):
         return plaintext_table()
 
 
+# Creates a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# use_complex_item = True -> "complex_item"
+# use_complex_item = False -> "simple_item"
 @pytest.fixture(params=[simple_item_dict, complex_item_dict], ids=["simple_item", "complex_item"])
 def test_item(request):
     return request.param
@@ -135,24 +141,12 @@ def test_GIVEN_items_in_table_WHEN_query_THEN_items_are_decrypted_correctly(tabl
     assert len(query_response["Items"]) == 1
     assert query_response["Items"][0] == put_item_request_dict["Item"]
 
-    # Scans work, but the test items are not found because
-    # DDB only returns the first 1MB of data, and the test items
-    # are not in the first 1MB sometimes. We probably need a new table.
-    # TODO: Add a new table for these tests, enable tests.
-    # # When: Scanning with filter that matches only our test items
-    # scan_response = encrypted_table.scan(**scan_request_dict)
-    # # Then: Scan returns both test items
-    # assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    # assert len(scan_response["Items"]) == 2
-    # # Check each test item is found in scan results
-    # found_items = scan_response["Items"]
-    # assert all(any(found_item == item for found_item in found_items) for item in items)
-
-
 @pytest.fixture
 def scan_request(encrypted, test_item):
     if encrypted:
         request = basic_scan_request_dict(test_item)
+        # If the encrypted scan encounters a plaintext item, the scan will fail.
+        # To avoid this, encrypted scans add a filter expression that matches only encrypted items.
         request["FilterExpression"] = request["FilterExpression"] + " AND attribute_exists (#sig)"
         request["ExpressionAttributeNames"] = {}
         request["ExpressionAttributeNames"]["#sig"] = "amzn-ddb-map-sig"

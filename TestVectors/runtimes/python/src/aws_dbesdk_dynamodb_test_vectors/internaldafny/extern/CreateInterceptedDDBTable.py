@@ -12,21 +12,13 @@ from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourc
 from smithy_dafny_standard_library.internaldafny.generated import Wrappers
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.errors import _smithy_error_to_dafny_error
 from aws_dbesdk_dynamodb_test_vectors.waiting_boto3_ddb_client import WaitingLocalDynamoClient
-from aws_dbesdk_dynamodb.transform import (
-    dict_to_ddb,
-    ddb_to_dict,
-)
-from aws_dbesdk_dynamodb.internal import client_to_resource
 
-from boto3.dynamodb.conditions import Key, Attr, And, Or, Not, Contains
-from boto3.dynamodb.types import TypeDeserializer
-
-# from .....test.resource_formatted_queries import (queries, complex_queries)
+from boto3.dynamodb.conditions import Key, Attr
 
 # When querying, DBESDK DDB TestVectors will pass the Table the query as a string.
 # The Table could accept this string as-is and process it correctly.
 # However, EncryptedTables have extra logic to process boto3 Conditions.
-# I want to test this extra logic as much as possible.
+# This extra logic should be tested as much as possible.
 # This map converts some known query strings to equivalent Conditions.
 # TestVectors will pass the query string (map key) to the Table;
 # the Table's internal logic will look up the query string in this map:
@@ -34,8 +26,8 @@ from boto3.dynamodb.types import TypeDeserializer
 #  - Not found: Query with original string. Table accepts strings.
 # This map contains all query strings in the TestVectors' data.json as of commit
 # 4f18689f79243c9a5ab0f3a23108671defddeac4
-# If any query strings are added to TestVectors, they COULD be added here,
-#   but do not need to be added.
+# If any query strings are added to TestVectors, they COULD be added here;
+# if they are not added, the Table will accept the string as-is.
 known_query_string_to_condition_map = {
     # "Basic" queries
     "RecNum = :zero": Key("RecNum").eq(":zero"),
@@ -130,9 +122,9 @@ class DynamoDBClientWrapperForDynamoDBTable:
         return client_output
 
     def batch_write_item(self, **kwargs):
-        # There isn't a resource shape for this;
+        # The table doesn't support batch_write_item, but supports batch_writer.
+        # Translate the batch_write_item request to batch_writer requests.
         table_input = self._client_shape_to_resource_shape_converter.batch_write_item_request(kwargs)
-        # table_output = self._table.batch_write_item(**table_input)
         with self._table.batch_writer() as batch_writer:
             for _, items in table_input["RequestItems"].items():
                 for item in items:
@@ -142,7 +134,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
                         batch_writer.delete_item(item["DeleteRequest"]["Key"])
                     else:
                         raise ValueError(f"Unknown request type: {item}")
-        # There isn't a shape for the output, but luckily the output can be an empty dict:
+        # An empty dict is valid output:
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_write_item.html
         client_output = {}
         return client_output
@@ -158,8 +150,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                query = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
-                table_input["KeyConditionExpression"] = query
+                table_input["KeyConditionExpression"] = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
@@ -182,8 +173,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                query = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
-                table_input["KeyConditionExpression"] = query
+                table_input["KeyConditionExpression"] = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
