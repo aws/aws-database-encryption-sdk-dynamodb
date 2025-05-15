@@ -16,6 +16,9 @@ def base_get_item_request(item):
     """Base structure for get_item requests."""
     return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}
 
+def base_delete_item_request(item):
+    """Base structure for delete_item requests."""
+    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}
 
 def base_query_request(item):
     """Base structure for query requests."""
@@ -107,6 +110,20 @@ def base_exhaustive_get_item_request(item):
         "AttributesToGet": ["partition_key", "sort_key", "attribute1", "attribute2"],
     }
 
+def base_exhaustive_delete_item_request(item):
+    """
+    Base structure for exhaustive delete_item requests.
+    This is not intended to be able to be used as a real request.
+    Some parameters conflict with each other when sent to DynamoDB.
+    This is only intended to test the conversion of the request from client to resource format.
+    """ 
+    return {
+        "ReturnConsumedCapacity": "TOTAL",
+        "ReturnItemCollectionMetrics": "SIZE",
+        "ReturnValues": "ALL_OLD",
+        "ReturnValuesOnConditionCheckFailure": "ALL_OLD",
+    }
+
 
 def base_exhaustive_query_request(item):
     """
@@ -185,6 +202,18 @@ def exhaustive_get_item_request_ddb(item):
     """Get a get_item request in DDB format for any item."""
     base = basic_get_item_request_ddb(item)
     additional_keys = base_exhaustive_get_item_request(item)
+    return {**base, **additional_keys}
+
+
+def basic_delete_item_request_ddb(item):
+    """Get a delete_item request in DDB format for any item."""
+    base = base_delete_item_request(item)
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
+def exhaustive_delete_item_request_ddb(item):
+    """Get a delete_item request in DDB format for any item."""
+    base = basic_delete_item_request_ddb(item)
+    additional_keys = base_exhaustive_delete_item_request(item)
     return {**base, **additional_keys}
 
 
@@ -318,6 +347,9 @@ def basic_get_item_request_dict(item):
     """Get a get_item request in dict format for any item."""
     return base_get_item_request(item)
 
+def basic_delete_item_request_dict(item):
+    """Get a delete_item request in dict format for any item."""
+    return base_delete_item_request(item)
 
 def exhaustive_get_item_request_dict(item):
     """

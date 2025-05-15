@@ -98,3 +98,33 @@ class ClientShapeToResourceShapeConverter:
 
     def batch_write_item_response(self, batch_write_item_response):
         return self.boto3_converter.BatchWriteItemOutput(batch_write_item_response)
+
+    def update_item_request(self, update_item_request):
+        return self.boto3_converter.UpdateItemInput(update_item_request)
+
+    def update_item_response(self, update_item_response):
+        return self.boto3_converter.UpdateItemOutput(update_item_response)
+    
+    def batch_execute_statement_request(self, batch_execute_statement_request):
+        return self.boto3_converter.BatchExecuteStatementInput(batch_execute_statement_request)
+    
+    def batch_execute_statement_response(self, batch_execute_statement_response):
+        return self.boto3_converter.BatchExecuteStatementOutput(batch_execute_statement_response)
+    
+    def delete_item_request(self, delete_item_request):
+        return self.boto3_converter.DeleteItemInput(delete_item_request)
+    
+    def delete_item_response(self, delete_item_response):
+        return self.boto3_converter.DeleteItemOutput(delete_item_response)
+    
+    def execute_statement_request(self, execute_statement_request):
+        return self.boto3_converter.ExecuteStatementInput(execute_statement_request)
+    
+    def execute_statement_response(self, execute_statement_response):
+        return self.boto3_converter.ExecuteStatementOutput(execute_statement_response)
+    
+    def execute_transaction_request(self, execute_transaction_request):
+        return self.boto3_converter.ExecuteTransactionInput(execute_transaction_request)
+    
+    def execute_transaction_response(self, execute_transaction_response):
+        return self.boto3_converter.ExecuteTransactionOutput(execute_transaction_response)

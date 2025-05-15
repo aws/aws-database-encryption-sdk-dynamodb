@@ -17,10 +17,18 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
     DynamoDbEncryptionTransforms,
 )
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
+    BatchExecuteStatementInputTransformInput,
+    BatchExecuteStatementOutputTransformInput,
     BatchGetItemInputTransformInput,
     BatchGetItemOutputTransformInput,
     BatchWriteItemInputTransformInput,
     BatchWriteItemOutputTransformInput,
+    DeleteItemInputTransformInput,
+    DeleteItemOutputTransformInput,
+    ExecuteStatementInputTransformInput,
+    ExecuteStatementOutputTransformInput,
+    ExecuteTransactionInputTransformInput,
+    ExecuteTransactionOutputTransformInput,
     GetItemInputTransformInput,
     GetItemOutputTransformInput,
     PutItemInputTransformInput,
@@ -33,6 +41,8 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
     TransactGetItemsOutputTransformInput,
     TransactWriteItemsInputTransformInput,
     TransactWriteItemsOutputTransformInput,
+    UpdateItemInputTransformInput,
+    UpdateItemOutputTransformInput,
 )
 
 
@@ -57,8 +67,14 @@ class EncryptedClient(EncryptedBotoInterface):
         * ``batch_get_item``
         * ``transact_get_items``
         * ``transact_write_items``
+        * ``delete_item``
 
-    The ``update_item`` operation is not currently supported. Calling this operation will raise ``NotImplementedError``.
+    The following operations are not supported and will raise DynamoDbEncryptionTransformsException:
+
+        * ``execute_statement``
+        * ``execute_transaction``
+        * ``batch_execute_statement``
+        * ``update_item``
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
@@ -337,18 +353,132 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.transact_write_items_response,
         )
 
-    def update_item(self, **kwargs):
+    def delete_item(self, **kwargs):
         """
-        Not implemented. Raises NotImplementedError.
+        Delete an item from a table by the specified key. 
+
+        The input and output syntaxes match those for the boto3 DynamoDB client ``delete_item`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/delete_item.html
+
+        Args:
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``delete_item``
+                request syntax.
+
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 client ``delete_item`` response syntax.
+            Any values in the ``"Attributes"`` field will be decrypted locally after being read from DynamoDB.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.delete_item_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.delete_item_request,
+            input_transform_method=self._transformer.delete_item_input_transform,
+            input_transform_shape=DeleteItemInputTransformInput,
+            output_transform_method=self._transformer.delete_item_output_transform,
+            output_transform_shape=DeleteItemOutputTransformInput,
+            client_method=self._client.delete_item,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.delete_item_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.delete_item_response,
+        )
+    
+    def execute_statement(self, **kwargs):
+        """
+        Not implemented. Raises DynamoDbEncryptionTransformsException.
 
         Args:
             **kwargs: Any arguments passed to this method
 
         Raises:
-            NotImplementedError: This operation is not yet implemented
+            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
 
         """
-        raise NotImplementedError('"update_item" is not yet implemented')
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_statement_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_statement_request,
+            input_transform_method=self._transformer.execute_statement_input_transform,
+            input_transform_shape=ExecuteStatementInputTransformInput,
+            output_transform_method=self._transformer.execute_statement_output_transform,
+            output_transform_shape=ExecuteStatementOutputTransformInput,
+            client_method=self._client.execute_statement,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_statement_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_statement_response,
+        )
+
+    def execute_transaction(self, **kwargs):
+        """
+        Not implemented. Raises DynamoDbEncryptionTransformsException.
+
+        Args:
+            **kwargs: Any arguments passed to this method
+
+        Raises:
+            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_transaction_request,
+            input_transform_method=self._transformer.execute_transaction_input_transform,
+            input_transform_shape=ExecuteTransactionInputTransformInput,
+            output_transform_method=self._transformer.execute_transaction_output_transform,
+            output_transform_shape=ExecuteTransactionOutputTransformInput,
+            client_method=self._client.execute_transaction,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_transaction_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_response,
+        )
+
+    def update_item(self, **kwargs):
+        """
+        Not implemented. Raises DynamoDbEncryptionTransformsException.
+
+        Args:
+            **kwargs: Any arguments passed to this method
+
+        Raises:
+            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_request,
+            input_transform_method=self._transformer.update_item_input_transform,
+            input_transform_shape=UpdateItemInputTransformInput,
+            output_transform_method=self._transformer.update_item_output_transform,
+            output_transform_shape=UpdateItemOutputTransformInput,
+            client_method=self._client.update_item,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_response,
+        )
+    
+    def batch_execute_statement(self, **kwargs):
+        """
+        Not implemented. Raises DynamoDbEncryptionTransformsException.
+
+        Args:
+            **kwargs: Any arguments passed to this method
+
+        Raises:
+            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_request,
+            input_transform_method=self._transformer.batch_execute_statement_input_transform,
+            input_transform_shape=BatchExecuteStatementInputTransformInput,
+            output_transform_method=self._transformer.batch_execute_statement_output_transform,
+            output_transform_shape=BatchExecuteStatementOutputTransformInput,
+            client_method=self._client.batch_execute_statement,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_response,
+        )
+     
 
     def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
         """

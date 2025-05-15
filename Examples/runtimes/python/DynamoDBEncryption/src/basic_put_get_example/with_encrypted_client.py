@@ -149,3 +149,12 @@ def encrypted_client_put_get_example(
     # Demonstrate that GetItem succeeded and returned the decrypted item
     assert get_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     assert get_item_response["Item"] == item_to_encrypt
+
+    # 8. Clean up the item we put into the table by deleting it.
+    delete_item_request = {"TableName": dynamodb_table_name, "Key": key_to_get}
+    delete_item_response = encrypted_client.delete_item(**delete_item_request)
+
+    # Demonstrate that DeleteItem succeeded
+    assert delete_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    get_item_response = encrypted_client.get_item(**get_item_request)
+    assert "Item" not in get_item_response
