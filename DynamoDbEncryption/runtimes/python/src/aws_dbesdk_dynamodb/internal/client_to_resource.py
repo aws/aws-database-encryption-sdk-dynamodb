@@ -70,7 +70,7 @@ class ClientShapeToResourceShapeConverter:
         # scan requests on a boto3.resource.Table do not have a table name.
         if self.delete_table_name:
             del out["TableName"]
-        return out 
+        return out
 
     def delete_item_request(self, delete_item_request):
         out = self.boto3_converter.DeleteItemInput(delete_item_request)
@@ -78,7 +78,7 @@ class ClientShapeToResourceShapeConverter:
         if self.delete_table_name:
             del out["TableName"]
         return out
-    
+
     def update_item_request(self, update_item_request):
         out = self.boto3_converter.UpdateItemInput(update_item_request)
         # update_item requests on a boto3.resource.Table do not have a table name.

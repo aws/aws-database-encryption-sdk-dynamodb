@@ -156,6 +156,7 @@ def basic_transact_get_items_response(items):
     """Get a transact_get_items response in resource (ddb) format for any items."""
     return {"Responses": [{"Item": item} for item in items]}
 
+
 def basic_update_item_response(item):
     """Get an update_item response in resource (ddb) format for any item."""
     return {"Attributes": item}

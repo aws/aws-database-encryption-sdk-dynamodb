@@ -15,12 +15,20 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
+    basic_batch_execute_statement_request_ddb,
+    basic_batch_execute_statement_request_dict,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_ddb,
     basic_batch_write_item_put_request_dict,
+    basic_delete_item_request_ddb,
+    basic_delete_item_request_dict,
+    basic_execute_statement_request_ddb,
+    basic_execute_statement_request_dict,
+    basic_execute_transaction_request_ddb,
+    basic_execute_transaction_request_dict,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -37,6 +45,8 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
+    basic_update_item_request_ddb,
+    basic_update_item_request_dict,
     exhaustive_get_item_request_ddb,
     exhaustive_get_item_request_dict,
     exhaustive_put_item_request_ddb,
@@ -45,25 +55,15 @@ from ...requests import (
     exhaustive_query_request_dict,
     exhaustive_scan_request_ddb,
     exhaustive_scan_request_dict,
-    basic_update_item_request_ddb,
-    basic_update_item_request_dict,
-    basic_execute_statement_request_ddb,
-    basic_execute_statement_request_dict,
-    basic_execute_transaction_request_ddb,
-    basic_execute_transaction_request_dict,
-    basic_delete_item_request_ddb,
-    basic_delete_item_request_dict,
-    basic_batch_execute_statement_request_dict,
-    basic_batch_execute_statement_request_ddb,
 )
 from ...responses import (
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
+    basic_delete_item_response,
     basic_get_item_response,
     basic_put_item_response,
     basic_query_response,
     basic_scan_response,
-    basic_delete_item_response,
     basic_transact_get_items_response,
     basic_transact_write_items_response,
     exhaustive_batch_get_item_response,
@@ -831,6 +831,7 @@ def test_GIVEN_test_update_item_request_WHEN_resource_to_client_THEN_returns_ddb
 
     assert actual_ddb_request == expected_ddb_request
 
+
 def test_GIVEN_update_item_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
     # Given: Update item response
     response = {"Some": "Response"}
@@ -838,6 +839,7 @@ def test_GIVEN_update_item_response_WHEN_resource_to_client_THEN_raises_NotImple
     with pytest.raises(NotImplementedError):
         # When: Converting to resource format
         resource_to_client_converter.update_item_response(response)
+
 
 @pytest.fixture
 def test_execute_statement_request_ddb():
@@ -847,6 +849,7 @@ def test_execute_statement_request_ddb():
 @pytest.fixture
 def test_execute_statement_request_dict():
     return basic_execute_statement_request_dict()
+
 
 def test_GIVEN_test_execute_statement_request_WHEN_resource_to_client_THEN_returns_ddb_value(
     test_execute_statement_request_ddb, test_execute_statement_request_dict, test_ddb_item, test_dict_item
@@ -858,6 +861,7 @@ def test_GIVEN_test_execute_statement_request_WHEN_resource_to_client_THEN_retur
     # Then: Returns dict value
     assert actual_ddb_request == test_execute_statement_request_ddb
 
+
 def test_GIVEN_execute_statement_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
     # Given: Execute statement response
     response = {"Some": "Response"}
@@ -865,6 +869,7 @@ def test_GIVEN_execute_statement_response_WHEN_resource_to_client_THEN_raises_No
     with pytest.raises(NotImplementedError):
         # When: Converting to resource format
         resource_to_client_converter.execute_statement_response(response)
+
 
 @pytest.fixture
 def test_execute_transaction_request_ddb():
@@ -874,6 +879,7 @@ def test_execute_transaction_request_ddb():
 @pytest.fixture
 def test_execute_transaction_request_dict():
     return basic_execute_transaction_request_dict()
+
 
 def test_GIVEN_test_execute_transaction_request_WHEN_resource_to_client_THEN_returns_ddb_value(
     test_execute_transaction_request_ddb, test_execute_transaction_request_dict, test_ddb_item, test_dict_item
@@ -885,6 +891,7 @@ def test_GIVEN_test_execute_transaction_request_WHEN_resource_to_client_THEN_ret
     # Then: Returns dict value
     assert actual_ddb_request == test_execute_transaction_request_ddb
 
+
 def test_GIVEN_execute_transaction_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
     # Given: Execute transaction response
     response = {"Some": "Response"}
@@ -893,13 +900,16 @@ def test_GIVEN_execute_transaction_response_WHEN_resource_to_client_THEN_raises_
         # When: Converting to resource format
         resource_to_client_converter.execute_transaction_response(response)
 
+
 @pytest.fixture
 def test_batch_execute_statement_request_ddb():
     return basic_batch_execute_statement_request_ddb()
 
+
 @pytest.fixture
 def test_batch_execute_statement_request_dict():
     return basic_batch_execute_statement_request_dict()
+
 
 def test_GIVEN_test_batch_execute_statement_request_WHEN_resource_to_client_THEN_returns_ddb_value(
     test_batch_execute_statement_request_ddb, test_batch_execute_statement_request_dict, test_ddb_item, test_dict_item
@@ -911,6 +921,7 @@ def test_GIVEN_test_batch_execute_statement_request_WHEN_resource_to_client_THEN
     # Then: Returns dict value
     assert actual_ddb_request == test_batch_execute_statement_request_ddb
 
+
 def test_GIVEN_batch_execute_statement_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
     # Given: Batch execute statement response
     response = {"Some": "Response"}
@@ -919,13 +930,16 @@ def test_GIVEN_batch_execute_statement_response_WHEN_resource_to_client_THEN_rai
         # When: Converting to resource format
         resource_to_client_converter.batch_execute_statement_response(response)
 
+
 @pytest.fixture
 def test_delete_item_request_ddb():
     return basic_delete_item_request_ddb
 
+
 @pytest.fixture
 def test_delete_item_request_dict():
     return basic_delete_item_request_dict
+
 
 def test_GIVEN_test_delete_item_request_WHEN_resource_to_client_THEN_returns_ddb_value(
     test_delete_item_request_ddb, test_delete_item_request_dict, test_ddb_item, test_dict_item
@@ -936,6 +950,7 @@ def test_GIVEN_test_delete_item_request_WHEN_resource_to_client_THEN_returns_ddb
     actual_ddb_request = resource_to_client_converter.delete_item_request(request)
     # Then: Returns dict value
     assert actual_ddb_request == test_delete_item_request_ddb(test_ddb_item)
+
 
 def test_GIVEN_delete_item_request_without_table_name_WHEN_resource_to_client_THEN_raises_error(
     test_delete_item_request_dict,
@@ -948,9 +963,11 @@ def test_GIVEN_delete_item_request_without_table_name_WHEN_resource_to_client_TH
         # When: Converting to resource format
         resource_to_client_converter_without_table_name.delete_item_request(test_delete_item_request_dict)
 
+
 @pytest.fixture
 def test_delete_item_response():
     return basic_delete_item_response
+
 
 def test_GIVEN_delete_item_response_WHEN_resource_to_client_THEN_returns_ddb_value(
     test_delete_item_response, test_ddb_item, test_dict_item

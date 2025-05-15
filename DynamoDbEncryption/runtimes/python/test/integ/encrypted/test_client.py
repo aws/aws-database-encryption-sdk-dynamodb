@@ -24,22 +24,20 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
+    basic_batch_execute_statement_request_ddb,
+    basic_batch_execute_statement_request_dict,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_ddb,
     basic_batch_write_item_put_request_dict,
-    basic_batch_execute_statement_request_ddb,
-    basic_batch_execute_statement_request_dict,
+    basic_delete_item_request_ddb,
+    basic_delete_item_request_dict,
     basic_execute_statement_request_ddb,
     basic_execute_statement_request_dict,
     basic_execute_transaction_request_ddb,
     basic_execute_transaction_request_dict,
-    basic_update_item_request_ddb,
-    basic_update_item_request_dict,
-    basic_delete_item_request_ddb,
-    basic_delete_item_request_dict,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -54,6 +52,8 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
+    basic_update_item_request_ddb,
+    basic_update_item_request_dict,
 )
 from . import sort_dynamodb_json_lists
 
@@ -389,6 +389,7 @@ def update_item_request(expect_standard_dictionaries, test_item):
         return basic_update_item_request_dict(test_item)
     return basic_update_item_request_ddb(test_item)
 
+
 def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
     """Test that update_item raises DynamoDbEncryptionTransformsException."""
     # Given: Encrypted client and update item parameters
@@ -401,6 +402,7 @@ def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
             UpdateExpression="SET attribute1 = :val",
             ExpressionAttributeValues={":val": {"S": "new value"}},
         )
+
 
 @pytest.fixture
 def execute_statement_request(expect_standard_dictionaries, test_item):
@@ -441,6 +443,7 @@ def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsExcept
                 }
             ],
         )
+
 
 @pytest.fixture
 def batch_execute_statement_request(expect_standard_dictionaries, test_item):
