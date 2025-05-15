@@ -158,6 +158,7 @@ def get_item_request(expect_standard_dictionaries, test_item):
         return {**basic_get_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_get_item_request_ddb(test_item)
 
+
 @pytest.fixture
 def delete_item_request(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
@@ -387,6 +388,7 @@ def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
             ExpressionAttributeValues={":val": {"S": "new value"}},
         )
 
+
 def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
     """Test that execute_statement raises DynamoDbEncryptionTransformsException."""
     # Given: Encrypted client and update item parameters
@@ -396,6 +398,7 @@ def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsExceptio
         encrypted_client(expect_standard_dictionaries=False).execute_statement(
             Statement="SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         )
+
 
 def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsException():
     """Test that execute_transaction raises DynamoDbEncryptionTransformsException."""
@@ -412,6 +415,7 @@ def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsExcept
             ],
         )
 
+
 def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
     """Test that batch_execute_statement raises DynamoDbEncryptionTransformsException."""
     # Given: Encrypted client and update item parameters
@@ -426,6 +430,7 @@ def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsEx
                 }
             ],
         )
+
 
 def test_WHEN_get_paginator_THEN_correct_paginator_is_returned():
     """Test get_paginator for scan and query operations."""

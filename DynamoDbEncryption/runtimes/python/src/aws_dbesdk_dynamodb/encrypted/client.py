@@ -355,7 +355,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
     def delete_item(self, **kwargs):
         """
-        Delete an item from a table by the specified key. 
+        Delete an item from a table by the specified key.
 
         The input and output syntaxes match those for the boto3 DynamoDB client ``delete_item`` API:
 
@@ -382,7 +382,7 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_dict_transform_method=self._client_to_resource_shape_converter.delete_item_response,
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.delete_item_response,
         )
-    
+
     def execute_statement(self, **kwargs):
         """
         Not implemented. Raises DynamoDbEncryptionTransformsException.
@@ -454,7 +454,7 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_response,
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_response,
         )
-    
+
     def batch_execute_statement(self, **kwargs):
         """
         Not implemented. Raises DynamoDbEncryptionTransformsException.
@@ -478,7 +478,6 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_response,
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_response,
         )
-     
 
     def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
         """
