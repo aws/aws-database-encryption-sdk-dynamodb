@@ -1,4 +1,4 @@
-"""Request constants for DynamoDB operations."""
+"""Request constants for DynamoDB operations used for testing."""
 
 from boto3.dynamodb.conditions import Attr, Key
 
