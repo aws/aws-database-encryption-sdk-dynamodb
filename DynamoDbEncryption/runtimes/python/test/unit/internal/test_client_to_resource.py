@@ -20,10 +20,20 @@ from ...requests import (
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_ddb,
     basic_batch_write_item_put_request_dict,
+    basic_batch_execute_statement_request_ddb,
+    basic_batch_execute_statement_request_dict,
+    basic_execute_statement_request_ddb,
+    basic_execute_statement_request_dict,
+    basic_execute_transaction_request_ddb,
+    basic_execute_transaction_request_dict,
+    basic_delete_item_request_ddb,
+    basic_delete_item_request_dict,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
     basic_put_item_request_dict,
+    basic_update_item_request_ddb,
+    basic_update_item_request_dict,
     basic_query_request_ddb,
     basic_query_request_dict,
     basic_scan_request_ddb,
@@ -48,6 +58,7 @@ from ...requests import (
 from ...responses import (
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
+    basic_delete_item_response,
     basic_get_item_response,
     basic_put_item_response,
     basic_query_response,
@@ -539,6 +550,148 @@ def test_GIVEN_test_transact_get_items_response_WHEN_client_to_resource_THEN_ret
     dict_item = client_to_resource_converter.transact_get_items_response(response)
     # Then: Returns dict value
     assert dict_item == test_transact_get_items_response([test_dict_item])
+
+
+@pytest.fixture
+def test_update_item_request_ddb():
+    return basic_update_item_request_ddb
+
+@pytest.fixture
+def test_update_item_request_dict():
+    return basic_update_item_request_dict
+
+
+def test_GIVEN_test_update_item_request_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_update_item_request_ddb, test_update_item_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Update item request
+    request = test_update_item_request_ddb(test_ddb_item)
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.update_item_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_update_item_request_dict(test_dict_item)
+
+def test_GIVEN_test_update_item_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
+    # Given: Update item response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        client_to_resource_converter.update_item_response(response)
+
+@pytest.fixture
+def test_execute_statement_request_ddb():
+    return basic_execute_statement_request_ddb
+
+@pytest.fixture
+def test_execute_statement_request_dict():
+    return basic_execute_statement_request_dict
+
+def test_GIVEN_test_execute_statement_request_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_execute_statement_request_ddb, test_execute_statement_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Execute statement request
+    request = test_execute_statement_request_ddb()
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.execute_statement_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_execute_statement_request_dict()
+
+
+def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
+    # Given: Execute statement response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        client_to_resource_converter.execute_statement_response(response)
+
+@pytest.fixture
+def test_execute_transaction_request_ddb():
+    return basic_execute_transaction_request_ddb
+
+@pytest.fixture
+def test_execute_transaction_request_dict():
+    return basic_execute_transaction_request_dict
+
+def test_GIVEN_test_execute_transaction_request_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_execute_transaction_request_ddb, test_execute_transaction_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Execute transaction request
+    request = test_execute_transaction_request_ddb()
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.execute_transaction_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_execute_transaction_request_dict()
+
+def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
+    # Given: Execute transaction response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        client_to_resource_converter.execute_transaction_response(response)
+
+@pytest.fixture
+def test_batch_execute_statement_request_ddb():
+    return basic_batch_execute_statement_request_ddb
+
+@pytest.fixture
+def test_batch_execute_statement_request_dict():
+    return basic_batch_execute_statement_request_dict
+
+def test_GIVEN_test_batch_execute_statement_request_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_batch_execute_statement_request_ddb, test_batch_execute_statement_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Batch execute statement request
+    request = test_batch_execute_statement_request_ddb()
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.batch_execute_statement_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_batch_execute_statement_request_dict()
+
+
+def test_GIVEN_test_batch_execute_statement_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
+    # Given: Batch execute statement response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        client_to_resource_converter.batch_execute_statement_response(response)
+
+
+@pytest.fixture
+def test_delete_item_request_ddb():
+    return basic_delete_item_request_ddb
+
+@pytest.fixture
+def test_delete_item_request_dict():
+    return basic_delete_item_request_dict
+
+def test_GIVEN_test_delete_item_request_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_delete_item_request_ddb, test_delete_item_request_dict, test_ddb_key, test_dict_key
+):
+    # Given: Delete item request
+    request = test_delete_item_request_ddb(test_ddb_key)
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.delete_item_request(request)
+    # Then: Returns dict value
+    assert dict_item == test_delete_item_request_dict(test_dict_key)
+
+
+@pytest.fixture
+def test_delete_item_response():
+    return basic_delete_item_response
+
+def test_GIVEN_test_delete_item_response_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_delete_item_response, test_ddb_item, test_dict_item
+):
+    # Given: Delete item response
+    response = test_delete_item_response(test_ddb_item)
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.delete_item_response(response)
+    # Then: Returns dict value
+    assert dict_item == test_delete_item_response(test_dict_item)
 
 
 # ruff: noqa: E501

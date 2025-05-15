@@ -45,6 +45,16 @@ from ...requests import (
     exhaustive_query_request_dict,
     exhaustive_scan_request_ddb,
     exhaustive_scan_request_dict,
+    basic_update_item_request_ddb,
+    basic_update_item_request_dict,
+    basic_execute_statement_request_ddb,
+    basic_execute_statement_request_dict,
+    basic_execute_transaction_request_ddb,
+    basic_execute_transaction_request_dict,
+    basic_delete_item_request_ddb,
+    basic_delete_item_request_dict,
+    basic_batch_execute_statement_request_dict,
+    basic_batch_execute_statement_request_ddb,
 )
 from ...responses import (
     basic_batch_get_item_response,
@@ -53,6 +63,7 @@ from ...responses import (
     basic_put_item_response,
     basic_query_response,
     basic_scan_response,
+    basic_delete_item_response,
     basic_transact_get_items_response,
     basic_transact_write_items_response,
     exhaustive_batch_get_item_response,
@@ -791,6 +802,168 @@ def test_GIVEN_test_transact_get_items_response_WHEN_resource_to_client_THEN_ret
 
     actual_ddb_response = sort_attribute_list_of_dynamodb_json_lists(actual_ddb_response, "Responses")
     expected_ddb_response = sort_attribute_list_of_dynamodb_json_lists(expected_ddb_response, "Responses")
+
+    assert actual_ddb_response == expected_ddb_response
+
+
+@pytest.fixture
+def test_update_item_request_ddb():
+    return basic_update_item_request_ddb
+
+
+@pytest.fixture
+def test_update_item_request_dict():
+    return basic_update_item_request_dict
+
+
+def test_GIVEN_test_update_item_request_WHEN_resource_to_client_THEN_returns_ddb_value(
+    test_update_item_request_ddb, test_update_item_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Update item request
+    request = test_update_item_request_dict(test_dict_item)
+    # When: Converting to resource format
+    actual_ddb_request = resource_to_client_converter.update_item_request(request)
+    # Then: Returns dict value
+    expected_ddb_request = test_update_item_request_ddb(test_ddb_item)
+
+    actual_ddb_request = sort_dynamodb_json_lists(actual_ddb_request)
+    expected_ddb_request = sort_dynamodb_json_lists(expected_ddb_request)
+
+    assert actual_ddb_request == expected_ddb_request
+
+def test_GIVEN_update_item_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
+    # Given: Update item response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        resource_to_client_converter.update_item_response(response)
+
+@pytest.fixture
+def test_execute_statement_request_ddb():
+    return basic_execute_statement_request_ddb()
+
+
+@pytest.fixture
+def test_execute_statement_request_dict():
+    return basic_execute_statement_request_dict()
+
+def test_GIVEN_test_execute_statement_request_WHEN_resource_to_client_THEN_returns_ddb_value(
+    test_execute_statement_request_ddb, test_execute_statement_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Execute statement request
+    request = test_execute_statement_request_dict
+    # When: Converting to resource format
+    actual_ddb_request = resource_to_client_converter.execute_statement_request(request)
+    # Then: Returns dict value
+    assert actual_ddb_request == test_execute_statement_request_ddb
+
+def test_GIVEN_execute_statement_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
+    # Given: Execute statement response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        resource_to_client_converter.execute_statement_response(response)
+
+@pytest.fixture
+def test_execute_transaction_request_ddb():
+    return basic_execute_transaction_request_ddb()
+
+
+@pytest.fixture
+def test_execute_transaction_request_dict():
+    return basic_execute_transaction_request_dict()
+
+def test_GIVEN_test_execute_transaction_request_WHEN_resource_to_client_THEN_returns_ddb_value(
+    test_execute_transaction_request_ddb, test_execute_transaction_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Execute transaction request
+    request = test_execute_transaction_request_dict
+    # When: Converting to resource format
+    actual_ddb_request = resource_to_client_converter.execute_transaction_request(request)
+    # Then: Returns dict value
+    assert actual_ddb_request == test_execute_transaction_request_ddb
+
+def test_GIVEN_execute_transaction_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
+    # Given: Execute transaction response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        resource_to_client_converter.execute_transaction_response(response)
+
+@pytest.fixture
+def test_batch_execute_statement_request_ddb():
+    return basic_batch_execute_statement_request_ddb()
+
+@pytest.fixture
+def test_batch_execute_statement_request_dict():
+    return basic_batch_execute_statement_request_dict()
+
+def test_GIVEN_test_batch_execute_statement_request_WHEN_resource_to_client_THEN_returns_ddb_value(
+    test_batch_execute_statement_request_ddb, test_batch_execute_statement_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Batch execute statement request
+    request = test_batch_execute_statement_request_dict
+    # When: Converting to resource format
+    actual_ddb_request = resource_to_client_converter.batch_execute_statement_request(request)
+    # Then: Returns dict value
+    assert actual_ddb_request == test_batch_execute_statement_request_ddb
+
+def test_GIVEN_batch_execute_statement_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
+    # Given: Batch execute statement response
+    response = {"Some": "Response"}
+    # Then: Raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        # When: Converting to resource format
+        resource_to_client_converter.batch_execute_statement_response(response)
+
+@pytest.fixture
+def test_delete_item_request_ddb():
+    return basic_delete_item_request_ddb
+
+@pytest.fixture
+def test_delete_item_request_dict():
+    return basic_delete_item_request_dict
+
+def test_GIVEN_test_delete_item_request_WHEN_resource_to_client_THEN_returns_ddb_value(
+    test_delete_item_request_ddb, test_delete_item_request_dict, test_ddb_item, test_dict_item
+):
+    # Given: Delete item request
+    request = test_delete_item_request_dict(test_dict_item)
+    # When: Converting to resource format
+    actual_ddb_request = resource_to_client_converter.delete_item_request(request)
+    # Then: Returns dict value
+    assert actual_ddb_request == test_delete_item_request_ddb(test_ddb_item)
+
+def test_GIVEN_delete_item_request_without_table_name_WHEN_resource_to_client_THEN_raises_error(
+    test_delete_item_request_dict,
+):
+    # Given: ResourceShapeToClientShapeConverter without table name
+    resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
+    # Given: Put item request without table name
+    # Then: Raises ValueError
+    with pytest.raises(ValueError):
+        # When: Converting to resource format
+        resource_to_client_converter_without_table_name.delete_item_request(test_delete_item_request_dict)
+
+@pytest.fixture
+def test_delete_item_response():
+    return basic_delete_item_response
+
+def test_GIVEN_delete_item_response_WHEN_resource_to_client_THEN_returns_ddb_value(
+    test_delete_item_response, test_ddb_item, test_dict_item
+):
+    # Given: Delete item response
+    response = test_delete_item_response(test_dict_item)
+    # When: Converting to resource format
+    actual_ddb_response = resource_to_client_converter.delete_item_response(response)
+    # Then: Returns dict value
+    expected_ddb_response = test_delete_item_response(test_ddb_item)
+
+    actual_ddb_response = sort_dynamodb_json_lists(actual_ddb_response["Attributes"])
+    expected_ddb_response = sort_dynamodb_json_lists(expected_ddb_response["Attributes"])
 
     assert actual_ddb_response == expected_ddb_response
 

@@ -30,6 +30,14 @@ from ...requests import (
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_ddb,
     basic_batch_write_item_put_request_dict,
+    basic_batch_execute_statement_request_ddb,
+    basic_batch_execute_statement_request_dict,
+    basic_execute_statement_request_ddb,
+    basic_execute_statement_request_dict,
+    basic_execute_transaction_request_ddb,
+    basic_execute_transaction_request_dict,
+    basic_update_item_request_ddb,
+    basic_update_item_request_dict,
     basic_delete_item_request_ddb,
     basic_delete_item_request_dict,
     basic_get_item_request_ddb,
@@ -375,6 +383,12 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
     assert transact_write_delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
+@pytest.fixture
+def update_item_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_update_item_request_dict(test_item)
+    return basic_update_item_request_ddb(test_item)
+
 def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
     """Test that update_item raises DynamoDbEncryptionTransformsException."""
     # Given: Encrypted client and update item parameters
@@ -388,6 +402,12 @@ def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
             ExpressionAttributeValues={":val": {"S": "new value"}},
         )
 
+@pytest.fixture
+def execute_statement_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_execute_statement_request_dict(test_item)
+    return basic_execute_statement_request_ddb(test_item)
+
 
 def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
     """Test that execute_statement raises DynamoDbEncryptionTransformsException."""
@@ -398,6 +418,13 @@ def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsExceptio
         encrypted_client(expect_standard_dictionaries=False).execute_statement(
             Statement="SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         )
+
+
+@pytest.fixture
+def execute_transaction_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_execute_transaction_request_dict(test_item)
+    return basic_execute_transaction_request_ddb(test_item)
 
 
 def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsException():
@@ -414,6 +441,12 @@ def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsExcept
                 }
             ],
         )
+
+@pytest.fixture
+def batch_execute_statement_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_batch_execute_statement_request_dict(test_item)
+    return basic_batch_execute_statement_request_ddb(test_item)
 
 
 def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():

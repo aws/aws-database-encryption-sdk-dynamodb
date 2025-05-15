@@ -70,6 +70,20 @@ class ClientShapeToResourceShapeConverter:
         # scan requests on a boto3.resource.Table do not have a table name.
         if self.delete_table_name:
             del out["TableName"]
+        return out 
+
+    def delete_item_request(self, delete_item_request):
+        out = self.boto3_converter.DeleteItemInput(delete_item_request)
+        # delete_item requests on a boto3.resource.Table do not have a table name.
+        if self.delete_table_name:
+            del out["TableName"]
+        return out
+    
+    def update_item_request(self, update_item_request):
+        out = self.boto3_converter.UpdateItemInput(update_item_request)
+        # update_item requests on a boto3.resource.Table do not have a table name.
+        if self.delete_table_name:
+            del out["TableName"]
         return out
 
     def scan_response(self, scan_response):
@@ -99,20 +113,14 @@ class ClientShapeToResourceShapeConverter:
     def batch_write_item_response(self, batch_write_item_response):
         return self.boto3_converter.BatchWriteItemOutput(batch_write_item_response)
 
-    def update_item_request(self, update_item_request):
-        return self.boto3_converter.UpdateItemInput(update_item_request)
-
     def update_item_response(self, update_item_response):
-        return self.boto3_converter.UpdateItemOutput(update_item_response)
+        raise NotImplementedError("update_item response handling is not implemented")
 
     def batch_execute_statement_request(self, batch_execute_statement_request):
         return self.boto3_converter.BatchExecuteStatementInput(batch_execute_statement_request)
 
     def batch_execute_statement_response(self, batch_execute_statement_response):
-        return self.boto3_converter.BatchExecuteStatementOutput(batch_execute_statement_response)
-
-    def delete_item_request(self, delete_item_request):
-        return self.boto3_converter.DeleteItemInput(delete_item_request)
+        raise NotImplementedError("batch_execute_statement response handling is not implemented")
 
     def delete_item_response(self, delete_item_response):
         return self.boto3_converter.DeleteItemOutput(delete_item_response)
@@ -121,10 +129,10 @@ class ClientShapeToResourceShapeConverter:
         return self.boto3_converter.ExecuteStatementInput(execute_statement_request)
 
     def execute_statement_response(self, execute_statement_response):
-        return self.boto3_converter.ExecuteStatementOutput(execute_statement_response)
+        raise NotImplementedError("execute_statement response handling is not implemented")
 
     def execute_transaction_request(self, execute_transaction_request):
         return self.boto3_converter.ExecuteTransactionInput(execute_transaction_request)
 
     def execute_transaction_response(self, execute_transaction_response):
-        return self.boto3_converter.ExecuteTransactionOutput(execute_transaction_response)
+        raise NotImplementedError("execute_transaction response handling is not implemented")

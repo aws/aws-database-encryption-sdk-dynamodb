@@ -60,6 +60,31 @@ def base_transact_get_item_request(keys):
     }
 
 
+def base_update_item_request(item):
+    """Base structure for update_item requests."""
+    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}, "UpdateExpression": "SET attribute1 = :val", "ExpressionAttributeValues": {":val": item["attribute1"]}}
+
+
+def base_execute_statement_request():
+    """Base structure for execute_statement requests."""
+    return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+
+
+def base_execute_transaction_request():
+    """Base structure for execute_transaction requests."""
+    return {"TransactStatements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
+
+
+def base_batch_execute_statement_request():
+    """Base structure for batch_execute_statement requests."""
+    return {"Statements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
+
+
+def base_execute_transaction_request():
+    """Base structure for execute_transaction requests."""
+    return {"TransactStatements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
+
+
 # Base exhaustive request structures that are shared between DDB and dict formats
 
 # No exhaustive requests are intended to be able to be used as real requests.
@@ -300,7 +325,6 @@ def basic_transact_write_item_condition_check_request_ddb(keys):
     ]
     return basic_transact_write_item_request_ddb(actions_with_keys)
 
-
 def basic_transact_get_item_request_ddb(keys):
     """Get a transact_get_item request in DDB format for any keys."""
     return base_transact_get_item_request(keys)
@@ -322,6 +346,31 @@ def basic_scan_paginator_request(item):
         "FilterExpression": "partition_key = :pk AND sort_key = :sk",
         "ExpressionAttributeValues": {":pk": item["partition_key"], ":sk": item["sort_key"]},
     }
+
+def basic_update_item_request_ddb(item):
+    """Get an update_item request in DDB format for any item."""
+    base = base_update_item_request(item)
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
+def basic_execute_statement_request_ddb():
+    """Get an execute_statement request in DDB format."""
+    base = base_execute_statement_request()
+    return base
+
+def basic_execute_transaction_request_ddb():
+    """Get an execute_transaction request in DDB format."""
+    base = base_execute_transaction_request()
+    return base
+
+def basic_batch_execute_statement_request_ddb():
+    """Get a batch_execute_statement request in DDB format."""
+    base = base_batch_execute_statement_request()
+    return base
+
+def basic_delete_item_request_ddb(item):
+    """Get a delete_item request in DDB format for any item."""
+    base = base_delete_item_request(item)
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
 
 
 # Dict format request functions
@@ -372,7 +421,6 @@ def exhaustive_get_item_request_dict(item):
 def basic_query_request_dict(item):
     """Get a query request in dict format for any item."""
     base = base_query_request(item)
-    # Override base KeyConditionExpression to use ConditionExpressions
     return base
 
 
@@ -465,3 +513,23 @@ def basic_transact_write_item_condition_check_request_dict(keys):
 def basic_transact_get_item_request_dict(keys):
     """Get a transact_get_item request in dict format for any keys."""
     return base_transact_get_item_request(keys)
+
+def basic_update_item_request_dict(item):
+    """Get an update_item request in DDB format for any item."""
+    base = base_update_item_request(item)
+    return base
+
+def basic_execute_statement_request_dict():
+    """Get an execute_statement request in DDB format."""
+    base = base_execute_statement_request()
+    return base
+
+def basic_execute_transaction_request_dict():
+    """Get an execute_transaction request in DDB format."""
+    base = base_execute_transaction_request()
+    return base
+
+def basic_batch_execute_statement_request_dict():
+    """Get a batch_execute_statement request in DDB format."""
+    base = base_batch_execute_statement_request()
+    return base
