@@ -5,6 +5,9 @@ import pytest
 
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
+    DynamoDbEncryptionTransformsException,
+)
 
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
@@ -21,12 +24,20 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
+    basic_batch_execute_statement_request_ddb,
+    basic_batch_execute_statement_request_dict,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_ddb,
     basic_batch_write_item_put_request_dict,
+    basic_delete_item_request_ddb,
+    basic_delete_item_request_dict,
+    basic_execute_statement_request_ddb,
+    basic_execute_statement_request_dict,
+    basic_execute_transaction_request_ddb,
+    basic_execute_transaction_request_dict,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -41,6 +52,8 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
+    basic_update_item_request_ddb,
+    basic_update_item_request_dict,
 )
 from . import sort_dynamodb_json_lists
 
@@ -154,8 +167,15 @@ def get_item_request(expect_standard_dictionaries, test_item):
     return basic_get_item_request_ddb(test_item)
 
 
-def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passes(
-    client, put_item_request, get_item_request
+@pytest.fixture
+def delete_item_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return {**basic_delete_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    return basic_delete_item_request_ddb(test_item)
+
+
+def test_GIVEN_valid_put_and_get_and_delete_requests_WHEN_put_and_get_and_delete_THEN_round_trip_passes(
+    client, put_item_request, get_item_request, delete_item_request
 ):
     # Given: Valid put_item request
     # When: put_item
@@ -173,6 +193,23 @@ def test_GIVEN_valid_put_and_get_requests_WHEN_put_and_get_THEN_round_trip_passe
     expected_item = sort_dynamodb_json_lists(put_item_request["Item"])
     actual_item = sort_dynamodb_json_lists(get_response["Item"])
     assert expected_item == actual_item
+
+    # Given: Valid delete_item request for the same item
+    # When: delete_item
+    delete_response = client.delete_item(**{**delete_item_request, "ReturnValues": "ALL_OLD"})
+    # Then: delete_item succeeds and contains the expected response
+    assert delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    # DynamoDB JSON uses lists to represent sets, so strict equality can fail.
+    # Sort lists to ensure consistent ordering when comparing expected and actual items.
+    expected_item = sort_dynamodb_json_lists(put_item_request["Item"])
+    actual_item = sort_dynamodb_json_lists(delete_response["Attributes"])
+    assert expected_item == actual_item
+
+    # Given: Valid get_item request for the same item
+    # When: get_item
+    get_response = client.get_item(**get_item_request)
+    # Then: get_item is empty (i.e. the item was deleted)
+    assert "Item" not in get_response
 
 
 @pytest.fixture
@@ -346,18 +383,89 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
     assert transact_write_delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
-def test_WHEN_update_item_THEN_raises_not_implemented_error():
-    """Test that update_item raises NotImplementedError."""
+@pytest.fixture
+def update_item_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_update_item_request_dict(test_item)
+    return basic_update_item_request_ddb(test_item)
+
+
+def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
+    """Test that update_item raises DynamoDbEncryptionTransformsException."""
     # Given: Encrypted client and update item parameters
-    # When: Calling update_item
-    with pytest.raises(NotImplementedError):
+    # Then: DynamoDbEncryptionTransformsException is raised
+    with pytest.raises(DynamoDbEncryptionTransformsException):
+        # When: Calling update_item
         encrypted_client(expect_standard_dictionaries=False).update_item(
             TableName=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-            Key={"partition_key": "test-key", "sort_key": 1},
+            Key={"partition_key": {"S": "test-key"}, "sort_key": {"N": "1"}},
             UpdateExpression="SET attribute1 = :val",
             ExpressionAttributeValues={":val": {"S": "new value"}},
         )
-    # Then: NotImplementedError is raised
+
+
+@pytest.fixture
+def execute_statement_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_execute_statement_request_dict(test_item)
+    return basic_execute_statement_request_ddb(test_item)
+
+
+def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
+    """Test that execute_statement raises DynamoDbEncryptionTransformsException."""
+    # Given: Encrypted client and update item parameters
+    # Then: DynamoDbEncryptionTransformsException is raised
+    with pytest.raises(DynamoDbEncryptionTransformsException):
+        # When: Calling update_item
+        encrypted_client(expect_standard_dictionaries=False).execute_statement(
+            Statement="SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+        )
+
+
+@pytest.fixture
+def execute_transaction_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_execute_transaction_request_dict(test_item)
+    return basic_execute_transaction_request_ddb(test_item)
+
+
+def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsException():
+    """Test that execute_transaction raises DynamoDbEncryptionTransformsException."""
+    # Given: Encrypted client and update item parameters
+    # Then: DynamoDbEncryptionTransformsException is raised
+    with pytest.raises(DynamoDbEncryptionTransformsException):
+        # When: Calling update_item
+        encrypted_client(expect_standard_dictionaries=False).execute_transaction(
+            TransactStatements=[
+                {
+                    "Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+                    "Parameters": [],
+                }
+            ],
+        )
+
+
+@pytest.fixture
+def batch_execute_statement_request(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return basic_batch_execute_statement_request_dict(test_item)
+    return basic_batch_execute_statement_request_ddb(test_item)
+
+
+def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
+    """Test that batch_execute_statement raises DynamoDbEncryptionTransformsException."""
+    # Given: Encrypted client and update item parameters
+    # Then: DynamoDbEncryptionTransformsException is raised
+    with pytest.raises(DynamoDbEncryptionTransformsException):
+        # When: Calling update_item
+        encrypted_client(expect_standard_dictionaries=False).batch_execute_statement(
+            Statements=[
+                {
+                    "Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+                    "Parameters": [],
+                }
+            ],
+        )
 
 
 def test_WHEN_get_paginator_THEN_correct_paginator_is_returned():
