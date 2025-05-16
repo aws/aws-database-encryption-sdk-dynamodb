@@ -419,6 +419,108 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_response,
         )
 
+    def execute_statement(self, **kwargs):
+        """
+        Calls ``execute_statement`` on the underlying client if the table is not configured for encryption.
+
+        If the table is configured for encryption, this operation will raise DynamoDbEncryptionTransformsException.
+
+        The input and output syntaxes match those for the boto3 DynamoDB client ``execute_statement`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/execute_statement.html
+
+        Args:
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``execute_statement``
+                request syntax.
+
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 client ``execute_statement`` response syntax.
+
+        Raises:
+            DynamoDbEncryptionTransformsException: If this operation is called for an encrypted table.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_statement_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_statement_request,
+            input_transform_method=self._transformer.execute_statement_input_transform,
+            input_transform_shape=ExecuteStatementInputTransformInput,
+            output_transform_method=self._transformer.execute_statement_output_transform,
+            output_transform_shape=ExecuteStatementOutputTransformInput,
+            client_method=self._client.execute_statement,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_statement_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_statement_response,
+        )
+
+    def execute_transaction(self, **kwargs):
+        """
+        Calls ``execute_transaction`` on the underlying client if the table is not configured for encryption.
+
+        If the table is configured for encryption, this operation will raise DynamoDbEncryptionTransformsException.
+
+        The input and output syntaxes match those for the boto3 DynamoDB client ``execute_transaction`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/execute_transaction.html
+
+        Args:
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``execute_transaction``
+                request syntax.
+
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 client ``execute_transaction`` response syntax.
+
+        Raises:
+            DynamoDbEncryptionTransformsException: If this operation is called for an encrypted table.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_transaction_request,
+            input_transform_method=self._transformer.execute_transaction_input_transform,
+            input_transform_shape=ExecuteTransactionInputTransformInput,
+            output_transform_method=self._transformer.execute_transaction_output_transform,
+            output_transform_shape=ExecuteTransactionOutputTransformInput,
+            client_method=self._client.execute_transaction,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_transaction_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_response,
+        )
+
+    def batch_execute_statement(self, **kwargs):
+        """
+        Calls ``batch_execute_statement`` on the underlying client if the table is not configured for encryption.
+
+        If the table is configured for encryption, this operation will raise DynamoDbEncryptionTransformsException.
+
+        The input and output syntaxes match those for the boto3 DynamoDB client ``batch_execute_statement`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_execute_statement.html
+
+        Args:
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``batch_execute_statement``
+                request syntax.
+
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 client ``batch_execute_statement`` response syntax.
+
+        Raises:
+            DynamoDbEncryptionTransformsException: If this operation is called for an encrypted table.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_request,
+            input_transform_method=self._transformer.batch_execute_statement_input_transform,
+            input_transform_shape=BatchExecuteStatementInputTransformInput,
+            output_transform_method=self._transformer.batch_execute_statement_output_transform,
+            output_transform_shape=BatchExecuteStatementOutputTransformInput,
+            client_method=self._client.batch_execute_statement,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_response,
+        )
+
     def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
         """
         Get a paginator from the underlying client.
@@ -448,78 +550,6 @@ class EncryptedClient(EncryptedBotoInterface):
             # The paginator can still be used for list_backups, list_tables, and list_tags_of_resource,
             # but there is nothing to encrypt/decrypt in these operations.
             return paginator
-
-    def execute_statement(self, **kwargs):
-        """
-        Not implemented. Raises DynamoDbEncryptionTransformsException.
-
-        Args:
-            **kwargs: Any arguments passed to this method
-
-        Raises:
-            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
-
-        """
-        return self._client_operation_logic(
-            operation_input=kwargs,
-            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_statement_request,
-            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_statement_request,
-            input_transform_method=self._transformer.execute_statement_input_transform,
-            input_transform_shape=ExecuteStatementInputTransformInput,
-            output_transform_method=self._transformer.execute_statement_output_transform,
-            output_transform_shape=ExecuteStatementOutputTransformInput,
-            client_method=self._client.execute_statement,
-            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_statement_response,
-            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_statement_response,
-        )
-
-    def execute_transaction(self, **kwargs):
-        """
-        Not implemented. Raises DynamoDbEncryptionTransformsException.
-
-        Args:
-            **kwargs: Any arguments passed to this method
-
-        Raises:
-            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
-
-        """
-        return self._client_operation_logic(
-            operation_input=kwargs,
-            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_request,
-            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_transaction_request,
-            input_transform_method=self._transformer.execute_transaction_input_transform,
-            input_transform_shape=ExecuteTransactionInputTransformInput,
-            output_transform_method=self._transformer.execute_transaction_output_transform,
-            output_transform_shape=ExecuteTransactionOutputTransformInput,
-            client_method=self._client.execute_transaction,
-            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.execute_transaction_response,
-            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_response,
-        )
-
-    def batch_execute_statement(self, **kwargs):
-        """
-        Not implemented. Raises DynamoDbEncryptionTransformsException.
-
-        Args:
-            **kwargs: Any arguments passed to this method
-
-        Raises:
-            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
-
-        """
-        return self._client_operation_logic(
-            operation_input=kwargs,
-            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_request,
-            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_request,
-            input_transform_method=self._transformer.batch_execute_statement_input_transform,
-            input_transform_shape=BatchExecuteStatementInputTransformInput,
-            output_transform_method=self._transformer.batch_execute_statement_output_transform,
-            output_transform_shape=BatchExecuteStatementOutputTransformInput,
-            client_method=self._client.batch_execute_statement,
-            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_response,
-            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_response,
-        )
 
     def _client_operation_logic(
         self,

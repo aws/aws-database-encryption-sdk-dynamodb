@@ -2,7 +2,10 @@
 
 from boto3.dynamodb.conditions import Attr, Key
 
-from .constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
+from .constants import (
+    INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+    INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT,
+)
 
 # Base request structures that are shared between DDB and dict formats
 
@@ -79,19 +82,53 @@ def base_update_item_request_unsigned_attribute(item):
     }
 
 
-def basic_execute_statement_request():
-    """Base structure for execute_statement requests."""
+def basic_execute_statement_request_encrypted_table():
+    """Base structure for execute_statement requests for an encrypted table."""
     return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
 
 
-def basic_execute_transaction_request():
-    """Base structure for execute_transaction requests."""
-    return {"TransactStatements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
+def basic_execute_statement_request_plaintext_table():
+    """Base structure for execute_statement requests for a plaintext table."""
+    return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT}
 
 
-def basic_batch_execute_statement_request():
+def basic_execute_transaction_request_encrypted_table():
+    """Base structure for execute_transaction requests for an encrypted table."""
+    return {
+        "TransactStatements": [
+            {
+                "Statement": f"SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME} WHERE partition_key=? AND sort_key=?",
+                "Parameters": [
+                    {"S": "fake_nonexistent_partition_key"},
+                    {"S": "fake_nonexistent_sort_key"}
+                ]
+            }
+        ]
+    }
+
+
+def basic_execute_transaction_request_plaintext_table():
+    """Base structure for execute_transaction requests for a plaintext table."""
+    return {
+        "TransactStatements": [
+            {
+                "Statement": f"SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT} WHERE partition_key=? AND sort_key=?",
+                "Parameters": [
+                    {"S": "fake_nonexistent_partition_key"},
+                    {"S": "fake_nonexistent_sort_key"}
+                ]
+            }
+        ]
+    }
+
+def basic_batch_execute_statement_request_encrypted_table():
     """Base structure for batch_execute_statement requests."""
     return {"Statements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
+
+
+def basic_batch_execute_statement_request_plaintext_table():
+    """Base structure for batch_execute_statement requests for a plaintext table."""
+    return {"Statements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT}]}
 
 
 # Base exhaustive request structures that are shared between DDB and dict formats
