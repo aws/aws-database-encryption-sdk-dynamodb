@@ -430,6 +430,11 @@ def test_WHEN_update_item_with_signed_attribute_THEN_raises_DynamoDbEncryptionTr
         client.update_item(**update_item_request_signed_attribute)
 
 
+# Create a matrix of tests for each value in param,
+# with a user-friendly string for test output:
+# execute_uses_encrypted_table = True -> "encrypted_table"
+# execute_uses_encrypted_table = False -> "plaintext_table"
+# This indicates whether an execute_(statement,transaction,etc.) operation should be on an encrypted table
 @pytest.fixture(params=[True, False], ids=["encrypted_table", "plaintext_table"])
 def execute_uses_encrypted_table(request):
     return request.param
