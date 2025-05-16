@@ -832,6 +832,18 @@ def test_GIVEN_test_update_item_request_WHEN_resource_to_client_THEN_returns_ddb
     assert actual_ddb_request == expected_ddb_request
 
 
+def test_GIVEN_update_item_request_without_table_name_WHEN_resource_to_client_THEN_raises_error(
+    test_update_item_request_dict,
+):
+    # Given: ResourceShapeToClientShapeConverter without table name
+    resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
+    # Given: Put item request without table name
+    # Then: Raises ValueError
+    with pytest.raises(ValueError):
+        # When: Converting to resource format
+        resource_to_client_converter_without_table_name.update_item_request(test_update_item_request_dict)
+
+
 def test_GIVEN_update_item_response_WHEN_resource_to_client_THEN_raises_NotImplementedError():
     # Given: Update item response
     response = {"Some": "Response"}
