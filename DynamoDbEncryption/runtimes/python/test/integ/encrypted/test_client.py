@@ -24,8 +24,6 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
-    basic_batch_execute_statement_request_ddb,
-    basic_batch_execute_statement_request_dict,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
@@ -34,10 +32,6 @@ from ...requests import (
     basic_batch_write_item_put_request_dict,
     basic_delete_item_request_ddb,
     basic_delete_item_request_dict,
-    basic_execute_statement_request_ddb,
-    basic_execute_statement_request_dict,
-    basic_execute_transaction_request_ddb,
-    basic_execute_transaction_request_dict,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -54,6 +48,9 @@ from ...requests import (
     basic_transact_write_item_put_request_dict,
     basic_update_item_request_ddb,
     basic_update_item_request_dict,
+    basic_execute_statement_request,
+    basic_execute_transaction_request,
+    basic_batch_execute_statement_request,
 )
 from . import sort_dynamodb_json_lists
 
@@ -386,85 +383,86 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
 @pytest.fixture
 def update_item_request(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
-        return basic_update_item_request_dict(test_item)
+        return {**basic_update_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
     return basic_update_item_request_ddb(test_item)
 
 
-def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException():
+def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException(
+    client, update_item_request, encrypted,
+):
     """Test that update_item raises DynamoDbEncryptionTransformsException."""
+    if not encrypted:
+        pytest.skip("Skipping negative test for plaintext client")
+
     # Given: Encrypted client and update item parameters
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        encrypted_client(expect_standard_dictionaries=False).update_item(
-            TableName=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-            Key={"partition_key": {"S": "test-key"}, "sort_key": {"N": "1"}},
-            UpdateExpression="SET attribute1 = :val",
-            ExpressionAttributeValues={":val": {"S": "new value"}},
+        client.update_item(
+            **update_item_request
         )
 
 
 @pytest.fixture
-def execute_statement_request(expect_standard_dictionaries, test_item):
-    if expect_standard_dictionaries:
-        return basic_execute_statement_request_dict(test_item)
-    return basic_execute_statement_request_ddb(test_item)
+def execute_statement_request():
+    return basic_execute_statement_request()
 
 
-def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
+def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException(
+    client, execute_statement_request, encrypted,
+):
     """Test that execute_statement raises DynamoDbEncryptionTransformsException."""
+    if not encrypted:
+        pytest.skip("Skipping negative test for plaintext client")
+
     # Given: Encrypted client and update item parameters
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        encrypted_client(expect_standard_dictionaries=False).execute_statement(
-            Statement="SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+        client.execute_statement(
+            **execute_statement_request
         )
 
 
 @pytest.fixture
-def execute_transaction_request(expect_standard_dictionaries, test_item):
-    if expect_standard_dictionaries:
-        return basic_execute_transaction_request_dict(test_item)
-    return basic_execute_transaction_request_ddb(test_item)
+def execute_transaction_request():
+    return basic_execute_transaction_request()
 
 
-def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsException():
+def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsException(
+    client, execute_transaction_request, encrypted,
+):
     """Test that execute_transaction raises DynamoDbEncryptionTransformsException."""
+    if not encrypted:
+        pytest.skip("Skipping negative test for plaintext client")
+
     # Given: Encrypted client and update item parameters
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        encrypted_client(expect_standard_dictionaries=False).execute_transaction(
-            TransactStatements=[
-                {
-                    "Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-                    "Parameters": [],
-                }
-            ],
+        client.execute_transaction(
+            **execute_transaction_request
         )
 
 
 @pytest.fixture
-def batch_execute_statement_request(expect_standard_dictionaries, test_item):
-    if expect_standard_dictionaries:
-        return basic_batch_execute_statement_request_dict(test_item)
-    return basic_batch_execute_statement_request_ddb(test_item)
+def batch_execute_statement_request():
+    return basic_batch_execute_statement_request()
 
 
-def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException():
+def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException(
+    client, batch_execute_statement_request, encrypted,
+):
     """Test that batch_execute_statement raises DynamoDbEncryptionTransformsException."""
+    if not encrypted:
+        pytest.skip("Skipping negative test for plaintext client")
+
     # Given: Encrypted client and update item parameters
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        encrypted_client(expect_standard_dictionaries=False).batch_execute_statement(
-            Statements=[
-                {
-                    "Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-                    "Parameters": [],
-                }
-            ],
+        client.batch_execute_statement(
+            **batch_execute_statement_request
         )
 
 

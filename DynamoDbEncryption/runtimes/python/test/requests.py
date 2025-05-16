@@ -69,17 +69,17 @@ def base_update_item_request(item):
     }
 
 
-def base_execute_statement_request():
+def basic_execute_statement_request():
     """Base structure for execute_statement requests."""
     return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
 
 
-def base_execute_transaction_request():
+def basic_execute_transaction_request():
     """Base structure for execute_transaction requests."""
     return {"TransactStatements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
 
 
-def base_batch_execute_statement_request():
+def basic_batch_execute_statement_request():
     """Base structure for batch_execute_statement requests."""
     return {"Statements": [{"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}]}
 
@@ -354,24 +354,6 @@ def basic_update_item_request_ddb(item):
     return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
 
 
-def basic_execute_statement_request_ddb():
-    """Get an execute_statement request in DDB format."""
-    base = base_execute_statement_request()
-    return base
-
-
-def basic_execute_transaction_request_ddb():
-    """Get an execute_transaction request in DDB format."""
-    base = base_execute_transaction_request()
-    return base
-
-
-def basic_batch_execute_statement_request_ddb():
-    """Get a batch_execute_statement request in DDB format."""
-    base = base_batch_execute_statement_request()
-    return base
-
-
 # Dict format request functions
 
 
@@ -517,22 +499,4 @@ def basic_transact_get_item_request_dict(keys):
 def basic_update_item_request_dict(item):
     """Get an update_item request in DDB format for any item."""
     base = base_update_item_request(item)
-    return base
-
-
-def basic_execute_statement_request_dict():
-    """Get an execute_statement request in DDB format."""
-    base = base_execute_statement_request()
-    return base
-
-
-def basic_execute_transaction_request_dict():
-    """Get an execute_transaction request in DDB format."""
-    base = base_execute_transaction_request()
-    return base
-
-
-def basic_batch_execute_statement_request_dict():
-    """Get a batch_execute_statement request in DDB format."""
-    base = base_batch_execute_statement_request()
     return base
