@@ -97,11 +97,9 @@ def basic_execute_transaction_request_encrypted_table(item):
     return {
         "TransactStatements": [
             {
-                "Statement": f"SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME} WHERE partition_key=? AND sort_key=?",
-                "Parameters": [
-                    item["partition_key"],
-                    item["sort_key"]
-                ]
+                "Statement": f"""SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+                WHERE partition_key=? AND sort_key=?""",
+                "Parameters": [item["partition_key"], item["sort_key"]],
             }
         ]
     }
@@ -112,14 +110,13 @@ def basic_execute_transaction_request_plaintext_table(item):
     return {
         "TransactStatements": [
             {
-                "Statement": f"SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT} WHERE partition_key=? AND sort_key=?",
-                "Parameters": [
-                    item["partition_key"],
-                    item["sort_key"]
-                ]
+                "Statement": f"""SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT}
+                WHERE partition_key=? AND sort_key=?""",
+                "Parameters": [item["partition_key"], item["sort_key"]],
             }
         ]
     }
+
 
 def basic_batch_execute_statement_request_encrypted_table():
     """Base structure for batch_execute_statement requests."""

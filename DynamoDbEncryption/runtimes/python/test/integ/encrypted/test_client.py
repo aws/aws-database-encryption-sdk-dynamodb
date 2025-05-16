@@ -24,6 +24,8 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
+    basic_batch_execute_statement_request_encrypted_table,
+    basic_batch_execute_statement_request_plaintext_table,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
@@ -36,8 +38,6 @@ from ...requests import (
     basic_execute_statement_request_plaintext_table,
     basic_execute_transaction_request_encrypted_table,
     basic_execute_transaction_request_plaintext_table,
-    basic_batch_execute_statement_request_encrypted_table,
-    basic_batch_execute_statement_request_plaintext_table,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -435,6 +435,7 @@ def test_WHEN_update_item_with_signed_attribute_THEN_raises_DynamoDbEncryptionTr
 def execute_uses_encrypted_table(request):
     return request.param
 
+
 @pytest.fixture
 def execute_statement_request(execute_uses_encrypted_table):
     if execute_uses_encrypted_table:
@@ -461,6 +462,7 @@ def test_WHEN_execute_statement_for_encrypted_table_THEN_raises_DynamoDbEncrypti
     else:
         pytest.skip("Skipping test for plaintext table; this test is only for encrypted tables")
 
+
 def test_WHEN_execute_statement_for_plaintext_table_THEN_passes(
     client,
     execute_statement_request,
@@ -474,6 +476,7 @@ def test_WHEN_execute_statement_for_plaintext_table_THEN_passes(
     response = client.execute_statement(**execute_statement_request)
     # Then: Success
     assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
 
 @pytest.fixture
 def execute_transaction_request(execute_uses_encrypted_table, test_item):
@@ -501,6 +504,7 @@ def test_WHEN_execute_transaction_for_encrypted_table_THEN_raises_DynamoDbEncryp
     else:
         pytest.skip("Skipping test for plaintext table; this test is only for encrypted tables")
 
+
 def test_WHEN_execute_transaction_for_plaintext_table_THEN_passes(
     client,
     execute_transaction_request,
@@ -518,6 +522,7 @@ def test_WHEN_execute_transaction_for_plaintext_table_THEN_passes(
     response = client.execute_transaction(**execute_transaction_request)
     # Then: Success
     assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
 
 @pytest.fixture
 def batch_execute_statement_request(execute_uses_encrypted_table):
@@ -545,6 +550,7 @@ def test_WHEN_batch_execute_statement_for_encrypted_table_THEN_raises_DynamoDbEn
     else:
         pytest.skip("Skipping test for plaintext table; this test is only for encrypted tables")
 
+
 def test_WHEN_batch_execute_statement_for_plaintext_table_THEN_passes(
     client,
     batch_execute_statement_request,
@@ -558,6 +564,7 @@ def test_WHEN_batch_execute_statement_for_plaintext_table_THEN_passes(
     response = client.batch_execute_statement(**batch_execute_statement_request)
     # Then: Success
     assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
 
 def test_WHEN_get_paginator_THEN_correct_paginator_is_returned():
     """Test get_paginator for scan and query operations."""
