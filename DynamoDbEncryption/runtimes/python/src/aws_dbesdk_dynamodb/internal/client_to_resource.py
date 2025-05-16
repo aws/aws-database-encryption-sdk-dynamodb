@@ -114,12 +114,14 @@ class ClientShapeToResourceShapeConverter:
         return self.boto3_converter.BatchWriteItemOutput(batch_write_item_response)
 
     def update_item_response(self, update_item_response):
+        # DBESDK transformers will raise an exception before this is called
         raise NotImplementedError("update_item response handling is not implemented")
 
     def batch_execute_statement_request(self, batch_execute_statement_request):
         return self.boto3_converter.BatchExecuteStatementInput(batch_execute_statement_request)
 
     def batch_execute_statement_response(self, batch_execute_statement_response):
+        # DBESDK transformers will raise an exception before this is called
         raise NotImplementedError("batch_execute_statement response handling is not implemented")
 
     def delete_item_response(self, delete_item_response):
@@ -129,10 +131,12 @@ class ClientShapeToResourceShapeConverter:
         return self.boto3_converter.ExecuteStatementInput(execute_statement_request)
 
     def execute_statement_response(self, execute_statement_response):
+        # DBESDK transformers will raise an exception before this is called
         raise NotImplementedError("execute_statement response handling is not implemented")
 
     def execute_transaction_request(self, execute_transaction_request):
         return self.boto3_converter.ExecuteTransactionInput(execute_transaction_request)
 
     def execute_transaction_response(self, execute_transaction_response):
+        # DBESDK transformers will raise an exception before this is called
         raise NotImplementedError("execute_transaction response handling is not implemented")

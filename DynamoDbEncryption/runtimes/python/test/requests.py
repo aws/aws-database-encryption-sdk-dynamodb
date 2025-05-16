@@ -371,6 +371,7 @@ def basic_batch_execute_statement_request_ddb():
     base = base_batch_execute_statement_request()
     return base
 
+
 # Dict format request functions
 
 
