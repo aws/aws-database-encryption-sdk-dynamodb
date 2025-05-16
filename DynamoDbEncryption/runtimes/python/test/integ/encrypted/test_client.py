@@ -46,8 +46,10 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
-    basic_update_item_request_ddb,
-    basic_update_item_request_dict,
+    basic_update_item_request_ddb_signed_attribute,
+    basic_update_item_request_ddb_unsigned_attribute,
+    basic_update_item_request_dict_signed_attribute,
+    basic_update_item_request_dict_unsigned_attribute,
     basic_execute_statement_request,
     basic_execute_transaction_request,
     basic_batch_execute_statement_request,
@@ -379,16 +381,31 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
     # Then: transact_write_item delete succeeds
     assert transact_write_delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
+@pytest.fixture
+def update_item_request_unsigned_attribute(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return {**basic_update_item_request_dict_unsigned_attribute(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    return basic_update_item_request_ddb_unsigned_attribute(test_item)
+
+
+def test_WHEN_update_item_with_unsigned_attribute_THEN_passes(
+    client, update_item_request_unsigned_attribute, encrypted, get_item_request
+):
+    # Given: Valid update_item request
+    # When: update_item
+    update_response = client.update_item(**update_item_request_unsigned_attribute)
+    # Then: update_item succeeds
+    assert update_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 @pytest.fixture
-def update_item_request(expect_standard_dictionaries, test_item):
+def update_item_request_signed_attribute(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
-        return {**basic_update_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
-    return basic_update_item_request_ddb(test_item)
+        return {**basic_update_item_request_dict_signed_attribute(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    return basic_update_item_request_ddb_signed_attribute(test_item)
 
 
-def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException(
-    client, update_item_request, encrypted,
+def test_WHEN_update_item_with_signed_attribute_THEN_raises_DynamoDbEncryptionTransformsException(
+    client, update_item_request_signed_attribute, encrypted,
 ):
     """Test that update_item raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
@@ -399,7 +416,7 @@ def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException(
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
         client.update_item(
-            **update_item_request
+            **update_item_request_signed_attribute
         )
 
 

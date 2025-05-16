@@ -114,8 +114,7 @@ class ClientShapeToResourceShapeConverter:
         return self.boto3_converter.BatchWriteItemOutput(batch_write_item_response)
 
     def update_item_response(self, update_item_response):
-        # DBESDK transformers will raise an exception before this is called
-        raise NotImplementedError("update_item response handling is not implemented")
+        return self.boto3_converter.UpdateItemOutput(update_item_response)
 
     def batch_execute_statement_request(self, batch_execute_statement_request):
         return self.boto3_converter.BatchExecuteStatementInput(batch_execute_statement_request)

@@ -164,8 +164,7 @@ class ResourceShapeToClientShapeConverter:
         return self.boto3_converter.PutItemOutput(put_item_response)
 
     def update_item_response(self, update_item_response):
-        # DBESDK transformers will raise an exception before this is called
-        raise NotImplementedError("update_item response handling is not implemented")
+        return self.boto3_converter.UpdateItemOutput(update_item_response)
 
     def delete_item_response(self, delete_item_response):
         return self.boto3_converter.DeleteItemOutput(delete_item_response)

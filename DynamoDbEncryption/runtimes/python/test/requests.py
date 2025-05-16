@@ -60,7 +60,7 @@ def base_transact_get_item_request(keys):
     }
 
 
-def base_update_item_request(item):
+def base_update_item_request_signed_attribute(item):
     """Base structure for update_item requests."""
     return {
         "Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]},
@@ -68,6 +68,15 @@ def base_update_item_request(item):
         "ExpressionAttributeValues": {":val": item["attribute1"]},
     }
 
+
+def base_update_item_request_unsigned_attribute(item):
+    """Base structure for update_item requests."""
+    return {
+        "Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]},
+        "UpdateExpression": "SET #attr3 = :val",
+        "ExpressionAttributeValues": {":val": item[":attribute3"]},
+        "ExpressionAttributeNames": {"#attr3": ":attribute3"},
+    }
 
 def basic_execute_statement_request():
     """Base structure for execute_statement requests."""
@@ -348,9 +357,15 @@ def basic_scan_paginator_request(item):
     }
 
 
-def basic_update_item_request_ddb(item):
+def basic_update_item_request_ddb_signed_attribute(item):
     """Get an update_item request in DDB format for any item."""
-    base = base_update_item_request(item)
+    base = base_update_item_request_signed_attribute(item)
+    return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
+
+
+def basic_update_item_request_ddb_unsigned_attribute(item):
+    """Get an update_item request in DDB format for any item."""
+    base = base_update_item_request_unsigned_attribute(item)
     return {"TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, **base}
 
 
@@ -496,7 +511,14 @@ def basic_transact_get_item_request_dict(keys):
     return base_transact_get_item_request(keys)
 
 
-def basic_update_item_request_dict(item):
-    """Get an update_item request in DDB format for any item."""
-    base = base_update_item_request(item)
+def basic_update_item_request_dict_signed_attribute(item):
+    """Get an update_item request in dict format for any item."""
+    base = base_update_item_request_signed_attribute(item)
     return base
+
+
+def basic_update_item_request_dict_unsigned_attribute(item):
+    """Get an update_item request in dict format for any item."""
+    base = base_update_item_request_unsigned_attribute(item)
+    return base
+
