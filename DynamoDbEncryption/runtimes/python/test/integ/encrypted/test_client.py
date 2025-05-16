@@ -24,6 +24,7 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
+    basic_batch_execute_statement_request,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
@@ -32,6 +33,8 @@ from ...requests import (
     basic_batch_write_item_put_request_dict,
     basic_delete_item_request_ddb,
     basic_delete_item_request_dict,
+    basic_execute_statement_request,
+    basic_execute_transaction_request,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -46,11 +49,10 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
-    basic_update_item_request_ddb,
-    basic_update_item_request_dict,
-    basic_execute_statement_request,
-    basic_execute_transaction_request,
-    basic_batch_execute_statement_request,
+    basic_update_item_request_ddb_signed_attribute,
+    basic_update_item_request_ddb_unsigned_attribute,
+    basic_update_item_request_dict_signed_attribute,
+    basic_update_item_request_dict_unsigned_attribute,
 )
 from . import sort_dynamodb_json_lists
 
@@ -381,14 +383,39 @@ def test_GIVEN_valid_transact_write_and_get_requests_WHEN_transact_write_and_get
 
 
 @pytest.fixture
-def update_item_request(expect_standard_dictionaries, test_item):
+def update_item_request_unsigned_attribute(expect_standard_dictionaries, test_item):
     if expect_standard_dictionaries:
-        return {**basic_update_item_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
-    return basic_update_item_request_ddb(test_item)
+        return {
+            **basic_update_item_request_dict_unsigned_attribute(test_item),
+            "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+        }
+    return basic_update_item_request_ddb_unsigned_attribute(test_item)
 
 
-def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException(
-    client, update_item_request, encrypted,
+def test_WHEN_update_item_with_unsigned_attribute_THEN_passes(
+    client, update_item_request_unsigned_attribute, encrypted, get_item_request
+):
+    # Given: Valid update_item request
+    # When: update_item
+    update_response = client.update_item(**update_item_request_unsigned_attribute)
+    # Then: update_item succeeds
+    assert update_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+@pytest.fixture
+def update_item_request_signed_attribute(expect_standard_dictionaries, test_item):
+    if expect_standard_dictionaries:
+        return {
+            **basic_update_item_request_dict_signed_attribute(test_item),
+            "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
+        }
+    return basic_update_item_request_ddb_signed_attribute(test_item)
+
+
+def test_WHEN_update_item_with_signed_attribute_THEN_raises_DynamoDbEncryptionTransformsException(
+    client,
+    update_item_request_signed_attribute,
+    encrypted,
 ):
     """Test that update_item raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
@@ -398,9 +425,7 @@ def test_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException(
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        client.update_item(
-            **update_item_request
-        )
+        client.update_item(**update_item_request_signed_attribute)
 
 
 @pytest.fixture
@@ -409,7 +434,9 @@ def execute_statement_request():
 
 
 def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException(
-    client, execute_statement_request, encrypted,
+    client,
+    execute_statement_request,
+    encrypted,
 ):
     """Test that execute_statement raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
@@ -419,9 +446,7 @@ def test_WHEN_execute_statement_THEN_raises_DynamoDbEncryptionTransformsExceptio
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        client.execute_statement(
-            **execute_statement_request
-        )
+        client.execute_statement(**execute_statement_request)
 
 
 @pytest.fixture
@@ -430,7 +455,9 @@ def execute_transaction_request():
 
 
 def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsException(
-    client, execute_transaction_request, encrypted,
+    client,
+    execute_transaction_request,
+    encrypted,
 ):
     """Test that execute_transaction raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
@@ -440,9 +467,7 @@ def test_WHEN_execute_transaction_THEN_raises_DynamoDbEncryptionTransformsExcept
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        client.execute_transaction(
-            **execute_transaction_request
-        )
+        client.execute_transaction(**execute_transaction_request)
 
 
 @pytest.fixture
@@ -451,7 +476,9 @@ def batch_execute_statement_request():
 
 
 def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsException(
-    client, batch_execute_statement_request, encrypted,
+    client,
+    batch_execute_statement_request,
+    encrypted,
 ):
     """Test that batch_execute_statement raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
@@ -461,9 +488,7 @@ def test_WHEN_batch_execute_statement_THEN_raises_DynamoDbEncryptionTransformsEx
     # Then: DynamoDbEncryptionTransformsException is raised
     with pytest.raises(DynamoDbEncryptionTransformsException):
         # When: Calling update_item
-        client.batch_execute_statement(
-            **batch_execute_statement_request
-        )
+        client.batch_execute_statement(**batch_execute_statement_request)
 
 
 def test_WHEN_get_paginator_THEN_correct_paginator_is_returned():

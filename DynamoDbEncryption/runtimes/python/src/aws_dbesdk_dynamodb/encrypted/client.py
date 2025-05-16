@@ -69,12 +69,14 @@ class EncryptedClient(EncryptedBotoInterface):
         * ``transact_write_items``
         * ``delete_item``
 
+    Any calls to ``update_item`` can only update unsigned attributes. If an attribute to be updated is marked as signed,
+    this operation will raise a ``DynamoDbEncryptionTransformsException``.
+
     The following operations are not supported and will raise DynamoDbEncryptionTransformsException:
 
         * ``execute_statement``
         * ``execute_transaction``
         * ``batch_execute_statement``
-        * ``update_item``
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
@@ -383,6 +385,70 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.delete_item_response,
         )
 
+    def update_item(self, **kwargs):
+        """
+        Update an unsigned attribute in an item on a table.
+
+        If the attribute is signed, this operation will raise DynamoDbEncryptionTransformsException.
+
+        The input and output syntaxes match those for the boto3 DynamoDB client ``update_item`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/update_item.html
+
+        Args:
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``update_item``
+                request syntax.
+
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 client ``update_item`` response syntax.
+
+        Raises:
+            DynamoDbEncryptionTransformsException: If an attribute specified in the ``UpdateExpression`` is signed.
+
+        """
+        return self._client_operation_logic(
+            operation_input=kwargs,
+            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_request,
+            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_request,
+            input_transform_method=self._transformer.update_item_input_transform,
+            input_transform_shape=UpdateItemInputTransformInput,
+            output_transform_method=self._transformer.update_item_output_transform,
+            output_transform_shape=UpdateItemOutputTransformInput,
+            client_method=self._client.update_item,
+            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_response,
+            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_response,
+        )
+
+    def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
+        """
+        Get a paginator from the underlying client.
+
+        If the paginator requested is for  "scan" or "query", the paginator returned will
+        transparently decrypt the returned items.
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#paginators
+
+        Args:
+            operation_name (str): Name of operation for which to get paginator
+
+        Returns:
+            EncryptedPaginator | botocore.client.Paginator: An EncryptedPaginator that will transparently decrypt items
+            for ``scan``/``query`` operations; for other operations, the standard paginator.
+
+        """
+        paginator = self._client.get_paginator(operation_name)
+
+        if operation_name in ("scan", "query"):
+            return EncryptedPaginator(
+                paginator=paginator,
+                encryption_config=self._encryption_config,
+                expect_standard_dictionaries=self._expect_standard_dictionaries,
+            )
+        else:
+            # The paginator can still be used for list_backups, list_tables, and list_tags_of_resource,
+            # but there is nothing to encrypt/decrypt in these operations.
+            return paginator
+
     def execute_statement(self, **kwargs):
         """
         Not implemented. Raises DynamoDbEncryptionTransformsException.
@@ -431,30 +497,6 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.execute_transaction_response,
         )
 
-    def update_item(self, **kwargs):
-        """
-        Not implemented. Raises DynamoDbEncryptionTransformsException.
-
-        Args:
-            **kwargs: Any arguments passed to this method
-
-        Raises:
-            DynamoDbEncryptionTransformsException: This operation is not supported on encrypted tables.
-
-        """
-        return self._client_operation_logic(
-            operation_input=kwargs,
-            input_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_request,
-            input_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_request,
-            input_transform_method=self._transformer.update_item_input_transform,
-            input_transform_shape=UpdateItemInputTransformInput,
-            output_transform_method=self._transformer.update_item_output_transform,
-            output_transform_shape=UpdateItemOutputTransformInput,
-            client_method=self._client.update_item,
-            output_item_to_dict_transform_method=self._client_to_resource_shape_converter.update_item_response,
-            output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.update_item_response,
-        )
-
     def batch_execute_statement(self, **kwargs):
         """
         Not implemented. Raises DynamoDbEncryptionTransformsException.
@@ -478,36 +520,6 @@ class EncryptedClient(EncryptedBotoInterface):
             output_item_to_dict_transform_method=self._client_to_resource_shape_converter.batch_execute_statement_response,
             output_item_to_ddb_transform_method=self._resource_to_client_shape_converter.batch_execute_statement_response,
         )
-
-    def get_paginator(self, operation_name: str) -> EncryptedPaginator | botocore.client.Paginator:
-        """
-        Get a paginator from the underlying client.
-
-        If the paginator requested is for  "scan" or "query", the paginator returned will
-        transparently decrypt the returned items.
-
-        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#paginators
-
-        Args:
-            operation_name (str): Name of operation for which to get paginator
-
-        Returns:
-            EncryptedPaginator | botocore.client.Paginator: An EncryptedPaginator that will transparently decrypt items
-            for ``scan``/``query`` operations; for other operations, the standard paginator.
-
-        """
-        paginator = self._client.get_paginator(operation_name)
-
-        if operation_name in ("scan", "query"):
-            return EncryptedPaginator(
-                paginator=paginator,
-                encryption_config=self._encryption_config,
-                expect_standard_dictionaries=self._expect_standard_dictionaries,
-            )
-        else:
-            # The paginator can still be used for list_backups, list_tables, and list_tags_of_resource,
-            # but there is nothing to encrypt/decrypt in these operations.
-            return paginator
 
     def _client_operation_logic(
         self,
