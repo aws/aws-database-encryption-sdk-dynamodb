@@ -78,6 +78,7 @@ def base_update_item_request_unsigned_attribute(item):
         "ExpressionAttributeNames": {"#attr3": ":attribute3"},
     }
 
+
 def basic_execute_statement_request():
     """Base structure for execute_statement requests."""
     return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
@@ -521,4 +522,3 @@ def basic_update_item_request_dict_unsigned_attribute(item):
     """Get an update_item request in dict format for any item."""
     base = base_update_item_request_unsigned_attribute(item)
     return base
-
