@@ -476,10 +476,10 @@ def test_WHEN_execute_statement_for_plaintext_table_THEN_passes(
     assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 @pytest.fixture
-def execute_transaction_request(execute_uses_encrypted_table):
+def execute_transaction_request(execute_uses_encrypted_table, test_item):
     if execute_uses_encrypted_table:
-        return basic_execute_transaction_request_encrypted_table()
-    return basic_execute_transaction_request_plaintext_table()
+        return basic_execute_transaction_request_encrypted_table(test_item)
+    return basic_execute_transaction_request_plaintext_table(test_item)
 
 
 def test_WHEN_execute_transaction_for_encrypted_table_THEN_raises_DynamoDbEncryptionTransformsException(
@@ -491,7 +491,7 @@ def test_WHEN_execute_transaction_for_encrypted_table_THEN_raises_DynamoDbEncryp
     """Test that execute_transaction raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
         pytest.skip("Skipping negative test for plaintext client")
-    
+
     if execute_uses_encrypted_table:
         # Given: Encrypted client and execute_transaction request on encrypted table
         # Then: DynamoDbEncryptionTransformsException is raised
@@ -505,9 +505,13 @@ def test_WHEN_execute_transaction_for_plaintext_table_THEN_passes(
     client,
     execute_transaction_request,
     execute_uses_encrypted_table,
+    put_item_request,
 ):
     if execute_uses_encrypted_table:
         pytest.skip("Skipping test for encrypted table; this test is only for plaintext tables")
+
+    put_response = client.put_item(**put_item_request)
+    assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
     # Given: Client calls execute_transaction on plaintext table
     # When: Calling execute_transaction

@@ -92,30 +92,30 @@ def basic_execute_statement_request_plaintext_table():
     return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT}
 
 
-def basic_execute_transaction_request_encrypted_table():
+def basic_execute_transaction_request_encrypted_table(item):
     """Base structure for execute_transaction requests for an encrypted table."""
     return {
         "TransactStatements": [
             {
                 "Statement": f"SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME} WHERE partition_key=? AND sort_key=?",
                 "Parameters": [
-                    {"S": "fake_nonexistent_partition_key"},
-                    {"S": "fake_nonexistent_sort_key"}
+                    item["partition_key"],
+                    item["sort_key"]
                 ]
             }
         ]
     }
 
 
-def basic_execute_transaction_request_plaintext_table():
+def basic_execute_transaction_request_plaintext_table(item):
     """Base structure for execute_transaction requests for a plaintext table."""
     return {
         "TransactStatements": [
             {
                 "Statement": f"SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT} WHERE partition_key=? AND sort_key=?",
                 "Parameters": [
-                    {"S": "fake_nonexistent_partition_key"},
-                    {"S": "fake_nonexistent_sort_key"}
+                    item["partition_key"],
+                    item["sort_key"]
                 ]
             }
         ]
