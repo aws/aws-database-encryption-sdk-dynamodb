@@ -421,7 +421,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
     def execute_statement(self, **kwargs):
         """
-        Calls ``execute_statement`` on the underlying client if the table is not configured for encryption.
+        Call ``execute_statement`` on the underlying client if the table is not configured for encryption.
 
         If the table is configured for encryption, this operation will raise DynamoDbEncryptionTransformsException.
 
@@ -455,7 +455,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
     def execute_transaction(self, **kwargs):
         """
-        Calls ``execute_transaction`` on the underlying client if the table is not configured for encryption.
+        Call ``execute_transaction`` on the underlying client if the table is not configured for encryption.
 
         If the table is configured for encryption, this operation will raise DynamoDbEncryptionTransformsException.
 
@@ -489,7 +489,7 @@ class EncryptedClient(EncryptedBotoInterface):
 
     def batch_execute_statement(self, **kwargs):
         """
-        Calls ``batch_execute_statement`` on the underlying client if the table is not configured for encryption.
+        Call ``batch_execute_statement`` on the underlying client if the table is not configured for encryption.
 
         If the table is configured for encryption, this operation will raise DynamoDbEncryptionTransformsException.
 
@@ -498,8 +498,8 @@ class EncryptedClient(EncryptedBotoInterface):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/batch_execute_statement.html
 
         Args:
-            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client ``batch_execute_statement``
-                request syntax.
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 client
+                ``batch_execute_statement`` request syntax.
 
         Returns:
             dict: The response from DynamoDB. This matches the boto3 client ``batch_execute_statement`` response syntax.
