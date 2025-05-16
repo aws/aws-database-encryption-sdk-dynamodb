@@ -72,11 +72,14 @@ class EncryptedClient(EncryptedBotoInterface):
     Any calls to ``update_item`` can only update unsigned attributes. If an attribute to be updated is marked as signed,
     this operation will raise a ``DynamoDbEncryptionTransformsException``.
 
-    The following operations are not supported and will raise DynamoDbEncryptionTransformsException:
+    The following operations are not supported for encrypted tables:
 
         * ``execute_statement``
         * ``execute_transaction``
         * ``batch_execute_statement``
+
+    Calling these operations for encrypted tables will raise a ``DynamoDbEncryptionTransformsException``.
+    This client can still be used to call these operations on plaintext tables.
 
     Any other operations on this class will defer to the underlying boto3 DynamoDB client's implementation.
 
