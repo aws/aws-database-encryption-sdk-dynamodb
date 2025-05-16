@@ -587,11 +587,11 @@ def test_GIVEN_test_update_item_response_WHEN_client_to_resource_THEN_returns_di
     test_update_item_response, test_ddb_item, test_dict_item
 ):
     # Given: Update item response
-    response = {"Some": "Response"}
+    response = test_update_item_response(test_ddb_item)
     # When: Converting to resource format
     dict_item = client_to_resource_converter.update_item_response(response)
     # Then: Returns dict value
-    assert dict_item == response
+    assert dict_item == test_update_item_response(test_dict_item)
 
 
 @pytest.fixture
