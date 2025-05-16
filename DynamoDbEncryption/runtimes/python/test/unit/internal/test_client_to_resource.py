@@ -43,8 +43,6 @@ from ...requests import (
     basic_transact_write_item_put_request_dict,
     basic_update_item_request_ddb_unsigned_attribute,
     basic_update_item_request_dict_unsigned_attribute,
-    basic_update_item_request_ddb_signed_attribute,
-    basic_update_item_request_dict_signed_attribute,
     exhaustive_get_item_request_ddb,
     exhaustive_get_item_request_dict,
     exhaustive_put_item_request_ddb,
@@ -57,7 +55,6 @@ from ...requests import (
 from ...responses import (
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
-    basic_update_item_response,
     basic_delete_item_response,
     basic_get_item_response,
     basic_put_item_response,
@@ -65,6 +62,7 @@ from ...responses import (
     basic_scan_response,
     basic_transact_get_items_response,
     basic_transact_write_items_response,
+    basic_update_item_response,
     exhaustive_batch_get_item_response,
     exhaustive_batch_write_item_put_response,
     exhaustive_get_item_response,
@@ -577,6 +575,7 @@ def test_GIVEN_test_update_item_request_WHEN_client_to_resource_THEN_returns_dic
     dict_item = client_to_resource_converter.update_item_request(request)
     # Then: Returns dict value
     assert dict_item == test_update_item_request_dict(test_dict_item)
+
 
 @pytest.fixture
 def test_update_item_response():
