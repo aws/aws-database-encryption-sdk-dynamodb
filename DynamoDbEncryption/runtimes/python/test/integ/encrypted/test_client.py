@@ -420,7 +420,6 @@ def test_WHEN_update_item_with_signed_attribute_THEN_raises_DynamoDbEncryptionTr
     update_item_request_signed_attribute,
     encrypted,
 ):
-    """Test that update_item raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
         pytest.skip("Skipping negative test for plaintext client")
 
@@ -449,7 +448,6 @@ def test_WHEN_execute_statement_for_encrypted_table_THEN_raises_DynamoDbEncrypti
     encrypted,
     execute_uses_encrypted_table,
 ):
-    """Test that execute_statement raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
         pytest.skip("Skipping negative test for plaintext client")
 
@@ -491,7 +489,6 @@ def test_WHEN_execute_transaction_for_encrypted_table_THEN_raises_DynamoDbEncryp
     encrypted,
     execute_uses_encrypted_table,
 ):
-    """Test that execute_transaction raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
         pytest.skip("Skipping negative test for plaintext client")
 
@@ -537,7 +534,6 @@ def test_WHEN_batch_execute_statement_for_encrypted_table_THEN_raises_DynamoDbEn
     encrypted,
     execute_uses_encrypted_table,
 ):
-    """Test that batch_execute_statement raises DynamoDbEncryptionTransformsException."""
     if not encrypted:
         pytest.skip("Skipping negative test for plaintext client")
 
