@@ -14,8 +14,7 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
-    basic_batch_execute_statement_request_ddb,
-    basic_batch_execute_statement_request_dict,
+    basic_batch_execute_statement_request,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
@@ -24,10 +23,8 @@ from ...requests import (
     basic_batch_write_item_put_request_dict,
     basic_delete_item_request_ddb,
     basic_delete_item_request_dict,
-    basic_execute_statement_request_ddb,
-    basic_execute_statement_request_dict,
-    basic_execute_transaction_request_ddb,
-    basic_execute_transaction_request_dict,
+    basic_execute_statement_request,
+    basic_execute_transaction_request,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -44,8 +41,10 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
-    basic_update_item_request_ddb,
-    basic_update_item_request_dict,
+    basic_update_item_request_ddb_unsigned_attribute,
+    basic_update_item_request_dict_unsigned_attribute,
+    basic_update_item_request_ddb_signed_attribute,
+    basic_update_item_request_dict_signed_attribute,
     exhaustive_get_item_request_ddb,
     exhaustive_get_item_request_dict,
     exhaustive_put_item_request_ddb,
@@ -58,6 +57,7 @@ from ...requests import (
 from ...responses import (
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
+    basic_update_item_response,
     basic_delete_item_response,
     basic_get_item_response,
     basic_put_item_response,
@@ -554,12 +554,18 @@ def test_GIVEN_test_transact_get_items_response_WHEN_client_to_resource_THEN_ret
 
 @pytest.fixture
 def test_update_item_request_ddb():
-    return basic_update_item_request_ddb
+    # Select unsigned attribute without loss of generality;
+    # resource/client logic doesn't care about signed attributes
+    # TODO: Add exhaustive request
+    return basic_update_item_request_ddb_unsigned_attribute
 
 
 @pytest.fixture
 def test_update_item_request_dict():
-    return basic_update_item_request_dict
+    # Select unsigned attribute without loss of generality;
+    # resource/client logic doesn't care about signed attributes
+    # TODO: Add exhaustive request
+    return basic_update_item_request_dict_unsigned_attribute
 
 
 def test_GIVEN_test_update_item_request_WHEN_client_to_resource_THEN_returns_dict_value(
@@ -572,35 +578,37 @@ def test_GIVEN_test_update_item_request_WHEN_client_to_resource_THEN_returns_dic
     # Then: Returns dict value
     assert dict_item == test_update_item_request_dict(test_dict_item)
 
+@pytest.fixture
+def test_update_item_response():
+    # TODO: Add exhaustive response
+    return basic_update_item_response
 
-def test_GIVEN_test_update_item_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
+
+def test_GIVEN_test_update_item_response_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_update_item_response, test_ddb_item, test_dict_item
+):
     # Given: Update item response
     response = {"Some": "Response"}
-    # Then: Raises NotImplementedError
-    with pytest.raises(NotImplementedError):
-        # When: Converting to resource format
-        client_to_resource_converter.update_item_response(response)
+    # When: Converting to resource format
+    dict_item = client_to_resource_converter.update_item_response(response)
+    # Then: Returns dict value
+    assert dict_item == response
 
 
 @pytest.fixture
-def test_execute_statement_request_ddb():
-    return basic_execute_statement_request_ddb
-
-
-@pytest.fixture
-def test_execute_statement_request_dict():
-    return basic_execute_statement_request_dict
+def test_execute_statement_request():
+    return basic_execute_statement_request
 
 
 def test_GIVEN_test_execute_statement_request_WHEN_client_to_resource_THEN_returns_dict_value(
-    test_execute_statement_request_ddb, test_execute_statement_request_dict, test_ddb_item, test_dict_item
+    test_execute_statement_request, test_ddb_item, test_dict_item
 ):
     # Given: Execute statement request
-    request = test_execute_statement_request_ddb()
+    request = test_execute_statement_request()
     # When: Converting to resource format
     dict_item = client_to_resource_converter.execute_statement_request(request)
-    # Then: Returns dict value
-    assert dict_item == test_execute_statement_request_dict()
+    # Then: Returns dict value (here, request is not modified)
+    assert dict_item == test_execute_statement_request()
 
 
 def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
@@ -613,24 +621,19 @@ def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_rais
 
 
 @pytest.fixture
-def test_execute_transaction_request_ddb():
-    return basic_execute_transaction_request_ddb
-
-
-@pytest.fixture
-def test_execute_transaction_request_dict():
-    return basic_execute_transaction_request_dict
+def test_execute_transaction_request():
+    return basic_execute_transaction_request
 
 
 def test_GIVEN_test_execute_transaction_request_WHEN_client_to_resource_THEN_returns_dict_value(
-    test_execute_transaction_request_ddb, test_execute_transaction_request_dict, test_ddb_item, test_dict_item
+    test_execute_transaction_request, test_ddb_item, test_dict_item
 ):
     # Given: Execute transaction request
-    request = test_execute_transaction_request_ddb()
+    request = test_execute_transaction_request()
     # When: Converting to resource format
     dict_item = client_to_resource_converter.execute_transaction_request(request)
-    # Then: Returns dict value
-    assert dict_item == test_execute_transaction_request_dict()
+    # Then: Returns dict value (here, request is not modified)
+    assert dict_item == test_execute_transaction_request()
 
 
 def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
@@ -643,24 +646,19 @@ def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_ra
 
 
 @pytest.fixture
-def test_batch_execute_statement_request_ddb():
-    return basic_batch_execute_statement_request_ddb
-
-
-@pytest.fixture
-def test_batch_execute_statement_request_dict():
-    return basic_batch_execute_statement_request_dict
+def test_batch_execute_statement_request():
+    return basic_batch_execute_statement_request
 
 
 def test_GIVEN_test_batch_execute_statement_request_WHEN_client_to_resource_THEN_returns_dict_value(
-    test_batch_execute_statement_request_ddb, test_batch_execute_statement_request_dict, test_ddb_item, test_dict_item
+    test_batch_execute_statement_request, test_ddb_item, test_dict_item
 ):
     # Given: Batch execute statement request
-    request = test_batch_execute_statement_request_ddb()
+    request = test_batch_execute_statement_request()
     # When: Converting to resource format
     dict_item = client_to_resource_converter.batch_execute_statement_request(request)
-    # Then: Returns dict value
-    assert dict_item == test_batch_execute_statement_request_dict()
+    # Then: Returns dict value (here, request is not modified)
+    assert dict_item == test_batch_execute_statement_request()
 
 
 def test_GIVEN_test_batch_execute_statement_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
