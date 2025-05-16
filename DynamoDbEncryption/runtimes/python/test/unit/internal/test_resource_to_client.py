@@ -42,8 +42,6 @@ from ...requests import (
     basic_transact_write_item_delete_request_dict,
     basic_transact_write_item_put_request_ddb,
     basic_transact_write_item_put_request_dict,
-    basic_update_item_request_ddb_signed_attribute,
-    basic_update_item_request_dict_signed_attribute,
     basic_update_item_request_ddb_unsigned_attribute,
     basic_update_item_request_dict_unsigned_attribute,
     exhaustive_get_item_request_ddb,
@@ -63,9 +61,9 @@ from ...responses import (
     basic_put_item_response,
     basic_query_response,
     basic_scan_response,
-    basic_update_item_response,
     basic_transact_get_items_response,
     basic_transact_write_items_response,
+    basic_update_item_response,
     exhaustive_batch_get_item_response,
     exhaustive_batch_write_item_put_response,
     exhaustive_get_item_response,
@@ -848,6 +846,7 @@ def test_GIVEN_update_item_request_without_table_name_WHEN_resource_to_client_TH
     with pytest.raises(ValueError):
         # When: Converting to resource format
         resource_to_client_converter_without_table_name.update_item_request(test_update_item_request_dict)
+
 
 @pytest.fixture
 def test_update_item_response():
