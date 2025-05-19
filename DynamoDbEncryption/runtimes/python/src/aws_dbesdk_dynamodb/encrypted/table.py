@@ -52,7 +52,6 @@ class EncryptedTable(EncryptedBotoInterface):
         * ``query``
         * ``scan``
         * ``delete_item``
-        * ``update_item``
 
     Any calls to ``update_item`` can only update unsigned attributes. If an attribute to be updated is marked as signed,
     this operation will raise a ``DynamoDbEncryptionTransformsException``.
