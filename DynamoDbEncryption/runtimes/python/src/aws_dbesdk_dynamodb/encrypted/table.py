@@ -19,6 +19,8 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
     DynamoDbEncryptionTransforms,
 )
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
+    DeleteItemInputTransformInput,
+    DeleteItemOutputTransformInput,
     GetItemInputTransformInput,
     GetItemOutputTransformInput,
     PutItemInputTransformInput,
@@ -27,6 +29,8 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
     QueryOutputTransformInput,
     ScanInputTransformInput,
     ScanOutputTransformInput,
+    UpdateItemInputTransformInput,
+    UpdateItemOutputTransformInput,
 )
 
 
@@ -47,8 +51,10 @@ class EncryptedTable(EncryptedBotoInterface):
         * ``get_item``
         * ``query``
         * ``scan``
+        * ``delete_item``
 
-    The ``update_item`` operation is not currently supported. Calling this operation will raise ``NotImplementedError``.
+    Any calls to ``update_item`` can only update unsigned attributes. If an attribute to be updated is marked as signed,
+    this operation will raise a ``DynamoDbEncryptionTransformsException``.
 
     Calling ``batch_writer()`` will return a ``BatchWriter`` that transparently encrypts batch write requests.
 
@@ -197,18 +203,69 @@ class EncryptedTable(EncryptedBotoInterface):
             table_method=self._table.scan,
         )
 
-    def update_item(self, **kwargs):
+    def delete_item(self, **kwargs) -> dict[str, Any]:
         """
-        Not implemented. Raises ``NotImplementedError``.
+        Delete an item from the table.
+
+        The input and output syntaxes match those for the boto3 DynamoDB table ``delete_item`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/delete_item.html
 
         Args:
-            **kwargs: Any arguments passed to this method
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 Table ``delete_item`` request
+                syntax.
 
-        Raises:
-            NotImplementedError: This operation is not yet implemented
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 Table ``delete_item`` response syntax.
+            Any values in ``"Attributes"`` will be decrypted locally after being read from DynamoDB.
 
         """
-        raise NotImplementedError('"update_item" is not yet implemented')
+        return self._table_operation_logic(
+            operation_input=kwargs,
+            input_encryption_transform_method=self._transformer.delete_item_input_transform,
+            input_encryption_transform_shape=DeleteItemInputTransformInput,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.delete_item_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.delete_item_request,
+            output_encryption_transform_method=self._transformer.delete_item_output_transform,
+            output_encryption_transform_shape=DeleteItemOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.delete_item_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.delete_item_response,
+            table_method=self._table.delete_item,
+        )
+
+    def update_item(self, **kwargs):
+        """
+        Update an unsigned attribute in the table.
+
+        If the attribute is signed, this operation will raise DynamoDbEncryptionTransformsException.
+
+        The input and output syntaxes match those for the boto3 DynamoDB table ``update_item`` API:
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/update_item.html
+
+        Args:
+            **kwargs: Keyword arguments to pass to the operation. This matches the boto3 Table ``update_item`` request
+                syntax.
+
+        Returns:
+            dict: The response from DynamoDB. This matches the boto3 Table ``update_item`` response syntax.
+
+        Raises:
+            DynamoDbEncryptionTransformsException: If an attribute specified in the ``UpdateExpression`` is signed.
+
+        """
+        return self._table_operation_logic(
+            operation_input=kwargs,
+            input_encryption_transform_method=self._transformer.update_item_input_transform,
+            input_encryption_transform_shape=UpdateItemInputTransformInput,
+            input_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.update_item_request,
+            input_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.update_item_request,
+            output_encryption_transform_method=self._transformer.update_item_output_transform,
+            output_encryption_transform_shape=UpdateItemOutputTransformInput,
+            output_resource_to_client_shape_transform_method=self._resource_shape_to_client_shape_converter.update_item_response,
+            output_client_to_resource_shape_transform_method=self._client_shape_to_resource_shape_converter.update_item_response,
+            table_method=self._table.update_item,
+        )
 
     def batch_writer(self, overwrite_by_pkeys: list[str] | None = None) -> BatchWriter:
         """
