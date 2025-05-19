@@ -1,6 +1,7 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-"""Example for using the EncryptedTablesCollectionManager provided by EncryptedResource
+"""
+Example for using the EncryptedTablesCollectionManager provided by EncryptedResource.
 
 Running this example requires access to the DDB Tables whose names
 are provided in the function arguments.
@@ -19,7 +20,6 @@ from aws_cryptographic_material_providers.mpl.models import (
 from aws_cryptographic_material_providers.mpl.references import IKeyring
 from aws_dbesdk_dynamodb.encrypted.resource import (
     EncryptedResource,
-    EncryptedTablesCollectionManager,
 )
 from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
@@ -28,6 +28,7 @@ from aws_dbesdk_dynamodb.structures.dynamodb import (
 from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
 )
+
 
 def encrypted_tables_collection_manager_example(
     kms_key_id: str,
@@ -90,7 +91,8 @@ def encrypted_tables_collection_manager_example(
 
     # 4. Create the DynamoDb Encryption configuration for the tables we will be writing to.
     #    For each table, we create a DynamoDbTableEncryptionConfig and add it to a dictionary.
-    #    This dictionary is then added to a DynamoDbTablesEncryptionConfig, which is used to create the EncryptedResource.
+    #    This dictionary is then added to a DynamoDbTablesEncryptionConfig, which is used to create the
+    #    EncryptedResource.
     table_configs = {}
     for dynamodb_table_name in dynamodb_table_names:
         table_config = DynamoDbTableEncryptionConfig(
@@ -137,14 +139,16 @@ def encrypted_tables_collection_manager_example(
         # If you do not, you will write to all tables in the collection.
         # This may include tables with incompatible schemas, or tables that you do not have permission to write to.
         if encrypted_table.table_name in dynamodb_table_names:
-            encrypted_table.put_item(Item={
-                "partition_key": "PythonEncryptedTablesCollectionManagerExample",
-                "sort_key": 0,
-                "attribute1": "encrypt and sign me!",
-                "attribute2": "sign me!",
-                ":attribute3": "ignore me!",
-            })
-    
+            encrypted_table.put_item(
+                Item={
+                    "partition_key": "PythonEncryptedTablesCollectionManagerExample",
+                    "sort_key": 0,
+                    "attribute1": "encrypt and sign me!",
+                    "attribute2": "sign me!",
+                    ":attribute3": "ignore me!",
+                }
+            )
+
     # 9. Read the items back from the table.
     #    After the items are retrieved from DynamoDb, but before the EncryptedResource
     #    returns them to the caller, they will be decrypted client-side according to our configuration.
@@ -154,10 +158,12 @@ def encrypted_tables_collection_manager_example(
         # If you do not, you will read from all tables in the collection.
         # This may include tables with incompatible schemas, or tables that you do not have permission to read from.
         if encrypted_table.table_name in dynamodb_table_names:
-            get_item_response = encrypted_table.get_item(Key={
-                "partition_key": "PythonEncryptedTablesCollectionManagerExample",
-                "sort_key": 0,
-            })
+            get_item_response = encrypted_table.get_item(
+                Key={
+                    "partition_key": "PythonEncryptedTablesCollectionManagerExample",
+                    "sort_key": 0,
+                }
+            )
 
             item = get_item_response["Item"]
             items.append(item)

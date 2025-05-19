@@ -28,6 +28,7 @@ from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
 )
 
+
 def encrypted_resource_batch_read_write_example(
     kms_key_id: str,
     dynamodb_table_name: str,
@@ -124,22 +125,20 @@ def encrypted_resource_batch_read_write_example(
             "sort_key": 0,
             "attribute1": "encrypt and sign me!",
             "attribute2": "sign me!",
-            ":attribute3": "ignore me!", 
+            ":attribute3": "ignore me!",
         },
         {
             "partition_key": "PythonEncryptedResourceBatchReadWriteExample2",
             "sort_key": 0,
             "attribute1": "encrypt and sign me!",
             "attribute2": "sign me!",
-            ":attribute3": "ignore me!", 
+            ":attribute3": "ignore me!",
         },
     ]
-    
+
     batch_write_items_put_request = {
         "RequestItems": {
-            dynamodb_table_name: [
-                {"PutRequest": {"Item": item}} for item in items
-            ],
+            dynamodb_table_name: [{"PutRequest": {"Item": item}} for item in items],
         },
     }
 
@@ -153,10 +152,9 @@ def encrypted_resource_batch_read_write_example(
     #    returns them to the caller, they will be decrypted client-side according to our configuration.
     batch_get_items_request = {
         "RequestItems": {
-            dynamodb_table_name: 
-                {
-                    "Keys": [{"partition_key": item["partition_key"], "sort_key": item["sort_key"]} for item in items],
-                }
+            dynamodb_table_name: {
+                "Keys": [{"partition_key": item["partition_key"], "sort_key": item["sort_key"]} for item in items],
+            }
         },
     }
 
@@ -173,7 +171,8 @@ def encrypted_resource_batch_read_write_example(
     batch_write_items_delete_request = {
         "RequestItems": {
             dynamodb_table_name: [
-                {"DeleteRequest": {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}} for item in items
+                {"DeleteRequest": {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}}
+                for item in items
             ],
         },
     }

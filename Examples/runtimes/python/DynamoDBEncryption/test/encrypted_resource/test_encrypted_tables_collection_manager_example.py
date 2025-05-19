@@ -3,7 +3,9 @@
 """Test suite for the EncryptedResource batch read/write example."""
 import pytest
 
-from ...src.encrypted_resource.encrypted_tables_collection_manager_example import encrypted_tables_collection_manager_example
+from ...src.encrypted_resource.encrypted_tables_collection_manager_example import (
+    encrypted_tables_collection_manager_example,
+)
 
 pytestmark = [pytest.mark.examples]
 
