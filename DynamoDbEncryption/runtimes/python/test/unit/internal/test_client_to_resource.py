@@ -14,8 +14,6 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
-    basic_execute_statement_request_encrypted_table,
-    basic_execute_transaction_request_encrypted_table,
     basic_batch_execute_statement_request_encrypted_table,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
@@ -25,6 +23,8 @@ from ...requests import (
     basic_batch_write_item_put_request_dict,
     basic_delete_item_request_ddb,
     basic_delete_item_request_dict,
+    basic_execute_statement_request_encrypted_table,
+    basic_execute_transaction_request_encrypted_table,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
