@@ -82,14 +82,22 @@ def base_update_item_request_unsigned_attribute(item):
     }
 
 
-def basic_execute_statement_request_encrypted_table():
+def basic_execute_statement_request_encrypted_table(item):
     """Base structure for execute_statement requests for an encrypted table."""
-    return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    return {
+        "Statement": f"""SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+        WHERE partition_key=? AND sort_key=?""",
+        "Parameters": [item["partition_key"], item["sort_key"]],
+    }
 
 
-def basic_execute_statement_request_plaintext_table():
+def basic_execute_statement_request_plaintext_table(item):
     """Base structure for execute_statement requests for a plaintext table."""
-    return {"Statement": "SELECT * FROM " + INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT}
+    return {
+        "Statement": f"""SELECT * FROM {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME_PLAINTEXT}
+        WHERE partition_key=? AND sort_key=?""",
+        "Parameters": [item["partition_key"], item["sort_key"]],
+    }
 
 
 def basic_execute_transaction_request_encrypted_table(item):

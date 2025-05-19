@@ -603,20 +603,21 @@ def test_GIVEN_test_execute_statement_request_WHEN_client_to_resource_THEN_retur
     test_execute_statement_request, test_ddb_item, test_dict_item
 ):
     # Given: Execute statement request
-    request = test_execute_statement_request()
+    request = test_execute_statement_request(test_ddb_item)
     # When: Converting to resource format
     dict_item = client_to_resource_converter.execute_statement_request(request)
     # Then: Returns dict value (here, request is not modified)
-    assert dict_item == test_execute_statement_request()
+    assert dict_item == test_execute_statement_request(test_dict_item)
 
 
 def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
     # Given: Execute statement response
-    response = {"Some": "Response"}
-    # Then: Raises NotImplementedError
-    with pytest.raises(NotImplementedError):
-        # When: Converting to resource format
-        client_to_resource_converter.execute_statement_response(response)
+    # TODO: this
+    ddb_response = {}
+    # When: Converting to resource format
+    resource_response = client_to_resource_converter.execute_statement_response(ddb_response)
+    # Then: Returns dict value
+    assert resource_response == {}
 
 
 @pytest.fixture
@@ -635,13 +636,14 @@ def test_GIVEN_test_execute_transaction_request_WHEN_client_to_resource_THEN_ret
     assert dict_item == test_execute_transaction_request(test_dict_item)
 
 
-def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
+def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_returns_dict_value():
     # Given: Execute transaction response
-    response = {"Some": "Response"}
-    # Then: Raises NotImplementedError
-    with pytest.raises(NotImplementedError):
-        # When: Converting to resource format
-        client_to_resource_converter.execute_transaction_response(response)
+    # TODO: this
+    ddb_response = {}
+    # When: Converting to resource format
+    resource_response = client_to_resource_converter.execute_transaction_response(ddb_response)
+    # Then: Returns dict value
+    assert resource_response == {}
 
 
 @pytest.fixture
@@ -662,11 +664,12 @@ def test_GIVEN_test_batch_execute_statement_request_WHEN_client_to_resource_THEN
 
 def test_GIVEN_test_batch_execute_statement_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
     # Given: Batch execute statement response
-    response = {"Some": "Response"}
-    # Then: Raises NotImplementedError
-    with pytest.raises(NotImplementedError):
-        # When: Converting to resource format
-        client_to_resource_converter.batch_execute_statement_response(response)
+    # TODO: this
+    ddb_response = {}
+    # When: Converting to resource format
+    resource_response = client_to_resource_converter.batch_execute_statement_response(ddb_response)
+    # Then: Returns dict value
+    assert resource_response == {}
 
 
 @pytest.fixture

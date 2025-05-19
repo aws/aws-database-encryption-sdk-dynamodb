@@ -441,10 +441,10 @@ def execute_uses_encrypted_table(request):
 
 
 @pytest.fixture
-def execute_statement_request(execute_uses_encrypted_table):
+def execute_statement_request(execute_uses_encrypted_table, test_item):
     if execute_uses_encrypted_table:
-        return basic_execute_statement_request_encrypted_table()
-    return basic_execute_statement_request_plaintext_table()
+        return basic_execute_statement_request_encrypted_table(test_item)
+    return basic_execute_statement_request_plaintext_table(test_item)
 
 
 def test_WHEN_execute_statement_for_encrypted_table_THEN_raises_DynamoDbEncryptionTransformsException(
