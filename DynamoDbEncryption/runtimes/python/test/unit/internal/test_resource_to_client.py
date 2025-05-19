@@ -928,7 +928,7 @@ def test_batch_execute_statement_request():
 
 
 def test_GIVEN_test_batch_execute_statement_request_WHEN_resource_to_client_THEN_returns_ddb_value(
-    test_batch_execute_statement_request
+    test_batch_execute_statement_request,
 ):
     # Given: Batch execute statement request
     request = test_batch_execute_statement_request()
