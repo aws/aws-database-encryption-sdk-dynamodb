@@ -2,6 +2,9 @@ import boto3
 import pytest
 
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
+    DynamoDbEncryptionTransformsException,
+)
 
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
@@ -9,10 +12,13 @@ from ...constants import (
 )
 from ...items import complex_item_dict, simple_item_dict
 from ...requests import (
+    basic_delete_item_request_dict,
     basic_get_item_request_dict,
     basic_put_item_request_dict,
     basic_query_request_dict,
     basic_scan_request_dict,
+    basic_update_item_request_dict_signed_attribute,
+    basic_update_item_request_dict_unsigned_attribute,
 )
 
 
@@ -61,20 +67,36 @@ def test_item(request):
     return request.param
 
 
-def test_GIVEN_item_WHEN_basic_put_and_basic_get_THEN_round_trip_passes(table, test_item):
-    """Test put_item and get_item operations."""
-    # Given: Simple and complex items in appropriate format for client
+def test_GIVEN_item_WHEN_basic_put_AND_basic_get_AND_basic_delete_THEN_round_trip_passes(table, test_item):
+    """Test put_item, get_item, and delete_item operations."""
+    # Given: Valid put_item request
     put_item_request_dict = basic_put_item_request_dict(test_item)
-
-    # When: Putting and getting item
+    # When: put_item
     put_response = table.put_item(**put_item_request_dict)
+    # Then: put_item succeeds
     assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
+    # Given: Valid get_item request for the same item
     get_item_request_dict = basic_get_item_request_dict(test_item)
+    # When: get_item
     get_response = table.get_item(**get_item_request_dict)
     # Then: Simple item is encrypted and decrypted correctly
     assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     assert get_response["Item"] == put_item_request_dict["Item"]
+
+    # Given: Valid delete_item request for the same item
+    delete_item_request_dict = basic_delete_item_request_dict(test_item)
+    # When: delete_item
+    delete_response = table.delete_item(**delete_item_request_dict)
+    # Then: delete_item succeeds
+    assert delete_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+    # Given: Valid get_item request for the same item
+    get_item_request_dict = basic_get_item_request_dict(test_item)
+    # When: get_item
+    get_response = table.get_item(**get_item_request_dict)
+    # Then: get_item is empty (i.e. the item was deleted)
+    assert "Item" not in get_response
 
 
 def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
@@ -154,7 +176,6 @@ def scan_request(encrypted, test_item):
 
 
 def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(table, test_item, scan_request):
-    """Test put_item and scan operations."""
     # Given: Simple and complex items in appropriate format for client
     put_item_request_dict = basic_put_item_request_dict(test_item)
     table.put_item(**put_item_request_dict)
@@ -166,24 +187,44 @@ def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_pas
     assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
-def test_WHEN_update_item_THEN_raises_not_implemented_error():
-    # Given: Encrypted client and update item parameters
+def test_GIVEN_update_for_unsigned_attribute_WHEN_update_item_THEN_passes(table, test_item):
+    # Given: some item is already in the table
+    put_response = table.put_item(**basic_put_item_request_dict(test_item))
+    assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+    # Given: Valid update item request for unsigned attribute
+    update_item_request = basic_update_item_request_dict_unsigned_attribute(test_item)
+
     # When: Calling update_item
-    with pytest.raises(NotImplementedError):
-        encrypted_table().update_item(
-            TableName=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
-            Key={"partition_key": "test-key", "sort_key": 1},
-            UpdateExpression="SET attribute1 = :val",
-            ExpressionAttributeValues={":val": {"S": "new value"}},
-        )
-    # Then: NotImplementedError is raised
+    update_response = table.update_item(**update_item_request)
+    # Then: update_item succeeds
+    assert update_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def test_GIVEN_update_for_signed_attribute_WHEN_update_item_THEN_raises_DynamoDbEncryptionTransformsException(
+    table, test_item, encrypted
+):
+    if not encrypted:
+        pytest.skip("Skipping negative test for plaintext client")
+
+    # Given: some item is already in the table
+    put_response = table.put_item(**basic_put_item_request_dict(test_item))
+    assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+    # Given: Valid update item request for signed attribute
+    update_item_request = basic_update_item_request_dict_signed_attribute(test_item)
+
+    # Then: raises DynamoDbEncryptionTransformsException
+    with pytest.raises(DynamoDbEncryptionTransformsException):
+        # When: Calling update_item
+        table.update_item(**update_item_request)
 
 
 def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     """Test that calling a passthrough method returns the correct response."""
-    # Given: Encrypted client
-    # When: Calling some passthrough method that does not explicitly exist on EncryptedClient,
-    # but exists on the underlying boto3 client
-    response = encrypted_table().meta.client.list_backups()
-    # Then: Correct response is returned, i.e. EncryptedClient forwards the call to the underlying boto3 client
-    assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    # Given: Encrypted or plaintext table
+    # When: Calling some passthrough method that does not explicitly exist on EncryptedTable,
+    # but exists on the underlying boto3 table
+    response = encrypted_table().table_name
+    # Then: Correct response is returned, i.e. EncryptedTable forwards the call to the underlying boto3 table
+    assert response == INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
