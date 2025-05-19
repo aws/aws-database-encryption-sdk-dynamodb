@@ -14,7 +14,9 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
-    basic_batch_execute_statement_request,
+    basic_execute_statement_request_encrypted_table,
+    basic_execute_transaction_request_encrypted_table,
+    basic_batch_execute_statement_request_encrypted_table,
     basic_batch_get_item_request_ddb,
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_ddb,
@@ -23,8 +25,6 @@ from ...requests import (
     basic_batch_write_item_put_request_dict,
     basic_delete_item_request_ddb,
     basic_delete_item_request_dict,
-    basic_execute_statement_request,
-    basic_execute_transaction_request,
     basic_get_item_request_ddb,
     basic_get_item_request_dict,
     basic_put_item_request_ddb,
@@ -596,7 +596,7 @@ def test_GIVEN_test_update_item_response_WHEN_client_to_resource_THEN_returns_di
 
 @pytest.fixture
 def test_execute_statement_request():
-    return basic_execute_statement_request
+    return basic_execute_statement_request_encrypted_table
 
 
 def test_GIVEN_test_execute_statement_request_WHEN_client_to_resource_THEN_returns_dict_value(
@@ -621,18 +621,18 @@ def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_rais
 
 @pytest.fixture
 def test_execute_transaction_request():
-    return basic_execute_transaction_request
+    return basic_execute_transaction_request_encrypted_table
 
 
 def test_GIVEN_test_execute_transaction_request_WHEN_client_to_resource_THEN_returns_dict_value(
     test_execute_transaction_request, test_ddb_item, test_dict_item
 ):
     # Given: Execute transaction request
-    request = test_execute_transaction_request()
+    request = test_execute_transaction_request(test_ddb_item)
     # When: Converting to resource format
     dict_item = client_to_resource_converter.execute_transaction_request(request)
     # Then: Returns dict value (here, request is not modified)
-    assert dict_item == test_execute_transaction_request()
+    assert dict_item == test_execute_transaction_request(test_dict_item)
 
 
 def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_raises_NotImplementedError():
@@ -646,7 +646,7 @@ def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_ra
 
 @pytest.fixture
 def test_batch_execute_statement_request():
-    return basic_batch_execute_statement_request
+    return basic_batch_execute_statement_request_encrypted_table
 
 
 def test_GIVEN_test_batch_execute_statement_request_WHEN_client_to_resource_THEN_returns_dict_value(

@@ -28,7 +28,7 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 
 class EncryptedTablesCollectionManager(EncryptedBotoInterface):
     """
-    Collection manager that provides EncryptedTable objects.
+    Collection manager that yields EncryptedTable objects.
 
     The API matches boto3's tables collection manager interface:
 
