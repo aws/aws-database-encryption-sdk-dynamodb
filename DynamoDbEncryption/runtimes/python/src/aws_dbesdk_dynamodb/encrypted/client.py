@@ -632,9 +632,8 @@ class EncryptedClient(EncryptedBotoInterface):
         # and need to be converted from DDB-JSON to a standard dictionary before returning the response.
         if self._expect_standard_dictionaries:
             dbesdk_response = output_item_to_dict_transform_method(dbesdk_response)
-
-        # Clean up the expression builder for the next operation
-        self._resource_to_client_shape_converter.expression_builder.reset()
+            # Clean up the expression builder for the next operation
+            self._resource_to_client_shape_converter.expression_builder.reset()
 
         return dbesdk_response
 
