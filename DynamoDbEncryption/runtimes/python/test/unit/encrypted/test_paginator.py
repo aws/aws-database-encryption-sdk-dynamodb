@@ -24,6 +24,7 @@ mock_tables_encryption_config = MagicMock(__class__=DynamoDbTablesEncryptionConf
 
 def test_GIVEN_paginator_not_query_nor_scan_WHEN_paginate_THEN_defers_to_underlying_paginator():
     # Given: A paginator that is not a Query or Scan paginator
+    # Mock an underlying paginator to spy on its call pattern
     underlying_paginator = MagicMock(__class__=Paginator)
     underlying_paginator._model.name = "NotQueryNorScan"
     non_query_scan_paginator = EncryptedPaginator(
@@ -38,12 +39,14 @@ def test_GIVEN_paginator_not_query_nor_scan_WHEN_paginate_THEN_defers_to_underly
 
 
 def test_GIVEN_kwargs_has_PaginationConfig_WHEN_paginate_THEN_PaginationConfig_is_added_back_to_request():
+    # Mock an underlying paginator to spy on its call pattern
     mock_underlying_paginator = MagicMock(__class__=Paginator)
     mock_underlying_paginator._model.name = "Query"
     paginator = EncryptedPaginator(
         paginator=mock_underlying_paginator,
         encryption_config=mock_tables_encryption_config,
     )
+    # Mock the input transform method to spy on its arguments
     mock_input_transform_method = MagicMock()
     mock_input_transform_method.return_value = QueryInputTransformOutput(transformed_input={"TableName": "test-table"})
     paginator._transformer.query_input_transform = mock_input_transform_method
@@ -73,6 +76,6 @@ def test_GIVEN_invalid_class_attribute_WHEN_getattr_THEN_raise_error():
 
     # Then: AttributeError is raised
     with pytest.raises(AttributeError):
-        # Given: Invalid class attribute: not_a_valid_attribute_on_EncryptedClient_nor_boto3_client
+        # Given: Invalid class attribute: not_a_valid_attribute_on_EncryptedPaginator_nor_boto3_paginator
         # When: getattr is called
         encrypted_paginator.not_a_valid_attribute_on_EncryptedPaginator_nor_boto3_paginator()

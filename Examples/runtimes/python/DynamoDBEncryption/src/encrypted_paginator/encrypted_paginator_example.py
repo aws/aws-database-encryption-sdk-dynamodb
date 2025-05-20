@@ -152,7 +152,7 @@ def encrypted_paginator_example(
         for item in page["Items"]:
             items.append(item)
 
-    # 9. Assert the items are as expected.
+    # 9. Assert the items are returned as expected.
     assert len(items) == 1
     assert items[0]["attribute1"]["S"] == "encrypt and sign me!"
     assert items[0]["attribute2"]["S"] == "sign me!"
