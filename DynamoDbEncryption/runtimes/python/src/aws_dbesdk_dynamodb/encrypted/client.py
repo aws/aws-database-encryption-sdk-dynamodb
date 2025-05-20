@@ -633,6 +633,9 @@ class EncryptedClient(EncryptedBotoInterface):
         if self._expect_standard_dictionaries:
             dbesdk_response = output_item_to_dict_transform_method(dbesdk_response)
 
+        # Clean up the expression builder for the next operation
+        self._resource_shape_to_client_shape_converter.expression_builder.reset()
+
         return dbesdk_response
 
     @property

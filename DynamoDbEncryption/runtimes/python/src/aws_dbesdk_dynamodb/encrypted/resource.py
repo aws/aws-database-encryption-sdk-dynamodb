@@ -297,6 +297,9 @@ class EncryptedResource(EncryptedBotoInterface):
         #   (e.g. `ConsumedCapacity`)
         dbesdk_response = self._copy_sdk_response_to_dbesdk_response(sdk_output, dbesdk_response)
 
+        # Clean up the expression builder for the next operation
+        self._resource_shape_to_client_shape_converter.expression_builder.reset()
+
         return dbesdk_response
 
     @property
