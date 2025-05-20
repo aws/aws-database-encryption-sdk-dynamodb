@@ -27,7 +27,7 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 
 
 class EncryptedPaginator(EncryptedBotoInterface):
-    """Wrapping class for the boto3 Paginator that decrypts returned items before returning them."""
+    """Wrapping class for boto3 Paginators that decrypts returned items before returning them."""
 
     def __init__(
         self,
@@ -84,7 +84,8 @@ class EncryptedPaginator(EncryptedBotoInterface):
 
         Returns:
             Generator[dict, None, None]: A generator yielding pages as dictionaries.
-            The items in the pages will be decrypted locally after being read from DynamoDB.
+            For "scan" or "query" operations, the items in the pages will be decrypted locally after being read from
+            DynamoDB.
 
         """
         if self._paginator._model.name == "Query":
