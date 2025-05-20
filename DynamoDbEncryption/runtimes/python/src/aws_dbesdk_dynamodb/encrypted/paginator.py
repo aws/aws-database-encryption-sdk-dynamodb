@@ -189,7 +189,7 @@ class EncryptedPaginator(EncryptedBotoInterface):
             yield dbesdk_response
         
         # Clean up the expression builder for the next operation
-        self._resource_shape_to_client_shape_converter.expression_builder.reset()
+        self._resource_to_client_shape_converter.expression_builder.reset()
 
     @property
     def _boto_client_attr_name(self) -> str:
