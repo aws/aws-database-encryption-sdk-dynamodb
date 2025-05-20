@@ -16,6 +16,9 @@ test_dir = '/'.join(__file__.split("/")[:-2])
 sys.path.append(test_dir + "/internaldafny/extern")
 sys.path.append(test_dir + "/internaldafny/generated")
 
+# These imports set up the tests to use:
+# - An EncryptedTable with a shim to make it appear to Dafny-generated code as a DBESDK client
+# - A DictItemEncryptor with a shim to take in DDB-formatted JSON and return DDB-formatted JSON
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateInterceptedDDBTable
 import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictItemEncryptor
 
@@ -25,6 +28,7 @@ import aws_dbesdk_dynamodb_test_vectors.internaldafny.extern.CreateWrappedDictIt
 # - get_item
 # - query
 # - scan
+# - update_item
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/index.html#DynamoDB.Table
 # 
 # Unsupported operations on Tables are that are supported by DBESDK are:
