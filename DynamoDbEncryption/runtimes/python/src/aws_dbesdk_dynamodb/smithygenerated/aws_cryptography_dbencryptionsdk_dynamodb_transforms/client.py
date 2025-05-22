@@ -162,7 +162,9 @@ class DynamoDbEncryptionTransforms:
         if dafny_client is not None:
             self._config.dafnyImplInterface.impl = dafny_client
 
-    def put_item_input_transform(self, input: PutItemInputTransformInput) -> PutItemInputTransformOutput:
+    def put_item_input_transform(
+        self, input: PutItemInputTransformInput
+    ) -> PutItemInputTransformOutput:
         """Invokes the PutItemInputTransform operation.
 
         :param input: The operation's input.
@@ -176,7 +178,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="PutItemInputTransform",
         )
 
-    def put_item_output_transform(self, input: PutItemOutputTransformInput) -> PutItemOutputTransformOutput:
+    def put_item_output_transform(
+        self, input: PutItemOutputTransformInput
+    ) -> PutItemOutputTransformOutput:
         """Invokes the PutItemOutputTransform operation.
 
         :param input: The operation's input.
@@ -190,7 +194,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="PutItemOutputTransform",
         )
 
-    def get_item_input_transform(self, input: GetItemInputTransformInput) -> GetItemInputTransformOutput:
+    def get_item_input_transform(
+        self, input: GetItemInputTransformInput
+    ) -> GetItemInputTransformOutput:
         """Invokes the GetItemInputTransform operation.
 
         :param input: The operation's input.
@@ -204,7 +210,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="GetItemInputTransform",
         )
 
-    def get_item_output_transform(self, input: GetItemOutputTransformInput) -> GetItemOutputTransformOutput:
+    def get_item_output_transform(
+        self, input: GetItemOutputTransformInput
+    ) -> GetItemOutputTransformOutput:
         """Invokes the GetItemOutputTransform operation.
 
         :param input: The operation's input.
@@ -282,7 +290,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="BatchGetItemOutputTransform",
         )
 
-    def scan_input_transform(self, input: ScanInputTransformInput) -> ScanInputTransformOutput:
+    def scan_input_transform(
+        self, input: ScanInputTransformInput
+    ) -> ScanInputTransformOutput:
         """Invokes the ScanInputTransform operation.
 
         :param input: The operation's input.
@@ -296,7 +306,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="ScanInputTransform",
         )
 
-    def scan_output_transform(self, input: ScanOutputTransformInput) -> ScanOutputTransformOutput:
+    def scan_output_transform(
+        self, input: ScanOutputTransformInput
+    ) -> ScanOutputTransformOutput:
         """Invokes the ScanOutputTransform operation.
 
         :param input: The operation's input.
@@ -310,7 +322,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="ScanOutputTransform",
         )
 
-    def query_input_transform(self, input: QueryInputTransformInput) -> QueryInputTransformOutput:
+    def query_input_transform(
+        self, input: QueryInputTransformInput
+    ) -> QueryInputTransformOutput:
         """Invokes the QueryInputTransform operation.
 
         :param input: The operation's input.
@@ -324,7 +338,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="QueryInputTransform",
         )
 
-    def query_output_transform(self, input: QueryOutputTransformInput) -> QueryOutputTransformOutput:
+    def query_output_transform(
+        self, input: QueryOutputTransformInput
+    ) -> QueryOutputTransformOutput:
         """Invokes the QueryOutputTransform operation.
 
         :param input: The operation's input.
@@ -370,7 +386,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="TransactWriteItemsOutputTransform",
         )
 
-    def update_item_input_transform(self, input: UpdateItemInputTransformInput) -> UpdateItemInputTransformOutput:
+    def update_item_input_transform(
+        self, input: UpdateItemInputTransformInput
+    ) -> UpdateItemInputTransformOutput:
         """Invokes the UpdateItemInputTransform operation.
 
         :param input: The operation's input.
@@ -384,7 +402,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="UpdateItemInputTransform",
         )
 
-    def update_item_output_transform(self, input: UpdateItemOutputTransformInput) -> UpdateItemOutputTransformOutput:
+    def update_item_output_transform(
+        self, input: UpdateItemOutputTransformInput
+    ) -> UpdateItemOutputTransformOutput:
         """Invokes the UpdateItemOutputTransform operation.
 
         :param input: The operation's input.
@@ -398,7 +418,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="UpdateItemOutputTransform",
         )
 
-    def delete_item_input_transform(self, input: DeleteItemInputTransformInput) -> DeleteItemInputTransformOutput:
+    def delete_item_input_transform(
+        self, input: DeleteItemInputTransformInput
+    ) -> DeleteItemInputTransformOutput:
         """Invokes the DeleteItemInputTransform operation.
 
         :param input: The operation's input.
@@ -412,7 +434,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="DeleteItemInputTransform",
         )
 
-    def delete_item_output_transform(self, input: DeleteItemOutputTransformInput) -> DeleteItemOutputTransformOutput:
+    def delete_item_output_transform(
+        self, input: DeleteItemOutputTransformInput
+    ) -> DeleteItemOutputTransformOutput:
         """Invokes the DeleteItemOutputTransform operation.
 
         :param input: The operation's input.
@@ -554,7 +578,9 @@ class DynamoDbEncryptionTransforms:
             operation_name="ExecuteTransactionOutputTransform",
         )
 
-    def resolve_attributes(self, input: ResolveAttributesInput) -> ResolveAttributesOutput:
+    def resolve_attributes(
+        self, input: ResolveAttributesInput
+    ) -> ResolveAttributesOutput:
         """Given an Item, show the intermediate values (e.g. compound beacons,
         virtual fields).
 
@@ -579,7 +605,9 @@ class DynamoDbEncryptionTransforms:
         operation_name: str,
     ) -> Output:
         try:
-            return self._handle_execution(input, plugins, serialize, deserialize, config, operation_name)
+            return self._handle_execution(
+                input, plugins, serialize, deserialize, config, operation_name
+            )
         except Exception as e:
             # Make sure every exception that we throw is an instance of ServiceError so
             # customers can reliably catch everything we throw.
@@ -643,7 +671,9 @@ class DynamoDbEncryptionTransforms:
                 interceptor.read_before_serialization(context)
 
             # Step 4: Serialize the request
-            context_with_transport_request = cast(InterceptorContext[Input, None, DafnyRequest, None], context)
+            context_with_transport_request = cast(
+                InterceptorContext[Input, None, DafnyRequest, None], context
+            )
             context_with_transport_request._transport_request = serialize(
                 context_with_transport_request.request, config
             )
@@ -654,8 +684,8 @@ class DynamoDbEncryptionTransforms:
 
             # Step 6: Invoke modify_before_retry_loop
             for interceptor in interceptors:
-                context_with_transport_request._transport_request = interceptor.modify_before_retry_loop(
-                    context_with_transport_request
+                context_with_transport_request._transport_request = (
+                    interceptor.modify_before_retry_loop(context_with_transport_request)
                 )
 
             # Step 7: Acquire the retry token.
@@ -705,7 +735,9 @@ class DynamoDbEncryptionTransforms:
         # The response will be set either with the modeled output or an exception. The
         # transport_request and transport_response may be set or None.
         execution_context = cast(
-            InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
+            InterceptorContext[
+                Input, Output, DafnyRequest | None, DafnyResponse | None
+            ],
             context,
         )
         return self._finalize_execution(interceptors, execution_context)
@@ -727,10 +759,14 @@ class DynamoDbEncryptionTransforms:
             if config.dafnyImplInterface.impl is None:
                 raise Exception("No impl found on the operation config.")
 
-            context_with_response = cast(InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context)
+            context_with_response = cast(
+                InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context
+            )
 
-            context_with_response._transport_response = config.dafnyImplInterface.handle_request(
-                input=context_with_response.transport_request
+            context_with_response._transport_response = (
+                config.dafnyImplInterface.handle_request(
+                    input=context_with_response.transport_request
+                )
             )
 
             # Step 7n: Invoke read_after_transmit
@@ -739,8 +775,8 @@ class DynamoDbEncryptionTransforms:
 
             # Step 7o: Invoke modify_before_deserialization
             for interceptor in interceptors:
-                context_with_response._transport_response = interceptor.modify_before_deserialization(
-                    context_with_response
+                context_with_response._transport_response = (
+                    interceptor.modify_before_deserialization(context_with_response)
                 )
 
             # Step 7p: Invoke read_before_deserialization
@@ -752,7 +788,9 @@ class DynamoDbEncryptionTransforms:
                 InterceptorContext[Input, Output, DafnyRequest, DafnyResponse],
                 context_with_response,
             )
-            context_with_output._response = deserialize(context_with_output._transport_response, config)
+            context_with_output._response = deserialize(
+                context_with_output._transport_response, config
+            )
 
             # Step 7r: Invoke read_after_deserialization
             for interceptor in interceptors:
@@ -778,7 +816,9 @@ class DynamoDbEncryptionTransforms:
         # Step 7s: Invoke modify_before_attempt_completion
         try:
             for interceptor in interceptors:
-                context._response = interceptor.modify_before_attempt_completion(context)
+                context._response = interceptor.modify_before_attempt_completion(
+                    context
+                )
         except Exception as e:
             context._response = e
 
@@ -794,7 +834,9 @@ class DynamoDbEncryptionTransforms:
     def _finalize_execution(
         self,
         interceptors: list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]],
-        context: InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
+        context: InterceptorContext[
+            Input, Output, DafnyRequest | None, DafnyResponse | None
+        ],
     ) -> Output:
         try:
             # Step 9: Invoke modify_before_completion

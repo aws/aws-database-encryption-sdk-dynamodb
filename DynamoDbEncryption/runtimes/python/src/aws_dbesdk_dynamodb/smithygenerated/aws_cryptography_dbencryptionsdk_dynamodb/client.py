@@ -35,17 +35,15 @@ from .serialize import (
 Input = TypeVar("Input")
 Output = TypeVar("Output")
 
-
 class DynamoDbEncryption:
-    """Client for DynamoDbEncryption.
+    """Client for DynamoDbEncryption
 
     :param config: Configuration for the client.
     """
-
     def __init__(
         self,
         config: DynamoDbEncryptionConfig | None = None,
-        dafny_client: IDynamoDbEncryptionClient | None = None,
+        dafny_client: IDynamoDbEncryptionClient | None = None
     ):
         if config is None:
             self._config = Config()
@@ -62,15 +60,10 @@ class DynamoDbEncryption:
         if dafny_client is not None:
             self._config.dafnyImplInterface.impl = dafny_client
 
-    def create_dynamo_db_encryption_branch_key_id_supplier(
-        self, input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput
-    ) -> CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
-        """Create a Branch Key Supplier for use with the Hierarchical Keyring
-        that decides what Branch Key to use based on the primary key of the
-        DynamoDB item being read or written.
+    def create_dynamo_db_encryption_branch_key_id_supplier(self, input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput) -> CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
+        """Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.
 
-        :param input: Inputs for creating a Branch Key Supplier from a
-            DynamoDB Key Branch Key Id Supplier
+        :param input: Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
         """
         return self._execute_operation(
             input=input,
@@ -81,9 +74,7 @@ class DynamoDbEncryption:
             operation_name="CreateDynamoDbEncryptionBranchKeyIdSupplier",
         )
 
-    def get_encrypted_data_key_description(
-        self, input: GetEncryptedDataKeyDescriptionInput
-    ) -> GetEncryptedDataKeyDescriptionOutput:
+    def get_encrypted_data_key_description(self, input: GetEncryptedDataKeyDescriptionInput) -> GetEncryptedDataKeyDescriptionOutput:
         """Returns encrypted data key description.
 
         :param input: Input for getting encrypted data key description.
@@ -107,7 +98,9 @@ class DynamoDbEncryption:
         operation_name: str,
     ) -> Output:
         try:
-            return self._handle_execution(input, plugins, serialize, deserialize, config, operation_name)
+            return self._handle_execution(
+                input, plugins, serialize, deserialize, config, operation_name
+            )
         except Exception as e:
             # Make sure every exception that we throw is an instance of ServiceError so
             # customers can reliably catch everything we throw.
@@ -131,13 +124,12 @@ class DynamoDbEncryption:
             transport_response=None,
         )
         try:
-            _client_interceptors = config.interceptors
+          _client_interceptors = config.interceptors
         except AttributeError:
-            config.interceptors = []
-            _client_interceptors = config.interceptors
+          config.interceptors = []
+          _client_interceptors = config.interceptors
         client_interceptors = cast(
-            list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]],
-            _client_interceptors,
+            list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]], _client_interceptors
         )
         interceptors = client_interceptors
 
@@ -171,7 +163,9 @@ class DynamoDbEncryption:
                 interceptor.read_before_serialization(context)
 
             # Step 4: Serialize the request
-            context_with_transport_request = cast(InterceptorContext[Input, None, DafnyRequest, None], context)
+            context_with_transport_request = cast(
+                InterceptorContext[Input, None, DafnyRequest, None], context
+            )
             context_with_transport_request._transport_request = serialize(
                 context_with_transport_request.request, config
             )
@@ -182,8 +176,8 @@ class DynamoDbEncryption:
 
             # Step 6: Invoke modify_before_retry_loop
             for interceptor in interceptors:
-                context_with_transport_request._transport_request = interceptor.modify_before_retry_loop(
-                    context_with_transport_request
+                context_with_transport_request._transport_request = (
+                    interceptor.modify_before_retry_loop(context_with_transport_request)
                 )
 
             # Step 7: Acquire the retry token.
@@ -218,7 +212,7 @@ class DynamoDbEncryption:
                             error_info=RetryErrorInfo(
                                 # TODO: Determine the error type.
                                 error_type=RetryErrorType.CLIENT_ERROR,
-                            ),
+                            )
                         )
                     except SmithyRetryException:
                         raise context_with_response.response
@@ -233,8 +227,7 @@ class DynamoDbEncryption:
         # The response will be set either with the modeled output or an exception. The
         # transport_request and transport_response may be set or None.
         execution_context = cast(
-            InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
-            context,
+            InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None], context
         )
         return self._finalize_execution(interceptors, execution_context)
 
@@ -255,7 +248,9 @@ class DynamoDbEncryption:
             if config.dafnyImplInterface.impl is None:
                 raise Exception("No impl found on the operation config.")
 
-            context_with_response = cast(InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context)
+            context_with_response = cast(
+                InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context
+            )
 
             context_with_response._transport_response = config.dafnyImplInterface.handle_request(
                 input=context_with_response.transport_request
@@ -267,8 +262,8 @@ class DynamoDbEncryption:
 
             # Step 7o: Invoke modify_before_deserialization
             for interceptor in interceptors:
-                context_with_response._transport_response = interceptor.modify_before_deserialization(
-                    context_with_response
+                context_with_response._transport_response = (
+                    interceptor.modify_before_deserialization(context_with_response)
                 )
 
             # Step 7p: Invoke read_before_deserialization
@@ -280,7 +275,9 @@ class DynamoDbEncryption:
                 InterceptorContext[Input, Output, DafnyRequest, DafnyResponse],
                 context_with_response,
             )
-            context_with_output._response = deserialize(context_with_output._transport_response, config)
+            context_with_output._response = deserialize(
+                context_with_output._transport_response, config
+            )
 
             # Step 7r: Invoke read_after_deserialization
             for interceptor in interceptors:
@@ -293,8 +290,7 @@ class DynamoDbEncryption:
         # None. This will also be true after _finalize_attempt because there is no opportunity
         # there to set the transport_response.
         attempt_context = cast(
-            InterceptorContext[Input, Output, DafnyRequest, DafnyResponse | None],
-            context,
+            InterceptorContext[Input, Output, DafnyRequest, DafnyResponse | None], context
         )
         return self._finalize_attempt(interceptors, attempt_context)
 
@@ -306,7 +302,9 @@ class DynamoDbEncryption:
         # Step 7s: Invoke modify_before_attempt_completion
         try:
             for interceptor in interceptors:
-                context._response = interceptor.modify_before_attempt_completion(context)
+                context._response = interceptor.modify_before_attempt_completion(
+                    context
+                )
         except Exception as e:
             context._response = e
 

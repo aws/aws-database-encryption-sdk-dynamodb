@@ -30,7 +30,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(dafny_inp
     if isinstance(dafny_input, CryptoAction_ENCRYPT__AND__SIGN):
         return "ENCRYPT_AND_SIGN"
 
-    elif isinstance(dafny_input, CryptoAction_SIGN__AND__INCLUDE__IN__ENCRYPTION__CONTEXT):
+    elif isinstance(
+        dafny_input, CryptoAction_SIGN__AND__INCLUDE__IN__ENCRYPTION__CONTEXT
+    ):
         return "SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT"
 
     elif isinstance(dafny_input, CryptoAction_SIGN__ONLY):
@@ -47,7 +49,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models.EncryptStructureInput(
-        table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.tableName).decode("utf-16-be"),
+        table_name=b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.tableName
+        ).decode("utf-16-be"),
         plaintext_structure={
             b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
                 "utf-16-be"
@@ -85,7 +89,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(
         encryption_context=(
             (
                 {
-                    bytes(key.Elements).decode("utf-8"): bytes(value.Elements).decode("utf-8")
+                    bytes(key.Elements)
+                    .decode("utf-8"): bytes(value.Elements)
+                    .decode("utf-8")
                     for (key, value) in dafny_input.encryptionContext.value.items
                 }
             )
@@ -112,7 +118,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models.DecryptStructureInput(
-        table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.tableName).decode("utf-16-be"),
+        table_name=b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.tableName
+        ).decode("utf-16-be"),
         encrypted_structure={
             b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
                 "utf-16-be"
@@ -141,7 +149,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(
         encryption_context=(
             (
                 {
-                    bytes(key.Elements).decode("utf-8"): bytes(value.Elements).decode("utf-8")
+                    bytes(key.Elements)
+                    .decode("utf-8"): bytes(value.Elements)
+                    .decode("utf-8")
                     for (key, value) in dafny_input.encryptionContext.value.items
                 }
             )
@@ -184,7 +194,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_PathSegment(dafny_inpu
 
 def aws_cryptography_dbencryptionsdk_structuredencryption_StructureSegment(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models.StructureSegment(
-        key=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.key).decode("utf-16-be"),
+        key=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.key).decode(
+            "utf-16-be"
+        ),
     )
 
 
@@ -192,7 +204,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureIn
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models.EncryptPathStructureInput(
-        table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.tableName).decode("utf-16-be"),
+        table_name=b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.tableName
+        ).decode("utf-16-be"),
         plaintext_structure=[
             aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoItem(
                 list_element
@@ -220,7 +234,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureIn
         encryption_context=(
             (
                 {
-                    bytes(key.Elements).decode("utf-8"): bytes(value.Elements).decode("utf-8")
+                    bytes(key.Elements)
+                    .decode("utf-8"): bytes(value.Elements)
+                    .decode("utf-8")
                     for (key, value) in dafny_input.encryptionContext.value.items
                 }
             )
@@ -251,7 +267,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureIn
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models.DecryptPathStructureInput(
-        table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.tableName).decode("utf-16-be"),
+        table_name=b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.tableName
+        ).decode("utf-16-be"),
         encrypted_structure=[
             aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_AuthItem(
                 list_element
@@ -270,7 +288,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureIn
         encryption_context=(
             (
                 {
-                    bytes(key.Elements).decode("utf-8"): bytes(value.Elements).decode("utf-8")
+                    bytes(key.Elements)
+                    .decode("utf-8"): bytes(value.Elements)
+                    .decode("utf-8")
                     for (key, value) in dafny_input.encryptionContext.value.items
                 }
             )
@@ -284,7 +304,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsInpu
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.models.ResolveAuthActionsInput(
-        table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.tableName).decode("utf-16-be"),
+        table_name=b"".join(
+            ord(c).to_bytes(2, "big") for c in dafny_input.tableName
+        ).decode("utf-16-be"),
         auth_actions=[
             aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy.aws_cryptography_dbencryptionsdk_structuredencryption_AuthItem(
                 list_element

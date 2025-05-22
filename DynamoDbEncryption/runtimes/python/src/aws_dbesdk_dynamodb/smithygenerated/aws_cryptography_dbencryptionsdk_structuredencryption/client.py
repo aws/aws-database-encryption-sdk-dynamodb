@@ -102,7 +102,9 @@ class StructuredEncryption:
             operation_name="DecryptStructure",
         )
 
-    def encrypt_path_structure(self, input: EncryptPathStructureInput) -> EncryptPathStructureOutput:
+    def encrypt_path_structure(
+        self, input: EncryptPathStructureInput
+    ) -> EncryptPathStructureOutput:
         """Invokes the EncryptPathStructure operation.
 
         :param input: The operation's input.
@@ -116,7 +118,9 @@ class StructuredEncryption:
             operation_name="EncryptPathStructure",
         )
 
-    def decrypt_path_structure(self, input: DecryptPathStructureInput) -> DecryptPathStructureOutput:
+    def decrypt_path_structure(
+        self, input: DecryptPathStructureInput
+    ) -> DecryptPathStructureOutput:
         """Invokes the DecryptPathStructure operation.
 
         :param input: The operation's input.
@@ -130,7 +134,9 @@ class StructuredEncryption:
             operation_name="DecryptPathStructure",
         )
 
-    def resolve_auth_actions(self, input: ResolveAuthActionsInput) -> ResolveAuthActionsOutput:
+    def resolve_auth_actions(
+        self, input: ResolveAuthActionsInput
+    ) -> ResolveAuthActionsOutput:
         """Invokes the ResolveAuthActions operation.
 
         :param input: The operation's input.
@@ -154,7 +160,9 @@ class StructuredEncryption:
         operation_name: str,
     ) -> Output:
         try:
-            return self._handle_execution(input, plugins, serialize, deserialize, config, operation_name)
+            return self._handle_execution(
+                input, plugins, serialize, deserialize, config, operation_name
+            )
         except Exception as e:
             # Make sure every exception that we throw is an instance of ServiceError so
             # customers can reliably catch everything we throw.
@@ -218,7 +226,9 @@ class StructuredEncryption:
                 interceptor.read_before_serialization(context)
 
             # Step 4: Serialize the request
-            context_with_transport_request = cast(InterceptorContext[Input, None, DafnyRequest, None], context)
+            context_with_transport_request = cast(
+                InterceptorContext[Input, None, DafnyRequest, None], context
+            )
             context_with_transport_request._transport_request = serialize(
                 context_with_transport_request.request, config
             )
@@ -229,8 +239,8 @@ class StructuredEncryption:
 
             # Step 6: Invoke modify_before_retry_loop
             for interceptor in interceptors:
-                context_with_transport_request._transport_request = interceptor.modify_before_retry_loop(
-                    context_with_transport_request
+                context_with_transport_request._transport_request = (
+                    interceptor.modify_before_retry_loop(context_with_transport_request)
                 )
 
             # Step 7: Acquire the retry token.
@@ -280,7 +290,9 @@ class StructuredEncryption:
         # The response will be set either with the modeled output or an exception. The
         # transport_request and transport_response may be set or None.
         execution_context = cast(
-            InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
+            InterceptorContext[
+                Input, Output, DafnyRequest | None, DafnyResponse | None
+            ],
             context,
         )
         return self._finalize_execution(interceptors, execution_context)
@@ -302,10 +314,14 @@ class StructuredEncryption:
             if config.dafnyImplInterface.impl is None:
                 raise Exception("No impl found on the operation config.")
 
-            context_with_response = cast(InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context)
+            context_with_response = cast(
+                InterceptorContext[Input, None, DafnyRequest, DafnyResponse], context
+            )
 
-            context_with_response._transport_response = config.dafnyImplInterface.handle_request(
-                input=context_with_response.transport_request
+            context_with_response._transport_response = (
+                config.dafnyImplInterface.handle_request(
+                    input=context_with_response.transport_request
+                )
             )
 
             # Step 7n: Invoke read_after_transmit
@@ -314,8 +330,8 @@ class StructuredEncryption:
 
             # Step 7o: Invoke modify_before_deserialization
             for interceptor in interceptors:
-                context_with_response._transport_response = interceptor.modify_before_deserialization(
-                    context_with_response
+                context_with_response._transport_response = (
+                    interceptor.modify_before_deserialization(context_with_response)
                 )
 
             # Step 7p: Invoke read_before_deserialization
@@ -327,7 +343,9 @@ class StructuredEncryption:
                 InterceptorContext[Input, Output, DafnyRequest, DafnyResponse],
                 context_with_response,
             )
-            context_with_output._response = deserialize(context_with_output._transport_response, config)
+            context_with_output._response = deserialize(
+                context_with_output._transport_response, config
+            )
 
             # Step 7r: Invoke read_after_deserialization
             for interceptor in interceptors:
@@ -353,7 +371,9 @@ class StructuredEncryption:
         # Step 7s: Invoke modify_before_attempt_completion
         try:
             for interceptor in interceptors:
-                context._response = interceptor.modify_before_attempt_completion(context)
+                context._response = interceptor.modify_before_attempt_completion(
+                    context
+                )
         except Exception as e:
             context._response = e
 
@@ -369,7 +389,9 @@ class StructuredEncryption:
     def _finalize_execution(
         self,
         interceptors: list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]],
-        context: InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
+        context: InterceptorContext[
+            Input, Output, DafnyRequest | None, DafnyResponse | None
+        ],
     ) -> Output:
         try:
             # Step 9: Invoke modify_before_completion

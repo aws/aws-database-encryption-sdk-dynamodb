@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 class ResolveAttributesOutput:
@@ -60,15 +60,15 @@ class ResolveAttributesOutput:
 
 
 class ResolveAttributesInput:
-    table_name: dict[str, Any]
-    item: dict[str, Any]
+    table_name: str
+    item: "dict[str, dict[str, Any]]"
     version: int
 
     def __init__(
         self,
         *,
-        table_name: dict[str, Any],
-        item: dict[str, Any],
+        table_name: str,
+        item: "dict[str, dict[str, Any]]",
         version: int = 0,
     ):
         """
@@ -77,7 +77,9 @@ class ResolveAttributesInput:
         :param version: The beacon version to use. Defaults to 'writeVersion'.
         """
         if (table_name is not None) and (len(table_name) < 3):
-            raise ValueError("The size of table_name must be greater than or equal to 3")
+            raise ValueError(
+                "The size of table_name must be greater than or equal to 3"
+            )
 
         if (table_name is not None) and (len(table_name) > 255):
             raise ValueError("The size of table_name must be less than or equal to 255")
@@ -139,12 +141,12 @@ class ResolveAttributesInput:
 
 
 class ExecuteStatementInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         self.sdk_input = sdk_input
 
@@ -180,12 +182,12 @@ class ExecuteStatementInputTransformInput:
 
 
 class ExecuteStatementInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         self.transformed_input = transformed_input
 
@@ -222,12 +224,12 @@ class ExecuteStatementInputTransformOutput:
 
 
 class GetItemInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>GetItem</code>
@@ -267,12 +269,12 @@ class GetItemInputTransformInput:
 
 
 class GetItemInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>GetItem</code>
@@ -312,12 +314,12 @@ class GetItemInputTransformOutput:
 
 
 class GetItemOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>GetItem</code>
@@ -357,12 +359,12 @@ class GetItemOutputTransformOutput:
 
 
 class BatchExecuteStatementInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         self.sdk_input = sdk_input
 
@@ -400,12 +402,12 @@ class BatchExecuteStatementInputTransformInput:
 
 
 class BatchExecuteStatementInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         self.transformed_input = transformed_input
 
@@ -443,12 +445,12 @@ class BatchExecuteStatementInputTransformOutput:
 
 
 class ExecuteTransactionInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         self.sdk_input = sdk_input
 
@@ -486,12 +488,12 @@ class ExecuteTransactionInputTransformInput:
 
 
 class ExecuteTransactionInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         self.transformed_input = transformed_input
 
@@ -529,12 +531,12 @@ class ExecuteTransactionInputTransformOutput:
 
 
 class ExecuteTransactionOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         self.transformed_output = transformed_output
 
@@ -572,12 +574,12 @@ class ExecuteTransactionOutputTransformOutput:
 
 
 class TransactGetItemsOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         self.transformed_output = transformed_output
 
@@ -615,12 +617,12 @@ class TransactGetItemsOutputTransformOutput:
 
 
 class BatchGetItemInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>BatchGetItem</code>
@@ -660,12 +662,12 @@ class BatchGetItemInputTransformInput:
 
 
 class BatchGetItemInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>BatchGetItem</code>
@@ -705,12 +707,12 @@ class BatchGetItemInputTransformOutput:
 
 
 class TransactGetItemsInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         self.sdk_input = sdk_input
 
@@ -746,12 +748,12 @@ class TransactGetItemsInputTransformInput:
 
 
 class TransactGetItemsInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         self.transformed_input = transformed_input
 
@@ -788,12 +790,12 @@ class TransactGetItemsInputTransformOutput:
 
 
 class TransactWriteItemsOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         self.transformed_output = transformed_output
 
@@ -831,14 +833,14 @@ class TransactWriteItemsOutputTransformOutput:
 
 
 class GetItemOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>GetItem</code>
@@ -887,12 +889,12 @@ class GetItemOutputTransformInput:
 
 
 class DeleteItemOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>DeleteItem</code>
@@ -932,12 +934,12 @@ class DeleteItemOutputTransformOutput:
 
 
 class ExecuteStatementOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         self.transformed_output = transformed_output
 
@@ -975,12 +977,12 @@ class ExecuteStatementOutputTransformOutput:
 
 
 class PutItemOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>PutItem</code>
@@ -1020,12 +1022,12 @@ class PutItemOutputTransformOutput:
 
 
 class QueryOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>Query</code>
@@ -1065,12 +1067,12 @@ class QueryOutputTransformOutput:
 
 
 class ScanOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a <code>Scan</code>
@@ -1110,12 +1112,12 @@ class ScanOutputTransformOutput:
 
 
 class UpdateItemOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of an
@@ -1155,14 +1157,14 @@ class UpdateItemOutputTransformOutput:
 
 
 class ExecuteTransactionOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1207,12 +1209,12 @@ class ExecuteTransactionOutputTransformInput:
 
 
 class BatchExecuteStatementOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         self.transformed_output = transformed_output
 
@@ -1250,12 +1252,12 @@ class BatchExecuteStatementOutputTransformOutput:
 
 
 class BatchGetItemOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a
@@ -1295,14 +1297,14 @@ class BatchGetItemOutputTransformOutput:
 
 
 class TransactGetItemsOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1346,14 +1348,14 @@ class TransactGetItemsOutputTransformInput:
 
 
 class ExecuteStatementOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1397,12 +1399,12 @@ class ExecuteStatementOutputTransformInput:
 
 
 class ScanInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>Scan</code> operation.</p>
@@ -1441,12 +1443,12 @@ class ScanInputTransformInput:
 
 
 class ScanInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>Scan</code>
@@ -1486,12 +1488,12 @@ class ScanInputTransformOutput:
 
 
 class BatchWriteItemInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>BatchWriteItem</code>
@@ -1531,12 +1533,12 @@ class BatchWriteItemInputTransformInput:
 
 
 class BatchWriteItemInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a
@@ -1576,14 +1578,14 @@ class BatchWriteItemInputTransformOutput:
 
 
 class BatchExecuteStatementOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input
@@ -1628,14 +1630,14 @@ class BatchExecuteStatementOutputTransformInput:
 
 
 class BatchGetItemOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>BatchGetItem</code>
@@ -1684,12 +1686,12 @@ class BatchGetItemOutputTransformInput:
 
 
 class DeleteItemInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>DeleteItem</code>
@@ -1729,12 +1731,12 @@ class DeleteItemInputTransformInput:
 
 
 class DeleteItemInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>DeleteItem</code>
@@ -1774,12 +1776,12 @@ class DeleteItemInputTransformOutput:
 
 
 class PutItemInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>PutItem</code>
@@ -1819,12 +1821,12 @@ class PutItemInputTransformInput:
 
 
 class PutItemInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>PutItem</code>
@@ -1864,12 +1866,12 @@ class PutItemInputTransformOutput:
 
 
 class QueryInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of a <code>Query</code> operation.</p>
@@ -1908,12 +1910,12 @@ class QueryInputTransformInput:
 
 
 class QueryInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of a <code>Query</code>
@@ -1953,12 +1955,12 @@ class QueryInputTransformOutput:
 
 
 class BatchWriteItemOutputTransformOutput:
-    transformed_output: dict[str, Any]
+    transformed_output: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_output: dict[str, Any],
+        transformed_output: "dict[str, Any]",
     ):
         """
         :param transformed_output: <p>Represents the output of a
@@ -1998,14 +2000,14 @@ class BatchWriteItemOutputTransformOutput:
 
 
 class ScanOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>Scan</code>
@@ -2054,12 +2056,12 @@ class ScanOutputTransformInput:
 
 
 class UpdateItemInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         """
         :param sdk_input: <p>Represents the input of an <code>UpdateItem</code>
@@ -2099,12 +2101,12 @@ class UpdateItemInputTransformInput:
 
 
 class UpdateItemInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         """
         :param transformed_input: <p>Represents the input of an <code>UpdateItem</code>
@@ -2144,14 +2146,14 @@ class UpdateItemInputTransformOutput:
 
 
 class DeleteItemOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>DeleteItem</code>
@@ -2200,14 +2202,14 @@ class DeleteItemOutputTransformInput:
 
 
 class PutItemOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>PutItem</code>
@@ -2256,14 +2258,14 @@ class PutItemOutputTransformInput:
 
 
 class QueryOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>Query</code>
@@ -2312,14 +2314,14 @@ class QueryOutputTransformInput:
 
 
 class UpdateItemOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of an <code>UpdateItem</code>
@@ -2368,14 +2370,14 @@ class UpdateItemOutputTransformInput:
 
 
 class BatchWriteItemOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         """
         :param sdk_output: <p>Represents the output of a <code>BatchWriteItem</code>
@@ -2424,12 +2426,12 @@ class BatchWriteItemOutputTransformInput:
 
 
 class TransactWriteItemsInputTransformInput:
-    sdk_input: dict[str, Any]
+    sdk_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_input: dict[str, Any],
+        sdk_input: "dict[str, Any]",
     ):
         self.sdk_input = sdk_input
 
@@ -2467,12 +2469,12 @@ class TransactWriteItemsInputTransformInput:
 
 
 class TransactWriteItemsInputTransformOutput:
-    transformed_input: dict[str, Any]
+    transformed_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        transformed_input: dict[str, Any],
+        transformed_input: "dict[str, Any]",
     ):
         self.transformed_input = transformed_input
 
@@ -2510,14 +2512,14 @@ class TransactWriteItemsInputTransformOutput:
 
 
 class TransactWriteItemsOutputTransformInput:
-    sdk_output: dict[str, Any]
-    original_input: dict[str, Any]
+    sdk_output: "dict[str, Any]"
+    original_input: "dict[str, Any]"
 
     def __init__(
         self,
         *,
-        sdk_output: dict[str, Any],
-        original_input: dict[str, Any],
+        sdk_output: "dict[str, Any]",
+        original_input: "dict[str, Any]",
     ):
         self.sdk_output = sdk_output
         self.original_input = original_input

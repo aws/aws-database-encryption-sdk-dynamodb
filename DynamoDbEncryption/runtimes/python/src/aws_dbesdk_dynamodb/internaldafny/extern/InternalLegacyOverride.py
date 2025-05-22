@@ -1,5 +1,6 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 from aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes import (
-    DynamoDbItemEncryptorConfig,
     DynamoDbItemEncryptorConfig_DynamoDbItemEncryptorConfig,
 )
 import smithy_dafny_standard_library.internaldafny.generated.Wrappers as Wrappers
@@ -47,7 +48,10 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
         maybe_actions = InternalLegacyOverride.legacyActions(legacy_override.attributeActionsOnEncrypt)
         if maybe_actions.is_Failure:
             return InternalLegacyOverride.CreateBuildFailure(maybe_actions.error())
+        
+        # TODO: Implement this
 
+    @staticmethod
     def legacyEncryptionContext(config: DynamoDbItemEncryptorConfig_DynamoDbItemEncryptorConfig):
         try:
             encryption_context_kwargs = {
@@ -60,17 +64,25 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
             return InternalLegacyOverride.CreateBuildSuccess(encryption_context)
         except Exception as e:
             return InternalLegacyOverride.CreateBuildFailure(InternalLegacyOverride.CreateError(str(e)))
+            
+    @staticmethod
+    def legacyActions(attribute_actions_on_encrypt):
+        # TODO: Implement this
+        pass
 
     @staticmethod
     def EncryptItem(input):
+        # TODO: Implement this
         return Wrappers.Result_Failure("TODO-legacy-Encryptitem")
 
     @staticmethod
     def DecryptItem(input):
+        # TODO: Implement this
         return Wrappers.Result_Failure("TODO-legacy-Decryptitem")
 
     @staticmethod
     def IsLegacyinput(input):
+        # TODO: Implement this
         return False
 
 

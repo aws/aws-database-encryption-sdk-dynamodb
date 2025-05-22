@@ -441,7 +441,9 @@ class ParsedHeader:
             result += f"encrypted_data_keys={repr(self.encrypted_data_keys)}, "
 
         if self.stored_encryption_context is not None:
-            result += f"stored_encryption_context={repr(self.stored_encryption_context)}, "
+            result += (
+                f"stored_encryption_context={repr(self.stored_encryption_context)}, "
+            )
 
         if self.encryption_context is not None:
             result += f"encryption_context={repr(self.encryption_context)}"
@@ -536,7 +538,9 @@ class DecryptStructureInput:
         """Converts the DecryptStructureInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
-            "encrypted_structure": _structured_data_map_as_dict(self.encrypted_structure),
+            "encrypted_structure": _structured_data_map_as_dict(
+                self.encrypted_structure
+            ),
             "authenticate_schema": self.authenticate_schema,
             "cmm": self.cmm.as_dict(),
         }
@@ -555,7 +559,9 @@ class DecryptStructureInput:
 
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
-            "encrypted_structure": _structured_data_map_from_dict(d["encrypted_structure"]),
+            "encrypted_structure": _structured_data_map_from_dict(
+                d["encrypted_structure"]
+            ),
             "authenticate_schema": d["authenticate_schema"],
             "cmm": CryptographicMaterialsManager.from_dict(d["cmm"]),
         }
@@ -616,7 +622,9 @@ class DecryptStructureOutput:
     def as_dict(self) -> Dict[str, Any]:
         """Converts the DecryptStructureOutput to a dictionary."""
         return {
-            "plaintext_structure": _structured_data_map_as_dict(self.plaintext_structure),
+            "plaintext_structure": _structured_data_map_as_dict(
+                self.plaintext_structure
+            ),
             "crypto_schema": self.crypto_schema,
             "parsed_header": self.parsed_header.as_dict(),
         }
@@ -625,7 +633,9 @@ class DecryptStructureOutput:
     def from_dict(d: Dict[str, Any]) -> "DecryptStructureOutput":
         """Creates a DecryptStructureOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "plaintext_structure": _structured_data_map_from_dict(d["plaintext_structure"]),
+            "plaintext_structure": _structured_data_map_from_dict(
+                d["plaintext_structure"]
+            ),
             "crypto_schema": d["crypto_schema"],
             "parsed_header": ParsedHeader.from_dict(d["parsed_header"]),
         }
@@ -826,7 +836,9 @@ class EncryptStructureInput:
         """Converts the EncryptStructureInput to a dictionary."""
         d: Dict[str, Any] = {
             "table_name": self.table_name,
-            "plaintext_structure": _structured_data_map_as_dict(self.plaintext_structure),
+            "plaintext_structure": _structured_data_map_as_dict(
+                self.plaintext_structure
+            ),
             "crypto_schema": self.crypto_schema,
             "cmm": self.cmm.as_dict(),
         }
@@ -848,7 +860,9 @@ class EncryptStructureInput:
 
         kwargs: Dict[str, Any] = {
             "table_name": d["table_name"],
-            "plaintext_structure": _structured_data_map_from_dict(d["plaintext_structure"]),
+            "plaintext_structure": _structured_data_map_from_dict(
+                d["plaintext_structure"]
+            ),
             "crypto_schema": d["crypto_schema"],
             "cmm": CryptographicMaterialsManager.from_dict(d["cmm"]),
         }
@@ -916,7 +930,9 @@ class EncryptStructureOutput:
     def as_dict(self) -> Dict[str, Any]:
         """Converts the EncryptStructureOutput to a dictionary."""
         return {
-            "encrypted_structure": _structured_data_map_as_dict(self.encrypted_structure),
+            "encrypted_structure": _structured_data_map_as_dict(
+                self.encrypted_structure
+            ),
             "crypto_schema": self.crypto_schema,
             "parsed_header": self.parsed_header.as_dict(),
         }
@@ -925,7 +941,9 @@ class EncryptStructureOutput:
     def from_dict(d: Dict[str, Any]) -> "EncryptStructureOutput":
         """Creates a EncryptStructureOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "encrypted_structure": _structured_data_map_from_dict(d["encrypted_structure"]),
+            "encrypted_structure": _structured_data_map_from_dict(
+                d["encrypted_structure"]
+            ),
             "crypto_schema": d["crypto_schema"],
             "parsed_header": ParsedHeader.from_dict(d["parsed_header"]),
         }

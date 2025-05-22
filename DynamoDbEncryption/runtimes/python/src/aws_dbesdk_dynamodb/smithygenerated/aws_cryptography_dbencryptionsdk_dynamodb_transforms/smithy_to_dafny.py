@@ -374,21 +374,32 @@ def aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesInput(
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         Item=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
                 for (key, value) in native_input.item.items()
             }
         ),
-        Version=((Option_Some(native_input.version)) if (native_input.version is not None) else (Option_None())),
+        Version=(
+            (Option_Some(native_input.version))
+            if (native_input.version is not None)
+            else (Option_None())
+        ),
     )
 
 
@@ -659,9 +670,19 @@ def aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesOutput
         VirtualFields=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 )
                 for (key, value) in native_input.virtual_fields.items()
             }
@@ -669,9 +690,19 @@ def aws_cryptography_dbencryptionsdk_dynamodb_transforms_ResolveAttributesOutput
         CompoundBeacons=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 )
                 for (key, value) in native_input.compound_beacons.items()
             }

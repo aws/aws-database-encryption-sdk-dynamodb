@@ -20,89 +20,21 @@ import aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb
 
 def com_amazonaws_dynamodb_AttributeValue(native_input):
     if "S" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_S(
-            Seq(
-                "".join(
-                    [
-                        chr(int.from_bytes(pair, "big"))
-                        for pair in zip(*[iter(native_input["S"].encode("utf-16-be"))] * 2)
-                    ]
-                )
-            )
-        )
+        AttributeValue_union_value = AttributeValue_S(Seq(''.join([chr(int.from_bytes(pair, 'big')) for pair in zip(*[iter(native_input["S"].encode('utf-16-be'))]*2)])))
     elif "N" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_N(
-            Seq(
-                "".join(
-                    [
-                        chr(int.from_bytes(pair, "big"))
-                        for pair in zip(*[iter(native_input["N"].encode("utf-16-be"))] * 2)
-                    ]
-                )
-            )
-        )
+        AttributeValue_union_value = AttributeValue_N(Seq(''.join([chr(int.from_bytes(pair, 'big')) for pair in zip(*[iter(native_input["N"].encode('utf-16-be'))]*2)])))
     elif "B" in native_input.keys():
         AttributeValue_union_value = AttributeValue_B(Seq(native_input["B"]))
     elif "SS" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_SS(
-            Seq(
-                [
-                    Seq(
-                        "".join(
-                            [
-                                chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
-                            ]
-                        )
-                    )
-                    for list_element in native_input["SS"]
-                ]
-            )
-        )
+        AttributeValue_union_value = AttributeValue_SS(Seq([Seq(''.join([chr(int.from_bytes(pair, 'big')) for pair in zip(*[iter(list_element.encode('utf-16-be'))]*2)])) for list_element in native_input["SS"]]))
     elif "NS" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_NS(
-            Seq(
-                [
-                    Seq(
-                        "".join(
-                            [
-                                chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
-                            ]
-                        )
-                    )
-                    for list_element in native_input["NS"]
-                ]
-            )
-        )
+        AttributeValue_union_value = AttributeValue_NS(Seq([Seq(''.join([chr(int.from_bytes(pair, 'big')) for pair in zip(*[iter(list_element.encode('utf-16-be'))]*2)])) for list_element in native_input["NS"]]))
     elif "BS" in native_input.keys():
         AttributeValue_union_value = AttributeValue_BS(Seq([Seq(list_element) for list_element in native_input["BS"]]))
     elif "M" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_M(
-            Map(
-                {
-                    Seq(
-                        "".join(
-                            [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
-                        )
-                    ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
-                        value
-                    )
-                    for (key, value) in native_input["M"].items()
-                }
-            )
-        )
+        AttributeValue_union_value = AttributeValue_M(Map({Seq(''.join([chr(int.from_bytes(pair, 'big')) for pair in zip(*[iter(key.encode('utf-16-be'))]*2)])): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(value) for (key, value) in native_input["M"].items() }))
     elif "L" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_L(
-            Seq(
-                [
-                    aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
-                        list_element
-                    )
-                    for list_element in native_input["L"]
-                ]
-            )
-        )
+        AttributeValue_union_value = AttributeValue_L(Seq([aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(list_element) for list_element in native_input["L"]]))
     elif "NULL" in native_input.keys():
         AttributeValue_union_value = AttributeValue_NULL(native_input["NULL"])
     elif "BOOL" in native_input.keys():
