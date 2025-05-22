@@ -37,13 +37,15 @@ Output = TypeVar("Output")
 
 
 class DynamoDbEncryption:
-    """Client for DynamoDbEncryption
+    """Client for DynamoDbEncryption.
 
     :param config: Configuration for the client.
     """
 
     def __init__(
-        self, config: DynamoDbEncryptionConfig | None = None, dafny_client: IDynamoDbEncryptionClient | None = None
+        self,
+        config: DynamoDbEncryptionConfig | None = None,
+        dafny_client: IDynamoDbEncryptionClient | None = None,
     ):
         if config is None:
             self._config = Config()
@@ -63,9 +65,12 @@ class DynamoDbEncryption:
     def create_dynamo_db_encryption_branch_key_id_supplier(
         self, input: CreateDynamoDbEncryptionBranchKeyIdSupplierInput
     ) -> CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
-        """Create a Branch Key Supplier for use with the Hierarchical Keyring that decides what Branch Key to use based on the primary key of the DynamoDB item being read or written.
+        """Create a Branch Key Supplier for use with the Hierarchical Keyring
+        that decides what Branch Key to use based on the primary key of the
+        DynamoDB item being read or written.
 
-        :param input: Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id Supplier
+        :param input: Inputs for creating a Branch Key Supplier from a
+            DynamoDB Key Branch Key Id Supplier
         """
         return self._execute_operation(
             input=input,
@@ -130,7 +135,10 @@ class DynamoDbEncryption:
         except AttributeError:
             config.interceptors = []
             _client_interceptors = config.interceptors
-        client_interceptors = cast(list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]], _client_interceptors)
+        client_interceptors = cast(
+            list[Interceptor[Input, Output, DafnyRequest, DafnyResponse]],
+            _client_interceptors,
+        )
         interceptors = client_interceptors
 
         try:
@@ -224,7 +232,10 @@ class DynamoDbEncryption:
         # At this point, the context's request will have been definitively set, and
         # The response will be set either with the modeled output or an exception. The
         # transport_request and transport_response may be set or None.
-        execution_context = cast(InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None], context)
+        execution_context = cast(
+            InterceptorContext[Input, Output, DafnyRequest | None, DafnyResponse | None],
+            context,
+        )
         return self._finalize_execution(interceptors, execution_context)
 
     def _handle_attempt(
@@ -281,7 +292,10 @@ class DynamoDbEncryption:
         # the response is either set or an exception, and the transport_resposne is either set or
         # None. This will also be true after _finalize_attempt because there is no opportunity
         # there to set the transport_response.
-        attempt_context = cast(InterceptorContext[Input, Output, DafnyRequest, DafnyResponse | None], context)
+        attempt_context = cast(
+            InterceptorContext[Input, Output, DafnyRequest, DafnyResponse | None],
+            context,
+        )
         return self._finalize_attempt(interceptors, attempt_context)
 
     def _finalize_attempt(

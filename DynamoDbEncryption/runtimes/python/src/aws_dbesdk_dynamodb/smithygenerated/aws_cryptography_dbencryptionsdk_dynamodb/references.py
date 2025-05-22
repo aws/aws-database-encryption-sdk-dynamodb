@@ -57,22 +57,25 @@ class IDynamoDbKeyBranchKeyIdSupplier(metaclass=abc.ABCMeta):
         self,
         param: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyInput",
     ) -> "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyOutput":
-        """Get the Branch Key that should be used for wrapping and unwrapping data keys
-        based on the primary key of the item being read or written, along with the
-        values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
-        :param param: Inputs for getting the Branch Key that should be used for wrapping
-        and unwrapping data keys.
-        :returns: Outputs for getting the Branch Key that should be used for wrapping
-        and unwrapping data keys.
+        """Get the Branch Key that should be used for wrapping and unwrapping
+        data keys based on the primary key of the item being read or written,
+        along with the values of any attributes configured as
+        SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
+
+        :param param: Inputs for getting the Branch Key that should be
+            used for wrapping and unwrapping data keys.
+        :returns: Outputs for getting the Branch Key that should be used
+            for wrapping and unwrapping data keys.
         """
         raise NotImplementedError
 
     def GetBranchKeyIdFromDdbKey(
         self, dafny_input: "DafnyGetBranchKeyIdFromDdbKeyInput"
     ) -> "DafnyGetBranchKeyIdFromDdbKeyOutput":
-        """
-        Do not use.
-        This method allows custom implementations of this interface to interact with generated code.
+        """Do not use.
+
+        This method allows custom implementations of this interface to
+        interact with generated code.
         """
         native_input = aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyInput(
             dafny_input
@@ -104,13 +107,15 @@ class DynamoDbKeyBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier):
         self,
         param: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyInput",
     ) -> "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyOutput":
-        """Get the Branch Key that should be used for wrapping and unwrapping data keys
-        based on the primary key of the item being read or written, along with the
-        values of any attributes configured as SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
-        :param param: Inputs for getting the Branch Key that should be used for wrapping
-        and unwrapping data keys.
-        :returns: Outputs for getting the Branch Key that should be used for wrapping
-        and unwrapping data keys.
+        """Get the Branch Key that should be used for wrapping and unwrapping
+        data keys based on the primary key of the item being read or written,
+        along with the values of any attributes configured as
+        SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
+
+        :param param: Inputs for getting the Branch Key that should be
+            used for wrapping and unwrapping data keys.
+        :returns: Outputs for getting the Branch Key that should be used
+            for wrapping and unwrapping data keys.
         """
         dafny_output = self._impl.GetBranchKeyIdFromDdbKey(
             aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyInput(

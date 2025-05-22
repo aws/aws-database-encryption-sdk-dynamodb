@@ -36,12 +36,10 @@ class Config:
     ):
         """Constructor.
 
-        :param interceptors: The list of interceptors, which are hooks that are called
-        during the execution of a request.
-
-        :param retry_strategy: The retry strategy for issuing retry tokens and computing
-        retry delays.
-
+        :param interceptors: The list of interceptors, which are hooks
+            that are called during the execution of a request.
+        :param retry_strategy: The retry strategy for issuing retry
+            tokens and computing retry delays.
         :param dafnyImplInterface:
         """
         self.interceptors = interceptors or []
@@ -57,7 +55,7 @@ class DynamoDbEncryptionConfig(Config):
     def __init__(
         self,
     ):
-        """Constructor for DynamoDbEncryptionConfig"""
+        """Constructor for DynamoDbEncryptionConfig."""
         super().__init__()
 
     def as_dict(self) -> Dict[str, Any]:
@@ -79,20 +77,16 @@ class DynamoDbEncryptionConfig(Config):
 
 
 def dafny_config_to_smithy_config(dafny_config) -> DynamoDbEncryptionConfig:
-    """
-    Converts the provided Dafny shape for this localService's config
-    into the corresponding Smithy-modelled shape.
-    """
+    """Converts the provided Dafny shape for this localService's config into
+    the corresponding Smithy-modelled shape."""
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbEncryptionConfig(
         dafny_config
     )
 
 
 def smithy_config_to_dafny_config(smithy_config) -> DafnyDynamoDbEncryptionConfig:
-    """
-    Converts the provided Smithy-modelled shape for this localService's config
-    into the corresponding Dafny shape.
-    """
+    """Converts the provided Smithy-modelled shape for this localService's
+    config into the corresponding Dafny shape."""
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbEncryptionConfig(
         smithy_config
     )

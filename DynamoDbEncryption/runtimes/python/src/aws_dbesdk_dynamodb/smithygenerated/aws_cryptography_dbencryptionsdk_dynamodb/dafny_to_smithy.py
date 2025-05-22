@@ -34,7 +34,9 @@ import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dyna
 import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.dafny_to_smithy
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyInput(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyInput(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyInput(
         ddb_key={
             b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
@@ -47,13 +49,17 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyInput(dafn
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyOutput(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyOutput(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyOutput(
         branch_key_id=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.branchKeyId).decode("utf-16-be"),
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbKeyBranchKeyIdSupplierReference(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbKeyBranchKeyIdSupplierReference(
+    dafny_input,
+):
     if hasattr(dafny_input, "_native_impl"):
         return dafny_input._native_impl
 
@@ -65,7 +71,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbKeyBranchKeyIdSupplierRefe
         return DynamoDbKeyBranchKeyIdSupplier(_impl=dafny_input)
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierInput(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.CreateDynamoDbEncryptionBranchKeyIdSupplierInput(
         ddb_key_branch_key_id_supplier=(
             (
@@ -79,7 +87,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyI
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnion(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnion(
+    dafny_input,
+):
     # Convert GetEncryptedDataKeyDescriptionUnion
     if isinstance(dafny_input, GetEncryptedDataKeyDescriptionUnion_header):
         GetEncryptedDataKeyDescriptionUnion_union_value = aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetEncryptedDataKeyDescriptionUnionHeader(
@@ -102,7 +112,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnio
     return GetEncryptedDataKeyDescriptionUnion_union_value
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionInput(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionInput(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetEncryptedDataKeyDescriptionInput(
         input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionUnion(
             dafny_input.input
@@ -110,7 +122,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionInpu
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
         branch_key_id_supplier=(
             (
@@ -145,7 +159,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(dafny_
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutput(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutput(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetEncryptedDataKeyDescriptionOutput(
         encrypted_data_key_description_output=[
             aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(
@@ -359,7 +375,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_CompoundBeacon(dafny_input):
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_KeyStoreReference(dafny_input):
-    from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client import KeyStore
+    from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client import (
+        KeyStore,
+    )
 
     return KeyStore(config=None, dafny_client=dafny_input)
 
@@ -600,7 +618,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbEncryptionConfig(dafny_inp
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_LegacyDynamoDbEncryptorReference(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_LegacyDynamoDbEncryptorReference(
+    dafny_input,
+):
     if hasattr(dafny_input, "_native_impl"):
         return dafny_input._native_impl
 
@@ -686,7 +706,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SearchConfig(dafny_input):
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.DynamoDbTableEncryptionConfig(
         logical_table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.logicalTableName).decode(
             "utf-16-be"
@@ -783,7 +805,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(dafn
     )
 
 
-def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(dafny_input):
+def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTablesEncryptionConfig(
+    dafny_input,
+):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.DynamoDbTablesEncryptionConfig(
         table_encryption_configs={
             b"".join(ord(c).to_bytes(2, "big") for c in key).decode(

@@ -21,25 +21,29 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierInput:
         *,
         ddb_key_branch_key_id_supplier: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.DynamoDbKeyBranchKeyIdSupplier",
     ):
-        """Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id
-        Supplier
+        """Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch
+        Key Id Supplier.
 
         :param ddb_key_branch_key_id_supplier: An implementation of the
-        DynamoDbKeyBranchKeyIdSupplier interface, which determines what Branch Key to
-        use for data key wrapping/unwrapping based on the DynamoDB item being
-        written/read.
+            DynamoDbKeyBranchKeyIdSupplier interface, which determines
+            what Branch Key to use for data key wrapping/unwrapping
+            based on the DynamoDB item being written/read.
         """
         self.ddb_key_branch_key_id_supplier = ddb_key_branch_key_id_supplier
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierInput to a dictionary."""
+        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierInput to a
+        dictionary."""
         return {
             "ddb_key_branch_key_id_supplier": self.ddb_key_branch_key_id_supplier.as_dict(),
         }
 
     @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierInput":
-        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierInput from a dictionary."""
+    def from_dict(
+        d: Dict[str, Any],
+    ) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierInput":
+        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierInput from a
+        dictionary."""
         from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references import (
             DynamoDbKeyBranchKeyIdSupplier,
         )
@@ -76,23 +80,27 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
         *,
         branch_key_id_supplier: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier",
     ):
-        """Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id
-        Supplier
+        """Outputs for creating a Branch Key Supplier from a DynamoDB Key
+        Branch Key Id Supplier.
 
-        :param branch_key_id_supplier: The Branch Key Supplier for use with the
-        Hierarchical Keyring.
+        :param branch_key_id_supplier: The Branch Key Supplier for use
+            with the Hierarchical Keyring.
         """
         self.branch_key_id_supplier = branch_key_id_supplier
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierOutput to a dictionary."""
+        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierOutput to a
+        dictionary."""
         return {
             "branch_key_id_supplier": self.branch_key_id_supplier.as_dict(),
         }
 
     @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierOutput":
-        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierOutput from a dictionary."""
+    def from_dict(
+        d: Dict[str, Any],
+    ) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierOutput":
+        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierOutput from a
+        dictionary."""
         from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
             BranchKeyIdSupplier,
         )
@@ -127,11 +135,11 @@ class GetBranchKeyIdFromDdbKeyOutput:
         *,
         branch_key_id: str,
     ):
-        """Outputs for getting the Branch Key that should be used for wrapping and
-        unwrapping data keys.
+        """Outputs for getting the Branch Key that should be used for wrapping
+        and unwrapping data keys.
 
-        :param branch_key_id: The ID of the Branch Key that should be used to wrap and
-        unwrap data keys for this item.
+        :param branch_key_id: The ID of the Branch Key that should be
+            used to wrap and unwrap data keys for this item.
         """
         self.branch_key_id = branch_key_id
 
@@ -264,13 +272,14 @@ class GetEncryptedDataKeyDescriptionOutput:
     ):
         """Output for getting encrypted data key description.
 
-        :param encrypted_data_key_description_output: A list of encrypted data key
-        description.
+        :param encrypted_data_key_description_output: A list of
+            encrypted data key description.
         """
         self.encrypted_data_key_description_output = encrypted_data_key_description_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetEncryptedDataKeyDescriptionOutput to a dictionary."""
+        """Converts the GetEncryptedDataKeyDescriptionOutput to a
+        dictionary."""
         return {
             "encrypted_data_key_description_output": _encrypted_data_key_description_list_as_dict(
                 self.encrypted_data_key_description_output
@@ -312,12 +321,13 @@ class GetBranchKeyIdFromDdbKeyInput:
         *,
         ddb_key: "dict[str, dict[str, Any]]",
     ):
-        """Inputs for getting the Branch Key that should be used for wrapping and
-        unwrapping data keys.
+        """Inputs for getting the Branch Key that should be used for wrapping
+        and unwrapping data keys.
 
-        :param ddb_key: The partition and sort (if it exists) attributes on the item
-        being read or written, along with the values of any attributes configured as
-        SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
+        :param ddb_key: The partition and sort (if it exists) attributes
+            on the item being read or written, along with the values of
+            any attributes configured as
+            SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT.
         """
         self.ddb_key = ddb_key
 
@@ -405,8 +415,8 @@ class GetEncryptedDataKeyDescriptionUnionItem:
 class GetEncryptedDataKeyDescriptionUnionUnknown:
     """Represents an unknown variant.
 
-    If you receive this value, you will need to update your library to receive the
-    parsed value.
+    If you receive this value, you will need to update your library to
+    receive the parsed value.
 
     This value may not be deliberately sent.
     """
@@ -434,7 +444,9 @@ GetEncryptedDataKeyDescriptionUnion = Union[
 ]
 
 
-def _get_encrypted_data_key_description_union_from_dict(d: Dict[str, Any]) -> GetEncryptedDataKeyDescriptionUnion:
+def _get_encrypted_data_key_description_union_from_dict(
+    d: Dict[str, Any],
+) -> GetEncryptedDataKeyDescriptionUnion:
     if "header" in d:
         return GetEncryptedDataKeyDescriptionUnionHeader.from_dict(d)
 
@@ -487,7 +499,10 @@ class GetEncryptedDataKeyDescriptionInput:
 
 
 class AsSet:
-    """Attribute must be a Set. Beacon value will also be a Set."""
+    """Attribute must be a Set.
+
+    Beacon value will also be a Set.
+    """
 
     def as_dict(self) -> Dict[str, Any]:
         """Converts the AsSet to a dictionary."""
@@ -523,14 +538,16 @@ class MultiKeyStore:
     ):
         """The configuration for using multiple Beacon Keys.
 
-        :param key_field_name: The name of the field that stores the Beacon Key. This
-        may be a Virtual Field.
-        :param cache_ttl: How long (in seconds) the beacon key material is cached
-        locally before it is re-retrieved from DynamoDB and re-authed with AWS KMS.
+        :param key_field_name: The name of the field that stores the
+            Beacon Key. This may be a Virtual Field.
+        :param cache_ttl: How long (in seconds) the beacon key material
+            is cached locally before it is re-retrieved from DynamoDB
+            and re-authed with AWS KMS.
         :param cache: Which type of local cache to use.
-        :param partition_id: Partition ID to distinguish Beacon Key Sources writing to a
-        Shared cache. If the Partition ID is the same for two Beacon Key Sources, they
-        can share the same cache entries in the Shared cache.
+        :param partition_id: Partition ID to distinguish Beacon Key
+            Sources writing to a Shared cache. If the Partition ID is
+            the same for two Beacon Key Sources, they can share the same
+            cache entries in the Shared cache.
         """
         self.key_field_name = key_field_name
         self.cache_ttl = cache_ttl
@@ -739,8 +756,8 @@ class BeaconKeySourceMulti:
 class BeaconKeySourceUnknown:
     """Represents an unknown variant.
 
-    If you receive this value, you will need to update your library to receive the
-    parsed value.
+    If you receive this value, you will need to update your library to
+    receive the parsed value.
 
     This value may not be deliberately sent.
     """
@@ -803,8 +820,8 @@ class Shared:
         *,
         other: str,
     ):
-        """This beacon should calculate values like another beacon, so they can be
-        compared.
+        """This beacon should calculate values like another beacon, so they can
+        be compared.
 
         :param other: Calculate beacon values as for this beacon.
         """
@@ -913,8 +930,7 @@ class BeaconStylePartOnly:
 
 class BeaconStyleShared:
     """This beacon should calculate values like another beacon, so they can be
-    compared.
-    """
+    compared."""
 
     def __init__(self, value: Shared):
         self.value = value
@@ -939,7 +955,10 @@ class BeaconStyleShared:
 
 
 class BeaconStyleAsSet:
-    """Attribute must be a Set. Beacon value will also be a Set."""
+    """Attribute must be a Set.
+
+    Beacon value will also be a Set.
+    """
 
     def __init__(self, value: AsSet):
         self.value = value
@@ -991,8 +1010,8 @@ class BeaconStyleSharedSet:
 class BeaconStyleUnknown:
     """Represents an unknown variant.
 
-    If you receive this value, you will need to update your library to receive the
-    parsed value.
+    If you receive this value, you will need to update your library to
+    receive the parsed value.
 
     This value may not be deliberately sent.
     """
@@ -1013,7 +1032,13 @@ class BeaconStyleUnknown:
         return f"BeaconStyleUnknown(tag={self.tag})"
 
 
-BeaconStyle = Union[BeaconStylePartOnly, BeaconStyleShared, BeaconStyleAsSet, BeaconStyleSharedSet, BeaconStyleUnknown]
+BeaconStyle = Union[
+    BeaconStylePartOnly,
+    BeaconStyleShared,
+    BeaconStyleAsSet,
+    BeaconStyleSharedSet,
+    BeaconStyleUnknown,
+]
 
 
 def _beacon_style_from_dict(d: Dict[str, Any]) -> BeaconStyle:
@@ -1044,10 +1069,10 @@ class ConstructorPart:
     ):
         """A part of a Compound Becaon Construction.
 
-        :param name: The name of the Encrypted Part or Signed Part for which this
-        constructor part gets a value.
-        :param required: Whether this Encrypted Part or Signed Part is required for this
-        construction to succeed.
+        :param name: The name of the Encrypted Part or Signed Part for
+            which this constructor part gets a value.
+        :param required: Whether this Encrypted Part or Signed Part is
+            required for this construction to succeed.
         """
         self.name = name
         self.required = required
@@ -1099,9 +1124,10 @@ class Constructor:
     ):
         """The configuration for a particular Compound Beacon construction.
 
-        :param parts: The ordered list of parts for a particular Compound Beacon
-        construction. If the item contains all required Parts, a Compound beacon will be
-        written using each Part that exists on the item, in the order specified.
+        :param parts: The ordered list of parts for a particular
+            Compound Beacon construction. If the item contains all
+            required Parts, a Compound beacon will be written using each
+            Part that exists on the item, in the order specified.
         """
         if (parts is not None) and (len(parts) < 1):
             raise ValueError("The size of parts must be greater than or equal to 1")
@@ -1149,10 +1175,13 @@ class EncryptedPart:
         name: str,
         prefix: str,
     ):
-        """A part of a Compound Beacon that contains a beacon over encrypted data.
+        """A part of a Compound Beacon that contains a beacon over encrypted
+        data.
 
-        :param name: The name of the Standard Beacon, whose value this Part will hold.
-        :param prefix: The prefix that is written with this Encrypted Part.
+        :param name: The name of the Standard Beacon, whose value this
+            Part will hold.
+        :param prefix: The prefix that is written with this Encrypted
+            Part.
         """
         self.name = name
         if (prefix is not None) and (len(prefix) < 1):
@@ -1213,8 +1242,9 @@ class SignedPart:
 
         :param name: The name for this Signed Part.
         :param prefix: The prefix that is written with this Signed Part.
-        :param loc: The DynamoDB document path to the value for this Signed Part. If not
-        provided, the 'name' is used for the location.
+        :param loc: The DynamoDB document path to the value for this
+            Signed Part. If not provided, the 'name' is used for the
+            location.
         """
         self.name = name
         if (prefix is not None) and (len(prefix) < 1):
@@ -1294,18 +1324,20 @@ class CompoundBeacon:
         """The configuration for a Compound Beacon.
 
         :param name: The name of the Compound Beacon.
-        :param split: The characters used to split parts of a compound beacon. The split
-        character should be a character that does not appear in any Signed Part or
-        Prefix used by the Compound Beacon.
-        :param encrypted: The list of Encrypted Parts that may be included in the
-        compound beacon.
-        :param signed: The list of Signed Parts that may be included in the compound
-        beacon.
-        :param constructors: The ordered list of constructors that may be used to create
-        the Compound Beacon. Each constructor is checked, in order, to see if it can
-        construct the beacon. The first constructor that can construct the beacon is
-        used. If no constructor can construct the beacon, the Compound Beacon is not
-        written to the item.
+        :param split: The characters used to split parts of a compound
+            beacon. The split character should be a character that does
+            not appear in any Signed Part or Prefix used by the Compound
+            Beacon.
+        :param encrypted: The list of Encrypted Parts that may be
+            included in the compound beacon.
+        :param signed: The list of Signed Parts that may be included in
+            the compound beacon.
+        :param constructors: The ordered list of constructors that may
+            be used to create the Compound Beacon. Each constructor is
+            checked, in order, to see if it can construct the beacon.
+            The first constructor that can construct the beacon is used.
+            If no constructor can construct the beacon, the Compound
+            Beacon is not written to the item.
         """
         self.name = name
         if (split is not None) and (len(split) < 1):
@@ -1415,9 +1447,10 @@ class StandardBeacon:
 
         :param name: The name for this Standard Beacon.
         :param length: The length of the calculated beacon.
-        :param loc: The DynamoDB document path to the value this beacon will calculate
-        over. If not specified, the beacon will calculate values for the attribute with
-        the name specified in 'name'.
+        :param loc: The DynamoDB document path to the value this beacon
+            will calculate over. If not specified, the beacon will
+            calculate values for the attribute with the name specified
+            in 'name'.
         :param style: Optional augmented behavior.
         """
         self.name = name
@@ -1543,7 +1576,8 @@ class Insert:
 
 
 class Lower:
-    """The Virtual Part Transformation that converts ASCII characters to lower case."""
+    """The Virtual Part Transformation that converts ASCII characters to lower
+    case."""
 
     def as_dict(self) -> Dict[str, Any]:
         """Converts the Lower to a dictionary."""
@@ -1573,9 +1607,10 @@ class GetPrefix:
     ):
         """The Virtual Part Transformation that gets the prefix of a string.
 
-        :param length: If positive, the number of characters to return from the front.
-        If negative, the absolute number of characters to exclude from the end. e.g.
-        GetPrefix(-1) returns all but the last character.
+        :param length: If positive, the number of characters to return
+            from the front. If negative, the absolute number of
+            characters to exclude from the end. e.g. GetPrefix(-1)
+            returns all but the last character.
         """
         self.length = length
 
@@ -1620,13 +1655,13 @@ class GetSegment:
         split: str,
         index: int,
     ):
-        """The Virtual Part Transformation that splits a string and gets a particular
-        segment of that split.
+        """The Virtual Part Transformation that splits a string and gets a
+        particular segment of that split.
 
         :param split: The characters to split on.
-        :param index: The index of the split string result to return. 0 represents the
-        segment before the first split character. -1 respresents the segment after the
-        last split character.
+        :param index: The index of the split string result to return. 0
+            represents the segment before the first split character. -1
+            respresents the segment after the last split character.
         """
         if (split is not None) and (len(split) < 1):
             raise ValueError("The size of split must be greater than or equal to 1")
@@ -1686,14 +1721,14 @@ class GetSegments:
         low: int,
         high: int,
     ):
-        """The Virtual Part Transformation that splits a string and gets a range of
-        segments of that split.
+        """The Virtual Part Transformation that splits a string and gets a
+        range of segments of that split.
 
         :param split: The characters to split on.
-        :param low: The index to start the segments from, inclusive. Negative numbers
-        count from the end. -1 is the last segment.
-        :param high: The index to stop the segments at, exclusive. Negative numbers
-        count from the end. -1 is the last segment.
+        :param low: The index to start the segments from, inclusive.
+            Negative numbers count from the end. -1 is the last segment.
+        :param high: The index to stop the segments at, exclusive.
+            Negative numbers count from the end. -1 is the last segment.
         """
         if (split is not None) and (len(split) < 1):
             raise ValueError("The size of split must be greater than or equal to 1")
@@ -1760,10 +1795,12 @@ class GetSubstring:
     ):
         """The Virtual Part Transformation that gets a substring from a string.
 
-        :param low: The index to start the substring from, inclusive. Negative numbers
-        count from the end. -1 is the last character of a string.
-        :param high: The index to stop the substring at, exclusive. Negative numbers
-        count from the end. -1 is the last character of a string.
+        :param low: The index to start the substring from, inclusive.
+            Negative numbers count from the end. -1 is the last
+            character of a string.
+        :param high: The index to stop the substring at, exclusive.
+            Negative numbers count from the end. -1 is the last
+            character of a string.
         """
         self.low = low
         self.high = high
@@ -1815,9 +1852,10 @@ class GetSuffix:
     ):
         """The Virtual Part Transformation that gets the suffix of a string.
 
-        :param length: If positive, the number of characters to return from the end. If
-        negative, the absolute number of characters to exclude from the front. e.g.
-        GetSuffix(-1) returns all but the first character.
+        :param length: If positive, the number of characters to return
+            from the end. If negative, the absolute number of characters
+            to exclude from the front. e.g. GetSuffix(-1) returns all
+            but the first character.
         """
         self.length = length
 
@@ -1853,7 +1891,8 @@ class GetSuffix:
 
 
 class Upper:
-    """The Virtual Part Transformation that converts ASCII characters to upper case."""
+    """The Virtual Part Transformation that converts ASCII characters to upper
+    case."""
 
     def as_dict(self) -> Dict[str, Any]:
         """Converts the Upper to a dictionary."""
@@ -1874,7 +1913,8 @@ class Upper:
 
 
 class VirtualTransformUpper:
-    """The Virtual Part Transformation that converts ASCII characters to upper case."""
+    """The Virtual Part Transformation that converts ASCII characters to upper
+    case."""
 
     def __init__(self, value: Upper):
         self.value = value
@@ -1899,7 +1939,8 @@ class VirtualTransformUpper:
 
 
 class VirtualTransformLower:
-    """The Virtual Part Transformation that converts ASCII characters to lower case."""
+    """The Virtual Part Transformation that converts ASCII characters to lower
+    case."""
 
     def __init__(self, value: Lower):
         self.value = value
@@ -2024,9 +2065,8 @@ class VirtualTransformSubstring:
 
 
 class VirtualTransformSegment:
-    """The Virtual Part Transformation that splits a string and gets a particular
-    segment of that split.
-    """
+    """The Virtual Part Transformation that splits a string and gets a
+    particular segment of that split."""
 
     def __init__(self, value: GetSegment):
         self.value = value
@@ -2052,8 +2092,7 @@ class VirtualTransformSegment:
 
 class VirtualTransformSegments:
     """The Virtual Part Transformation that splits a string and gets a range of
-    segments of that split.
-    """
+    segments of that split."""
 
     def __init__(self, value: GetSegments):
         self.value = value
@@ -2080,8 +2119,8 @@ class VirtualTransformSegments:
 class VirtualTransformUnknown:
     """Represents an unknown variant.
 
-    If you receive this value, you will need to update your library to receive the
-    parsed value.
+    If you receive this value, you will need to update your library to
+    receive the parsed value.
 
     This value may not be deliberately sent.
     """
@@ -2153,11 +2192,13 @@ class VirtualPart:
         loc: str,
         trans: Optional[list[VirtualTransform]] = None,
     ):
-        """A Virtual Part is the configuration of a transformation on an existing field in
-        an item.
+        """A Virtual Part is the configuration of a transformation on an
+        existing field in an item.
 
-        :param loc: The DynamoDB document path to the value for this part.
-        :param trans: A list of transformations performed on the value for this part.
+        :param loc: The DynamoDB document path to the value for this
+            part.
+        :param trans: A list of transformations performed on the value
+            for this part.
         """
         if (loc is not None) and (len(loc) < 1):
             raise ValueError("The size of loc must be greater than or equal to 1")
@@ -2221,12 +2262,13 @@ class VirtualField:
         name: str,
         parts: list[VirtualPart],
     ):
-        """The configuration for a Virtual Field. A Virtual Field is a field constructed
-        from parts of other fields for use with beacons, but never itself stored on
-        items.
+        """The configuration for a Virtual Field. A Virtual Field is a field
+        constructed from parts of other fields for use with beacons, but never
+        itself stored on items.
 
         :param name: The name of the Virtual Field.
-        :param parts: The list of ordered parts that make up a Virtual Field.
+        :param parts: The list of ordered parts that make up a Virtual
+            Field.
         """
         self.name = name
         if (parts is not None) and (len(parts) < 1):
@@ -2293,22 +2335,25 @@ class BeaconVersion:
         encrypted_parts: Optional[list[EncryptedPart]] = None,
         signed_parts: Optional[list[SignedPart]] = None,
     ):
-        """The configuration for a particular version of searchable encryption. Currently
-        the only supported version is '1'.
+        """The configuration for a particular version of searchable encryption.
+        Currently the only supported version is '1'.
 
-        :param key_store: The Key Store that contains the Beacon Keys to use with
-        searchable encryption.
-        :param key_source: The configuration for what beacon key(s) to use.
-        :param standard_beacons: The Standard Beacons to be written with items.
-        :param version: The version of searchable encryption configured. This must be
-        '1'.
-        :param compound_beacons: The Compound Beacons to be written with items.
-        :param virtual_fields: The Virtual Fields to be calculated, supporting other
-        searchable enryption configurations.
-        :param encrypted_parts: The list of Encrypted Parts that may be included in any
-        compound beacon.
-        :param signed_parts: The list of Signed Parts that may be included in any
-        compound beacon.
+        :param key_store: The Key Store that contains the Beacon Keys to
+            use with searchable encryption.
+        :param key_source: The configuration for what beacon key(s) to
+            use.
+        :param standard_beacons: The Standard Beacons to be written with
+            items.
+        :param version: The version of searchable encryption configured.
+            This must be '1'.
+        :param compound_beacons: The Compound Beacons to be written with
+            items.
+        :param virtual_fields: The Virtual Fields to be calculated,
+            supporting other searchable enryption configurations.
+        :param encrypted_parts: The list of Encrypted Parts that may be
+            included in any compound beacon.
+        :param signed_parts: The list of Signed Parts that may be
+            included in any compound beacon.
         """
         self.key_store = key_store
         self.key_source = key_source
@@ -2365,7 +2410,9 @@ class BeaconVersion:
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconVersion":
         """Creates a BeaconVersion from a dictionary."""
-        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client import KeyStore
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client import (
+            KeyStore,
+        )
 
         kwargs: Dict[str, Any] = {
             "key_store": KeyStore.from_dict(d["key_store"]),
@@ -2466,17 +2513,18 @@ class LegacyOverride:
         attribute_actions_on_encrypt: dict[str, str],
         default_attribute_flag: Optional[str] = None,
     ):
-        """A configuration for overriding encryption and/or decryption to instead perform
-        legacy encryption and decryption.
+        """A configuration for overriding encryption and/or decryption to
+        instead perform legacy encryption and decryption.
 
-        :param policy: A policy which configurates whether legacy behavior overrides
-        encryption and/or decryption.
-        :param encryptor: A configuration for the legacy DynamoDB Encryption Client's
-        Encryptor.
-        :param attribute_actions_on_encrypt: Overrides which attributes are encrypted
-        and/or signed for any items read or written with legacy behavior.
-        :param default_attribute_flag: This input is not used in the Java Client and
-        should not be specified.
+        :param policy: A policy which configurates whether legacy
+            behavior overrides encryption and/or decryption.
+        :param encryptor: A configuration for the legacy DynamoDB
+            Encryption Client's Encryptor.
+        :param attribute_actions_on_encrypt: Overrides which attributes
+            are encrypted and/or signed for any items read or written
+            with legacy behavior.
+        :param default_attribute_flag: This input is not used in the
+            Java Client and should not be specified.
         """
         self.policy = policy
         self.encryptor = encryptor
@@ -2572,10 +2620,11 @@ class SearchConfig:
     ):
         """The configuration for searchable encryption.
 
-        :param versions: The versions of searchable encryption to support reading.
-        Currently must contain a single configuration with version '1'.
-        :param write_version: The searchable encryption version to use when writing new
-        items. Must be '1'.
+        :param versions: The versions of searchable encryption to
+            support reading. Currently must contain a single
+            configuration with version '1'.
+        :param write_version: The searchable encryption version to use
+            when writing new items. Must be '1'.
         """
         if (versions is not None) and (len(versions) < 1):
             raise ValueError("The size of versions must be greater than or equal to 1")
@@ -2670,39 +2719,50 @@ class DynamoDbTableEncryptionConfig:
         legacy_override: Optional[LegacyOverride] = None,
         plaintext_override: Optional[str] = None,
     ):
-        """The configuration for client-side encryption for a particular DynamoDB table.
+        """The configuration for client-side encryption for a particular
+        DynamoDB table.
 
-        :param logical_table_name: The logical table name for this table. This is the
-        name that is cryptographically bound with your data. This can be the same as the
-        actual DynamoDB table name. It's purpose is to be distinct from the DynamoDB
-        table name so that the data may still be authenticated if being read from
-        different (but logically similar) tables, such as a backup table.
-        :param partition_key_name: The name of the partition key on this table.
-        :param attribute_actions_on_encrypt: A map that describes what attributes should
-        be encrypted and/or signed on encrypt. This map must contain all attributes that
-        might be encountered during encryption.
-        :param sort_key_name: If this table contains a sort key, the name of the sort
-        key on this table.
+        :param logical_table_name: The logical table name for this
+            table. This is the name that is cryptographically bound with
+            your data. This can be the same as the actual DynamoDB table
+            name. It's purpose is to be distinct from the DynamoDB table
+            name so that the data may still be authenticated if being
+            read from different (but logically similar) tables, such as
+            a backup table.
+        :param partition_key_name: The name of the partition key on this
+            table.
+        :param attribute_actions_on_encrypt: A map that describes what
+            attributes should be encrypted and/or signed on encrypt.
+            This map must contain all attributes that might be
+            encountered during encryption.
+        :param sort_key_name: If this table contains a sort key, the
+            name of the sort key on this table.
         :param search: The configuration for searchable encryption.
-        :param allowed_unsigned_attributes: A list of attribute names such that, if
-        encountered during decryption, those attributes are treated as unsigned.
-        :param allowed_unsigned_attribute_prefix: A prefix such that, if during
-        decryption any attribute has a name with this prefix, it is treated as unsigned.
-        :param algorithm_suite_id: An ID for the algorithm suite to use during
-        encryption and decryption.
-        :param keyring: The Keyring that should be used to wrap and unwrap data keys. If
-        specified a Default Cryptographic Materials Manager with this Keyring is used to
-        obtain materials for encryption and decryption. Either a Keyring or a
-        Cryptographic Materials Manager must be specified.
-        :param cmm: The Cryptographic Materials Manager that is used to obtain materials
-        for encryption and decryption.  Either a Keyring or a Cryptographic Materials
-        Manager must be specified.
-        :param legacy_override: A configuration that override encryption and/or
-        decryption to instead perform legacy encryption and/or decryption. Used as part
-        of migration from version 2.x to version 3.x.
-        :param plaintext_override: A configuration that override encryption and/or
-        decryption to instead passthrough and write and/or read plaintext. Used to
-        update plaintext tables to fully use client-side encryption.
+        :param allowed_unsigned_attributes: A list of attribute names
+            such that, if encountered during decryption, those
+            attributes are treated as unsigned.
+        :param allowed_unsigned_attribute_prefix: A prefix such that, if
+            during decryption any attribute has a name with this prefix,
+            it is treated as unsigned.
+        :param algorithm_suite_id: An ID for the algorithm suite to use
+            during encryption and decryption.
+        :param keyring: The Keyring that should be used to wrap and
+            unwrap data keys. If specified a Default Cryptographic
+            Materials Manager with this Keyring is used to obtain
+            materials for encryption and decryption. Either a Keyring or
+            a Cryptographic Materials Manager must be specified.
+        :param cmm: The Cryptographic Materials Manager that is used to
+            obtain materials for encryption and decryption. Either a
+            Keyring or a Cryptographic Materials Manager must be
+            specified.
+        :param legacy_override: A configuration that override encryption
+            and/or decryption to instead perform legacy encryption
+            and/or decryption. Used as part of migration from version
+            2.x to version 3.x.
+        :param plaintext_override: A configuration that override
+            encryption and/or decryption to instead passthrough and
+            write and/or read plaintext. Used to update plaintext tables
+            to fully use client-side encryption.
         """
         self.logical_table_name = logical_table_name
         if (partition_key_name is not None) and (len(partition_key_name) < 1):
@@ -2882,10 +2942,11 @@ class DynamoDbTablesEncryptionConfig:
         *,
         table_encryption_configs: dict[str, DynamoDbTableEncryptionConfig],
     ):
-        """The configuration for client-side encryption with multiple DynamoDB table.
+        """The configuration for client-side encryption with multiple DynamoDB
+        table.
 
-        :param table_encryption_configs: A map of DynamoDB table name to its
-        configuration for client-side encryption.
+        :param table_encryption_configs: A map of DynamoDB table name to
+            its configuration for client-side encryption.
         """
         self.table_encryption_configs = table_encryption_configs
 
@@ -2922,11 +2983,15 @@ class DynamoDbTablesEncryptionConfig:
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
 
-def _encrypted_data_key_description_list_as_dict(given: list[EncryptedDataKeyDescription]) -> List[Any]:
+def _encrypted_data_key_description_list_as_dict(
+    given: list[EncryptedDataKeyDescription],
+) -> List[Any]:
     return [v.as_dict() for v in given]
 
 
-def _encrypted_data_key_description_list_from_dict(given: List[Any]) -> list[EncryptedDataKeyDescription]:
+def _encrypted_data_key_description_list_from_dict(
+    given: List[Any],
+) -> list[EncryptedDataKeyDescription]:
     return [EncryptedDataKeyDescription.from_dict(v) for v in given]
 
 
