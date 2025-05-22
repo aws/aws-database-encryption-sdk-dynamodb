@@ -1,0 +1,106 @@
+[tool.poetry]
+name = "aws-dbesdk-dynamodb"
+version = "0.1.0"
+description = ""
+authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
+packages = [
+    { include = "aws_dbesdk_dynamodb", from = "src" },
+]
+# Include all of the following .gitignored files in package distributions,
+# even though it is not included in version control
+include = ["**/internaldafny/generated/*.py"]
+
+[tool.poetry.dependencies]
+python = "^3.11.0"
+aws-cryptographic-material-providers = { path = "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python", develop = false}
+
+# Package testing
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^6"
+mock = "^4.0.3"
+
+# Package release
+
+[tool.poetry.group.release]
+optional = true
+
+[tool.poetry.group.release.dependencies]
+poetry = "1.8.3"
+twine = "5.1.1"
+wheel = "0.38.4"
+
+# Package documentation
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+toml = "^0.10.2"
+myst-parser = "^4"
+sphinx = "^7"
+sphinx_rtd_theme = "^2"
+
+# Package linting
+
+[tool.poetry.group.linting]
+optional = true
+
+[tool.poetry.group.linting.dependencies]
+ruff = "^0.11.5"
+black = "^25.1.0"
+
+[tool.ruff]
+exclude = [
+    # Don't bother linting Dafny-generated code
+    "internaldafny",
+    # Don't re-lint Smithy-generated code
+    "smithygenerated",
+]
+line-length=120
+indent-width=4
+target-version = "py311"
+
+[tool.ruff.lint]
+# Choose linting tools
+select = [
+    # pycodestyle: spacing, line length
+    "E",
+    # pyflakes: unused imports/variables
+    "F",
+    # isort: import sorting
+    "I",
+    # pydocstyle: docstring style
+    "D",
+]
+# Ignore incompatible linting options
+ignore=[
+    "D203", # `incorrect-blank-line-before-class`; incompatible with `no-blank-line-before-class` (D211)
+    "D212", # `multi-line-summary-first-line`; incompatible with `multi-line-summary-second-line` (D213)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/aws_dbesdk_dynamodb/internal/*" = [
+    # Ignore all "public"-related linting errors for internal modules
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    # Ignore opinionated docstring linting errors for internal modules
+    "D205", "D400", "D401", "D403", "D404", "D415",
+]
+"test/*" = [
+    # Ignore all "public"- and docstring-related linting errors for test modules
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    # Ignore opinionated docstring linting errors for test modules
+    "D205", "D400", "D401", "D403", "D404", "D415",
+]
+
+[tool.black]
+# Don't bother linting Dafny-generated code; don't re-lint Smithy-generated code
+exclude = "/(internaldafny|smithygenerated)(/|$)"
+
+[build-system]
+requires = ["poetry-core<2.0.0"]
+build-backend = "poetry.core.masonry.api"
