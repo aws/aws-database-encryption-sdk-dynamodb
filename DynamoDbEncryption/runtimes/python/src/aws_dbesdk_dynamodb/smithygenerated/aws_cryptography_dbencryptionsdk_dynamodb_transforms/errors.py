@@ -49,8 +49,12 @@ class UnknownApiError(ApiError[Literal["Unknown"]]):
     code: Literal["Unknown"] = "Unknown"
 
 
-class DynamoDbEncryptionTransformsException(ApiError[Literal["DynamoDbEncryptionTransformsException"]]):
-    code: Literal["DynamoDbEncryptionTransformsException"] = "DynamoDbEncryptionTransformsException"
+class DynamoDbEncryptionTransformsException(
+    ApiError[Literal["DynamoDbEncryptionTransformsException"]]
+):
+    code: Literal["DynamoDbEncryptionTransformsException"] = (
+        "DynamoDbEncryptionTransformsException"
+    )
     message: str
 
     def __init__(
@@ -95,8 +99,12 @@ class DynamoDbEncryptionTransformsException(ApiError[Literal["DynamoDbEncryption
         return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
 
-class DynamoDbEncryptionTransformsException(ApiError[Literal["DynamoDbEncryptionTransformsException"]]):
-    code: Literal["DynamoDbEncryptionTransformsException"] = "DynamoDbEncryptionTransformsException"
+class DynamoDbEncryptionTransformsException(
+    ApiError[Literal["DynamoDbEncryptionTransformsException"]]
+):
+    code: Literal["DynamoDbEncryptionTransformsException"] = (
+        "DynamoDbEncryptionTransformsException"
+    )
     message: str
 
 
@@ -116,7 +124,9 @@ class StructuredEncryption(ApiError[Literal["StructuredEncryption"]]):
     StructuredEncryption: Any
 
 
-class AwsCryptographicMaterialProviders(ApiError[Literal["AwsCryptographicMaterialProviders"]]):
+class AwsCryptographicMaterialProviders(
+    ApiError[Literal["AwsCryptographicMaterialProviders"]]
+):
     AwsCryptographicMaterialProviders: Any
 
 
@@ -297,17 +307,23 @@ def _smithy_error_to_dafny_error(e: ServiceError):
 
     if isinstance(e, DynamoDbEncryption):
         return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error_AwsCryptographyDbEncryptionSdkDynamoDb(
-            aws_cryptography_dbencryptionsdk_dynamodb_smithy_error_to_dafny_error(e.message)
+            aws_cryptography_dbencryptionsdk_dynamodb_smithy_error_to_dafny_error(
+                e.message
+            )
         )
 
     if isinstance(e, DynamoDbItemEncryptor):
         return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor(
-            aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_smithy_error_to_dafny_error(e.message)
+            aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_smithy_error_to_dafny_error(
+                e.message
+            )
         )
 
     if isinstance(e, StructuredEncryption):
         return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption(
-            aws_cryptography_dbencryptionsdk_structuredencryption_smithy_error_to_dafny_error(e.message)
+            aws_cryptography_dbencryptionsdk_structuredencryption_smithy_error_to_dafny_error(
+                e.message
+            )
         )
 
     if isinstance(e, AwsCryptographicMaterialProviders):
@@ -318,7 +334,9 @@ def _smithy_error_to_dafny_error(e: ServiceError):
     if isinstance(e, CollectionOfErrors):
         return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error_CollectionOfErrors(
             message=_dafny.Seq(e.message),
-            list=_dafny.Seq(_smithy_error_to_dafny_error(native_err) for native_err in e.list),
+            list=_dafny.Seq(
+                _smithy_error_to_dafny_error(native_err) for native_err in e.list
+            ),
         )
 
     if isinstance(e, OpaqueError):

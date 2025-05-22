@@ -137,22 +137,34 @@ class DynamoDbItemEncryptorConfig(Config):
         super().__init__()
         self.logical_table_name = logical_table_name
         if (partition_key_name is not None) and (len(partition_key_name) < 1):
-            raise ValueError("The size of partition_key_name must be greater than or equal to 1")
+            raise ValueError(
+                "The size of partition_key_name must be greater than or equal to 1"
+            )
 
         if (partition_key_name is not None) and (len(partition_key_name) > 255):
-            raise ValueError("The size of partition_key_name must be less than or equal to 255")
+            raise ValueError(
+                "The size of partition_key_name must be less than or equal to 255"
+            )
 
         self.partition_key_name = partition_key_name
         self.attribute_actions_on_encrypt = attribute_actions_on_encrypt
         if (sort_key_name is not None) and (len(sort_key_name) < 1):
-            raise ValueError("The size of sort_key_name must be greater than or equal to 1")
+            raise ValueError(
+                "The size of sort_key_name must be greater than or equal to 1"
+            )
 
         if (sort_key_name is not None) and (len(sort_key_name) > 255):
-            raise ValueError("The size of sort_key_name must be less than or equal to 255")
+            raise ValueError(
+                "The size of sort_key_name must be less than or equal to 255"
+            )
 
         self.sort_key_name = sort_key_name
-        if (allowed_unsigned_attributes is not None) and (len(allowed_unsigned_attributes) < 1):
-            raise ValueError("The size of allowed_unsigned_attributes must be greater than or equal to 1")
+        if (allowed_unsigned_attributes is not None) and (
+            len(allowed_unsigned_attributes) < 1
+        ):
+            raise ValueError(
+                "The size of allowed_unsigned_attributes must be greater than or equal to 1"
+            )
 
         self.allowed_unsigned_attributes = allowed_unsigned_attributes
         self.allowed_unsigned_attribute_prefix = allowed_unsigned_attribute_prefix
@@ -177,7 +189,9 @@ class DynamoDbItemEncryptorConfig(Config):
             d["allowed_unsigned_attributes"] = self.allowed_unsigned_attributes
 
         if self.allowed_unsigned_attribute_prefix is not None:
-            d["allowed_unsigned_attribute_prefix"] = self.allowed_unsigned_attribute_prefix
+            d["allowed_unsigned_attribute_prefix"] = (
+                self.allowed_unsigned_attribute_prefix
+            )
 
         if self.algorithm_suite_id is not None:
             d["algorithm_suite_id"] = self.algorithm_suite_id
@@ -219,7 +233,9 @@ class DynamoDbItemEncryptorConfig(Config):
             kwargs["allowed_unsigned_attributes"] = d["allowed_unsigned_attributes"]
 
         if "allowed_unsigned_attribute_prefix" in d:
-            kwargs["allowed_unsigned_attribute_prefix"] = d["allowed_unsigned_attribute_prefix"]
+            kwargs["allowed_unsigned_attribute_prefix"] = d[
+                "allowed_unsigned_attribute_prefix"
+            ]
 
         if "algorithm_suite_id" in d:
             kwargs["algorithm_suite_id"] = d["algorithm_suite_id"]

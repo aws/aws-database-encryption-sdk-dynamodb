@@ -122,14 +122,21 @@ def com_amazonaws_dynamodb_PutItemInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         Item=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -142,7 +149,12 @@ def com_amazonaws_dynamodb_PutItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_ExpectedAttributeValue(
                             value
@@ -196,7 +208,16 @@ def com_amazonaws_dynamodb_PutItemInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -210,17 +231,26 @@ def com_amazonaws_dynamodb_PutItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -233,12 +263,19 @@ def com_amazonaws_dynamodb_PutItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -264,7 +301,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                 "".join(
                     [
                         chr(int.from_bytes(pair, "big"))
-                        for pair in zip(*[iter(native_input["S"].encode("utf-16-be"))] * 2)
+                        for pair in zip(
+                            *[iter(native_input["S"].encode("utf-16-be"))] * 2
+                        )
                     ]
                 )
             )
@@ -275,7 +314,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                 "".join(
                     [
                         chr(int.from_bytes(pair, "big"))
-                        for pair in zip(*[iter(native_input["N"].encode("utf-16-be"))] * 2)
+                        for pair in zip(
+                            *[iter(native_input["N"].encode("utf-16-be"))] * 2
+                        )
                     ]
                 )
             )
@@ -290,7 +331,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                for pair in zip(
+                                    *[iter(list_element.encode("utf-16-be"))] * 2
+                                )
                             ]
                         )
                     )
@@ -306,7 +349,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                for pair in zip(
+                                    *[iter(list_element.encode("utf-16-be"))] * 2
+                                )
                             ]
                         )
                     )
@@ -315,14 +360,19 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
             )
         )
     elif "BS" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_BS(Seq([Seq(list_element) for list_element in native_input["BS"]]))
+        AttributeValue_union_value = AttributeValue_BS(
+            Seq([Seq(list_element) for list_element in native_input["BS"]])
+        )
     elif "M" in native_input.keys():
         AttributeValue_union_value = AttributeValue_M(
             Map(
                 {
                     Seq(
                         "".join(
-                            [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                            [
+                                chr(int.from_bytes(pair, "big"))
+                                for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                            ]
                         )
                     ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                         value
@@ -347,7 +397,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
     elif "BOOL" in native_input.keys():
         AttributeValue_union_value = AttributeValue_BOOL(native_input["BOOL"])
     else:
-        raise ValueError("No recognized union value in union type: " + str(native_input))
+        raise ValueError(
+            "No recognized union value in union type: " + str(native_input)
+        )
 
     return AttributeValue_union_value
 
@@ -363,7 +415,11 @@ def com_amazonaws_dynamodb_ExpectedAttributeValue(native_input):
             if "Value" in native_input.keys()
             else Option_None()
         ),
-        Exists=(Option_Some(native_input["Exists"]) if "Exists" in native_input.keys() else Option_None()),
+        Exists=(
+            Option_Some(native_input["Exists"])
+            if "Exists" in native_input.keys()
+            else Option_None()
+        ),
         ComparisonOperator=(
             Option_Some(
                 aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_ComparisonOperator(
@@ -488,7 +544,12 @@ def com_amazonaws_dynamodb_PutItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -529,7 +590,10 @@ def com_amazonaws_dynamodb_ConsumedCapacity(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["TableName"].encode("utf-16-be"))]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -538,7 +602,9 @@ def com_amazonaws_dynamodb_ConsumedCapacity(native_input):
             else Option_None()
         ),
         CapacityUnits=(
-            Option_Some(native_input["CapacityUnits"]) if "CapacityUnits" in native_input.keys() else Option_None()
+            Option_Some(native_input["CapacityUnits"])
+            if "CapacityUnits" in native_input.keys()
+            else Option_None()
         ),
         ReadCapacityUnits=(
             Option_Some(native_input["ReadCapacityUnits"])
@@ -565,12 +631,19 @@ def com_amazonaws_dynamodb_ConsumedCapacity(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_Capacity(
                             value
                         )
-                        for (key, value) in native_input["LocalSecondaryIndexes"].items()
+                        for (key, value) in native_input[
+                            "LocalSecondaryIndexes"
+                        ].items()
                     }
                 )
             )
@@ -583,12 +656,19 @@ def com_amazonaws_dynamodb_ConsumedCapacity(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_Capacity(
                             value
                         )
-                        for (key, value) in native_input["GlobalSecondaryIndexes"].items()
+                        for (key, value) in native_input[
+                            "GlobalSecondaryIndexes"
+                        ].items()
                     }
                 )
             )
@@ -611,7 +691,9 @@ def com_amazonaws_dynamodb_Capacity(native_input):
             else Option_None()
         ),
         CapacityUnits=(
-            Option_Some(native_input["CapacityUnits"]) if "CapacityUnits" in native_input.keys() else Option_None()
+            Option_Some(native_input["CapacityUnits"])
+            if "CapacityUnits" in native_input.keys()
+            else Option_None()
         ),
     )
 
@@ -624,7 +706,12 @@ def com_amazonaws_dynamodb_ItemCollectionMetrics(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -637,7 +724,14 @@ def com_amazonaws_dynamodb_ItemCollectionMetrics(native_input):
             else Option_None()
         ),
         SizeEstimateRangeGB=(
-            Option_Some(Seq([list_element for list_element in native_input["SizeEstimateRangeGB"]]))
+            Option_Some(
+                Seq(
+                    [
+                        list_element
+                        for list_element in native_input["SizeEstimateRangeGB"]
+                    ]
+                )
+            )
             if "SizeEstimateRangeGB" in native_input.keys()
             else Option_None()
         ),
@@ -650,14 +744,21 @@ def com_amazonaws_dynamodb_GetItemInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -672,7 +773,9 @@ def com_amazonaws_dynamodb_GetItemInput(native_input):
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(list_element.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
@@ -684,7 +787,9 @@ def com_amazonaws_dynamodb_GetItemInput(native_input):
             else Option_None()
         ),
         ConsistentRead=(
-            Option_Some(native_input["ConsistentRead"]) if "ConsistentRead" in native_input.keys() else Option_None()
+            Option_Some(native_input["ConsistentRead"])
+            if "ConsistentRead" in native_input.keys()
+            else Option_None()
         ),
         ReturnConsumedCapacity=(
             Option_Some(
@@ -701,7 +806,16 @@ def com_amazonaws_dynamodb_GetItemInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ProjectionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ProjectionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -715,17 +829,26 @@ def com_amazonaws_dynamodb_GetItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -743,7 +866,12 @@ def com_amazonaws_dynamodb_GetItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -772,7 +900,12 @@ def com_amazonaws_dynamodb_BatchWriteItemInput(native_input):
         RequestItems=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): Seq(
                     [
                         aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_WriteRequest(
@@ -833,7 +966,12 @@ def com_amazonaws_dynamodb_PutRequest(native_input):
         Item=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -848,7 +986,12 @@ def com_amazonaws_dynamodb_DeleteRequest(native_input):
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -866,7 +1009,12 @@ def com_amazonaws_dynamodb_BatchWriteItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             [
@@ -889,7 +1037,12 @@ def com_amazonaws_dynamodb_BatchWriteItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             [
@@ -899,7 +1052,9 @@ def com_amazonaws_dynamodb_BatchWriteItemOutput(native_input):
                                 for list_element in value
                             ]
                         )
-                        for (key, value) in native_input["ItemCollectionMetrics"].items()
+                        for (key, value) in native_input[
+                            "ItemCollectionMetrics"
+                        ].items()
                     }
                 )
             )
@@ -928,7 +1083,12 @@ def com_amazonaws_dynamodb_BatchGetItemInput(native_input):
         RequestItems=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_KeysAndAttributes(
                     value
                 )
@@ -955,7 +1115,12 @@ def com_amazonaws_dynamodb_KeysAndAttributes(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -974,7 +1139,9 @@ def com_amazonaws_dynamodb_KeysAndAttributes(native_input):
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(list_element.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
@@ -986,7 +1153,9 @@ def com_amazonaws_dynamodb_KeysAndAttributes(native_input):
             else Option_None()
         ),
         ConsistentRead=(
-            Option_Some(native_input["ConsistentRead"]) if "ConsistentRead" in native_input.keys() else Option_None()
+            Option_Some(native_input["ConsistentRead"])
+            if "ConsistentRead" in native_input.keys()
+            else Option_None()
         ),
         ProjectionExpression=(
             Option_Some(
@@ -994,7 +1163,16 @@ def com_amazonaws_dynamodb_KeysAndAttributes(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ProjectionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ProjectionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1008,17 +1186,26 @@ def com_amazonaws_dynamodb_KeysAndAttributes(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -1036,7 +1223,12 @@ def com_amazonaws_dynamodb_BatchGetItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             [
@@ -1046,7 +1238,10 @@ def com_amazonaws_dynamodb_BatchGetItemOutput(native_input):
                                             "".join(
                                                 [
                                                     chr(int.from_bytes(pair, "big"))
-                                                    for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                                                    for pair in zip(
+                                                        *[iter(key.encode("utf-16-be"))]
+                                                        * 2
+                                                    )
                                                 ]
                                             )
                                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
@@ -1071,7 +1266,12 @@ def com_amazonaws_dynamodb_BatchGetItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_KeysAndAttributes(
                             value
@@ -1106,7 +1306,9 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -1116,7 +1318,10 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["IndexName"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["IndexName"].encode("utf-16-be"))]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1132,7 +1337,9 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(list_element.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
@@ -1143,7 +1350,11 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
             if "AttributesToGet" in native_input.keys()
             else Option_None()
         ),
-        Limit=(Option_Some(native_input["Limit"]) if "Limit" in native_input.keys() else Option_None()),
+        Limit=(
+            Option_Some(native_input["Limit"])
+            if "Limit" in native_input.keys()
+            else Option_None()
+        ),
         Select=(
             Option_Some(
                 aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_Select(
@@ -1159,7 +1370,12 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_Condition(
                             value
@@ -1186,7 +1402,12 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -1208,16 +1429,31 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
             else Option_None()
         ),
         TotalSegments=(
-            Option_Some(native_input["TotalSegments"]) if "TotalSegments" in native_input.keys() else Option_None()
+            Option_Some(native_input["TotalSegments"])
+            if "TotalSegments" in native_input.keys()
+            else Option_None()
         ),
-        Segment=(Option_Some(native_input["Segment"]) if "Segment" in native_input.keys() else Option_None()),
+        Segment=(
+            Option_Some(native_input["Segment"])
+            if "Segment" in native_input.keys()
+            else Option_None()
+        ),
         ProjectionExpression=(
             Option_Some(
                 Seq(
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ProjectionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ProjectionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1231,7 +1467,16 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["FilterExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["FilterExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1245,17 +1490,26 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -1268,12 +1522,19 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -1281,7 +1542,9 @@ def com_amazonaws_dynamodb_ScanInput(native_input):
             else Option_None()
         ),
         ConsistentRead=(
-            Option_Some(native_input["ConsistentRead"]) if "ConsistentRead" in native_input.keys() else Option_None()
+            Option_Some(native_input["ConsistentRead"])
+            if "ConsistentRead" in native_input.keys()
+            else Option_None()
         ),
     )
 
@@ -1334,7 +1597,9 @@ def com_amazonaws_dynamodb_ScanOutput(native_input):
                                     "".join(
                                         [
                                             chr(int.from_bytes(pair, "big"))
-                                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                                            for pair in zip(
+                                                *[iter(key.encode("utf-16-be"))] * 2
+                                            )
                                         ]
                                     )
                                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
@@ -1350,9 +1615,15 @@ def com_amazonaws_dynamodb_ScanOutput(native_input):
             if "Items" in native_input.keys()
             else Option_None()
         ),
-        Count=(Option_Some(native_input["Count"]) if "Count" in native_input.keys() else Option_None()),
+        Count=(
+            Option_Some(native_input["Count"])
+            if "Count" in native_input.keys()
+            else Option_None()
+        ),
         ScannedCount=(
-            Option_Some(native_input["ScannedCount"]) if "ScannedCount" in native_input.keys() else Option_None()
+            Option_Some(native_input["ScannedCount"])
+            if "ScannedCount" in native_input.keys()
+            else Option_None()
         ),
         LastEvaluatedKey=(
             Option_Some(
@@ -1360,7 +1631,12 @@ def com_amazonaws_dynamodb_ScanOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -1390,7 +1666,9 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -1400,7 +1678,10 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["IndexName"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["IndexName"].encode("utf-16-be"))]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1425,7 +1706,9 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(list_element.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
@@ -1436,9 +1719,15 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
             if "AttributesToGet" in native_input.keys()
             else Option_None()
         ),
-        Limit=(Option_Some(native_input["Limit"]) if "Limit" in native_input.keys() else Option_None()),
+        Limit=(
+            Option_Some(native_input["Limit"])
+            if "Limit" in native_input.keys()
+            else Option_None()
+        ),
         ConsistentRead=(
-            Option_Some(native_input["ConsistentRead"]) if "ConsistentRead" in native_input.keys() else Option_None()
+            Option_Some(native_input["ConsistentRead"])
+            if "ConsistentRead" in native_input.keys()
+            else Option_None()
         ),
         KeyConditions=(
             Option_Some(
@@ -1446,7 +1735,12 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_Condition(
                             value
@@ -1464,7 +1758,12 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_Condition(
                             value
@@ -1496,7 +1795,12 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -1523,7 +1827,16 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ProjectionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ProjectionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1537,7 +1850,16 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["FilterExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["FilterExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1551,7 +1873,16 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["KeyConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["KeyConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1565,17 +1896,26 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -1588,12 +1928,19 @@ def com_amazonaws_dynamodb_QueryInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -1615,7 +1962,9 @@ def com_amazonaws_dynamodb_QueryOutput(native_input):
                                     "".join(
                                         [
                                             chr(int.from_bytes(pair, "big"))
-                                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                                            for pair in zip(
+                                                *[iter(key.encode("utf-16-be"))] * 2
+                                            )
                                         ]
                                     )
                                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
@@ -1631,9 +1980,15 @@ def com_amazonaws_dynamodb_QueryOutput(native_input):
             if "Items" in native_input.keys()
             else Option_None()
         ),
-        Count=(Option_Some(native_input["Count"]) if "Count" in native_input.keys() else Option_None()),
+        Count=(
+            Option_Some(native_input["Count"])
+            if "Count" in native_input.keys()
+            else Option_None()
+        ),
         ScannedCount=(
-            Option_Some(native_input["ScannedCount"]) if "ScannedCount" in native_input.keys() else Option_None()
+            Option_Some(native_input["ScannedCount"])
+            if "ScannedCount" in native_input.keys()
+            else Option_None()
         ),
         LastEvaluatedKey=(
             Option_Some(
@@ -1641,7 +1996,12 @@ def com_amazonaws_dynamodb_QueryOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -1699,7 +2059,16 @@ def com_amazonaws_dynamodb_TransactWriteItemsInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ClientRequestToken"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ClientRequestToken"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1756,7 +2125,12 @@ def com_amazonaws_dynamodb_ConditionCheck(native_input):
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -1767,7 +2141,9 @@ def com_amazonaws_dynamodb_ConditionCheck(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -1775,7 +2151,10 @@ def com_amazonaws_dynamodb_ConditionCheck(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["ConditionExpression"].encode("utf-16-be"))]
+                        * 2
+                    )
                 ]
             )
         ),
@@ -1785,17 +2164,26 @@ def com_amazonaws_dynamodb_ConditionCheck(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -1808,12 +2196,19 @@ def com_amazonaws_dynamodb_ConditionCheck(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -1837,7 +2232,12 @@ def com_amazonaws_dynamodb_Put(native_input):
         Item=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -1848,7 +2248,9 @@ def com_amazonaws_dynamodb_Put(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -1858,7 +2260,16 @@ def com_amazonaws_dynamodb_Put(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1872,17 +2283,26 @@ def com_amazonaws_dynamodb_Put(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -1895,12 +2315,19 @@ def com_amazonaws_dynamodb_Put(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -1924,7 +2351,12 @@ def com_amazonaws_dynamodb_Delete(native_input):
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -1935,7 +2367,9 @@ def com_amazonaws_dynamodb_Delete(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -1945,7 +2379,16 @@ def com_amazonaws_dynamodb_Delete(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -1959,17 +2402,26 @@ def com_amazonaws_dynamodb_Delete(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -1982,12 +2434,19 @@ def com_amazonaws_dynamodb_Delete(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -2011,7 +2470,12 @@ def com_amazonaws_dynamodb_Update(native_input):
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -2022,7 +2486,10 @@ def com_amazonaws_dynamodb_Update(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["UpdateExpression"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["UpdateExpression"].encode("utf-16-be"))]
+                        * 2
+                    )
                 ]
             )
         ),
@@ -2030,7 +2497,9 @@ def com_amazonaws_dynamodb_Update(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -2040,7 +2509,16 @@ def com_amazonaws_dynamodb_Update(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2054,17 +2532,26 @@ def com_amazonaws_dynamodb_Update(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -2077,12 +2564,19 @@ def com_amazonaws_dynamodb_Update(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -2123,7 +2617,12 @@ def com_amazonaws_dynamodb_TransactWriteItemsOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             [
@@ -2133,7 +2632,9 @@ def com_amazonaws_dynamodb_TransactWriteItemsOutput(native_input):
                                 for list_element in value
                             ]
                         )
-                        for (key, value) in native_input["ItemCollectionMetrics"].items()
+                        for (key, value) in native_input[
+                            "ItemCollectionMetrics"
+                        ].items()
                     }
                 )
             )
@@ -2149,14 +2650,21 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -2169,7 +2677,12 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValueUpdate(
                             value
@@ -2187,7 +2700,12 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_ExpectedAttributeValue(
                             value
@@ -2241,7 +2759,16 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["UpdateExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["UpdateExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2255,7 +2782,16 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2269,17 +2805,26 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -2292,12 +2837,19 @@ def com_amazonaws_dynamodb_UpdateItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -2359,7 +2911,12 @@ def com_amazonaws_dynamodb_UpdateItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -2398,14 +2955,21 @@ def com_amazonaws_dynamodb_DeleteItemInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -2418,7 +2982,12 @@ def com_amazonaws_dynamodb_DeleteItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_ExpectedAttributeValue(
                             value
@@ -2472,7 +3041,16 @@ def com_amazonaws_dynamodb_DeleteItemInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ConditionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ConditionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2486,17 +3064,26 @@ def com_amazonaws_dynamodb_DeleteItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -2509,12 +3096,19 @@ def com_amazonaws_dynamodb_DeleteItemInput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
                         )
-                        for (key, value) in native_input["ExpressionAttributeValues"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeValues"
+                        ].items()
                     }
                 )
             )
@@ -2541,7 +3135,12 @@ def com_amazonaws_dynamodb_DeleteItemOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -2609,7 +3208,12 @@ def com_amazonaws_dynamodb_Get(native_input):
         Key=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -2620,7 +3224,9 @@ def com_amazonaws_dynamodb_Get(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["TableName"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -2630,7 +3236,16 @@ def com_amazonaws_dynamodb_Get(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ProjectionExpression"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ProjectionExpression"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2644,17 +3259,26 @@ def com_amazonaws_dynamodb_Get(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): Seq(
                             "".join(
                                 [
                                     chr(int.from_bytes(pair, "big"))
-                                    for pair in zip(*[iter(value.encode("utf-16-be"))] * 2)
+                                    for pair in zip(
+                                        *[iter(value.encode("utf-16-be"))] * 2
+                                    )
                                 ]
                             )
                         )
-                        for (key, value) in native_input["ExpressionAttributeNames"].items()
+                        for (key, value) in native_input[
+                            "ExpressionAttributeNames"
+                        ].items()
                     }
                 )
             )
@@ -2705,7 +3329,12 @@ def com_amazonaws_dynamodb_ItemResponse(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -2726,7 +3355,9 @@ def com_amazonaws_dynamodb_ExecuteStatementInput(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["Statement"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["Statement"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -2745,7 +3376,9 @@ def com_amazonaws_dynamodb_ExecuteStatementInput(native_input):
             else Option_None()
         ),
         ConsistentRead=(
-            Option_Some(native_input["ConsistentRead"]) if "ConsistentRead" in native_input.keys() else Option_None()
+            Option_Some(native_input["ConsistentRead"])
+            if "ConsistentRead" in native_input.keys()
+            else Option_None()
         ),
         NextToken=(
             Option_Some(
@@ -2753,7 +3386,10 @@ def com_amazonaws_dynamodb_ExecuteStatementInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["NextToken"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["NextToken"].encode("utf-16-be"))]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2770,7 +3406,11 @@ def com_amazonaws_dynamodb_ExecuteStatementInput(native_input):
             if "ReturnConsumedCapacity" in native_input.keys()
             else Option_None()
         ),
-        Limit=(Option_Some(native_input["Limit"]) if "Limit" in native_input.keys() else Option_None()),
+        Limit=(
+            Option_Some(native_input["Limit"])
+            if "Limit" in native_input.keys()
+            else Option_None()
+        ),
         ReturnValuesOnConditionCheckFailure=(
             Option_Some(
                 aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(
@@ -2795,7 +3435,9 @@ def com_amazonaws_dynamodb_ExecuteStatementOutput(native_input):
                                     "".join(
                                         [
                                             chr(int.from_bytes(pair, "big"))
-                                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                                            for pair in zip(
+                                                *[iter(key.encode("utf-16-be"))] * 2
+                                            )
                                         ]
                                     )
                                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
@@ -2817,7 +3459,10 @@ def com_amazonaws_dynamodb_ExecuteStatementOutput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["NextToken"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["NextToken"].encode("utf-16-be"))]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2840,7 +3485,12 @@ def com_amazonaws_dynamodb_ExecuteStatementOutput(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -2883,7 +3533,9 @@ def com_amazonaws_dynamodb_BatchStatementRequest(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["Statement"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["Statement"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -2902,7 +3554,9 @@ def com_amazonaws_dynamodb_BatchStatementRequest(native_input):
             else Option_None()
         ),
         ConsistentRead=(
-            Option_Some(native_input["ConsistentRead"]) if "ConsistentRead" in native_input.keys() else Option_None()
+            Option_Some(native_input["ConsistentRead"])
+            if "ConsistentRead" in native_input.keys()
+            else Option_None()
         ),
         ReturnValuesOnConditionCheckFailure=(
             Option_Some(
@@ -2966,7 +3620,10 @@ def com_amazonaws_dynamodb_BatchStatementResponse(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["TableName"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["TableName"].encode("utf-16-be"))]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -2980,7 +3637,12 @@ def com_amazonaws_dynamodb_BatchStatementResponse(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -3012,7 +3674,9 @@ def com_amazonaws_dynamodb_BatchStatementError(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["Message"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[iter(native_input["Message"].encode("utf-16-be"))] * 2
+                            )
                         ]
                     )
                 )
@@ -3026,7 +3690,12 @@ def com_amazonaws_dynamodb_BatchStatementError(native_input):
                     {
                         Seq(
                             "".join(
-                                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                                [
+                                    chr(int.from_bytes(pair, "big"))
+                                    for pair in zip(
+                                        *[iter(key.encode("utf-16-be"))] * 2
+                                    )
+                                ]
                             )
                         ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                             value
@@ -3085,7 +3754,16 @@ def com_amazonaws_dynamodb_ExecuteTransactionInput(native_input):
                     "".join(
                         [
                             chr(int.from_bytes(pair, "big"))
-                            for pair in zip(*[iter(native_input["ClientRequestToken"].encode("utf-16-be"))] * 2)
+                            for pair in zip(
+                                *[
+                                    iter(
+                                        native_input["ClientRequestToken"].encode(
+                                            "utf-16-be"
+                                        )
+                                    )
+                                ]
+                                * 2
+                            )
                         ]
                     )
                 )
@@ -3111,7 +3789,9 @@ def com_amazonaws_dynamodb_ParameterizedStatement(native_input):
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input["Statement"].encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input["Statement"].encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),

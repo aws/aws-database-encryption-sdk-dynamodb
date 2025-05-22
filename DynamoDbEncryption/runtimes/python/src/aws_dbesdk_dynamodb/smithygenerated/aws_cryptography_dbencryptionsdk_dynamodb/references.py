@@ -50,7 +50,9 @@ class IDynamoDbKeyBranchKeyIdSupplier(metaclass=abc.ABCMeta):
 
     @classmethod
     def __subclasshook__(cls, subclass):
-        return hasattr(subclass, "GetBranchKeyIdFromDdbKey") and callable(subclass.GetBranchKeyIdFromDdbKey)
+        return hasattr(subclass, "GetBranchKeyIdFromDdbKey") and callable(
+            subclass.GetBranchKeyIdFromDdbKey
+        )
 
     @abc.abstractmethod
     def get_branch_key_id_from_ddb_key(
@@ -127,7 +129,9 @@ class DynamoDbKeyBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier):
                 _deserialize_error as aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error,
             )
 
-            raise aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(dafny_output.error)
+            raise aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(
+                dafny_output.error
+            )
 
         else:
             return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyOutput(

@@ -25,7 +25,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                 "".join(
                     [
                         chr(int.from_bytes(pair, "big"))
-                        for pair in zip(*[iter(native_input["S"].encode("utf-16-be"))] * 2)
+                        for pair in zip(
+                            *[iter(native_input["S"].encode("utf-16-be"))] * 2
+                        )
                     ]
                 )
             )
@@ -36,7 +38,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                 "".join(
                     [
                         chr(int.from_bytes(pair, "big"))
-                        for pair in zip(*[iter(native_input["N"].encode("utf-16-be"))] * 2)
+                        for pair in zip(
+                            *[iter(native_input["N"].encode("utf-16-be"))] * 2
+                        )
                     ]
                 )
             )
@@ -51,7 +55,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                for pair in zip(
+                                    *[iter(list_element.encode("utf-16-be"))] * 2
+                                )
                             ]
                         )
                     )
@@ -67,7 +73,9 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                for pair in zip(
+                                    *[iter(list_element.encode("utf-16-be"))] * 2
+                                )
                             ]
                         )
                     )
@@ -76,14 +84,19 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
             )
         )
     elif "BS" in native_input.keys():
-        AttributeValue_union_value = AttributeValue_BS(Seq([Seq(list_element) for list_element in native_input["BS"]]))
+        AttributeValue_union_value = AttributeValue_BS(
+            Seq([Seq(list_element) for list_element in native_input["BS"]])
+        )
     elif "M" in native_input.keys():
         AttributeValue_union_value = AttributeValue_M(
             Map(
                 {
                     Seq(
                         "".join(
-                            [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)]
+                            [
+                                chr(int.from_bytes(pair, "big"))
+                                for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                            ]
                         )
                     ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                         value
@@ -108,6 +121,8 @@ def com_amazonaws_dynamodb_AttributeValue(native_input):
     elif "BOOL" in native_input.keys():
         AttributeValue_union_value = AttributeValue_BOOL(native_input["BOOL"])
     else:
-        raise ValueError("No recognized union value in union type: " + str(native_input))
+        raise ValueError(
+            "No recognized union value in union type: " + str(native_input)
+        )
 
     return AttributeValue_union_value

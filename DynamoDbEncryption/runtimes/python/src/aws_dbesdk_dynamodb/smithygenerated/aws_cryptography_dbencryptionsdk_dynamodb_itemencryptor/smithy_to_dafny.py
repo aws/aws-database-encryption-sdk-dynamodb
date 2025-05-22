@@ -30,7 +30,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemInput(
         plaintextItem=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -47,7 +52,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemInput(
         encryptedItem=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -64,7 +74,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_EncryptItemOutput(
         encryptedItem=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -90,7 +105,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_ParsedHeader(native_
         attributeActionsOnEncrypt=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )
@@ -123,7 +143,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_ParsedHeader(native_
         selectorContext=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -140,7 +165,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DecryptItemOutput(
         plaintextItem=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.aws_sdk_to_dafny.com_amazonaws_dynamodb_AttributeValue(
                     value
                 )
@@ -175,7 +205,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.logical_table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.logical_table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -183,7 +215,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.partition_key_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.partition_key_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -194,7 +228,16 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
                         "".join(
                             [
                                 chr(int.from_bytes(pair, "big"))
-                                for pair in zip(*[iter(native_input.sort_key_name.encode("utf-16-be"))] * 2)
+                                for pair in zip(
+                                    *[
+                                        iter(
+                                            native_input.sort_key_name.encode(
+                                                "utf-16-be"
+                                            )
+                                        )
+                                    ]
+                                    * 2
+                                )
                             ]
                         )
                     )
@@ -206,7 +249,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         attributeActionsOnEncrypt=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )
@@ -222,7 +270,10 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
                                 "".join(
                                     [
                                         chr(int.from_bytes(pair, "big"))
-                                        for pair in zip(*[iter(list_element.encode("utf-16-be"))] * 2)
+                                        for pair in zip(
+                                            *[iter(list_element.encode("utf-16-be"))]
+                                            * 2
+                                        )
                                     ]
                                 )
                             )
@@ -242,7 +293,14 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
                             [
                                 chr(int.from_bytes(pair, "big"))
                                 for pair in zip(
-                                    *[iter(native_input.allowed_unsigned_attribute_prefix.encode("utf-16-be"))] * 2
+                                    *[
+                                        iter(
+                                            native_input.allowed_unsigned_attribute_prefix.encode(
+                                                "utf-16-be"
+                                            )
+                                        )
+                                    ]
+                                    * 2
                                 )
                             ]
                         )

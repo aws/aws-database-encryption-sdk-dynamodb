@@ -46,14 +46,21 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         plaintextStructure=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_StructuredDataTerminal(
                     value
                 )
@@ -63,7 +70,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureInput(
         cryptoSchema=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )
@@ -135,14 +147,21 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
         encryptedStructure=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_StructuredDataTerminal(
                     value
                 )
@@ -152,7 +171,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureInput(
         authenticateSchema=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_AuthenticateAction(
                     value
                 )
@@ -200,7 +224,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptPathStructureIn
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -273,7 +299,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_PathSegment(native_inp
             )
         )
     else:
-        raise ValueError("No recognized union value in union type: " + str(native_input))
+        raise ValueError(
+            "No recognized union value in union type: " + str(native_input)
+        )
 
     return PathSegment_union_value
 
@@ -284,7 +312,10 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_StructureSegment(
     return DafnyStructureSegment(
         key=Seq(
             "".join(
-                [chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.key.encode("utf-16-be"))] * 2)]
+                [
+                    chr(int.from_bytes(pair, "big"))
+                    for pair in zip(*[iter(native_input.key.encode("utf-16-be"))] * 2)
+                ]
             )
         ),
     )
@@ -298,7 +329,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptPathStructureIn
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -357,7 +390,9 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_ResolveAuthActionsInpu
             "".join(
                 [
                     chr(int.from_bytes(pair, "big"))
-                    for pair in zip(*[iter(native_input.table_name.encode("utf-16-be"))] * 2)
+                    for pair in zip(
+                        *[iter(native_input.table_name.encode("utf-16-be"))] * 2
+                    )
                 ]
             )
         ),
@@ -380,7 +415,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureOutput
         encryptedStructure=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_StructuredDataTerminal(
                     value
                 )
@@ -390,7 +430,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_EncryptStructureOutput
         cryptoSchema=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )
@@ -438,7 +483,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureOutput
         plaintextStructure=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_StructuredDataTerminal(
                     value
                 )
@@ -448,7 +498,12 @@ def aws_cryptography_dbencryptionsdk_structuredencryption_DecryptStructureOutput
         cryptoSchema=Map(
             {
                 Seq(
-                    "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)])
+                    "".join(
+                        [
+                            chr(int.from_bytes(pair, "big"))
+                            for pair in zip(*[iter(key.encode("utf-16-be"))] * 2)
+                        ]
+                    )
                 ): aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_structuredencryption.smithy_to_dafny.aws_cryptography_dbencryptionsdk_structuredencryption_CryptoAction(
                     value
                 )

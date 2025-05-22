@@ -114,7 +114,9 @@ def _deserialize_batch_write_item_input_transform(input: DafnyResponse, config: 
     )
 
 
-def _deserialize_batch_write_item_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_batch_write_item_output_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -177,7 +179,9 @@ def _deserialize_query_output_transform(input: DafnyResponse, config: Config):
     )
 
 
-def _deserialize_transact_write_items_input_transform(input: DafnyResponse, config: Config):
+def _deserialize_transact_write_items_input_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -186,7 +190,9 @@ def _deserialize_transact_write_items_input_transform(input: DafnyResponse, conf
     )
 
 
-def _deserialize_transact_write_items_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_transact_write_items_output_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -231,7 +237,9 @@ def _deserialize_delete_item_output_transform(input: DafnyResponse, config: Conf
     )
 
 
-def _deserialize_transact_get_items_input_transform(input: DafnyResponse, config: Config):
+def _deserialize_transact_get_items_input_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -240,7 +248,9 @@ def _deserialize_transact_get_items_input_transform(input: DafnyResponse, config
     )
 
 
-def _deserialize_transact_get_items_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_transact_get_items_output_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -249,7 +259,9 @@ def _deserialize_transact_get_items_output_transform(input: DafnyResponse, confi
     )
 
 
-def _deserialize_execute_statement_input_transform(input: DafnyResponse, config: Config):
+def _deserialize_execute_statement_input_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -258,7 +270,9 @@ def _deserialize_execute_statement_input_transform(input: DafnyResponse, config:
     )
 
 
-def _deserialize_execute_statement_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_execute_statement_output_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -267,7 +281,9 @@ def _deserialize_execute_statement_output_transform(input: DafnyResponse, config
     )
 
 
-def _deserialize_batch_execute_statement_input_transform(input: DafnyResponse, config: Config):
+def _deserialize_batch_execute_statement_input_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -276,7 +292,9 @@ def _deserialize_batch_execute_statement_input_transform(input: DafnyResponse, c
     )
 
 
-def _deserialize_batch_execute_statement_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_batch_execute_statement_output_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -285,7 +303,9 @@ def _deserialize_batch_execute_statement_output_transform(input: DafnyResponse, 
     )
 
 
-def _deserialize_execute_transaction_input_transform(input: DafnyResponse, config: Config):
+def _deserialize_execute_transaction_input_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -294,7 +314,9 @@ def _deserialize_execute_transaction_input_transform(input: DafnyResponse, confi
     )
 
 
-def _deserialize_execute_transaction_output_transform(input: DafnyResponse, config: Config):
+def _deserialize_execute_transaction_output_transform(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -323,7 +345,9 @@ def _deserialize_error(error: Error) -> ServiceError:
             list=[_deserialize_error(dafny_e) for dafny_e in error.list],
         )
     elif error.is_DynamoDbEncryptionTransformsException:
-        return DynamoDbEncryptionTransformsException(message=_dafny.string_of(error.message))
+        return DynamoDbEncryptionTransformsException(
+            message=_dafny.string_of(error.message)
+        )
     elif error.is_AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor:
         return DynamoDbItemEncryptor(
             aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_deserialize_error(
@@ -338,13 +362,19 @@ def _deserialize_error(error: Error) -> ServiceError:
         )
     elif error.is_AwsCryptographyDbEncryptionSdkDynamoDb:
         return DynamoDbEncryption(
-            aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(error.AwsCryptographyDbEncryptionSdkDynamoDb)
+            aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkDynamoDb
+            )
         )
     elif error.is_AwsCryptographyMaterialProviders:
         return AwsCryptographicMaterialProviders(
-            aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders)
+            aws_cryptography_materialproviders_deserialize_error(
+                error.AwsCryptographyMaterialProviders
+            )
         )
     elif error.is_ComAmazonawsDynamodb:
-        return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
+        return ComAmazonawsDynamodb(
+            message=_dafny.string_of(error.ComAmazonawsDynamodb.message)
+        )
     else:
         return OpaqueError(obj=error)

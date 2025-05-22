@@ -44,7 +44,9 @@ from ..aws_cryptography_dbencryptionsdk_structuredencryption.deserialize import 
 from .config import Config
 
 
-def _deserialize_create_dynamo_db_encryption_branch_key_id_supplier(input: DafnyResponse, config: Config):
+def _deserialize_create_dynamo_db_encryption_branch_key_id_supplier(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -53,7 +55,9 @@ def _deserialize_create_dynamo_db_encryption_branch_key_id_supplier(input: Dafny
     )
 
 
-def _deserialize_get_encrypted_data_key_description(input: DafnyResponse, config: Config):
+def _deserialize_get_encrypted_data_key_description(
+    input: DafnyResponse, config: Config
+):
 
     if input.IsFailure():
         return _deserialize_error(input.error)
@@ -82,15 +86,23 @@ def _deserialize_error(error: Error) -> ServiceError:
         )
     elif error.is_AwsCryptographyPrimitives:
         return AwsCryptographicPrimitives(
-            aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives)
+            aws_cryptography_primitives_deserialize_error(
+                error.AwsCryptographyPrimitives
+            )
         )
     elif error.is_AwsCryptographyMaterialProviders:
         return AwsCryptographicMaterialProviders(
-            aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders)
+            aws_cryptography_materialproviders_deserialize_error(
+                error.AwsCryptographyMaterialProviders
+            )
         )
     elif error.is_AwsCryptographyKeyStore:
-        return KeyStore(aws_cryptography_keystore_deserialize_error(error.AwsCryptographyKeyStore))
+        return KeyStore(
+            aws_cryptography_keystore_deserialize_error(error.AwsCryptographyKeyStore)
+        )
     elif error.is_ComAmazonawsDynamodb:
-        return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
+        return ComAmazonawsDynamodb(
+            message=_dafny.string_of(error.ComAmazonawsDynamodb.message)
+        )
     else:
         return OpaqueError(obj=error)

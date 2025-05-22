@@ -22,7 +22,9 @@ def set_config_impl(config: Config):
             default__,
         )
 
-        config.dafnyImplInterface.impl = default__.DynamoDbEncryption(smithy_config_to_dafny_config(config)).value
+        config.dafnyImplInterface.impl = default__.DynamoDbEncryption(
+            smithy_config_to_dafny_config(config)
+        ).value
     config.retry_strategy = NoRetriesStrategy()
 
 
