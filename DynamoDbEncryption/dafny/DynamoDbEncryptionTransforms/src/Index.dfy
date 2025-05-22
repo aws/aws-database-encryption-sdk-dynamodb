@@ -5,9 +5,8 @@ include "DdbMiddlewareConfig.dfy"
 include "AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations.dfy"
 include "../../DynamoDbEncryption/src/ConfigToInfo.dfy"
 
-module
-  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny" }
-  DynamoDbEncryptionTransforms refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
+module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny" } DynamoDbEncryptionTransforms
+  refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
 {
   import opened DdbMiddlewareConfig
   import opened StandardLibrary
