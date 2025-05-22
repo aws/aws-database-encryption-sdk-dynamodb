@@ -48,7 +48,7 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
         maybe_actions = InternalLegacyOverride.legacyActions(legacy_override.attributeActionsOnEncrypt)
         if maybe_actions.is_Failure:
             return InternalLegacyOverride.CreateBuildFailure(maybe_actions.error())
-        
+
         # TODO: Implement this
 
     @staticmethod
@@ -64,7 +64,7 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
             return InternalLegacyOverride.CreateBuildSuccess(encryption_context)
         except Exception as e:
             return InternalLegacyOverride.CreateBuildFailure(InternalLegacyOverride.CreateError(str(e)))
-            
+
     @staticmethod
     def legacyActions(attribute_actions_on_encrypt):
         # TODO: Implement this

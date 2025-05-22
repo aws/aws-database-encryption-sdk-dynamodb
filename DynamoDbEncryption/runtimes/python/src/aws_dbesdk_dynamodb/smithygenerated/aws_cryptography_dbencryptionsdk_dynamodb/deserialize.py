@@ -46,15 +46,21 @@ from .config import Config
 
 def _deserialize_create_dynamo_db_encryption_branch_key_id_supplier(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(
+        input.value
+    )
+
 
 def _deserialize_get_encrypted_data_key_description(input: DafnyResponse, config: Config):
 
-  if input.IsFailure():
-      return _deserialize_error(input.error)
-  return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutput(input.value)
+    if input.IsFailure():
+        return _deserialize_error(input.error)
+    return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutput(
+        input.value
+    )
+
 
 def _deserialize_error(error: Error) -> ServiceError:
     if error.is_Opaque:
@@ -67,13 +73,21 @@ def _deserialize_error(error: Error) -> ServiceError:
             list=[_deserialize_error(dafny_e) for dafny_e in error.list],
         )
     elif error.is_DynamoDbEncryptionException:
-      return DynamoDbEncryptionException(message=_dafny.string_of(error.message))
+        return DynamoDbEncryptionException(message=_dafny.string_of(error.message))
     elif error.is_AwsCryptographyDbEncryptionSdkStructuredEncryption:
-        return StructuredEncryption(aws_cryptography_dbencryptionsdk_structuredencryption_deserialize_error(error.AwsCryptographyDbEncryptionSdkStructuredEncryption))
+        return StructuredEncryption(
+            aws_cryptography_dbencryptionsdk_structuredencryption_deserialize_error(
+                error.AwsCryptographyDbEncryptionSdkStructuredEncryption
+            )
+        )
     elif error.is_AwsCryptographyPrimitives:
-        return AwsCryptographicPrimitives(aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives))
+        return AwsCryptographicPrimitives(
+            aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives)
+        )
     elif error.is_AwsCryptographyMaterialProviders:
-        return AwsCryptographicMaterialProviders(aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders))
+        return AwsCryptographicMaterialProviders(
+            aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders)
+        )
     elif error.is_AwsCryptographyKeyStore:
         return KeyStore(aws_cryptography_keystore_deserialize_error(error.AwsCryptographyKeyStore))
     elif error.is_ComAmazonawsDynamodb:

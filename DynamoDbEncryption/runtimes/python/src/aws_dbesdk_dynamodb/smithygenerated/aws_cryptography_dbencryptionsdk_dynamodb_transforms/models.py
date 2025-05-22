@@ -77,9 +77,7 @@ class ResolveAttributesInput:
         :param version: The beacon version to use. Defaults to 'writeVersion'.
         """
         if (table_name is not None) and (len(table_name) < 3):
-            raise ValueError(
-                "The size of table_name must be greater than or equal to 3"
-            )
+            raise ValueError("The size of table_name must be greater than or equal to 3")
 
         if (table_name is not None) and (len(table_name) > 255):
             raise ValueError("The size of table_name must be less than or equal to 255")

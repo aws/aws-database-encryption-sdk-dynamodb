@@ -14,11 +14,12 @@ from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_mater
 
 
 class CreateDynamoDbEncryptionBranchKeyIdSupplierInput:
-    ddb_key_branch_key_id_supplier: 'aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.DynamoDbKeyBranchKeyIdSupplier'
+    ddb_key_branch_key_id_supplier: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.DynamoDbKeyBranchKeyIdSupplier"
+
     def __init__(
         self,
         *,
-        ddb_key_branch_key_id_supplier: 'aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.DynamoDbKeyBranchKeyIdSupplier',
+        ddb_key_branch_key_id_supplier: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.DynamoDbKeyBranchKeyIdSupplier",
     ):
         """Inputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id
         Supplier
@@ -31,21 +32,22 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierInput:
         self.ddb_key_branch_key_id_supplier = ddb_key_branch_key_id_supplier
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierInput to a dictionary.
-
-        """
+        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierInput to a dictionary."""
         return {
             "ddb_key_branch_key_id_supplier": self.ddb_key_branch_key_id_supplier.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierInput":
-        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierInput from a dictionary.
+        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierInput from a dictionary."""
+        from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references import (
+            DynamoDbKeyBranchKeyIdSupplier,
+        )
 
-        """
-        from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references import DynamoDbKeyBranchKeyIdSupplier
         kwargs: Dict[str, Any] = {
-            "ddb_key_branch_key_id_supplier": DynamoDbKeyBranchKeyIdSupplier.from_dict(d["ddb_key_branch_key_id_supplier"]),
+            "ddb_key_branch_key_id_supplier": DynamoDbKeyBranchKeyIdSupplier.from_dict(
+                d["ddb_key_branch_key_id_supplier"]
+            ),
         }
 
         return CreateDynamoDbEncryptionBranchKeyIdSupplierInput(**kwargs)
@@ -60,18 +62,19 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CreateDynamoDbEncryptionBranchKeyIdSupplierInput):
             return False
-        attributes: list[str] = ['ddb_key_branch_key_id_supplier',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "ddb_key_branch_key_id_supplier",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
-    branch_key_id_supplier: 'aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier'
+    branch_key_id_supplier: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier"
+
     def __init__(
         self,
         *,
-        branch_key_id_supplier: 'aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier',
+        branch_key_id_supplier: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.BranchKeyIdSupplier",
     ):
         """Outputs for creating a Branch Key Supplier from a DynamoDB Key Branch Key Id
         Supplier
@@ -82,19 +85,18 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
         self.branch_key_id_supplier = branch_key_id_supplier
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierOutput to a dictionary.
-
-        """
+        """Converts the CreateDynamoDbEncryptionBranchKeyIdSupplierOutput to a dictionary."""
         return {
             "branch_key_id_supplier": self.branch_key_id_supplier.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "CreateDynamoDbEncryptionBranchKeyIdSupplierOutput":
-        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierOutput from a dictionary.
+        """Creates a CreateDynamoDbEncryptionBranchKeyIdSupplierOutput from a dictionary."""
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
+            BranchKeyIdSupplier,
+        )
 
-        """
-        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import BranchKeyIdSupplier
         kwargs: Dict[str, Any] = {
             "branch_key_id_supplier": BranchKeyIdSupplier.from_dict(d["branch_key_id_supplier"]),
         }
@@ -111,14 +113,15 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CreateDynamoDbEncryptionBranchKeyIdSupplierOutput):
             return False
-        attributes: list[str] = ['branch_key_id_supplier',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "branch_key_id_supplier",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetBranchKeyIdFromDdbKeyOutput:
     branch_key_id: str
+
     def __init__(
         self,
         *,
@@ -133,18 +136,14 @@ class GetBranchKeyIdFromDdbKeyOutput:
         self.branch_key_id = branch_key_id
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetBranchKeyIdFromDdbKeyOutput to a dictionary.
-
-        """
+        """Converts the GetBranchKeyIdFromDdbKeyOutput to a dictionary."""
         return {
             "branch_key_id": self.branch_key_id,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetBranchKeyIdFromDdbKeyOutput":
-        """Creates a GetBranchKeyIdFromDdbKeyOutput from a dictionary.
-
-        """
+        """Creates a GetBranchKeyIdFromDdbKeyOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "branch_key_id": d["branch_key_id"],
         }
@@ -161,17 +160,18 @@ class GetBranchKeyIdFromDdbKeyOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetBranchKeyIdFromDdbKeyOutput):
             return False
-        attributes: list[str] = ['branch_key_id',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "branch_key_id",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptedDataKeyDescription:
     key_provider_id: str
     key_provider_info: Optional[str]
     branch_key_id: Optional[str]
     branch_key_version: Optional[str]
+
     def __init__(
         self,
         *,
@@ -192,9 +192,7 @@ class EncryptedDataKeyDescription:
         self.branch_key_version = branch_key_version
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptedDataKeyDescription to a dictionary.
-
-        """
+        """Converts the EncryptedDataKeyDescription to a dictionary."""
         d: Dict[str, Any] = {
             "key_provider_id": self.key_provider_id,
         }
@@ -212,9 +210,7 @@ class EncryptedDataKeyDescription:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptedDataKeyDescription":
-        """Creates a EncryptedDataKeyDescription from a dictionary.
-
-        """
+        """Creates a EncryptedDataKeyDescription from a dictionary."""
         kwargs: Dict[str, Any] = {
             "key_provider_id": d["key_provider_id"],
         }
@@ -249,14 +245,18 @@ class EncryptedDataKeyDescription:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptedDataKeyDescription):
             return False
-        attributes: list[str] = ['key_provider_id','key_provider_info','branch_key_id','branch_key_version',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "key_provider_id",
+            "key_provider_info",
+            "branch_key_id",
+            "branch_key_version",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetEncryptedDataKeyDescriptionOutput:
     encrypted_data_key_description_output: list[EncryptedDataKeyDescription]
+
     def __init__(
         self,
         *,
@@ -270,20 +270,20 @@ class GetEncryptedDataKeyDescriptionOutput:
         self.encrypted_data_key_description_output = encrypted_data_key_description_output
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetEncryptedDataKeyDescriptionOutput to a dictionary.
-
-        """
+        """Converts the GetEncryptedDataKeyDescriptionOutput to a dictionary."""
         return {
-            "encrypted_data_key_description_output": _encrypted_data_key_description_list_as_dict(self.encrypted_data_key_description_output),
+            "encrypted_data_key_description_output": _encrypted_data_key_description_list_as_dict(
+                self.encrypted_data_key_description_output
+            ),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetEncryptedDataKeyDescriptionOutput":
-        """Creates a GetEncryptedDataKeyDescriptionOutput from a dictionary.
-
-        """
+        """Creates a GetEncryptedDataKeyDescriptionOutput from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "encrypted_data_key_description_output": _encrypted_data_key_description_list_from_dict(d["encrypted_data_key_description_output"]),
+            "encrypted_data_key_description_output": _encrypted_data_key_description_list_from_dict(
+                d["encrypted_data_key_description_output"]
+            ),
         }
 
         return GetEncryptedDataKeyDescriptionOutput(**kwargs)
@@ -298,18 +298,19 @@ class GetEncryptedDataKeyDescriptionOutput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetEncryptedDataKeyDescriptionOutput):
             return False
-        attributes: list[str] = ['encrypted_data_key_description_output',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "encrypted_data_key_description_output",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetBranchKeyIdFromDdbKeyInput:
-    ddb_key: 'dict[str, dict[str, Any]]'
+    ddb_key: "dict[str, dict[str, Any]]"
+
     def __init__(
         self,
         *,
-        ddb_key: 'dict[str, dict[str, Any]]',
+        ddb_key: "dict[str, dict[str, Any]]",
     ):
         """Inputs for getting the Branch Key that should be used for wrapping and
         unwrapping data keys.
@@ -321,18 +322,14 @@ class GetBranchKeyIdFromDdbKeyInput:
         self.ddb_key = ddb_key
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetBranchKeyIdFromDdbKeyInput to a dictionary.
-
-        """
+        """Converts the GetBranchKeyIdFromDdbKeyInput to a dictionary."""
         return {
             "ddb_key": self.ddb_key,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetBranchKeyIdFromDdbKeyInput":
-        """Creates a GetBranchKeyIdFromDdbKeyInput from a dictionary.
-
-        """
+        """Creates a GetBranchKeyIdFromDdbKeyInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "ddb_key": d["ddb_key"],
         }
@@ -349,15 +346,15 @@ class GetBranchKeyIdFromDdbKeyInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetBranchKeyIdFromDdbKeyInput):
             return False
-        attributes: list[str] = ['ddb_key',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "ddb_key",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
-class GetEncryptedDataKeyDescriptionUnionHeader():
-    """A binary header value.
-    """
+
+class GetEncryptedDataKeyDescriptionUnionHeader:
+    """A binary header value."""
+
     def __init__(self, value: bytes | bytearray):
         self.value = value
 
@@ -366,7 +363,7 @@ class GetEncryptedDataKeyDescriptionUnionHeader():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetEncryptedDataKeyDescriptionUnionHeader":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return GetEncryptedDataKeyDescriptionUnionHeader(d["header"])
@@ -379,10 +376,11 @@ class GetEncryptedDataKeyDescriptionUnionHeader():
             return False
         return self.value == other.value
 
-class GetEncryptedDataKeyDescriptionUnionItem():
-    """A DynamoDB item.
-    """
-    def __init__(self, value: 'dict[str, dict[str, Any]]'):
+
+class GetEncryptedDataKeyDescriptionUnionItem:
+    """A DynamoDB item."""
+
+    def __init__(self, value: "dict[str, dict[str, Any]]"):
         self.value = value
 
     def as_dict(self) -> Dict[str, Any]:
@@ -390,7 +388,7 @@ class GetEncryptedDataKeyDescriptionUnionItem():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetEncryptedDataKeyDescriptionUnionItem":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return GetEncryptedDataKeyDescriptionUnionItem(d["item"])
@@ -403,7 +401,8 @@ class GetEncryptedDataKeyDescriptionUnionItem():
             return False
         return self.value == other.value
 
-class GetEncryptedDataKeyDescriptionUnionUnknown():
+
+class GetEncryptedDataKeyDescriptionUnionUnknown:
     """Represents an unknown variant.
 
     If you receive this value, you will need to update your library to receive the
@@ -420,14 +419,21 @@ class GetEncryptedDataKeyDescriptionUnionUnknown():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetEncryptedDataKeyDescriptionUnionUnknown":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
         return GetEncryptedDataKeyDescriptionUnionUnknown(d["SDK_UNKNOWN_MEMBER"]["name"])
 
     def __repr__(self) -> str:
         return f"GetEncryptedDataKeyDescriptionUnionUnknown(tag={self.tag})"
 
-GetEncryptedDataKeyDescriptionUnion = Union[GetEncryptedDataKeyDescriptionUnionHeader, GetEncryptedDataKeyDescriptionUnionItem, GetEncryptedDataKeyDescriptionUnionUnknown]
+
+GetEncryptedDataKeyDescriptionUnion = Union[
+    GetEncryptedDataKeyDescriptionUnionHeader,
+    GetEncryptedDataKeyDescriptionUnionItem,
+    GetEncryptedDataKeyDescriptionUnionUnknown,
+]
+
+
 def _get_encrypted_data_key_description_union_from_dict(d: Dict[str, Any]) -> GetEncryptedDataKeyDescriptionUnion:
     if "header" in d:
         return GetEncryptedDataKeyDescriptionUnionHeader.from_dict(d)
@@ -435,33 +441,29 @@ def _get_encrypted_data_key_description_union_from_dict(d: Dict[str, Any]) -> Ge
     if "item" in d:
         return GetEncryptedDataKeyDescriptionUnionItem.from_dict(d)
 
-    raise TypeError(f'Unions may have exactly 1 value, but found {len(d)}')
+    raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
+
 
 class GetEncryptedDataKeyDescriptionInput:
-    input: 'GetEncryptedDataKeyDescriptionUnion'
+    input: "GetEncryptedDataKeyDescriptionUnion"
+
     def __init__(
         self,
         *,
-        input: 'GetEncryptedDataKeyDescriptionUnion',
+        input: "GetEncryptedDataKeyDescriptionUnion",
     ):
-        """Input for getting encrypted data key description.
-
-        """
+        """Input for getting encrypted data key description."""
         self.input = input
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetEncryptedDataKeyDescriptionInput to a dictionary.
-
-        """
+        """Converts the GetEncryptedDataKeyDescriptionInput to a dictionary."""
         return {
             "input": self.input.as_dict(),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetEncryptedDataKeyDescriptionInput":
-        """Creates a GetEncryptedDataKeyDescriptionInput from a dictionary.
-
-        """
+        """Creates a GetEncryptedDataKeyDescriptionInput from a dictionary."""
         kwargs: Dict[str, Any] = {
             "input": _get_encrypted_data_key_description_union_from_dict(d["input"]),
         }
@@ -478,26 +480,22 @@ class GetEncryptedDataKeyDescriptionInput:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetEncryptedDataKeyDescriptionInput):
             return False
-        attributes: list[str] = ['input',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "input",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class AsSet:
-    """Attribute must be a Set. Beacon value will also be a Set.
-    """
-    def as_dict(self) -> Dict[str, Any]:
-        """Converts the AsSet to a dictionary.
+    """Attribute must be a Set. Beacon value will also be a Set."""
 
-        """
+    def as_dict(self) -> Dict[str, Any]:
+        """Converts the AsSet to a dictionary."""
         return {}
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "AsSet":
-        """Creates a AsSet from a dictionary.
-
-        """
+        """Creates a AsSet from a dictionary."""
         return AsSet()
 
     def __repr__(self) -> str:
@@ -508,11 +506,13 @@ class AsSet:
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, AsSet)
 
+
 class MultiKeyStore:
     key_field_name: str
     cache_ttl: int
     cache: Optional[CacheType]
     partition_id: Optional[str]
+
     def __init__(
         self,
         *,
@@ -538,9 +538,7 @@ class MultiKeyStore:
         self.partition_id = partition_id
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the MultiKeyStore to a dictionary.
-
-        """
+        """Converts the MultiKeyStore to a dictionary."""
         d: Dict[str, Any] = {
             "key_field_name": self.key_field_name,
             "cache_ttl": self.cache_ttl,
@@ -556,16 +554,14 @@ class MultiKeyStore:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "MultiKeyStore":
-        """Creates a MultiKeyStore from a dictionary.
-
-        """
+        """Creates a MultiKeyStore from a dictionary."""
         kwargs: Dict[str, Any] = {
             "key_field_name": d["key_field_name"],
             "cache_ttl": d["cache_ttl"],
         }
 
         if "cache" in d:
-            kwargs["cache"] = _cache_type_from_dict(d["cache"]),
+            kwargs["cache"] = (_cache_type_from_dict(d["cache"]),)
 
         if "partition_id" in d:
             kwargs["partition_id"] = d["partition_id"]
@@ -591,17 +587,21 @@ class MultiKeyStore:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MultiKeyStore):
             return False
-        attributes: list[str] = ['key_field_name','cache_ttl','cache','partition_id',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "key_field_name",
+            "cache_ttl",
+            "cache",
+            "partition_id",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class SingleKeyStore:
     key_id: str
     cache_ttl: int
     cache: Optional[CacheType]
     partition_id: Optional[str]
+
     def __init__(
         self,
         *,
@@ -628,9 +628,7 @@ class SingleKeyStore:
         self.partition_id = partition_id
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the SingleKeyStore to a dictionary.
-
-        """
+        """Converts the SingleKeyStore to a dictionary."""
         d: Dict[str, Any] = {
             "key_id": self.key_id,
             "cache_ttl": self.cache_ttl,
@@ -646,16 +644,14 @@ class SingleKeyStore:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "SingleKeyStore":
-        """Creates a SingleKeyStore from a dictionary.
-
-        """
+        """Creates a SingleKeyStore from a dictionary."""
         kwargs: Dict[str, Any] = {
             "key_id": d["key_id"],
             "cache_ttl": d["cache_ttl"],
         }
 
         if "cache" in d:
-            kwargs["cache"] = _cache_type_from_dict(d["cache"]),
+            kwargs["cache"] = (_cache_type_from_dict(d["cache"]),)
 
         if "partition_id" in d:
             kwargs["partition_id"] = d["partition_id"]
@@ -681,15 +677,18 @@ class SingleKeyStore:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, SingleKeyStore):
             return False
-        attributes: list[str] = ['key_id','cache_ttl','cache','partition_id',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "key_id",
+            "cache_ttl",
+            "cache",
+            "partition_id",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
-class BeaconKeySourceSingle():
-    """The configuration for using a single Beacon Key.
-    """
+
+class BeaconKeySourceSingle:
+    """The configuration for using a single Beacon Key."""
+
     def __init__(self, value: SingleKeyStore):
         self.value = value
 
@@ -698,7 +697,7 @@ class BeaconKeySourceSingle():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconKeySourceSingle":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return BeaconKeySourceSingle(SingleKeyStore.from_dict(d["single"]))
@@ -711,9 +710,10 @@ class BeaconKeySourceSingle():
             return False
         return self.value == other.value
 
-class BeaconKeySourceMulti():
-    """The configuration for using multiple Beacon Keys.
-    """
+
+class BeaconKeySourceMulti:
+    """The configuration for using multiple Beacon Keys."""
+
     def __init__(self, value: MultiKeyStore):
         self.value = value
 
@@ -722,7 +722,7 @@ class BeaconKeySourceMulti():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconKeySourceMulti":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return BeaconKeySourceMulti(MultiKeyStore.from_dict(d["multi"]))
@@ -735,7 +735,8 @@ class BeaconKeySourceMulti():
             return False
         return self.value == other.value
 
-class BeaconKeySourceUnknown():
+
+class BeaconKeySourceUnknown:
     """Represents an unknown variant.
 
     If you receive this value, you will need to update your library to receive the
@@ -752,14 +753,17 @@ class BeaconKeySourceUnknown():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconKeySourceUnknown":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
         return BeaconKeySourceUnknown(d["SDK_UNKNOWN_MEMBER"]["name"])
 
     def __repr__(self) -> str:
         return f"BeaconKeySourceUnknown(tag={self.tag})"
 
+
 BeaconKeySource = Union[BeaconKeySourceSingle, BeaconKeySourceMulti, BeaconKeySourceUnknown]
+
+
 def _beacon_key_source_from_dict(d: Dict[str, Any]) -> BeaconKeySource:
     if "single" in d:
         return BeaconKeySourceSingle.from_dict(d)
@@ -767,22 +771,19 @@ def _beacon_key_source_from_dict(d: Dict[str, Any]) -> BeaconKeySource:
     if "multi" in d:
         return BeaconKeySourceMulti.from_dict(d)
 
-    raise TypeError(f'Unions may have exactly 1 value, but found {len(d)}')
+    raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
+
 
 class PartOnly:
-    """Attribute must be used as part of a Compound Beacon, never alone.
-    """
-    def as_dict(self) -> Dict[str, Any]:
-        """Converts the PartOnly to a dictionary.
+    """Attribute must be used as part of a Compound Beacon, never alone."""
 
-        """
+    def as_dict(self) -> Dict[str, Any]:
+        """Converts the PartOnly to a dictionary."""
         return {}
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "PartOnly":
-        """Creates a PartOnly from a dictionary.
-
-        """
+        """Creates a PartOnly from a dictionary."""
         return PartOnly()
 
     def __repr__(self) -> str:
@@ -793,8 +794,10 @@ class PartOnly:
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, PartOnly)
 
+
 class Shared:
     other: str
+
     def __init__(
         self,
         *,
@@ -808,18 +811,14 @@ class Shared:
         self.other = other
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the Shared to a dictionary.
-
-        """
+        """Converts the Shared to a dictionary."""
         return {
             "other": self.other,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Shared":
-        """Creates a Shared from a dictionary.
-
-        """
+        """Creates a Shared from a dictionary."""
         kwargs: Dict[str, Any] = {
             "other": d["other"],
         }
@@ -836,14 +835,15 @@ class Shared:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Shared):
             return False
-        attributes: list[str] = ['other',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "other",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class SharedSet:
     other: str
+
     def __init__(
         self,
         *,
@@ -856,18 +856,14 @@ class SharedSet:
         self.other = other
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the SharedSet to a dictionary.
-
-        """
+        """Converts the SharedSet to a dictionary."""
         return {
             "other": self.other,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "SharedSet":
-        """Creates a SharedSet from a dictionary.
-
-        """
+        """Creates a SharedSet from a dictionary."""
         kwargs: Dict[str, Any] = {
             "other": d["other"],
         }
@@ -884,15 +880,15 @@ class SharedSet:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, SharedSet):
             return False
-        attributes: list[str] = ['other',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "other",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
 
-class BeaconStylePartOnly():
-    """Attribute must be used as part of a Compound Beacon, never alone.
-    """
+
+class BeaconStylePartOnly:
+    """Attribute must be used as part of a Compound Beacon, never alone."""
+
     def __init__(self, value: PartOnly):
         self.value = value
 
@@ -901,7 +897,7 @@ class BeaconStylePartOnly():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconStylePartOnly":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return BeaconStylePartOnly(PartOnly.from_dict(d["partOnly"]))
@@ -914,10 +910,12 @@ class BeaconStylePartOnly():
             return False
         return self.value == other.value
 
-class BeaconStyleShared():
+
+class BeaconStyleShared:
     """This beacon should calculate values like another beacon, so they can be
     compared.
     """
+
     def __init__(self, value: Shared):
         self.value = value
 
@@ -926,7 +924,7 @@ class BeaconStyleShared():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconStyleShared":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return BeaconStyleShared(Shared.from_dict(d["shared"]))
@@ -939,9 +937,10 @@ class BeaconStyleShared():
             return False
         return self.value == other.value
 
-class BeaconStyleAsSet():
-    """Attribute must be a Set. Beacon value will also be a Set.
-    """
+
+class BeaconStyleAsSet:
+    """Attribute must be a Set. Beacon value will also be a Set."""
+
     def __init__(self, value: AsSet):
         self.value = value
 
@@ -950,7 +949,7 @@ class BeaconStyleAsSet():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconStyleAsSet":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return BeaconStyleAsSet(AsSet.from_dict(d["asSet"]))
@@ -963,9 +962,10 @@ class BeaconStyleAsSet():
             return False
         return self.value == other.value
 
-class BeaconStyleSharedSet():
-    """Both Shared and AsSet.
-    """
+
+class BeaconStyleSharedSet:
+    """Both Shared and AsSet."""
+
     def __init__(self, value: SharedSet):
         self.value = value
 
@@ -974,7 +974,7 @@ class BeaconStyleSharedSet():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconStyleSharedSet":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return BeaconStyleSharedSet(SharedSet.from_dict(d["sharedSet"]))
@@ -987,7 +987,8 @@ class BeaconStyleSharedSet():
             return False
         return self.value == other.value
 
-class BeaconStyleUnknown():
+
+class BeaconStyleUnknown:
     """Represents an unknown variant.
 
     If you receive this value, you will need to update your library to receive the
@@ -1004,14 +1005,17 @@ class BeaconStyleUnknown():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconStyleUnknown":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
         return BeaconStyleUnknown(d["SDK_UNKNOWN_MEMBER"]["name"])
 
     def __repr__(self) -> str:
         return f"BeaconStyleUnknown(tag={self.tag})"
 
+
 BeaconStyle = Union[BeaconStylePartOnly, BeaconStyleShared, BeaconStyleAsSet, BeaconStyleSharedSet, BeaconStyleUnknown]
+
+
 def _beacon_style_from_dict(d: Dict[str, Any]) -> BeaconStyle:
     if "partOnly" in d:
         return BeaconStylePartOnly.from_dict(d)
@@ -1025,11 +1029,13 @@ def _beacon_style_from_dict(d: Dict[str, Any]) -> BeaconStyle:
     if "sharedSet" in d:
         return BeaconStyleSharedSet.from_dict(d)
 
-    raise TypeError(f'Unions may have exactly 1 value, but found {len(d)}')
+    raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
+
 
 class ConstructorPart:
     name: str
     required: bool
+
     def __init__(
         self,
         *,
@@ -1047,9 +1053,7 @@ class ConstructorPart:
         self.required = required
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the ConstructorPart to a dictionary.
-
-        """
+        """Converts the ConstructorPart to a dictionary."""
         return {
             "name": self.name,
             "required": self.required,
@@ -1057,9 +1061,7 @@ class ConstructorPart:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "ConstructorPart":
-        """Creates a ConstructorPart from a dictionary.
-
-        """
+        """Creates a ConstructorPart from a dictionary."""
         kwargs: Dict[str, Any] = {
             "name": d["name"],
             "required": d["required"],
@@ -1080,14 +1082,16 @@ class ConstructorPart:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ConstructorPart):
             return False
-        attributes: list[str] = ['name','required',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "name",
+            "required",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class Constructor:
     parts: list[ConstructorPart]
+
     def __init__(
         self,
         *,
@@ -1105,18 +1109,14 @@ class Constructor:
         self.parts = parts
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the Constructor to a dictionary.
-
-        """
+        """Converts the Constructor to a dictionary."""
         return {
             "parts": _constructor_part_list_as_dict(self.parts),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Constructor":
-        """Creates a Constructor from a dictionary.
-
-        """
+        """Creates a Constructor from a dictionary."""
         kwargs: Dict[str, Any] = {
             "parts": _constructor_part_list_from_dict(d["parts"]),
         }
@@ -1133,15 +1133,16 @@ class Constructor:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Constructor):
             return False
-        attributes: list[str] = ['parts',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "parts",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class EncryptedPart:
     name: str
     prefix: str
+
     def __init__(
         self,
         *,
@@ -1160,9 +1161,7 @@ class EncryptedPart:
         self.prefix = prefix
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the EncryptedPart to a dictionary.
-
-        """
+        """Converts the EncryptedPart to a dictionary."""
         return {
             "name": self.name,
             "prefix": self.prefix,
@@ -1170,9 +1169,7 @@ class EncryptedPart:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "EncryptedPart":
-        """Creates a EncryptedPart from a dictionary.
-
-        """
+        """Creates a EncryptedPart from a dictionary."""
         kwargs: Dict[str, Any] = {
             "name": d["name"],
             "prefix": d["prefix"],
@@ -1193,16 +1190,18 @@ class EncryptedPart:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, EncryptedPart):
             return False
-        attributes: list[str] = ['name','prefix',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "name",
+            "prefix",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class SignedPart:
     name: str
     prefix: str
     loc: Optional[str]
+
     def __init__(
         self,
         *,
@@ -1228,9 +1227,7 @@ class SignedPart:
         self.loc = loc
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the SignedPart to a dictionary.
-
-        """
+        """Converts the SignedPart to a dictionary."""
         d: Dict[str, Any] = {
             "name": self.name,
             "prefix": self.prefix,
@@ -1243,9 +1240,7 @@ class SignedPart:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "SignedPart":
-        """Creates a SignedPart from a dictionary.
-
-        """
+        """Creates a SignedPart from a dictionary."""
         kwargs: Dict[str, Any] = {
             "name": d["name"],
             "prefix": d["prefix"],
@@ -1272,11 +1267,13 @@ class SignedPart:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, SignedPart):
             return False
-        attributes: list[str] = ['name','prefix','loc',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "name",
+            "prefix",
+            "loc",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class CompoundBeacon:
     name: str
@@ -1284,6 +1281,7 @@ class CompoundBeacon:
     encrypted: Optional[list[EncryptedPart]]
     signed: Optional[list[SignedPart]]
     constructors: Optional[list[Constructor]]
+
     def __init__(
         self,
         *,
@@ -1331,43 +1329,39 @@ class CompoundBeacon:
         self.constructors = constructors
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the CompoundBeacon to a dictionary.
-
-        """
+        """Converts the CompoundBeacon to a dictionary."""
         d: Dict[str, Any] = {
             "name": self.name,
             "split": self.split,
         }
 
         if self.encrypted is not None:
-            d["encrypted"] = _encrypted_parts_list_as_dict(self.encrypted),
+            d["encrypted"] = (_encrypted_parts_list_as_dict(self.encrypted),)
 
         if self.signed is not None:
-            d["signed"] = _signed_parts_list_as_dict(self.signed),
+            d["signed"] = (_signed_parts_list_as_dict(self.signed),)
 
         if self.constructors is not None:
-            d["constructors"] = _constructor_list_as_dict(self.constructors),
+            d["constructors"] = (_constructor_list_as_dict(self.constructors),)
 
         return d
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "CompoundBeacon":
-        """Creates a CompoundBeacon from a dictionary.
-
-        """
+        """Creates a CompoundBeacon from a dictionary."""
         kwargs: Dict[str, Any] = {
             "name": d["name"],
             "split": d["split"],
         }
 
         if "encrypted" in d:
-            kwargs["encrypted"] = _encrypted_parts_list_from_dict(d["encrypted"]),
+            kwargs["encrypted"] = (_encrypted_parts_list_from_dict(d["encrypted"]),)
 
         if "signed" in d:
-            kwargs["signed"] = _signed_parts_list_from_dict(d["signed"]),
+            kwargs["signed"] = (_signed_parts_list_from_dict(d["signed"]),)
 
         if "constructors" in d:
-            kwargs["constructors"] = _constructor_list_from_dict(d["constructors"]),
+            kwargs["constructors"] = (_constructor_list_from_dict(d["constructors"]),)
 
         return CompoundBeacon(**kwargs)
 
@@ -1393,17 +1387,22 @@ class CompoundBeacon:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CompoundBeacon):
             return False
-        attributes: list[str] = ['name','split','encrypted','signed','constructors',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "name",
+            "split",
+            "encrypted",
+            "signed",
+            "constructors",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class StandardBeacon:
     name: str
     length: int
     loc: Optional[str]
     style: Optional[BeaconStyle]
+
     def __init__(
         self,
         *,
@@ -1436,9 +1435,7 @@ class StandardBeacon:
         self.style = style
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the StandardBeacon to a dictionary.
-
-        """
+        """Converts the StandardBeacon to a dictionary."""
         d: Dict[str, Any] = {
             "name": self.name,
         }
@@ -1456,9 +1453,7 @@ class StandardBeacon:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "StandardBeacon":
-        """Creates a StandardBeacon from a dictionary.
-
-        """
+        """Creates a StandardBeacon from a dictionary."""
         kwargs: Dict[str, Any] = {
             "name": d["name"],
         }
@@ -1470,7 +1465,7 @@ class StandardBeacon:
             kwargs["loc"] = d["loc"]
 
         if "style" in d:
-            kwargs["style"] = _beacon_style_from_dict(d["style"]),
+            kwargs["style"] = (_beacon_style_from_dict(d["style"]),)
 
         return StandardBeacon(**kwargs)
 
@@ -1493,14 +1488,18 @@ class StandardBeacon:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, StandardBeacon):
             return False
-        attributes: list[str] = ['name','length','loc','style',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "name",
+            "length",
+            "loc",
+            "style",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class Insert:
     literal: str
+
     def __init__(
         self,
         *,
@@ -1513,18 +1512,14 @@ class Insert:
         self.literal = literal
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the Insert to a dictionary.
-
-        """
+        """Converts the Insert to a dictionary."""
         return {
             "literal": self.literal,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Insert":
-        """Creates a Insert from a dictionary.
-
-        """
+        """Creates a Insert from a dictionary."""
         kwargs: Dict[str, Any] = {
             "literal": d["literal"],
         }
@@ -1541,26 +1536,22 @@ class Insert:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Insert):
             return False
-        attributes: list[str] = ['literal',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "literal",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class Lower:
-    """The Virtual Part Transformation that converts ASCII characters to lower case.
-    """
-    def as_dict(self) -> Dict[str, Any]:
-        """Converts the Lower to a dictionary.
+    """The Virtual Part Transformation that converts ASCII characters to lower case."""
 
-        """
+    def as_dict(self) -> Dict[str, Any]:
+        """Converts the Lower to a dictionary."""
         return {}
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Lower":
-        """Creates a Lower from a dictionary.
-
-        """
+        """Creates a Lower from a dictionary."""
         return Lower()
 
     def __repr__(self) -> str:
@@ -1571,8 +1562,10 @@ class Lower:
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Lower)
 
+
 class GetPrefix:
     length: int
+
     def __init__(
         self,
         *,
@@ -1587,18 +1580,14 @@ class GetPrefix:
         self.length = length
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetPrefix to a dictionary.
-
-        """
+        """Converts the GetPrefix to a dictionary."""
         return {
             "length": self.length,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetPrefix":
-        """Creates a GetPrefix from a dictionary.
-
-        """
+        """Creates a GetPrefix from a dictionary."""
         kwargs: Dict[str, Any] = {
             "length": d["length"],
         }
@@ -1615,15 +1604,16 @@ class GetPrefix:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetPrefix):
             return False
-        attributes: list[str] = ['length',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "length",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetSegment:
     split: str
     index: int
+
     def __init__(
         self,
         *,
@@ -1648,9 +1638,7 @@ class GetSegment:
         self.index = index
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetSegment to a dictionary.
-
-        """
+        """Converts the GetSegment to a dictionary."""
         return {
             "split": self.split,
             "index": self.index,
@@ -1658,9 +1646,7 @@ class GetSegment:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetSegment":
-        """Creates a GetSegment from a dictionary.
-
-        """
+        """Creates a GetSegment from a dictionary."""
         kwargs: Dict[str, Any] = {
             "split": d["split"],
             "index": d["index"],
@@ -1681,16 +1667,18 @@ class GetSegment:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetSegment):
             return False
-        attributes: list[str] = ['split','index',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "split",
+            "index",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetSegments:
     split: str
     low: int
     high: int
+
     def __init__(
         self,
         *,
@@ -1718,9 +1706,7 @@ class GetSegments:
         self.high = high
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetSegments to a dictionary.
-
-        """
+        """Converts the GetSegments to a dictionary."""
         return {
             "split": self.split,
             "low": self.low,
@@ -1729,9 +1715,7 @@ class GetSegments:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetSegments":
-        """Creates a GetSegments from a dictionary.
-
-        """
+        """Creates a GetSegments from a dictionary."""
         kwargs: Dict[str, Any] = {
             "split": d["split"],
             "low": d["low"],
@@ -1756,15 +1740,18 @@ class GetSegments:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetSegments):
             return False
-        attributes: list[str] = ['split','low','high',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "split",
+            "low",
+            "high",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetSubstring:
     low: int
     high: int
+
     def __init__(
         self,
         *,
@@ -1782,9 +1769,7 @@ class GetSubstring:
         self.high = high
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetSubstring to a dictionary.
-
-        """
+        """Converts the GetSubstring to a dictionary."""
         return {
             "low": self.low,
             "high": self.high,
@@ -1792,9 +1777,7 @@ class GetSubstring:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetSubstring":
-        """Creates a GetSubstring from a dictionary.
-
-        """
+        """Creates a GetSubstring from a dictionary."""
         kwargs: Dict[str, Any] = {
             "low": d["low"],
             "high": d["high"],
@@ -1815,14 +1798,16 @@ class GetSubstring:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetSubstring):
             return False
-        attributes: list[str] = ['low','high',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "low",
+            "high",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class GetSuffix:
     length: int
+
     def __init__(
         self,
         *,
@@ -1837,18 +1822,14 @@ class GetSuffix:
         self.length = length
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the GetSuffix to a dictionary.
-
-        """
+        """Converts the GetSuffix to a dictionary."""
         return {
             "length": self.length,
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "GetSuffix":
-        """Creates a GetSuffix from a dictionary.
-
-        """
+        """Creates a GetSuffix from a dictionary."""
         kwargs: Dict[str, Any] = {
             "length": d["length"],
         }
@@ -1865,26 +1846,22 @@ class GetSuffix:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GetSuffix):
             return False
-        attributes: list[str] = ['length',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "length",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class Upper:
-    """The Virtual Part Transformation that converts ASCII characters to upper case.
-    """
-    def as_dict(self) -> Dict[str, Any]:
-        """Converts the Upper to a dictionary.
+    """The Virtual Part Transformation that converts ASCII characters to upper case."""
 
-        """
+    def as_dict(self) -> Dict[str, Any]:
+        """Converts the Upper to a dictionary."""
         return {}
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Upper":
-        """Creates a Upper from a dictionary.
-
-        """
+        """Creates a Upper from a dictionary."""
         return Upper()
 
     def __repr__(self) -> str:
@@ -1895,9 +1872,10 @@ class Upper:
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Upper)
 
-class VirtualTransformUpper():
-    """The Virtual Part Transformation that converts ASCII characters to upper case.
-    """
+
+class VirtualTransformUpper:
+    """The Virtual Part Transformation that converts ASCII characters to upper case."""
+
     def __init__(self, value: Upper):
         self.value = value
 
@@ -1906,7 +1884,7 @@ class VirtualTransformUpper():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformUpper":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformUpper(Upper.from_dict(d["upper"]))
@@ -1919,9 +1897,10 @@ class VirtualTransformUpper():
             return False
         return self.value == other.value
 
-class VirtualTransformLower():
-    """The Virtual Part Transformation that converts ASCII characters to lower case.
-    """
+
+class VirtualTransformLower:
+    """The Virtual Part Transformation that converts ASCII characters to lower case."""
+
     def __init__(self, value: Lower):
         self.value = value
 
@@ -1930,7 +1909,7 @@ class VirtualTransformLower():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformLower":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformLower(Lower.from_dict(d["lower"]))
@@ -1943,9 +1922,10 @@ class VirtualTransformLower():
             return False
         return self.value == other.value
 
-class VirtualTransformInsert():
-    """The Virtual Part Transformation that appends a literal string.
-    """
+
+class VirtualTransformInsert:
+    """The Virtual Part Transformation that appends a literal string."""
+
     def __init__(self, value: Insert):
         self.value = value
 
@@ -1954,7 +1934,7 @@ class VirtualTransformInsert():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformInsert":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformInsert(Insert.from_dict(d["insert"]))
@@ -1967,9 +1947,10 @@ class VirtualTransformInsert():
             return False
         return self.value == other.value
 
-class VirtualTransformPrefix():
-    """The Virtual Part Transformation that gets the prefix of a string.
-    """
+
+class VirtualTransformPrefix:
+    """The Virtual Part Transformation that gets the prefix of a string."""
+
     def __init__(self, value: GetPrefix):
         self.value = value
 
@@ -1978,7 +1959,7 @@ class VirtualTransformPrefix():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformPrefix":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformPrefix(GetPrefix.from_dict(d["prefix"]))
@@ -1991,9 +1972,10 @@ class VirtualTransformPrefix():
             return False
         return self.value == other.value
 
-class VirtualTransformSuffix():
-    """The Virtual Part Transformation that gets the suffix of a string.
-    """
+
+class VirtualTransformSuffix:
+    """The Virtual Part Transformation that gets the suffix of a string."""
+
     def __init__(self, value: GetSuffix):
         self.value = value
 
@@ -2002,7 +1984,7 @@ class VirtualTransformSuffix():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformSuffix":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformSuffix(GetSuffix.from_dict(d["suffix"]))
@@ -2015,9 +1997,10 @@ class VirtualTransformSuffix():
             return False
         return self.value == other.value
 
-class VirtualTransformSubstring():
-    """The Virtual Part Transformation that gets a substring from a string.
-    """
+
+class VirtualTransformSubstring:
+    """The Virtual Part Transformation that gets a substring from a string."""
+
     def __init__(self, value: GetSubstring):
         self.value = value
 
@@ -2026,7 +2009,7 @@ class VirtualTransformSubstring():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformSubstring":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformSubstring(GetSubstring.from_dict(d["substring"]))
@@ -2039,10 +2022,12 @@ class VirtualTransformSubstring():
             return False
         return self.value == other.value
 
-class VirtualTransformSegment():
+
+class VirtualTransformSegment:
     """The Virtual Part Transformation that splits a string and gets a particular
     segment of that split.
     """
+
     def __init__(self, value: GetSegment):
         self.value = value
 
@@ -2051,7 +2036,7 @@ class VirtualTransformSegment():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformSegment":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformSegment(GetSegment.from_dict(d["segment"]))
@@ -2064,10 +2049,12 @@ class VirtualTransformSegment():
             return False
         return self.value == other.value
 
-class VirtualTransformSegments():
+
+class VirtualTransformSegments:
     """The Virtual Part Transformation that splits a string and gets a range of
     segments of that split.
     """
+
     def __init__(self, value: GetSegments):
         self.value = value
 
@@ -2076,7 +2063,7 @@ class VirtualTransformSegments():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformSegments":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
 
         return VirtualTransformSegments(GetSegments.from_dict(d["segments"]))
@@ -2089,7 +2076,8 @@ class VirtualTransformSegments():
             return False
         return self.value == other.value
 
-class VirtualTransformUnknown():
+
+class VirtualTransformUnknown:
     """Represents an unknown variant.
 
     If you receive this value, you will need to update your library to receive the
@@ -2106,14 +2094,27 @@ class VirtualTransformUnknown():
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualTransformUnknown":
-        if (len(d) != 1):
+        if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
         return VirtualTransformUnknown(d["SDK_UNKNOWN_MEMBER"]["name"])
 
     def __repr__(self) -> str:
         return f"VirtualTransformUnknown(tag={self.tag})"
 
-VirtualTransform = Union[VirtualTransformUpper, VirtualTransformLower, VirtualTransformInsert, VirtualTransformPrefix, VirtualTransformSuffix, VirtualTransformSubstring, VirtualTransformSegment, VirtualTransformSegments, VirtualTransformUnknown]
+
+VirtualTransform = Union[
+    VirtualTransformUpper,
+    VirtualTransformLower,
+    VirtualTransformInsert,
+    VirtualTransformPrefix,
+    VirtualTransformSuffix,
+    VirtualTransformSubstring,
+    VirtualTransformSegment,
+    VirtualTransformSegments,
+    VirtualTransformUnknown,
+]
+
+
 def _virtual_transform_from_dict(d: Dict[str, Any]) -> VirtualTransform:
     if "upper" in d:
         return VirtualTransformUpper.from_dict(d)
@@ -2139,11 +2140,13 @@ def _virtual_transform_from_dict(d: Dict[str, Any]) -> VirtualTransform:
     if "segments" in d:
         return VirtualTransformSegments.from_dict(d)
 
-    raise TypeError(f'Unions may have exactly 1 value, but found {len(d)}')
+    raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
+
 
 class VirtualPart:
     loc: str
     trans: Optional[list[VirtualTransform]]
+
     def __init__(
         self,
         *,
@@ -2166,29 +2169,25 @@ class VirtualPart:
         self.trans = trans
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the VirtualPart to a dictionary.
-
-        """
+        """Converts the VirtualPart to a dictionary."""
         d: Dict[str, Any] = {
             "loc": self.loc,
         }
 
         if self.trans is not None:
-            d["trans"] = _virtual_transform_list_as_dict(self.trans),
+            d["trans"] = (_virtual_transform_list_as_dict(self.trans),)
 
         return d
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualPart":
-        """Creates a VirtualPart from a dictionary.
-
-        """
+        """Creates a VirtualPart from a dictionary."""
         kwargs: Dict[str, Any] = {
             "loc": d["loc"],
         }
 
         if "trans" in d:
-            kwargs["trans"] = _virtual_transform_list_from_dict(d["trans"]),
+            kwargs["trans"] = (_virtual_transform_list_from_dict(d["trans"]),)
 
         return VirtualPart(**kwargs)
 
@@ -2205,15 +2204,17 @@ class VirtualPart:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, VirtualPart):
             return False
-        attributes: list[str] = ['loc','trans',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "loc",
+            "trans",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class VirtualField:
     name: str
     parts: list[VirtualPart]
+
     def __init__(
         self,
         *,
@@ -2234,9 +2235,7 @@ class VirtualField:
         self.parts = parts
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the VirtualField to a dictionary.
-
-        """
+        """Converts the VirtualField to a dictionary."""
         return {
             "name": self.name,
             "parts": _virtual_part_list_as_dict(self.parts),
@@ -2244,9 +2243,7 @@ class VirtualField:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "VirtualField":
-        """Creates a VirtualField from a dictionary.
-
-        """
+        """Creates a VirtualField from a dictionary."""
         kwargs: Dict[str, Any] = {
             "name": d["name"],
             "parts": _virtual_part_list_from_dict(d["parts"]),
@@ -2267,25 +2264,27 @@ class VirtualField:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, VirtualField):
             return False
-        attributes: list[str] = ['name','parts',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "name",
+            "parts",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class BeaconVersion:
     version: int
-    key_store: 'aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client.KeyStore'
+    key_store: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client.KeyStore"
     key_source: BeaconKeySource
     standard_beacons: list[StandardBeacon]
     compound_beacons: Optional[list[CompoundBeacon]]
     virtual_fields: Optional[list[VirtualField]]
     encrypted_parts: Optional[list[EncryptedPart]]
     signed_parts: Optional[list[SignedPart]]
+
     def __init__(
         self,
         *,
-        key_store: 'aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client.KeyStore',
+        key_store: "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client.KeyStore",
         key_source: BeaconKeySource,
         standard_beacons: list[StandardBeacon],
         version: int = 0,
@@ -2339,9 +2338,7 @@ class BeaconVersion:
         self.signed_parts = signed_parts
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the BeaconVersion to a dictionary.
-
-        """
+        """Converts the BeaconVersion to a dictionary."""
         d: Dict[str, Any] = {
             "key_store": self.key_store.as_dict(),
             "key_source": self.key_source.as_dict(),
@@ -2352,25 +2349,24 @@ class BeaconVersion:
             d["version"] = self.version
 
         if self.compound_beacons is not None:
-            d["compound_beacons"] = _compound_beacon_list_as_dict(self.compound_beacons),
+            d["compound_beacons"] = (_compound_beacon_list_as_dict(self.compound_beacons),)
 
         if self.virtual_fields is not None:
-            d["virtual_fields"] = _virtual_field_list_as_dict(self.virtual_fields),
+            d["virtual_fields"] = (_virtual_field_list_as_dict(self.virtual_fields),)
 
         if self.encrypted_parts is not None:
-            d["encrypted_parts"] = _encrypted_parts_list_as_dict(self.encrypted_parts),
+            d["encrypted_parts"] = (_encrypted_parts_list_as_dict(self.encrypted_parts),)
 
         if self.signed_parts is not None:
-            d["signed_parts"] = _signed_parts_list_as_dict(self.signed_parts),
+            d["signed_parts"] = (_signed_parts_list_as_dict(self.signed_parts),)
 
         return d
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "BeaconVersion":
-        """Creates a BeaconVersion from a dictionary.
-
-        """
+        """Creates a BeaconVersion from a dictionary."""
         from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_keystore.client import KeyStore
+
         kwargs: Dict[str, Any] = {
             "key_store": KeyStore.from_dict(d["key_store"]),
             "key_source": _beacon_key_source_from_dict(d["key_source"]),
@@ -2381,16 +2377,16 @@ class BeaconVersion:
             kwargs["version"] = d["version"]
 
         if "compound_beacons" in d:
-            kwargs["compound_beacons"] = _compound_beacon_list_from_dict(d["compound_beacons"]),
+            kwargs["compound_beacons"] = (_compound_beacon_list_from_dict(d["compound_beacons"]),)
 
         if "virtual_fields" in d:
-            kwargs["virtual_fields"] = _virtual_field_list_from_dict(d["virtual_fields"]),
+            kwargs["virtual_fields"] = (_virtual_field_list_from_dict(d["virtual_fields"]),)
 
         if "encrypted_parts" in d:
-            kwargs["encrypted_parts"] = _encrypted_parts_list_from_dict(d["encrypted_parts"]),
+            kwargs["encrypted_parts"] = (_encrypted_parts_list_from_dict(d["encrypted_parts"]),)
 
         if "signed_parts" in d:
-            kwargs["signed_parts"] = _signed_parts_list_from_dict(d["signed_parts"]),
+            kwargs["signed_parts"] = (_signed_parts_list_from_dict(d["signed_parts"]),)
 
         return BeaconVersion(**kwargs)
 
@@ -2425,11 +2421,18 @@ class BeaconVersion:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, BeaconVersion):
             return False
-        attributes: list[str] = ['version','key_store','key_source','standard_beacons','compound_beacons','virtual_fields','encrypted_parts','signed_parts',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "version",
+            "key_store",
+            "key_source",
+            "standard_beacons",
+            "compound_beacons",
+            "virtual_fields",
+            "encrypted_parts",
+            "signed_parts",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class LegacyPolicy:
     FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT = "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
@@ -2440,18 +2443,26 @@ class LegacyPolicy:
 
     # This set contains every possible value known at the time this was generated. New
     # values may be added in the future.
-    values = frozenset({"FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT", "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT", "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT"})
+    values = frozenset(
+        {
+            "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT",
+            "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT",
+            "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT",
+        }
+    )
+
 
 class LegacyOverride:
     policy: str
-    encryptor: 'aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.LegacyDynamoDbEncryptor'
+    encryptor: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.LegacyDynamoDbEncryptor"
     attribute_actions_on_encrypt: dict[str, str]
     default_attribute_flag: Optional[str]
+
     def __init__(
         self,
         *,
         policy: str,
-        encryptor: 'aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.LegacyDynamoDbEncryptor',
+        encryptor: "aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references.LegacyDynamoDbEncryptor",
         attribute_actions_on_encrypt: dict[str, str],
         default_attribute_flag: Optional[str] = None,
     ):
@@ -2473,9 +2484,7 @@ class LegacyOverride:
         self.default_attribute_flag = default_attribute_flag
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the LegacyOverride to a dictionary.
-
-        """
+        """Converts the LegacyOverride to a dictionary."""
         d: Dict[str, Any] = {
             "policy": self.policy,
             "encryptor": self.encryptor.as_dict(),
@@ -2489,10 +2498,11 @@ class LegacyOverride:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "LegacyOverride":
-        """Creates a LegacyOverride from a dictionary.
+        """Creates a LegacyOverride from a dictionary."""
+        from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references import (
+            LegacyDynamoDbEncryptor,
+        )
 
-        """
-        from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.references import LegacyDynamoDbEncryptor
         kwargs: Dict[str, Any] = {
             "policy": d["policy"],
             "encryptor": LegacyDynamoDbEncryptor.from_dict(d["encryptor"]),
@@ -2523,11 +2533,14 @@ class LegacyOverride:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, LegacyOverride):
             return False
-        attributes: list[str] = ['policy','encryptor','attribute_actions_on_encrypt','default_attribute_flag',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "policy",
+            "encryptor",
+            "attribute_actions_on_encrypt",
+            "default_attribute_flag",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class PlaintextOverride:
     FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ = "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
@@ -2538,11 +2551,19 @@ class PlaintextOverride:
 
     # This set contains every possible value known at the time this was generated. New
     # values may be added in the future.
-    values = frozenset({"FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ", "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ", "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ"})
+    values = frozenset(
+        {
+            "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ",
+            "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ",
+            "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ",
+        }
+    )
+
 
 class SearchConfig:
     versions: list[BeaconVersion]
     write_version: int
+
     def __init__(
         self,
         *,
@@ -2569,9 +2590,7 @@ class SearchConfig:
         self.write_version = write_version
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the SearchConfig to a dictionary.
-
-        """
+        """Converts the SearchConfig to a dictionary."""
         d: Dict[str, Any] = {
             "versions": _beacon_version_list_as_dict(self.versions),
         }
@@ -2583,9 +2602,7 @@ class SearchConfig:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "SearchConfig":
-        """Creates a SearchConfig from a dictionary.
-
-        """
+        """Creates a SearchConfig from a dictionary."""
         kwargs: Dict[str, Any] = {
             "versions": _beacon_version_list_from_dict(d["versions"]),
         }
@@ -2608,11 +2625,12 @@ class SearchConfig:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, SearchConfig):
             return False
-        attributes: list[str] = ['versions','write_version',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "versions",
+            "write_version",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DynamoDbTableEncryptionConfig:
     logical_table_name: str
@@ -2623,10 +2641,15 @@ class DynamoDbTableEncryptionConfig:
     allowed_unsigned_attributes: Optional[list[str]]
     allowed_unsigned_attribute_prefix: Optional[str]
     algorithm_suite_id: Optional[str]
-    keyring: Optional['aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring']
-    cmm: Optional['aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager']
+    keyring: Optional[
+        "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
+    ]
+    cmm: Optional[
+        "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+    ]
     legacy_override: Optional[LegacyOverride]
     plaintext_override: Optional[str]
+
     def __init__(
         self,
         *,
@@ -2638,8 +2661,12 @@ class DynamoDbTableEncryptionConfig:
         allowed_unsigned_attributes: Optional[list[str]] = None,
         allowed_unsigned_attribute_prefix: Optional[str] = None,
         algorithm_suite_id: Optional[str] = None,
-        keyring: Optional['aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring'] = None,
-        cmm: Optional['aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager'] = None,
+        keyring: Optional[
+            "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.Keyring"
+        ] = None,
+        cmm: Optional[
+            "aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references.CryptographicMaterialsManager"
+        ] = None,
         legacy_override: Optional[LegacyOverride] = None,
         plaintext_override: Optional[str] = None,
     ):
@@ -2706,9 +2733,7 @@ class DynamoDbTableEncryptionConfig:
         self.plaintext_override = plaintext_override
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DynamoDbTableEncryptionConfig to a dictionary.
-
-        """
+        """Converts the DynamoDbTableEncryptionConfig to a dictionary."""
         d: Dict[str, Any] = {
             "logical_table_name": self.logical_table_name,
             "partition_key_name": self.partition_key_name,
@@ -2746,11 +2771,14 @@ class DynamoDbTableEncryptionConfig:
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DynamoDbTableEncryptionConfig":
-        """Creates a DynamoDbTableEncryptionConfig from a dictionary.
+        """Creates a DynamoDbTableEncryptionConfig from a dictionary."""
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
+            Keyring,
+        )
+        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import (
+            CryptographicMaterialsManager,
+        )
 
-        """
-        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import Keyring
-        from aws_cryptographic_material_providers.smithygenerated.aws_cryptography_materialproviders.references import CryptographicMaterialsManager
         kwargs: Dict[str, Any] = {
             "logical_table_name": d["logical_table_name"],
             "partition_key_name": d["partition_key_name"],
@@ -2829,14 +2857,26 @@ class DynamoDbTableEncryptionConfig:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DynamoDbTableEncryptionConfig):
             return False
-        attributes: list[str] = ['logical_table_name','partition_key_name','sort_key_name','search','attribute_actions_on_encrypt','allowed_unsigned_attributes','allowed_unsigned_attribute_prefix','algorithm_suite_id','keyring','cmm','legacy_override','plaintext_override',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "logical_table_name",
+            "partition_key_name",
+            "sort_key_name",
+            "search",
+            "attribute_actions_on_encrypt",
+            "allowed_unsigned_attributes",
+            "allowed_unsigned_attribute_prefix",
+            "algorithm_suite_id",
+            "keyring",
+            "cmm",
+            "legacy_override",
+            "plaintext_override",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 class DynamoDbTablesEncryptionConfig:
     table_encryption_configs: dict[str, DynamoDbTableEncryptionConfig]
+
     def __init__(
         self,
         *,
@@ -2850,20 +2890,18 @@ class DynamoDbTablesEncryptionConfig:
         self.table_encryption_configs = table_encryption_configs
 
     def as_dict(self) -> Dict[str, Any]:
-        """Converts the DynamoDbTablesEncryptionConfig to a dictionary.
-
-        """
+        """Converts the DynamoDbTablesEncryptionConfig to a dictionary."""
         return {
             "table_encryption_configs": _dynamo_db_table_encryption_config_list_as_dict(self.table_encryption_configs),
         }
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "DynamoDbTablesEncryptionConfig":
-        """Creates a DynamoDbTablesEncryptionConfig from a dictionary.
-
-        """
+        """Creates a DynamoDbTablesEncryptionConfig from a dictionary."""
         kwargs: Dict[str, Any] = {
-            "table_encryption_configs": _dynamo_db_table_encryption_config_list_from_dict(d["table_encryption_configs"]),
+            "table_encryption_configs": _dynamo_db_table_encryption_config_list_from_dict(
+                d["table_encryption_configs"]
+            ),
         }
 
         return DynamoDbTablesEncryptionConfig(**kwargs)
@@ -2878,17 +2916,19 @@ class DynamoDbTablesEncryptionConfig:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DynamoDbTablesEncryptionConfig):
             return False
-        attributes: list[str] = ['table_encryption_configs',]
-        return all(
-            getattr(self, a) == getattr(other, a)
-            for a in attributes
-        )
+        attributes: list[str] = [
+            "table_encryption_configs",
+        ]
+        return all(getattr(self, a) == getattr(other, a) for a in attributes)
+
 
 def _encrypted_data_key_description_list_as_dict(given: list[EncryptedDataKeyDescription]) -> List[Any]:
     return [v.as_dict() for v in given]
 
+
 def _encrypted_data_key_description_list_from_dict(given: List[Any]) -> list[EncryptedDataKeyDescription]:
     return [EncryptedDataKeyDescription.from_dict(v) for v in given]
+
 
 class Unit:
     pass

@@ -94,15 +94,11 @@ def _deserialize_error(error: Error) -> ServiceError:
         return StructuredEncryptionException(message=_dafny.string_of(error.message))
     elif error.is_AwsCryptographyPrimitives:
         return AwsCryptographicPrimitives(
-            aws_cryptography_primitives_deserialize_error(
-                error.AwsCryptographyPrimitives
-            )
+            aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives)
         )
     elif error.is_AwsCryptographyMaterialProviders:
         return AwsCryptographicMaterialProviders(
-            aws_cryptography_materialproviders_deserialize_error(
-                error.AwsCryptographyMaterialProviders
-            )
+            aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders)
         )
     else:
         return OpaqueError(obj=error)

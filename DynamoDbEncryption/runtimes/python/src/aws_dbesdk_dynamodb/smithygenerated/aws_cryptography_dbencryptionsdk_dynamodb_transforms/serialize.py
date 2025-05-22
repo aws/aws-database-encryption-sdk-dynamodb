@@ -117,9 +117,7 @@ def _serialize_query_output_transform(input, config: Config) -> DafnyRequest:
     )
 
 
-def _serialize_transact_write_items_input_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_transact_write_items_input_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="TransactWriteItemsInputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactWriteItemsInputTransformInput(
@@ -128,9 +126,7 @@ def _serialize_transact_write_items_input_transform(
     )
 
 
-def _serialize_transact_write_items_output_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_transact_write_items_output_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="TransactWriteItemsOutputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactWriteItemsOutputTransformInput(
@@ -175,9 +171,7 @@ def _serialize_delete_item_output_transform(input, config: Config) -> DafnyReque
     )
 
 
-def _serialize_transact_get_items_input_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_transact_get_items_input_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="TransactGetItemsInputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactGetItemsInputTransformInput(
@@ -186,9 +180,7 @@ def _serialize_transact_get_items_input_transform(
     )
 
 
-def _serialize_transact_get_items_output_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_transact_get_items_output_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="TransactGetItemsOutputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_TransactGetItemsOutputTransformInput(
@@ -206,9 +198,7 @@ def _serialize_execute_statement_input_transform(input, config: Config) -> Dafny
     )
 
 
-def _serialize_execute_statement_output_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_execute_statement_output_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="ExecuteStatementOutputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteStatementOutputTransformInput(
@@ -217,9 +207,7 @@ def _serialize_execute_statement_output_transform(
     )
 
 
-def _serialize_batch_execute_statement_input_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_batch_execute_statement_input_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="BatchExecuteStatementInputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchExecuteStatementInputTransformInput(
@@ -228,9 +216,7 @@ def _serialize_batch_execute_statement_input_transform(
     )
 
 
-def _serialize_batch_execute_statement_output_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_batch_execute_statement_output_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="BatchExecuteStatementOutputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_BatchExecuteStatementOutputTransformInput(
@@ -239,9 +225,7 @@ def _serialize_batch_execute_statement_output_transform(
     )
 
 
-def _serialize_execute_transaction_input_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_execute_transaction_input_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="ExecuteTransactionInputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteTransactionInputTransformInput(
@@ -250,9 +234,7 @@ def _serialize_execute_transaction_input_transform(
     )
 
 
-def _serialize_execute_transaction_output_transform(
-    input, config: Config
-) -> DafnyRequest:
+def _serialize_execute_transaction_output_transform(input, config: Config) -> DafnyRequest:
     return DafnyRequest(
         operation_name="ExecuteTransactionOutputTransform",
         dafny_operation_input=aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.smithy_to_dafny.aws_cryptography_dbencryptionsdk_dynamodb_transforms_ExecuteTransactionOutputTransformInput(

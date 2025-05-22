@@ -177,9 +177,7 @@ class ParsedHeader:
             result += f"encrypted_data_keys={repr(self.encrypted_data_keys)}, "
 
         if self.stored_encryption_context is not None:
-            result += (
-                f"stored_encryption_context={repr(self.stored_encryption_context)}, "
-            )
+            result += f"stored_encryption_context={repr(self.stored_encryption_context)}, "
 
         if self.encryption_context is not None:
             result += f"encryption_context={repr(self.encryption_context)}, "
