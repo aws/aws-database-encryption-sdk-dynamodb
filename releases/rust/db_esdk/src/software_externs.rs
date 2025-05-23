@@ -58,6 +58,9 @@ pub mod software {
                                 }
 
                                 impl InternalLegacyOverride {
+                                    pub fn policy(&self) -> Rc<LegacyPolicy> {
+                                        self.r#__i_policy.clone()
+                                    }
                                     pub fn Build(
                                         config: &Rc<crate::software::amazon::cryptography::dbencryptionsdk::dynamodb::itemencryptor::internaldafny::types::DynamoDbItemEncryptorConfig>,
                                     ) -> Rc<
