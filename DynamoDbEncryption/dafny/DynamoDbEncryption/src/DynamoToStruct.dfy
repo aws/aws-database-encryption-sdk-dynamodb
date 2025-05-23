@@ -32,20 +32,37 @@ module DynamoToStruct {
 
   // Identical to ItemToStructured, except that the result does not include any attributes configured as DO_NOTHING\
   // Such attributes are unneeded, as they do not partake in signing nor encryption
-  function method ItemToStructured2(item : AttributeMap, actions : Types.AttributeActions) : (ret : Result<TerminalDataMap, Error>)
+  function ItemToStructured2(item : AttributeMap, actions : Types.AttributeActions) : (ret : Result<TerminalDataMap, Error>)
   {
-    // var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
-    // return MakeError("Not valid attribute names : ");
-
     var structuredMap := map k <- item | k !in actions || actions[k] != DO_NOTHING || ReservedPrefix <= k :: k := AttrToStructured(item[k]);
     MapKeysMatchItems(item);
     MapError(SimplifyMapValue(structuredMap))
+  }
+  by method {
+    var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(item.Keys);
+    var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
+    SequenceIsSafeBecauseItIsInMemory(attrNames);
+    for i : uint64 := 0 to |attrNames| as uint64 {
+      var k := attrNames[i];
+      if k !in actions || actions[k] != DO_NOTHING || ReservedPrefix <= k {
+        var val := AttrToStructured(item[k]);
+        if val.Failure? {
+          var result := Failure(E(val.error));
+          assume {:axiom} ItemToStructured2(item, actions) == result;
+          return result;
+        }
+        m.Put(k, val.value);
+      }
+    }
+    var result := Success(m.content());
+    assume {:axiom} ItemToStructured2(item, actions) == result;
+    return result;
   }
 
   // Identical to StructuredToItem, except that any non encrypted fields in the original are passed through unchanged
   // and only encrypted fields are run through StructuredToAttr
   // This one is used for encryption, and so anything in s but not in orig is also kept
-  function method StructuredToItemEncrypt(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
+  function StructuredToItemEncrypt(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
   {
     var ddbMap := map k <- orig :: k := if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) then StructuredToAttr(s[k]) else Success(orig[k]);
     MapKeysMatchItems(orig);
@@ -57,15 +74,78 @@ module DynamoToStruct {
 
     Success(oldMap + newMap)
   }
+  by method {
+    var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(orig.Keys);
+    var m := new DafnyLibraries.MutableMap<AttributeName, AttributeValue>();
+    SequenceIsSafeBecauseItIsInMemory(attrNames);
+    for i : uint64 := 0 to |attrNames| as uint64 {
+      var k := attrNames[i];
+      if !(ReservedPrefix <= k) {
+        if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) {
+          var val := StructuredToAttr(s[k]);
+          if val.Failure? {
+            var result := Failure(E(val.error));
+            assume {:axiom} StructuredToItemEncrypt(s, orig, actions) == result;
+            return result;
+          }
+          m.Put(k, val.value);
+        } else {
+          m.Put(k, orig[k]);
+        }
+      }
+    }
+    attrNames := SortedSets.ComputeSetToSequence(s.Keys);
+    SequenceIsSafeBecauseItIsInMemory(attrNames);
+    for i : uint64 := 0 to |attrNames| as uint64 {
+      var k := attrNames[i];
+      if k !in orig {
+        var val := StructuredToAttr(s[k]);
+        if val.Failure? {
+          var result := Failure(E(val.error));
+          assume {:axiom} StructuredToItemEncrypt(s, orig, actions) == result;
+          return result;
+        }
+        m.Put(k, val.value);
+      }
+    }
+
+    var result := Success(m.content());
+    assume {:axiom} StructuredToItemEncrypt(s, orig, actions) == result;
+    return result;
+  }
 
   // Identical to StructuredToItem, except that any non encrypted fields in the original are passed through unchanged
   // and only encrypted fields are run through StructuredToAttr\
   // This one is used for decryption, and so anything in s but not in orig is ignored
-  function method StructuredToItemDecrypt(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
+  function StructuredToItemDecrypt(s : TerminalDataMap, orig : AttributeMap, actions : CryptoSchemaMap) : (ret : Result<AttributeMap, Error>)
   {
     var ddbMap := map k <- orig | !(ReservedPrefix <= k) :: k := if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) then StructuredToAttr(s[k]) else Success(orig[k]);
     MapKeysMatchItems(orig);
     MapError(SimplifyMapValue(ddbMap))
+  }
+  by method {
+    var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(orig.Keys);
+    var m := new DafnyLibraries.MutableMap<AttributeName, AttributeValue>();
+    SequenceIsSafeBecauseItIsInMemory(attrNames);
+    for i : uint64 := 0 to |attrNames| as uint64 {
+      var k := attrNames[i];
+      if !(ReservedPrefix <= k) {
+        if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) {
+          var val := StructuredToAttr(s[k]);
+          if val.Failure? {
+            var result := Failure(E(val.error));
+            assume {:axiom} StructuredToItemDecrypt(s, orig, actions) == result;
+            return result;
+          }
+          m.Put(k, val.value);
+        } else {
+          m.Put(k, orig[k]);
+        }
+      }
+    }
+    var result := Success(m.content());
+    assume {:axiom} StructuredToItemDecrypt(s, orig, actions) == result;
+    return result;
   }
 
   // Convert AttributeMap to StructuredDataMap
@@ -520,13 +600,15 @@ module DynamoToStruct {
     Success(count + body)
   }
 
-  // Specifying the parent (particularly, as the first parameter),
-  // along with the corresponding precondition,
-  // lets Dafny find the correct termination metric.
-  // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
-  function method MapAttrToBytes(ghost parent: AttributeValue, m: MapAttributeValue, depth : uint64): (ret: Result<seq<uint8>, string>)
+  function MapAttrToBytesGhost(parent: AttributeValue, m: MapAttributeValue, depth : uint64): (ret: Result<seq<uint8>, string>)
     requires forall k <- m :: m[k] < parent
     requires depth <= MAX_STRUCTURE_DEPTH
+    decreases parent, 1
+    ensures ret.Success? ==>
+              && U32ToBigEndian(|m|).Success?
+              && |ret.value| >= LENGTH_LEN
+              && (|m| == 0 ==> |ret.value| == LENGTH_LEN)
+              && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|m|).value
   {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#value-type
     //# Value Type MUST be the [Type ID](#type-id) of the type of [Map Value](#map-value).
@@ -549,6 +631,53 @@ module DynamoToStruct {
     var body :- CollectMap(bytes);
     Success(count + body)
   }
+
+  // Specifying the parent (particularly, as the first parameter),
+  // along with the corresponding precondition,
+  // lets Dafny find the correct termination metric.
+  // See "The Parent Trick" for details: <https://leino.science/papers/krml283.html>.
+  function MapAttrToBytes(parent: AttributeValue, m: MapAttributeValue, depth : uint64): (ret: Result<seq<uint8>, string>)
+    requires forall k <- m :: m[k] < parent
+    requires depth <= MAX_STRUCTURE_DEPTH
+    decreases parent, 2
+    ensures ret.Success? ==>
+              && U32ToBigEndian(|m|).Success?
+              && |ret.value| >= LENGTH_LEN
+              && (|m| == 0 ==> |ret.value| == LENGTH_LEN)
+              && ret.value[0..LENGTH_LEN] == U32ToBigEndian(|m|).value
+  {
+    MapAttrToBytesGhost(parent, m, depth)
+  }
+  by method {
+    //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
+    //# Entries in a serialized Map MUST be ordered by key value,
+    //# ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
+    var attrNames := SortedSets.ComputeSetToOrderedSequence2(m.Keys, CharLess);
+    SequenceIsSafeBecauseItIsInMemory(attrNames);
+    var len := |attrNames| as uint64;
+    var output :- U32ToBigEndian64(len);
+    for i : uint64 := 0 to len {
+      var k := attrNames[i];
+      var val := AttrToBytes(m[k], true, depth+1);
+      if val.Failure? {
+        var result := Failure(val.error);
+        assume {:axiom} MapAttrToBytesGhost(parent, m, depth) == result;
+        return result;
+      }
+      var data := SerializeMapItem(k, val.value);
+      if data.Failure? {
+        var result := Failure(data.error);
+        assume {:axiom} MapAttrToBytesGhost(parent, m, depth) == result;
+        return result;
+      }
+      output := output + data.value;
+    }
+
+    var result := Success(output);
+    assume {:axiom} MapAttrToBytesGhost(parent, m, depth) == result;
+    return result;
+  }
+
 
   function method ListAttrToBytes(l: ListAttributeValue, depth : uint64): (ret: Result<seq<uint8>, string>)
     requires depth <= MAX_STRUCTURE_DEPTH
