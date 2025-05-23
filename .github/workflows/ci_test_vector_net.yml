@@ -62,7 +62,6 @@ jobs:
           dafny-version: ${{ inputs.dafny }}
 
       - name: Update MPL submodule if using MPL HEAD
-        if: ${{ inputs.mpl-head == true }}
         working-directory: submodules/MaterialProviders
         run: |
           git checkout main
