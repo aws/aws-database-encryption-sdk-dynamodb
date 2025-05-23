@@ -66,17 +66,6 @@ runs:
         git pull
         git submodule update --init --recursive
 
-    - name: Setup Java 17 for smithy-dafny
-      uses: actions/setup-java@v3
-      with:
-        distribution: "corretto"
-        java-version: 17
-
-    - name: Install smithy-dafny dependencies locally
-      shell: bash
-      run: |
-        make -C submodules/smithy-dafny mvn_local_deploy_polymorph_dependencies
-
     - name: Update top-level project.properties file in MPL
       if: inputs.update-and-regenerate-mpl == 'true'
       shell: bash
