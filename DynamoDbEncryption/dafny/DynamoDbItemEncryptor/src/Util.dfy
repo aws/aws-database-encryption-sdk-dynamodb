@@ -8,6 +8,8 @@ module DynamoDbItemEncryptorUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
+
   import UTF8
   import MPL = AwsCryptographyMaterialProvidersTypes
   import DDB = ComAmazonawsDynamodbTypes
@@ -18,7 +20,6 @@ module DynamoDbItemEncryptorUtil {
   const ReservedPrefix := "aws_dbe_"
   const BeaconPrefix := ReservedPrefix + "b_"
   const VersionPrefix := ReservedPrefix + "v_"
-  const MAX_ATTRIBUTE_COUNT := 100
 
   function method E(msg : string) : Error
   {
@@ -35,9 +36,20 @@ module DynamoDbItemEncryptorUtil {
     x < y
   }
 
-  const TABLE_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-table-name")
-  const PARTITION_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-partition-name")
-  const SORT_NAME : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii("aws-crypto-sort-name")
+  const TABLE_NAME : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x2d, 0x6e, 0x61, 0x6d, 0x65];
+    assert s == UTF8.EncodeAscii("aws-crypto-table-name");
+    s
+
+  const PARTITION_NAME : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x70, 0x61, 0x72, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x2d, 0x6e, 0x61, 0x6d, 0x65];
+    assert s == UTF8.EncodeAscii("aws-crypto-partition-name");
+    s
+
+  const SORT_NAME : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x73, 0x6f, 0x72, 0x74, 0x2d, 0x6e, 0x61, 0x6d, 0x65];
+    assert s == UTF8.EncodeAscii("aws-crypto-sort-name");
+    s
 
   const SELECTOR_TABLE_NAME : DDB.AttributeName := "aws_dbe_table_name"
   const SELECTOR_PARTITION_NAME : DDB.AttributeName := "aws_dbe_partition_name"
@@ -170,7 +182,8 @@ module DynamoDbItemEncryptorUtil {
       Success(value)
     else if legend == SE.LEGEND_BINARY then
       var terminal :- SE.DecodeTerminal(ecValue);
-      var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false);
+      MemoryMath.ValueIsSafeBecauseItIsInMemory(|terminal.value|);
+      var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, Some(|terminal.value| as uint64));
       Success(ddbAttrValue.val)
     else
       Failure("Encryption Context Legend has unexpected character : '" + [legend] + "'.")
@@ -180,25 +193,32 @@ module DynamoDbItemEncryptorUtil {
     keys : seq<UTF8.ValidUTF8Bytes>,
     context : MPL.EncryptionContext,
     legend : string,
+    keyPos : uint64 := 0,
+    legendPos : uint64 := 0,
     attrMap : DDB.AttributeMap := map[]
   )
     : Result<DDB.AttributeMap, string>
     requires forall k <- keys :: k in context
+    requires keyPos as nat <= |keys|
+    requires legendPos as nat <= |legend|
+    decreases |keys| - keyPos as nat
   {
-    if |keys| == 0 then
-      if |legend| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    SequenceIsSafeBecauseItIsInMemory(legend);
+    if |keys| as uint64 == keyPos then
+      if |legend| as uint64 == legendPos then
         Success(attrMap)
       else
         Failure("Encryption Context Legend is too long.")
     else
-      var key : UTF8.ValidUTF8Bytes := keys[0];
+      var key : UTF8.ValidUTF8Bytes := keys[keyPos];
       if SE.EC_ATTR_PREFIX < key then
-        :- Need(0 < |legend|, "Encryption Context Legend is too short.");
+        :- Need(legendPos < |legend| as uint64, "Encryption Context Legend is too short.");
         var attrName :- GetAttributeName(key);
-        var attrValue :- GetAttrValue(context[key], legend[0]);
-        GetV2AttrMap(keys[1..], context, legend[1..], attrMap[attrName := attrValue])
+        var attrValue :- GetAttrValue(context[key], legend[legendPos]);
+        GetV2AttrMap(keys, context, legend, keyPos+1, legendPos+1, attrMap[attrName := attrValue])
       else
-        GetV2AttrMap(keys[1..], context, legend, attrMap)
+        GetV2AttrMap(keys, context, legend, keyPos+1, legendPos, attrMap)
   }
 
   function method GetAttributeName(ddbAttrKey: UTF8.ValidUTF8Bytes)
@@ -220,7 +240,8 @@ module DynamoDbItemEncryptorUtil {
 
     // Obtain attribute value from EC kvPair value
     var terminal :- SE.DecodeTerminal(encodedAttrValue);
-    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, false);
+    MemoryMath.ValueIsSafeBecauseItIsInMemory(|terminal.value|);
+    var ddbAttrValue :- DynamoToStruct.BytesToAttr(terminal.value, terminal.typeId, Some(|terminal.value| as uint64));
 
     // Add to our AttributeMap
     Success(attrMap[ddbAttrName := ddbAttrValue.val])

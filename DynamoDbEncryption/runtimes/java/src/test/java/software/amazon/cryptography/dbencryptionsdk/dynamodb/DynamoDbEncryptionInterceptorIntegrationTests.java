@@ -945,7 +945,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
   @Test(
     expectedExceptions = CollectionOfErrors.class,
-    expectedExceptionsMessageRegExp = "Raw AES Keyring was unable to decrypt any encrypted data key. The list of encountered Exceptions is avaible via `list`."
+    expectedExceptionsMessageRegExp = "Raw AES Keyring was unable to decrypt any encrypted data key. The list of encountered Exceptions is avaible via `list`.*"
   )
   public void TestOnDecryptKeyringFailure() throws Throwable {
     String partitionValue = "expectedOnDecryptKeyringFailure";

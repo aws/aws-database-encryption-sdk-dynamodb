@@ -13,7 +13,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
-  import opened StandardLibrary.String
   import JSON.API
   import opened JSON.Values
   import JSON.Errors
@@ -39,14 +38,22 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import SI = SearchableEncryptionInfo
   import MaterialProviders
   import MPT = AwsCryptographyMaterialProvidersTypes
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import ParseJsonManifests
+  import Time
+  import Trans = AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import TransOp = AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations
+  import DdbMiddlewareConfig
+  import DynamoDbEncryptionTransforms
+  import OsLang
 
+  const PerfIterations : uint32 := 1000
 
   datatype TestVectorConfig = TestVectorConfig (
     schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
     tableEncryptionConfigs : map<ConfigName, TableConfig>,
+    largeEncryptionConfigs : map<ConfigName, TableConfig>,
     queries : seq<SimpleQuery>,
     names : DDB.ExpressionAttributeNameMap,
     values : DDB.ExpressionAttributeValueMap,
@@ -58,14 +65,19 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     writeTests : seq<WriteTest>,
     roundTripTests : seq<RoundTripTest>,
     decryptTests : seq<DecryptTest>,
-    strings : seq<string>
+    strings : seq<string>,
+    large : seq<LargeRecord>
   ) {
 
-    method RunAllTests()
+    method RunAllTests(keyVectors: KeyVectors.KeyVectorsClient)
+      requires keyVectors.ValidState()
+      modifies keyVectors.Modifies
+      ensures keyVectors.ValidState()
     {
       print "DBE Test Vectors\n";
       print |globalRecords|, " records.\n";
       print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
+      print |largeEncryptionConfigs|, " largeEncryptionConfigs.\n";
       print |queries|, " queries.\n";
       print |names|, " names.\n";
       print |values|, " values.\n";
@@ -75,6 +87,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       print |configsForIoTest|, " configsForIoTest.\n";
       print |configsForModTest|, " configsForModTest.\n";
       print |strings|, " strings.\n";
+      print |large|, " large.\n";
       if |roundTripTests| != 0 {
         print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
       }
@@ -82,21 +95,23 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json");
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json");
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
       var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3");
-      var _ :- expect DecryptManifest.Decrypt("decrypt.json");
+      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
       if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
         print "\nRunning no tests\n";
         return;
       }
       Validate();
       StringOrdering();
+      LargeTests();
       BasicIoTest();
       RunIoTests();
       BasicQueryTest();
@@ -474,6 +489,85 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    const TestConfigs : set<string> := {"all"}
+    const TestRecords : set<string> := {"all"}
+
+    predicate DoTestConfig(name : string)
+    {
+      "all" in TestConfigs || name in TestConfigs
+    }
+
+    predicate DoTestRecord(name : string)
+    {
+      "all" in TestRecords || name in TestRecords
+    }
+
+    method LargeTests()
+    {
+      print "LargeTests\n";
+      DoLargeTest("do_nothing");
+      DoLargeTest("do_nothing_nosign");
+      DoLargeTest("full_encrypt");
+      DoLargeTest("full_encrypt_nosign");
+      DoLargeTest("full_sign");
+      DoLargeTest("full_sign_nosign");
+    }
+
+    method DoLargeTest(config : string)
+    {
+      if !DoTestConfig(config) {
+        return;
+      }
+      expect config in largeEncryptionConfigs;
+      var tconfig := largeEncryptionConfigs[config];
+      var configs := Types.DynamoDbTablesEncryptionConfig (
+        tableEncryptionConfigs := map[TableName := tconfig.config]
+      );
+      // because there are lots of pre-conditions on configs
+      assume {:axiom} false;
+      var client :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
+      LargeTestsClient(client, config);
+    }
+
+    method LargeTestsClient(client : Trans.IDynamoDbEncryptionTransformsClient, config : string)
+      requires client.ValidState()
+      ensures client.ValidState()
+      modifies client.Modifies
+    {
+      for i := 0 to |large| {
+        RunLargeTest(large[i], client, config);
+      }
+    }
+
+    method RunLargeTest(record : LargeRecord, client : Trans.IDynamoDbEncryptionTransformsClient, config : string)
+      requires client.ValidState()
+      ensures client.ValidState()
+      modifies client.Modifies
+    {
+      if !DoTestRecord(record.name) {
+        return;
+      }
+
+      var time := Time.GetAbsoluteTime();
+      for i : uint32 := 0 to PerfIterations {
+        var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
+        var put_input_output :- expect client.PutItemInputTransform(put_input_input);
+      }
+      Time.PrintTimeSinceLong(time, "Large Encrypt " + record.name + " " + config, DecryptManifest.LogFileName());
+
+      var put_input_input := Trans.PutItemInputTransformInput ( sdkInput := DDB.PutItemInput (TableName := TableName, Item := record.item));
+      var put_input_output :- expect client.PutItemInputTransform(put_input_input);
+      time := Time.GetAbsoluteTime();
+      for i : uint32 := 0 to PerfIterations {
+        var orig_get_input := DDB.GetItemInput(TableName := TableName, Key := map[]);
+        var get_output := DDB.GetItemOutput(Item := Some(put_input_output.transformedInput.Item));
+        var trans_get_input := Trans.GetItemOutputTransformInput(sdkOutput := get_output, originalInput := orig_get_input);
+        var put_output :- expect client.GetItemOutputTransform(trans_get_input);
+
+      }
+      Time.PrintTimeSinceLong(time, "Large Decrypt " + record.name + " " + config, DecryptManifest.LogFileName());
+    }
+
     method RoundTripTests()
     {
       print "RoundTripTests\n";
@@ -550,8 +644,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         jsonItems := jsonItems + [item];
       }
       var jsonBytes :- expect API.Serialize(Array(jsonItems));
-      var jsonBv := BytesBv(jsonBytes);
-      var x := FileIO.WriteBytesToFile(fileName, jsonBv);
+      var x := FileIO.WriteBytesToFile(fileName, jsonBytes);
       expect x.Success?;
     }
 
@@ -572,13 +665,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         results[i] := FullSearch(client, queries[i]);
       }
 
-      var configs := tableEncryptionConfigs.Keys;
-      while configs != {}
-        decreases |configs|
-        invariant forall k <- configs :: k in tableEncryptionConfigs
+      var configs := SortedSets.ComputeSetToOrderedSequence2(tableEncryptionConfigs.Keys, CharLess);
+      for i := 0 to |configs|
       {
-        var config :| config in configs;
-        configs := configs - { config };
+        var config := configs[i];
         BasicQueryTestConfig(tableEncryptionConfigs[config], results, globalRecords);
       }
     }
@@ -990,10 +1080,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   function MakeEmptyTestVector() : TestVectorConfig
   {
-    TestVectorConfig(MakeCreateTableInput(), [], map[], [], map[], map[], [], [], [], [], [], [], [], [], [])
+    TestVectorConfig(MakeCreateTableInput(), [], map[], map[], [], map[], map[], [], [], [], [], [], [], [], [], [], [])
   }
 
-  method ParseTestVector(data : JSON, prev : TestVectorConfig) returns (output : Result<TestVectorConfig, string>)
+  method ParseTestVector(data : JSON, prev : TestVectorConfig, keyVectors: KeyVectors.KeyVectorsClient)
+    returns (output : Result<TestVectorConfig, string>)
+    requires keyVectors.ValidState()
+    modifies keyVectors.Modifies
+    ensures keyVectors.ValidState()
   {
     :- Need(data.Object?, "Top Level JSON must be an object.");
     var records : seq<Record> := [];
@@ -1007,10 +1101,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     var ioTests : seq<IoTest> := [];
     var gsi : seq<DDB.GlobalSecondaryIndex> := [];
     var tableEncryptionConfigs : map<string, TableConfig> := map[];
+    var largeEncryptionConfigs : map<string, TableConfig> := map[];
     var writeTests : seq<WriteTest> := [];
     var roundTripTests : seq<RoundTripTest> := [];
     var decryptTests : seq<DecryptTest> := [];
     var strings : seq<string> := [];
+    var large : seq<LargeRecord> := [];
 
     for i := 0 to |data.obj| {
       match data.obj[i].0 {
@@ -1022,13 +1118,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         case "Names" => names :- GetNameMap(data.obj[i].1);
         case "Values" => values :- GetValueMap(data.obj[i].1);
         case "Complex" => complexTests :- GetComplexTests(data.obj[i].1);
-        case "IoTests" => ioTests :- GetIoTests(data.obj[i].1);
+        case "IoTests" => ioTests :- GetIoTests(data.obj[i].1, keyVectors);
         case "GSI" => gsi :- GetGSIs(data.obj[i].1);
-        case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1);
-        case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1);
-        case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1);
-        case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1);
+        case "tableEncryptionConfigs" => tableEncryptionConfigs :- GetTableConfigs(data.obj[i].1, keyVectors);
+        case "largeEncryptionConfigs" => largeEncryptionConfigs :- GetTableConfigs(data.obj[i].1, keyVectors);
+        case "WriteTests" => writeTests :- GetWriteTests(data.obj[i].1, keyVectors);
+        case "RoundTripTest" => roundTripTests :- GetRoundTripTests(data.obj[i].1, keyVectors);
+        case "DecryptTests" => decryptTests :- GetDecryptTests(data.obj[i].1, keyVectors);
         case "Strings" => strings :- GetStrings(data.obj[i].1);
+        case "Large" => large :- GetLarges(data.obj[i].1);
         case _ => return Failure("Unexpected top level tag " + data.obj[i].0);
       }
     }
@@ -1039,6 +1137,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         schemaOnEncrypt := newSchema,
         globalRecords := prev.globalRecords + records,
         tableEncryptionConfigs := prev.tableEncryptionConfigs + tableEncryptionConfigs,
+        largeEncryptionConfigs := prev.largeEncryptionConfigs + largeEncryptionConfigs,
         queries := prev.queries + queries,
         failingQueries := prev.failingQueries + failingQueries,
         names := prev.names + names,
@@ -1050,7 +1149,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         writeTests := prev.writeTests + writeTests,
         roundTripTests := prev.roundTripTests + roundTripTests,
         decryptTests := prev.decryptTests + decryptTests,
-        strings := prev.strings + strings
+        strings := prev.strings + strings,
+        large := prev.large + large
       )
     );
   }

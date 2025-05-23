@@ -17,9 +17,35 @@ module TestHeader {
   import opened StructuredEncryptionHeader
   import opened StructuredEncryptionPaths
   import opened UTF8
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import AlgorithmSuites
   import Canonize
+
+  const abc : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x62, 0x63];
+    assert s == UTF8.EncodeAscii("abc");
+    s
+
+  const def : UTF8.ValidUTF8Bytes :=
+    var s := [0x64, 0x65, 0x66];
+    assert s == UTF8.EncodeAscii("def");
+    s
+
+  const cba : UTF8.ValidUTF8Bytes :=
+    var s := [0x63, 0x62, 0x61];
+    assert s == UTF8.EncodeAscii("cba");
+    s
+
+  const fed : UTF8.ValidUTF8Bytes :=
+    var s := [0x66, 0x65, 0x64];
+    assert s == UTF8.EncodeAscii("fed");
+    s
+
+  const provID : UTF8.ValidUTF8Bytes :=
+    var s := [0x70, 0x72, 0x6f, 0x76, 0x49, 0x44];
+    assert s == UTF8.EncodeAscii("provID");
+    s
+
 
   method {:test} TestRoundTrip() {
     var head := PartialHeader (
@@ -27,9 +53,9 @@ module TestHeader {
       flavor := 1,
       msgID := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
       legend := [0x65, 0x73],
-      encContext := map[EncodeAscii("abc") := EncodeAscii("def")],
+      encContext := map[abc := def],
       dataKeys := [CMP.EncryptedDataKey(
-                     keyProviderId := EncodeAscii("provID") ,
+                     keyProviderId := provID,
                      keyProviderInfo := [1,2,3,4,5],
                      ciphertext := [6,7,8,9])]
     );
@@ -45,9 +71,9 @@ module TestHeader {
       flavor := 1,
       msgID := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
       legend := [0x65, 0x73],
-      encContext := map[EncodeAscii("abc") := EncodeAscii("def")],
+      encContext := map[abc := def],
       dataKeys := [CMP.EncryptedDataKey(
-                     keyProviderId := EncodeAscii("provID") ,
+                     keyProviderId := provID,
                      keyProviderInfo := [1,2,3,4,5],
                      ciphertext := [6,7,8,9])]
     );
@@ -76,7 +102,7 @@ module TestHeader {
   const e : uint8 := 'e' as uint8
   const f : uint8 := 'f' as uint8
   method {:test} TestDuplicateContext() {
-    var cont : CMPEncryptionContext := map[EncodeAscii("abc") := EncodeAscii("def"), EncodeAscii("cba") := EncodeAscii("fed")];
+    var cont : CMPEncryptionContext := map[abc := def, cba := fed];
     var serCont := SerializeContext(cont);
     expect serCont == [
                         0,2, // two items
@@ -88,7 +114,7 @@ module TestHeader {
     var newCont := GetContext(serCont);
     expect newCont.Success?;
     expect newCont.value.0 == cont;
-    expect newCont.value.1 == |serCont|;
+    expect newCont.value.1 == |serCont| as uint64;
 
     var badSerCont := [
       0,3, // three items

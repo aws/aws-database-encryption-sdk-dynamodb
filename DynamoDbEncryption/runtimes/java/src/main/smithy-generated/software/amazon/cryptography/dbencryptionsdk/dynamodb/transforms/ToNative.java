@@ -13,6 +13,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internal
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_DynamoDbEncryptionTransformsException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_Opaque;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.Error_OpaqueWithText;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.IDynamoDbEncryptionTransformsClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.BatchExecuteStatementInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.BatchExecuteStatementInputTransformOutput;
@@ -45,6 +46,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Ge
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemOutputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemOutputTransformInput;
@@ -77,6 +79,17 @@ public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue.dtor_obj());
+    return nativeBuilder.build();
+  }
+
+  public static OpaqueWithTextError Error(Error_OpaqueWithText dafnyValue) {
+    OpaqueWithTextError.Builder nativeBuilder = OpaqueWithTextError.builder();
+    nativeBuilder.obj(dafnyValue.dtor_obj());
+    nativeBuilder.objMessage(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_objMessage()
+      )
+    );
     return nativeBuilder.build();
   }
 
@@ -118,6 +131,9 @@ public class ToNative {
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
     }
+    if (dafnyValue.is_OpaqueWithText()) {
+      return ToNative.Error((Error_OpaqueWithText) dafnyValue);
+    }
     if (dafnyValue.is_CollectionOfErrors()) {
       return ToNative.Error((Error_CollectionOfErrors) dafnyValue);
     }
@@ -139,6 +155,11 @@ public class ToNative {
     if (dafnyValue.is_AwsCryptographyDbEncryptionSdkStructuredEncryption()) {
       return software.amazon.cryptography.dbencryptionsdk.structuredencryption.ToNative.Error(
         dafnyValue.dtor_AwsCryptographyDbEncryptionSdkStructuredEncryption()
+      );
+    }
+    if (dafnyValue.is_AwsCryptographyMaterialProviders()) {
+      return software.amazon.cryptography.materialproviders.ToNative.Error(
+        dafnyValue.dtor_AwsCryptographyMaterialProviders()
       );
     }
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();

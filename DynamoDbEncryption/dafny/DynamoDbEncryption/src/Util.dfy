@@ -14,7 +14,7 @@ module DynamoDbEncryptionUtil {
   const BeaconPrefix := "aws_dbe_b_"
   const VersionPrefix := "aws_dbe_v_"
 
-  const MAX_STRUCTURE_DEPTH := 32
+  const MAX_STRUCTURE_DEPTH : uint64 := 32
   const MAX_STRUCTURE_DEPTH_STR := "32"
 
   type HmacKeyMap = map<string, Bytes>
@@ -26,7 +26,7 @@ module DynamoDbEncryptionUtil {
   //
   // Counterintuitively, DontUseKeys and DontUseKeyId are very different things.
   // DontUseKeyId is the usual thing for single tenant, meaning to use the pre-configured
-  // KeyId, rather than fnd a new one from somewhere.
+  // KeyId, rather than find a new one from somewhere.
   // DontUseKeys means to not hash the values into beacons,
   // but to leave them plaintext, which is necessary for the post-query filtering.
   datatype MaybeKeyMap =

@@ -1,0 +1,35 @@
+[package]
+name = "aws-db-esdk"
+version = "1.1.0"
+edition = "2021"
+rust-version = "1.81.0"
+keywords = ["cryptography", "security", "dynamodb", "encryption", "client-side"]
+license = "ISC AND (Apache-2.0 OR ISC)"
+description = "aws-db-esdk is a library for implementing client side encryption with DynamoDB."
+homepage = "https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk"
+repository = "https://github.com/aws/aws-database-encryption-sdk-dynamodb/tree/main/releases/rust/db_esdk"
+authors = ["AWS-CryptoTools"]
+documentation = "https://docs.rs/crate/aws-db-esdk"
+autoexamples = false
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aws-config = "1.6.2"
+aws-lc-rs = "1.13.1"
+aws-lc-sys = "0.29.0"
+aws-sdk-dynamodb = "1.73.0"
+aws-sdk-kms = "1.67.0"
+aws-smithy-runtime-api = {version = "1.8.0", features = ["client"] }
+aws-smithy-types = "1.3.1"
+chrono = "0.4.41"
+cpu-time = "1.0.0"
+dafny-runtime = { version = "0.3.0", features = ["sync", "small-int"] }
+dashmap = "6.1.0"
+pem = "3.0.5"
+tokio = {version = "1.45.0", features = ["full"] }
+uuid = { version = "1.16.0", features = ["v4"] }
+
+[[example]]
+name = "main"

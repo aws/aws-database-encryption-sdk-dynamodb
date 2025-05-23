@@ -4,6 +4,9 @@
 # Ignore Gradle build output directory
 build
 
+# Ignore bin
+bin
+
 # JetBrains
 .idea/*
 *.iml

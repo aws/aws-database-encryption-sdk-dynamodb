@@ -14,6 +14,7 @@ import java.util.Map;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_CollectionOfErrors;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_Opaque;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_OpaqueWithText;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.Error_StructuredEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.IStructuredEncryptionClient;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.AuthItem;
@@ -30,6 +31,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.E
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.EncryptStructureInput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.EncryptStructureOutput;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.OpaqueError;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ParsedHeader;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.PathSegment;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.ResolveAuthActionsInput;
@@ -44,6 +46,17 @@ public class ToNative {
   public static OpaqueError Error(Error_Opaque dafnyValue) {
     OpaqueError.Builder nativeBuilder = OpaqueError.builder();
     nativeBuilder.obj(dafnyValue.dtor_obj());
+    return nativeBuilder.build();
+  }
+
+  public static OpaqueWithTextError Error(Error_OpaqueWithText dafnyValue) {
+    OpaqueWithTextError.Builder nativeBuilder = OpaqueWithTextError.builder();
+    nativeBuilder.obj(dafnyValue.dtor_obj());
+    nativeBuilder.objMessage(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_objMessage()
+      )
+    );
     return nativeBuilder.build();
   }
 
@@ -82,6 +95,9 @@ public class ToNative {
     }
     if (dafnyValue.is_Opaque()) {
       return ToNative.Error((Error_Opaque) dafnyValue);
+    }
+    if (dafnyValue.is_OpaqueWithText()) {
+      return ToNative.Error((Error_OpaqueWithText) dafnyValue);
     }
     if (dafnyValue.is_CollectionOfErrors()) {
       return ToNative.Error((Error_CollectionOfErrors) dafnyValue);

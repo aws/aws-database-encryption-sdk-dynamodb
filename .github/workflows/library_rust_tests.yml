@@ -1,0 +1,136 @@
+# This workflow performs tests in Rust.
+name: Library Rust tests
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  testRust:
+    strategy:
+      fail-fast: false
+      matrix:
+        library: [DynamoDbEncryption, TestVectors]
+        # removed windows-latest because somehow it can't build aws-lc in CI
+        os: [ubuntu-22.04, macos-13]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      RUST_MIN_STACK: 838860800
+    steps:
+      - name: Setup Docker
+        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.0
+
+      - name: Setup DynamoDB Local
+        if: matrix.library == 'TestVectors'
+        uses: rrainn/dynamodb-action@v4.0.0
+        with:
+          port: 8000
+          cors: "*"
+
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
+      - uses: actions/checkout@v3
+      - name: Init Submodules
+        shell: bash
+        run: |
+          git submodule update --init --recursive submodules/smithy-dafny
+          git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Rust-Tests
+
+      - name: Setup Rust Toolchain for GitHub CI
+        uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
+        with:
+          components: rustfmt
+
+      - name: Setup Dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
+        with:
+          dafny-version: nightly-2025-01-30-7db1e5f
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Setup NASM for Windows (aws-lc-sys)
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/setup-nasm@v1
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Run make polymorph_rust
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make polymorph_rust
+
+      - name: Compile ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
+
+      - name: Copy ${{ matrix.library }} Vector Files
+        if: ${{ matrix.library == 'TestVectors' }}
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          cp runtimes/java/*.json runtimes/rust/
+
+      - name: Test ${{ matrix.library }} Rust
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make test_rust
+
+      - name: Test ${{ matrix.library }} Rust Debug
+        if: ${{ matrix.library != 'TestVectors' }}
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make test_rust test_rust_debug
+
+      - name: Test Examples for Rust in ${{ matrix.library }}
+        if: ${{ matrix.library == 'DynamoDbEncryption' }}
+        working-directory: ./${{ matrix.library }}/runtimes/rust/
+        shell: bash
+        run: |
+          cargo run --release --example main

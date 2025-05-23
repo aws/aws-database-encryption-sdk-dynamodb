@@ -23,6 +23,7 @@ module SearchConfigToInfo {
   import opened DynamoDbEncryptionUtil
   import opened TermLoc
   import opened StandardLibrary.String
+  import opened StandardLibrary.MemoryMath
   import MaterialProviders
   import SortedSets
 
@@ -32,12 +33,15 @@ module SearchConfigToInfo {
   import CB = CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import MPT = AwsCryptographyMaterialProvidersTypes
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
 
   // convert configured SearchConfig to internal SearchInfo
   method Convert(outer : DynamoDbTableEncryptionConfig)
     returns (output : Result<Option<I.ValidSearchInfo>, Error>)
     requires ValidSearchConfig(outer.search)
+    requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
+    modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
+    ensures outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
@@ -56,7 +60,8 @@ module SearchConfigToInfo {
     } else {
       :- Need(outer.search.value.writeVersion == 1, E("writeVersion must be '1'."));
       :- Need(|outer.search.value.versions| == 1, E("search config must be have exactly one version."));
-      var version :- ConvertVersion(outer, outer.search.value.versions[0]);
+      var beaconVersionConfig := outer.search.value.versions[0];
+      var version :- ConvertVersion(outer, beaconVersionConfig);
       var info := I.MakeSearchInfo(version);
       return Success(Some(info));
     }
@@ -72,6 +77,19 @@ module SearchConfigToInfo {
       true
     else
       forall b <- config.value.versions :: ValidBeaconVersion(b)
+  }
+
+  // Valid state of the provided shared cache, if it exists
+  predicate {:opaque} ValidSharedCache(config: BeaconKeySource)
+  {
+    && (&& config.single?
+        && config.single.cache.Some?
+        && config.single.cache.value.Shared?
+        ==> && config.single.cache.value.Shared.ValidState())
+    && (&& config.multi?
+        && config.multi.cache.Some?
+        && config.multi.cache.value.Shared?
+        ==> && config.multi.cache.value.Shared.ValidState())
   }
 
   // return true if, `keyFieldName` should be deleted from an item before writing
@@ -101,7 +119,10 @@ module SearchConfigToInfo {
   )
     returns (output : Result<I.KeySource, Error>)
     modifies client.Modifies
+    modifies keyStore.Modifies
     requires client.ValidState()
+    requires ValidSharedCache(config)
+    ensures ValidSharedCache(config)
     ensures client.ValidState()
     ensures output.Success? ==>
               && output.value.ValidState()
@@ -120,14 +141,20 @@ module SearchConfigToInfo {
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
   {
+    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // It is not-good that the MPL is initialized here;
+    // The MPL has a config object that could hold customer intent that affects behavior.
+    // Today, it does not. But tomorrow?
     var mplR := MaterialProviders.MaterialProviders();
     var mpl :- mplR.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     //= specification/searchable-encryption/search-config.md#key-store-cache
-    //# For a [Single Key Store](#single-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# MUST be 1
-    //# For a [Multi Key Store](#multi-key-store-initialization) the [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
-    //# MUST be key store's max cache size.
+    //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
+    //# MUST be created.
+    //# For a [Single Key Store](#single-key-store-initialization), either the user provides a cache, or we create a cache that has [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# equal to 1.
+    //# For a [Multi Key Store](#multi-key-store-initialization), either the user provides a cache, or we create a cache that has [Entry Capacity](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md#entry-capacity)
+    //# equal to 1000.
     var cacheType : MPT.CacheType :=
       if config.multi? then
         if config.multi.cache.Some? then
@@ -135,24 +162,76 @@ module SearchConfigToInfo {
         else
           MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1000))
       else
+      if config.single.cache.Some? then
+        // If the user provides a CacheType, and it is NOT Shared,
+        // we SHOULD only allow an entryCapacity = 1
+        // because the SingleKeyStore only ever caches one value.
+        // That is, we SHOULD add a check here for entryCapacity = 1.
+        // However, that requires us to write an if block for each CacheType.
+        // Also, it does NOT matter what the entryCapacity is, because the cache
+        // can only hold one element at a time.
+        config.single.cache.value
+      else
         MPT.Default(Default := MPT.DefaultCache(entryCapacity := 1));
 
-    //= specification/searchable-encryption/search-config.md#key-store-cache
-    //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
-    //# MUST be created.
-    var input := MPT.CreateCryptographicMaterialsCacheInput(
-      cache := cacheType
+    var cache;
+    if cacheType.Shared? {
+      cache := cacheType.Shared;
+      reveal ValidSharedCache();
+    } else {
+      //= specification/searchable-encryption/search-config.md#key-store-cache
+      //# For a Beacon Key Source a [CMC](../../submodules/MaterialProviders/aws-encryption-sdk-specification/framework/cryptographic-materials-cache.md)
+      //# MUST be created.
+      var input := MPT.CreateCryptographicMaterialsCacheInput(
+        cache := cacheType
+      );
+      var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
+      cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
+    }
+
+    var partitionIdBytes : seq<uint8>;
+
+    if config.multi? && config.multi.partitionId.Some? {
+      partitionIdBytes :- UTF8.Encode(config.multi.partitionId.value)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Partition ID from MultiKeyStore: " + e
+          )
+      );
+    }
+    else if config.single? && config.single.partitionId.Some? {
+      partitionIdBytes :- UTF8.Encode(config.single.partitionId.value)
+      .MapFailure(
+        e => Error.DynamoDbEncryptionException(
+            message := "Could not UTF-8 Encode Partition ID from SingleKeyStore: " + e
+          )
+      );
+    }
+    else {
+      partitionIdBytes :- I.GenerateUuidBytes();
+    }
+    var getKeyStoreInfoOutput? := keyStore.GetKeyStoreInfo();
+    var getKeyStoreInfoOutput :- getKeyStoreInfoOutput?.MapFailure(e => Error.AwsCryptographyKeyStore(e));
+    var logicalKeyStoreName : string := getKeyStoreInfoOutput.logicalKeyStoreName;
+    var logicalKeyStoreNameBytes : seq<uint8> :- UTF8.Encode(logicalKeyStoreName)
+    .MapFailure(
+      e => Error.DynamoDbEncryptionException(
+          message := "Could not UTF-8 Encode Logical Key Store Name: " + e
+        )
     );
-    var maybeCache := mpl.CreateCryptographicMaterialsCache(input);
-    var cache :- maybeCache.MapFailure(e => AwsCryptographyMaterialProviders(e));
 
     if config.multi? {
       :- Need(0 < config.multi.cacheTTL, E("Beacon Cache TTL must be at least 1."));
       var deleteKey :- ShouldDeleteKeyField(outer, config.multi.keyFieldName);
-      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.MultiLoc(config.multi.keyFieldName, deleteKey), cache, config.multi.cacheTTL as uint32, partitionIdBytes, logicalKeyStoreNameBytes));
     } else {
       :- Need(0 < config.single.cacheTTL, E("Beacon Cache TTL must be at least 1."));
-      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32));
+      output := Success(I.KeySource(client, keyStore, I.SingleLoc(config.single.keyId), cache, config.single.cacheTTL as uint32, partitionIdBytes, logicalKeyStoreNameBytes));
+    }
+    assert output.value.ValidState() by {
+      // This axiom is important because it is not easy to prove
+      // keyStore.Modifies !! cache.Modifies for a shared cache.
+      assume {:axiom} keyStore.Modifies !! cache.Modifies;
     }
   }
 
@@ -160,6 +239,9 @@ module SearchConfigToInfo {
   method ConvertVersion(outer : DynamoDbTableEncryptionConfig, config : BeaconVersion)
     returns (output : Result<I.ValidBeaconVersion, Error>)
     requires ValidBeaconVersion(config)
+    requires ValidSharedCache(config.keySource)
+    modifies config.keyStore.Modifies
+    ensures ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
@@ -676,15 +758,15 @@ module SearchConfigToInfo {
   function method MakeDefaultConstructor(
     parts : seq<CB.BeaconPart>,
     ghost allParts : seq<CB.BeaconPart>,
-    ghost numNon : nat,
+    ghost numNon : uint64,
     converted : seq<CB.ConstructorPart> := []
   )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts| + |converted|
     requires |allParts| == |parts| + |converted|
     requires parts == allParts[|converted|..]
-    requires numNon <= |allParts|
-    requires CB.OrderedParts(allParts, numNon)
+    requires numNon as nat <= |allParts|
+    requires CB.OrderedParts(allParts, numNon as nat)
     requires forall i | 0 <= i < |converted| ::
                && converted[i].part == allParts[i]
                && converted[i].required
@@ -695,7 +777,7 @@ module SearchConfigToInfo {
                  //= type=implication
                  //# * This default constructor MUST be all of the signed parts,
                  //# followed by all the encrypted parts, all parts being required.
-              && CB.OrderedParts(allParts, numNon)
+              && CB.OrderedParts(allParts, numNon as nat)
               && (forall i | 0 <= i < |ret.value[0].parts| ::
                     && ret.value[0].parts[i].part == allParts[i]
                     && ret.value[0].parts[i].required)
@@ -806,13 +888,13 @@ module SearchConfigToInfo {
     constructors : Option<ConstructorList>,
     name : string,
     parts : seq<CB.BeaconPart>,
-    ghost numSigned : nat
+    ghost numSigned : uint64
   )
     : (ret : Result<seq<CB.Constructor>, Error>)
     requires 0 < |parts|
     requires constructors.Some? ==> 0 < |constructors.value|
-    requires numSigned <= |parts|
-    requires CB.OrderedParts(parts, numSigned)
+    requires numSigned as nat <= |parts|
+    requires CB.OrderedParts(parts, numSigned as nat)
     ensures ret.Success? ==>
               && (constructors.None? ==> |ret.value| == 1)
               && (constructors.Some? ==> |ret.value| == |constructors.value|)
@@ -984,10 +1066,11 @@ module SearchConfigToInfo {
     :- Need(beacon.constructors.Some? || |signedParts| != 0 || |encryptedParts| != 0,
             E("Compound beacon " + beacon.name + " defines no constructors, and also no local parts. Cannot make a default constructor from global parts."));
 
-    var numNon := |signed|;
-    assert CB.OrderedParts(signed, numNon);
+    SequenceIsSafeBecauseItIsInMemory(signed);
+    var numNon := |signed| as uint64;
+    assert CB.OrderedParts(signed, numNon as nat);
     var allParts := signed + encrypted;
-    assert CB.OrderedParts(allParts, numNon);
+    assert CB.OrderedParts(allParts, numNon as nat);
 
     var isSignedBeacon := |encrypted| == 0;
     var _ :- BeaconNameAllowed(outer, virtualFields, beacon.name, "CompoundBeacon", isSignedBeacon);
@@ -1006,7 +1089,7 @@ module SearchConfigToInfo {
       ),
       beacon.split[0],
       allParts,
-      numNon,
+      numNon as nat,
       constructors
     )
   }

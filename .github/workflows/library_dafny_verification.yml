@@ -39,7 +39,7 @@ jobs:
             DynamoDbItemEncryptor,
             StructuredEncryption,
           ]
-        os: [macos-12]
+        os: [macos-13]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -53,7 +53,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -72,11 +72,15 @@ jobs:
           sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
       # dafny-reportgenerator requires next6
-      # but only 7.0 is installed on macos-12-large
+      # but only 7.0 is installed on macos-13-large
       - name: Setup .NET Core SDK '6.0.x'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
+
+      - name: Install Smithy-Dafny codegen dependencies
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}

@@ -9,7 +9,7 @@ on:
 
 jobs:
   findTodos:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
 
@@ -17,8 +17,8 @@ jobs:
         shell: bash
         # TODOs may be committed as long as the same line contains a link to a Github Issue or refers to a CrypTool SIM.
         run: |
-          ALL_TODO_COUNT=$( { grep -r "TODO" . --exclude-dir=./TestVectors/runtimes --exclude-dir=./submodules --exclude-dir=./.git --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
-          GOOD_TODO_COUNT=$( { grep -r "TODO.*\(github.com\/.*issues.*\/[1-9][0-9]*\|CrypTool-[1-9][0-9]*\)" . --exclude-dir=./submodules --exclude-dir=./.git  --exclude-dir=./TestVectors/runtimes --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
+          ALL_TODO_COUNT=$( { grep -r "TODO" . --exclude-dir=./releases --exclude-dir=./TestVectors/runtimes --exclude-dir=./submodules --exclude-dir=./.git --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
+          GOOD_TODO_COUNT=$( { grep -r "TODO.*\(github.com\/.*issues.*\/[1-9][0-9]*\|CrypTool-[1-9][0-9]*\)" . --exclude-dir=./releases --exclude-dir=./submodules --exclude-dir=./.git  --exclude-dir=./TestVectors/runtimes --exclude=./.github/workflows/ci_todos.yml || true; } | wc -l)
           if [ "$ALL_TODO_COUNT" != "$GOOD_TODO_COUNT" ]; then
             exit 1;
           fi

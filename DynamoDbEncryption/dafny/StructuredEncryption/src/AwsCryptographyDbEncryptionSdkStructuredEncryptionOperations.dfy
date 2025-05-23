@@ -13,13 +13,14 @@ include "Canonize.dfy"
 module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations {
   import opened StructuredEncryptionUtil
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import opened StandardLibrary.MemoryMath
 
   import Base64
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
   import StructuredEncryptionHeader
   import Random
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import Header = StructuredEncryptionHeader
   import Footer = StructuredEncryptionFooter
   import MaterialProviders
@@ -114,28 +115,42 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   function method {:opaque} GetBinary(data : AuthList, path : Path): (result: Result<StructuredDataTerminal, Error>)
     ensures result.Success? ==> exists x :: x in data && x.key == path
   {
-    var data := FindAuth(data, path);
+    var pos := FindAuth(data, path);
 
-    if data.None? then
+    if pos.None? then
       Failure(E("The field name " + Paths.PathToString(path) + " is required."))
-    else if data.value.data.typeId != BYTES_TYPE_ID then
+    else if data[pos.value].data.typeId != BYTES_TYPE_ID then
       Failure(E(Paths.PathToString(path) + " must be a binary Terminal."))
-    else if data.value.action != DO_NOT_SIGN then
+    else if data[pos.value].action != DO_NOT_SIGN then
       Failure(E(Paths.PathToString(path) + " must be DO_NOT_SIGN."))
     else
-      Success(data.value.data)
+      Success(data[pos.value].data)
   }
 
   // Return the sum of the sizes of the given fields
-  function method {:opaque} SumValueSize(fields : CanonCryptoList)
-    : nat
+  function {:opaque}  SumValueSize(fields : CanonCryptoList)
+    : uint64
   {
     if |fields| == 0 then
       0
     else if fields[0].action == ENCRYPT_AND_SIGN then
-      |fields[0].data.value| + SumValueSize(fields[1..])
+      SequenceIsSafeBecauseItIsInMemory(fields[0].data.value);
+      Add(|fields[0].data.value| as uint64, SumValueSize(fields[1..]))
     else
       SumValueSize(fields[1..])
+  } by method {
+    reveal SumValueSize();
+    var sum : uint64 := 0;
+    SequenceIsSafeBecauseItIsInMemory(fields);
+    for i : uint64 := |fields| as uint64 downto 0
+      invariant sum == SumValueSize(fields[i..])
+    {
+      if fields[i].action == ENCRYPT_AND_SIGN {
+        SequenceIsSafeBecauseItIsInMemory(fields[i].data.value);
+        sum := Add(|fields[i].data.value| as uint64, sum);
+      }
+    }
+    return sum;
   }
 
   function method {:opaque} GetAlgorithmSuiteId(alg : Option<CMP.DBEAlgorithmSuiteId>)
@@ -160,8 +175,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     cmm : CMP.ICryptographicMaterialsManager,
     encryptionContext : Option<CMP.EncryptionContext>,
     algorithmSuiteId: Option<CMP.DBEAlgorithmSuiteId>,
-    encryptedTerminalDataNum : nat,
-    totalEncryptedTerminalValuesSize : nat
+    encryptedTerminalDataNum : uint64,
+    totalEncryptedTerminalValuesSize : uint64
   )
     returns (ret : Result<CMP.EncryptionMaterials, Error>)
     ensures ret.Success? ==>
@@ -202,16 +217,16 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
               // - `totalEncryptedTerminalValuesSize` is the sum of the length of all [Terminal Values](./structures.md#terminal-value)
               //   in the [input Structured Data](#structured-data) being encrypted,
               //   as defined by the [input Crypto Schema](#crypto-schema).
-              && var maxLength :=  encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize;
-              && maxLength < INT64_MAX_LIMIT
+              && var maxLength : uint64 :=  Add3(encryptedTerminalDataNum, encryptedTerminalDataNum, totalEncryptedTerminalValuesSize);
+              && maxLength as nat < INT64_MAX_LIMIT
               && (getEncIn.maxPlaintextLength == Some(maxLength as int64))
 
     modifies cmm.Modifies
     requires cmm.ValidState()
     ensures cmm.ValidState()
   {
-    var maxLength :=  encryptedTerminalDataNum * 2 + totalEncryptedTerminalValuesSize;
-    :- Need(maxLength < INT64_MAX_LIMIT, E("Encrypted Size too long."));
+    var maxLength : uint64 :=  Add3(encryptedTerminalDataNum, encryptedTerminalDataNum, totalEncryptedTerminalValuesSize);
+    :- Need(maxLength < INT64_MAX_LIMIT as uint64, E("Encrypted Size too long."));
 
     var algId := GetAlgorithmSuiteId(algorithmSuiteId);
 
@@ -258,42 +273,97 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     output := GetV2EncryptionContext2(contextAttrs);
   }
 
-  function method {:opaque} Find(haystack : CryptoList, needle : Path) : Result<CryptoItem, Error>
+  function {:opaque} Find(haystack : CryptoList, needle : Path, start : uint64 := 0) : (res : Result<uint64, Error>)
+    requires start as nat <= |haystack|
+    requires forall i | 0 <= i < start :: haystack[i].key != needle
+    ensures (exists x <- haystack :: x.key == needle) <==> res.Success?
+    ensures (forall x <- haystack :: x.key != needle) <==> res.Failure?
+    ensures (forall x <- haystack :: x.key != needle) <==> res == Failure(E("Not Found"))
+    ensures res.Success? ==>
+              && 0 <= res.value as nat < |haystack|
+              && haystack[res.value].key == needle
+              && (forall i | 0 <= i < res.value :: haystack[i].key != needle)
+    decreases |haystack| - start as nat
   {
-    if |haystack| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    if |haystack| as uint64 == start then
       Failure(E("Not Found"))
-    else if haystack[0].key == needle
-    then Success(haystack[0])
+    else if haystack[start].key == needle then
+      Success(start)
     else
-      Find(haystack[1..], needle)
+      Find(haystack, needle, start + 1)
+  }
+  by method {
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    for i : uint64 := 0 to |haystack| as uint64
+      invariant forall x <- haystack[..i] :: x.key != needle
+    {
+      if haystack[i].key == needle {
+        return Success(i);
+      }
+    }
+    return Failure(E("Not Found"));
   }
 
-  function method {:opaque} FindAuth(haystack : AuthList, needle : Path) : (result : Option<AuthItem>)
-    ensures result.Some? ==> exists x :: x in haystack && x.key == needle
+  function {:opaque} FindAuth(haystack : AuthList, needle : Path, start : uint64 := 0) : (res : Option<uint64>)
+    requires start as nat <= |haystack|
+    requires forall i | 0 <= i < start :: haystack[i].key != needle
+    ensures (exists x <- haystack :: x.key == needle) <==> res.Some?
+    ensures (forall x <- haystack :: x.key != needle) <==> res == None
+    ensures res.Some? ==>
+              && 0 <= res.value as nat < |haystack|
+              && haystack[res.value].key == needle
+              && (forall i | 0 <= i < res.value :: haystack[i].key != needle)
+    decreases |haystack| - start as nat
   {
-    if |haystack| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    if |haystack| as uint64 == start then
       None
-    else if haystack[0].key == needle
-    then Some(haystack[0])
+    else if haystack[start].key == needle then
+      Some(start)
     else
-      FindAuth(haystack[1..], needle)
+      FindAuth(haystack, needle, start + 1)
+  }
+  by method {
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    for i : uint64 := 0 to |haystack| as uint64
+      invariant forall x <- haystack[..i] :: x.key != needle
+    {
+      if haystack[i].key == needle {
+        return Some(i);
+      }
+    }
+    return None;
   }
 
-  function method {:opaque} CountEncrypted(list : CanonCryptoList) : nat
+  function {:opaque} CountEncrypted(list : CanonCryptoList) : uint64
   {
     if |list| == 0 then
       0
     else if list[0].action == ENCRYPT_AND_SIGN then
-      1 + CountEncrypted(list[1..])
+      Add(1, CountEncrypted(list[1..]))
     else
       CountEncrypted(list[1..])
+  } by method {
+    reveal CountEncrypted();
+    SequenceIsSafeBecauseItIsInMemory(list);
+    var result : uint64 := 0;
+    for i : uint64 := |list| as uint64 downto 0
+      invariant result == CountEncrypted(list[i..])
+    {
+      if list[i].action == ENCRYPT_AND_SIGN {
+        result := Add(result, 1);
+      }
+    }
+    return result;
   }
 
   method {:vcs_split_on_every_assert} GetV2EncryptionContext2(fields : CryptoList)
     returns (output : Result<CMP.EncryptionContext, Error>)
   {
+    SequenceIsSafeBecauseItIsInMemory(fields);
     var fieldMap : map<ValidUTF8Bytes, Path> := map[];
-    for i := 0 to |fields|
+    for i : uint64 := 0 to |fields| as uint64
     {
       //= specification/structured-encryption/encrypt-path-structure.md#encryption-context-naming
       //# When a key-value pair is added to the encryption context,
@@ -333,10 +403,11 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# - 'N' if the attribute was of type Number
     //# - 'L' if the attribute was of type Null or Boolean
     //# - 'B' otherwise
-    for i := 0 to |keys|
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    for i : uint64 := 0 to |keys| as uint64
       invariant forall j | 0 <= j < i :: keys[j] in newContext
       invariant forall k <- newContext :: k in keys[..i]
-      invariant |legend| == |newContext| == i
+      invariant |legend| == |newContext| == i as nat
     {
       assert keys[i] !in newContext by {
         reveal Seq.HasNoDuplicates();
@@ -344,7 +415,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       var fieldUtf8 := keys[i];
       var fieldStr := fieldMap[fieldUtf8];
       var item :- Find(fields, fieldMap[fieldUtf8]);
-      var attr : StructuredDataTerminal := item.data;
+      var attr : StructuredDataTerminal := fields[item].data;
       var attrStr : ValidUTF8Bytes;
       var legendChar : char;
       if attr.typeId == NULL {
@@ -361,8 +432,9 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
         attrStr := attr.value;
       } else if attr.typeId == BOOLEAN {
         legendChar := LEGEND_LITERAL;
-        :- Need(|attr.value| == 1, E("Internal Error : boolean was not of length 1."));
-        attrStr := if attr.value[0] == 0 then FALSE_UTF8 else TRUE_UTF8;
+        SequenceIsSafeBecauseItIsInMemory(attr.value);
+        :- Need(|attr.value| as uint64 == 1, E("Internal Error : boolean was not of length 1."));
+        attrStr := if attr.value[0 as uint32] == 0 then FALSE_UTF8 else TRUE_UTF8;
       } else {
         legendChar := LEGEND_BINARY;
         attrStr := EncodeTerminal(attr);
@@ -384,19 +456,18 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     cryptoSchema: CryptoSchemaMap,
-    ghost origKeys : seq<string> := keys,
+    pos : uint64 := 0,
     acc : CryptoList := []
   )
     : (ret : Result<CryptoList, Error>)
+    requires 0 <= pos as nat <= |keys|
+    requires |acc| == pos as nat
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in cryptoSchema
     requires forall k <- acc :: |k.key| == 1
-    requires CryptoListHasNoDuplicates(acc)
-    requires |acc| + |keys| == |origKeys|
-    requires keys == origKeys[|acc|..]
-    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(origKeys[i])
+    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(keys[i])
     requires Seq.HasNoDuplicates(keys)
-    requires Seq.HasNoDuplicates(origKeys)
+    decreases |keys| - pos as nat
 
     ensures ret.Success? ==>
               && (forall k <- ret.value :: |k.key| == 1)
@@ -404,14 +475,15 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     reveal Seq.HasNoDuplicates();
     Paths.StringToUniPathUnique();
-    if |keys| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == pos then
       Success(acc)
     else
-      var key := keys[0];
+      var key := keys[pos];
       var path := Paths.StringToUniPath(key);
       var item := CryptoItem(key := path, data := plaintextStructure[key], action := cryptoSchema[key]);
       var newAcc := acc + [item];
-      BuildCryptoMap2(keys[1..], plaintextStructure, cryptoSchema, origKeys, newAcc)
+      BuildCryptoMap2(keys, plaintextStructure, cryptoSchema, pos+1, newAcc)
   }
 
   function method BuildCryptoMap(plaintextStructure: StructuredDataMap, cryptoSchema: CryptoSchemaMap) :
@@ -429,33 +501,34 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     keys : seq<string>,
     plaintextStructure: StructuredDataMap,
     authSchema: AuthenticateSchemaMap,
-    ghost origKeys : seq<string> := keys,
+    pos : uint64 := 0,
     acc : AuthList := []
   )
     : (ret : Result<AuthList, Error>)
+    requires 0 <= pos as nat <= |keys|
+    requires |acc| == pos as nat
     requires forall k <- keys :: k in plaintextStructure
     requires forall k <- keys :: k in authSchema
     requires forall k <- acc :: |k.key| == 1
+    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(keys[i])
     requires AuthListHasNoDuplicates(acc)
-    requires |acc| + |keys| == |origKeys|
-    requires keys == origKeys[|acc|..]
-    requires forall i | 0 <= i < |acc| :: acc[i].key == Paths.StringToUniPath(origKeys[i])
     requires Seq.HasNoDuplicates(keys)
-    requires Seq.HasNoDuplicates(origKeys)
+    decreases |keys| - pos as nat
 
     ensures ret.Success? ==>
               && (forall k <- ret.value :: |k.key| == 1)
               && AuthListHasNoDuplicates(ret.value)
   {
     reveal Seq.HasNoDuplicates();
-    if |keys| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    if |keys| as uint64 == pos then
       Success(acc)
     else
-      var key := keys[0];
+      var key := keys[pos];
       var path := Paths.StringToUniPath(key);
       var item := AuthItem(key := path, data := plaintextStructure[key], action := authSchema[key]);
       var newAcc := acc + [item];
-      BuildAuthMap2(keys[1..], plaintextStructure, authSchema, origKeys, newAcc)
+      BuildAuthMap2(keys, plaintextStructure, authSchema, pos+1, newAcc)
   }
 
   function method BuildAuthMap(plaintextStructure: StructuredDataMap, authSchema: AuthenticateSchemaMap)
@@ -469,24 +542,29 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     BuildAuthMap2(keys, plaintextStructure, authSchema)
   }
 
-  function method UnBuildCryptoMap(list : CryptoList, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
+  function method {:tailrecursion} UnBuildCryptoMap(list : CryptoList, pos : uint64 := 0, dataSoFar : StructuredDataMap := map[], actionsSoFar : CryptoSchemaMap := map[]) :
     (res : Result<(StructuredDataMap, CryptoSchemaMap), Error>)
+    requires 0 <= pos as nat <= |list|
+    requires |dataSoFar| == pos as nat
+    requires |actionsSoFar| <= pos as nat
     requires forall k <- actionsSoFar :: k in dataSoFar
     requires (forall v :: v in actionsSoFar.Values ==> IsAuthAttr(v))
     requires forall k <- list :: |k.key| == 1
+    decreases |list| - pos as nat
     ensures res.Success? ==>
               && (forall k <- res.value.1 :: k in res.value.0)
               && (forall v :: v in res.value.1.Values ==> IsAuthAttr(v))
   {
-    if |list| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(list);
+    if |list| as uint64 == pos then
       Success((dataSoFar, actionsSoFar))
     else
-      var key :- Paths.UniPathToString(list[0].key);
+      var key :- Paths.UniPathToString(list[pos].key);
       :- Need(key !in dataSoFar, E("Duplicate Key " + key));
-      if IsAuthAttr(list[0].action) then
-        UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar[key := list[0].action])
+      if IsAuthAttr(list[pos].action) then
+        UnBuildCryptoMap(list, pos+1, dataSoFar[key := list[pos].data], actionsSoFar[key := list[pos].action])
       else
-        UnBuildCryptoMap(list[1..], dataSoFar[key := list[0].data], actionsSoFar)
+        UnBuildCryptoMap(list, pos+1, dataSoFar[key := list[pos].data], actionsSoFar)
   }
 
   lemma EncryptStructureOutputHasSinglePaths(origData : CryptoList, finalData : CryptoList)
@@ -544,9 +622,6 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     assert forall k <- pathOutput.encryptedStructure :: |k.key| == 1 by {
       EncryptStructureOutputHasSinglePaths(cryptoMap, pathOutput.encryptedStructure);
     }
-
-    // This should be provable, but I'm not smart enough
-    :- Need(forall k <- pathOutput.encryptedStructure :: |k.key| == 1, E("Internal Error"));
 
     //= specification/structured-encryption/encrypt-structure.md#behavior
     //= type=implication
@@ -714,7 +789,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     if exists x <- input.plaintextStructure :: x.action == SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT {
       assume {:axiom} input.cmm.Modifies !! {config.materialProviders.History};
       var newEncryptionContext :- GetV2EncryptionContext(input.plaintextStructure);
-      if |newEncryptionContext| != 0 {
+      MapIsSafeBecauseItIsInMemory(newEncryptionContext);
+      if |newEncryptionContext| as uint64 != 0 {
         //= specification/structured-encryption/encrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# An error MUST be returned if any of the entries added to the encryption context in this step
         //# have the same key as any entry already in the encryption context.
@@ -761,7 +837,7 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //= specification/structured-encryption/encrypt-path-structure.md#calculate-intermediate-encrypted-structured-data
     //# The process used to generate this identifier MUST use a good source of randomness
     //# to make the chance of duplicate identifiers negligible.
-    var randBytes := Random.GenerateBytes(MSGID_LEN as int32);
+    var randBytes := Random.GenerateBytes(MSGID_LEN64 as int32);
     var msgID :- randBytes.MapFailure(e => Error.AwsCryptographyPrimitives(e));
     var head :- Header.Create(input.tableName, canonData, msgID, mat);
     //= specification/structured-encryption/header.md#commit-key
@@ -777,7 +853,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     //# The Header Field Value MUST be the full serialized [header](header.md) with commitment.
     var headerAttribute := ValueToData(headerSerialized, BYTES_TYPE_ID);
 
-    :- Need(|canonData| < (UINT32_LIMIT / 3), E("Too many encrypted fields"));
+    SequenceIsSafeBecauseItIsInMemory(canonData);
+    :- Need(|canonData| as uint64 < Crypt.ONE_THIRD_MAX_INT as uint64, E("Too many encrypted fields"));
     // input canonData has all input fields, none encrypted
     // output canonData has all input fields, some encrypted
     var encryptedItems : CanonCryptoList :- Crypt.Encrypt(config.primitives, alg, key, head, canonData, input.tableName, input.plaintextStructure);
@@ -818,18 +895,19 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
     : string
     requires forall k <- inputFields :: k in inputContext
   {
-    if |inputFields| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(inputFields);
+    if |inputFields| as uint64 == 0 then
       ""
     else
-      var key := inputFields[0];
+      var key := inputFields[0 as uint32];
       if key in headContext && headContext[key] != inputContext[key] then
         var keyStr := SafeDecode(key);
         var headStr := SafeDecode(headContext[key]);
         var inputStr := SafeDecode(inputContext[key]);
         var msg := "input context for " + keyStr + " was " + inputStr + " but stored context had " + headStr + "\n";
-        msg + DescribeMismatch(inputFields[1..], inputContext, headContext)
+        msg + DescribeMismatch(inputFields[1 as uint32..], inputContext, headContext)
       else
-        DescribeMismatch(inputFields[1..], inputContext, headContext)
+        DescribeMismatch(inputFields[1 as uint32..], inputContext, headContext)
   }
 
   function method DetectMismatch(inputContext : CMP.EncryptionContext, headContext : CMP.EncryptionContext)
@@ -837,7 +915,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
   {
     var inputFields := SortedSets.ComputeSetToOrderedSequence2(inputContext.Keys, ByteLess);
     var str := DescribeMismatch(inputFields, inputContext, headContext);
-    if |str| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(str);
+    if |str| as uint64 == 0 then
       Pass
     else
       Fail(E("Encryption Context Mismatch\n" + str))
@@ -1069,7 +1148,8 @@ module AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations refines Abst
       //# [Terminal Data](./structures.md#terminal-data)
       //# in the input record, plus the Legend.
       var newEncryptionContext :- GetV2EncryptionContext(UnCanon(canonData));
-      if |newEncryptionContext| != 0 {
+      MapIsSafeBecauseItIsInMemory(newEncryptionContext);
+      if |newEncryptionContext| as uint64 != 0 {
         //= specification/structured-encryption/decrypt-path-structure.md#create-new-encryption-context-and-cmm
         //# An error MUST be returned if any of the entries added to the encryption context in this step
         //# have the same key as any entry already in the encryption context.

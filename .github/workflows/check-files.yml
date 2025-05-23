@@ -7,14 +7,14 @@ on:
 
 jobs:
   require-approvals:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       issues: write
       pull-requests: write
     env:
       # unfortunately we can't check if the approver is part of the CODEOWNERS. This is a subset of aws/aws-crypto-tools-team
       # to add more allowlisted approvers just modify this env variable
-      maintainers: seebees, texastony, ShubhamChaturvedi7, lucasmcdonald3, josecorella, imabhichow, rishav-karanjit, antonf-amzn, justplaz, ajewellamz
+      maintainers: seebees, texastony, ShubhamChaturvedi7, lucasmcdonald3, josecorella, imabhichow, rishav-karanjit, antonf-amzn, kessplas, ajewellamz, RitvikKapila
     steps:
       - uses: actions/checkout@v3
         with:

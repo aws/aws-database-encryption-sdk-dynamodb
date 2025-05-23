@@ -7,7 +7,7 @@ This validates the Database Encryption SDK's cross-version compatibility.
 
 ### Development Requirements
 
-- Dafny 4.2.0: https://github.com/dafny-lang/dafny
+- Dafny 4.9.0: https://github.com/dafny-lang/dafny
 
   The code that executes the test vectors is written in Dafny.
   You must install the Dafny runtime to compile the Dafny tests into Java.
@@ -22,6 +22,9 @@ This validates the Database Encryption SDK's cross-version compatibility.
 4. Run `make transpile_net`
 5. Run `cd runtimes/net`
 6. Run `dotnet run --framework net6.0`
+7. Run `make transpile_rust`
+8. Run `make polymorph_rust`
+9. Run `make test_rust`
 
 ### Saving results for later
 

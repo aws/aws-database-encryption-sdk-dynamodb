@@ -16,3 +16,6 @@ test/**/Output/*
 specification_compliance_report.html
 /compliance
 /.smithy.lsp.log
+
+# logs 
+*.log

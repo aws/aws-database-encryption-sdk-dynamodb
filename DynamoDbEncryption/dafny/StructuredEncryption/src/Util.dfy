@@ -8,6 +8,7 @@ module StructuredEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
 
   import UTF8
   import CMP = AwsCryptographyMaterialProvidersTypes
@@ -26,23 +27,48 @@ module StructuredEncryptionUtil {
   const FooterPath : Path := [member(StructureSegment(key := FooterField))]
   const HeaderPaths : seq<Path> := [HeaderPath, FooterPath]
   const ReservedCryptoContextPrefixString := "aws-crypto-"
-  const ReservedCryptoContextPrefixUTF8 := UTF8.EncodeAscii(ReservedCryptoContextPrefixString)
+
+  const ReservedCryptoContextPrefixUTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d];
+    assert s == UTF8.EncodeAscii(ReservedCryptoContextPrefixString);
+    s
 
   const ATTR_PREFIX := ReservedCryptoContextPrefixString + "attr."
-  const EC_ATTR_PREFIX : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(ATTR_PREFIX)
+
+  const EC_ATTR_PREFIX : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x61, 0x74, 0x74, 0x72, 0x2e];
+    assert s == UTF8.EncodeAscii(ATTR_PREFIX);
+    s
+
   const LEGEND := ReservedCryptoContextPrefixString + "legend"
-  const LEGEND_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(LEGEND)
+
+  const LEGEND_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x61, 0x77, 0x73, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2d, 0x6c, 0x65, 0x67, 0x65, 0x6e, 0x64];
+    assert s == UTF8.EncodeAscii(LEGEND);
+    s
+
   const LEGEND_STRING : char := 'S'
   const LEGEND_NUMBER : char := 'N'
   const LEGEND_LITERAL : char := 'L'
   const LEGEND_BINARY : char := 'B'
 
   const NULL_STR : string := "null"
-  const NULL_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(NULL_STR)
+  const NULL_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x6e, 0x75, 0x6c, 0x6c];
+    assert s == UTF8.EncodeAscii(NULL_STR);
+    s
+
   const TRUE_STR : string := "true"
-  const TRUE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(TRUE_STR)
+  const TRUE_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x74, 0x72, 0x75, 0x65];
+    assert s == UTF8.EncodeAscii(TRUE_STR);
+    s
+
   const FALSE_STR : string := "false"
-  const FALSE_UTF8 : UTF8.ValidUTF8Bytes := UTF8.EncodeAscii(FALSE_STR)
+  const FALSE_UTF8 : UTF8.ValidUTF8Bytes :=
+    var s := [0x66, 0x61, 0x6c, 0x73, 0x65];
+    assert s == UTF8.EncodeAscii(FALSE_STR);
+    s
 
   datatype CanonCryptoItem = CanonCryptoItem (
     key : CanonicalPath,
@@ -85,12 +111,16 @@ module StructuredEncryptionUtil {
 
   predicate method CryptoListHasNoDuplicatesFromSet(xs: CryptoList)
   {
-    |CryptoListToSet(xs)| == |xs|
+    SequenceIsSafeBecauseItIsInMemory(xs);
+    SetIsSafeBecauseItIsInMemory(CryptoListToSet(xs));
+    |CryptoListToSet(xs)| as uint64 == |xs| as uint64
   }
 
   predicate method AuthListHasNoDuplicatesFromSet(xs: AuthList)
   {
-    |AuthListToSet(xs)| == |xs|
+    SequenceIsSafeBecauseItIsInMemory(xs);
+    SetIsSafeBecauseItIsInMemory(AuthListToSet(xs));
+    |AuthListToSet(xs)| as uint64 == |xs| as uint64
   }
 
   predicate CryptoListHasNoDuplicates(xs: CryptoList)
@@ -125,17 +155,22 @@ module StructuredEncryptionUtil {
     ensures FooterField == "aws_dbe_foot"
   {}
 
-  const TYPEID_LEN := 2
+  ghost const TYPEID_LEN := 2
+  const TYPEID_LEN64 : uint64 := 2
   const BYTES_TYPE_ID : seq<uint8> := [0xFF, 0xFF]
   lemma BYTES_TYPE_ID_OK()
     ensures |BYTES_TYPE_ID| == TYPEID_LEN
   {}
 
   // Currently, only one set of sizes are supported
-  const KeySize := 32 // 256 bits, for 256-bit AES keys
-  const NonceSize := 12 // 96 bits, per AES-GCM nonces
-  const AuthTagSize := 16
-  const MSGID_LEN := 32
+  ghost const KeySize := 32 // 256 bits, for 256-bit AES keys
+  ghost const NonceSize := 12 // 96 bits, per AES-GCM nonces
+  ghost const AuthTagSize := 16
+  ghost const MSGID_LEN := 32
+  const KeySize64 : uint64 := 32 // 256 bits, for 256-bit AES keys
+  const NonceSize64 : uint64 := 12 // 96 bits, per AES-GCM nonces
+  const AuthTagSize64 : uint64 := 16
+  const MSGID_LEN64 : uint64  := 32
   const DbeAlgorithmFamily : uint8 := 0x67
 
   lemma ValidSuiteSizes(alg : CMP.AlgorithmSuiteInfo)
@@ -157,7 +192,7 @@ module StructuredEncryptionUtil {
   type GoodString = x : string | ValidString(x)
   predicate method ValidString(x : string)
   {
-    && |x| <  UINT64_LIMIT
+    && HasUint64Len(x)
     && UTF8.Encode(x).Success?
   }
 
@@ -174,14 +209,17 @@ module StructuredEncryptionUtil {
 
   // sequences are equal if zero is returned
   // Some care should be taken to ensure that target languages don't over optimize this.
-  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, acc : bv8 := 0) : bv8
+  function method {:tailrecursion} ConstantTimeCompare(a : Bytes, b : Bytes, pos : uint64 := 0, acc : bv8 := 0) : bv8
     requires |a| == |b|
+    requires 0 <= pos as nat <= |a|
+    decreases |a| - pos as nat
   {
-    if |a| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(a);
+    if |a| as uint64 == pos then
       acc
     else
-      var x := ((a[0] as bv8) ^ (b[0] as bv8));
-      ConstantTimeCompare(a[1..], b[1..], x | acc)
+      var x := ((a[pos] as bv8) ^ (b[pos] as bv8));
+      ConstantTimeCompare(a, b, pos+1, x | acc)
   }
 
   predicate method ConstantTimeEquals(a : Bytes, b : Bytes)
@@ -193,7 +231,7 @@ module StructuredEncryptionUtil {
   // attribute is "authorized", a.k.a. included in the signature
   predicate method IsAuthAttr(x : CryptoAction)
   {
-    x.ENCRYPT_AND_SIGN? || x.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT? || x.SIGN_ONLY?
+    !x.DO_NOTHING?
   }
 
   // wrap a value in a StructuredData
@@ -261,7 +299,8 @@ module StructuredEncryptionUtil {
   {
     var keys : seq<UTF8.ValidUTF8Bytes> := SortedSets.ComputeSetToOrderedSequence2(ec.Keys, ByteLess);
     var ret : map<string, string> := map[];
-    for i := 0 to |keys| {
+    SequenceIsSafeBecauseItIsInMemory(keys);
+    for i : uint64 := 0 to |keys| as uint64 {
       var key :- expect UTF8.Decode(keys[i]);
       var value :- expect UTF8.Decode(ec[keys[i]]);
       ret := ret[key := value];
@@ -290,18 +329,20 @@ module StructuredEncryptionUtil {
     //# where `typeId` is the attribute's [type ID](./ddb-attribute-serialization.md#type-id)
     //# and `serializedValue` is the attribute's value serialized according to
     //# [Attribute Value Serialization](./ddb-attribute-serialization.md#attribute-value-serialization).
-    ensures ret == UTF8.EncodeAscii(Base64.Encode(t.typeId + t.value))
+    ensures ret == UTF8.Encode(Base64.Encode(t.typeId + t.value)).value
   {
-    UTF8.EncodeAscii(Base64.Encode(t.typeId + t.value))
+    var base := Base64.Encode(t.typeId + t.value);
+    UTF8.Encode(base).value
   }
 
   function method DecodeTerminal(t : UTF8.ValidUTF8Bytes) : (ret : Result<StructuredDataTerminal, string>)
   {
     var utf8DecodedVal :- UTF8.Decode(t);
     var base64DecodedVal :- Base64.Decode(utf8DecodedVal);
-    :- Need(|base64DecodedVal| >= 2, "Invalid serialization of DDB Attribute in encryption context.");
-    var typeId := base64DecodedVal[..2];
-    var serializedValue := base64DecodedVal[2..];
+    SequenceIsSafeBecauseItIsInMemory(base64DecodedVal);
+    :- Need(|base64DecodedVal| as uint64 >= 2, "Invalid serialization of DDB Attribute in encryption context.");
+    var typeId := base64DecodedVal[..2 as uint32];
+    var serializedValue := base64DecodedVal[2 as uint32..];
     Success(StructuredDataTerminal(value := serializedValue, typeId := typeId))
   }
 

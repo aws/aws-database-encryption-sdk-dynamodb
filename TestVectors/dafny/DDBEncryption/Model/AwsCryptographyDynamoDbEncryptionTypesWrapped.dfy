@@ -4,6 +4,7 @@
 include "../../../../submodules/MaterialProviders/StandardLibrary/src/Index.dfy"
   // BEGIN MANUAL EDIT
 include "../../../../DynamoDbEncryption/dafny/DynamoDbEncryption/src/Index.dfy"
+include "../../../../DynamoDbEncryption/dafny/DynamoDbEncryptionTransforms/src/Index.dfy"
 include "../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/KeyVectors/src/Index.dfy"
   // END MANUAL EDIT
 abstract module WrappedAbstractAwsCryptographyDynamoDbEncryptionService {

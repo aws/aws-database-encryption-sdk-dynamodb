@@ -56,6 +56,9 @@ public class DynamoDbEnhancedClientEncryptionTest {
         .keyring(createKmsKeyring())
         .allowedUnsignedAttributes(Arrays.asList("doNothing"))
         .schemaOnEncrypt(simpleSchema)
+        .algorithmSuiteId(
+          DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384
+        )
         .build()
     );
     tableConfigs.put(
@@ -102,6 +105,10 @@ public class DynamoDbEnhancedClientEncryptionTest {
       .config()
       .tableEncryptionConfigs()
       .get("SimpleClassTestTable");
+    assertEquals(
+      DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384,
+      simpleConfig.algorithmSuiteId()
+    );
     assertEquals(
       CryptoAction.DO_NOTHING,
       simpleConfig.attributeActionsOnEncrypt().get("doNothing")

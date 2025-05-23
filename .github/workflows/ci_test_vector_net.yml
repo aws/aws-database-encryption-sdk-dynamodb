@@ -27,13 +27,18 @@ jobs:
         dotnet-version: ["6.0.x"]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
-            ubuntu-latest,
+            ubuntu-22.04,
+            macos-13,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
+      - name: Setup Docker
+        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.0
+
       - name: Setup DynamoDB Local
         uses: rrainn/dynamodb-action@v4.0.0
         with:
@@ -52,7 +57,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -64,6 +69,10 @@ jobs:
           git pull
           git submodule update --init --recursive
           git rev-parse HEAD
+
+      - name: Install Smithy-Dafny codegen dependencies
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
@@ -89,7 +98,7 @@ jobs:
       - name: Test TestVectors on .NET 6.0
         working-directory: ./${{matrix.library}}/runtimes/net
         run: |
-          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json .
+          cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json ../java/decrypt_rust_*.json ../java/large_records.json .
           dotnet run
           cp ../java/*.json .
           dotnet run --framework net6.0

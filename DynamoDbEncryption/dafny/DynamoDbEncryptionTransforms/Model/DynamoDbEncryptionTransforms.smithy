@@ -24,7 +24,8 @@ use aws.polymorph#javadoc
     DynamoDB_20120810,
     DynamoDbEncryption,
     DynamoDbItemEncryptor,
-    StructuredEncryption
+    StructuredEncryption,
+    AwsCryptographicMaterialProviders
   ]
 )
 service DynamoDbEncryptionTransforms {

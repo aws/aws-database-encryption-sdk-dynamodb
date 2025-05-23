@@ -382,6 +382,10 @@ public class DynamoDbEnhancedClientEncryption {
       builder = builder.plaintextOverride(configWithSchema.plaintextOverride());
     }
 
+    if (!Objects.isNull(configWithSchema.algorithmSuiteId())) {
+      builder = builder.algorithmSuiteId(configWithSchema.algorithmSuiteId());
+    }
+
     return builder
       .allowedUnsignedAttributePrefix(
         configWithSchema.allowedUnsignedAttributePrefix()

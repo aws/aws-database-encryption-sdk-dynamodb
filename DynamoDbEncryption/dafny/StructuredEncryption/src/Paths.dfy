@@ -11,6 +11,7 @@ module StructuredEncryptionPaths {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import opened StructuredEncryptionUtil
   import opened AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import opened DafnyLibraries
@@ -19,13 +20,14 @@ module StructuredEncryptionPaths {
     | List(pos : uint64)
     | Map(key : GoodString)
 
-  type SelectorList = x : seq<Selector> | |x| < UINT64_LIMIT
+  type SelectorList = seq<Selector>
   type TerminalSelector = x : seq<Selector> | ValidTerminalSelector(x) witness *
 
   predicate method ValidTerminalSelector(s : seq<Selector>)
   {
-    && 0 < |s| < UINT64_LIMIT
-    && s[0].Map?
+    SequenceIsSafeBecauseItIsInMemory(s);
+    && 0 < |s| as uint64
+    && s[0 as uint32].Map?
   }
 
   function method StringToUniPath(x : string) : (ret : Path)
@@ -43,32 +45,33 @@ module StructuredEncryptionPaths {
   function method UniPathToString(x : Path) : Result<string, Error>
     requires |x| == 1
   {
-    Success(x[0].member.key)
+    Success(x[0 as uint32].member.key)
   }
 
   predicate method ValidPath(path : Path)
   {
-    && |path| < UINT64_LIMIT
-    && forall x <- path :: ValidString(x.member.key)
+    forall x <- path :: ValidString(x.member.key)
   }
 
   function method CanonPath(table : GoodString, path : Path)
     : (ret : CanonicalPath)
     requires ValidPath(path)
-    ensures ret ==
-            //= specification/structured-encryption/header.md#canonical-path
-            //= type=implication
-            //# The canonical path MUST start with the UTF8 encoded table name.
-            UTF8.Encode(table).value
-            //= specification/structured-encryption/header.md#canonical-path
-            //= type=implication
-            //# This MUST be followed by the depth of the Terminal within Structured Data.
-            + UInt64ToSeq(|path| as uint64)
-            //= specification/structured-encryption/header.md#canonical-path
-            //= type=implication
-            //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
-            + MakeCanonicalPath(path)
+
+    ensures  HasUint64Len(path) && ret ==
+                                   //= specification/structured-encryption/header.md#canonical-path
+                                   //= type=implication
+                                   //# The canonical path MUST start with the UTF8 encoded table name.
+                                   UTF8.Encode(table).value
+                                   //= specification/structured-encryption/header.md#canonical-path
+                                   //= type=implication
+                                   //# This MUST be followed by the depth of the Terminal within Structured Data.
+                                   + UInt64ToSeq(|path| as uint64)
+                                   //= specification/structured-encryption/header.md#canonical-path
+                                   //= type=implication
+                                   //# This MUST be followed by the encoding for each Structured Data in the path, including the Terminal itself.
+                                   + MakeCanonicalPath(path)
   {
+    SequenceIsSafeBecauseItIsInMemory(path);
     var tableName := UTF8.Encode(table).value;
     var depth := UInt64ToSeq(|path| as uint64);
     var path := MakeCanonicalPath(path);
@@ -110,7 +113,7 @@ module StructuredEncryptionPaths {
   }
 
   // get the Canonical Path for these Selectors
-  function method {:tailrecursion} MakeCanonicalPath(path : Path)
+  function MakeCanonicalPath(path : Path)
     : (ret : CanonicalPath)
     requires ValidPath(path)
     ensures |path| == 0 ==> ret == []
@@ -120,18 +123,47 @@ module StructuredEncryptionPaths {
       []
     else
       CanonicalPart(path[0]) + MakeCanonicalPath(path[1..])
+  } by method {
+    var result : CanonicalPath := [];
+    SequenceIsSafeBecauseItIsInMemory(path);
+    for i : uint64 := |path| as uint64 downto 0
+      invariant result == MakeCanonicalPath(path[i..])
+    {
+      result := CanonicalPart(path[i]) + result;
+    }
+    return result;
   }
+
+  // get the Canonical Path for these Selectors
+  // function method {:tailrecursion} MakeCanonicalPath(path : Path, pos : nat := 0, acc : CanonicalPath := [])
+  //   : (ret : CanonicalPath)
+  //   requires ValidPath(path)
+  //   requires pos <= |path|
+  //   requires pos == 0 ==> |acc| == 0
+  //   requires pos == 1 ==> acc == CanonicalPart(path[0])
+  //   requires acc == MakeCanonicalPathGhost(path[..pos])
+  //   ensures |path| == 0 && pos == 0 ==> ret == []
+  //   ensures |path| == 1 ==> ret == CanonicalPart(path[0])
+  //   ensures ret == MakeCanonicalPathGhost(path)
+  //   decreases |path| - pos
+  // {
+  //   if |path| == pos then
+  //     acc
+  //   else
+  //     MakeCanonicalPath(path, pos+1, acc + CanonicalPart(path[pos]))
+  // }
 
   // Does NOT guarantee a unique output for every unique input
   // e.g. ['a.b'] and ['a','b'] both return 'a.b'.
   function method PathToString(path : Path) : string
   {
-    if |path| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(path);
+    if |path| as uint64 == 0 then
       ""
-    else if |path| == 1 then
-      path[0].member.key
+    else if |path| as uint64 == 1 then
+      path[0 as uint32].member.key
     else
-      path[0].member.key + "." + PathToString(path[1..])
+      path[0 as uint32].member.key + "." + PathToString(path[1 as uint32..])
   }
 
   // End code, begin lemmas.

@@ -34,7 +34,7 @@ public class TestUtils {
   public static final String TEST_KEY_STORE_KMS_KEY =
     "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126";
   public static final String BRANCH_KEY_ID =
-    "75789115-1deb-4fe3-a2ec-be9e885d1945";
+    "3f43a9af-08c5-4317-b694-3d3e883dcaef";
   public static final String ALTERNATE_BRANCH_KEY_ID =
     "4bb57643-07c1-419e-92ad-0df0df149d7c";
 

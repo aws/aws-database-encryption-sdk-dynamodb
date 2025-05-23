@@ -21,6 +21,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   import opened JSONHelpers
   import JsonConfig
   import ENC = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
+  import KeyVectors
 
   function Manifest() : (string, JSON)
   {
@@ -42,10 +43,14 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     ("client", Object(result))
   }
 
-  method OnePositiveTest(name : string, theType : string, desc : string, config : JSON, decryptConfig : Option<JSON>, record : JSON) returns (output : Result<(string, JSON), string>)
+  method OnePositiveTest(name : string, theType : string, desc : string, config : JSON, decryptConfig : Option<JSON>, record : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<(string, JSON), string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     var rec :- JsonConfig.GetRecord(record);
-    var encryptor :- JsonConfig.GetItemEncryptor(name, config);
+    var encryptor :- JsonConfig.GetItemEncryptor(name, config, keys);
     var encrypted :- expect encryptor.EncryptItem(
       ENC.EncryptItemInput(
         plaintextItem:=rec.item
@@ -64,10 +69,14 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     return Success((name, Object(result)));
   }
 
-  method OneNegativeTest(name : string, config : JSON, record : JSON) returns (output : Result<bool, string>)
+  method OneNegativeTest(name : string, config : JSON, record : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<bool, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     var rec :- JsonConfig.GetRecord(record);
-    var encryptor :- JsonConfig.GetItemEncryptor(name, config);
+    var encryptor :- JsonConfig.GetItemEncryptor(name, config, keys);
     var encrypted := encryptor.EncryptItem(
       ENC.EncryptItemInput(
         plaintextItem:=rec.item
@@ -80,7 +89,11 @@ module {:options "-functionSyntax:4"} EncryptManifest {
   }
 
 
-  method OneTest(name : string, value : JSON) returns (output : Result<Option<(string, JSON)>, string>)
+  method OneTest(name : string, value : JSON, keys: KeyVectors.KeyVectorsClient)
+    returns (output : Result<Option<(string, JSON)>, string>)
+    requires keys.ValidState()
+    modifies keys.Modifies
+    ensures keys.ValidState()
   {
     :- Need(value.Object?, "Test must be an object");
 
@@ -117,25 +130,28 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     :- Need(record.Some?, "Test requires a 'record' member.");
 
     if types.value == "positive-encrypt" {
-      var x :- OnePositiveTest(name, "positive-decrypt", description.value, config.value, decryptConfig, record.value);
+      var x :- OnePositiveTest(name, "positive-decrypt", description.value, config.value, decryptConfig, record.value, keys);
       return Success(Some(x));
     } else if types.value == "negative-decrypt" {
-      var x :- OnePositiveTest(name, "negative-decrypt", description.value, config.value, decryptConfig, record.value);
+      var x :- OnePositiveTest(name, "negative-decrypt", description.value, config.value, decryptConfig, record.value, keys);
       return Success(Some(x));
     } else if types.value == "negative-encrypt" {
-      var _ := OneNegativeTest(name, config.value, record.value);
+      var _ := OneNegativeTest(name, config.value, record.value, keys);
       return Success(None);
     } else {
       return Failure("Invalid encrypt type : '" + types.value + "'.");
     }
   }
 
-  method Encrypt(inFile : string, outFile : string, lang : string, version : string) returns (output : Result<bool, string>)
+  method Encrypt(inFile : string, outFile : string, lang : string, version : string, keyVectors: KeyVectors.KeyVectorsClient)
+    returns (output : Result<bool, string>)
+    requires keyVectors.ValidState()
+    modifies keyVectors.Modifies
+    ensures keyVectors.ValidState()
   {
     var timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Encrypt : ", inFile, "\n";
-    var configBv :- expect FileIO.ReadBytesFromFile(inFile);
-    var configBytes := BvToBytes(configBv);
+    var configBytes :- expect FileIO.ReadBytesFromFile(inFile);
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " File Read.\n";
     var json :- expect API.Deserialize(configBytes);
@@ -187,7 +203,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
     for i := 0 to |tests.value| {
       var obj := tests.value[i];
       :- Need(obj.1.Object?, "Value of test '" + obj.0 + "' must be an Object.");
-      var newTest :- OneTest(obj.0, obj.1);
+      var newTest :- OneTest(obj.0, obj.1, keyVectors);
       if newTest.Some? {
         test := test + [newTest.value];
       }
@@ -195,8 +211,7 @@ module {:options "-functionSyntax:4"} EncryptManifest {
 
     var final := Object(result + [("tests", Object(test))]);
     var jsonBytes :- expect API.Serialize(final);
-    var jsonBv := BytesBv(jsonBytes);
-    var x :- expect FileIO.WriteBytesToFile(outFile, jsonBv);
+    var x :- expect FileIO.WriteBytesToFile(outFile, jsonBytes);
 
     timeStamp :- expect Time.GetCurrentTimeStamp();
     print timeStamp + " Tests Complete.\n";

@@ -17,7 +17,7 @@ jobs:
         # Note dotnet is only used for formatting generated code
         # in this workflow
         dotnet-version: ["6.0.x"]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -39,7 +39,7 @@ jobs:
       # and to translate version strings such as "nightly-latest"
       # to an actual DAFNY_VERSION.
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -50,6 +50,15 @@ jobs:
 
       - name: Create temporary global.json
         run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
+
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
       - uses: ./.github/actions/polymorph_codegen
         with:

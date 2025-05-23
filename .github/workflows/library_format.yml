@@ -19,7 +19,7 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-13]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -37,9 +37,9 @@ jobs:
           submodules: recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
-          dafny-version: ${{ '4.2.0' }}
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Check format of Java code et al
         run: |

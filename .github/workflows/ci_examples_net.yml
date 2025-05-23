@@ -27,7 +27,7 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         dotnet-version: ["6.0.x"]
-        os: [macos-12]
+        os: [macos-13]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -46,7 +46,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
           dafny-version: ${{ inputs.dafny }}
 
@@ -58,6 +58,10 @@ jobs:
           git pull
           git submodule update --init --recursive
           git rev-parse HEAD
+
+      - name: Install Smithy-Dafny codegen dependencies
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
       - name: Regenerate code using smithy-dafny if necessary
         if: ${{ inputs.regenerate-code }}
