@@ -8,6 +8,12 @@ description: "Install Java package dependencies required to run Smithy-Dafny cod
 runs:
   using: "composite"
   steps:
+    - name: Setup Java 17 for smithy-dafny
+      uses: actions/setup-java@v3
+      with:
+        distribution: "corretto"
+        java-version: 17
+
     - name: Install smithy-dafny-codegen Rust dependencies locally
       uses: gradle/gradle-build-action@v2
       with:
@@ -19,3 +25,9 @@ runs:
       with:
         arguments: :smithy-python-codegen:pTML
         build-root-directory: submodules/smithy-dafny/codegen/smithy-dafny-codegen-modules/smithy-python/codegen
+
+    # Without this the if-dafny-at-least command includes "Downloading ..." output
+    - name: Arbitrary makefile target to force downloading Gradle
+      shell: bash
+      run: |
+        make -C StandardLibrary setup_net
