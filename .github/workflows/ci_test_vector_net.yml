@@ -62,7 +62,6 @@ jobs:
           dafny-version: ${{ inputs.dafny }}
 
       - name: Update MPL submodule if using MPL HEAD
-        if: ${{ inputs.mpl-head == true }}
         working-directory: submodules/MaterialProviders
         run: |
           git checkout main
@@ -71,7 +70,6 @@ jobs:
           git rev-parse HEAD
 
       - name: Install Smithy-Dafny codegen dependencies
-        if: ${{ inputs.regenerate-code }}
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
       - name: Regenerate code using smithy-dafny if necessary

@@ -191,7 +191,7 @@ module DynamoDbGetEncryptedDataKeyDescriptionTest {
     expect actualDataKeyDescription.EncryptedDataKeyDescriptionOutput[0].keyProviderInfo.value == "keyproviderInfo";
   }
 
-  method {:test} TestDDBItemInputAwsKmsHDataKeyCase()
+  method {:test} {:isolate_assertions} TestDDBItemInputAwsKmsHDataKeyCase()
   {
     var expectedHead := CreatePartialHeader(testVersion, testFlavor0, testMsgID, testLegend, testEncContext, [testAwsKmsHDataKey]);
     var serializedHeader := expectedHead.serialize() + expectedHead.msgID;

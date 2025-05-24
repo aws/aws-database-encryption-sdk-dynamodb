@@ -657,7 +657,7 @@ module DynamoToStruct {
     var len := |attrNames| as uint64;
     var output :- U32ToBigEndian64(len);
     for i : uint64 := 0 to len {
-      var k := attrNames[i];
+      var k: AttributeName := attrNames[i];
       var val := AttrToBytes(m[k], true, depth+1);
       if val.Failure? {
         var result := Failure(val.error);
