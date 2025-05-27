@@ -224,7 +224,6 @@ module {:options "-functionSyntax:4"} WriteManifest {
   const E : string := "\u10002" // "U10002" <-> "𐀂" (same high surrogate as D: "\uD800\uDC02")
   const F : string := "\u20002" // "U20002" <-> "𠀂"  (different high surrogate as D: "\D840\uDC02"
 
-  // Dafny doesn't handle unicode surrogates correctly.
   lemma CheckLengths()
     ensures |A| == 1
     ensures |B| == 1
