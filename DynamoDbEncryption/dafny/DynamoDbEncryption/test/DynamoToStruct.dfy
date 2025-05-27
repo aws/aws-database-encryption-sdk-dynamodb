@@ -376,6 +376,7 @@ module DynamoToStructTest {
   //= type=test
   //# Entries in a String Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
   method {:test} TestSortSSAttr() {
+    // "\ud800\udc02" <-> "𐀂"
     var stringSetValue := AttributeValue.SS(["&","｡","\ud800\udc02"]);
     // Note that string values are UTF-8 encoded, but sorted by UTF-16 encoding.
     var encodedStringSetData := StructuredDataTerminal(value := [
@@ -395,6 +396,7 @@ module DynamoToStructTest {
 
     var newStringSetValue := StructuredToAttr(encodedStringSetData);
     expect newStringSetValue.Success?;
+    // "\ud800\udc02" <-> "𐀂"
     expect newStringSetValue.value == AttributeValue.SS(["&","\ud800\udc02","｡"]);
   }
 
@@ -415,10 +417,12 @@ module DynamoToStructTest {
 
   method {:test} TestSetsInListAreSorted() {
     var nSetValue := AttributeValue.NS(["2","1","10"]);
+    // "\ud800\udc02" <-> "𐀂"
     var sSetValue := AttributeValue.SS(["&","｡","\ud800\udc02"]);
     var bSetValue := AttributeValue.BS([[1,0],[1],[2]]);
 
     var sortedNSetValue := AttributeValue.NS(["1","10","2"]);
+    // "\ud800\udc02" <-> "𐀂"
     var sortedSSetValue := AttributeValue.SS(["&","\ud800\udc02","｡"]);
     var sortedBSetValue := AttributeValue.BS([[1],[1,0],[2]]);
 
@@ -444,10 +448,12 @@ module DynamoToStructTest {
 
   method {:test} TestSetsInMapAreSorted() {
     var nSetValue := AttributeValue.NS(["2","1","10"]);
+    // "\ud800\udc02" <-> "𐀂"
     var sSetValue := AttributeValue.SS(["&","｡","\ud800\udc02"]);
     var bSetValue := AttributeValue.BS([[1,0],[1],[2]]);
 
     var sortedNSetValue := AttributeValue.NS(["1","10","2"]);
+    // "\ud800\udc02" <-> "𐀂"
     var sortedSSetValue := AttributeValue.SS(["&","\ud800\udc02","｡"]);
     var sortedBSetValue := AttributeValue.BS([[1],[1,0],[2]]);
 
@@ -490,6 +496,7 @@ module DynamoToStructTest {
   method {:test} TestSortMapKeys() {
     var nullValue := AttributeValue.NULL(true);
 
+    // "\ud800\udc02" <-> "𐀂"
     var mapValue := AttributeValue.M(map["&" := nullValue, "｡" := nullValue, "\ud800\udc02" := nullValue]);
 
     // Note that the string values are encoded as UTF-8, but are sorted according to UTF-16 encoding.
