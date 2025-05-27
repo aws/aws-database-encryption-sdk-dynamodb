@@ -49,8 +49,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   const PerfIterations : uint32 := 1000
 
-  const DEFAULT_KEYS : string := "../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/dafny/TestVectorsAwsCryptographicMaterialProviders/test/keys.json"
-
   datatype TestVectorConfig = TestVectorConfig (
     schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
