@@ -384,7 +384,7 @@ module DynamoToStructTest {
                                                          0,0,0,1, // 1st entry is 1 byte
                                                          0x26, // "&" in UTF-8 encoding
                                                          0,0,0,4, // 2nd entry is 4 bytes
-                                                         0xF0,0x90,0x80,0x82, // "\ud800\udc02" in UTF-8 encoding
+                                                         0xF0,0x90,0x80,0x82, // "𐀂" in UTF-8 encoding
                                                          0,0,0,3, // 3rd entry is 3 bytes
                                                          0xEF,0xBD,0xA1 // "｡" in UTF-8 encoding
                                                        ],
@@ -507,7 +507,7 @@ module DynamoToStructTest {
         0x26, // "&" UTF-8 encoded
         0,0, 0,0,0,0, // null value
         0,1, 0,0,0,4, // 2nd key is a string 4 bytes long
-        0xF0, 0x90, 0x80, 0x82, // "\ud800\udc02" UTF-8 encoded
+        0xF0, 0x90, 0x80, 0x82, // "𐀂" UTF-8 encoded
         0,0, 0,0,0,0, // null value
         0,1, 0,0,0,3, // 3rd key is a string 3 bytes long
         0xEF, 0xBD, 0xA1, // "｡"
