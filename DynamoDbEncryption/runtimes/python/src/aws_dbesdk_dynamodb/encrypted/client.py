@@ -598,8 +598,13 @@ class EncryptedClient(EncryptedBotoInterface):
         # and need to be converted to DDB-JSON before encryption.
         sdk_input = deepcopy(operation_input)
         if self._expect_standard_dictionaries:
+            # Some operations do not require a table name.
+            # (e.g. execute_statement, execute_transaction, batch_execute_statement)
+            # If the table name is not provided, explicitly set it to None to remove any previously-set value.
             if "TableName" in sdk_input:
                 self._resource_to_client_shape_converter.table_name = sdk_input["TableName"]
+            else:
+                self._resource_to_client_shape_converter.table_name = None
             sdk_input = input_item_to_ddb_transform_method(sdk_input)
 
         # Apply DBESDK transformation to the input

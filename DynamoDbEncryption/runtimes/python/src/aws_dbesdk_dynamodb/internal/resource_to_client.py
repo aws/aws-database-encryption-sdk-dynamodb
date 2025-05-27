@@ -1,9 +1,10 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.boto3_conversions import (
     InternalBoto3DynamoDBFormatConverter,
 )
 from boto3.dynamodb.types import TypeSerializer
-
-from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
+from boto3.dynamodb.conditions import ConditionExpressionBuilder
 
 
 class ResourceShapeToClientShapeConverter:
@@ -12,8 +13,11 @@ class ResourceShapeToClientShapeConverter:
         self.boto3_converter = InternalBoto3DynamoDBFormatConverter(
             item_handler=TypeSerializer().serialize, condition_handler=self.condition_handler
         )
+        # TableName is optional;
+        # Some requests require it (ex. put_item, update_item, delete_item),
+        # but others do not (ex. transact_get_items, batch_write_item).
         self.table_name = table_name
-        self.expression_builder = InternalDBESDKDynamoDBConditionExpressionBuilder()
+        self.expression_builder = ConditionExpressionBuilder()
 
     def condition_handler(self, expression_key, request):
         """
@@ -40,29 +44,11 @@ class ResourceShapeToClientShapeConverter:
             and condition_expression.__module__ == "boto3.dynamodb.conditions"
         ):
             built_condition_expression = self.expression_builder.build_expression(
-                condition_expression, existing_expression_attribute_names, existing_expression_attribute_values
+                condition_expression
             )
+            return built_condition_expression.condition_expression, built_condition_expression.attribute_name_placeholders, built_condition_expression.attribute_value_placeholders
         else:
             return condition_expression, existing_expression_attribute_names, existing_expression_attribute_values
-
-        # Unpack returned BuiltConditionExpression.
-        expression_str = built_condition_expression.condition_expression
-        attribute_names_from_built_expression = built_condition_expression.attribute_name_placeholders
-        # Join any placeholder ExpressionAttributeNames with any other ExpressionAttributeNames.
-        # The BuiltConditionExpression will return new names, not any that already exist.
-        # The two sets of names must be joined to form the complete set of names for the condition expression.
-        try:
-            out_names = request["ExpressionAttributeNames"] | attribute_names_from_built_expression
-        except KeyError:
-            out_names = attribute_names_from_built_expression
-        # Join existing and new values.
-        attribute_values_from_built_expression = built_condition_expression.attribute_value_placeholders
-        try:
-            out_values = request["ExpressionAttributeValues"] | attribute_values_from_built_expression
-        except KeyError:
-            out_values = attribute_values_from_built_expression
-
-        return expression_str, out_names, out_values
 
     def put_item_request(self, put_item_request):
         # put_item requests on a boto3.resource.Table require a configured table name.

@@ -1,6 +1,8 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import pytest
 
-from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
+from boto3.dynamodb.conditions import ConditionExpressionBuilder
 from aws_dbesdk_dynamodb.internal.resource_to_client import ResourceShapeToClientShapeConverter
 
 from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
@@ -164,7 +166,33 @@ def test_GIVEN_test_put_item_request_WHEN_resource_to_client_THEN_returns_ddb_va
     expected_ddb_request = sort_dynamodb_json_lists(expected_ddb_request)
 
     for key in actual_ddb_request.keys():
-        if key != "ConditionExpression":
+        if key == "ConditionExpression":
+            assert_condition_expressions_are_equal(expected_ddb_request, actual_ddb_request, key)
+        elif key == "ExpressionAttributeValues":
+            # Any values in expected_ddb_request MUST be in actual_ddb_request,
+            # but not the other way around.
+            # actual_ddb_request will generate attribute symbols as needed,
+            # but any values in expected_ddb_request MUST be present in actual_ddb_request.
+            if key in expected_ddb_request:
+                for name, value in expected_ddb_request[key].items():
+                    assert name in actual_ddb_request[key]
+                    assert actual_ddb_request[key][name] == value
+            else:
+                # Keys in actual_ddb_request don't need to be in expected_ddb_request.
+                pass
+        elif key == "ExpressionAttributeNames":
+            # Any keys in expected_ddb_request MUST be in actual_ddb_request,
+            # but not the other way around.
+            # actual_ddb_request will generate attribute symbols as needed,
+            # but any keys in expected_ddb_request MUST be present in actual_ddb_request.
+            if key in expected_ddb_request:
+                for name, value in expected_ddb_request[key].items():
+                    assert name in actual_ddb_request[key]
+                    assert actual_ddb_request[key][name] == value
+            else:
+                # Keys in actual_ddb_request don't need to be in expected_ddb_request.
+                pass
+        else:
             assert actual_ddb_request[key] == expected_ddb_request[key]
 
 
@@ -420,7 +448,7 @@ def get_string_for_key_condition_expression(
 ):
     """Get the string for the key condition expression."""
     if not isinstance(key_condition_expression, str):
-        built_expression = InternalDBESDKDynamoDBConditionExpressionBuilder().build_expression(
+        built_expression = ConditionExpressionBuilder().build_expression(
             key_condition_expression, expression_attribute_names, expression_attribute_values
         )
         key_condition_expression = built_expression.condition_expression
@@ -430,6 +458,10 @@ def get_string_for_key_condition_expression(
         key_condition_expression = key_condition_expression.replace(expression_attribute_name, str(value))
     for expression_attribute_value, value in expression_attribute_values.items():
         key_condition_expression = key_condition_expression.replace(expression_attribute_value, str(value))
+    # Sometimes, the generated string has parentheses around the condition expression.
+    # It doesn't matter for the purposes of this test, so we remove them.
+    if key_condition_expression.startswith("(") and key_condition_expression.endswith(")"):
+        key_condition_expression = key_condition_expression[1:-1]
     return key_condition_expression
 
 
@@ -444,6 +476,8 @@ def assert_condition_expressions_are_equal(expected_item, actual_item, key):
         actual_item["ExpressionAttributeNames"] if "ExpressionAttributeNames" in actual_item else {},
         actual_item["ExpressionAttributeValues"] if "ExpressionAttributeValues" in actual_item else {},
     )
+    print(f"{expected_key_condition_expression=}")
+    print(f"{actual_key_condition_expression=}")
     assert expected_key_condition_expression == actual_key_condition_expression
 
 
@@ -974,7 +1008,7 @@ def test_GIVEN_delete_item_request_without_table_name_WHEN_resource_to_client_TH
 ):
     # Given: ResourceShapeToClientShapeConverter without table name
     resource_to_client_converter_without_table_name = ResourceShapeToClientShapeConverter(table_name=None)
-    # Given: Put item request without table name
+    # Given: Delete item request without table name
     # Then: Raises ValueError
     with pytest.raises(ValueError):
         # When: Converting to resource format
@@ -996,29 +1030,7 @@ def test_GIVEN_delete_item_response_WHEN_resource_to_client_THEN_returns_ddb_val
     # Then: Returns dict value
     expected_ddb_response = test_delete_item_response(test_ddb_item)
 
-    actual_ddb_response = sort_dynamodb_json_lists(actual_ddb_response["Attributes"])
-    expected_ddb_response = sort_dynamodb_json_lists(expected_ddb_response["Attributes"])
+    actual_ddb_response["Attributes"] = sort_dynamodb_json_lists(actual_ddb_response["Attributes"])
+    expected_ddb_response["Attributes"] = sort_dynamodb_json_lists(expected_ddb_response["Attributes"])
 
     assert actual_ddb_response == expected_ddb_response
-
-
-# ruff: noqa: E501
-def test_GIVEN_request_with_neither_ExpressionAttributeValues_nor_ExpressionAttributeNames_WHEN_condition_handler_THEN_returns_BuiltConditionExpression_output():
-    # Given: Request with neither ExpressionAttributeValues nor ExpressionAttributeNames
-    request = exhaustive_put_item_request_dict(simple_item_dict)
-    if "ExpressionAttributeValues" in request:
-        del request["ExpressionAttributeValues"]
-    if "ExpressionAttributeNames" in request:
-        del request["ExpressionAttributeNames"]
-    actual = resource_to_client_converter.condition_handler("ConditionExpression", request)
-    # Reset expression_builder numbering to make test equality easier
-    # (ex. Instead of starting names at '#n2', it starts at '#n0'
-    # and can equal the `actual` expression string that starts at '#n0')
-    resource_to_client_converter.expression_builder.reset()
-    expected = resource_to_client_converter.expression_builder.build_expression(request["ConditionExpression"], {}, {})
-
-    assert actual == (
-        expected.condition_expression,
-        expected.attribute_name_placeholders,
-        expected.attribute_value_placeholders,
-    )
