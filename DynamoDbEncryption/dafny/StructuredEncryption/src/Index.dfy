@@ -3,9 +3,8 @@
 
 include "AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations.dfy"
 
-module
-  {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny" }
-  StructuredEncryption refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService
+module {:extern "software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny" } StructuredEncryption
+  refines AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService
 {
 
   import Operations = AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations
