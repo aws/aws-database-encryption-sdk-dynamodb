@@ -21,40 +21,30 @@ def com_amazonaws_dynamodb_AttributeValue(dafny_input):
     # Convert AttributeValue
     if isinstance(dafny_input, AttributeValue_S):
         AttributeValue_union_value = {
-            "S": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.S).decode(
-                "utf-16-be"
-            )
+            "S": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.S).decode("utf-16-be")
         }
     elif isinstance(dafny_input, AttributeValue_N):
         AttributeValue_union_value = {
-            "N": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.N).decode(
-                "utf-16-be"
-            )
+            "N": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.N).decode("utf-16-be")
         }
     elif isinstance(dafny_input, AttributeValue_B):
         AttributeValue_union_value = {"B": bytes(dafny_input.B)}
     elif isinstance(dafny_input, AttributeValue_SS):
         AttributeValue_union_value = {
             "SS": [
-                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                    "utf-16-be"
-                )
+                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
                 for list_element in dafny_input.SS
             ]
         }
     elif isinstance(dafny_input, AttributeValue_NS):
         AttributeValue_union_value = {
             "NS": [
-                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                    "utf-16-be"
-                )
+                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
                 for list_element in dafny_input.NS
             ]
         }
     elif isinstance(dafny_input, AttributeValue_BS):
-        AttributeValue_union_value = {
-            "BS": [bytes(list_element) for list_element in dafny_input.BS]
-        }
+        AttributeValue_union_value = {"BS": [bytes(list_element) for list_element in dafny_input.BS]}
     elif isinstance(dafny_input, AttributeValue_M):
         AttributeValue_union_value = {
             "M": {

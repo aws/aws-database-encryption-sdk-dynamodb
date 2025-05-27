@@ -53,9 +53,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetBranchKeyIdFromDdbKeyOutput(
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetBranchKeyIdFromDdbKeyOutput(
-        branch_key_id=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.branchKeyId
-        ).decode("utf-16-be"),
+        branch_key_id=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.branchKeyId).decode("utf-16-be"),
     )
 
 
@@ -142,34 +140,19 @@ def aws_cryptography_dbencryptionsdk_dynamodb_CreateDynamoDbEncryptionBranchKeyI
 
 def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedDataKeyDescription(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.EncryptedDataKeyDescription(
-        key_provider_id=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.keyProviderId
-        ).decode("utf-16-be"),
+        key_provider_id=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.keyProviderId).decode("utf-16-be"),
         key_provider_info=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.keyProviderInfo.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.keyProviderInfo.value).decode("utf-16-be"))
             if (dafny_input.keyProviderInfo.is_Some)
             else None
         ),
         branch_key_id=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.branchKeyId.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.branchKeyId.value).decode("utf-16-be"))
             if (dafny_input.branchKeyId.is_Some)
             else None
         ),
         branch_key_version=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big")
-                    for c in dafny_input.branchKeyVersion.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.branchKeyVersion.value).decode("utf-16-be"))
             if (dafny_input.branchKeyVersion.is_Some)
             else None
         ),
@@ -190,9 +173,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetEncryptedDataKeyDescriptionOutp
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_AsSet(dafny_input):
-    return (
-        aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.AsSet()
-    )
+    return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.AsSet()
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_AtomicPrimitivesReference(dafny_input):
@@ -205,9 +186,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_AtomicPrimitivesReference(dafny_in
 
 def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.MultiKeyStore(
-        key_field_name=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.keyFieldName
-        ).decode("utf-16-be"),
+        key_field_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.keyFieldName).decode("utf-16-be"),
         cache_ttl=dafny_input.cacheTTL,
         cache=(
             (
@@ -219,11 +198,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(dafny_input):
             else None
         ),
         partition_id=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.partitionId.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.partitionId.value).decode("utf-16-be"))
             if (dafny_input.partitionId.is_Some)
             else None
         ),
@@ -232,9 +207,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_MultiKeyStore(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_SingleKeyStore(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.SingleKeyStore(
-        key_id=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.keyId).decode(
-            "utf-16-be"
-        ),
+        key_id=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.keyId).decode("utf-16-be"),
         cache_ttl=dafny_input.cacheTTL,
         cache=(
             (
@@ -246,11 +219,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SingleKeyStore(dafny_input):
             else None
         ),
         partition_id=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.partitionId.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.partitionId.value).decode("utf-16-be"))
             if (dafny_input.partitionId.is_Some)
             else None
         ),
@@ -278,24 +247,18 @@ def aws_cryptography_dbencryptionsdk_dynamodb_BeaconKeySource(dafny_input):
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_PartOnly(dafny_input):
-    return (
-        aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.PartOnly()
-    )
+    return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.PartOnly()
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_Shared(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.Shared(
-        other=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.other).decode(
-            "utf-16-be"
-        ),
+        other=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.other).decode("utf-16-be"),
     )
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_SharedSet(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.SharedSet(
-        other=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.other).decode(
-            "utf-16-be"
-        ),
+        other=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.other).decode("utf-16-be"),
     )
 
 
@@ -333,9 +296,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_BeaconStyle(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_ConstructorPart(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.ConstructorPart(
-        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode(
-            "utf-16-be"
-        ),
+        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode("utf-16-be"),
         required=dafny_input.required,
     )
 
@@ -353,29 +314,17 @@ def aws_cryptography_dbencryptionsdk_dynamodb_Constructor(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_EncryptedPart(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.EncryptedPart(
-        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode(
-            "utf-16-be"
-        ),
-        prefix=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.prefix).decode(
-            "utf-16-be"
-        ),
+        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode("utf-16-be"),
+        prefix=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.prefix).decode("utf-16-be"),
     )
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_SignedPart(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.SignedPart(
-        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode(
-            "utf-16-be"
-        ),
-        prefix=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.prefix).decode(
-            "utf-16-be"
-        ),
+        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode("utf-16-be"),
+        prefix=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.prefix).decode("utf-16-be"),
         loc=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.loc.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.loc.value).decode("utf-16-be"))
             if (dafny_input.loc.is_Some)
             else None
         ),
@@ -384,12 +333,8 @@ def aws_cryptography_dbencryptionsdk_dynamodb_SignedPart(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_CompoundBeacon(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.CompoundBeacon(
-        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode(
-            "utf-16-be"
-        ),
-        split=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.split).decode(
-            "utf-16-be"
-        ),
+        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode("utf-16-be"),
+        split=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.split).decode("utf-16-be"),
         encrypted=(
             (
                 [
@@ -439,16 +384,10 @@ def aws_cryptography_dbencryptionsdk_dynamodb_KeyStoreReference(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_StandardBeacon(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.StandardBeacon(
-        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode(
-            "utf-16-be"
-        ),
+        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode("utf-16-be"),
         length=dafny_input.length,
         loc=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.loc.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.loc.value).decode("utf-16-be"))
             if (dafny_input.loc.is_Some)
             else None
         ),
@@ -466,16 +405,12 @@ def aws_cryptography_dbencryptionsdk_dynamodb_StandardBeacon(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_Insert(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.Insert(
-        literal=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.literal).decode(
-            "utf-16-be"
-        ),
+        literal=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.literal).decode("utf-16-be"),
     )
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_Lower(dafny_input):
-    return (
-        aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.Lower()
-    )
+    return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.Lower()
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_GetPrefix(dafny_input):
@@ -486,18 +421,14 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetPrefix(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_GetSegment(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetSegment(
-        split=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.split).decode(
-            "utf-16-be"
-        ),
+        split=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.split).decode("utf-16-be"),
         index=dafny_input.index,
     )
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_GetSegments(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.GetSegments(
-        split=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.split).decode(
-            "utf-16-be"
-        ),
+        split=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.split).decode("utf-16-be"),
         low=dafny_input.low,
         high=dafny_input.high,
     )
@@ -517,9 +448,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_GetSuffix(dafny_input):
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_Upper(dafny_input):
-    return (
-        aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.Upper()
-    )
+    return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.Upper()
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_VirtualTransform(dafny_input):
@@ -580,9 +509,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_VirtualTransform(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_VirtualPart(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.VirtualPart(
-        loc=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.loc).decode(
-            "utf-16-be"
-        ),
+        loc=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.loc).decode("utf-16-be"),
         trans=(
             (
                 [
@@ -600,9 +527,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_VirtualPart(dafny_input):
 
 def aws_cryptography_dbencryptionsdk_dynamodb_VirtualField(dafny_input):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.VirtualField(
-        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode(
-            "utf-16-be"
-        ),
+        name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.name).decode("utf-16-be"),
         parts=[
             aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.dafny_to_smithy.aws_cryptography_dbencryptionsdk_dynamodb_VirtualPart(
                 list_element
@@ -708,19 +633,13 @@ def aws_cryptography_dbencryptionsdk_dynamodb_LegacyDynamoDbEncryptorReference(
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_LegacyPolicy(dafny_input):
-    if isinstance(
-        dafny_input, LegacyPolicy_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT
-    ):
+    if isinstance(dafny_input, LegacyPolicy_FORCE__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT):
         return "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
 
-    elif isinstance(
-        dafny_input, LegacyPolicy_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT
-    ):
+    elif isinstance(dafny_input, LegacyPolicy_FORBID__LEGACY__ENCRYPT__ALLOW__LEGACY__DECRYPT):
         return "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
 
-    elif isinstance(
-        dafny_input, LegacyPolicy_FORBID__LEGACY__ENCRYPT__FORBID__LEGACY__DECRYPT
-    ):
+    elif isinstance(dafny_input, LegacyPolicy_FORBID__LEGACY__ENCRYPT__FORBID__LEGACY__DECRYPT):
         return "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT"
 
     else:
@@ -762,19 +681,13 @@ def aws_cryptography_dbencryptionsdk_dynamodb_LegacyOverride(dafny_input):
 
 
 def aws_cryptography_dbencryptionsdk_dynamodb_PlaintextOverride(dafny_input):
-    if isinstance(
-        dafny_input, PlaintextOverride_FORCE__PLAINTEXT__WRITE__ALLOW__PLAINTEXT__READ
-    ):
+    if isinstance(dafny_input, PlaintextOverride_FORCE__PLAINTEXT__WRITE__ALLOW__PLAINTEXT__READ):
         return "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
 
-    elif isinstance(
-        dafny_input, PlaintextOverride_FORBID__PLAINTEXT__WRITE__ALLOW__PLAINTEXT__READ
-    ):
+    elif isinstance(dafny_input, PlaintextOverride_FORBID__PLAINTEXT__WRITE__ALLOW__PLAINTEXT__READ):
         return "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
 
-    elif isinstance(
-        dafny_input, PlaintextOverride_FORBID__PLAINTEXT__WRITE__FORBID__PLAINTEXT__READ
-    ):
+    elif isinstance(dafny_input, PlaintextOverride_FORBID__PLAINTEXT__WRITE__FORBID__PLAINTEXT__READ):
         return "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ"
 
     else:
@@ -797,18 +710,14 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
     dafny_input,
 ):
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.models.DynamoDbTableEncryptionConfig(
-        logical_table_name=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.logicalTableName
-        ).decode("utf-16-be"),
-        partition_key_name=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.partitionKeyName
-        ).decode("utf-16-be"),
+        logical_table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.logicalTableName).decode(
+            "utf-16-be"
+        ),
+        partition_key_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.partitionKeyName).decode(
+            "utf-16-be"
+        ),
         sort_key_name=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.sortKeyName.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.sortKeyName.value).decode("utf-16-be"))
             if (dafny_input.sortKeyName.is_Some)
             else None
         ),
@@ -832,9 +741,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
         allowed_unsigned_attributes=(
             (
                 [
-                    b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                        "utf-16-be"
-                    )
+                    b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
                     for list_element in dafny_input.allowedUnsignedAttributes.value
                 ]
             )
@@ -843,10 +750,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_DynamoDbTableEncryptionConfig(
         ),
         allowed_unsigned_attribute_prefix=(
             (
-                b"".join(
-                    ord(c).to_bytes(2, "big")
-                    for c in dafny_input.allowedUnsignedAttributePrefix.value
-                ).decode("utf-16-be")
+                b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.allowedUnsignedAttributePrefix.value).decode(
+                    "utf-16-be"
+                )
             )
             if (dafny_input.allowedUnsignedAttributePrefix.is_Some)
             else None

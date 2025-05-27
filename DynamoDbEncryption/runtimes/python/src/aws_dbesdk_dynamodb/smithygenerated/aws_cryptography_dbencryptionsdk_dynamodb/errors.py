@@ -106,9 +106,7 @@ class ComAmazonawsDynamodb(ApiError[Literal["ComAmazonawsDynamodb"]]):
     ComAmazonawsDynamodb: Any
 
 
-class AwsCryptographicMaterialProviders(
-    ApiError[Literal["AwsCryptographicMaterialProviders"]]
-):
+class AwsCryptographicMaterialProviders(ApiError[Literal["AwsCryptographicMaterialProviders"]]):
     AwsCryptographicMaterialProviders: Any
 
 
@@ -307,9 +305,7 @@ def _smithy_error_to_dafny_error(e: ServiceError):
 
     if isinstance(e, StructuredEncryption):
         return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error_AwsCryptographyDbEncryptionSdkStructuredEncryption(
-            aws_cryptography_dbencryptionsdk_structuredencryption_smithy_error_to_dafny_error(
-                e.message
-            )
+            aws_cryptography_dbencryptionsdk_structuredencryption_smithy_error_to_dafny_error(e.message)
         )
 
     if isinstance(e, KeyStore):
@@ -320,9 +316,7 @@ def _smithy_error_to_dafny_error(e: ServiceError):
     if isinstance(e, CollectionOfErrors):
         return aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error_CollectionOfErrors(
             message=_dafny.Seq(e.message),
-            list=_dafny.Seq(
-                _smithy_error_to_dafny_error(native_err) for native_err in e.list
-            ),
+            list=_dafny.Seq(_smithy_error_to_dafny_error(native_err) for native_err in e.list),
         )
 
     if isinstance(e, OpaqueError):

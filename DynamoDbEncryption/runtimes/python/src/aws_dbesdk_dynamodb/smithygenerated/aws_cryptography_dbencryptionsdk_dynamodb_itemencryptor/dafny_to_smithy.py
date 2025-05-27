@@ -143,18 +143,14 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
     import aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config
 
     return aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor.config.DynamoDbItemEncryptorConfig(
-        logical_table_name=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.logicalTableName
-        ).decode("utf-16-be"),
-        partition_key_name=b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.partitionKeyName
-        ).decode("utf-16-be"),
+        logical_table_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.logicalTableName).decode(
+            "utf-16-be"
+        ),
+        partition_key_name=b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.partitionKeyName).decode(
+            "utf-16-be"
+        ),
         sort_key_name=(
-            (
-                b"".join(
-                    ord(c).to_bytes(2, "big") for c in dafny_input.sortKeyName.value
-                ).decode("utf-16-be")
-            )
+            (b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.sortKeyName.value).decode("utf-16-be"))
             if (dafny_input.sortKeyName.is_Some)
             else None
         ),
@@ -169,9 +165,7 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         allowed_unsigned_attributes=(
             (
                 [
-                    b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                        "utf-16-be"
-                    )
+                    b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
                     for list_element in dafny_input.allowedUnsignedAttributes.value
                 ]
             )
@@ -180,10 +174,9 @@ def aws_cryptography_dbencryptionsdk_dynamodb_itemencryptor_DynamoDbItemEncrypto
         ),
         allowed_unsigned_attribute_prefix=(
             (
-                b"".join(
-                    ord(c).to_bytes(2, "big")
-                    for c in dafny_input.allowedUnsignedAttributePrefix.value
-                ).decode("utf-16-be")
+                b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.allowedUnsignedAttributePrefix.value).decode(
+                    "utf-16-be"
+                )
             )
             if (dafny_input.allowedUnsignedAttributePrefix.is_Some)
             else None

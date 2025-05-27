@@ -67,40 +67,30 @@ def com_amazonaws_dynamodb_AttributeValue(dafny_input):
     # Convert AttributeValue
     if isinstance(dafny_input, AttributeValue_S):
         AttributeValue_union_value = {
-            "S": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.S).decode(
-                "utf-16-be"
-            )
+            "S": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.S).decode("utf-16-be")
         }
     elif isinstance(dafny_input, AttributeValue_N):
         AttributeValue_union_value = {
-            "N": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.N).decode(
-                "utf-16-be"
-            )
+            "N": b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.N).decode("utf-16-be")
         }
     elif isinstance(dafny_input, AttributeValue_B):
         AttributeValue_union_value = {"B": bytes(dafny_input.B)}
     elif isinstance(dafny_input, AttributeValue_SS):
         AttributeValue_union_value = {
             "SS": [
-                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                    "utf-16-be"
-                )
+                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
                 for list_element in dafny_input.SS
             ]
         }
     elif isinstance(dafny_input, AttributeValue_NS):
         AttributeValue_union_value = {
             "NS": [
-                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                    "utf-16-be"
-                )
+                b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
                 for list_element in dafny_input.NS
             ]
         }
     elif isinstance(dafny_input, AttributeValue_BS):
-        AttributeValue_union_value = {
-            "BS": [bytes(list_element) for list_element in dafny_input.BS]
-        }
+        AttributeValue_union_value = {"BS": [bytes(list_element) for list_element in dafny_input.BS]}
     elif isinstance(dafny_input, AttributeValue_M):
         AttributeValue_union_value = {
             "M": {
@@ -280,9 +270,7 @@ def com_amazonaws_dynamodb_ReturnValuesOnConditionCheckFailure(dafny_input):
 
 def com_amazonaws_dynamodb_PutItemInput(dafny_input):
     output = {}
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     output["Item"] = {
         b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
             "utf-16-be"
@@ -365,9 +353,9 @@ def com_amazonaws_dynamodb_PutItemInput(dafny_input):
 def com_amazonaws_dynamodb_ConsumedCapacity(dafny_input):
     output = {}
     if dafny_input.TableName.is_Some:
-        output["TableName"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.TableName.value
-        ).decode("utf-16-be")
+        output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName.value).decode(
+            "utf-16-be"
+        )
 
     if dafny_input.CapacityUnits.is_Some:
         output["CapacityUnits"] = dafny_input.CapacityUnits.value
@@ -435,9 +423,7 @@ def com_amazonaws_dynamodb_ItemCollectionMetrics(dafny_input):
         }
 
     if dafny_input.SizeEstimateRangeGB.is_Some:
-        output["SizeEstimateRangeGB"] = [
-            list_element for list_element in dafny_input.SizeEstimateRangeGB.value
-        ]
+        output["SizeEstimateRangeGB"] = [list_element for list_element in dafny_input.SizeEstimateRangeGB.value]
 
     return output
 
@@ -473,9 +459,7 @@ def com_amazonaws_dynamodb_PutItemOutput(dafny_input):
 
 def com_amazonaws_dynamodb_GetItemInput(dafny_input):
     output = {}
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     output["Key"] = {
         b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
             "utf-16-be"
@@ -486,9 +470,7 @@ def com_amazonaws_dynamodb_GetItemInput(dafny_input):
     }
     if dafny_input.AttributesToGet.is_Some:
         output["AttributesToGet"] = [
-            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                "utf-16-be"
-            )
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
             for list_element in dafny_input.AttributesToGet.value
         ]
 
@@ -663,9 +645,7 @@ def com_amazonaws_dynamodb_KeysAndAttributes(dafny_input):
     ]
     if dafny_input.AttributesToGet.is_Some:
         output["AttributesToGet"] = [
-            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                "utf-16-be"
-            )
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
             for list_element in dafny_input.AttributesToGet.value
         ]
 
@@ -785,19 +765,15 @@ def com_amazonaws_dynamodb_Condition(dafny_input):
 
 def com_amazonaws_dynamodb_ScanInput(dafny_input):
     output = {}
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     if dafny_input.IndexName.is_Some:
-        output["IndexName"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.IndexName.value
-        ).decode("utf-16-be")
+        output["IndexName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.IndexName.value).decode(
+            "utf-16-be"
+        )
 
     if dafny_input.AttributesToGet.is_Some:
         output["AttributesToGet"] = [
-            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                "utf-16-be"
-            )
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
             for list_element in dafny_input.AttributesToGet.value
         ]
 
@@ -928,13 +904,11 @@ def com_amazonaws_dynamodb_ScanOutput(dafny_input):
 
 def com_amazonaws_dynamodb_QueryInput(dafny_input):
     output = {}
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     if dafny_input.IndexName.is_Some:
-        output["IndexName"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.IndexName.value
-        ).decode("utf-16-be")
+        output["IndexName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.IndexName.value).decode(
+            "utf-16-be"
+        )
 
     if dafny_input.Select.is_Some:
         output["Select"] = (
@@ -945,9 +919,7 @@ def com_amazonaws_dynamodb_QueryInput(dafny_input):
 
     if dafny_input.AttributesToGet.is_Some:
         output["AttributesToGet"] = [
-            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode(
-                "utf-16-be"
-            )
+            b"".join(ord(c).to_bytes(2, "big") for c in list_element).decode("utf-16-be")
             for list_element in dafny_input.AttributesToGet.value
         ]
 
@@ -1124,12 +1096,10 @@ def com_amazonaws_dynamodb_ConditionCheck(dafny_input):
         )
         for (key, value) in dafny_input.Key.items
     }
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
-    output["ConditionExpression"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
+    output["ConditionExpression"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression).decode(
+        "utf-16-be"
+    )
     if dafny_input.ExpressionAttributeNames.is_Some:
         output["ExpressionAttributeNames"] = {
             b"".join(ord(c).to_bytes(2, "big") for c in key)
@@ -1168,9 +1138,7 @@ def com_amazonaws_dynamodb_Put(dafny_input):
         )
         for (key, value) in dafny_input.Item.items
     }
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     if dafny_input.ConditionExpression.is_Some:
         output["ConditionExpression"] = b"".join(
             ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
@@ -1214,9 +1182,7 @@ def com_amazonaws_dynamodb_Delete(dafny_input):
         )
         for (key, value) in dafny_input.Key.items
     }
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     if dafny_input.ConditionExpression.is_Some:
         output["ConditionExpression"] = b"".join(
             ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
@@ -1260,12 +1226,10 @@ def com_amazonaws_dynamodb_Update(dafny_input):
         )
         for (key, value) in dafny_input.Key.items
     }
-    output["UpdateExpression"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.UpdateExpression
-    ).decode("utf-16-be")
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["UpdateExpression"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.UpdateExpression).decode(
+        "utf-16-be"
+    )
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     if dafny_input.ConditionExpression.is_Some:
         output["ConditionExpression"] = b"".join(
             ord(c).to_bytes(2, "big") for c in dafny_input.ConditionExpression.value
@@ -1389,9 +1353,7 @@ def com_amazonaws_dynamodb_AttributeAction(dafny_input):
 
 def com_amazonaws_dynamodb_UpdateItemInput(dafny_input):
     output = {}
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     output["Key"] = {
         b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
             "utf-16-be"
@@ -1517,9 +1479,7 @@ def com_amazonaws_dynamodb_UpdateItemOutput(dafny_input):
 
 def com_amazonaws_dynamodb_DeleteItemInput(dafny_input):
     output = {}
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     output["Key"] = {
         b"".join(ord(c).to_bytes(2, "big") for c in key).decode(
             "utf-16-be"
@@ -1648,9 +1608,7 @@ def com_amazonaws_dynamodb_Get(dafny_input):
         )
         for (key, value) in dafny_input.Key.items
     }
-    output["TableName"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.TableName
-    ).decode("utf-16-be")
+    output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName).decode("utf-16-be")
     if dafny_input.ProjectionExpression.is_Some:
         output["ProjectionExpression"] = b"".join(
             ord(c).to_bytes(2, "big") for c in dafny_input.ProjectionExpression.value
@@ -1723,9 +1681,7 @@ def com_amazonaws_dynamodb_TransactGetItemsOutput(dafny_input):
 
 def com_amazonaws_dynamodb_ExecuteStatementInput(dafny_input):
     output = {}
-    output["Statement"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.Statement
-    ).decode("utf-16-be")
+    output["Statement"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.Statement).decode("utf-16-be")
     if dafny_input.Parameters.is_Some:
         output["Parameters"] = [
             aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
@@ -1738,9 +1694,9 @@ def com_amazonaws_dynamodb_ExecuteStatementInput(dafny_input):
         output["ConsistentRead"] = dafny_input.ConsistentRead.value
 
     if dafny_input.NextToken.is_Some:
-        output["NextToken"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.NextToken.value
-        ).decode("utf-16-be")
+        output["NextToken"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.NextToken.value).decode(
+            "utf-16-be"
+        )
 
     if dafny_input.ReturnConsumedCapacity.is_Some:
         output["ReturnConsumedCapacity"] = (
@@ -1778,9 +1734,9 @@ def com_amazonaws_dynamodb_ExecuteStatementOutput(dafny_input):
         ]
 
     if dafny_input.NextToken.is_Some:
-        output["NextToken"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.NextToken.value
-        ).decode("utf-16-be")
+        output["NextToken"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.NextToken.value).decode(
+            "utf-16-be"
+        )
 
     if dafny_input.ConsumedCapacity.is_Some:
         output["ConsumedCapacity"] = (
@@ -1804,9 +1760,7 @@ def com_amazonaws_dynamodb_ExecuteStatementOutput(dafny_input):
 
 def com_amazonaws_dynamodb_BatchStatementRequest(dafny_input):
     output = {}
-    output["Statement"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.Statement
-    ).decode("utf-16-be")
+    output["Statement"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.Statement).decode("utf-16-be")
     if dafny_input.Parameters.is_Some:
         output["Parameters"] = [
             aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(
@@ -1856,9 +1810,9 @@ def com_amazonaws_dynamodb_BatchStatementResponse(dafny_input):
         )
 
     if dafny_input.TableName.is_Some:
-        output["TableName"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.TableName.value
-        ).decode("utf-16-be")
+        output["TableName"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.TableName.value).decode(
+            "utf-16-be"
+        )
 
     if dafny_input.Item.is_Some:
         output["Item"] = {
@@ -1883,9 +1837,7 @@ def com_amazonaws_dynamodb_BatchStatementError(dafny_input):
         )
 
     if dafny_input.Message.is_Some:
-        output["Message"] = b"".join(
-            ord(c).to_bytes(2, "big") for c in dafny_input.Message.value
-        ).decode("utf-16-be")
+        output["Message"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.Message.value).decode("utf-16-be")
 
     if dafny_input.Item.is_Some:
         output["Item"] = {
@@ -1905,9 +1857,7 @@ def com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(dafny_input):
     if isinstance(dafny_input, BatchStatementErrorCodeEnum_ConditionalCheckFailed):
         return "ConditionalCheckFailed"
 
-    elif isinstance(
-        dafny_input, BatchStatementErrorCodeEnum_ItemCollectionSizeLimitExceeded
-    ):
+    elif isinstance(dafny_input, BatchStatementErrorCodeEnum_ItemCollectionSizeLimitExceeded):
         return "ItemCollectionSizeLimitExceeded"
 
     elif isinstance(dafny_input, BatchStatementErrorCodeEnum_RequestLimitExceeded):
@@ -1916,9 +1866,7 @@ def com_amazonaws_dynamodb_BatchStatementErrorCodeEnum(dafny_input):
     elif isinstance(dafny_input, BatchStatementErrorCodeEnum_ValidationError):
         return "ValidationError"
 
-    elif isinstance(
-        dafny_input, BatchStatementErrorCodeEnum_ProvisionedThroughputExceeded
-    ):
+    elif isinstance(dafny_input, BatchStatementErrorCodeEnum_ProvisionedThroughputExceeded):
         return "ProvisionedThroughputExceeded"
 
     elif isinstance(dafny_input, BatchStatementErrorCodeEnum_TransactionConflict):
@@ -1966,9 +1914,7 @@ def com_amazonaws_dynamodb_BatchExecuteStatementOutput(dafny_input):
 
 def com_amazonaws_dynamodb_ParameterizedStatement(dafny_input):
     output = {}
-    output["Statement"] = b"".join(
-        ord(c).to_bytes(2, "big") for c in dafny_input.Statement
-    ).decode("utf-16-be")
+    output["Statement"] = b"".join(ord(c).to_bytes(2, "big") for c in dafny_input.Statement).decode("utf-16-be")
     if dafny_input.Parameters.is_Some:
         output["Parameters"] = [
             aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.dafny_to_aws_sdk.com_amazonaws_dynamodb_AttributeValue(

@@ -106,9 +106,7 @@ class CreateDynamoDbEncryptionBranchKeyIdSupplierOutput:
         )
 
         kwargs: Dict[str, Any] = {
-            "branch_key_id_supplier": BranchKeyIdSupplier.from_dict(
-                d["branch_key_id_supplier"]
-            ),
+            "branch_key_id_supplier": BranchKeyIdSupplier.from_dict(d["branch_key_id_supplier"]),
         }
 
         return CreateDynamoDbEncryptionBranchKeyIdSupplierOutput(**kwargs)
@@ -277,9 +275,7 @@ class GetEncryptedDataKeyDescriptionOutput:
         :param encrypted_data_key_description_output: A list of
             encrypted data key description.
         """
-        self.encrypted_data_key_description_output = (
-            encrypted_data_key_description_output
-        )
+        self.encrypted_data_key_description_output = encrypted_data_key_description_output
 
     def as_dict(self) -> Dict[str, Any]:
         """Converts the GetEncryptedDataKeyDescriptionOutput to a
@@ -435,9 +431,7 @@ class GetEncryptedDataKeyDescriptionUnionUnknown:
     def from_dict(d: Dict[str, Any]) -> "GetEncryptedDataKeyDescriptionUnionUnknown":
         if len(d) != 1:
             raise TypeError(f"Unions may have exactly 1 value, but found {len(d)}")
-        return GetEncryptedDataKeyDescriptionUnionUnknown(
-            d["SDK_UNKNOWN_MEMBER"]["name"]
-        )
+        return GetEncryptedDataKeyDescriptionUnionUnknown(d["SDK_UNKNOWN_MEMBER"]["name"])
 
     def __repr__(self) -> str:
         return f"GetEncryptedDataKeyDescriptionUnionUnknown(tag={self.tag})"
@@ -784,9 +778,7 @@ class BeaconKeySourceUnknown:
         return f"BeaconKeySourceUnknown(tag={self.tag})"
 
 
-BeaconKeySource = Union[
-    BeaconKeySourceSingle, BeaconKeySourceMulti, BeaconKeySourceUnknown
-]
+BeaconKeySource = Union[BeaconKeySourceSingle, BeaconKeySourceMulti, BeaconKeySourceUnknown]
 
 
 def _beacon_key_source_from_dict(d: Dict[str, Any]) -> BeaconKeySource:
@@ -1364,9 +1356,7 @@ class CompoundBeacon:
 
         self.signed = signed
         if (constructors is not None) and (len(constructors) < 1):
-            raise ValueError(
-                "The size of constructors must be greater than or equal to 1"
-            )
+            raise ValueError("The size of constructors must be greater than or equal to 1")
 
         self.constructors = constructors
 
@@ -2368,9 +2358,7 @@ class BeaconVersion:
         self.key_store = key_store
         self.key_source = key_source
         if (standard_beacons is not None) and (len(standard_beacons) < 1):
-            raise ValueError(
-                "The size of standard_beacons must be greater than or equal to 1"
-            )
+            raise ValueError("The size of standard_beacons must be greater than or equal to 1")
 
         self.standard_beacons = standard_beacons
         if (version is not None) and (version < 1):
@@ -2378,27 +2366,19 @@ class BeaconVersion:
 
         self.version = version
         if (compound_beacons is not None) and (len(compound_beacons) < 1):
-            raise ValueError(
-                "The size of compound_beacons must be greater than or equal to 1"
-            )
+            raise ValueError("The size of compound_beacons must be greater than or equal to 1")
 
         self.compound_beacons = compound_beacons
         if (virtual_fields is not None) and (len(virtual_fields) < 1):
-            raise ValueError(
-                "The size of virtual_fields must be greater than or equal to 1"
-            )
+            raise ValueError("The size of virtual_fields must be greater than or equal to 1")
 
         self.virtual_fields = virtual_fields
         if (encrypted_parts is not None) and (len(encrypted_parts) < 1):
-            raise ValueError(
-                "The size of encrypted_parts must be greater than or equal to 1"
-            )
+            raise ValueError("The size of encrypted_parts must be greater than or equal to 1")
 
         self.encrypted_parts = encrypted_parts
         if (signed_parts is not None) and (len(signed_parts) < 1):
-            raise ValueError(
-                "The size of signed_parts must be greater than or equal to 1"
-            )
+            raise ValueError("The size of signed_parts must be greater than or equal to 1")
 
         self.signed_parts = signed_parts
 
@@ -2414,17 +2394,13 @@ class BeaconVersion:
             d["version"] = self.version
 
         if self.compound_beacons is not None:
-            d["compound_beacons"] = (
-                _compound_beacon_list_as_dict(self.compound_beacons),
-            )
+            d["compound_beacons"] = (_compound_beacon_list_as_dict(self.compound_beacons),)
 
         if self.virtual_fields is not None:
             d["virtual_fields"] = (_virtual_field_list_as_dict(self.virtual_fields),)
 
         if self.encrypted_parts is not None:
-            d["encrypted_parts"] = (
-                _encrypted_parts_list_as_dict(self.encrypted_parts),
-            )
+            d["encrypted_parts"] = (_encrypted_parts_list_as_dict(self.encrypted_parts),)
 
         if self.signed_parts is not None:
             d["signed_parts"] = (_signed_parts_list_as_dict(self.signed_parts),)
@@ -2448,19 +2424,13 @@ class BeaconVersion:
             kwargs["version"] = d["version"]
 
         if "compound_beacons" in d:
-            kwargs["compound_beacons"] = (
-                _compound_beacon_list_from_dict(d["compound_beacons"]),
-            )
+            kwargs["compound_beacons"] = (_compound_beacon_list_from_dict(d["compound_beacons"]),)
 
         if "virtual_fields" in d:
-            kwargs["virtual_fields"] = (
-                _virtual_field_list_from_dict(d["virtual_fields"]),
-            )
+            kwargs["virtual_fields"] = (_virtual_field_list_from_dict(d["virtual_fields"]),)
 
         if "encrypted_parts" in d:
-            kwargs["encrypted_parts"] = (
-                _encrypted_parts_list_from_dict(d["encrypted_parts"]),
-            )
+            kwargs["encrypted_parts"] = (_encrypted_parts_list_from_dict(d["encrypted_parts"]),)
 
         if "signed_parts" in d:
             kwargs["signed_parts"] = (_signed_parts_list_from_dict(d["signed_parts"]),)
@@ -2512,17 +2482,11 @@ class BeaconVersion:
 
 
 class LegacyPolicy:
-    FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT = (
-        "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
-    )
+    FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT = "FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
 
-    FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT = (
-        "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
-    )
+    FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT = "FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT"
 
-    FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT = (
-        "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT"
-    )
+    FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT = "FORBID_LEGACY_ENCRYPT_FORBID_LEGACY_DECRYPT"
 
     # This set contains every possible value known at the time this was generated. New
     # values may be added in the future.
@@ -2627,17 +2591,11 @@ class LegacyOverride:
 
 
 class PlaintextOverride:
-    FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ = (
-        "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
-    )
+    FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ = "FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
 
-    FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ = (
-        "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
-    )
+    FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ = "FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ"
 
-    FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ = (
-        "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ"
-    )
+    FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ = "FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ"
 
     # This set contains every possible value known at the time this was generated. New
     # values may be added in the future.
@@ -2808,35 +2766,23 @@ class DynamoDbTableEncryptionConfig:
         """
         self.logical_table_name = logical_table_name
         if (partition_key_name is not None) and (len(partition_key_name) < 1):
-            raise ValueError(
-                "The size of partition_key_name must be greater than or equal to 1"
-            )
+            raise ValueError("The size of partition_key_name must be greater than or equal to 1")
 
         if (partition_key_name is not None) and (len(partition_key_name) > 255):
-            raise ValueError(
-                "The size of partition_key_name must be less than or equal to 255"
-            )
+            raise ValueError("The size of partition_key_name must be less than or equal to 255")
 
         self.partition_key_name = partition_key_name
         self.attribute_actions_on_encrypt = attribute_actions_on_encrypt
         if (sort_key_name is not None) and (len(sort_key_name) < 1):
-            raise ValueError(
-                "The size of sort_key_name must be greater than or equal to 1"
-            )
+            raise ValueError("The size of sort_key_name must be greater than or equal to 1")
 
         if (sort_key_name is not None) and (len(sort_key_name) > 255):
-            raise ValueError(
-                "The size of sort_key_name must be less than or equal to 255"
-            )
+            raise ValueError("The size of sort_key_name must be less than or equal to 255")
 
         self.sort_key_name = sort_key_name
         self.search = search
-        if (allowed_unsigned_attributes is not None) and (
-            len(allowed_unsigned_attributes) < 1
-        ):
-            raise ValueError(
-                "The size of allowed_unsigned_attributes must be greater than or equal to 1"
-            )
+        if (allowed_unsigned_attributes is not None) and (len(allowed_unsigned_attributes) < 1):
+            raise ValueError("The size of allowed_unsigned_attributes must be greater than or equal to 1")
 
         self.allowed_unsigned_attributes = allowed_unsigned_attributes
         self.allowed_unsigned_attribute_prefix = allowed_unsigned_attribute_prefix
@@ -2864,9 +2810,7 @@ class DynamoDbTableEncryptionConfig:
             d["allowed_unsigned_attributes"] = self.allowed_unsigned_attributes
 
         if self.allowed_unsigned_attribute_prefix is not None:
-            d["allowed_unsigned_attribute_prefix"] = (
-                self.allowed_unsigned_attribute_prefix
-            )
+            d["allowed_unsigned_attribute_prefix"] = self.allowed_unsigned_attribute_prefix
 
         if self.algorithm_suite_id is not None:
             d["algorithm_suite_id"] = self.algorithm_suite_id
@@ -2911,9 +2855,7 @@ class DynamoDbTableEncryptionConfig:
             kwargs["allowed_unsigned_attributes"] = d["allowed_unsigned_attributes"]
 
         if "allowed_unsigned_attribute_prefix" in d:
-            kwargs["allowed_unsigned_attribute_prefix"] = d[
-                "allowed_unsigned_attribute_prefix"
-            ]
+            kwargs["allowed_unsigned_attribute_prefix"] = d["allowed_unsigned_attribute_prefix"]
 
         if "algorithm_suite_id" in d:
             kwargs["algorithm_suite_id"] = d["algorithm_suite_id"]
@@ -3011,9 +2953,7 @@ class DynamoDbTablesEncryptionConfig:
     def as_dict(self) -> Dict[str, Any]:
         """Converts the DynamoDbTablesEncryptionConfig to a dictionary."""
         return {
-            "table_encryption_configs": _dynamo_db_table_encryption_config_list_as_dict(
-                self.table_encryption_configs
-            ),
+            "table_encryption_configs": _dynamo_db_table_encryption_config_list_as_dict(self.table_encryption_configs),
         }
 
     @staticmethod

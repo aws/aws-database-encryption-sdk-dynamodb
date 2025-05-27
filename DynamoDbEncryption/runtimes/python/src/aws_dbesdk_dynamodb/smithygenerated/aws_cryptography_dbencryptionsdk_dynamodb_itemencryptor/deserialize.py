@@ -82,25 +82,17 @@ def _deserialize_error(error: Error) -> ServiceError:
         )
     elif error.is_AwsCryptographyPrimitives:
         return AwsCryptographicPrimitives(
-            aws_cryptography_primitives_deserialize_error(
-                error.AwsCryptographyPrimitives
-            )
+            aws_cryptography_primitives_deserialize_error(error.AwsCryptographyPrimitives)
         )
     elif error.is_AwsCryptographyDbEncryptionSdkDynamoDb:
         return DynamoDbEncryption(
-            aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(
-                error.AwsCryptographyDbEncryptionSdkDynamoDb
-            )
+            aws_cryptography_dbencryptionsdk_dynamodb_deserialize_error(error.AwsCryptographyDbEncryptionSdkDynamoDb)
         )
     elif error.is_AwsCryptographyMaterialProviders:
         return AwsCryptographicMaterialProviders(
-            aws_cryptography_materialproviders_deserialize_error(
-                error.AwsCryptographyMaterialProviders
-            )
+            aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders)
         )
     elif error.is_ComAmazonawsDynamodb:
-        return ComAmazonawsDynamodb(
-            message=_dafny.string_of(error.ComAmazonawsDynamodb.message)
-        )
+        return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
     else:
         return OpaqueError(obj=error)

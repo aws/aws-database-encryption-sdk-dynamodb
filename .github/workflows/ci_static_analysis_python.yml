@@ -73,5 +73,4 @@ jobs:
       - name: Run static analysis
         working-directory: ./DynamoDbEncryption/runtimes/python
         run: |
-          tox -e ruff
-          tox -e black-check
+          tox -e lint-check
