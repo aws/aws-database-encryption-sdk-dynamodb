@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 from test.integ.encrypted.test_resource import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
 
 

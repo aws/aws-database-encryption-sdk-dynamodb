@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 """Request constants for DynamoDB operations used for testing."""
 
 from boto3.dynamodb.conditions import Attr, Key
@@ -140,7 +142,7 @@ def basic_batch_execute_statement_request_plaintext_table():
 
 # No exhaustive requests are intended to be able to be used as real requests.
 # Some parameters conflict with each other when sent to DynamoDB.
-# These are only intended to test the conversion of the request from client to resource format.
+# These are only intended to test the conversion of the structure from client to resource format.
 
 
 def base_exhaustive_put_item_request(item):

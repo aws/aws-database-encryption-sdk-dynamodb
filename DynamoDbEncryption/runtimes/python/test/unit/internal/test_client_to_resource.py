@@ -3,7 +3,7 @@
 import pytest
 
 from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
-from aws_dbesdk_dynamodb.internal.condition_expression_builder import InternalDBESDKDynamoDBConditionExpressionBuilder
+from boto3.dynamodb.conditions import ConditionExpressionBuilder
 
 from ...items import (
     complex_item_ddb,
@@ -261,7 +261,7 @@ def get_string_for_key_condition_expression(
 ):
     """Get the string for the key condition expression."""
     if not isinstance(key_condition_expression, str):
-        built_expression = InternalDBESDKDynamoDBConditionExpressionBuilder().build_expression(
+        built_expression = ConditionExpressionBuilder().build_expression(
             key_condition_expression, expression_attribute_names, expression_attribute_values
         )
         key_condition_expression = built_expression.condition_expression

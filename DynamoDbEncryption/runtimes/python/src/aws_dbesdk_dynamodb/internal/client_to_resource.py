@@ -28,8 +28,10 @@ class ClientShapeToResourceShapeConverter:
         condition = request[expression_key]
 
         # This conversion in client_to_resource does not update ExpressionAttributeNames or ExpressionAttributeValues.
-        # However, resource_to_client condition_handler may add new ExpressionAttributeNames and ExpressionAttributeValues.
-        # Smithy-generated code expects condition_handlers to return ExpressionAttributeNames and ExpressionAttributeValues,
+        # However, resource_to_client condition_handler may add new ExpressionAttributeNames and
+        # ExpressionAttributeValues.
+        # Smithy-generated code expects condition_handlers to return ExpressionAttributeNames and
+        # ExpressionAttributeValues,
         # expecting empty dicts if there are none.
         try:
             names = request["ExpressionAttributeNames"]
@@ -88,7 +90,7 @@ class ClientShapeToResourceShapeConverter:
         if self.delete_table_name:
             del out["TableName"]
         return out
-    
+
     def delete_item_response(self, delete_item_response):
         return self.boto3_converter.DeleteItemOutput(delete_item_response)
 
@@ -98,7 +100,7 @@ class ClientShapeToResourceShapeConverter:
         if self.delete_table_name:
             del out["TableName"]
         return out
-    
+
     def update_item_response(self, update_item_response):
         return self.boto3_converter.UpdateItemOutput(update_item_response)
 

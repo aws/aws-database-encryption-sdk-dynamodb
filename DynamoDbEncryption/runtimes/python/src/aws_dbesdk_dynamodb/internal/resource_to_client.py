@@ -3,8 +3,8 @@
 from aws_cryptography_internal_dynamodb.smithygenerated.com_amazonaws_dynamodb.boto3_conversions import (
     InternalBoto3DynamoDBFormatConverter,
 )
-from boto3.dynamodb.types import TypeSerializer
 from boto3.dynamodb.conditions import ConditionExpressionBuilder
+from boto3.dynamodb.types import TypeSerializer
 
 
 class ResourceShapeToClientShapeConverter:
@@ -43,10 +43,12 @@ class ResourceShapeToClientShapeConverter:
             hasattr(condition_expression, "__module__")
             and condition_expression.__module__ == "boto3.dynamodb.conditions"
         ):
-            built_condition_expression = self.expression_builder.build_expression(
-                condition_expression
+            built_condition_expression = self.expression_builder.build_expression(condition_expression)
+            return (
+                built_condition_expression.condition_expression,
+                built_condition_expression.attribute_name_placeholders,
+                built_condition_expression.attribute_value_placeholders,
             )
-            return built_condition_expression.condition_expression, built_condition_expression.attribute_name_placeholders, built_condition_expression.attribute_value_placeholders
         else:
             return condition_expression, existing_expression_attribute_names, existing_expression_attribute_values
 
