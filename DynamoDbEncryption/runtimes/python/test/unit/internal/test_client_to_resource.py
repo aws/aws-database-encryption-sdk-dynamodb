@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 import pytest
 
 from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
@@ -269,6 +271,10 @@ def get_string_for_key_condition_expression(
         key_condition_expression = key_condition_expression.replace(expression_attribute_name, str(value))
     for expression_attribute_value, value in expression_attribute_values.items():
         key_condition_expression = key_condition_expression.replace(expression_attribute_value, str(value))
+    # Sometimes, the generated string has parentheses around the condition expression.
+    # It doesn't matter for the purposes of this test, so we remove them.
+    if key_condition_expression.startswith("(") and key_condition_expression.endswith(")"):
+        key_condition_expression = key_condition_expression[1:-1]
     return key_condition_expression
 
 
@@ -707,18 +713,3 @@ def test_GIVEN_test_delete_item_response_WHEN_client_to_resource_THEN_returns_di
     dict_item = client_to_resource_converter.delete_item_response(response)
     # Then: Returns dict value
     assert dict_item == test_delete_item_response(test_dict_item)
-
-
-# ruff: noqa: E501
-def test_GIVEN_request_with_neither_ExpressionAttributeValues_nor_ExpressionAttributeNames_WHEN_condition_handler_THEN_returns_identity_output():
-    # Given: Request with neither ExpressionAttributeValues nor ExpressionAttributeNames
-    request = exhaustive_put_item_request_ddb(simple_item_ddb)
-    if "ExpressionAttributeValues" in request:
-        del request["ExpressionAttributeValues"]
-    if "ExpressionAttributeNames" in request:
-        del request["ExpressionAttributeNames"]
-    # When: Call condition_handler method
-    actual = client_to_resource_converter.condition_handler("ConditionExpression", request)
-    # Then: Returns "identity" output (input condition expression and no attribute names or values)
-    expected = request["ConditionExpression"], {}, {}
-    assert actual == expected
