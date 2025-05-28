@@ -310,7 +310,7 @@ def scan_request(expect_standard_dictionaries, test_item):
 
 
 def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(
-    client, put_item_request, scan_request
+    client, put_item_request, scan_request, get_item_request
 ):
     # Given: Valid put_item request
     # When: put_item

@@ -394,6 +394,7 @@ def basic_query_paginator_request(key):
         "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         "KeyConditionExpression": "partition_key = :pk AND sort_key = :sk",
         "ExpressionAttributeValues": {":pk": key["partition_key"], ":sk": key["sort_key"]},
+        "ConsistentRead": True,
     }
 
 
@@ -403,6 +404,7 @@ def basic_scan_paginator_request(item):
         "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         "FilterExpression": "partition_key = :pk AND sort_key = :sk",
         "ExpressionAttributeValues": {":pk": item["partition_key"], ":sk": item["sort_key"]},
+        "ConsistentRead": True,
     }
 
 
