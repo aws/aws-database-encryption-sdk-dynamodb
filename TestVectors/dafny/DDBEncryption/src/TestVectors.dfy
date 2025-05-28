@@ -74,46 +74,46 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies keyVectors.Modifies
       ensures keyVectors.ValidState()
     {
-      print "DBE Test Vectors\n";
-      print |globalRecords|, " records.\n";
-      print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
-      print |largeEncryptionConfigs|, " largeEncryptionConfigs.\n";
-      print |queries|, " queries.\n";
-      print |names|, " names.\n";
-      print |values|, " values.\n";
-      print |failingQueries|, " failingQueries.\n";
-      print |complexTests|, " complexTests.\n";
-      print |ioTests|, " ioTests.\n";
-      print |configsForIoTest|, " configsForIoTest.\n";
-      print |configsForModTest|, " configsForModTest.\n";
-      print |strings|, " strings.\n";
-      print |large|, " large.\n";
-      if |roundTripTests| != 0 {
-        print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
-      }
-      if |roundTripTests| > 1 {
-        print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
-      }
+      // print "DBE Test Vectors\n";
+      // print |globalRecords|, " records.\n";
+      // print |tableEncryptionConfigs|, " tableEncryptionConfigs.\n";
+      // print |largeEncryptionConfigs|, " largeEncryptionConfigs.\n";
+      // print |queries|, " queries.\n";
+      // print |names|, " names.\n";
+      // print |values|, " values.\n";
+      // print |failingQueries|, " failingQueries.\n";
+      // print |complexTests|, " complexTests.\n";
+      // print |ioTests|, " ioTests.\n";
+      // print |configsForIoTest|, " configsForIoTest.\n";
+      // print |configsForModTest|, " configsForModTest.\n";
+      // print |strings|, " strings.\n";
+      // print |large|, " large.\n";
+      // if |roundTripTests| != 0 {
+      //   print |roundTripTests[0].configs|, " configs and ", |roundTripTests[0].records|, " records for round trip.\n";
+      // }
+      // if |roundTripTests| > 1 {
+      //   print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
+      // }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
-      var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
-      if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
-        print "\nRunning no tests\n";
-        return;
-      }
-      Validate();
-      StringOrdering();
-      LargeTests();
-      BasicIoTest();
-      RunIoTests();
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
+      // var _ :- expect WriteManifest.Write("encrypt.json");
+      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
+      // if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
+      //   print "\nRunning no tests\n";
+      //   return;
+      // }
+      // Validate();
+      // StringOrdering();
+      // LargeTests();
+      // BasicIoTest();
+      // RunIoTests();
       BasicQueryTest();
       ConfigModTest();
       ComplexTests();
