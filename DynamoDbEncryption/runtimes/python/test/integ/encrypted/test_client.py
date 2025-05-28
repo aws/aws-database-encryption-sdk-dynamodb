@@ -1,5 +1,8 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+import uuid
+from copy import deepcopy
+
 import boto3
 import pytest
 
@@ -8,8 +11,6 @@ from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
     DynamoDbEncryptionTransformsException,
 )
-import uuid
-from copy import deepcopy
 
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
@@ -112,10 +113,12 @@ def client(encrypted, expect_standard_dictionaries):
 def use_complex_item(request):
     return request.param
 
+
 # Append a suffix to the partition key to avoid collisions between test runs.
 @pytest.fixture(scope="module")
 def test_run_suffix():
     return str(uuid.uuid4())
+
 
 @pytest.fixture
 def test_item(expect_standard_dictionaries, use_complex_item, test_run_suffix):
@@ -136,6 +139,7 @@ def test_item(expect_standard_dictionaries, use_complex_item, test_run_suffix):
     else:
         item["partition_key"] += test_run_suffix
     return item
+
 
 @pytest.fixture
 def test_key(expect_standard_dictionaries, use_complex_item, test_run_suffix):
@@ -634,6 +638,7 @@ def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     response = encrypted_client(expect_standard_dictionaries=False).list_backups()
     # Then: Correct response is returned, i.e. EncryptedClient forwards the call to the underlying boto3 client
     assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
 
 # Delete the items in the table after the module runs
 @pytest.fixture(scope="module", autouse=True)

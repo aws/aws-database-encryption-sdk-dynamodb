@@ -1,17 +1,26 @@
-import boto3
-import pytest
 import uuid
 from copy import deepcopy
+
+import boto3
+import pytest
 
 from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedTablesCollectionManager
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 
 from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, INTEG_TEST_DEFAULT_TABLE_CONFIGS
-from ...items import complex_item_dict, complex_key_dict, simple_item_dict, simple_key_dict
+from ...items import (
+    complex_item_ddb,
+    complex_item_dict,
+    complex_key_dict,
+    simple_item_ddb,
+    simple_item_dict,
+    simple_key_dict,
+)
 from ...requests import (
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_dict,
+    basic_delete_item_request_ddb,
 )
 
 
@@ -43,9 +52,11 @@ def resource(encrypted):
 def tables(resource):
     return resource.tables
 
+
 @pytest.fixture(scope="module")
 def test_run_suffix():
     return str(uuid.uuid4())
+
 
 @pytest.fixture
 def test_items(test_run_suffix):
@@ -53,6 +64,7 @@ def test_items(test_run_suffix):
     for item in items:
         item["partition_key"] += test_run_suffix
     return items
+
 
 @pytest.fixture
 def test_keys(test_run_suffix):
@@ -174,3 +186,14 @@ def test_GIVEN_tables_WHEN_page_size_THEN_returns_tables(
         tables_list.append(table)
     # Then: Returns tables
     assert len(tables_list) > 0
+
+
+# Delete the items in the table after the module runs
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_after_module(test_run_suffix):
+    yield
+    table = boto3.client("dynamodb")
+    items = [deepcopy(simple_item_ddb), deepcopy(complex_item_ddb)]
+    for item in items:
+        item["partition_key"]["S"] += test_run_suffix
+        table.delete_item(**basic_delete_item_request_ddb(item))

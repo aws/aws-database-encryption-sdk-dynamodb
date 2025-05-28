@@ -1,7 +1,8 @@
-import boto3
-import pytest
 import uuid
 from copy import deepcopy
+
+import boto3
+import pytest
 
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
@@ -59,9 +60,11 @@ def table(encrypted):
     else:
         return plaintext_table()
 
+
 @pytest.fixture(scope="module")
 def test_run_suffix():
     return str(uuid.uuid4())
+
 
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
@@ -238,6 +241,7 @@ def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     response = encrypted_table().table_name
     # Then: Correct response is returned, i.e. EncryptedTable forwards the call to the underlying boto3 table
     assert response == INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
+
 
 # Delete the items in the table after the module runs
 @pytest.fixture(scope="module", autouse=True)
