@@ -376,7 +376,6 @@ module DynamoToStructTest {
   //= type=test
   //# Entries in a String Set MUST be ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
   method {:test} TestSortSSAttr() {
-    // "\ud800\udc02" <-> "𐀂"
     var stringSetValue := AttributeValue.SS(["&","｡","\ud800\udc02"]);
     // Note that string values are UTF-8 encoded, but sorted by UTF-16 encoding.
     var encodedStringSetData := StructuredDataTerminal(value := [
@@ -384,7 +383,7 @@ module DynamoToStructTest {
                                                          0,0,0,1, // 1st entry is 1 byte
                                                          0x26, // "&" in UTF-8 encoding
                                                          0,0,0,4, // 2nd entry is 4 bytes
-                                                         0xF0,0x90,0x80,0x82, // "𐀂" in UTF-8 encoding
+                                                         0xF0,0x90,0x80,0x82, // "\ud800\udc02" in UTF-8 encoding
                                                          0,0,0,3, // 3rd entry is 3 bytes
                                                          0xEF,0xBD,0xA1 // "｡" in UTF-8 encoding
                                                        ],
@@ -396,7 +395,6 @@ module DynamoToStructTest {
 
     var newStringSetValue := StructuredToAttr(encodedStringSetData);
     expect newStringSetValue.Success?;
-    // "\ud800\udc02" <-> "𐀂"
     expect newStringSetValue.value == AttributeValue.SS(["&","\ud800\udc02","｡"]);
   }
 
@@ -417,12 +415,10 @@ module DynamoToStructTest {
 
   method {:test} TestSetsInListAreSorted() {
     var nSetValue := AttributeValue.NS(["2","1","10"]);
-    // "\ud800\udc02" <-> "𐀂"
     var sSetValue := AttributeValue.SS(["&","｡","\ud800\udc02"]);
     var bSetValue := AttributeValue.BS([[1,0],[1],[2]]);
 
     var sortedNSetValue := AttributeValue.NS(["1","10","2"]);
-    // "\ud800\udc02" <-> "𐀂"
     var sortedSSetValue := AttributeValue.SS(["&","\ud800\udc02","｡"]);
     var sortedBSetValue := AttributeValue.BS([[1],[1,0],[2]]);
 
@@ -448,12 +444,10 @@ module DynamoToStructTest {
 
   method {:test} TestSetsInMapAreSorted() {
     var nSetValue := AttributeValue.NS(["2","1","10"]);
-    // "\ud800\udc02" <-> "𐀂"
     var sSetValue := AttributeValue.SS(["&","｡","\ud800\udc02"]);
     var bSetValue := AttributeValue.BS([[1,0],[1],[2]]);
 
     var sortedNSetValue := AttributeValue.NS(["1","10","2"]);
-    // "\ud800\udc02" <-> "𐀂"
     var sortedSSetValue := AttributeValue.SS(["&","\ud800\udc02","｡"]);
     var sortedBSetValue := AttributeValue.BS([[1],[1,0],[2]]);
 
@@ -496,7 +490,6 @@ module DynamoToStructTest {
   method {:test} TestSortMapKeys() {
     var nullValue := AttributeValue.NULL(true);
 
-    // "\ud800\udc02" <-> "𐀂"
     var mapValue := AttributeValue.M(map["&" := nullValue, "｡" := nullValue, "\ud800\udc02" := nullValue]);
 
     // Note that the string values are encoded as UTF-8, but are sorted according to UTF-16 encoding.
@@ -507,7 +500,7 @@ module DynamoToStructTest {
         0x26, // "&" UTF-8 encoded
         0,0, 0,0,0,0, // null value
         0,1, 0,0,0,4, // 2nd key is a string 4 bytes long
-        0xF0, 0x90, 0x80, 0x82, // "𐀂" UTF-8 encoded
+        0xF0, 0x90, 0x80, 0x82, // "\ud800\udc02" UTF-8 encoded
         0,0, 0,0,0,0, // null value
         0,1, 0,0,0,3, // 3rd key is a string 3 bytes long
         0xEF, 0xBD, 0xA1, // "｡"
