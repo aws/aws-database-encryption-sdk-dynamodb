@@ -10,6 +10,8 @@ from .constants import (
 )
 
 # Base request structures that are shared between DDB and dict formats
+# Use ConsistentRead: True for all requests;
+# many of these are used in integ tests, where consistent reads reduce test flakiness.
 
 
 def base_put_item_request(item):
@@ -19,7 +21,7 @@ def base_put_item_request(item):
 
 def base_get_item_request(item):
     """Base structure for get_item requests."""
-    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}
+    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}, "ConsistentRead": True}
 
 
 def base_delete_item_request(item):
@@ -32,6 +34,7 @@ def base_query_request(item):
     return {
         "KeyConditionExpression": "partition_key = :pk",
         "ExpressionAttributeValues": {":pk": item["partition_key"]},
+        "ConsistentRead": True,
     }
 
 
@@ -40,6 +43,7 @@ def base_scan_request(item):
     return {
         "FilterExpression": "attribute2 = :a2",
         "ExpressionAttributeValues": {":a2": item["attribute2"]},
+        "ConsistentRead": True,
     }
 
 
@@ -50,7 +54,7 @@ def base_batch_write_item_request(actions_with_items):
 
 def base_batch_get_item_request(keys):
     """Base structure for batch_get_item requests."""
-    return {"RequestItems": {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: {"Keys": keys}}}
+    return {"RequestItems": {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: {"Keys": keys, "ConsistentRead": True}}}
 
 
 def base_transact_write_item_request(actions_with_items):
