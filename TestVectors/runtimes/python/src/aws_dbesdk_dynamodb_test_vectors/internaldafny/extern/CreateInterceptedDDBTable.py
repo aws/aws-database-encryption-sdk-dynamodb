@@ -30,9 +30,8 @@ from boto3.dynamodb.conditions import Key, Attr
 # if they are not added, the Table will accept the string as-is.
 known_query_string_to_condition_map = {
     # "Basic" queries
-    "RecNum = :zero": Key("RecNum").eq(":zero"),
-    "RecNum = :one": Key("RecNum").eq(":one"), 
     "RecNum = :zero": Attr("RecNum").eq(":zero"),
+    "RecNum = :one": Attr("RecNum").eq(":one"), 
     "RecNum <= :zero": Attr("RecNum").lte(":zero"),
     "RecNum > :zero": Attr("RecNum").gt(":zero"),
     "RecNum >= :zero": Attr("RecNum").gte(":zero"),
