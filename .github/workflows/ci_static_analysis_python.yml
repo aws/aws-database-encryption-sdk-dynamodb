@@ -60,7 +60,7 @@ jobs:
           git pull
           git submodule update --init --recursive
           git rev-parse HEAD
-      
+
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
