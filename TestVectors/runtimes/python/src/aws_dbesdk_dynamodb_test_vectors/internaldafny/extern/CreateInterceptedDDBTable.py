@@ -152,7 +152,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_key_condition_expression_string_to_condition_map:
-                print(f"Converting {table_input['KeyConditionExpression']} to {known_key_condition_expression_string_to_condition_map[table_input['KeyConditionExpression']]}")
+                print(f"Converting {table_input['KeyConditionExpression']=} to {known_key_condition_expression_string_to_condition_map[table_input['KeyConditionExpression']]=}")
                 table_input["KeyConditionExpression"] = known_key_condition_expression_string_to_condition_map[table_input["KeyConditionExpression"]]
             else:
                 # Pass the original string through.
@@ -161,7 +161,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_filter_expression_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['FilterExpression']} to {known_filter_expression_string_to_condition_map[table_input['FilterExpression']]}")
+                print(f"Converting {table_input['FilterExpression']=} to {known_filter_expression_string_to_condition_map[table_input['FilterExpression']]=}")
                 table_input["FilterExpression"] = known_filter_expression_string_to_condition_map[table_input["FilterExpression"]]
             else:
                 # Pass the original string through.
@@ -184,7 +184,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_key_condition_expression_string_to_condition_map:
-                print(f"Converting {table_input['KeyConditionExpression']} to {known_key_condition_expression_string_to_condition_map[table_input['KeyConditionExpression']]}")
+                print(f"Converting {table_input['KeyConditionExpression']=} to {known_key_condition_expression_string_to_condition_map[table_input['KeyConditionExpression']]=}")
                 table_input["KeyConditionExpression"] = known_key_condition_expression_string_to_condition_map[table_input["KeyConditionExpression"]]
             else:
                 # Pass the original string through.
@@ -193,7 +193,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_filter_expression_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['FilterExpression']} to {known_filter_expression_string_to_condition_map[table_input['FilterExpression']]}")
+                print(f"Converting {table_input['FilterExpression']=} to {known_filter_expression_string_to_condition_map[table_input['FilterExpression']]=}")
                 table_input["FilterExpression"] = known_filter_expression_string_to_condition_map[table_input["FilterExpression"]]
             else:
                 # Pass the original string through.
