@@ -28,10 +28,9 @@ from boto3.dynamodb.conditions import Key, Attr
 # 4f18689f79243c9a5ab0f3a23108671defddeac4
 # If any query strings are added to TestVectors, they COULD be added here;
 # if they are not added, the Table will accept the string as-is.
-known_query_string_to_condition_map = {
+known_filter_expression_string_to_condition_map = {
     # "Basic" queries
     "RecNum = :zero": Attr("RecNum").eq(":zero"),
-    "RecNum = :one": Attr("RecNum").eq(":one"), 
     "RecNum <= :zero": Attr("RecNum").lte(":zero"),
     "RecNum > :zero": Attr("RecNum").gt(":zero"),
     "RecNum >= :zero": Attr("RecNum").gte(":zero"),
@@ -85,6 +84,12 @@ known_query_string_to_condition_map = {
     # since attribute values aren't attribute names.
     # Pass the original string through.
     ":cmp1c <= Comp1": ":cmp1c <= Comp1",
+}
+
+# KeyConditionExpression strings expect Keys, not Attrs.
+known_key_condition_expression_string_to_condition_map = {
+    "RecNum = :zero": Key("RecNum").eq(":zero"),
+    "RecNum = :one": Key("RecNum").eq(":one"),
 }
 
 class DynamoDBClientWrapperForDynamoDBTable:
@@ -147,15 +152,20 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # convert the string-based KeyConditionExpression and FilterExpression
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
-            if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
-                # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['KeyConditionExpression']} to {known_query_string_to_condition_map[table_input['KeyConditionExpression']]}")
-                table_input["KeyConditionExpression"] = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
+            if table_input["KeyConditionExpression"] in known_key_condition_expression_string_to_condition_map:
+                table_input["KeyConditionExpression"] = known_key_condition_expression_string_to_condition_map[table_input["KeyConditionExpression"]]
+            else:
+                # Pass the original string through.
+                # The table will accept the string as-is.
+                pass
         if "FilterExpression" in table_input:
-            if table_input["FilterExpression"] in known_query_string_to_condition_map:
+            if table_input["FilterExpression"] in known_filter_expression_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['FilterExpression']} to {known_query_string_to_condition_map[table_input['FilterExpression']]}")
-                table_input["FilterExpression"] = known_query_string_to_condition_map[table_input["FilterExpression"]]
+                table_input["FilterExpression"] = known_filter_expression_string_to_condition_map[table_input["FilterExpression"]]
+            else:
+                # Pass the original string through.
+                # The table will accept the string as-is.
+                pass
         table_output = self._table.scan(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.scan_response(table_output)
         return client_output
@@ -172,15 +182,20 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # convert the string-based KeyConditionExpression and FilterExpression
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
-            if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
-                # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['KeyConditionExpression']} to {known_query_string_to_condition_map[table_input['KeyConditionExpression']]}")
-                table_input["KeyConditionExpression"] = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
+            if table_input["KeyConditionExpression"] in known_key_condition_expression_string_to_condition_map:
+                table_input["KeyConditionExpression"] = known_key_condition_expression_string_to_condition_map[table_input["KeyConditionExpression"]]
+            else:
+                # Pass the original string through.
+                # The table will accept the string as-is.
+                pass
         if "FilterExpression" in table_input:
-            if table_input["FilterExpression"] in known_query_string_to_condition_map:
+            if table_input["FilterExpression"] in known_filter_expression_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['FilterExpression']} to {known_query_string_to_condition_map[table_input['FilterExpression']]}")
-                table_input["FilterExpression"] = known_query_string_to_condition_map[table_input["FilterExpression"]]
+                table_input["FilterExpression"] = known_filter_expression_string_to_condition_map[table_input["FilterExpression"]]
+            else:
+                # Pass the original string through.
+                # The table will accept the string as-is.
+                pass
         table_output = self._table.query(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.query_response(table_output)
         return client_output
