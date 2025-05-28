@@ -35,7 +35,6 @@ known_filter_expression_string_to_condition_map = {
     "RecNum > :zero": Attr("RecNum").gt(":zero"),
     "RecNum >= :zero": Attr("RecNum").gte(":zero"),
     "RecNum <> :zero": Attr("RecNum").ne(":zero"),
-    "RecNum = :zero": Attr("RecNum").eq(":zero"),
     "RecNum = :one": Attr("RecNum").eq(":one"),
     "Nine between :zeroD and :three": Attr("Nine").between(":zeroD", ":three"),
     "Nine between :nineD and :nine": Attr("Nine").between(":nineD", ":nine"),
@@ -88,8 +87,8 @@ known_filter_expression_string_to_condition_map = {
 
 # KeyConditionExpression strings expect Keys, not Attrs.
 known_key_condition_expression_string_to_condition_map = {
-    "RecNum = :zero": Key("RecNum").eq(":zero"),
-    "RecNum = :one": Key("RecNum").eq(":one"),
+    "RecNum = :zero": Attr("RecNum").eq(":zero"),
+    "RecNum = :one": Attr("RecNum").eq(":one"),
 }
 
 class DynamoDBClientWrapperForDynamoDBTable:
