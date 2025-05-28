@@ -1,9 +1,9 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import pytest
+from boto3.dynamodb.conditions import ConditionExpressionBuilder
 
 from aws_dbesdk_dynamodb.internal.client_to_resource import ClientShapeToResourceShapeConverter
-from boto3.dynamodb.conditions import ConditionExpressionBuilder
 
 from ...items import (
     complex_item_ddb,

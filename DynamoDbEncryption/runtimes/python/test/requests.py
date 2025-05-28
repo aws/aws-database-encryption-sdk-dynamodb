@@ -10,6 +10,8 @@ from .constants import (
 )
 
 # Base request structures that are shared between DDB and dict formats
+# Use ConsistentRead: True for all requests;
+# many of these are used in integ tests, where consistent reads reduce test flakiness.
 
 
 def base_put_item_request(item):
@@ -19,7 +21,7 @@ def base_put_item_request(item):
 
 def base_get_item_request(item):
     """Base structure for get_item requests."""
-    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}}
+    return {"Key": {"partition_key": item["partition_key"], "sort_key": item["sort_key"]}, "ConsistentRead": True}
 
 
 def base_delete_item_request(item):
@@ -32,6 +34,7 @@ def base_query_request(item):
     return {
         "KeyConditionExpression": "partition_key = :pk",
         "ExpressionAttributeValues": {":pk": item["partition_key"]},
+        "ConsistentRead": True,
     }
 
 
@@ -40,6 +43,7 @@ def base_scan_request(item):
     return {
         "FilterExpression": "attribute2 = :a2",
         "ExpressionAttributeValues": {":a2": item["attribute2"]},
+        "ConsistentRead": True,
     }
 
 
@@ -50,7 +54,7 @@ def base_batch_write_item_request(actions_with_items):
 
 def base_batch_get_item_request(keys):
     """Base structure for batch_get_item requests."""
-    return {"RequestItems": {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: {"Keys": keys}}}
+    return {"RequestItems": {INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME: {"Keys": keys, "ConsistentRead": True}}}
 
 
 def base_transact_write_item_request(actions_with_items):
@@ -142,7 +146,7 @@ def basic_batch_execute_statement_request_plaintext_table():
 
 # No exhaustive requests are intended to be able to be used as real requests.
 # Some parameters conflict with each other when sent to DynamoDB.
-# These are only intended to test the conversion of the structure from client to resource format.
+# These are only intended to test the conversion of the structure between client and resource formats.
 
 
 def base_exhaustive_put_item_request(item):
@@ -150,7 +154,7 @@ def base_exhaustive_put_item_request(item):
     Base structure for exhaustive put_item requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     return {
         # Expected is legacy, but still in the boto3 docs.
@@ -174,7 +178,7 @@ def base_exhaustive_get_item_request(item):
     Base structure for exhaustive get_item requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     return {
         "ReturnConsumedCapacity": "TOTAL",
@@ -196,7 +200,7 @@ def base_exhaustive_delete_item_request(item):
     Base structure for exhaustive delete_item requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     return {
         "ReturnConsumedCapacity": "TOTAL",
@@ -211,7 +215,7 @@ def base_exhaustive_query_request(item):
     Base structure for exhaustive query requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     return {
         "IndexName": "index_name",
@@ -240,7 +244,7 @@ def base_exhaustive_scan_request(item):
     Base structure for exhaustive scan requests.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     return {
         "IndexName": "index_name",
@@ -310,7 +314,7 @@ def exhaustive_query_request_ddb(item):
     Query request with all possible parameters.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     base = basic_query_request_ddb(item)
     additional_keys = base_exhaustive_query_request(item)
@@ -390,6 +394,7 @@ def basic_query_paginator_request(key):
         "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         "KeyConditionExpression": "partition_key = :pk AND sort_key = :sk",
         "ExpressionAttributeValues": {":pk": key["partition_key"], ":sk": key["sort_key"]},
+        "ConsistentRead": True,
     }
 
 
@@ -399,6 +404,7 @@ def basic_scan_paginator_request(item):
         "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
         "FilterExpression": "partition_key = :pk AND sort_key = :sk",
         "ExpressionAttributeValues": {":pk": item["partition_key"], ":sk": item["sort_key"]},
+        "ConsistentRead": True,
     }
 
 
@@ -427,7 +433,7 @@ def exhaustive_put_item_request_dict(item):
     Get a put_item request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     base = basic_put_item_request_dict(item)
     # Replace the default ConditionExpression string with a ConditionExpression object
@@ -452,7 +458,7 @@ def exhaustive_get_item_request_dict(item):
     Get a get_item request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     base = basic_get_item_request_dict(item)
     additional_keys = base_exhaustive_get_item_request(item)
@@ -478,7 +484,7 @@ def exhaustive_query_request_dict(item):
     Get a query request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     base = basic_query_request_dict(item)
     additional_keys = base_exhaustive_query_request(item)
@@ -495,7 +501,7 @@ def exhaustive_scan_request_dict(item):
     Get a scan request in dict format for any item.
     This is not intended to be able to be used as a real request.
     Some parameters conflict with each other when sent to DynamoDB.
-    This is only intended to test the conversion of the request from client to resource format.
+    This is only intended to test the conversion of the request between client and resource formats.
     """
     base = basic_scan_request_dict(item)
     additional_keys = base_exhaustive_scan_request(item)
