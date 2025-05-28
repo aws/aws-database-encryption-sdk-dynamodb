@@ -199,6 +199,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
                 # Pass the original string through.
                 # The table will accept the string as-is.
                 pass
+        print(f'{table_input=}')
         table_output = self._table.query(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.query_response(table_output)
         return client_output
