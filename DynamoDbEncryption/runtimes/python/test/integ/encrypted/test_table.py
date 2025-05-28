@@ -1,5 +1,7 @@
 import boto3
 import pytest
+import uuid
+from copy import deepcopy
 
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
@@ -57,14 +59,19 @@ def table(encrypted):
     else:
         return plaintext_table()
 
+@pytest.fixture(scope="module")
+def test_run_suffix():
+    return str(uuid.uuid4())
 
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
 # use_complex_item = True -> "complex_item"
 # use_complex_item = False -> "simple_item"
 @pytest.fixture(params=[simple_item_dict, complex_item_dict], ids=["simple_item", "complex_item"])
-def test_item(request):
-    return request.param
+def test_item(request, test_run_suffix):
+    item = deepcopy(request.param)
+    item["partition_key"] += test_run_suffix
+    return item
 
 
 def test_GIVEN_item_WHEN_basic_put_AND_basic_get_AND_basic_delete_THEN_round_trip_passes(table, test_item):
@@ -183,7 +190,10 @@ def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_pas
     # When: Scanning items
     scan_request_dict = scan_request
     scan_response = table.scan(**scan_request_dict)
-    # Then: Scan returns both test items
+    # Then: Scan succeeds
+    # Can't assert anything about the scan;
+    # there are too many items.
+    # The critical assertion is that the scan succeeds.
     assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
@@ -228,3 +238,13 @@ def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     response = encrypted_table().table_name
     # Then: Correct response is returned, i.e. EncryptedTable forwards the call to the underlying boto3 table
     assert response == INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
+
+# Delete the items in the table after the module runs
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_after_module(test_run_suffix):
+    yield
+    table = boto3.resource("dynamodb").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
+    items = [deepcopy(simple_item_dict), deepcopy(complex_item_dict)]
+    for item in items:
+        item["partition_key"] = item["partition_key"] + test_run_suffix
+        table.delete_item(**basic_delete_item_request_dict(item))

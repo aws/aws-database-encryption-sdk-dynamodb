@@ -8,6 +8,8 @@ from aws_dbesdk_dynamodb.encrypted.paginator import EncryptedPaginator
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
     DynamoDbEncryptionTransformsException,
 )
+import uuid
+from copy import deepcopy
 
 from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
@@ -110,45 +112,80 @@ def client(encrypted, expect_standard_dictionaries):
 def use_complex_item(request):
     return request.param
 
+# Append a suffix to the partition key to avoid collisions between test runs.
+@pytest.fixture(scope="module")
+def test_run_suffix():
+    return str(uuid.uuid4())
 
 @pytest.fixture
-def test_item(expect_standard_dictionaries, use_complex_item):
+def test_item(expect_standard_dictionaries, use_complex_item, test_run_suffix):
     """Get a single test item in the appropriate format for the client."""
     if expect_standard_dictionaries:
         if use_complex_item:
-            return complex_item_dict
-        return simple_item_dict
-    if use_complex_item:
-        return complex_item_ddb
-    return simple_item_ddb
-
+            item = deepcopy(complex_item_dict)
+        else:
+            item = deepcopy(simple_item_dict)
+    else:
+        if use_complex_item:
+            item = deepcopy(complex_item_ddb)
+        else:
+            item = deepcopy(simple_item_ddb)
+    # Add a suffix to the partition key to avoid collisions between test runs.
+    if isinstance(item["partition_key"], dict):
+        item["partition_key"]["S"] += test_run_suffix
+    else:
+        item["partition_key"] += test_run_suffix
+    return item
 
 @pytest.fixture
-def test_key(expect_standard_dictionaries, use_complex_item):
+def test_key(expect_standard_dictionaries, use_complex_item, test_run_suffix):
     """Get a single test item in the appropriate format for the client."""
     if expect_standard_dictionaries:
         if use_complex_item:
-            return complex_key_dict
-        return simple_key_dict
-    if use_complex_item:
-        return complex_key_ddb
-    return simple_key_ddb
+            key = deepcopy(complex_key_dict)
+        else:
+            key = deepcopy(simple_key_dict)
+    else:
+        if use_complex_item:
+            key = deepcopy(complex_key_ddb)
+        else:
+            key = deepcopy(simple_key_ddb)
+    # Add a suffix to the partition key to avoid collisions between test runs.
+    if isinstance(key["partition_key"], dict):
+        key["partition_key"]["S"] += test_run_suffix
+    else:
+        key["partition_key"] += test_run_suffix
+    return key
 
 
 @pytest.fixture
-def multiple_test_items(expect_standard_dictionaries):
+def multiple_test_items(expect_standard_dictionaries, test_run_suffix):
     """Get two test items in the appropriate format for the client."""
     if expect_standard_dictionaries:
-        return [simple_item_dict, complex_item_dict]
-    return [simple_item_ddb, complex_item_ddb]
+        items = [deepcopy(simple_item_dict), deepcopy(complex_item_dict)]
+    else:
+        items = [deepcopy(simple_item_ddb), deepcopy(complex_item_ddb)]
+    for item in items:
+        if isinstance(item["partition_key"], dict):
+            item["partition_key"]["S"] += test_run_suffix
+        else:
+            item["partition_key"] += test_run_suffix
+    return items
 
 
 @pytest.fixture
-def multiple_test_keys(expect_standard_dictionaries):
+def multiple_test_keys(expect_standard_dictionaries, test_run_suffix):
     """Get two test keys in the appropriate format for the client."""
     if expect_standard_dictionaries:
-        return [simple_key_dict, complex_key_dict]
-    return [simple_key_ddb, complex_key_ddb]
+        keys = [deepcopy(simple_key_dict), deepcopy(complex_key_dict)]
+    else:
+        keys = [deepcopy(simple_key_ddb), deepcopy(complex_key_ddb)]
+    for key in keys:
+        if isinstance(key["partition_key"], dict):
+            key["partition_key"]["S"] += test_run_suffix
+        else:
+            key["partition_key"] += test_run_suffix
+    return keys
 
 
 @pytest.fixture
@@ -303,10 +340,18 @@ def test_GIVEN_valid_put_and_query_requests_WHEN_put_and_query_THEN_round_trip_p
 
 
 @pytest.fixture
-def scan_request(expect_standard_dictionaries, test_item):
+def scan_request(expect_standard_dictionaries, test_item, encrypted):
     if expect_standard_dictionaries:
-        return {**basic_scan_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
-    return basic_scan_request_ddb(test_item)
+        request = {**basic_scan_request_dict(test_item), "TableName": INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME}
+    else:
+        request = basic_scan_request_ddb(test_item)
+    if encrypted:
+        # If the encrypted scan encounters a plaintext item, the scan will fail.
+        # To avoid this, encrypted scans add a filter expression that matches only encrypted items.
+        request["FilterExpression"] = request["FilterExpression"] + " AND attribute_exists (#sig)"
+        request["ExpressionAttributeNames"] = {}
+        request["ExpressionAttributeNames"]["#sig"] = "amzn-ddb-map-sig"
+    return request
 
 
 def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_passes(
@@ -323,7 +368,6 @@ def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_pas
     scan_response = client.scan(**scan_request)
     # Then: scan succeeds
     assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert len(scan_response["Items"]) >= 1
     # Can't assert anything about the scan;
     # there are too many items.
     # The critical assertion is that the scan succeeds.
@@ -590,3 +634,13 @@ def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     response = encrypted_client(expect_standard_dictionaries=False).list_backups()
     # Then: Correct response is returned, i.e. EncryptedClient forwards the call to the underlying boto3 client
     assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+# Delete the items in the table after the module runs
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_after_module(test_run_suffix):
+    yield
+    table = boto3.client("dynamodb")
+    items = [deepcopy(simple_item_ddb), deepcopy(complex_item_ddb)]
+    for item in items:
+        item["partition_key"]["S"] += test_run_suffix
+        table.delete_item(**basic_delete_item_request_ddb(item))
