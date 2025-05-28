@@ -1,3 +1,6 @@
+import uuid
+from copy import deepcopy
+
 import boto3
 import pytest
 
@@ -18,6 +21,7 @@ from ...items import (
     simple_key_dict,
 )
 from ...requests import (
+    basic_delete_item_request_ddb,
     basic_put_item_request_ddb,
     basic_put_item_request_dict,
     basic_query_paginator_request,
@@ -87,36 +91,68 @@ def use_complex_item(request):
     return request.param
 
 
+# Append a suffix to the partition key to avoid collisions between test runs.
+@pytest.fixture(scope="module")
+def test_run_suffix():
+    return str(uuid.uuid4())
+
+
 @pytest.fixture
-def test_key(expect_standard_dictionaries, use_complex_item):
+def test_key(expect_standard_dictionaries, use_complex_item, test_run_suffix):
     """Get a single test item in the appropriate format for the client."""
     if expect_standard_dictionaries:
         if use_complex_item:
-            return complex_key_dict
-        return simple_key_dict
-    if use_complex_item:
-        return complex_key_ddb
-    return simple_key_ddb
+            key = deepcopy(complex_key_dict)
+        else:
+            key = deepcopy(simple_key_dict)
+    else:
+        if use_complex_item:
+            key = deepcopy(complex_key_ddb)
+        else:
+            key = deepcopy(simple_key_ddb)
+    # Add a suffix to the partition key to avoid collisions between test runs.
+    if isinstance(key["partition_key"], dict):
+        key["partition_key"]["S"] += test_run_suffix
+    else:
+        key["partition_key"] += test_run_suffix
+    return key
 
 
 @pytest.fixture
-def multiple_test_keys(expect_standard_dictionaries):
+def multiple_test_keys(expect_standard_dictionaries, test_run_suffix):
     """Get two test keys in the appropriate format for the client."""
     if expect_standard_dictionaries:
-        return [simple_key_dict, complex_key_dict]
-    return [simple_key_ddb, complex_key_ddb]
+        keys = [deepcopy(simple_key_dict), deepcopy(complex_key_dict)]
+    else:
+        keys = [deepcopy(simple_key_ddb), deepcopy(complex_key_ddb)]
+    # Add a suffix to the partition key to avoid collisions between test runs.
+    for key in keys:
+        if isinstance(key["partition_key"], dict):
+            key["partition_key"]["S"] += test_run_suffix
+        else:
+            key["partition_key"] += test_run_suffix
+    return keys
 
 
 @pytest.fixture
-def test_item(expect_standard_dictionaries, use_complex_item):
+def test_item(expect_standard_dictionaries, use_complex_item, test_run_suffix):
     """Get a single test item in the appropriate format for the client."""
     if expect_standard_dictionaries:
         if use_complex_item:
-            return complex_item_dict
-        return simple_item_dict
-    if use_complex_item:
-        return complex_item_ddb
-    return simple_item_ddb
+            item = deepcopy(complex_item_dict)
+        else:
+            item = deepcopy(simple_item_dict)
+    else:
+        if use_complex_item:
+            item = deepcopy(complex_item_ddb)
+        else:
+            item = deepcopy(simple_item_ddb)
+    # Add a suffix to the partition key to avoid collisions between test runs.
+    if isinstance(item["partition_key"], dict):
+        item["partition_key"]["S"] += test_run_suffix
+    else:
+        item["partition_key"] += test_run_suffix
+    return item
 
 
 @pytest.fixture
@@ -188,3 +224,14 @@ def test_GIVEN_scan_paginator_WHEN_paginate_THEN_returns_expected_items(
     actual_item = sort_dynamodb_json_lists(items[0])
     # Then: Items are equal
     assert expected_item == actual_item
+
+
+# Delete the items in the table after the module runs
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_after_module(test_run_suffix):
+    yield
+    table = boto3.client("dynamodb")
+    items = [deepcopy(simple_item_ddb), deepcopy(complex_item_ddb)]
+    for item in items:
+        item["partition_key"]["S"] += test_run_suffix
+        table.delete_item(**basic_delete_item_request_ddb(item))
