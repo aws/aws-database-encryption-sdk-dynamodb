@@ -150,10 +150,12 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
+                print(f"Converting {table_input['KeyConditionExpression']} to {known_query_string_to_condition_map[table_input['KeyConditionExpression']]}")
                 table_input["KeyConditionExpression"] = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
+                print(f"Converting {table_input['FilterExpression']} to {known_query_string_to_condition_map[table_input['FilterExpression']]}")
                 table_input["FilterExpression"] = known_query_string_to_condition_map[table_input["FilterExpression"]]
         table_output = self._table.scan(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.scan_response(table_output)
@@ -173,10 +175,12 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
+                print(f"Converting {table_input['KeyConditionExpression']} to {known_query_string_to_condition_map[table_input['KeyConditionExpression']]}")
                 table_input["KeyConditionExpression"] = known_query_string_to_condition_map[table_input["KeyConditionExpression"]]
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_query_string_to_condition_map:
                 # Turn the query into the resource-formatted query
+                print(f"Converting {table_input['FilterExpression']} to {known_query_string_to_condition_map[table_input['FilterExpression']]}")
                 table_input["FilterExpression"] = known_query_string_to_condition_map[table_input["FilterExpression"]]
         table_output = self._table.query(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.query_response(table_output)
