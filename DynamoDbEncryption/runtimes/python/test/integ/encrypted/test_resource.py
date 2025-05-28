@@ -1,3 +1,6 @@
+import uuid
+from copy import deepcopy
+
 import boto3
 import pytest
 
@@ -5,11 +8,19 @@ from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedT
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 
 from ...constants import INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME, INTEG_TEST_DEFAULT_TABLE_CONFIGS
-from ...items import complex_item_dict, complex_key_dict, simple_item_dict, simple_key_dict
+from ...items import (
+    complex_item_ddb,
+    complex_item_dict,
+    complex_key_dict,
+    simple_item_ddb,
+    simple_item_dict,
+    simple_key_dict,
+)
 from ...requests import (
     basic_batch_get_item_request_dict,
     basic_batch_write_item_delete_request_dict,
     basic_batch_write_item_put_request_dict,
+    basic_delete_item_request_ddb,
 )
 
 
@@ -42,22 +53,45 @@ def tables(resource):
     return resource.tables
 
 
+@pytest.fixture(scope="module")
+def test_run_suffix():
+    return str(uuid.uuid4())
+
+
+@pytest.fixture
+def test_items(test_run_suffix):
+    items = [deepcopy(complex_item_dict), deepcopy(simple_item_dict)]
+    for item in items:
+        item["partition_key"] += test_run_suffix
+    return items
+
+
+@pytest.fixture
+def test_keys(test_run_suffix):
+    keys = [deepcopy(complex_key_dict), deepcopy(simple_key_dict)]
+    for key in keys:
+        key["partition_key"] += test_run_suffix
+    return keys
+
+
 def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
     resource,
+    test_items,
+    test_keys,
 ):
-    batch_write_item_put_request = basic_batch_write_item_put_request_dict([simple_item_dict, complex_item_dict])
+    batch_write_item_put_request = basic_batch_write_item_put_request_dict(test_items)
     batch_write_response = resource.batch_write_item(**batch_write_item_put_request)
     assert batch_write_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
-    batch_get_item_request = basic_batch_get_item_request_dict([simple_key_dict, complex_key_dict])
+    batch_get_item_request = basic_batch_get_item_request_dict(test_keys)
     batch_get_response = resource.batch_get_item(**batch_get_item_request)
     assert batch_get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     responses = batch_get_response["Responses"][INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME]
     assert len(responses) == 2
     for response in responses:
-        assert response in [simple_item_dict, complex_item_dict]
+        assert response in test_items
 
-    batch_write_item_delete_request = basic_batch_write_item_delete_request_dict([simple_key_dict, complex_key_dict])
+    batch_write_item_delete_request = basic_batch_write_item_delete_request_dict(test_keys)
     batch_write_response = resource.batch_write_item(**batch_write_item_delete_request)
     assert batch_write_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
@@ -152,3 +186,14 @@ def test_GIVEN_tables_WHEN_page_size_THEN_returns_tables(
         tables_list.append(table)
     # Then: Returns tables
     assert len(tables_list) > 0
+
+
+# Delete the items in the table after the module runs
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_after_module(test_run_suffix):
+    yield
+    table = boto3.client("dynamodb")
+    items = [deepcopy(simple_item_ddb), deepcopy(complex_item_ddb)]
+    for item in items:
+        item["partition_key"]["S"] += test_run_suffix
+        table.delete_item(**basic_delete_item_request_ddb(item))
