@@ -180,7 +180,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     final IKeyring hierarchicalKeyring1 =
       matProv.CreateAwsKmsHierarchicalKeyring(keyringInput1);
 
-    // 4. Configure which attributes are encrypted and/or signed when writing new items.
+    // 5. Configure which attributes are encrypted and/or signed when writing new items.
     //    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
     //    we must explicitly configure how they should be treated during item encryption:
     //      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -194,14 +194,14 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
       CryptoAction.ENCRYPT_AND_SIGN
     );
 
-    // 5. Get the DDB Client for Hierarchical Keyring 1.
+    // 6. Get the DDB Client for Hierarchical Keyring 1.
     final DynamoDbClient ddbClient1 = GetDdbClient(
       ddbTableName,
       hierarchicalKeyring1,
       attributeActionsOnEncrypt
     );
 
-    // 6. Encrypt Decrypt roundtrip with ddbClient1
+    // 7. Encrypt Decrypt roundtrip with ddbClient1
     PutGetItems(ddbTableName, ddbClient1);
 
     // Through the above encrypt and decrypt roundtrip, the cache will be populated and
@@ -210,7 +210,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // - Same Logical Key Store Name of the Key Store for the Hierarchical Keyring
     // - Same Branch Key ID
 
-    // 7. Configure your KeyStore resource keystore2.
+    // 8. Configure your KeyStore resource keystore2.
     //       This SHOULD be the same configuration that you used
     //       to initially create and populate your physical KeyStore.
     //    Note that keyStoreTableName is the physical Key Store,
@@ -243,7 +243,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
       )
       .build();
 
-    // 8. Create the Hierarchical Keyring HK2 with Key Store instance K2, the shared Cache
+    // 9. Create the Hierarchical Keyring HK2 with Key Store instance K2, the shared Cache
     //    and the same partitionId and BranchKeyId used in HK1 because we want to share cache entries
     //    (and experience cache HITS).
 
@@ -262,14 +262,14 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     final IKeyring hierarchicalKeyring2 =
       matProv.CreateAwsKmsHierarchicalKeyring(keyringInput2);
 
-    // 9. Get the DDB Client for Hierarchical Keyring 2.
+    // 10. Get the DDB Client for Hierarchical Keyring 2.
     final DynamoDbClient ddbClient2 = GetDdbClient(
       ddbTableName,
       hierarchicalKeyring2,
       attributeActionsOnEncrypt
     );
 
-    // 10. Encrypt Decrypt roundtrip with ddbClient2
+    // 11. Encrypt Decrypt roundtrip with ddbClient2
     PutGetItems(ddbTableName, ddbClient2);
   }
 

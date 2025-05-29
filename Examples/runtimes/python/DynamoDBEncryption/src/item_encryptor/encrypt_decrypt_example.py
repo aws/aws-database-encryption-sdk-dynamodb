@@ -45,7 +45,7 @@ from aws_dbesdk_dynamodb.structures.structured_encryption import (
 )
 
 
-def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str) -> None:
+def encrypt_decrypt_example(kms_key_id: str, ddb_table_name: str):
     """Encrypt and decrypt an item with an ItemEncryptor."""
     # 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     #    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
