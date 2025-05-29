@@ -1,24 +1,20 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-This example sets up an MRK multi-keyring and an MRK discovery
-multi-keyring using a custom client supplier.
+Example demonstrating Dynamodb Encryption using a custom client supplier.
 
-A custom client supplier grants users access to more granular
-configuration aspects of their authentication details and KMS
-client. In this example, we create a simple custom client supplier
-that authenticates with a different IAM role based on the
-region of the KMS key.
+A custom client supplier grants users access to more granular configuration aspects
+of their authentication details and KMS client. The example creates a simple custom
+client supplier that authenticates with a different IAM role based on the region
+of the KMS key.
 
-This example creates a MRK multi-keyring configured with a custom
-client supplier using a single MRK and puts an encrypted item to the
-table. Then, it creates a MRK discovery multi-keyring to decrypt the item
-and retrieves the item from the table.
+Creates a MRK multi-keyring configured with a custom client supplier using a single
+MRK and puts an encrypted item to the table. Then, creates a MRK discovery
+multi-keyring to decrypt the item and retrieves the item from the table.
 
-Running this example requires access to the DDB Table whose name
-is provided in CLI arguments.
-This table must be configured with the following
-primary key configuration:
+Running this example requires access to the DDB Table whose name is provided in
+CLI arguments. This table must be configured with the following primary key
+configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (N)
 """
@@ -29,11 +25,10 @@ import boto3
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
 from aws_cryptographic_material_providers.mpl.models import (
-    CreateAwsKmsMrkMultiKeyringInput,
     CreateAwsKmsMrkDiscoveryMultiKeyringInput,
+    CreateAwsKmsMrkMultiKeyringInput,
     DiscoveryFilter,
 )
-from aws_cryptographic_material_providers.mpl.references import IKeyring
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
@@ -46,15 +41,12 @@ from aws_dbesdk_dynamodb.structures.structured_encryption import (
 from .regional_role_client_supplier import RegionalRoleClientSupplier
 
 
-def client_supplier_example(
-    ddb_table_name: str,
-    key_arn: str,
-    account_ids: List[str],
-    regions: List[str]
-) -> None:
+def client_supplier_example(ddb_table_name: str, key_arn: str, account_ids: List[str], regions: List[str]) -> None:
     """
-    Demonstrate how to use a custom client supplier with AWS KMS MRK multi-keyring
-    and AWS KMS MRK discovery multi-keyring.
+    Demonstrate using custom client supplier with AWS KMS MRK keyrings.
+
+    Shows how to use a custom client supplier with AWS KMS MRK multi-keyring and AWS
+    KMS MRK discovery multi-keyring.
 
     :param ddb_table_name: The name of the DynamoDB table
     :param key_arn: The ARN of the AWS KMS key
@@ -69,14 +61,14 @@ def client_supplier_example(
     #    in a region in the regions list, and the client
     #    must have the correct permissions to access the replica.
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
-    
+
     # Create the multi-keyring using our custom client supplier
     # defined in the RegionalRoleClientSupplier class in this directory.
     create_aws_kms_mrk_multi_keyring_input = CreateAwsKmsMrkMultiKeyringInput(
         # Note: RegionalRoleClientSupplier will internally use the keyArn's region
         # to retrieve the correct IAM role.
         client_supplier=RegionalRoleClientSupplier(),
-        generator=key_arn
+        generator=key_arn,
     )
     mrk_keyring_with_client_supplier = mat_prov.create_aws_kms_mrk_multi_keyring(
         input=create_aws_kms_mrk_multi_keyring_input
@@ -91,7 +83,7 @@ def client_supplier_example(
     attribute_actions_on_encrypt = {
         "partition_key": CryptoAction.SIGN_ONLY,  # Our partition attribute must be SIGN_ONLY
         "sort_key": CryptoAction.SIGN_ONLY,  # Our sort attribute must be SIGN_ONLY
-        "sensitive_data": CryptoAction.ENCRYPT_AND_SIGN
+        "sensitive_data": CryptoAction.ENCRYPT_AND_SIGN,
     }
 
     # 3. Configure which attributes we expect to be included in the signature
@@ -131,18 +123,15 @@ def client_supplier_example(
         sort_key_name="sort_key",
         attribute_actions_on_encrypt=attribute_actions_on_encrypt,
         keyring=mrk_keyring_with_client_supplier,
-        allowed_unsigned_attribute_prefix=unsign_attr_prefix
+        allowed_unsigned_attribute_prefix=unsign_attr_prefix,
     )
 
     table_configs = {ddb_table_name: table_config}
     tables_config = DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
 
     # 5. Create the EncryptedClient
-    ddb_client = boto3.client('dynamodb')
-    encrypted_ddb_client = EncryptedClient(
-        client=ddb_client,
-        encryption_config=tables_config
-    )
+    ddb_client = boto3.client("dynamodb")
+    encrypted_ddb_client = EncryptedClient(client=ddb_client, encryption_config=tables_config)
 
     # 6. Put an item into our table using the above client.
     #    Before the item gets sent to DynamoDb, it will be encrypted
@@ -153,33 +142,24 @@ def client_supplier_example(
     item = {
         "partition_key": {"S": "clientSupplierItem"},
         "sort_key": {"N": "0"},
-        "sensitive_data": {"S": "encrypt and sign me!"}
+        "sensitive_data": {"S": "encrypt and sign me!"},
     }
 
-    put_response = encrypted_ddb_client.put_item(
-        TableName=ddb_table_name,
-        Item=item
-    )
+    put_response = encrypted_ddb_client.put_item(TableName=ddb_table_name, Item=item)
 
     # Demonstrate that PutItem succeeded
-    assert put_response['ResponseMetadata']['HTTPStatusCode'] == 200
+    assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
     # 7. Get the item back from our table using the same keyring.
     #    The client will decrypt the item client-side using the MRK
     #    and return the original item.
-    key_to_get = {
-        "partition_key": {"S": "clientSupplierItem"},
-        "sort_key": {"N": "0"}
-    }
+    key_to_get = {"partition_key": {"S": "clientSupplierItem"}, "sort_key": {"N": "0"}}
 
-    get_response = encrypted_ddb_client.get_item(
-        TableName=ddb_table_name,
-        Key=key_to_get
-    )
+    get_response = encrypted_ddb_client.get_item(TableName=ddb_table_name, Key=key_to_get)
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
-    assert get_response['ResponseMetadata']['HTTPStatusCode'] == 200
-    returned_item = get_response['Item']
+    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    returned_item = get_response["Item"]
     assert returned_item["sensitive_data"]["S"] == "encrypt and sign me!"
 
     # 8. Create a MRK discovery multi-keyring with a custom client supplier.
@@ -190,17 +170,12 @@ def client_supplier_example(
     #    keyrings will use that client supplier configuration.
     #    In our tests, we make `key_arn` an MRK with a replica, and
     #    provide only the replica region in our discovery filter.
-    discovery_filter = DiscoveryFilter(
-        partition="aws",
-        account_ids=account_ids
-    )
+    discovery_filter = DiscoveryFilter(partition="aws", account_ids=account_ids)
 
     mrk_discovery_client_supplier_input = CreateAwsKmsMrkDiscoveryMultiKeyringInput(
-        client_supplier=RegionalRoleClientSupplier(),
-        discovery_filter=discovery_filter,
-        regions=regions
+        client_supplier=RegionalRoleClientSupplier(), discovery_filter=discovery_filter, regions=regions
     )
-    
+
     mrk_discovery_client_supplier_keyring = mat_prov.create_aws_kms_mrk_discovery_multi_keyring(
         input=mrk_discovery_client_supplier_input
     )
@@ -214,7 +189,7 @@ def client_supplier_example(
         attribute_actions_on_encrypt=attribute_actions_on_encrypt,
         # Provide discovery keyring here
         keyring=mrk_discovery_client_supplier_keyring,
-        allowed_unsigned_attribute_prefix=unsign_attr_prefix
+        allowed_unsigned_attribute_prefix=unsign_attr_prefix,
     )
 
     replica_key_tables_config = {ddb_table_name: replica_key_table_config}
@@ -223,8 +198,7 @@ def client_supplier_example(
     )
 
     replica_key_encrypted_client = EncryptedClient(
-        client=ddb_client,
-        encryption_config=replica_key_tables_encryption_config
+        client=ddb_client, encryption_config=replica_key_tables_encryption_config
     )
 
     # 10. Get the item back from our table using the discovery keyring client.
@@ -235,17 +209,13 @@ def client_supplier_example(
     #     which uses different IAM roles based on the key region,
     #     the discovery keyring will use a particular IAM role to decrypt
     #     based on the region of the KMS key it uses to decrypt.
-    replica_key_key_to_get = {
-        "partition_key": {"S": "awsKmsMrkMultiKeyringItem"},
-        "sort_key": {"N": "0"}
-    }
+    replica_key_key_to_get = {"partition_key": {"S": "awsKmsMrkMultiKeyringItem"}, "sort_key": {"N": "0"}}
 
     replica_key_get_response = replica_key_encrypted_client.get_item(
-        TableName=ddb_table_name,
-        Key=replica_key_key_to_get
+        TableName=ddb_table_name, Key=replica_key_key_to_get
     )
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
-    assert replica_key_get_response['ResponseMetadata']['HTTPStatusCode'] == 200
-    replica_key_returned_item = replica_key_get_response['Item']
+    assert replica_key_get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+    replica_key_returned_item = replica_key_get_response["Item"]
     assert replica_key_returned_item["sensitive_data"]["S"] == "encrypt and sign me!"

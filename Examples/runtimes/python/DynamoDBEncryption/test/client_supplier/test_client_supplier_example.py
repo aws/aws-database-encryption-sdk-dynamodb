@@ -3,10 +3,11 @@
 """Test suite for the client supplier example."""
 import pytest
 
-from .. import test_utils
 from ...src.client_supplier.client_supplier_example import client_supplier_example
+from .. import test_utils
 
 pytestmark = [pytest.mark.examples]
+
 
 def test_client_supplier_example():
     """Test function for client supplier example."""
@@ -18,5 +19,5 @@ def test_client_supplier_example():
         ddb_table_name=test_utils.TEST_DDB_TABLE_NAME,
         key_arn=test_utils.TEST_MRK_REPLICA_KEY_ID_US_EAST_1,
         account_ids=accounts,
-        regions=regions
+        regions=regions,
     )
