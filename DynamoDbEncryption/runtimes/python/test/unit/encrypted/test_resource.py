@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 from mock import MagicMock
 
 from aws_dbesdk_dynamodb.encrypted.resource import EncryptedResource, EncryptedTablesCollectionManager
