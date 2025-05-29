@@ -476,8 +476,6 @@ def assert_condition_expressions_are_equal(expected_item, actual_item, key):
         actual_item["ExpressionAttributeNames"] if "ExpressionAttributeNames" in actual_item else {},
         actual_item["ExpressionAttributeValues"] if "ExpressionAttributeValues" in actual_item else {},
     )
-    print(f"{expected_key_condition_expression=}")
-    print(f"{actual_key_condition_expression=}")
     assert expected_key_condition_expression == actual_key_condition_expression
 
 
