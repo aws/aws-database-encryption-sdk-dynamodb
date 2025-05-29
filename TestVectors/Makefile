@@ -148,19 +148,6 @@ _sed_types_file_add_extern:
 
 _polymorph_go: purge_polymorph_code
 
-# Smithy-dafny generated shim needs a long term fix. 
-# TODO: Remove this commands once smithy-dafny is fixed
-# This commands does not work on windows
-# https://taskei.amazon.dev/tasks/CrypTool-5283
-purge_polymorph_code:
-	find .. -name "shim.go" | xargs sed -i $(SED_PARAMETER) 's/(_static \*CompanionStruct_Default___)//g'
-	rm -rf runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
-		runtimes/go/ImplementationFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated \
-		runtimes/go/TestsFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes \
-		runtimes/go/TestsFromDafny-go/WrappedAwsCryptographyDbEncryptionSdkDynamoDbService
-
 # Go
 GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb/testvectors"
 
@@ -213,7 +200,7 @@ _sed_index_file_remove_extern:
 _polymorph_go: purge_polymorph_code
 
 # Smithy-dafny generated shim needs a long term fix. 
-# TODO: Remove this commands once smithy-dafny is fixed
+# TODO: Remove this commands once smithy-dafny is fixed https://sim.amazon.com/issues/CrypTool-5445
 # This commands does not work on windows
 # https://taskei.amazon.dev/tasks/CrypTool-5283
 purge_polymorph_code:
