@@ -56,6 +56,24 @@ jobs:
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-python:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_python.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-python-examples:
+    needs: getVersion
+    uses: ./.github/workflows/ci_examples_python.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-python-static-analysis:
+    needs: getVersion
+    uses: ./.github/workflows/ci_static_analysis_python.yml
+  pr-ci-python-test-vectors:
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_vector_python.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
   pr-ci-net-test-vectors:
     needs: getVersion
     uses: ./.github/workflows/ci_test_vector_net.yml
