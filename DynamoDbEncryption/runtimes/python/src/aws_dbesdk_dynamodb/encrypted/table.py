@@ -328,6 +328,7 @@ class EncryptedTable(EncryptedBotoInterface):
 
         """
         table_input = deepcopy(operation_input)
+
         # EncryptedTable inputs are formatted as standard dictionaries, but DBESDK transformations expect DynamoDB JSON.
         # Convert from standard dictionaries to DynamoDB JSON.
         input_transform_input = input_resource_to_client_shape_transform_method(table_input)

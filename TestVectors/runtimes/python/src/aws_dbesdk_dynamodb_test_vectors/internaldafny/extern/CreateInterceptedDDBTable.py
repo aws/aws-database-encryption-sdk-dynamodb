@@ -14,6 +14,51 @@ from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamo
 from aws_dbesdk_dynamodb_test_vectors.waiting_boto3_ddb_client import WaitingLocalDynamoClient
 
 from boto3.dynamodb.conditions import Key, Attr
+from decimal import Decimal
+
+import json
+import os
+from typing import Any, Dict
+
+def load_test_data() -> Dict[str, Any]:
+    """Load the test data from data.json file."""
+    # Get the directory of the current file
+    current_dir = os.getcwd()
+    # Navigate to the data.json file
+    data_file = os.path.join(current_dir, 'data.json')
+    
+    with open(data_file, 'r') as f:
+        return json.load(f)
+
+expression_attribute_values_from_json = load_test_data()["Values"]
+
+def get_test_value(name) -> Any:
+    """
+    Get a test value from the Values section of data.json.
+    
+    Args:
+        name: The name of the value to retrieve (e.g. ":zero", ":one", etc.)
+        
+    Returns:
+        The value from the Values section
+        
+    Raises:
+        KeyError: If the requested value name is not found
+    """
+    if name not in expression_attribute_values_from_json:
+        raise KeyError(f"Value '{name}' not found in test data")
+    value = expression_attribute_values_from_json[name]
+    if isinstance(value, dict):
+        if "N" in value:
+            return Decimal(value["N"])
+        elif "SS" in value:
+            return set(value["SS"])
+        elif "L" in value:
+            return list(value["L"])
+        else:
+            raise ValueError(f"Unknown value type: {value}")
+    return value
+
 
 # When querying, DBESDK DDB TestVectors will pass the Table the query as a string.
 # The Table could accept this string as-is and process it correctly.
@@ -30,27 +75,27 @@ from boto3.dynamodb.conditions import Key, Attr
 # if they are not added, the Table will accept the string as-is.
 known_filter_expression_string_to_condition_map = {
     # "Basic" queries
-    "RecNum = :zero": Attr("RecNum").eq(":zero"),
-    "RecNum <= :zero": Attr("RecNum").lte(":zero"),
-    "RecNum > :zero": Attr("RecNum").gt(":zero"),
-    "RecNum >= :zero": Attr("RecNum").gte(":zero"),
-    "RecNum <> :zero": Attr("RecNum").ne(":zero"),
-    "RecNum = :one": Attr("RecNum").eq(":one"),
-    "Nine between :zeroD and :three": Attr("Nine").between(":zeroD", ":three"),
-    "Nine between :nineD and :nine": Attr("Nine").between(":nineD", ":nine"),
-    "Nine between :nine and :three": Attr("Nine").between(":nine", ":three"),
-    "Nine between :nine and :nine": Attr("Nine").between(":nine", ":nine"),
-    "NumberTest = :NumberTest": Attr("NumberTest").eq(":NumberTest"),
-    "RecNum in (:zero, :one)": Attr("RecNum").is_in([":zero", ":one"]),
-    "Two = :two": Attr("Two").eq(":two"),
-    "Two = :two or Three = :three or Four = :four OR Five = :five": Attr("Two").eq(":two") | Attr("Three").eq(":three") | Attr("Four").eq(":four") | Attr("Five").eq(":five"),
-    "Two = :two and Three = :three and Four = :four and Five = :five": Attr("Two").eq(":two") & Attr("Three").eq(":three") & Attr("Four").eq(":four") & Attr("Five").eq(":five"),
-    "Two in (:two, :three, :four, :five)": Attr("Two").is_in([":two", ":three", ":four", ":five"]),
-    "Five in (:two, :three, :four, :five)": Attr("Five").is_in([":two", ":three", ":four", ":five"]),
-    "Five in (:strset)": Attr("Five").is_in([":strset"]),
-    "Five in (:strlist)": Attr("Five").is_in([":strlist"]),
-    "contains(One, :oneA)": Attr("One").contains(":oneA"),
-    "contains(One, :oneB)": Attr("One").contains(":oneB"),
+    "RecNum = :zero": Attr("RecNum").eq(get_test_value(":zero")),
+    "RecNum <= :zero": Attr("RecNum").lte(get_test_value(":zero")),
+    "RecNum > :zero": Attr("RecNum").gt(get_test_value(":zero")),
+    "RecNum >= :zero": Attr("RecNum").gte(get_test_value(":zero")),
+    "RecNum <> :zero": Attr("RecNum").ne(get_test_value(":zero")),
+    "RecNum = :one": Attr("RecNum").eq(get_test_value(":one")),
+    "Nine between :zeroD and :three": Attr("Nine").between(get_test_value(":zeroD"), get_test_value(":three")),
+    "Nine between :nineD and :nine": Attr("Nine").between(get_test_value(":nineD"), get_test_value(":nine")),
+    "Nine between :nine and :three": Attr("Nine").between(get_test_value(":nine"), get_test_value(":three")),
+    "Nine between :nine and :nine": Attr("Nine").between(get_test_value(":nine"), get_test_value(":nine")),
+    "NumberTest = :NumberTest": Attr("NumberTest").eq(get_test_value(":NumberTest")),
+    "RecNum in (:zero, :one)": Attr("RecNum").is_in([get_test_value(":zero"), get_test_value(":one")]),
+    "Two = :two": Attr("Two").eq(get_test_value(":two")),
+    "Two = :two or Three = :three or Four = :four OR Five = :five": Attr("Two").eq(get_test_value(":two")) | Attr("Three").eq(get_test_value(":three")) | Attr("Four").eq(get_test_value(":four")) | Attr("Five").eq(get_test_value(":five")),
+    "Two = :two and Three = :three and Four = :four and Five = :five": Attr("Two").eq(get_test_value(":two")) & Attr("Three").eq(get_test_value(":three")) & Attr("Four").eq(get_test_value(":four")) & Attr("Five").eq(get_test_value(":five")),
+    "Two in (:two, :three, :four, :five)": Attr("Two").is_in([get_test_value(":two"), get_test_value(":three"), get_test_value(":four"), get_test_value(":five")]),
+    "Five in (:two, :three, :four, :five)": Attr("Five").is_in([get_test_value(":two"), get_test_value(":three"), get_test_value(":four"), get_test_value(":five")]),
+    "Five in (:strset)": Attr("Five").is_in([get_test_value(":strset")]),
+    "Five in (:strlist)": Attr("Five").is_in([get_test_value(":strlist")]),
+    "contains(One, :oneA)": Attr("One").contains(get_test_value(":oneA")),
+    "contains(One, :oneB)": Attr("One").contains(get_test_value(":oneB")),
     # Hard-coding returning the input string for these cases.
     # These conditions test undocumented behavior in DynamoDB that can't be expressed with boto3 Conditions.
     # The undocumented behavior is that `contains`' first parameter can be a value,
@@ -70,14 +115,14 @@ known_filter_expression_string_to_condition_map = {
     "contains(:strset, One)": "contains(:strset, One)",
     
     # "Complex" queries
-    "Comp1 := :cmp1a": Attr("Comp1").eq(":cmp1a"),
-    "begins_with(Comp1, :cmp1c)": Attr("Comp1").begins_with(":cmp1c"),
-    "cmp1c < Comp1": Attr("cmp1c").lt("Comp1"),
-    "cmp1c = Comp1": Attr("cmp1c").eq("Comp1"),
-    "begins_with(Comp1, :cmp1d)": Attr("Comp1").begins_with(":cmp1d"),
-    "contains(Comp1, :cmp1c)": Attr("Comp1").contains(":cmp1c"),
-    "contains(Comp1, :cmp1d)": Attr("Comp1").contains(":cmp1d"),
-    "Comp1 = :cmp1b": Attr("Comp1").eq(":cmp1b"),
+    "Comp1 := :cmp1a": Attr("Comp1").eq(get_test_value(":cmp1a")),
+    "begins_with(Comp1, :cmp1c)": Attr("Comp1").begins_with(get_test_value(":cmp1c")),
+    "cmp1c < Comp1": Attr("cmp1c").lt(get_test_value(":cmp1c")),
+    "cmp1c = Comp1": Attr("cmp1c").eq(get_test_value(":cmp1c")),
+    "begins_with(Comp1, :cmp1d)": Attr("Comp1").begins_with(get_test_value(":cmp1d")),
+    "contains(Comp1, :cmp1c)": Attr("Comp1").contains(get_test_value(":cmp1c")),
+    "contains(Comp1, :cmp1d)": Attr("Comp1").contains(get_test_value(":cmp1d")),
+    "Comp1 = :cmp1b": Attr("Comp1").eq(get_test_value(":cmp1b")),
 
     # Another query that can't be translated to boto3 Conditions,
     # since attribute values aren't attribute names.
@@ -87,8 +132,8 @@ known_filter_expression_string_to_condition_map = {
 
 # KeyConditionExpression strings expect Keys, not Attrs.
 known_key_condition_expression_string_to_condition_map = {
-    "RecNum = :zero": Attr("RecNum").eq(":zero"),
-    "RecNum = :one": Attr("RecNum").eq(":one"),
+    "RecNum = :zero": Key("RecNum").eq(get_test_value(":zero")),
+    "RecNum = :one": Key("RecNum").eq(get_test_value(":one")),
 }
 
 class DynamoDBClientWrapperForDynamoDBTable:
@@ -152,8 +197,12 @@ class DynamoDBClientWrapperForDynamoDBTable:
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_key_condition_expression_string_to_condition_map:
-                print(f"Converting {table_input['KeyConditionExpression']=} to {known_key_condition_expression_string_to_condition_map[table_input['KeyConditionExpression']]=}")
                 table_input["KeyConditionExpression"] = known_key_condition_expression_string_to_condition_map[table_input["KeyConditionExpression"]]
+                # boto3 Conditions cannot accept any externally-provided ExpressionAttributeValues
+                # if the KeyConditionExpression is not a string.
+                # If the KeyConditionExpression was replaced, remove the now-useless ExpressionAttributeValues.
+                if "ExpressionAttributeValues" in table_input and not isinstance(table_input["KeyConditionExpression"], str):
+                    del table_input["ExpressionAttributeValues"]
             else:
                 # Pass the original string through.
                 # The table will accept the string as-is.
@@ -161,8 +210,12 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_filter_expression_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['FilterExpression']=} to {known_filter_expression_string_to_condition_map[table_input['FilterExpression']]=}")
                 table_input["FilterExpression"] = known_filter_expression_string_to_condition_map[table_input["FilterExpression"]]
+                # boto3 Conditions cannot accept any externally-provided ExpressionAttributeValues
+                # if the FilterExpression is not a string.
+                # If the FilterExpression was replaced, remove the now-useless ExpressionAttributeValues.
+                if "ExpressionAttributeValues" in table_input and not isinstance(table_input["FilterExpression"], str):
+                    del table_input["ExpressionAttributeValues"]
             else:
                 # Pass the original string through.
                 # The table will accept the string as-is.
@@ -178,14 +231,20 @@ class DynamoDBClientWrapperForDynamoDBTable:
         raise NotImplementedError("transact_write_items not supported on table interface; remove tests calling this")
 
     def query(self, **kwargs):
+        print(f'{kwargs=}')
         table_input = self._client_shape_to_resource_shape_converter.query_request(kwargs)
+        print(f'{table_input=}')
         # To exhaustively test Tables,
         # convert the string-based KeyConditionExpression and FilterExpression
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
         if "KeyConditionExpression" in table_input:
             if table_input["KeyConditionExpression"] in known_key_condition_expression_string_to_condition_map:
-                print(f"Converting {table_input['KeyConditionExpression']=} to {known_key_condition_expression_string_to_condition_map[table_input['KeyConditionExpression']]=}")
                 table_input["KeyConditionExpression"] = known_key_condition_expression_string_to_condition_map[table_input["KeyConditionExpression"]]
+                # boto3 Conditions cannot accept any externally-provided ExpressionAttributeValues
+                # if the KeyConditionExpression is not a string.
+                # If the KeyConditionExpression was replaced, remove the now-useless ExpressionAttributeValues.
+                if "ExpressionAttributeValues" in table_input and not isinstance(table_input["KeyConditionExpression"], str):
+                    del table_input["ExpressionAttributeValues"]
             else:
                 # Pass the original string through.
                 # The table will accept the string as-is.
@@ -193,8 +252,12 @@ class DynamoDBClientWrapperForDynamoDBTable:
         if "FilterExpression" in table_input:
             if table_input["FilterExpression"] in known_filter_expression_string_to_condition_map:
                 # Turn the query into the resource-formatted query
-                print(f"Converting {table_input['FilterExpression']=} to {known_filter_expression_string_to_condition_map[table_input['FilterExpression']]=}")
                 table_input["FilterExpression"] = known_filter_expression_string_to_condition_map[table_input["FilterExpression"]]
+                # boto3 Conditions cannot accept any externally-provided ExpressionAttributeValues
+                # if the FilterExpression is not a string.
+                # If the FilterExpression was replaced, remove the now-useless ExpressionAttributeValues.
+                if "ExpressionAttributeValues" in table_input and not isinstance(table_input["FilterExpression"], str):
+                    del table_input["ExpressionAttributeValues"]
             else:
                 # Pass the original string through.
                 # The table will accept the string as-is.
@@ -228,7 +291,7 @@ class default__:
                 # If needed, >1 table could be supported by setting up an EncryptedTablesManager
                 raise ValueError(">1 table not supported")
             # For TestVectors, use local DynamoDB endpoint
-            table = boto3.resource('dynamodb', endpoint_url="http://localhost:8000").Table(table_config_names[0])
+            table = boto3.resource('dynamodb').Table(table_config_names[0])
             encrypted_table = EncryptedTable(table = table, encryption_config = native_encryption_config)
             wrapped_encrypted_table = DynamoDBClientWrapperForDynamoDBTable(table = encrypted_table, client = boto3_client)
             return aws_cryptography_internal_dynamodb.internaldafny.extern.Com_Amazonaws_Dynamodb.default__.DynamoDBClient(wrapped_encrypted_table)
