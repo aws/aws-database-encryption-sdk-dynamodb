@@ -10,8 +10,7 @@ class WaitingLocalDynamoClient:
     All other methods besides these are unchanged and will call the boto3 client directly.
     """
     def __init__(self):
-        # self._client = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
-        self._client = boto3.client("dynamodb")
+        self._client = boto3.client("dynamodb", endpoint_url="http://localhost:8000")
             
     def __getattr__(self, name):
         if hasattr(self._client, name):
