@@ -21,16 +21,16 @@ import os
 from typing import Any, Dict
 
 def load_test_data() -> Dict[str, Any]:
-    """Load the test data from data.json file."""
+    """Load the ExpressionAttributeValues from data.json file."""
     # Get the directory of the current file
     current_dir = os.getcwd()
     # Navigate to the data.json file
     data_file = os.path.join(current_dir, 'data.json')
     
     with open(data_file, 'r') as f:
-        return json.load(f)
+        return json.load(f)["Values"]
 
-expression_attribute_values_from_json = load_test_data()["Values"]
+expression_attribute_values_from_json = load_test_data()
 
 def get_test_value(name) -> Any:
     """
@@ -56,7 +56,7 @@ def get_test_value(name) -> Any:
         elif "L" in value:
             return list(value["L"])
         else:
-            raise ValueError(f"Unknown value type: {value}")
+            raise KeyError(f"Unknown ExpressionAttributeValue type: {value}")
     return value
 
 
@@ -231,9 +231,7 @@ class DynamoDBClientWrapperForDynamoDBTable:
         raise NotImplementedError("transact_write_items not supported on table interface; remove tests calling this")
 
     def query(self, **kwargs):
-        print(f'{kwargs=}')
         table_input = self._client_shape_to_resource_shape_converter.query_request(kwargs)
-        print(f'{table_input=}')
         # To exhaustively test Tables,
         # convert the string-based KeyConditionExpression and FilterExpression
         # into the boto3.conditions.Key and boto3.conditions.Attr resource-formatted queries.
@@ -262,7 +260,6 @@ class DynamoDBClientWrapperForDynamoDBTable:
                 # Pass the original string through.
                 # The table will accept the string as-is.
                 pass
-        print(f'{table_input=}')
         table_output = self._table.query(**table_input)
         client_output = self._resource_shape_to_client_shape_converter.query_response(table_output)
         return client_output

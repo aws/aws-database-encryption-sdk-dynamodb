@@ -30,6 +30,10 @@ jobs:
       matrix:
         library: [TestVectors]
         python-version: [3.11, 3.12, 3.13]
+        # Only ubuntu for now;
+        # As of 4.10.1, Dafny's Python JSON processing is still very slow (1 hour to run test vectors on ubuntu)
+        # and Github's macOS runners are also very slow (~2x slower than ubuntu).
+        # If Dafny's JSON processing speed is improved, we can add macOS back.
         os: [ubuntu-22.04]
         interface: [client, resource, table]
     runs-on: ${{ matrix.os }}

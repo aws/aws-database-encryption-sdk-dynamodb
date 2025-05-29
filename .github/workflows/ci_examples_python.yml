@@ -26,8 +26,9 @@ on:
 jobs:
   testPython:
     strategy:
+      max-parallel: 1
       matrix:
-        python-version: [3.11]
+        python-version: [3.11, 3.12, 3.13]
         os: [macos-13]
     runs-on: ${{ matrix.os }}
     permissions:
