@@ -13,7 +13,7 @@ from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
 )
-from ...items import complex_item_dict, simple_item_dict, simple_key_dict, complex_key_dict
+from ...items import complex_item_dict, complex_key_dict, simple_item_dict, simple_key_dict
 from ...requests import (
     basic_delete_item_request_dict,
     basic_get_item_request_dict,
