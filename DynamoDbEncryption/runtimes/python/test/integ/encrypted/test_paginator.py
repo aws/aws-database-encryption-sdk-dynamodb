@@ -94,7 +94,7 @@ def use_complex_item(request):
 # Append a suffix to the partition key to avoid collisions between test runs.
 @pytest.fixture(scope="module")
 def test_run_suffix():
-    return str(uuid.uuid4())
+    return "-" + str(uuid.uuid4())
 
 
 @pytest.fixture
