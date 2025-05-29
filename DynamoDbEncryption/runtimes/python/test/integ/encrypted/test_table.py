@@ -13,7 +13,7 @@ from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
 )
-from ...items import complex_item_dict, simple_item_dict
+from ...items import complex_item_dict, simple_item_dict, simple_key_dict, complex_key_dict
 from ...requests import (
     basic_delete_item_request_dict,
     basic_get_item_request_dict,
@@ -63,7 +63,7 @@ def table(encrypted):
 
 @pytest.fixture(scope="module")
 def test_run_suffix():
-    return str(uuid.uuid4())
+    return "-" + str(uuid.uuid4())
 
 
 # Creates a matrix of tests for each value in param,
@@ -109,51 +109,57 @@ def test_GIVEN_item_WHEN_basic_put_AND_basic_get_AND_basic_delete_THEN_round_tri
     assert "Item" not in get_response
 
 
+@pytest.fixture
+def multiple_test_items(test_run_suffix):
+    """Get two test items in the appropriate format for the client."""
+    items = [deepcopy(simple_item_dict), deepcopy(complex_item_dict)]
+    for item in items:
+        item["partition_key"] += test_run_suffix
+    return items
+
+
+@pytest.fixture
+def multiple_test_keys(test_run_suffix):
+    """Get two test keys in the appropriate format for the client."""
+    keys = [deepcopy(simple_key_dict), deepcopy(complex_key_dict)]
+    for key in keys:
+        key["partition_key"] += test_run_suffix
+    return keys
+
+
 def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
     table,
+    multiple_test_items,
+    multiple_test_keys,
 ):
     # Given: Simple and complex items in appropriate format for client
     # When: Batch put items
     with table.batch_writer() as batch_writer:
         # boto3 documentation for batch_writer.put_item() is incorrect;
         # the method accepts the item directly, not the item inside an "Item" key.
-        batch_writer.put_item(simple_item_dict)
-        batch_writer.put_item(complex_item_dict)
+        for item in multiple_test_items:
+            batch_writer.put_item(item)
 
     # When: Get items
-    get_item_request_dict = basic_get_item_request_dict(simple_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert get_response["Item"] == simple_item_dict
-
-    get_item_request_dict = basic_get_item_request_dict(complex_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert get_response["Item"] == complex_item_dict
+    for item in multiple_test_items:
+        get_item_request_dict = basic_get_item_request_dict(item)
+        get_response = table.get_item(**get_item_request_dict)
+        # Then: All items are encrypted and decrypted correctly
+        assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+        assert get_response["Item"] == item
 
     # When: Batch delete items
     with table.batch_writer() as batch_writer:
-        batch_writer.delete_item(
-            {"partition_key": simple_item_dict["partition_key"], "sort_key": simple_item_dict["sort_key"]}
-        )
-        batch_writer.delete_item(
-            {"partition_key": complex_item_dict["partition_key"], "sort_key": complex_item_dict["sort_key"]}
-        )
+        for key in multiple_test_keys:
+            batch_writer.delete_item(key)
 
     # When: Get items
-    get_item_request_dict = basic_get_item_request_dict(simple_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert "Item" not in get_response
-
-    get_item_request_dict = basic_get_item_request_dict(complex_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert "Item" not in get_response
+    for item in multiple_test_items:
+        get_item_request_dict = basic_get_item_request_dict(item)
+        get_response = table.get_item(**get_item_request_dict)
+        # Then: All items are encrypted and decrypted correctly
+        assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+        assert "Item" not in get_response
 
 
 def test_GIVEN_items_in_table_WHEN_query_THEN_items_are_decrypted_correctly(table, test_item):

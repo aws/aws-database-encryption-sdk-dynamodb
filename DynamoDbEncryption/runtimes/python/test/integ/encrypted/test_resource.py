@@ -55,7 +55,7 @@ def tables(resource):
 
 @pytest.fixture(scope="module")
 def test_run_suffix():
-    return str(uuid.uuid4())
+    return "-" + str(uuid.uuid4())
 
 
 @pytest.fixture
