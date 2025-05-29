@@ -29,10 +29,8 @@ class WaitingLocalDynamoClient:
         def wrapper(*args, **kwargs):
             response = create_method(*args, **kwargs)  # Call the original create_table method
             table_name = kwargs.get('TableName')
-            print(f"Waiting for table '{table_name}' to become active...")
             waiter = self._client.get_waiter('table_exists')
             waiter.wait(TableName=table_name)
-            print(f"Table '{table_name}' is now active.")
             return response
         return wrapper
 
@@ -40,9 +38,7 @@ class WaitingLocalDynamoClient:
         def wrapper(*args, **kwargs):
             response = delete_method(*args, **kwargs)  # Call the original delete_table method
             table_name = kwargs.get('TableName')
-            print(f"Waiting for table '{table_name}' to be deleted...")
             waiter = self._client.get_waiter('table_not_exists')
             waiter.wait(TableName=table_name)
-            print(f"Table '{table_name}' has been deleted.")
             return response
         return wrapper
