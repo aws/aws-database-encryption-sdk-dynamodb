@@ -1,3 +1,6 @@
+import uuid
+from copy import deepcopy
+
 import boto3
 import pytest
 
@@ -10,7 +13,7 @@ from ...constants import (
     INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME,
     INTEG_TEST_DEFAULT_TABLE_CONFIGS,
 )
-from ...items import complex_item_dict, simple_item_dict
+from ...items import complex_item_dict, complex_key_dict, simple_item_dict, simple_key_dict
 from ...requests import (
     basic_delete_item_request_dict,
     basic_get_item_request_dict,
@@ -58,13 +61,20 @@ def table(encrypted):
         return plaintext_table()
 
 
+@pytest.fixture(scope="module")
+def test_run_suffix():
+    return "-" + str(uuid.uuid4())
+
+
 # Creates a matrix of tests for each value in param,
 # with a user-friendly string for test output:
 # use_complex_item = True -> "complex_item"
 # use_complex_item = False -> "simple_item"
 @pytest.fixture(params=[simple_item_dict, complex_item_dict], ids=["simple_item", "complex_item"])
-def test_item(request):
-    return request.param
+def test_item(request, test_run_suffix):
+    item = deepcopy(request.param)
+    item["partition_key"] += test_run_suffix
+    return item
 
 
 def test_GIVEN_item_WHEN_basic_put_AND_basic_get_AND_basic_delete_THEN_round_trip_passes(table, test_item):
@@ -99,51 +109,57 @@ def test_GIVEN_item_WHEN_basic_put_AND_basic_get_AND_basic_delete_THEN_round_tri
     assert "Item" not in get_response
 
 
+@pytest.fixture
+def multiple_test_items(test_run_suffix):
+    """Get two test items in the appropriate format for the client."""
+    items = [deepcopy(simple_item_dict), deepcopy(complex_item_dict)]
+    for item in items:
+        item["partition_key"] += test_run_suffix
+    return items
+
+
+@pytest.fixture
+def multiple_test_keys(test_run_suffix):
+    """Get two test keys in the appropriate format for the client."""
+    keys = [deepcopy(simple_key_dict), deepcopy(complex_key_dict)]
+    for key in keys:
+        key["partition_key"] += test_run_suffix
+    return keys
+
+
 def test_GIVEN_items_WHEN_batch_write_and_get_THEN_round_trip_passes(
     table,
+    multiple_test_items,
+    multiple_test_keys,
 ):
     # Given: Simple and complex items in appropriate format for client
     # When: Batch put items
     with table.batch_writer() as batch_writer:
         # boto3 documentation for batch_writer.put_item() is incorrect;
         # the method accepts the item directly, not the item inside an "Item" key.
-        batch_writer.put_item(simple_item_dict)
-        batch_writer.put_item(complex_item_dict)
+        for item in multiple_test_items:
+            batch_writer.put_item(item)
 
     # When: Get items
-    get_item_request_dict = basic_get_item_request_dict(simple_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert get_response["Item"] == simple_item_dict
-
-    get_item_request_dict = basic_get_item_request_dict(complex_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert get_response["Item"] == complex_item_dict
+    for item in multiple_test_items:
+        get_item_request_dict = basic_get_item_request_dict(item)
+        get_response = table.get_item(**get_item_request_dict)
+        # Then: All items are encrypted and decrypted correctly
+        assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+        assert get_response["Item"] == item
 
     # When: Batch delete items
     with table.batch_writer() as batch_writer:
-        batch_writer.delete_item(
-            {"partition_key": simple_item_dict["partition_key"], "sort_key": simple_item_dict["sort_key"]}
-        )
-        batch_writer.delete_item(
-            {"partition_key": complex_item_dict["partition_key"], "sort_key": complex_item_dict["sort_key"]}
-        )
+        for key in multiple_test_keys:
+            batch_writer.delete_item(key)
 
     # When: Get items
-    get_item_request_dict = basic_get_item_request_dict(simple_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert "Item" not in get_response
-
-    get_item_request_dict = basic_get_item_request_dict(complex_item_dict)
-    get_response = table.get_item(**get_item_request_dict)
-    # Then: All items are encrypted and decrypted correctly
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    assert "Item" not in get_response
+    for item in multiple_test_items:
+        get_item_request_dict = basic_get_item_request_dict(item)
+        get_response = table.get_item(**get_item_request_dict)
+        # Then: All items are encrypted and decrypted correctly
+        assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
+        assert "Item" not in get_response
 
 
 def test_GIVEN_items_in_table_WHEN_query_THEN_items_are_decrypted_correctly(table, test_item):
@@ -183,7 +199,10 @@ def test_GIVEN_valid_put_and_scan_requests_WHEN_put_and_scan_THEN_round_trip_pas
     # When: Scanning items
     scan_request_dict = scan_request
     scan_response = table.scan(**scan_request_dict)
-    # Then: Scan returns both test items
+    # Then: Scan succeeds
+    # Can't assert anything about the scan;
+    # there are too many items.
+    # The critical assertion is that the scan succeeds.
     assert scan_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
@@ -228,3 +247,14 @@ def test_WHEN_call_passthrough_method_THEN_correct_response_is_returned():
     response = encrypted_table().table_name
     # Then: Correct response is returned, i.e. EncryptedTable forwards the call to the underlying boto3 table
     assert response == INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME
+
+
+# Delete the items in the table after the module runs
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_after_module(test_run_suffix):
+    yield
+    table = boto3.resource("dynamodb").Table(INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
+    items = [deepcopy(simple_item_dict), deepcopy(complex_item_dict)]
+    for item in items:
+        item["partition_key"] = item["partition_key"] + test_run_suffix
+        table.delete_item(**basic_delete_item_request_dict(item))
