@@ -100,6 +100,8 @@ jobs:
       - pr-ci-net-examples
       - pr-ci-python
       - pr-ci-python-testvectors
+      - pr-ci-python-examples
+      - pr-ci-python-static-analysis
     runs-on: ubuntu-22.04
     steps:
       - name: Verify all required jobs passed
