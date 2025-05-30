@@ -220,9 +220,9 @@ module {:options "-functionSyntax:4"} WriteManifest {
   const A : string := "A"
   const B : string := "\ud000" // "Ud000" <-> "퀀"
   const C : string := "\ufe4c" // "Ufe4c" <-> "﹌"
-  const D : string := "\u10001" // "U10001" <-> "𐀁" (surrogate pair: "\uD800\uDC01")
-  const E : string := "\u10002" // "U10002" <-> "𐀂" (same high surrogate as D: "\uD800\uDC02")
-  const F : string := "\u20002" // "U20002" <-> "𠀂"  (different high surrogate as D: "\D840\uDC02")
+  const D : string := "\uD800\uDC01" // "U10001" <-> "𐀁" (surrogate pair: "\uD800\uDC01")
+  const E : string := "\uD800\uDC02" // "U10002" <-> "𐀂" (same high surrogate as D: "\uD800\uDC02")
+  const F : string := "\uD840\uDC02" // "U20002" <-> "𠀂"  (different high surrogate as D: "\D840\uDC02")
 
   lemma CheckLengths()
     ensures |A| == 1
