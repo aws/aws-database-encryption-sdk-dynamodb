@@ -260,6 +260,17 @@ def base_exhaustive_scan_request(item):
     }
 
 
+# No exhaustive requests for:
+# - transact_write_items
+# - transact_get_items
+# - batch_write_item
+# - batch_get_item
+# - batch_execute_statement
+# - execute_statement
+# - execute_transaction
+# The base requests sufficiently test the conversion of the request between client and resource formats
+# for items.
+
 # DDB format request functions
 
 

@@ -153,17 +153,98 @@ def basic_transact_write_items_response(items):
         },
     }
 
+# No exhaustive response for transact_write_items;
+# The basic_transact_write_items_response is sufficient
 
 def basic_transact_get_items_response(items):
     """Get a transact_get_items response in resource (ddb) format for any items."""
     return {"Responses": [{"Item": item} for item in items]}
 
+# No exhaustive response for transact_get_items;
+# The basic_transact_get_items_response is sufficient
 
 def basic_update_item_response(item):
     """Get an update_item response in resource (ddb) format for any item."""
     return {"Attributes": item}
 
+def exhaustive_update_item_response(item):
+    """
+    Get an update_item response in resource (ddb) format for any item.
+    This is not intended to be a real response that DynamoDB would return,
+    but the response should contain additional attributes that DynamoDB could return.
+    This is only intended to exhaustively test the conversion of the request between client and resource formats.
+    """
+    base = basic_update_item_response(item)
+    additional_keys = {
+        "ItemCollectionMetrics": {
+            "ItemCollectionKey": {"partition_key": item["partition_key"]},
+        },
+    }
+    return {**base, **additional_keys}
 
 def basic_delete_item_response(item):
     """Get a delete_item response in resource (ddb) format for any item."""
     return {"Attributes": item}
+
+def exhaustive_delete_item_response(item):
+    """
+    Get a delete_item response in resource (ddb) format for any item.
+    This is not intended to be a real response that DynamoDB would return,
+    but the response should contain additional attributes that DynamoDB could return.
+    This is only intended to exhaustively test the conversion of the request between client and resource formats.
+    """
+    base = basic_delete_item_response(item)
+    additional_keys = {
+        "ItemCollectionMetrics": {
+            "ItemCollectionKey": {"partition_key": item["partition_key"]},
+        },
+    }
+    return {**base, **additional_keys}
+
+
+def basic_execute_statement_response(items):
+    """Get an execute_statement response in resource (ddb) format for any items."""
+    return {"Items": items}
+
+def exhaustive_execute_statement_response(items):
+    """
+    Get an execute_statement response in resource (ddb) format for any items.
+    This is not intended to be a real response that DynamoDB would return,
+    but the response should contain additional attributes that DynamoDB could return.
+    This is only intended to exhaustively test the conversion of the request between client and resource formats.
+    """
+    base = basic_execute_statement_response(items)
+    additional_keys = {
+        "LastEvaluatedKey": {
+            "partition_key": items[-1]["partition_key"],
+            "sort_key": items[-1]["sort_key"],
+        },
+    }
+    return {**base, **additional_keys}
+
+def basic_execute_transaction_response(items):
+    """Get an execute_transaction response in resource (ddb) format for any items."""
+    return {"Responses": [{"Item": item} for item in items]}
+
+# No exhaustive response for execute_transaction;
+# The basic_execute_transaction_response is sufficient
+
+def basic_batch_execute_statement_response(items):
+    """Get a batch_execute_statement response in resource (ddb) format for any items."""
+    return {"Responses": [{"Item": item} for item in items]}
+
+def exhaustive_batch_execute_statement_response(items):
+    """
+    Get a batch_execute_statement response in resource (ddb) format for any items.
+    This is not intended to be a real response that DynamoDB would return,
+    but the response should contain additional attributes that DynamoDB could return.
+    This is only intended to exhaustively test the conversion of the request between client and resource formats.
+    """
+    base = basic_batch_execute_statement_response(items)
+    base["Responses"][0]["Error"] = {
+        "Item": {
+            "partition_key": items[0]["partition_key"],
+            "sort_key": items[0]["sort_key"],
+        }
+    }
+    return base
