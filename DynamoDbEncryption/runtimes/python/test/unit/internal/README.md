@@ -21,8 +21,8 @@ The conversion logic will recursively traverse inpuyt/output shapes to find shap
 the following kwargs MUST be converted from resource to client format:
 
 - `["Item"]`
-- `["Expected"][<table_name>]["Value"]`
-- `["Expected"][<table_name>]["AttributeValueList"]`
+- `["Expected"][<key>]["Value"]`
+- `["Expected"][<key>]["AttributeValueList"]`
 - `["ConditionExpression"]`
 - `["ExpressionAttributeValues"]`
 
