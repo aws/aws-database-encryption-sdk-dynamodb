@@ -1,7 +1,7 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-Example demonstrating Dynamodb Encryption using a custom client supplier.
+Example demonstrating DynamoDB Encryption using a custom client supplier.
 
 A custom client supplier grants users access to more granular configuration aspects
 of their authentication details and KMS client. The example creates a simple custom
