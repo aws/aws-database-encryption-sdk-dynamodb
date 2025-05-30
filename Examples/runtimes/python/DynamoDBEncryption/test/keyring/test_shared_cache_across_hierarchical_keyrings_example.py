@@ -9,6 +9,7 @@ from ...src.create_keystore_key_example import keystore_create_key
 from ...src.keyring.shared_cache_across_hierarchical_keyrings_example import (
     shared_cache_across_hierarchical_keyrings_example,
 )
+from ..cleanup import delete_branch_key
 from ..test_utils import (
     TEST_DDB_TABLE_NAME,
     TEST_KEYSTORE_KMS_KEY_ID,
@@ -37,3 +38,6 @@ def test_shared_cache_across_hierarchical_keyrings_example():
         TEST_PARTITION_ID,
         TEST_KEYSTORE_KMS_KEY_ID,
     )
+
+    # Cleanup Branch Key
+    delete_branch_key(key_id, TEST_KEYSTORE_NAME, None)
