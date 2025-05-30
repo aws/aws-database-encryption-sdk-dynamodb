@@ -4,25 +4,27 @@ correctly convert between resource/client shapes for all operations
 supported by DBESDK.
 
 The only shapes that require conversion are
-* `AttributeValue`s (DDB items or keys)
-  * Client format example: `{"S": "some string"}`
-  * Resource format example: `"some string"`
-* ConditionExpressions (`KeyConditionExpression` or `FilterExpression`; only resource-to-client)
-  * Client shape ex.:
-    * KeyConditionExpression: `"attr : :value"`
-    * ExpressionAttributeValues: `{":value" : {"S" : "some value}}`
-  * Resource shape ex.:
-    * KeyConditionExpression: `Attr("attr").eq("some value")`
-    * (Resources also support the client-style string expression)
+
+- `AttributeValue`s (DDB items or keys)
+  - Client format example: `{"S": "some string"}`
+  - Resource format example: `"some string"`
+- ConditionExpressions (`KeyConditionExpression` or `FilterExpression`; only resource-to-client)
+  - Client shape ex.:
+    - KeyConditionExpression: `"attr : :value"`
+    - ExpressionAttributeValues: `{":value" : {"S" : "some value}}`
+  - Resource shape ex.:
+    - KeyConditionExpression: `Attr("attr").eq("some value")`
+    - (Resources also support the client-style string expression)
 
 The conversion logic will recursively traverse inpuyt/output shapes to find shapes that require conversion, then convert them.
 (ex. for boto3 Table [put_item](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/put_item.html)),
 the following kwargs MUST be converted from resource to client format:
-* `["Item"]`
-* `["Expected"][<table_name>]["Value"]`
-* `["Expected"][<table_name>]["AttributeValueList"]`
-* `["ConditionExpression"]`
-* `["ExpressionAttributeValues"]`
+
+- `["Item"]`
+- `["Expected"][<table_name>]["Value"]`
+- `["Expected"][<table_name>]["AttributeValueList"]`
+- `["ConditionExpression"]`
+- `["ExpressionAttributeValues"]`
 
 The requests, responses, and items in the parent directory are shared between the integ tests and these unit tests.
 The integ tests send the exact request that whose client/resource conversion is tested in the unit tests,
