@@ -56,9 +56,12 @@ from ...requests import (
     exhaustive_scan_request_dict,
 )
 from ...responses import (
+    basic_batch_execute_statement_response,
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
     basic_delete_item_response,
+    basic_execute_statement_response,
+    basic_execute_transaction_response,
     basic_get_item_response,
     basic_put_item_response,
     basic_query_response,
@@ -66,12 +69,16 @@ from ...responses import (
     basic_transact_get_items_response,
     basic_transact_write_items_response,
     basic_update_item_response,
+    exhaustive_batch_execute_statement_response,
     exhaustive_batch_get_item_response,
     exhaustive_batch_write_item_put_response,
+    exhaustive_delete_item_response,
+    exhaustive_execute_statement_response,
     exhaustive_get_item_response,
     exhaustive_put_item_response,
     exhaustive_query_response,
     exhaustive_scan_response,
+    exhaustive_update_item_response,
 )
 
 resource_to_client_converter = ResourceShapeToClientShapeConverter(table_name=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
@@ -881,8 +888,9 @@ def test_GIVEN_update_item_request_without_table_name_WHEN_resource_to_client_TH
 
 
 @pytest.fixture
-def test_update_item_response():
-    # TODO: Add exhaustive response
+def test_update_item_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_update_item_response
     return basic_update_item_response
 
 
@@ -891,7 +899,7 @@ def test_GIVEN_update_item_response_WHEN_resource_to_client_THEN_returns_dict_va
 ):
     # Given: Update item response
     response = test_update_item_response(test_dict_item)
-    # When: Converting to resource format
+    # When: Converting to client format
     actual_ddb_response = resource_to_client_converter.update_item_response(response)
     # Then: Returns dict value
     expected_ddb_response = test_update_item_response(test_ddb_item)
@@ -912,20 +920,33 @@ def test_GIVEN_test_execute_statement_request_WHEN_resource_to_client_THEN_retur
 ):
     # Given: Execute statement request
     request = test_execute_statement_request(test_dict_item)
-    # When: Converting to resource format
+    # When: Converting to client format
     actual_ddb_request = resource_to_client_converter.execute_statement_request(request)
     # Then: Returns dict value (here, request is not modified)
     assert actual_ddb_request == test_execute_statement_request(test_ddb_item)
 
 
-def test_GIVEN_test_execute_statement_response_WHEN_resource_to_client_THEN_returns_dict_value():
+@pytest.fixture
+def test_execute_statement_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_execute_statement_response
+    return basic_execute_statement_response
+
+
+def test_GIVEN_test_execute_statement_response_WHEN_resource_to_client_THEN_returns_dict_value(
+    test_execute_statement_response, test_ddb_item, test_dict_item
+):
     # Given: Execute statement response
-    # TODO: this
-    dict_response = {}
-    # When: Converting to resource format
-    ddb_response = resource_to_client_converter.execute_statement_response(dict_response)
+    response = test_execute_statement_response([test_dict_item])
+    # When: Converting to client format
+    actual_ddb_response = resource_to_client_converter.execute_statement_response(response)
     # Then: Returns dict value
-    assert ddb_response == {}
+    actual_ddb_response = sort_attribute_list_of_dynamodb_json_lists(actual_ddb_response, "Items")
+    expected_ddb_response = sort_attribute_list_of_dynamodb_json_lists(
+        test_execute_statement_response([test_ddb_item]), "Items"
+    )
+
+    assert actual_ddb_response == expected_ddb_response
 
 
 @pytest.fixture
@@ -944,14 +965,25 @@ def test_GIVEN_test_execute_transaction_request_WHEN_resource_to_client_THEN_ret
     assert actual_ddb_request == test_execute_transaction_request(test_ddb_item)
 
 
-def test_GIVEN_test_execute_transaction_response_WHEN_resource_to_client_THEN_returns_dict_value():
+@pytest.fixture
+def test_execute_transaction_response():
+    return basic_execute_transaction_response
+
+
+def test_GIVEN_test_execute_transaction_response_WHEN_resource_to_client_THEN_returns_dict_value(
+    test_execute_transaction_response, test_ddb_item, test_dict_item
+):
     # Given: Execute transaction response
-    # TODO: this
-    dict_response = {}
+    response = test_execute_transaction_response([test_dict_item])
     # When: Converting to resource format
-    ddb_response = resource_to_client_converter.execute_transaction_response(dict_response)
+    actual_ddb_response = resource_to_client_converter.execute_transaction_response(response)
     # Then: Returns dict value
-    assert ddb_response == {}
+    expected_ddb_response = test_execute_transaction_response([test_ddb_item])
+
+    actual_ddb_response = sort_attribute_list_of_dynamodb_json_lists(actual_ddb_response, "Responses")
+    expected_ddb_response = sort_attribute_list_of_dynamodb_json_lists(expected_ddb_response, "Responses")
+
+    assert actual_ddb_response == expected_ddb_response
 
 
 @pytest.fixture
@@ -970,14 +1002,27 @@ def test_GIVEN_test_batch_execute_statement_request_WHEN_resource_to_client_THEN
     assert actual_ddb_request == test_batch_execute_statement_request()
 
 
-def test_GIVEN_test_batch_execute_statement_response_WHEN_resource_to_client_THEN_returns_dict_value():
+@pytest.fixture
+def test_batch_execute_statement_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_batch_execute_statement_response
+    return basic_batch_execute_statement_response
+
+
+def test_GIVEN_test_batch_execute_statement_response_WHEN_resource_to_client_THEN_returns_dict_value(
+    test_batch_execute_statement_response, test_ddb_item, test_dict_item
+):
     # Given: Batch execute statement response
-    # TODO: this
-    dict_response = {}
+    response = test_batch_execute_statement_response([test_dict_item])
     # When: Converting to resource format
-    ddb_response = resource_to_client_converter.batch_execute_statement_response(dict_response)
+    actual_ddb_response = resource_to_client_converter.batch_execute_statement_response(response)
     # Then: Returns dict value
-    assert ddb_response == {}
+    expected_ddb_response = test_batch_execute_statement_response([test_ddb_item])
+
+    actual_ddb_response = sort_attribute_list_of_dynamodb_json_lists(actual_ddb_response, "Responses")
+    expected_ddb_response = sort_attribute_list_of_dynamodb_json_lists(expected_ddb_response, "Responses")
+
+    assert actual_ddb_response == expected_ddb_response
 
 
 @pytest.fixture
@@ -1014,7 +1059,9 @@ def test_GIVEN_delete_item_request_without_table_name_WHEN_resource_to_client_TH
 
 
 @pytest.fixture
-def test_delete_item_response():
+def test_delete_item_response(use_exhaustive_request):
+    if use_exhaustive_request:
+        return exhaustive_delete_item_response
     return basic_delete_item_response
 
 
