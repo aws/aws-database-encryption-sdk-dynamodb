@@ -1,0 +1,111 @@
+# This workflow performs test vectors in Python.
+name: Library Python Test Vectors
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  testPython:
+    strategy:
+      fail-fast: false
+      matrix:
+        library: [TestVectors]
+        python-version: [3.11, 3.12, 3.13]
+        # Only ubuntu for now;
+        # As of 4.10.1, Dafny's Python JSON processing is still very slow (1 hour to run test vectors on ubuntu)
+        # and Github's macOS runners are also very slow (~2x slower than ubuntu).
+        # If Dafny's JSON processing speed is improved, we can add macOS back.
+        os: [ubuntu-22.04]
+        interface: [client, resource, table]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v4.0.0
+        with:
+          port: 8000
+          cors: "*"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Python-Tests
+          role-duration-seconds: 7200
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
+        with:
+          dafny-version: ${{ inputs.dafny }}
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup Python ${{ matrix.python-version }} for running tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade tox
+          pip install poetry
+
+      - name: Build Python TestVectors implementation
+        shell: bash
+        working-directory: ${{matrix.library}}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_python CORES=$CORES
+
+      - name: Test Python TestVectors with ${{matrix.interface}} interface
+        working-directory: ${{matrix.library}}
+        run: |
+          cp runtimes/java/*.json runtimes/python
+          make test_python_${{matrix.interface}}_interface
