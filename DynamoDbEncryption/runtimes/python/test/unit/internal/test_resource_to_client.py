@@ -56,10 +56,12 @@ from ...requests import (
     exhaustive_scan_request_dict,
 )
 from ...responses import (
+    basic_batch_execute_statement_response,
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
     basic_delete_item_response,
-    exhaustive_delete_item_response,
+    basic_execute_statement_response,
+    basic_execute_transaction_response,
     basic_get_item_response,
     basic_put_item_response,
     basic_query_response,
@@ -67,18 +69,16 @@ from ...responses import (
     basic_transact_get_items_response,
     basic_transact_write_items_response,
     basic_update_item_response,
-    exhaustive_update_item_response,
+    exhaustive_batch_execute_statement_response,
     exhaustive_batch_get_item_response,
     exhaustive_batch_write_item_put_response,
+    exhaustive_delete_item_response,
+    exhaustive_execute_statement_response,
     exhaustive_get_item_response,
     exhaustive_put_item_response,
     exhaustive_query_response,
     exhaustive_scan_response,
-    exhaustive_execute_statement_response,
-    basic_execute_statement_response,
-    basic_execute_transaction_response,
-    basic_batch_execute_statement_response,
-    exhaustive_batch_execute_statement_response,
+    exhaustive_update_item_response,
 )
 
 resource_to_client_converter = ResourceShapeToClientShapeConverter(table_name=INTEG_TEST_DEFAULT_DYNAMODB_TABLE_NAME)
@@ -942,7 +942,9 @@ def test_GIVEN_test_execute_statement_response_WHEN_resource_to_client_THEN_retu
     actual_ddb_response = resource_to_client_converter.execute_statement_response(response)
     # Then: Returns dict value
     actual_ddb_response = sort_attribute_list_of_dynamodb_json_lists(actual_ddb_response, "Items")
-    expected_ddb_response = sort_attribute_list_of_dynamodb_json_lists(test_execute_statement_response([test_ddb_item]), "Items")
+    expected_ddb_response = sort_attribute_list_of_dynamodb_json_lists(
+        test_execute_statement_response([test_ddb_item]), "Items"
+    )
 
     assert actual_ddb_response == expected_ddb_response
 
@@ -966,6 +968,7 @@ def test_GIVEN_test_execute_transaction_request_WHEN_resource_to_client_THEN_ret
 @pytest.fixture
 def test_execute_transaction_response():
     return basic_execute_transaction_response
+
 
 def test_GIVEN_test_execute_transaction_response_WHEN_resource_to_client_THEN_returns_dict_value(
     test_execute_transaction_response, test_ddb_item, test_dict_item

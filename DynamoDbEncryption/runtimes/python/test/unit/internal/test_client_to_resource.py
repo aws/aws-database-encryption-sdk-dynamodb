@@ -55,10 +55,12 @@ from ...requests import (
     exhaustive_scan_request_dict,
 )
 from ...responses import (
+    basic_batch_execute_statement_response,
     basic_batch_get_item_response,
     basic_batch_write_item_put_response,
     basic_delete_item_response,
-    exhaustive_delete_item_response,
+    basic_execute_statement_response,
+    basic_execute_transaction_response,
     basic_get_item_response,
     basic_put_item_response,
     basic_query_response,
@@ -66,18 +68,16 @@ from ...responses import (
     basic_transact_get_items_response,
     basic_transact_write_items_response,
     basic_update_item_response,
-    exhaustive_update_item_response,
+    exhaustive_batch_execute_statement_response,
     exhaustive_batch_get_item_response,
     exhaustive_batch_write_item_put_response,
+    exhaustive_delete_item_response,
+    exhaustive_execute_statement_response,
     exhaustive_get_item_response,
     exhaustive_put_item_response,
     exhaustive_query_response,
     exhaustive_scan_response,
-    exhaustive_execute_statement_response,
-    basic_execute_statement_response,
-    basic_execute_transaction_response,
-    basic_batch_execute_statement_response,
-    exhaustive_batch_execute_statement_response,
+    exhaustive_update_item_response,
 )
 
 client_to_resource_converter = ClientShapeToResourceShapeConverter()
@@ -629,7 +629,9 @@ def test_execute_statement_response(use_exhaustive_request):
     return basic_execute_statement_response
 
 
-def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_returns_dict_value(test_execute_statement_response, test_ddb_item, test_dict_item):
+def test_GIVEN_test_execute_statement_response_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_execute_statement_response, test_ddb_item, test_dict_item
+):
     # Given: Execute statement response
     ddb_response = test_execute_statement_response([test_ddb_item])
     # When: Converting to resource format
@@ -653,12 +655,15 @@ def test_GIVEN_test_execute_transaction_request_WHEN_client_to_resource_THEN_ret
     # Then: Returns dict value (here, request is not modified)
     assert dict_item == test_execute_transaction_request(test_dict_item)
 
+
 @pytest.fixture
 def test_execute_transaction_response():
     return basic_execute_transaction_response
 
 
-def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_returns_dict_value(test_execute_transaction_response, test_ddb_item, test_dict_item):
+def test_GIVEN_test_execute_transaction_response_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_execute_transaction_response, test_ddb_item, test_dict_item
+):
     # Given: Execute transaction response
     ddb_response = test_execute_transaction_response([test_ddb_item])
     # When: Converting to resource format
@@ -690,7 +695,9 @@ def test_batch_execute_statement_response(use_exhaustive_request):
     return basic_batch_execute_statement_response
 
 
-def test_GIVEN_test_batch_execute_statement_response_WHEN_client_to_resource_THEN_returns_dict_value(test_batch_execute_statement_response, test_ddb_item, test_dict_item):
+def test_GIVEN_test_batch_execute_statement_response_WHEN_client_to_resource_THEN_returns_dict_value(
+    test_batch_execute_statement_response, test_ddb_item, test_dict_item
+):
     # Given: Batch execute statement response
     ddb_response = test_batch_execute_statement_response([test_ddb_item])
     # When: Converting to resource format
