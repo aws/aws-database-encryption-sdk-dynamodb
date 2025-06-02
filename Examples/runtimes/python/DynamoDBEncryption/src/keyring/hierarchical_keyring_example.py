@@ -1,7 +1,7 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-Example demonstrates DynamoDb Encryption using a Hierarchical Keyring.
+Example demonstrating DynamoDb Encryption using a Hierarchical Keyring.
 
 This example sets up DynamoDb Encryption for the AWS SDK client
 using the Hierarchical Keyring, which establishes a key hierarchy

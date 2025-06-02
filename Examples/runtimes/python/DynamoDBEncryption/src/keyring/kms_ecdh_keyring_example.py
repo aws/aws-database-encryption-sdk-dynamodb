@@ -30,6 +30,7 @@ from aws_cryptographic_material_providers.mpl.models import (
     KmsPublicKeyDiscoveryInput,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
+from aws_cryptography_primitives.smithygenerated.aws_cryptography_primitives.models import ECDHCurveSpec
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
@@ -125,12 +126,7 @@ def kms_ecdh_keyring_get_item_put_item(
 
     keyring_input = CreateAwsKmsEcdhKeyringInput(
         kms_client=boto3.client("kms"),
-        # Supported curve specifications:
-        # - ECC_NIST_P256
-        # - ECC_NIST_P384
-        # - ECC_NIST_P521
-        # - SM2
-        curve_spec="ECC_NIST_P256",
+        curve_spec=ECDHCurveSpec.ECC_NIST_P256,
         key_agreement_scheme=KmsEcdhStaticConfigurationsKmsPrivateKeyToStaticPublicKey(
             KmsPrivateKeyToStaticPublicKeyInput(
                 sender_kms_identifier=ecc_key_arn,
@@ -190,7 +186,7 @@ def kms_ecdh_discovery_get_item(ddb_table_name: str, ecc_recipient_key_arn: str)
 
     keyring_input = CreateAwsKmsEcdhKeyringInput(
         kms_client=boto3.client("kms"),
-        curve_spec="ECC_NIST_P256",
+        curve_spec=ECDHCurveSpec.ECC_NIST_P256,
         key_agreement_scheme=KmsEcdhStaticConfigurationsKmsPublicKeyDiscovery(
             KmsPublicKeyDiscoveryInput(recipient_kms_identifier=ecc_recipient_key_arn)
         ),

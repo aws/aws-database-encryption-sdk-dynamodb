@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Test raw ECDH keyring examples."""
 import pytest
+from aws_cryptography_primitives.smithygenerated.aws_cryptography_primitives.models import ECDHCurveSpec
 
 from ...src.keyring.raw_ecdh_keyring_example import (
     discovery_raw_ecdh_keyring_get_item,
@@ -28,7 +29,7 @@ def test_static_raw_ecdh_keyring_example():
 
     # Part of using these keyrings is knowing which curve the keys used in the key agreement
     # lie on. The keyring will fail if the keys do not lie on the configured curve.
-    raw_ecdh_keyring_get_item_put_item(TEST_DDB_TABLE_NAME, "ECC_NIST_P256")
+    raw_ecdh_keyring_get_item_put_item(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
 
 
 def test_ephemeral_raw_ecdh_keyring_example():
@@ -43,7 +44,7 @@ def test_ephemeral_raw_ecdh_keyring_example():
 
     # Part of using these keyrings is knowing which curve the keys used in the key agreement
     # lie on. The keyring will fail if the keys do not lie on the configured curve.
-    ephemeral_raw_ecdh_keyring_put_item(TEST_DDB_TABLE_NAME, "ECC_NIST_P256")
+    ephemeral_raw_ecdh_keyring_put_item(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
 
 
 def test_discovery_raw_ecdh_keyring_example():
@@ -65,9 +66,9 @@ def test_discovery_raw_ecdh_keyring_example():
 
     # In this call we are writing a record that is written with an ephemeral sender key pair.
     # The recipient will be able to decrypt the message
-    ephemeral_raw_ecdh_keyring_put_item(TEST_DDB_TABLE_NAME, "ECC_NIST_P256")
+    ephemeral_raw_ecdh_keyring_put_item(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
 
     # In this call we are reading a record that was written with the recipient's public key.
     # It will use the recipient's private key and the sender's public key stored in the message to
     # calculate the appropriate shared secret to successfully decrypt the message.
-    discovery_raw_ecdh_keyring_get_item(TEST_DDB_TABLE_NAME, "ECC_NIST_P256")
+    discovery_raw_ecdh_keyring_get_item(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)

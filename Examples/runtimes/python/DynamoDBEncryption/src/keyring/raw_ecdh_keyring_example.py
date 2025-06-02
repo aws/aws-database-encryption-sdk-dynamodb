@@ -106,11 +106,6 @@ def raw_ecdh_keyring_get_item_put_item(ddb_table_name: str, curve_spec: str):
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
 
     keyring_input = CreateRawEcdhKeyringInput(
-        # Supported curve specifications:
-        # - ECC_NIST_P256
-        # - ECC_NIST_P384
-        # - ECC_NIST_P521
-        # - SM2
         curve_spec=curve_spec,
         key_agreement_scheme=RawEcdhStaticConfigurationsRawPrivateKeyToStaticPublicKey(
             RawPrivateKeyToStaticPublicKeyInput(
@@ -166,11 +161,6 @@ def ephemeral_raw_ecdh_keyring_put_item(ddb_table_name: str, curve_spec: str):
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
 
     keyring_input = CreateRawEcdhKeyringInput(
-        # Supported curve specifications:
-        # - ECC_NIST_P256
-        # - ECC_NIST_P384
-        # - ECC_NIST_P521
-        # - SM2
         curve_spec=curve_spec,
         key_agreement_scheme=RawEcdhStaticConfigurationsEphemeralPrivateKeyToStaticPublicKey(
             EphemeralPrivateKeyToStaticPublicKeyInput(recipient_public_key=public_key_bytes)
@@ -220,11 +210,6 @@ def discovery_raw_ecdh_keyring_get_item(ddb_table_name: str, curve_spec: str):
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
 
     keyring_input = CreateRawEcdhKeyringInput(
-        # Supported curve specifications:
-        # - ECC_NIST_P256
-        # - ECC_NIST_P384
-        # - ECC_NIST_P521
-        # - SM2
         curve_spec=curve_spec,
         key_agreement_scheme=RawEcdhStaticConfigurationsPublicKeyDiscovery(
             PublicKeyDiscoveryInput(recipient_static_private_key=private_key_utf8_encoded)

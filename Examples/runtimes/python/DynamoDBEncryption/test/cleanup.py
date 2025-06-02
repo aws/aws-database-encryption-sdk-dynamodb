@@ -4,8 +4,14 @@
 Test cleanup utilities for DynamoDB Encryption SDK.
 
 This module provides utilities for cleaning up resources after running tests.
-NOTE: This is only a test utility and should not be used in production code.
+
+WARNING: Please be careful. This is only a test utility and should NOT be used in production code.
 It is specifically designed for cleaning up test resources after test execution.
+- Running this code on production resources or any data you want to keep could result
+  in cryptographic shredding (permanent loss of access to encrypted data).
+- Only use this on test resources that you are willing to permanently delete.
+- Never run this against any production DynamoDB tables. Ensure you have backups
+  of any important data before running cleanup operations.
 """
 import boto3
 
