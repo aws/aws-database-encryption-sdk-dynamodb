@@ -43,6 +43,7 @@ submitting pull requests through the following channels:
 To use the DB-ESDK for DynamoDB in Go, you must have:
 
 ### A supported version of Go
+
 - Go 1.23 or later is required by AWS Encryption SDK for Go.
 
 For more information on downloading and installing Go, see [Go installation](https://go.dev/doc/install)
