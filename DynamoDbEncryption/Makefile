@@ -165,7 +165,7 @@ STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.a
 STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING="module StructuredEncryption"
 
 # Target to restore all directories in a list
-# TODO: remove this once we don't copy all of the directories into implementation and test. This is done by make file target _mv_polymorph_go in smithy-dafny. https://sim.amazon.com/issues/0371eaa5-61b5-490c-ad0b-927b6dc4d2d2
+# TODO: remove this once we don't copy all of the directories into implementation and test. https://sim.amazon.com/issues/0371eaa5-61b5-490c-ad0b-927b6dc4d2d2
 RESTORE_DIRS := README.md
 _polymorph_go: restore_directories
 restore_directories:
