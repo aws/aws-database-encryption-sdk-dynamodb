@@ -45,7 +45,7 @@ Within `runtimes/java`:
 `runtimes/go` contains the Go related code and build instructions for this project.
 
 - `ImplementationFromDafny-go/` contains all the implementation code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code
-- `TestsFromDafny-go`  contains all the test code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code.
+- `TestsFromDafny-go` contains all the test code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code.
 
 ### Development
 
