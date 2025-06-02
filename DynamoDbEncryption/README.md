@@ -40,6 +40,13 @@ Within `runtimes/java`:
 - `src/` contains all hand written Dotnet code, including externs, and also all Smithy to Rust generated code.
 - `src/implementation_from_dafny.cs` contains all Dafny to .NET transpiled code.
 
+#### Go
+
+`runtimes/go` contains the Go related code and build instructions for this project.
+
+- `ImplementationFromDafny-go/` contains all the implementation code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code
+- `TestsFromDafny-go`  contains all the test code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code.
+
 ### Development
 
 Common Makefile targets are:
