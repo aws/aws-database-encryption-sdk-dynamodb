@@ -116,11 +116,14 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_go CORES=$CORES
 
-      - name: Regenerate code using smithy-dafny
-        shell: bash
-        working-directory: ./${{ matrix.library }}
-        run: |
-          make polymorph_go
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
 
       - name: Copy ${{ matrix.library }} Vector Files
         if: ${{ matrix.library == 'TestVectors' }}
