@@ -1,49 +1,10 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-Example demonstrating DynamoDb Encryption using a Hierarchical Keyring.
+Configuration module for hierarchical keyring encryption setup.
 
-This example sets up DynamoDb Encryption for the AWS SDK client
-using the Hierarchical Keyring, which establishes a key hierarchy
-where "branch" keys are persisted in DynamoDb.
-These branch keys are used to protect your data keys,
-and these branch keys are themselves protected by a root KMS Key.
-
-Establishing a key hierarchy like this has two benefits:
-
-First, by caching the branch key material, and only calling back
-to KMS to re-establish authentication regularly according to your configured TTL,
-you limit how often you need to call back to KMS to protect your data.
-This is a performance/security tradeoff, where your authentication, audit, and
-logging from KMS is no longer one-to-one with every encrypt or decrypt call.
-However, the benefit is that you no longer have to make a
-network call to KMS for every encrypt or decrypt.
-
-Second, this key hierarchy makes it easy to hold multi-tenant data
-that is isolated per branch key in a single DynamoDb table.
-You can create a branch key for each tenant in your table,
-and encrypt all that tenant's data under that distinct branch key.
-On decrypt, you can either statically configure a single branch key
-to ensure you are restricting decryption to a single tenant,
-or you can implement an interface that lets you map the primary key on your items
-to the branch key that should be responsible for decrypting that data.
-
-This example then demonstrates configuring a Hierarchical Keyring
-with a Branch Key ID Supplier to encrypt and decrypt data for
-two separate tenants.
-
-Running this example requires access to the DDB Table whose name
-is provided in CLI arguments.
-This table must be configured with the following
-primary key configuration:
-  - Partition key is named "partition_key" with type (S)
-  - Sort key is named "sort_key" with type (S)
-
-This example also requires using a KMS Key whose ARN
-is provided in CLI arguments. You need the following access
-on this key:
-  - GenerateDataKeyWithoutPlaintext
-  - Decrypt
+This module provides the common encryption configuration used by both
+EncryptedClient and EncryptedTable examples.
 """
 
 import boto3
@@ -57,7 +18,6 @@ from aws_cryptographic_material_providers.mpl.models import (
     CreateAwsKmsHierarchicalKeyringInput,
     DefaultCache,
 )
-from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.client import DynamoDbEncryption
 from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb.config import (
     DynamoDbEncryptionConfig,
@@ -71,19 +31,19 @@ from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
 )
 
-from .example_branch_key_id_supplier import ExampleBranchKeyIdSupplier
+from ..example_branch_key_id_supplier import ExampleBranchKeyIdSupplier
 
 
-def hierarchical_keyring_get_item_put_item(
+def create_encryption_config(
     ddb_table_name: str,
     tenant1_branch_key_id: str,
     tenant2_branch_key_id: str,
     keystore_table_name: str,
     logical_keystore_name: str,
     kms_key_id: str,
-):
+) -> DynamoDbTablesEncryptionConfig:
     """
-    Demonstrate using a hierarchical keyring with multiple tenants.
+    Create the encryption configuration for DynamoDB encryption.
 
     :param ddb_table_name: The name of the DynamoDB table
     :param tenant1_branch_key_id: Branch key ID for tenant 1
@@ -91,6 +51,7 @@ def hierarchical_keyring_get_item_put_item(
     :param keystore_table_name: The name of the KeyStore DynamoDB table
     :param logical_keystore_name: The logical name for this keystore
     :param kms_key_id: The ARN of the KMS key to use
+    :return: The DynamoDB tables encryption configuration
     """
     # Initial KeyStore Setup: This example requires that you have already
     # created your KeyStore, and have populated it with two new branch keys.
@@ -190,40 +151,4 @@ def hierarchical_keyring_get_item_put_item(
     )
 
     table_configs = {ddb_table_name: table_config}
-    tables_config = DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
-
-    # 7. Create the EncryptedClient
-    ddb_client = boto3.client("dynamodb")
-    encrypted_ddb_client = EncryptedClient(client=ddb_client, encryption_config=tables_config)
-
-    # 8. Put an item into our table using the above client.
-    #    Before the item gets sent to DynamoDb, it will be encrypted
-    #    client-side, according to our configuration.
-    #    Because the item we are writing uses "tenantId1" as our partition value,
-    #    based on the code we wrote in the ExampleBranchKeySupplier,
-    #    `tenant1_branch_key_id` will be used to encrypt this item.
-    item = {
-        "partition_key": {"S": "tenant1Id"},
-        "sort_key": {"N": "0"},
-        "tenant_sensitive_data": {"S": "encrypt and sign me!"},
-    }
-
-    put_response = encrypted_ddb_client.put_item(TableName=ddb_table_name, Item=item)
-
-    # Demonstrate that PutItem succeeded
-    assert put_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-
-    # 9. Get the item back from our table using the same client.
-    #    The client will decrypt the item client-side, and return
-    #    back the original item.
-    #    Because the returned item's partition value is "tenantId1",
-    #    based on the code we wrote in the ExampleBranchKeySupplier,
-    #    `tenant1_branch_key_id` will be used to decrypt this item.
-    key_to_get = {"partition_key": {"S": "tenant1Id"}, "sort_key": {"N": "0"}}
-
-    get_response = encrypted_ddb_client.get_item(TableName=ddb_table_name, Key=key_to_get)
-
-    # Demonstrate that GetItem succeeded and returned the decrypted item
-    assert get_response["ResponseMetadata"]["HTTPStatusCode"] == 200
-    returned_item = get_response["Item"]
-    assert returned_item["tenant_sensitive_data"]["S"] == "encrypt and sign me!"
+    return DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
