@@ -16,7 +16,6 @@ primary key configuration:
   - Sort key is named "sort_key" with type (S)
 """
 import pathlib
-
 import boto3
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
@@ -29,6 +28,7 @@ from aws_cryptographic_material_providers.mpl.models import (
     RawEcdhStaticConfigurationsRawPrivateKeyToStaticPublicKey,
     RawPrivateKeyToStaticPublicKeyInput,
 )
+from aws_cryptography_primitives.smithygenerated.aws_cryptography_primitives.models import ECDHCurveSpec
 from aws_cryptographic_material_providers.mpl.references import IKeyring
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.structures.dynamodb import (
@@ -46,7 +46,7 @@ EXAMPLE_ECC_PRIVATE_KEY_FILENAME_RECIPIENT = "RawEcdhKeyringExamplePrivateKeyRec
 EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT = "RawEcdhKeyringExamplePublicKeyRecipient.pem"
 
 
-def raw_ecdh_keyring_get_item_put_item(ddb_table_name: str, curve_spec: str):
+def raw_ecdh_keyring_get_item_put_item(ddb_table_name: str, curve_spec: ECDHCurveSpec):
     """
     Demonstrate using a raw ECDH keyring with static keys.
 
@@ -106,7 +106,7 @@ def raw_ecdh_keyring_get_item_put_item(ddb_table_name: str, curve_spec: str):
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
 
     keyring_input = CreateRawEcdhKeyringInput(
-        curve_spec=curve_spec,
+        curve_spec=str(curve_spec),
         key_agreement_scheme=RawEcdhStaticConfigurationsRawPrivateKeyToStaticPublicKey(
             RawPrivateKeyToStaticPublicKeyInput(
                 # Must be a UTF8 PEM-encoded private key
@@ -122,7 +122,7 @@ def raw_ecdh_keyring_get_item_put_item(ddb_table_name: str, curve_spec: str):
     put_get_example_with_keyring(raw_ecdh_keyring, ddb_table_name)
 
 
-def ephemeral_raw_ecdh_keyring_put_item(ddb_table_name: str, curve_spec: str):
+def ephemeral_raw_ecdh_keyring_put_item(ddb_table_name: str, curve_spec: ECDHCurveSpec):
     """
     Demonstrate using a raw ECDH keyring with ephemeral keys.
 
@@ -159,9 +159,8 @@ def ephemeral_raw_ecdh_keyring_put_item(ddb_table_name: str, curve_spec: str):
     # encrypt data and CANNOT decrypt messages.
     # The DynamoDb encryption client uses this to encrypt items.
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
-
     keyring_input = CreateRawEcdhKeyringInput(
-        curve_spec=curve_spec,
+        curve_spec=str(curve_spec),
         key_agreement_scheme=RawEcdhStaticConfigurationsEphemeralPrivateKeyToStaticPublicKey(
             EphemeralPrivateKeyToStaticPublicKeyInput(recipient_public_key=public_key_bytes)
         ),
@@ -175,7 +174,7 @@ def ephemeral_raw_ecdh_keyring_put_item(ddb_table_name: str, curve_spec: str):
     put_example_with_keyring(raw_ecdh_keyring, ddb_table_name)
 
 
-def discovery_raw_ecdh_keyring_get_item(ddb_table_name: str, curve_spec: str):
+def discovery_raw_ecdh_keyring_get_item(ddb_table_name: str, curve_spec: ECDHCurveSpec):
     """
     Demonstrate using a raw ECDH keyring with discovery.
 
@@ -210,7 +209,7 @@ def discovery_raw_ecdh_keyring_get_item(ddb_table_name: str, curve_spec: str):
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
 
     keyring_input = CreateRawEcdhKeyringInput(
-        curve_spec=curve_spec,
+        curve_spec=str(curve_spec),
         key_agreement_scheme=RawEcdhStaticConfigurationsPublicKeyDiscovery(
             PublicKeyDiscoveryInput(recipient_static_private_key=private_key_utf8_encoded)
         ),
