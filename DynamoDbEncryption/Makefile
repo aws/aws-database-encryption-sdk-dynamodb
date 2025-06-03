@@ -164,6 +164,21 @@ STRUCTUREDENCRYPTION_INDEX_FILE_PATH=dafny/StructuredEncryption/src/Index.dfy
 STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny\" } StructuredEncryption"
 STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING="module StructuredEncryption"
 
+# Target to restore all directories in a list
+# TODO: Remove this once we don't copy all of the directories into implementation and test https://sim.amazon.com/issues/CrypTool-5447
+RESTORE_DIRS := README.md
+_polymorph_go: restore_directories
+restore_directories:
+	@for dir in $(RESTORE_DIRS); do \
+		if [ -d "runtimes/go/ImplementationFromDafny-go/$$dir" ]; then \
+			cp -Rf runtimes/go/ImplementationFromDafny-go/$$dir runtimes/go/; \
+			rm -rf runtimes/go/ImplementationFromDafny-go/$$dir; \
+			rm -rf runtimes/go/TestsFromDafny-go/$$dir; \
+		else \
+			echo "Directory $$dir not found"; \
+		fi \
+	done
+
 _sed_types_file_remove_extern:
 	$(MAKE) _sed_file SED_FILE_PATH=$(DYNAMODB_TYPES_FILE_PATH) SED_BEFORE_STRING=$(DYNAMODB_TYPES_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(DYNAMODB_TYPES_FILE_WITHOUT_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_TYPES_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_TYPES_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_TYPES_FILE_WITHOUT_EXTERN_STRING)
