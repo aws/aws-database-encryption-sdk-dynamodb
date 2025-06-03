@@ -100,46 +100,46 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 			return nil, err
 		}
 		*v = transformedRequest.TransformedInput
-	case *dynamodb.BatchExecuteStatementInput:
-		ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.BatchExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchExecuteStatementInputTransformInput{
-			SdkInput: *v,
-		})
-		if err != nil {
-			return nil, err
-		}
-		*v = transformedRequest.TransformedInput
-	case *dynamodb.DeleteItemInput:
-		ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.DeleteItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.DeleteItemInputTransformInput{
-			SdkInput: *v,
-		})
-		if err != nil {
-			return nil, err
-		}
-		*v = transformedRequest.TransformedInput
-	case *dynamodb.ExecuteStatementInput:
-		ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.ExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteStatementInputTransformInput{
-			SdkInput: *v,
-		})
-		if err != nil {
-			return nil, err
-		}
-		*v = transformedRequest.TransformedInput
-	case *dynamodb.ExecuteTransactionInput:
-		ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.ExecuteTransactionInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteTransactionInputTransformInput{
-			SdkInput: *v,
-		})
-		if err != nil {
-			return nil, err
-		}
-		*v = transformedRequest.TransformedInput
+	// case *dynamodb.BatchExecuteStatementInput:
+	// 	ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.BatchExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchExecuteStatementInputTransformInput{
+	// 		SdkInput: *v,
+	// 	})
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	*v = transformedRequest.TransformedInput
+	// case *dynamodb.DeleteItemInput:
+	// 	ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.DeleteItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.DeleteItemInputTransformInput{
+	// 		SdkInput: *v,
+	// 	})
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	*v = transformedRequest.TransformedInput
+	// case *dynamodb.ExecuteStatementInput:
+	// 	ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.ExecuteStatementInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteStatementInputTransformInput{
+	// 		SdkInput: *v,
+	// 	})
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	*v = transformedRequest.TransformedInput
+	// case *dynamodb.ExecuteTransactionInput:
+	// 	ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.ExecuteTransactionInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteTransactionInputTransformInput{
+	// 		SdkInput: *v,
+	// 	})
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	*v = transformedRequest.TransformedInput
 	case *dynamodb.QueryInput:
 		ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
 		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
@@ -180,16 +180,16 @@ func (m DBEsdkMiddleware) handleRequestInterception(ctx context.Context, request
 			return nil, err
 		}
 		*v = transformedRequest.TransformedInput
-	case *dynamodb.UpdateItemInput:
-		ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.UpdateItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.UpdateItemInputTransformInput{
-			SdkInput: *v,
-		})
-		if err != nil {
-			return nil, err
-		}
-		*v = transformedRequest.TransformedInput
+		// case *dynamodb.UpdateItemInput:
+		// 	ctx = middleware.WithStackValue(ctx, ContextKeyOriginalInput, *v)
+		// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+		// 	transformedRequest, err := m.client.UpdateItemInputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.UpdateItemInputTransformInput{
+		// 		SdkInput: *v,
+		// 	})
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// 	*v = transformedRequest.TransformedInput
 	}
 	return ctx, nil
 }
@@ -255,46 +255,46 @@ func (m DBEsdkMiddleware) handleResponseInterception(ctx context.Context, respon
 			return err
 		}
 		*v = transformedRequest.TransformedOutput
-	case *dynamodb.BatchExecuteStatementOutput:
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.BatchExecuteStatementOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchExecuteStatementOutputTransformInput{
-			OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.BatchExecuteStatementInput),
-			SdkOutput:     *v,
-		})
-		if err != nil {
-			return err
-		}
-		*v = transformedRequest.TransformedOutput
-	case *dynamodb.DeleteItemOutput:
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.DeleteItemOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.DeleteItemOutputTransformInput{
-			OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.DeleteItemInput),
-			SdkOutput:     *v,
-		})
-		if err != nil {
-			return err
-		}
-		*v = transformedRequest.TransformedOutput
-	case *dynamodb.ExecuteStatementOutput:
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.ExecuteStatementOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteStatementOutputTransformInput{
-			OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.ExecuteStatementInput),
-			SdkOutput:     *v,
-		})
-		if err != nil {
-			return err
-		}
-		*v = transformedRequest.TransformedOutput
+	// case *dynamodb.BatchExecuteStatementOutput:
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.BatchExecuteStatementOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.BatchExecuteStatementOutputTransformInput{
+	// 		OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.BatchExecuteStatementInput),
+	// 		SdkOutput:     *v,
+	// 	})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	*v = transformedRequest.TransformedOutput
+	// case *dynamodb.DeleteItemOutput:
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.DeleteItemOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.DeleteItemOutputTransformInput{
+	// 		OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.DeleteItemInput),
+	// 		SdkOutput:     *v,
+	// 	})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	*v = transformedRequest.TransformedOutput
+	// case *dynamodb.ExecuteStatementOutput:
+	// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+	// 	transformedRequest, err := m.client.ExecuteStatementOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteStatementOutputTransformInput{
+	// 		OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.ExecuteStatementInput),
+	// 		SdkOutput:     *v,
+	// 	})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	*v = transformedRequest.TransformedOutput
 	case *dynamodb.ExecuteTransactionOutput:
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.ExecuteTransactionOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteTransactionOutputTransformInput{
-			OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.ExecuteTransactionInput),
-			SdkOutput:     *v,
-		})
-		if err != nil {
-			return err
-		}
-		*v = transformedRequest.TransformedOutput
+		// // Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+		// transformedRequest, err := m.client.ExecuteTransactionOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.ExecuteTransactionOutputTransformInput{
+		// 	OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.ExecuteTransactionInput),
+		// 	SdkOutput:     *v,
+		// })
+		// if err != nil {
+		// 	return err
+		// }
+		// *v = transformedRequest.TransformedOutput
 	case *dynamodb.QueryOutput:
 		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
 		transformedRequest, err := m.client.QueryOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.QueryOutputTransformInput{
@@ -335,16 +335,16 @@ func (m DBEsdkMiddleware) handleResponseInterception(ctx context.Context, respon
 			return err
 		}
 		*v = transformedRequest.TransformedOutput
-	case *dynamodb.UpdateItemOutput:
-		// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
-		transformedRequest, err := m.client.UpdateItemOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.UpdateItemOutputTransformInput{
-			OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.UpdateItemInput),
-			SdkOutput:     *v,
-		})
-		if err != nil {
-			return err
-		}
-		*v = transformedRequest.TransformedOutput
+		// case *dynamodb.UpdateItemOutput:
+		// 	// Note: this context is not propagated downstream into dafny layer so it's left as context.TODO() https://issues.amazon.com/CrypTool-5403
+		// 	transformedRequest, err := m.client.UpdateItemOutputTransform(context.TODO(), awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.UpdateItemOutputTransformInput{
+		// 		OriginalInput: middleware.GetStackValue(ctx, ContextKeyOriginalInput).(dynamodb.UpdateItemInput),
+		// 		SdkOutput:     *v,
+		// 	})
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	*v = transformedRequest.TransformedOutput
 	}
 	return nil
 }
