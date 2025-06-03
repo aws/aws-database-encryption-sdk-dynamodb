@@ -16,6 +16,7 @@ primary key configuration:
   - Sort key is named "sort_key" with type (S)
 """
 import pathlib
+
 import boto3
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
@@ -28,8 +29,8 @@ from aws_cryptographic_material_providers.mpl.models import (
     RawEcdhStaticConfigurationsRawPrivateKeyToStaticPublicKey,
     RawPrivateKeyToStaticPublicKeyInput,
 )
-from aws_cryptography_primitives.smithygenerated.aws_cryptography_primitives.models import ECDHCurveSpec
 from aws_cryptographic_material_providers.mpl.references import IKeyring
+from aws_cryptography_primitives.smithygenerated.aws_cryptography_primitives.models import ECDHCurveSpec
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
