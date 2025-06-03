@@ -24,10 +24,7 @@ func (CompanionStruct_InternalLegacyOverride_) Build(config interface{}) Wrapper
 }
 
 func (InternalLegacyOverride) EncryptItem(config interface{}) Wrappers.Result {
-	// Go does not support the Legacy DDB-EC
-	if policy.Is_FORBID__LEGACY__ENCRYPT__FORBID__LEGACY__DECRYPT() {
-		return Wrappers.Companion_Result_.Create_Success_(Wrappers.Companion_Option_.Create_None_())
-	}
+	// Go does not support the Legacy DDB-EC. So, this function will not be reached.
 	err := &awscryptographydbencryptionsdkdynamodbitemencryptorsmithygeneratedtypes.DynamoDbItemEncryptorException{
 		Message: "Legacy configuration unsupported.",
 	}
@@ -35,10 +32,7 @@ func (InternalLegacyOverride) EncryptItem(config interface{}) Wrappers.Result {
 }
 
 func (InternalLegacyOverride) DecryptItem(config interface{}) Wrappers.Result {
-	// Go does not support the Legacy DDB-EC
-	if policy.Is_FORBID__LEGACY__ENCRYPT__FORBID__LEGACY__DECRYPT() {
-		return Wrappers.Companion_Result_.Create_Success_(Wrappers.Companion_Option_.Create_None_())
-	}
+	// Go does not support the Legacy DDB-EC. So, this function will not be reached.
 	err := &awscryptographydbencryptionsdkdynamodbitemencryptorsmithygeneratedtypes.DynamoDbItemEncryptorException{
 		Message: "Legacy configuration unsupported.",
 	}
