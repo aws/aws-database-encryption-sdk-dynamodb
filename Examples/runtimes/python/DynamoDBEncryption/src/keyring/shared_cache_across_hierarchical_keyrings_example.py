@@ -1,10 +1,15 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-Example demonstrates how to use a shared cache across multiple Hierarchical Keyrings.
+Example demonstrates how to use a shared cache across multiple Hierarchical Keyrings in single-threaded environments.
+
+IMPORTANT: This example and the shared cache functionality should ONLY be used in single-threaded environments.
+The AWS Cryptographic Material Providers Library (MPL) for Python does not support multithreading for
+components that interact with KMS. For more information about multithreading limitations, see:
+https://github.com/aws/aws-cryptographic-material-providers-library/blob/main/AwsCryptographicMaterialProviders/runtimes/python/README.rst
 
 With this functionality, users only need to maintain one common shared cache across multiple
-Hierarchical Keyrings with different Key Stores instances/KMS Clients/KMS Keys.
+Hierarchical Keyrings with different Key Stores instances/KMS Clients/KMS Keys in a single-threaded environment.
 
 There are three important parameters that users need to carefully set while providing the shared cache:
 
@@ -210,7 +215,9 @@ def shared_cache_across_hierarchical_keyrings_example(
     :param kms_key_id: ARN of the KMS key
     """
     # 1. Create the CryptographicMaterialsCache (CMC) to share across multiple Hierarchical Keyrings
-    #    using the Material Providers Library
+    #    using the Material Providers Library in a single-threaded environment.
+    #    IMPORTANT: This shared cache must only be used in single-threaded environments as the
+    #    MPL for Python does not support multithreading for KMS operations.
     #      This CMC takes in:
     #      - CacheType
     mat_prov = AwsCryptographicMaterialProviders(config=MaterialProvidersConfig())
