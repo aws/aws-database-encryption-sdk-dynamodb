@@ -924,20 +924,23 @@ module DynamoDBFilterExpr {
 
   // transform A IN(X,Y) to IN(A,X,Y)
   // transform A BETWEEN X AND Y to BETWEEN(A, X, Y)
-  function method ConvertToPrefix(input: seq<Token>) : (res : seq<Token>)
+  function method ConvertToPrefix(input: seq<Token>, pos : uint64 := 0) : (res : seq<Token>)
+    requires pos as nat <= |input|
+    decreases |input| - pos as nat
   {
-    if |input| < 5 then
-      input
-    else if IsIN(input, 0) then
-      [input[1], input[2], input[0], Comma] + ConvertToPrefix(input[3..])
+    SequenceIsSafeBecauseItIsInMemory(input);
+    if |input| as uint64 < Add(pos, 5) then
+      input[pos..]
+    else if IsIN(input, pos) then
+      [input[pos+1], input[pos+2], input[pos], Comma] + ConvertToPrefix(input, pos+3)
     else
-      var between := IsBetween(input, 0);
+      var between := IsBetween(input, pos);
       if between.Some? then
         var b := between.value;
-        [Between, Open] + input[0..b.0] + [Comma] + input[b.0+1..b.0+b.1+1] + [Comma]
-        + input[b.0+b.1+2..b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input[b.0+b.1+b.2+2..])
+        [Between, Open] + input[pos..pos+b.0] + [Comma] + input[pos+b.0+1..pos+b.0+b.1+1] + [Comma]
+        + input[pos+b.0+b.1+2..pos+b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input, pos+b.0+b.1+b.2+2)
       else
-        [input[0]] + ConvertToPrefix(input[1..])
+        [input[pos]] + ConvertToPrefix(input, pos+1)
   }
 
   lemma TestConvertToPrefix3(input: seq<Token>)
