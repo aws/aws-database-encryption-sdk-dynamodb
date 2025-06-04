@@ -31,6 +31,7 @@ module DynamoDBFilterExpr {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import DDB = ComAmazonawsDynamodbTypes
   import SI = SearchableEncryptionInfo
   import opened DynamoDbEncryptionUtil
@@ -41,6 +42,7 @@ module DynamoDBFilterExpr {
   import CompoundBeacon
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import Norm = DynamoDbNormalizeNumber
+  import StandardLibrary.Sequence
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -62,19 +64,23 @@ module DynamoDBFilterExpr {
   function method {:tailrecursion} ExtractAttributes2(
     tokens : seq<Token>,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    tokensUntilSkip : int)
+    tokensUntilSkip : int,
+    pos : uint64 := 0)
     : seq<string>
+    requires pos as nat <= |tokens|
+    decreases |tokens| - pos as nat
   {
-    if |tokens| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(tokens);
+    if |tokens| as uint64 == pos then
       []
-    else if IsSpecial(tokens[0]) then
-      ExtractAttributes2(tokens[1..], names, 1)
-    else if tokens[0].Attr? && tokensUntilSkip == 0 then
-      ExtractAttributes2(tokens[1..], names, -1)
-    else if tokens[0].Attr? then
-      [GetAttrName(tokens[0], names)] + ExtractAttributes2(tokens[1..], names, -1)
+    else if IsSpecial(tokens[pos]) then
+      ExtractAttributes2(tokens, names, 1, pos+1)
+    else if tokens[pos].Attr? && tokensUntilSkip == 0 then
+      ExtractAttributes2(tokens, names, -1, pos+1)
+    else if tokens[pos].Attr? then
+      [GetAttrName(tokens[pos], names)] + ExtractAttributes2(tokens, names, -1, pos+1)
     else
-      ExtractAttributes2(tokens[1..], names, tokensUntilSkip-1)
+      ExtractAttributes2(tokens, names, tokensUntilSkip-1, pos+1)
   }
 
   datatype Token =
@@ -317,12 +323,17 @@ module DynamoDBFilterExpr {
       CanCompoundBeacon(b, op, val)
   }
 
-  function method {:tailrecursion} RemoveCommonPrefix(x : seq<string>, y : seq<string>) : (seq<string>, seq<string>)
+  function method {:tailrecursion} RemoveCommonPrefix(x : seq<string>, y : seq<string>, pos : uint64 := 0) : (seq<string>, seq<string>)
+    requires pos as nat <= |x|
+    requires pos as nat <= |y|
+    decreases |x| - pos as nat
   {
-    if |x| == 0 || |y| == 0 || x[0] != y[0] then
-      (x, y)
+    SequenceIsSafeBecauseItIsInMemory(x);
+    SequenceIsSafeBecauseItIsInMemory(y);
+    if |x| as uint64 == pos || |y| as uint64 == pos || x[pos] != y[pos] then
+      (x[pos..], y[pos..])
     else
-      RemoveCommonPrefix(x[1..], y[1..])
+      RemoveCommonPrefix(x, y, Add(pos, 1))
   }
 
   // Would return Outcome, if Outcome actually worked.
@@ -656,12 +667,13 @@ module DynamoDBFilterExpr {
   }
 
   // convert s to a sequence of tokens
-  function method {:tailrecursion} ParseExpr(s: string): (res: seq<Token>)
+  function method {:tailrecursion} ParseExpr(s: string, pos : uint64 := 0) : (res: seq<Token>)
+    requires pos as nat <= |s|
     ensures s == [] ==> res == []
-    decreases |s|
+    decreases |s| - pos as nat
   {
-    var tup := FindIndexToken(s);
-    if 0 < tup.0 then [tup.1] + ParseExpr(s[tup.0..]) else []
+    var tup := FindIndexToken(s, pos);
+    if 0 < tup.0 then [tup.1] + ParseExpr(s, Add(pos, tup.0)) else []
   }
 
   // convert ch to lower case
@@ -681,20 +693,34 @@ module DynamoDBFilterExpr {
       ch
   }
 
-  // convert s to lowercase
-  function method strLower(s: string): (res : string)
-    ensures |s| == |res|
+  // pre[pos..] == s[pos+diff..]
+  predicate method {:tailrecursion} EqualLower(pre : string, s : string, pos : uint64, diff : uint64)
+    requires pos as nat  <= |pre|
+    requires |pre| + diff as nat <= |s|
+    decreases |pre| - pos as nat
   {
-    if 0 == |s| then
-      s
+    SequenceIsSafeBecauseItIsInMemory(s);
+    SequenceIsSafeBecauseItIsInMemory(pre);
+    if |pre| as uint64 == pos then
+      true
+    else if pre[pos] != CharLower(s[pos+diff]) then
+      false
     else
-      [CharLower(s[0])] + strLower(s[1..])
+      EqualLower(pre, s, Add(pos, 1), diff)
   }
 
-  // if s is long, this could be wasteful. Should probably hand roll a loop
-  function method PrefixLower(pre : string, s : string): (res : bool)
+  function method PrefixLower(pre : string, s : string, pos : uint64): (res : bool)
+    // requires pre is already lowercase
+    requires pos as nat <= |s|
+    ensures res ==> |s| >= |pre| + pos as nat
   {
-    strLower(pre) <= strLower(s)
+    SequenceIsSafeBecauseItIsInMemory(pre);
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if Add(pos, |pre| as uint64) > |s| as uint64 then
+      false
+    else
+      EqualLower(pre, s, 0, pos)
+      // pre == strLower(s[pos..Add(pos, |pre| as uint64)])
   }
 
   // valid value character
@@ -724,25 +750,31 @@ module DynamoDBFilterExpr {
   }
 
   // length of the prefix of s that is a value name
-  function method ValueLen(s : string): (res : nat)
-    ensures res <= |s|
+  function method ValueLen(s : string, pos : uint64 := 0): (res : uint64)
+    requires pos as nat <= |s|
+    ensures res as nat + pos as nat <= |s|
+    decreases |s| - pos as nat
   {
-    if 0 == |s| then
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if pos == |s| as uint64 then
       0
-    else if ValueChar(s[0]) then
-      ValueLen(s[1..]) + 1
+    else if ValueChar(s[pos]) then
+      Add(ValueLen(s, Add(pos, 1)), 1)
     else
       0
   }
 
   // length of the prefix of s that is an attribute name
-  function method AttributeLen(s : string): (res : nat)
-    ensures res <= |s|
+  function method AttributeLen(s : string, pos : uint64 := 0): (res : uint64)
+    requires pos as nat <= |s|
+    ensures res as nat + pos as nat <= |s|
+    decreases |s| - pos as nat
   {
-    if 0 == |s| then
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if pos == |s| as uint64 then
       0
-    else if AttributeChar(s[0]) then
-      AttributeLen(s[1..]) + 1
+    else if AttributeChar(s[pos]) then
+      Add(AttributeLen(s, Add(pos, 1)), 1)
     else
       0
   }
@@ -757,19 +789,23 @@ module DynamoDBFilterExpr {
   }
   // return the next token, and the number of characters consumed
   // if zero is returned for the index, then ignore the token and stop looking.
-  function method {:vcs_split_on_every_assert}  FindIndexToken(s: string): (res: (nat, Token))
-    ensures res.0 <= |s|
+  function method {:vcs_split_on_every_assert}  FindIndexToken(s: string, pos : uint64): (res: (uint64, Token))
+    requires pos as nat <= |s|
+    ensures res.0 as nat + pos as nat <= |s|
+    decreases |s| - pos as nat
   {
-    if 0 == |s| then
+    SequenceIsSafeBecauseItIsInMemory(s);
+    if pos == |s| as uint64 then
       (0, Close)
     else
-      var ch := s[0];
+      var ch := s[pos];
+      var remaining : uint64 := |s| as uint64 - pos;
       if ch == ' ' then
-        var foo := FindIndexToken(s[1..]);
+        var foo := FindIndexToken(s, Add(pos, 1));
         if foo.0 == 0 then
           (foo.0,foo.1)
         else
-          (foo.0+1,foo.1)
+          (Add(foo.0, 1),foo.1)
       else if ch == '(' then
         (1, Open)
       else if ch == ')' then
@@ -779,48 +815,52 @@ module DynamoDBFilterExpr {
       else if ch == '=' then
         (1, Eq)
       else if ch == '<' then
-        if "<=" <= s then
+        if remaining == 1 then
+          (1, Lt)
+        else if s[pos+1] == '=' then
           (2, Le)
-        else if "<>" <= s then
+        else if s[pos+1] == '>' then
           (2, Ne)
         else
           (1, Lt)
       else if ch == '>' then
-        if ">=" <= s then
+        if remaining == 1 then
+          (1, Gt)
+        else if s[pos+1] == '=' then
           (2, Ge)
         else
           (1, Gt)
-      else if PrefixLower("in", s) then
+      else if PrefixLower("in", s, pos) then
         (2, In)
-      else if PrefixLower("between", s) then
+      else if PrefixLower("between", s, pos) then
         (7, Between)
-      else if PrefixLower("and", s) then
+      else if PrefixLower("and", s, pos) then
         (3, And)
-      else if PrefixLower("or", s) then
+      else if PrefixLower("or", s, pos) then
         (2, Or)
-      else if PrefixLower("not", s) then
+      else if PrefixLower("not", s, pos) then
         (3, Not)
-      else if PrefixLower("attribute_not_exists", s) then
+      else if PrefixLower("attribute_not_exists", s, pos) then
         (20, AttributeNotExists)
-      else if PrefixLower("attribute_type", s) then
+      else if PrefixLower("attribute_type", s, pos) then
         (14, AttributeType)
-      else if PrefixLower("begins_with", s) then
+      else if PrefixLower("begins_with", s, pos) then
         (11, BeginsWith)
-      else if PrefixLower("attribute_exists", s) then
+      else if PrefixLower("attribute_exists", s, pos) then
         (16, AttributeExists)
-      else if PrefixLower("contains", s) then
+      else if PrefixLower("contains", s, pos) then
         (8, Contains)
-      else if PrefixLower("size", s) then
+      else if PrefixLower("size", s, pos) then
         (4, Size)
       else if ch == ':' then
-        var x := ValueLen(s[1..]) + 1;
-        (x, Value(s[0..x]))
+        var x := Add(ValueLen(s, Add(pos, 1)), 1);
+        (x, Value(s[pos..pos+x]))
       else if ch == '#' then
-        var x := ValueLen(s[1..]) + 1;
-        (x, MakeAttr(s[0..x]))
+        var x := Add(ValueLen(s, Add(pos, 1)), 1);
+        (x, MakeAttr(s[pos..pos+x]))
       else
-        var x := AttributeLen(s);
-        (x, MakeAttr(s[0..x]))
+        var x := AttributeLen(s, pos);
+        (x, MakeAttr(s[pos..pos+x]))
   }
 
   function method {:opaque} VarOrSize(input: seq<Token>)
@@ -903,48 +943,51 @@ module DynamoDBFilterExpr {
   function method ConvertToRpn(input: seq<Token>) : seq<Token>
   {
     var stack := [];
-    ConvertToRpn_inner(input, stack)
+    ConvertToRpn_inner(input, stack, 0)
   }
 
   // convert infix to reverse polish
-  function method ConvertToRpn_inner(input: seq<Token>, stack : seq<Token>) : seq<Token>
+  function method ConvertToRpn_inner(input: seq<Token>, stack : seq<Token>, pos : uint64) : seq<Token>
+    requires pos as nat <= |input|
+    decreases |input| - pos as nat, |stack|
   {
-    if 0 == |input| then
+    SequenceIsSafeBecauseItIsInMemory(input);
+    if pos == |input| as uint64 then
       if 0 == |stack| then
         []
       else
-        [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
+        [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1], pos)
     else
-      match input[0]
-      case Attr(s, loc)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
-      case Value(s)  => [input[0]] + ConvertToRpn_inner(input[1..], stack)
+      match input[pos]
+      case Attr(s, loc)  => [input[pos]] + ConvertToRpn_inner(input, stack, pos+1)
+      case Value(s)  => [input[pos]] + ConvertToRpn_inner(input, stack, pos+1)
       case Between | In | Not | AttributeExists | AttributeNotExists | AttributeType
         | BeginsWith | Contains | Size
-        => ConvertToRpn_inner(input[1..], stack + [input[0]])
+        => ConvertToRpn_inner(input, stack + [input[pos]], pos+1)
       case Comma =>
         if 0 < |stack| then
           if IsFunction(stack[|stack|-1]) then
-            ConvertToRpn_inner(input[1..], stack)
+            ConvertToRpn_inner(input, stack, pos+1)
           else
-            [stack[|stack|-1]] + ConvertToRpn_inner(input[1..], stack[..|stack|-1])
+            [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1], pos+1)
         else
           // error
-          ConvertToRpn_inner(input[1..], stack)
+          ConvertToRpn_inner(input, stack, pos+1)
       case Close =>
         if 0 == |stack| then
-          ConvertToRpn_inner(input[1..], stack)
+          ConvertToRpn_inner(input, stack, pos+1)
         else if stack[|stack|-1] == Open then
-          ConvertToRpn_inner(input[1..], stack[..|stack|-1])
+          ConvertToRpn_inner(input, stack[..|stack|-1], pos+1)
         else
-          [stack[|stack|-1]] + ConvertToRpn_inner(input[1..], stack[..|stack|-1])
+          [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1], pos+1)
       case Eq | Ne | Lt | Gt | Le | Ge | And | Or =>
         if 0 == |stack| then
-          ConvertToRpn_inner(input[1..], stack + [input[0]])
-        else if Precedence(stack[|stack|-1]) >= Precedence(input[0]) then
-          [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1])
+          ConvertToRpn_inner(input, stack + [input[pos]], pos+1)
+        else if Precedence(stack[|stack|-1]) >= Precedence(input[pos]) then
+          [stack[|stack|-1]] + ConvertToRpn_inner(input, stack[..|stack|-1], pos)
         else
-          ConvertToRpn_inner(input[1..], stack + [input[0]])
-      case Open => ConvertToRpn_inner(input[1..], stack)
+          ConvertToRpn_inner(input, stack + [input[pos]], pos+1)
+      case Open => ConvertToRpn_inner(input, stack, pos+1)
   }
 
   datatype StackValue =
@@ -1033,15 +1076,15 @@ module DynamoDBFilterExpr {
   }
 
   // evaluate the expression, must be in reverse polish notation
-  function method EvalExpr(
+  method EvalExpr(
     input : seq<Token>,
     item : DDB.AttributeMap,
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<bool, Error>
+    returns (ret : Result<bool, Error>)
   {
-    InnerEvalExpr(input, [], item, names, values)
+    ret := InnerEvalExpr(input, [], item, names, values);
   }
 
   // count the number of strings
@@ -1055,57 +1098,87 @@ module DynamoDBFilterExpr {
       1 + StringsFollowing(input[..|input|-1])
   }
 
-  // true if haystack contains needle
-  predicate method  {:tailrecursion} seq_contains<T(==)>(haystack : seq<T>, needle : seq<T>)
+  // generic version should be moved back to standard library
+  method HasSubString<T(==)>(haystack: seq<T>, needle: seq<T>)
+    returns (o: Wrappers.Option<nat>)
+
+    ensures o.Some? ==>
+              && o.value <= |haystack| - |needle| && haystack[o.value..(o.value + |needle|)] == needle
+              && (forall i | 0 <= i < o.value :: haystack[i..][..|needle|] != needle)
+
+    ensures |haystack| < |needle| ==> o.None?
+
+    ensures o.None? && |needle| <= |haystack| && |haystack| <= (UINT64_MAX_LIMIT-1) ==>
+              (forall i | 0 <= i <= (|haystack|-|needle|) :: haystack[i..][..|needle|] != needle)
   {
-    if |needle| == 0 then
-      true
-    else if |haystack| == 0 then
-      false
-    else if |haystack| < |needle|  then
-      false
-    else if needle[0] == haystack[0] && needle[1..] <= haystack[1..] then
-      true
-    else
-      seq_contains(haystack[1..], needle)
+    SequenceIsSafeBecauseItIsInMemory(haystack);
+    SequenceIsSafeBecauseItIsInMemory(needle);
+    if |haystack| as uint64 < |needle| as uint64 {
+      return Wrappers.None;
+    }
+
+    var size : uint64 := |needle| as uint64;
+    var limit: uint64 := Add(|haystack| as uint64 - size, 1);
+
+    for index := 0 to limit
+      invariant forall i | 0 <= i < index :: haystack[i..][..size] != needle
+    {
+      if Sequence.SequenceEqual(seq1 := haystack, seq2 := needle, start1 := index, start2 := 0, size := size) {
+        return Wrappers.Some(index as nat);
+      }
+    }
+    return Wrappers.None;
   }
 
   // true if haystack contains needle
-  predicate method does_contain(haystack : DDB.AttributeValue, needle : DDB.AttributeValue)
+  method seq_contains<T(==)>(haystack : seq<T>, needle : seq<T>) returns (ret : bool)
+  {
+    var result := HasSubString(haystack, needle);
+    return result.Some?;
+  }
+
+  // true if haystack contains needle
+  method does_contain(haystack : DDB.AttributeValue, needle : DDB.AttributeValue) returns (ret : bool)
   {
     match haystack{
       case S(s) =>
-        if needle.S? then
-          seq_contains(haystack.S, needle.S)
-        else
-          false
+        if needle.S? {
+          ret := seq_contains(haystack.S, needle.S);
+        } else {
+          return false;
+        }
       case N(n) =>
-        if needle.N? then
-          seq_contains(haystack.N, needle.N)
-        else
-          false
+        if needle.N? {
+          ret := seq_contains(haystack.N, needle.N);
+        } else {
+          return false;
+        }
       case B(n) =>
-        if needle.B? then
-          seq_contains(haystack.B, needle.B)
-        else
-          false
+        if needle.B? {
+          ret := seq_contains(haystack.B, needle.B);
+        } else {
+          return false;
+        }
       case SS(s) =>
-        if needle.S? then
-          needle.S in haystack.SS
-        else
-          false
+        if needle.S? {
+          return needle.S in haystack.SS;
+        } else {
+          return false;
+        }
       case NS(s) =>
-        if needle.N? then
-          needle.N in haystack.NS
-        else
-          false
+        if needle.N? {
+          return needle.N in haystack.NS;
+        } else {
+          return false;
+        }
       case BS(s) =>
-        if needle.B? then
-          needle.B in haystack.BS
-        else
-          false
-      case L(list) => needle in list
-      case _ => false
+        if needle.B? {
+          return needle.B in haystack.BS;
+        } else {
+          return false;
+        }
+      case L(list) => return needle in list;
+      case _ => return false;
     }
   }
 
@@ -1177,70 +1250,76 @@ module DynamoDBFilterExpr {
   }
 
   // call the function
-  function method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) : Result<StackValue, Error>
+  method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) returns (ret : Result<StackValue, Error>)
   {
     match input {
       case Between =>
-        if |stack| < 3 then
-          Failure(E("No Stack for Between"))
-        else
-        if stack[|stack|-1].Str? && stack[|stack|-2].Str? && stack[|stack|-3].Str? then
+        if |stack| < 3 {
+          return Failure(E("No Stack for Between"));
+        } else if stack[|stack|-1].Str? && stack[|stack|-2].Str? && stack[|stack|-3].Str? {
           var ret :- is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s);
-          Success(Bool(ret))
-        else
-          Failure(E("Wrong Types for contains"))
+          return Success(Bool(ret));
+        } else {
+          return Failure(E("Wrong Types for contains"));
+        }
 
       case In =>
         var num := StringsFollowing(stack);
-        if |stack| < num then
-          Failure(E("Tautology False"))
-        else if num == 0 then
-          Failure(E("In has no args"))
-        else
-          Success(Bool(is_in(GetStr(stack[|stack|-num]), stack[|stack|-num+1..])))
+        if |stack| < num {
+          return Failure(E("Tautology False"));
+        } else if num == 0 {
+          return Failure(E("In has no args"));
+        } else {
+          return Success(Bool(is_in(GetStr(stack[|stack|-num]), stack[|stack|-num+1..])));
+        }
       case AttributeExists =>
-        if |stack| < 1 then
-          Failure(E("No Stack for AttributeExists"))
-        else
-          Success(Bool(!stack[|stack|-1].DoesNotExist?))
+        if |stack| < 1 {
+          return Failure(E("No Stack for AttributeExists"));
+        } else {
+          return Success(Bool(!stack[|stack|-1].DoesNotExist?));
+        }
 
       case AttributeNotExists =>
-        if |stack| < 1 then
-          Failure(E("No Stack for AttributeExists"))
-        else
-          Success(Bool(stack[|stack|-1].DoesNotExist?))
+        if |stack| < 1 {
+          return Failure(E("No Stack for AttributeExists"));
+        } else {
+          return Success(Bool(stack[|stack|-1].DoesNotExist?));
+        }
       case AttributeType =>
-        if |stack| < 2 then
-          Failure(E("No Stack for AttributeType"))
-        else
-          Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])))
+        if |stack| < 2 {
+          return Failure(E("No Stack for AttributeType"));
+        } else {
+          return Success(Bool(IsAttrType(stack[|stack|-2], stack[|stack|-1])));
+        }
       case BeginsWith =>
-        if |stack| < 2 then
-          Failure(E("No Stack for BeginsWith"))
-        else
-        if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
-          Success(Bool(begins_with(stack[|stack|-2].s, stack[|stack|-1].s)))
-        else
-          Failure(E("Wrong Types for BeginsWith"))
+        if |stack| < 2 {
+          return Failure(E("No Stack for BeginsWith"));
+        } else if stack[|stack|-1].Str? && stack[|stack|-2].Str? {
+          return Success(Bool(begins_with(stack[|stack|-2].s, stack[|stack|-1].s)));
+        } else {
+          return Failure(E("Wrong Types for BeginsWith"));
+        }
 
       case Contains =>
-        if |stack| < 2 then
-          Failure(E("No Stack for contains"))
-        else
-        if stack[|stack|-1].Str? && stack[|stack|-2].Str? then
-          Success(Bool(does_contain(stack[|stack|-2].s, stack[|stack|-1].s)))
-        else
-          Failure(E("Wrong Types for contains"))
+        if |stack| < 2 {
+          return Failure(E("No Stack for contains"));
+        } else if stack[|stack|-1].Str? && stack[|stack|-2].Str? {
+          var xxx := does_contain(stack[|stack|-2].s, stack[|stack|-1].s);
+          return Success(Bool(xxx));
+        } else {
+          return Failure(E("Wrong Types for contains"));
+        }
 
       case Size =>
-        if |stack| < 1 then
-          Failure(E("No Stack for Size"))
-        else if !stack[|stack|-1].Str? then
-          Failure(E("Wrong Types for Size"))
-        else
+        if |stack| < 1 {
+          return Failure(E("No Stack for Size"));
+        } else if !stack[|stack|-1].Str? {
+          return Failure(E("Wrong Types for Size"));
+        } else {
           var n := GetSize(stack[|stack|-1].s);
-          Success(Str(DDB.AttributeValue.N(String.Base10Int2String(n))))
-      case _ => Success(Bool(true))
+          return Success(Str(DDB.AttributeValue.N(String.Base10Int2String(n))));
+        }
+      case _ => return Success(Bool(true));
     }
   }
 
@@ -1397,47 +1476,53 @@ module DynamoDBFilterExpr {
   }
 
   // evaluate the expression
-  function method InnerEvalExpr(
+  method InnerEvalExpr(
     input : seq<Token>,
     stack : seq<StackValue>,
     item : DDB.AttributeMap,
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap
   )
-    : Result<bool, Error>
+    returns (ret : Result<bool, Error>)
   {
-    if 0 == |input| then
-      if 1 == |stack| && stack[0].Bool? then
-        Success(stack[0].b)
-      else
-        Failure(E("ended with bad stack"))
-    else
+    if 0 == |input| {
+      if 1 == |stack| && stack[0].Bool? {
+        return Success(stack[0].b);
+      } else {
+        return Failure(E("ended with bad stack"));
+      }
+    } else {
       var t := input[0];
-      if t.Value? then
-        InnerEvalExpr(input[1..], stack + [StackValueFromValue(t.s, values)], item, names, values)
-      else if t.Attr? then
-        InnerEvalExpr(input[1..], stack + [StackValueFromAttr(t, item, names)], item, names, values)
-      else if IsUnary(t) then
-        if 0 == |stack| then
-          Failure(E("Empty stack for unary op"))
-        else
+      if t.Value? {
+        ret := InnerEvalExpr(input[1..], stack + [StackValueFromValue(t.s, values)], item, names, values);
+      } else if t.Attr? {
+        ret := InnerEvalExpr(input[1..], stack + [StackValueFromAttr(t, item, names)], item, names, values);
+      } else if IsUnary(t) {
+        if 0 == |stack| {
+          ret := Failure(E("Empty stack for unary op"));
+        } else {
           var val :- apply_unary(t, stack[|stack|-1]);
-          InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], item, names, values)
-      else if IsBinary(t) then
-        if |stack| < 2 then
-          Failure(E("Empty stack for binary op"))
-        else
+          ret := InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], item, names, values);
+        }
+      } else if IsBinary(t) {
+        if |stack| < 2 {
+          ret := Failure(E("Empty stack for binary op"));
+        } else {
           var val :- apply_binary(t, stack[|stack|-2], stack[|stack|-1]);
-          InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], item, names, values)
-      else if IsFunction(t) then
+          ret := InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], item, names, values);
+        }
+      } else if IsFunction(t) {
         var num_args := NumArgs(t, stack);
-        if |stack| < num_args then
-          Failure(E("Empty stack for function call"))
-        else
+        if |stack| < num_args {
+          ret := Failure(E("Empty stack for function call"));
+        } else {
           var val :- apply_function(t, stack, num_args);
-          InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item, names, values)
-      else
-        Success(true)
+          ret := InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item, names, values);
+        }
+      } else {
+        ret := Success(true);
+      }
+    }
   }
 
   // return the list of items for which the expression is true
