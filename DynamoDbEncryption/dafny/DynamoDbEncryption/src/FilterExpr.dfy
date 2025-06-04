@@ -1264,7 +1264,7 @@ module DynamoDBFilterExpr {
   }
 
   // call the function
-  method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) returns (ret : Result<StackValue, Error>)
+  method apply_function(input : Token, stack : seq<StackValue>, num_args : nat) returns (result : Result<StackValue, Error>)
   {
     match input {
       case Between =>
@@ -1274,7 +1274,7 @@ module DynamoDBFilterExpr {
           var ret :- is_between(stack[|stack|-3].s, stack[|stack|-2].s, stack[|stack|-1].s);
           return Success(Bool(ret));
         } else {
-          return Failure(E("Wrong Types for contains"));
+          return Failure(E("Wrong Types for Between"));
         }
 
       case In =>
