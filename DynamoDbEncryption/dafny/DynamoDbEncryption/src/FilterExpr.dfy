@@ -863,33 +863,38 @@ module DynamoDBFilterExpr {
         (x, MakeAttr(s[pos..pos+x]))
   }
 
-  function method {:opaque} VarOrSize(input: seq<Token>)
-    : (ret : nat)
-    ensures ret <= |input|
+  function method {:opaque} VarOrSize(input: seq<Token>, pos : uint64)
+    : (ret : uint64)
+    requires pos as nat <= |input|
+    ensures pos as nat + ret as nat <= |input|
   {
-    if |input| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(input);
+    if |input| as uint64 == pos then
       0
-    else if input[0].Value? || input[0].Attr? then
+    else if input[pos].Value? || input[pos].Attr? then
       1
-    else if 3 < |input| && input[0].Size? && input[1].Open? && IsVar(input[2]) && input[3].Close? then
+    else if Add(3, pos) < |input| as uint64 && input[pos].Size? && input[pos+1].Open? && IsVar(input[pos+2]) && input[pos+3].Close? then
       4
     else
       0
   }
 
   // does it start with "A BETWEEN X AND Y"
-  function method IsBetween(input: seq<Token>)
-    : (ret : Option<(int, int, int)>)
-    ensures ret.Some? ==> (ret.value.0 + ret.value.1 + ret.value.2 + 2) <= |input|
+  function method IsBetween(input: seq<Token>, pos : uint64)
+    : (ret : Option<(uint64, uint64, uint64)>)
+    ensures HasUint64Size(|input|)
+    ensures ret.Some? ==> (pos as nat + ret.value.0 as nat + ret.value.1 as nat + ret.value.2 as nat + 2) <= |input|
   {
-    if |input| < 5 then
+    SequenceIsSafeBecauseItIsInMemory(input);
+    var input_size : uint64 := |input| as uint64;
+    if input_size < Add(pos, 5) then
       None
     else
-      var p1 := VarOrSize(input);
-      if 0 < p1 && (p1+1 < |input|) && input[p1].Between? then
-        var p2 := VarOrSize(input[p1+1..]);
-        if 0 < p2 && (p1+p2+2 < |input|) && input[p1+p2+1].And? then
-          var p3 := VarOrSize(input[p1+p2+2..]);
+      var p1 := VarOrSize(input, pos);
+      if 0 < p1 && (Add(pos+p1, 1) < input_size) && input[pos+p1].Between? then
+        var p2 := VarOrSize(input, pos+p1+1);
+        if 0 < p2 && (Add(pos+p1+p2, 2) < input_size) && input[pos+p1+p2+1].And? then
+          var p3 := VarOrSize(input, pos+p1+p2+2);
           if 0 < p3 then
             Some((p1, p2, p3))
           else
@@ -901,15 +906,17 @@ module DynamoDBFilterExpr {
   }
 
   // does it start with "A IN ("
-  predicate method IsIN(input: seq<Token>)
+  predicate method IsIN(input: seq<Token>, pos : uint64)
+    requires pos as nat < |input|
   {
-    if |input| < 3 then
+    SequenceIsSafeBecauseItIsInMemory(input);
+    if |input| as uint64 < Add(pos, 3) then
       false
-    else if !IsVar(input[0]) then
+    else if !IsVar(input[pos]) then
       false
-    else if input[1] != In then
+    else if input[pos+1] != In then
       false
-    else if input[2] != Open then
+    else if input[pos+2] != Open then
       false
     else
       true
@@ -919,22 +926,23 @@ module DynamoDBFilterExpr {
   // transform A BETWEEN X AND Y to BETWEEN(A, X, Y)
   function method ConvertToPrefix(input: seq<Token>) : (res : seq<Token>)
   {
-    var between := IsBetween(input);
     if |input| < 5 then
       input
-    else if IsIN(input) then
+    else if IsIN(input, 0) then
       [input[1], input[2], input[0], Comma] + ConvertToPrefix(input[3..])
-    else if between.Some? then
-      var b := between.value;
-      [Between, Open] + input[0..b.0] + [Comma] + input[b.0+1..b.0+b.1+1] + [Comma]
-      + input[b.0+b.1+2..b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input[b.0+b.1+b.2+2..])
     else
-      [input[0]] + ConvertToPrefix(input[1..])
+      var between := IsBetween(input, 0);
+      if between.Some? then
+        var b := between.value;
+        [Between, Open] + input[0..b.0] + [Comma] + input[b.0+1..b.0+b.1+1] + [Comma]
+        + input[b.0+b.1+2..b.0+b.1+b.2+2] + [Close] + ConvertToPrefix(input[b.0+b.1+b.2+2..])
+      else
+        [input[0]] + ConvertToPrefix(input[1..])
   }
 
   lemma TestConvertToPrefix3(input: seq<Token>)
     requires input == [MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close]
-    ensures IsIN(input)
+    ensures IsIN(input, 0)
     ensures ConvertToPrefix(input) ==  [In, Open, MakeAttr("A"), Comma, MakeAttr("B"), Comma, MakeAttr("C"), Close]
   {}
 
@@ -1084,7 +1092,7 @@ module DynamoDBFilterExpr {
   )
     returns (ret : Result<bool, Error>)
   {
-    ret := InnerEvalExpr(input, [], item, names, values);
+    ret := InnerEvalExpr(input, [], item, names, values, 0);
   }
 
   // count the number of strings
@@ -1224,8 +1232,8 @@ module DynamoDBFilterExpr {
 
   // true if target in list
   predicate method is_in(target : DDB.AttributeValue, list : seq<StackValue>, pos : uint64 := 0)
-  requires pos as nat <= |list|
-  decreases |list| - pos as nat
+    requires pos as nat <= |list|
+    decreases |list| - pos as nat
   {
     SequenceIsSafeBecauseItIsInMemory(list);
     if |list| as uint64 == pos then
@@ -1484,35 +1492,39 @@ module DynamoDBFilterExpr {
     stack : seq<StackValue>,
     item : DDB.AttributeMap,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    values : DDB.ExpressionAttributeValueMap
+    values : DDB.ExpressionAttributeValueMap,
+    pos : uint64
   )
     returns (ret : Result<bool, Error>)
+    requires pos as nat <= |input|
+    decreases |input| - pos as nat
   {
-    if 0 == |input| {
+    SequenceIsSafeBecauseItIsInMemory(input);
+    if pos == |input| as uint64 {
       if 1 == |stack| && stack[0].Bool? {
         return Success(stack[0].b);
       } else {
         return Failure(E("ended with bad stack"));
       }
     } else {
-      var t := input[0];
+      var t := input[pos];
       if t.Value? {
-        ret := InnerEvalExpr(input[1..], stack + [StackValueFromValue(t.s, values)], item, names, values);
+        ret := InnerEvalExpr(input, stack + [StackValueFromValue(t.s, values)], item, names, values, pos+1);
       } else if t.Attr? {
-        ret := InnerEvalExpr(input[1..], stack + [StackValueFromAttr(t, item, names)], item, names, values);
+        ret := InnerEvalExpr(input, stack + [StackValueFromAttr(t, item, names)], item, names, values, pos+1);
       } else if IsUnary(t) {
         if 0 == |stack| {
           ret := Failure(E("Empty stack for unary op"));
         } else {
           var val :- apply_unary(t, stack[|stack|-1]);
-          ret := InnerEvalExpr(input[1..], stack[..|stack|-1] + [val], item, names, values);
+          ret := InnerEvalExpr(input, stack[..|stack|-1] + [val], item, names, values, pos+1);
         }
       } else if IsBinary(t) {
         if |stack| < 2 {
           ret := Failure(E("Empty stack for binary op"));
         } else {
           var val :- apply_binary(t, stack[|stack|-2], stack[|stack|-1]);
-          ret := InnerEvalExpr(input[1..], stack[..|stack|-2] + [val], item, names, values);
+          ret := InnerEvalExpr(input, stack[..|stack|-2] + [val], item, names, values, pos+1);
         }
       } else if IsFunction(t) {
         var num_args := NumArgs(t, stack);
@@ -1520,7 +1532,7 @@ module DynamoDBFilterExpr {
           ret := Failure(E("Empty stack for function call"));
         } else {
           var val :- apply_function(t, stack, num_args);
-          ret := InnerEvalExpr(input[1..], stack[..|stack|-num_args] + [val], item, names, values);
+          ret := InnerEvalExpr(input, stack[..|stack|-num_args] + [val], item, names, values, pos+1);
         }
       } else {
         ret := Success(true);

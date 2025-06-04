@@ -63,7 +63,8 @@ module TestDynamoDBFilterExpr {
     expect_equal(ParseExpr(" A_B  AnD  B_C "), [MakeAttr("A_B"), And, MakeAttr("B_C")]);
 
     var input := [Not, MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or];
-    expect IsIN(input[1..]);
+    expect IsIN(input, 1);
+    expect IsIN(input[1..], 0);
     expect_equal(ConvertToPrefix(input),  [Not, In, Open, MakeAttr("A"), Comma, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or]);
 
     input := [And, Or, Not, And, Or, Not, And, Or, Not];
