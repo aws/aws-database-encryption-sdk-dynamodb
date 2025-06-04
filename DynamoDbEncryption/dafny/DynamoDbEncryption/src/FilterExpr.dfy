@@ -1223,14 +1223,17 @@ module DynamoDBFilterExpr {
   }
 
   // true if target in list
-  predicate method is_in(target : DDB.AttributeValue, list : seq<StackValue>)
+  predicate method is_in(target : DDB.AttributeValue, list : seq<StackValue>, pos : uint64 := 0)
+  requires pos as nat <= |list|
+  decreases |list| - pos as nat
   {
-    if |list| == 0 then
+    SequenceIsSafeBecauseItIsInMemory(list);
+    if |list| as uint64 == pos then
       false
-    else if GetStr(list[0]) == target then
+    else if GetStr(list[pos]) == target then
       true
     else
-      is_in(target, list[1..])
+      is_in(target, list, pos + 1)
   }
 
   // return string version of attribute
