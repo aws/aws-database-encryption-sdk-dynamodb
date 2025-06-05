@@ -382,6 +382,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestBatchWriteItem(c1, c2, globalRecords);
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
+        BasicIoTestExecuteStatement(c1, c2);
       }
     }
 
@@ -801,6 +802,53 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestGetItem(rClient, records);
       BasicIoTestScan(rClient, records);
       BasicIoTestTransactGetItems(rClient, records);
+    }
+
+    method BasicIoTestExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+
+      // Create a PartiQL INSERT statement
+      var insertStatement := CreateInsertStatement(TableName);
+      var inputForInsertStatement := DDB.ExecuteStatementInput(
+        Statement := insertStatement,
+        Parameters := None,
+        ConsistentRead := None,
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := None
+      );
+      var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
+      expect resultForInsertStatement.Failure?;
+
+      // Create a PartiQL SELECT statement
+      var selectStatement := CreateSelectStatement(TableName);
+      var inputForSelectStatement := DDB.ExecuteStatementInput(
+        Statement := selectStatement,
+        Parameters := None,
+        ConsistentRead := Some(true),
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := None
+      );
+      var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
+      expect resultForSelectStatement.Failure?;
+    }
+
+    function CreateInsertStatement(tableName : string) : string
+    {
+      // Convert DynamoDB item to PartiQL INSERT statement
+      "INSERT INTO \"" + tableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'"
+    }
+
+    function CreateSelectStatement(tableName : string) : string
+    {
+      // Create a SELECT statement to retrieve an item by its hash key
+      // Example: SELECT * FROM "TableName" WHERE id = 1
+      "SELECT * FROM" + tableName + "WHERE partition_key = 'a' AND sort_key = 'b'"
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
