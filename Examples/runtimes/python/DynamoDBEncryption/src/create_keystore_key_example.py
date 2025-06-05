@@ -3,20 +3,18 @@
 """
 Example for creating a new key in a KeyStore.
 
-The Hierarchical Keyring Example and Searchable Encryption Examples
-rely on the existence of a DDB-backed key store with pre-existing
-branch key material or beacon key material.
+The Hierarchical Keyring Example and Searchable Encryption Examples rely on the
+existence of a DDB-backed key store with pre-existing branch key material or
+beacon key material.
 
-See the "Create KeyStore Table Example" for how to first set up
-the DDB Table that will back this KeyStore.
+See the "Create KeyStore Table Example" for how to first set up the DDB Table
+that will back this KeyStore.
 
-This example demonstrates configuring a KeyStore and then
-using a helper method to create a branch key and beacon key
-that share the same Id, then return that Id.
-We will always create a new beacon key alongside a new branch key,
-even if you are not using searchable encryption.
+Demonstrates configuring a KeyStore and using a helper method to create a branch
+key and beacon key that share the same Id. A new beacon key is always created
+alongside a new branch key, even if searchable encryption is not being used.
 
-This key creation should occur within your control plane.
+Note: This key creation should occur within your control plane.
 """
 
 import boto3
