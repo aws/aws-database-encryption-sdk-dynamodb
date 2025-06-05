@@ -113,6 +113,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       Validate();
       StringOrdering();
       LargeTests();
+      PerfQueryTests();
       BasicIoTest();
       RunIoTests();
       BasicQueryTest();
@@ -538,6 +539,35 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i := 0 to |large| {
         RunLargeTest(large[i], client, config);
       }
+    }
+
+    method PerfQueryTests()
+    {
+      print "\n";
+      RunQueryTest("one", map["x" := SE.DO_NOTHING], None, Some(""), None);
+      RunQueryTest("two", map["x" := SE.DO_NOTHING], None, Some("this is a fairly long query string but I dont see why it should cause a problem."), None);
+      RunQueryTest("three", map["x" := SE.DO_NOTHING], None,
+                   Some("begins_with (#param_0, :param_0_v0) AND begins_with (#param_1, :param_1_v0)"),
+                   Some(map["#param_0" := "rangeKey", "#param_1" := "hashKey"]));
+    }
+
+    method RunQueryTest(
+      name : string,
+      actions : Types.AttributeActions,
+      keyExpr : Option<DDB.KeyExpression>,
+      filterExpr : Option<DDB.ConditionExpression>,
+      names : Option<DDB.ExpressionAttributeNameMap>
+    )
+    {
+      var time := Time.GetAbsoluteTime();
+      for i : uint32 := 0 to 10000 {
+        var x := Filter.TestBeaconize(actions, keyExpr, filterExpr, names);
+        if x.Failure? {
+          print "\nRunQueryTest ", name, " Failed : ", x.error, "\n\n";
+          return;
+        }
+      }
+      Time.PrintTimeSinceLong(time, "TestBeaconize " + name, DecryptManifest.LogFileName());
     }
 
     method RunLargeTest(record : LargeRecord, client : Trans.IDynamoDbEncryptionTransformsClient, config : string)
