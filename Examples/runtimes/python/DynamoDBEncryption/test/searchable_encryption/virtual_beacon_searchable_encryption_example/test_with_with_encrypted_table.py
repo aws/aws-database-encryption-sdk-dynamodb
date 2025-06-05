@@ -7,7 +7,7 @@ import pytest
 
 from ....src.create_keystore_key_example import keystore_create_key
 from ....src.searchable_encryption.virtual_beacon_searchable_encryption_example.with_encrypted_table import (
-    virtual_beacon_table_example
+    virtual_beacon_table_example,
 )
 from ...cleanup import delete_branch_key
 from ..searchable_encryption_test_utils import (

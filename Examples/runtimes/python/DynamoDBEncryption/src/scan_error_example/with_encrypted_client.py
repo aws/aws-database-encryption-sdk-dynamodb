@@ -15,7 +15,9 @@ configuration:
 """
 import boto3
 from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
+
 from .encryption_config import create_encryption_config, print_exception
+
 
 def scan_error_with_client(kms_key_id: str, ddb_table_name: str):
     """
