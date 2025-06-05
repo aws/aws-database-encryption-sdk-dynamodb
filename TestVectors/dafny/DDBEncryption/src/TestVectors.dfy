@@ -812,7 +812,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
 
       // Create a PartiQL INSERT statement
-      var insertStatement := CreateInsertStatement(TableName);
+      // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
+      var insertStatement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'";
       var inputForInsertStatement := DDB.ExecuteStatementInput(
         Statement := insertStatement,
         Parameters := None,
@@ -823,9 +824,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       );
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
       expect resultForInsertStatement.Failure?;
+      print(resultForInsertStatement.error);
 
       // Create a PartiQL SELECT statement
-      var selectStatement := CreateSelectStatement(TableName);
+      // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
+      var selectStatement := "SELECT * FROM" + TableName + "WHERE partition_key = 'a' AND sort_key = 'b'";
       var inputForSelectStatement := DDB.ExecuteStatementInput(
         Statement := selectStatement,
         Parameters := None,
@@ -836,19 +839,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       );
       var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
       expect resultForSelectStatement.Failure?;
-    }
-
-    function CreateInsertStatement(tableName : string) : string
-    {
-      // Convert DynamoDB item to PartiQL INSERT statement
-      "INSERT INTO \"" + tableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'"
-    }
-
-    function CreateSelectStatement(tableName : string) : string
-    {
-      // Create a SELECT statement to retrieve an item by its hash key
-      // Example: SELECT * FROM "TableName" WHERE id = 1
-      "SELECT * FROM" + tableName + "WHERE partition_key = 'a' AND sort_key = 'b'"
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
