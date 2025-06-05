@@ -39,12 +39,6 @@ from typing import Dict
 
 import boto3
 from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.client import (
-    DynamoDbEncryptionTransforms,
-)
-from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.models import (
-    ResolveAttributesInput,
-)
 
 from DynamoDBEncryption.src.searchable_encryption.compound_beacon_searchable_encryption_example.beacon_config import (
     GSI_NAME,

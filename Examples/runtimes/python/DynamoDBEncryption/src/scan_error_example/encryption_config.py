@@ -13,7 +13,6 @@ from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialPro
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
 from aws_cryptographic_material_providers.mpl.errors import CollectionOfErrors
 from aws_cryptographic_material_providers.mpl.models import CreateAwsKmsMrkMultiKeyringInput, DBEAlgorithmSuiteId
-from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
 from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
@@ -21,6 +20,7 @@ from aws_dbesdk_dynamodb.structures.dynamodb import (
 from aws_dbesdk_dynamodb.structures.structured_encryption import (
     CryptoAction,
 )
+
 
 def print_exception(e: Exception, indent: str = ""):
     """
@@ -37,6 +37,7 @@ def print_exception(e: Exception, indent: str = ""):
     elif isinstance(e, CollectionOfErrors):
         for err in e.list():
             print_exception(err, indent + "   ")
+
 
 def create_encryption_config(kms_key_id: str, ddb_table_name: str) -> DynamoDbTablesEncryptionConfig:
     """
