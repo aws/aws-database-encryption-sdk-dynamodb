@@ -166,10 +166,10 @@ STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING="module StructuredEncrypti
 
 # Target to restore all directories in a list
 # TODO: Remove this once we don't copy all of the directories and files into implementation and test https://sim.amazon.com/issues/CrypTool-5447
-RESTORE_FILESORDIR := README.md
+RESTORE_FILES_DIR := README.md
 _polymorph_go: restore_file_directories
 restore_file_directories:
-	@for dir in $(RESTORE_DIRS); do \
+	@for dir in $(RESTORE_FILES_DIR); do \
 		if [ -e "runtimes/go/ImplementationFromDafny-go/$$dir" ]; then \
 			cp -Rf runtimes/go/ImplementationFromDafny-go/$$dir runtimes/go/; \
 			rm -rf runtimes/go/ImplementationFromDafny-go/$$dir; \
