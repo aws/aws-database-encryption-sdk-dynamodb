@@ -854,6 +854,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       );
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
       expect resultForInsertStatement.Failure?;
+      expect resultForInsertStatement.error.OpaqueWithText?;
       expect resultForInsertStatement.error.objMessage == "ExecuteStatement not Supported on encrypted tables.";
 
       // Create a PartiQL SELECT statement
@@ -869,6 +870,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       );
       var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
       expect resultForSelectStatement.Failure?;
+      expect resultForSelectStatement.error.OpaqueWithText?;
       expect resultForSelectStatement.error.objMessage == "ExecuteStatement not Supported on encrypted tables.";
     }
 
