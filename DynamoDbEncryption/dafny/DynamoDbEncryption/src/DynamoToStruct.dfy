@@ -652,12 +652,12 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
     //# Entries in a serialized Map MUST be ordered by key value,
     //# ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
-    var attrNames := SortedSets.ComputeSetToOrderedSequence2(m.Keys, CharLess);
+    var attrNames : seq<AttributeName> := SortedSets.ComputeSetToOrderedSequence2(m.Keys, CharLess);
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     var len := |attrNames| as uint64;
     var output :- U32ToBigEndian64(len);
     for i : uint64 := 0 to len {
-      var k := attrNames[i];
+      var k : AttributeName := attrNames[i];
       var val := AttrToBytes(m[k], true, depth+1);
       if val.Failure? {
         var result := Failure(val.error);
