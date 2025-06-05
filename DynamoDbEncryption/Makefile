@@ -204,3 +204,24 @@ _sed_index_file_add_extern:
 	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_LEGACY_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING)
+
+transpile_dependencies:
+	@echo "No polymorphing of dependency" 
+
+_polymorph_dependencies:
+	@echo "No polymorphing of dependency"
+
+_transpile_implementation_all:
+	@echo "No polymorphing of dependency"
+
+_transpile_test_all:
+	@echo "No polymorphing of dependency"
+
+_transpile_dependencies:
+	@echo "No polymorphing of dependency"
+
+_transpile_dependencies_test:
+	@echo "No polymorphing of dependency"
+
+mvn_local_deploy_dependencies:
+	@echo "No polymorphing of dependency"
