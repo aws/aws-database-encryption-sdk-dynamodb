@@ -165,12 +165,12 @@ STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.a
 STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING="module StructuredEncryption"
 
 # Target to restore all directories in a list
-# TODO: Remove this once we don't copy all of the directories into implementation and test https://sim.amazon.com/issues/CrypTool-5447
-RESTORE_DIRS := README.md
-_polymorph_go: restore_directories
-restore_directories:
+# TODO: Remove this once we don't copy all of the directories and files into implementation and test https://sim.amazon.com/issues/CrypTool-5447
+RESTORE_FILESORDIR := README.md
+_polymorph_go: restore_file_directories
+restore_file_directories:
 	@for dir in $(RESTORE_DIRS); do \
-		if [ -d "runtimes/go/ImplementationFromDafny-go/$$dir" ]; then \
+		if [ -e "runtimes/go/ImplementationFromDafny-go/$$dir" ]; then \
 			cp -Rf runtimes/go/ImplementationFromDafny-go/$$dir runtimes/go/; \
 			rm -rf runtimes/go/ImplementationFromDafny-go/$$dir; \
 			rm -rf runtimes/go/TestsFromDafny-go/$$dir; \
@@ -204,3 +204,24 @@ _sed_index_file_add_extern:
 	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_LEGACY_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_LEGACY_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(TRANSFORMS_INDEX_FILE_PATH) SED_BEFORE_STRING=$(TRANSFORMS_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(TRANSFORMS_INDEX_FILE_WITH_EXTERN_STRING)
 	$(MAKE) _sed_file SED_FILE_PATH=$(STRUCTUREDENCRYPTION_INDEX_FILE_PATH) SED_BEFORE_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(STRUCTUREDENCRYPTION_INDEX_FILE_WITH_EXTERN_STRING)
+
+transpile_dependencies:
+	@echo "No polymorphing of dependency" 
+
+_polymorph_dependencies:
+	@echo "No polymorphing of dependency"
+
+_transpile_implementation_all:
+	@echo "No polymorphing of dependency"
+
+_transpile_test_all:
+	@echo "No polymorphing of dependency"
+
+_transpile_dependencies:
+	@echo "No polymorphing of dependency"
+
+_transpile_dependencies_test:
+	@echo "No polymorphing of dependency"
+
+mvn_local_deploy_dependencies:
+	@echo "No polymorphing of dependency"
