@@ -3,7 +3,7 @@
 """
 Example demonstrating DynamoDb Encryption using a Hierarchical Keyring with EncryptedTable.
 
-This example sets up DynamoDb Encryption for the AWS SDK client
+This example sets up DynamoDb Encryption for the AWS SDK table resource
 using the Hierarchical Keyring, which establishes a key hierarchy
 where "branch" keys are persisted in DynamoDb.
 These branch keys are used to protect your data keys,

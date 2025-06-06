@@ -46,7 +46,7 @@ then they WILL share the cache entries in the Shared Cache.
 Please make sure that you set all of Partition ID, Logical Key Store Name and Branch Key ID
 to be the same for two Hierarchical Keyrings if and only if you want them to share cache entries.
 
-This example sets up DynamoDb Encryption for the AWS SDK client using the Hierarchical
+This example sets up DynamoDb Encryption for the AWS SDK table resource using the Hierarchical
 Keyring, which establishes a key hierarchy where "branch" keys are persisted in DynamoDb.
 These branch keys are used to protect your data keys, and these branch keys are themselves
 protected by a root KMS Key.
