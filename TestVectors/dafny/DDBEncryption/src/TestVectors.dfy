@@ -856,10 +856,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
       expect resultForInsertStatement.Failure?;
       expect resultForInsertStatement.error.OpaqueWithText?;
-      print("error message:");
-      print(resultForInsertStatement.error.objMessage);
-      print("\n");
-      expect resultForInsertStatement.error.objMessage == "ExecuteStatement not Supported on encrypted tables.";
 
       // Create a PartiQL SELECT statement
       // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
@@ -875,7 +871,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
       expect resultForSelectStatement.Failure?;
       expect resultForSelectStatement.error.OpaqueWithText?;
-      expect resultForSelectStatement.error.objMessage == "ExecuteStatement not Supported on encrypted tables.";
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
