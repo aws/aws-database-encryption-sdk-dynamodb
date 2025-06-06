@@ -1109,42 +1109,10 @@ module DynamoDBFilterExpr {
       1 + StringsFollowing(input[..|input|-1])
   }
 
-  // generic version should be moved back to standard library
-  method HasSubString<T(==)>(haystack: seq<T>, needle: seq<T>)
-    returns (o: Wrappers.Option<nat>)
-
-    ensures o.Some? ==>
-              && o.value <= |haystack| - |needle| && haystack[o.value..(o.value + |needle|)] == needle
-              && (forall i | 0 <= i < o.value :: haystack[i..][..|needle|] != needle)
-
-    ensures |haystack| < |needle| ==> o.None?
-
-    ensures o.None? && |needle| <= |haystack| && |haystack| <= (UINT64_MAX_LIMIT-1) ==>
-              (forall i | 0 <= i <= (|haystack|-|needle|) :: haystack[i..][..|needle|] != needle)
-  {
-    SequenceIsSafeBecauseItIsInMemory(haystack);
-    SequenceIsSafeBecauseItIsInMemory(needle);
-    if |haystack| as uint64 < |needle| as uint64 {
-      return Wrappers.None;
-    }
-
-    var size : uint64 := |needle| as uint64;
-    var limit: uint64 := Add(|haystack| as uint64 - size, 1);
-
-    for index := 0 to limit
-      invariant forall i | 0 <= i < index :: haystack[i..][..size] != needle
-    {
-      if Sequence.SequenceEqual(seq1 := haystack, seq2 := needle, start1 := index, start2 := 0, size := size) {
-        return Wrappers.Some(index as nat);
-      }
-    }
-    return Wrappers.None;
-  }
-
   // true if haystack contains needle
   method seq_contains<T(==)>(haystack : seq<T>, needle : seq<T>) returns (ret : bool)
   {
-    var result := HasSubString(haystack, needle);
+    var result := String.HasSubString(haystack, needle);
     return result.Some?;
   }
 
