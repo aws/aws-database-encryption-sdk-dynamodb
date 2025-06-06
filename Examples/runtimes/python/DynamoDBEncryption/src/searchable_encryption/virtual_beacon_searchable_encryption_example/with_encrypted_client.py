@@ -1,7 +1,5 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
 """
 Example demonstrating DynamoDB encryption using virtual beacons with EncryptedClient.
 
