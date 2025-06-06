@@ -16,9 +16,8 @@ include "UpdateExpr.dfy"
 include "Util.dfy"
 include "Virtual.dfy"
 
-module
-  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny" }
-  DynamoDbEncryption refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
+module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny" } DynamoDbEncryption
+  refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
 {
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbOperations
 
