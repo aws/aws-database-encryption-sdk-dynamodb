@@ -95,4 +95,4 @@ jobs:
           # Run simple examples
           tox -e dynamodbencryption
           # Run migration examples
-          # tox -e migration
+          tox -e migration
