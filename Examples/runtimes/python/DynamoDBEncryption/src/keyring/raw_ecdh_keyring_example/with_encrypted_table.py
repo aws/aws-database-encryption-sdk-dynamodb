@@ -1,7 +1,7 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-These examples set up DynamoDb Encryption for the AWS SDK table resource using the raw ECDH Keyring with EncrypedTable.
+These examples set up DynamoDb Encryption for the AWS SDK Table resource using the raw ECDH Keyring with EncrypedTable.
 
 This keyring, depending on its KeyAgreement scheme,
 takes in the sender's ECC private key, and the recipient's ECC Public Key to derive a shared secret.
