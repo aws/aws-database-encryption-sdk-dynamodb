@@ -153,4 +153,5 @@ runs:
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
+        cat DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated/to_dafny.go
         make check_polymorph_diff
