@@ -122,7 +122,7 @@ def raw_ecdh_keyring_get_item_put_item_with_encrypted_client(ddb_table_name: str
     put_get_example_with_keyring_with_encrypted_client(raw_ecdh_keyring, ddb_table_name)
 
 
-def ephemeral_raw_ecdh_keyring_put_item_with_ecnrypted_client(ddb_table_name: str, curve_spec: str):
+def ephemeral_raw_ecdh_keyring_put_item_with_encrypted_client(ddb_table_name: str, curve_spec: str):
     """
     Demonstrate using a raw ECDH keyring with ephemeral keys.
 
@@ -175,7 +175,7 @@ def ephemeral_raw_ecdh_keyring_put_item_with_ecnrypted_client(ddb_table_name: st
     put_example_with_keyring_with_encrypted_client(raw_ecdh_keyring, ddb_table_name)
 
 
-def discovery_raw_ecdh_keyring_get_item_with_ecnrypted_client(ddb_table_name: str, curve_spec: str):
+def discovery_raw_ecdh_keyring_get_item_with_encrypted_client(ddb_table_name: str, curve_spec: str):
     """
     Demonstrate using a raw ECDH keyring with discovery.
 

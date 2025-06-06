@@ -9,8 +9,8 @@ from ....src.keyring.raw_ecdh_keyring_example.utility import (
     should_generate_new_ecc_key_pairs,
 )
 from ....src.keyring.raw_ecdh_keyring_example.with_encrypted_client import (
-    discovery_raw_ecdh_keyring_get_item_with_ecnrypted_client,
-    ephemeral_raw_ecdh_keyring_put_item_with_ecnrypted_client,
+    discovery_raw_ecdh_keyring_get_item_with_encrypted_client,
+    ephemeral_raw_ecdh_keyring_put_item_with_encrypted_client,
     raw_ecdh_keyring_get_item_put_item_with_encrypted_client,
 )
 from ...test_utils import TEST_DDB_TABLE_NAME
@@ -46,7 +46,7 @@ def test_ephemeral_raw_ecdh_keyring_put_item():
 
     # Part of using these keyrings is knowing which curve the keys used in the key agreement
     # lie on. The keyring will fail if the keys do not lie on the configured curve.
-    ephemeral_raw_ecdh_keyring_put_item_with_ecnrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
+    ephemeral_raw_ecdh_keyring_put_item_with_encrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
 
 
 def test_discovery_raw_ecdh_keyring_get_item():
@@ -68,9 +68,9 @@ def test_discovery_raw_ecdh_keyring_get_item():
 
     # In this call we are writing a record that is written with an ephemeral sender key pair.
     # The recipient will be able to decrypt the message
-    ephemeral_raw_ecdh_keyring_put_item_with_ecnrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
+    ephemeral_raw_ecdh_keyring_put_item_with_encrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
 
     # In this call we are reading a record that was written with the recipient's public key.
     # It will use the recipient's private key and the sender's public key stored in the message to
     # calculate the appropriate shared secret to successfully decrypt the message.
-    discovery_raw_ecdh_keyring_get_item_with_ecnrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
+    discovery_raw_ecdh_keyring_get_item_with_encrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
