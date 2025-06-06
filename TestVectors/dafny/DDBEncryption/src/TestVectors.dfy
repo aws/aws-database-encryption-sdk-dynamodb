@@ -855,6 +855,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
       expect resultForInsertStatement.Failure?;
       expect resultForInsertStatement.error.OpaqueWithText?;
+      print("error message:");
+      print(resultForInsertStatement.error.objMessage);
+      print("\n");
       expect resultForInsertStatement.error.objMessage == "ExecuteStatement not Supported on encrypted tables.";
 
       // Create a PartiQL SELECT statement
