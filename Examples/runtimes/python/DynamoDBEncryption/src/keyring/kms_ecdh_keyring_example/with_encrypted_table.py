@@ -3,7 +3,7 @@
 """
 Examples demonstrating DynamoDb Encryption using an AWS KMS ECDH Keyring with EncryptedTable.
 
-These examples set up DynamoDb Encryption for the AWS SDK table resource
+These examples set up DynamoDb Encryption for the AWS SDK Table resource
 using the AWS KMS ECDH Keyring. This keyring, depending on its KeyAgreement scheme,
 takes in the sender's KMS ECC Key ARN, and the recipient's ECC Public Key to derive a shared secret.
 The keyring uses the shared secret to derive a data key to protect the
