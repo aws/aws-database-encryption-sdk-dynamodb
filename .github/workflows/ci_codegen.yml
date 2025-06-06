@@ -17,7 +17,7 @@ jobs:
         # Note dotnet is only used for formatting generated code
         # in this workflow
         dotnet-version: ["6.0.x"]
-        os: [ubuntu-22.04]
+        os: [macos-13]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
