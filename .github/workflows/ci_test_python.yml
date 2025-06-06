@@ -121,6 +121,7 @@ jobs:
         shell: bash
         run: |
           tox -e integ
+          tox -e legacyinteg
 
       - name: Test ${{ matrix.library }} Python coverage
         working-directory: ./${{ matrix.library }}/runtimes/python

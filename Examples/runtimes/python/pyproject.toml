@@ -6,7 +6,7 @@ authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11.0"
-aws-dbesdk-dynamodb = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false}
+aws-dbesdk-dynamodb = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false, extras = ["legacy-ddbec"]}
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
