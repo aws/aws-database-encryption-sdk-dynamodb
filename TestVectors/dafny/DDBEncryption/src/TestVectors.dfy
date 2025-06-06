@@ -854,8 +854,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         Limit := None
       );
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
-      expect resultForInsertStatement.Failure?;
-      expect resultForInsertStatement.error.OpaqueWithText?;
+      expect resultForInsertStatement.Failure?, "ExecuteStatement should have failed";
+      expect resultForInsertStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
 
       // Create a PartiQL SELECT statement
       // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
@@ -869,8 +869,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         Limit := None
       );
       var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
-      expect resultForSelectStatement.Failure?;
-      expect resultForSelectStatement.error.OpaqueWithText?;
+      expect resultForSelectStatement.Failure?, "ExecuteStatement should have failed";
+      expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
