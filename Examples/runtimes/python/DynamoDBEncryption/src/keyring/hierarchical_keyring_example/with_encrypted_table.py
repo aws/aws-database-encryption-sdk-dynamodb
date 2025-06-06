@@ -3,11 +3,34 @@
 """
 Example demonstrating DynamoDb Encryption using a Hierarchical Keyring with EncryptedTable.
 
-This example sets up DynamoDb Encryption for the AWS SDK table
+This example sets up DynamoDb Encryption for the AWS SDK client
 using the Hierarchical Keyring, which establishes a key hierarchy
 where "branch" keys are persisted in DynamoDb.
 These branch keys are used to protect your data keys,
 and these branch keys are themselves protected by a root KMS Key.
+
+Establishing a key hierarchy like this has two benefits:
+
+First, by caching the branch key material, and only calling back
+to KMS to re-establish authentication regularly according to your configured TTL,
+you limit how often you need to call back to KMS to protect your data.
+This is a performance/security tradeoff, where your authentication, audit, and
+logging from KMS is no longer one-to-one with every encrypt or decrypt call.
+However, the benefit is that you no longer have to make a
+network call to KMS for every encrypt or decrypt.
+
+Second, this key hierarchy makes it easy to hold multi-tenant data
+that is isolated per branch key in a single DynamoDb table.
+You can create a branch key for each tenant in your table,
+and encrypt all that tenant's data under that distinct branch key.
+On decrypt, you can either statically configure a single branch key
+to ensure you are restricting decryption to a single tenant,
+or you can implement an interface that lets you map the primary key on your items
+to the branch key that should be responsible for decrypting that data.
+
+This example then demonstrates configuring a Hierarchical Keyring
+with a Branch Key ID Supplier to encrypt and decrypt data for
+two separate tenants.
 
 Running this example requires access to the DDB Table whose name
 is provided in CLI arguments.
