@@ -11,7 +11,7 @@ from ....src.keyring.raw_ecdh_keyring_example.utility import (
 from ....src.keyring.raw_ecdh_keyring_example.with_encrypted_client import (
     discovery_raw_ecdh_keyring_get_item_with_ecnrypted_client,
     ephemeral_raw_ecdh_keyring_put_item_with_ecnrypted_client,
-    raw_ecdh_keyring_get_item_put_item_with_ecnrypted_client,
+    raw_ecdh_keyring_get_item_put_item_with_encrypted_client,
 )
 from ...test_utils import TEST_DDB_TABLE_NAME
 
@@ -31,7 +31,7 @@ def test_raw_ecdh_keyring_get_item_put_item():
 
     # Part of using these keyrings is knowing which curve the keys used in the key agreement
     # lie on. The keyring will fail if the keys do not lie on the configured curve.
-    raw_ecdh_keyring_get_item_put_item_with_ecnrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
+    raw_ecdh_keyring_get_item_put_item_with_encrypted_client(TEST_DDB_TABLE_NAME, ECDHCurveSpec.ECC_NIST_P256)
 
 
 def test_ephemeral_raw_ecdh_keyring_put_item():

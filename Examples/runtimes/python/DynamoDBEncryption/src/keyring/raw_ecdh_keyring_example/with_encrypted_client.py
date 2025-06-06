@@ -46,7 +46,7 @@ from .utility import (
 )
 
 
-def raw_ecdh_keyring_get_item_put_item_with_ecnrypted_client(ddb_table_name: str, curve_spec: str):
+def raw_ecdh_keyring_get_item_put_item_with_encrypted_client(ddb_table_name: str, curve_spec: str):
     """
     Demonstrate using a raw ECDH keyring with static keys.
 
