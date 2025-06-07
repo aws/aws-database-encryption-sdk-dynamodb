@@ -13,6 +13,7 @@ include = ["**/internaldafny/generated/*.py"]
 [tool.poetry.dependencies]
 python = "^3.11.0"
 aws-cryptographic-material-providers = { path = "../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/python", develop = false}
+dynamodb_encryption_sdk = "^3.3.0"
 
 # Package testing
 

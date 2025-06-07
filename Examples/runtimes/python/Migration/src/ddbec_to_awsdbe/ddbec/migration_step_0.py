@@ -1,0 +1,109 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+Migration Step 0.
+
+This is an example demonstrating use with the DynamoDb Encryption Client.
+and is the starting state for our migration to the AWS Database Encryption SDK for DynamoDb.
+In this example we configure a DynamoDBMapper configured to encrypt and decrypt
+items. The encryption and decryption of data is configured to use a KMS Key as the root of trust.
+
+Running this example requires access to the DDB Table whose name
+is provided in CLI arguments.
+This table must be configured with the following
+primary key configuration:
+  - Partition key is named "partition_key" with type (S)
+  - Sort key is named "sort_key" with type (S)
+"""
+
+import boto3
+
+# Import from legacy DynamoDB Encryption Client
+from dynamodb_encryption_sdk.encrypted.client import EncryptedClient
+from dynamodb_encryption_sdk.identifiers import CryptoAction
+from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
+from dynamodb_encryption_sdk.structures import AttributeActions
+
+
+def migration_step_0(kms_key_id, ddb_table_name, sort_read_value=0):
+    """
+    Migration Step 0: Using the DynamoDb Encryption Client.
+
+    Args:
+        kms_key_id: The ARN of the KMS key to use for encryption
+        ddb_table_name: The name of the DynamoDB table
+        sort_read_value: The sort key value to read
+
+    """
+    # 1. Create the MaterialProvider that protects your data keys. For this example,
+    #    we create a KmsCryptographicMaterialsProvider which protects data keys using a single kmsKey.
+    cmp = AwsKmsCryptographicMaterialsProvider(key_id=kms_key_id)
+
+    # 2. Create the DynamoDBEncryptor using the Material Provider created above
+    actions = AttributeActions(
+        default_action=CryptoAction.ENCRYPT_AND_SIGN,
+        attribute_actions={
+            "partition_key": CryptoAction.SIGN_ONLY,
+            "sort_key": CryptoAction.SIGN_ONLY,
+            "attribute1": CryptoAction.ENCRYPT_AND_SIGN,
+            "attribute2": CryptoAction.SIGN_ONLY,
+            ":attribute3": CryptoAction.DO_NOTHING,
+        },
+    )
+
+    # 3. Create an EncryptedClient with a AttributeEncryptor configured with the above encryptor.
+    #    This is the legacy DynamoDB Encryption Client way to encrypt and decrypt items.
+    ddb_client = boto3.client("dynamodb")
+    encrypted_client = EncryptedClient(client=ddb_client, materials_provider=cmp, attribute_actions=actions)
+
+    # 4. Put an example item into our DynamoDb table.
+    #    This item will be encrypted client-side before it is sent to DynamoDb.
+    item = {
+        "partition_key": {"S": "MigrationExampleForPython"},
+        "sort_key": {"N": str(0)},
+        "attribute1": {"S": "encrypt and sign me!"},
+        "attribute2": {"S": "sign me!"},
+        "attribute3": {"S": "ignore me!"},
+    }
+
+    encrypted_client.put_item(TableName=ddb_table_name, Item=item)
+
+    # 5. Get this item back from DynamoDb.
+    #    The item will be decrypted client-side, and the original item returned.
+    key = {"partition_key": {"S": "MigrationExampleForPython"}, "sort_key": {"N": str(sort_read_value)}}
+
+    response = encrypted_client.get_item(TableName=ddb_table_name, Key=key)
+
+    # Demonstrate we get the expected item back
+    decrypted_item = response.get("Item", {})
+    if decrypted_item:
+        assert decrypted_item["partition_key"]["S"] == "MigrationExampleForPython"
+        assert decrypted_item["attribute1"]["S"] == "encrypt and sign me!"
+    else:
+        print(f"No item found with partition_key=MigrationExample, sort_key={sort_read_value}")
+
+
+# def run_example():
+#     """Run the legacy DynamoDB Encryption Client example."""
+
+#     print("=== Migration Example Step 0: Using Legacy DynamoDB Encryption Client ===")
+
+#     try:
+#         # You can manipulate this value to demonstrate reading records written in other steps
+#         sort_read_value = 0
+
+#         migration_step0(
+#             kms_key_id=common.KMS_KEY_ID,
+#             ddb_table_name=common.TABLE_NAME,
+#             sort_read_value=sort_read_value
+#         )
+
+#         print("\nLegacy DynamoDB Encryption Client example completed successfully!")
+#     except Exception as e:
+#         print(f"Error in legacy DynamoDB Encryption Client example: {e}")
+#         raise
+#     finally:
+#         # Uncomment to delete the table when done
+#         # common.delete_table()
+#         pass

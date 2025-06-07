@@ -93,6 +93,6 @@ jobs:
         working-directory: ./Examples/runtimes/python
         run: |
           # Run simple examples
-          tox -e dynamodbencryption
+          # tox -e dynamodbencryption
           # Run migration examples
-          # tox -e migration
+          tox -e migration
