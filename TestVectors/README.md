@@ -26,19 +26,22 @@ Start in the root `./TestVectors` directory and read the runtime specific buildi
 #### .NET
 
 1. Run `make transpile_net`
-2. Run `cd runtimes/net`
+2. Run `cp ./java/*.json ./net/`
+3. Run `cd runtimes/net`
 3. Run `dotnet run --framework net6.0`
 
 #### Rust
 
 1. Run `make transpile_rust`
-2. Run `make polymorph_rust`
-3. Run `make test_rust`
+2. Run `cp ./java/*.json ./rust/`
+3. Run `make polymorph_rust`
+4. Run `make test_rust`
 
 #### Go
 
 1. Run `make transpile_go`
-2. Run `make test_go`
+2. Run `cp ./java/*.json ./go/`
+3. Run `make test_go`
 
 ### Saving results for later
 
