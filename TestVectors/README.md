@@ -16,7 +16,7 @@ This validates the Database Encryption SDK's cross-version compatibility.
 
 ### Building and Running
 
-Start in the root `./TestVectors` directory and read the runtime specific building and running instruction below.
+Start in the root `./TestVectors` directory and read the runtime specific building and running instructions below.
 
 #### Java
 1. Run `make build_java`
