@@ -384,6 +384,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestBatchWriteItem(c1, c2, globalRecords);
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
+        BasicIoTestExecuteStatement(c1, c2);
       }
     }
 
@@ -832,6 +833,50 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestGetItem(rClient, records);
       BasicIoTestScan(rClient, records);
       BasicIoTestTransactGetItems(rClient, records);
+    }
+
+    method BasicIoTestExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+
+      // Create a PartiQL INSERT statement
+      // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
+      var insertStatement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'";
+      var inputForInsertStatement := DDB.ExecuteStatementInput(
+        Statement := insertStatement,
+        Parameters := None,
+        ConsistentRead := None,
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := None
+      );
+      var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
+      expect resultForInsertStatement.Failure?, "ExecuteStatement should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForInsertStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+
+      // Create a PartiQL SELECT statement
+      // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
+      var selectStatement := "SELECT * FROM " + TableName + " WHERE partition_key = 'a' AND sort_key = 'b'";
+      var inputForSelectStatement := DDB.ExecuteStatementInput(
+        Statement := selectStatement,
+        Parameters := None,
+        ConsistentRead := Some(true),
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := None
+      );
+      var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
+      expect resultForSelectStatement.Failure?, "ExecuteStatement should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
