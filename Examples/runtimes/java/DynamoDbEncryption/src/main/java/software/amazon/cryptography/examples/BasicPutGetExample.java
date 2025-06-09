@@ -2,6 +2,7 @@ package software.amazon.cryptography.examples;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -30,7 +31,7 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class BasicPutGetExample {
 
-  public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
+  public static void PutItemGetItem(String kmsKeyId, String ddbTableName, String PartitionKeyName) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -142,7 +143,7 @@ public class BasicPutGetExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("BasicPutGetExample").build()
+      AttributeValue.builder().s(PartitionKeyName).build()
     );
     item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
@@ -169,7 +170,7 @@ public class BasicPutGetExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("BasicPutGetExample").build()
+      AttributeValue.builder().s(PartitionKeyName).build()
     );
     keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
@@ -201,6 +202,6 @@ public class BasicPutGetExample {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
-    PutItemGetItem(kmsKeyId, ddbTableName);
+    PutItemGetItem(kmsKeyId, ddbTableName, "BasicPutGetExample");
   }
 }
