@@ -671,6 +671,14 @@ module {:options "/functionSyntax:4" } Canonize {
     exists x :: x in origData && Updated2(x, item, DoDecrypt)
   }
 
+  ghost function Updated2Item(origData : AuthList, item : CanonCryptoItem) : (result : AuthItem)
+    requires Updated2Exists(origData, item)
+    ensures Updated2(result, item, DoDecrypt)
+  {
+    var r :| Updated2(r, item, DoDecrypt);
+    r
+  }
+
   ghost predicate Updated5Exists(origData : CryptoList, item : CanonCryptoItem)
   {
     exists x :: x in origData && Updated5(x, item, DoEncrypt)
@@ -698,11 +706,12 @@ module {:options "/functionSyntax:4" } Canonize {
     reveal CryptoUpdatedAuth();
     assert forall k <- output :: exists x :: x in origData && Updated3(x, k, DoDecrypt) by {
       Update2ImpliesUpdate3();
-      assert forall val <- input :: exists x :: x in origData && Updated2(x, val, DoDecrypt);
-      assume {:axiom} forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt);
-      // assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt) by {
-      //   InputIsInput(origData, input);
-      // }
+      assert forall i | 0 <= i < |input| :: exists x :: x in origData && Updated2(x, input[i], DoDecrypt) by {
+        InputIsInput(origData, input);
+        forall i | 0 <= i < |input| ensures exists x :: x in origData && Updated2(x, input[i], DoDecrypt) {
+          var x := Updated2Item(origData, input[i]);
+        }
+      }
       assert forall newVal <- output :: exists x :: x in origData && Updated3(x, newVal, DoDecrypt);
     }
   }
