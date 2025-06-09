@@ -146,7 +146,6 @@ runs:
       shell: bash
       run: |
         make polymorph_go
-        goimports -w .
 
     - name: Check regenerated code against commited code
       # Composite action inputs seem to not actually support booleans properly for some reason
@@ -154,5 +153,4 @@ runs:
       working-directory: ./${{ inputs.library }}
       shell: bash
       run: |
-        cat runtimes/go/ImplementationFromDafny-go/awscryptographydbencryptionsdkdynamodbsmithygenerated/to_dafny.go
         make check_polymorph_diff
