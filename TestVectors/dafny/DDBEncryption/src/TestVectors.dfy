@@ -855,6 +855,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       );
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
       expect resultForInsertStatement.Failure?, "ExecuteStatement should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForInsertStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
 
       // Create a PartiQL SELECT statement
@@ -870,6 +873,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       );
       var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
       expect resultForSelectStatement.Failure?, "ExecuteStatement should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
     }
 
