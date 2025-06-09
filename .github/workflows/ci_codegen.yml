@@ -35,7 +35,6 @@ jobs:
         with:
           submodules: recursive
       - run: git submodule update --init --recursive submodules/smithy-dafny
-      - run: git submodule update --init --recursive submodules/MaterialProviders
 
       # Only used to format generated code
       # and to translate version strings such as "nightly-latest"
