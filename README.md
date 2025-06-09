@@ -48,7 +48,7 @@ This repository is a top level repository which houses all source code in order 
 different runtimes.
 
 This library is written in Dafny, a formally verifiable programming language that can be compiled into
-different runtimes. This library is currently **ONLY** supported in Java and .NET
+different runtimes. This library is currently **ONLY** supported in Java, .NET and Rust.
 
 ### AWS Integration
 
@@ -71,7 +71,7 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
 
 # Contributing
 
-See [CONTRIBUTING](CONTRIBUTING.md) for more information.
+See [CONTRIBUTING](CONTRIBUTING.md) for more information. For detailed information about code organization and development see [DynamoDbEncryption README](./DynamoDbEncryption/README.md)
 
 # License
 
