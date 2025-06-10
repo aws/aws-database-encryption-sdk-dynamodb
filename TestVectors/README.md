@@ -28,7 +28,7 @@ Start in the root `./TestVectors` directory and read the runtime specific buildi
 1. Run `make transpile_net`
 2. Run `cp ./runtimes/java/*.json ./runtimes/net/`
 3. Run `cd runtimes/net`
-3. Run `dotnet run --framework net6.0`
+4. Run `dotnet run --framework net6.0`
 
 #### Rust
 
