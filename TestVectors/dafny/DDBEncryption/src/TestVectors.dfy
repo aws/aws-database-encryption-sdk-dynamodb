@@ -961,8 +961,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // This error is of type DynamoDbEncryptionTransformsException
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
-      print("\n resultForBatchInsert: \n");
-      print(resultForBatchInsert);
       expect resultForBatchInsert.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
 
       // Test with read client for batch select
