@@ -18,6 +18,7 @@ jobs:
         # in this workflow
         dotnet-version: ["6.0.x"]
         os: [ubuntu-22.04]
+        go-version: [1.23]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -47,6 +48,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Install Go imports
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
 
       - name: Create temporary global.json
         run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
