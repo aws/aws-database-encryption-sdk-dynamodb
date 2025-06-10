@@ -26,15 +26,18 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
   is provided in CLI arguments.
   This table must be configured with the following
   primary key configuration:
-    - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (N)
+    - Partition key is named `partitionKeyName` with type (S)
+    - Sort key is named `sortKeyName` with type (N)
  */
 public class BasicPutGetExample {
 
   public static void PutItemGetItem(
-    String kmsKeyId,
-    String ddbTableName,
-    String PartitionKeyName
+    final String kmsKeyId,
+    final String ddbTableName,
+    final String partitionKeyName,
+    final String sortKeyName,
+    final String partitionKeyValue,
+    final String sortKeyValue
   ) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
@@ -57,8 +60,8 @@ public class BasicPutGetExample {
     //      - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
     //      - DO_NOTHING: The attribute is not encrypted and not included in the signature
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
-    attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put("sort_key", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put(partitionKeyName, CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put(sortKeyName, CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put("attribute1", CryptoAction.ENCRYPT_AND_SIGN);
     attributeActionsOnEncrypt.put("attribute2", CryptoAction.SIGN_ONLY);
     attributeActionsOnEncrypt.put(":attribute3", CryptoAction.DO_NOTHING);
@@ -99,8 +102,8 @@ public class BasicPutGetExample {
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig
       .builder()
       .logicalTableName(ddbTableName)
-      .partitionKeyName("partition_key")
-      .sortKeyName("sort_key")
+      .partitionKeyName(partitionKeyName)
+      .sortKeyName(sortKeyName)
       .attributeActionsOnEncrypt(attributeActionsOnEncrypt)
       .keyring(kmsKeyring)
       .allowedUnsignedAttributePrefix(unsignAttrPrefix)
@@ -146,10 +149,10 @@ public class BasicPutGetExample {
     //    client-side, according to our configuration.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
-      "partition_key",
-      AttributeValue.builder().s(PartitionKeyName).build()
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "attribute1",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -173,10 +176,10 @@ public class BasicPutGetExample {
     //    back the original item.
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
-      "partition_key",
-      AttributeValue.builder().s(PartitionKeyName).build()
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -199,13 +202,19 @@ public class BasicPutGetExample {
   }
 
   public static void main(final String[] args) {
-    if (args.length < 2) {
+    if (args.length < 6) {
       throw new IllegalArgumentException(
-        "To run this example, include the kmsKeyId as args[0] and ddbTableName as args[1]"
+        "To run this example, include the kmsKeyId as args[0], ddbTableName as args[1],"
+        + " partitionKeyName as args[2], sortKeyName as args[3], partitionKeyValue as args[4]"
+        + " sortKeyValue as args[5]"
       );
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
-    PutItemGetItem(kmsKeyId, ddbTableName, "BasicPutGetExample");
+    final String partitionKeyName = args[2];
+    final String sortKeyName = args[3];
+    final String partitionKeyValue = args[4];
+    final String sortKeyValue = args[5];
+    PutItemGetItem(kmsKeyId, ddbTableName, partitionKeyName, sortKeyName, partitionKeyValue, sortKeyValue);
   }
 }
