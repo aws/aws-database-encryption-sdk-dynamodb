@@ -385,6 +385,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
         BasicIoTestExecuteStatement(c1, c2);
+        BasicIoTestExecuteTransaction(c1, c2);
       }
     }
 
@@ -877,6 +878,47 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+    }
+
+    method BasicIoTestExecuteTransaction(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+
+      // Create a PartiQL transaction with INSERT and SELECT statements
+      // The dynamodb attributes are random and non-existent because ExecuteTransaction is supposed to fail before going to dynamodb
+      var statements := [
+        DDB.ParameterizedStatement(
+          Statement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'value1'}",
+          Parameters := None
+        ),
+        DDB.ParameterizedStatement(
+          Statement := "SELECT * FROM " + TableName + " WHERE partition_key = 'a' AND sort_key = 'b'",
+          Parameters := None
+        )
+      ];
+
+      var inputForTransaction := DDB.ExecuteTransactionInput(
+        TransactStatements := statements,
+        ClientRequestToken := None
+      );
+
+      // Test with write client
+      var resultForWriteTransaction := wClient.ExecuteTransaction(inputForTransaction);
+      expect resultForWriteTransaction.Failure?, "ExecuteTransaction should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      print(resultForWriteTransaction);
+      expect resultForWriteTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+
+      // Test with read client
+      var resultForReadTransaction := rClient.ExecuteTransaction(inputForTransaction);
+      expect resultForReadTransaction.Failure?, "ExecuteTransaction should have failed";
+      print(resultForReadTransaction);
+      expect resultForReadTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
