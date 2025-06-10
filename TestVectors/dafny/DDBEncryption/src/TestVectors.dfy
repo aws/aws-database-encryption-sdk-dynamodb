@@ -865,7 +865,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForInsertStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForInsertStatement? := String.HasSubString(resultForInsertStatement.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForInsertStatement? := String.HasSubString(resultForInsertStatement.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForInsertStatement?.Some?;
 
       // Create a PartiQL SELECT statement
@@ -885,7 +885,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForSelectStatement? := String.HasSubString(resultForSelectStatement.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForSelectStatement? := String.HasSubString(resultForSelectStatement.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForSelectStatement?.Some?;
     }
 
@@ -918,7 +918,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForWriteTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForWriteTransaction? := String.HasSubString(resultForWriteTransaction.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForWriteTransaction? := String.HasSubString(resultForWriteTransaction.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForWriteTransaction?.Some?;
 
       // Test with read client
@@ -928,7 +928,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForReadTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForReadTransaction? := String.HasSubString(resultForReadTransaction.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForReadTransaction? := String.HasSubString(resultForReadTransaction.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForReadTransaction?.Some?;
     }
 
@@ -968,7 +968,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForBatchInsert.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForBatchInsert? := String.HasSubString(resultForBatchInsert.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForBatchInsert? := String.HasSubString(resultForBatchInsert.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForBatchInsert?.Some?;
 
       // Test with read client for batch select
@@ -983,7 +983,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForBatchSelect.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForBatchSelect? := String.HasSubString(resultForBatchSelect.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForBatchSelect? := String.HasSubString(resultForBatchSelect.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForBatchSelect?.Some?;
 
       // Test with mixed batch (both inserts and selects)
@@ -998,7 +998,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForMixedBatch.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-      var hasDynamoDbEncryptionTransformsExceptionForMixedBatch? := String.HasSubString(resultForMixedBatch.error.objMessage, "DynamoDbEncryptionTransformsException");
+      var hasDynamoDbEncryptionTransformsExceptionForMixedBatch? := String.HasSubString(resultForMixedBatch.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForMixedBatch?.Some?;
     }
 
