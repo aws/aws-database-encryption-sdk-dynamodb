@@ -968,6 +968,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       var resultForBatchSelect := rClient.BatchExecuteStatement(inputForBatchSelect);
       expect resultForBatchSelect.Failure?, "BatchExecuteStatement for selects should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForBatchSelect.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
 
       // Test with mixed batch (both inserts and selects)
@@ -978,6 +981,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       var resultForMixedBatch := wClient.BatchExecuteStatement(inputForMixedBatch);
       expect resultForMixedBatch.Failure?, "BatchExecuteStatement for mixed batch should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForMixedBatch.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
     }
 
