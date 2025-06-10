@@ -2,7 +2,6 @@ package software.amazon.cryptography.examples;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
