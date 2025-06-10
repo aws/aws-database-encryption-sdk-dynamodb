@@ -19,6 +19,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened DynamoDbEncryptionUtil
   import opened DdbItemJson
   import opened JsonConfig
+  import StandardLibrary.String
 
   import WriteManifest
   import EncryptManifest
@@ -864,6 +865,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForInsertStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForInsertStatement? := String.HasSubString(resultForInsertStatement.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForInsertStatement?.Some?;
 
       // Create a PartiQL SELECT statement
       // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
@@ -882,6 +885,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForSelectStatement? := String.HasSubString(resultForSelectStatement.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForSelectStatement?.Some?;
     }
 
     method BasicIoTestExecuteTransaction(writeConfig : TableConfig, readConfig : TableConfig)
@@ -913,6 +918,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForWriteTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForWriteTransaction? := String.HasSubString(resultForWriteTransaction.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForWriteTransaction?.Some?;
 
       // Test with read client
       var resultForReadTransaction := rClient.ExecuteTransaction(inputForTransaction);
@@ -921,6 +928,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForReadTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForReadTransaction? := String.HasSubString(resultForReadTransaction.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForReadTransaction?.Some?;
     }
 
     method BasicIoTestBatchExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
@@ -959,6 +968,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForBatchInsert.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForBatchInsert? := String.HasSubString(resultForBatchInsert.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForBatchInsert?.Some?;
 
       // Test with read client for batch select
       var inputForBatchSelect := DDB.BatchExecuteStatementInput(
@@ -972,6 +983,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForBatchSelect.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForBatchSelect? := String.HasSubString(resultForBatchSelect.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForBatchSelect?.Some?;
 
       // Test with mixed batch (both inserts and selects)
       var inputForMixedBatch := DDB.BatchExecuteStatementInput(
@@ -985,6 +998,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForMixedBatch.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForMixedBatch? := String.HasSubString(resultForMixedBatch.error.objMessage, "DynamoDbEncryptionTransformsException");
+      expect hasDynamoDbEncryptionTransformsExceptionForMixedBatch?.Some?;
     }
 
 
