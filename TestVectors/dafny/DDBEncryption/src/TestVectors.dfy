@@ -209,6 +209,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var res := client.DeleteTable(DDB.DeleteTableInput(TableName := TableName));
     }
 
+    method SetupTestTable(writeConfig : TableConfig, readConfig : TableConfig)
+      returns (wClient : DDB.IDynamoDBClient, rClient : DDB.IDynamoDBClient)
+      ensures wClient.ValidState() && rClient.ValidState()
+      ensures fresh(wClient) && fresh(wClient.Modifies)
+      ensures fresh(rClient) && fresh(rClient.Modifies)
+    {
+      wClient :- expect newGazelle(writeConfig);
+      rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+    }
+
     function GetUsed(q : SimpleQuery) : (DDB.ExpressionAttributeNameMap, DDB.ExpressionAttributeValueMap)
     {
       TrimMaps(q.keyExpr.UnwrapOr(""), q.filterExpr.UnwrapOr(""), names, values)
@@ -741,10 +753,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestBatchWriteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -780,10 +789,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestTransactWriteItems(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -839,10 +845,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
 
       // Create a PartiQL INSERT statement
       // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
@@ -883,10 +886,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestExecuteTransaction(writeConfig : TableConfig, readConfig : TableConfig)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
 
       // Create a PartiQL transaction with INSERT and SELECT statements
       // The dynamodb attributes are random and non-existent because ExecuteTransaction is supposed to fail before going to dynamodb
@@ -925,10 +925,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestBatchExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
 
       // Create a batch of PartiQL statements
       // The dynamodb attributes are random and non-existent because BatchExecuteStatement is supposed to fail before going into dynamodb
