@@ -386,6 +386,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
         BasicIoTestExecuteStatement(c1, c2);
         BasicIoTestExecuteTransaction(c1, c2);
+        BasicIoTestBatchExecuteStatement(c1, c2);
       }
     }
 
@@ -911,15 +912,78 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // This error is of type DynamoDbEncryptionTransformsException
       // but AWS SDK wraps it into its own type for which customers should be unwrapping.
       // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
-      print(resultForWriteTransaction);
       expect resultForWriteTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
 
       // Test with read client
       var resultForReadTransaction := rClient.ExecuteTransaction(inputForTransaction);
       expect resultForReadTransaction.Failure?, "ExecuteTransaction should have failed";
-      print(resultForReadTransaction);
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
       expect resultForReadTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
     }
+
+    method BasicIoTestBatchExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+
+      // Create a batch of PartiQL statements
+      // The dynamodb attributes are random and non-existent because BatchExecuteStatement is supposed to fail before going into dynamodb
+      var statements := [
+        DDB.BatchStatementRequest(
+          Statement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'value1'}",
+          Parameters := None,
+          ConsistentRead := None
+        ),
+        DDB.BatchStatementRequest(
+          Statement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'c', 'sort_key': 'd', 'attribute1': 'value2'}",
+          Parameters := None,
+          ConsistentRead := None
+        ),
+        DDB.BatchStatementRequest(
+          Statement := "SELECT * FROM " + TableName + " WHERE partition_key = 'a' AND sort_key = 'b'",
+          Parameters := None,
+          ConsistentRead := Some(true)
+        )
+      ];
+
+      // Test with write client for batch insert
+      var inputForBatchInsert := DDB.BatchExecuteStatementInput(
+        Statements := statements[..2],  // Just the INSERT statements
+        ReturnConsumedCapacity := None
+      );
+
+      var resultForBatchInsert := wClient.BatchExecuteStatement(inputForBatchInsert);
+      expect resultForBatchInsert.Failure?, "BatchExecuteStatement for inserts should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForBatchInsert.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+
+      // Test with read client for batch select
+      var inputForBatchSelect := DDB.BatchExecuteStatementInput(
+        Statements := statements[2..],  // Just the SELECT statement
+        ReturnConsumedCapacity := None
+      );
+
+      var resultForBatchSelect := rClient.BatchExecuteStatement(inputForBatchSelect);
+      expect resultForBatchSelect.Failure?, "BatchExecuteStatement for selects should have failed";
+      expect resultForBatchSelect.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+
+      // Test with mixed batch (both inserts and selects)
+      var inputForMixedBatch := DDB.BatchExecuteStatementInput(
+        Statements := statements,  // All statements
+        ReturnConsumedCapacity := None
+      );
+
+      var resultForMixedBatch := wClient.BatchExecuteStatement(inputForMixedBatch);
+      expect resultForMixedBatch.Failure?, "BatchExecuteStatement for mixed batch should have failed";
+      expect resultForMixedBatch.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+    }
+
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
     {
