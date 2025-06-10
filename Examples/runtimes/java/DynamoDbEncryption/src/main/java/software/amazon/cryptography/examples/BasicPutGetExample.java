@@ -31,7 +31,11 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class BasicPutGetExample {
 
-  public static void PutItemGetItem(String kmsKeyId, String ddbTableName, String PartitionKeyName) {
+  public static void PutItemGetItem(
+    String kmsKeyId,
+    String ddbTableName,
+    String PartitionKeyName
+  ) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,

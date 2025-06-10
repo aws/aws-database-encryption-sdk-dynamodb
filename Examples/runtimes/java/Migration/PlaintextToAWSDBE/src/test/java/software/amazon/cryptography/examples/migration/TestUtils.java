@@ -1,4 +1,6 @@
-package software.amazon.cryptography.examples.migration.plaintext;
+package software.amazon.cryptography.examples.migration;
+
+import java.util.UUID;
 
 public class TestUtils {
 
@@ -9,4 +11,7 @@ public class TestUtils {
   // Our tests require access to DDB Table with this name
   public static final String TEST_DDB_TABLE_NAME =
     "DynamoDbEncryptionInterceptorTestTable";
+
+  public static final String PARTITION_KEY =
+    "PlaintextMigrationExample" + UUID.randomUUID();
 }

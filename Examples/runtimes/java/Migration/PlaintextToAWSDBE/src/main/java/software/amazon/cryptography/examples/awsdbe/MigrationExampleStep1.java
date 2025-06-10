@@ -45,7 +45,8 @@ public class MigrationExampleStep1 {
   public static void MigrationStep1(
     String kmsKeyId,
     String ddbTableName,
-    int sortReadValue
+    int sortReadValue,
+    String partitionKey
   ) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -143,7 +144,7 @@ public class MigrationExampleStep1 {
     // 7. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be stored in plaintext.
     final SimpleClass item = new SimpleClass();
-    item.setPartitionKey("PlaintextMigrationExample");
+    item.setPartitionKey(partitionKey);
     item.setSortKey(1);
     item.setAttribute1("this will be encrypted and signed");
     item.setAttribute3("this will never be encrypted nor signed");
@@ -158,13 +159,13 @@ public class MigrationExampleStep1 {
     //    during Step 2 or after), then the item will be decrypted client-side
     //    and surfaced as a plaintext item.
     SimpleClass itemToGet = new SimpleClass();
-    itemToGet.setPartitionKey("PlaintextMigrationExample");
+    itemToGet.setPartitionKey(partitionKey);
     itemToGet.setSortKey(sortReadValue);
 
     SimpleClass returnedItem = table.getItem(itemToGet);
 
     // Demonstrate we get the expected item back
-    assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
+    assert returnedItem.getPartitionKey().equals(partitionKey);
     assert returnedItem
       .getAttribute1()
       .equals("this will be encrypted and signed");
@@ -180,6 +181,7 @@ public class MigrationExampleStep1 {
     final String ddbTableName = args[1];
     // You can manipulate this value to demonstrate reading records written in other steps
     final int sortReadValue = Integer.parseInt(args[2]);
-    MigrationStep1(kmsKeyId, ddbTableName, sortReadValue);
+    final String partitionKey = args[3];
+    MigrationStep1(kmsKeyId, ddbTableName, sortReadValue, partitionKey);
   }
 }

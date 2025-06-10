@@ -23,7 +23,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOver
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.SimpleClass;
-import software.amazon.cryptography.examples.migration.awsdbe.TestUtils;
+import software.amazon.cryptography.examples.migration.TestUtils;
 import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -182,16 +182,22 @@ public class TestEncryptExistingTable {
   @Test
   public void TestEncryptExistingTable() {
     // Given: All the previous migration steps have been run.
-    MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 0);
+    MigrationExampleStep0.MigrationStep0(
+      TestUtils.TEST_DDB_TABLE_NAME,
+      0,
+      TestUtils.PARTITION_KEY
+    );
     MigrationExampleStep1.MigrationStep1(
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_DDB_TABLE_NAME,
-      1
+      1,
+      TestUtils.PARTITION_KEY
     );
     MigrationExampleStep2.MigrationStep2(
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_DDB_TABLE_NAME,
-      2
+      2,
+      TestUtils.PARTITION_KEY
     );
     // When: Execute migration, Then: Success (i.e. encrypts 2 plaintext values)
     EncryptExistingTable(
