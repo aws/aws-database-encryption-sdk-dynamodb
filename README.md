@@ -49,7 +49,7 @@ different runtimes.
 
 This library is written in Dafny, a formally verifiable programming language that can be compiled into
 different runtimes. This library is currently **ONLY** supported in Java, .NET and Rust.
-
+<!-- TODO: Add Go to supported languages https://sim.amazon.com/issues/CrypTool-5444 -->
 ### AWS Integration
 
 You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as it's specifically designed to work with Amazon DynamoDB. Optionally, you can use AWS Key Management Service (AWS KMS) as your main keyring provider.
@@ -68,7 +68,7 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
 - .NET
 - Dafny
 - Rust
-
+<!-- TODO: Add Go to supported languages https://sim.amazon.com/issues/CrypTool-5444 -->
 # Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md) for more information. For detailed information about code organization and development see [DynamoDbEncryption README](./DynamoDbEncryption/README.md)
