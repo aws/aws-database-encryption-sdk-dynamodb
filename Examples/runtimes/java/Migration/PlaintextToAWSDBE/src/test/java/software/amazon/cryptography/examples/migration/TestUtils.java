@@ -1,5 +1,9 @@
 package software.amazon.cryptography.examples.migration;
 
+import java.util.HashMap;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import java.util.UUID;
 
 public class TestUtils {
@@ -14,4 +18,40 @@ public class TestUtils {
 
   public static final String PARTITION_KEY =
     "PlaintextMigrationExample" + UUID.randomUUID();
+  
+  /**
+   * Deletes an item from a DynamoDB table.
+   *
+   * @param tableName The name of the DynamoDB table
+   * @param partitionKeyName The name of partition key
+   * @param sortKeyName The name of sort key
+   * @param partitionKeyValue The value of the partition key
+   * @param sortKeyValue The value of the sort key (can be null if table doesn't have a sort key)
+   */
+  public static void cleanUpDDBItem(
+    final String tableName,
+    final String partitionKeyName,
+    final String sortKeyName,
+    final String partitionKeyValue,
+    final String sortKeyValue
+  ) {
+    final DynamoDbClient ddb = DynamoDbClient.builder().build();
+    final HashMap<String, AttributeValue> keyToDelete = new HashMap<>();
+    keyToDelete.put(
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
+    );
+    if (sortKeyValue != null) {
+      keyToDelete.put(
+        sortKeyName,
+        AttributeValue.builder().n(sortKeyValue).build()
+      );
+    }
+    final DeleteItemRequest deleteRequest = DeleteItemRequest
+      .builder()
+      .tableName(tableName)
+      .key(keyToDelete)
+      .build();
+    ddb.deleteItem(deleteRequest);
+  }
 }

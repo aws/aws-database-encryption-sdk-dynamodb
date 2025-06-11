@@ -204,5 +204,10 @@ public class TestEncryptExistingTable {
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_DDB_TABLE_NAME
     );
+
+    List<String> sortkeys = Arrays.asList("0", "1", "2");
+    for (String sortkey : sortkeys) {
+      TestUtils.cleanUpDDBItem(TestUtils.TEST_DDB_TABLE_NAME, "partition_key", "sort_key", TestUtils.PARTITION_KEY, sortkey);
+    }
   }
 }
