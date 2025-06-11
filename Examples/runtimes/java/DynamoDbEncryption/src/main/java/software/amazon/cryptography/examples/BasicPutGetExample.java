@@ -203,9 +203,9 @@ public class BasicPutGetExample {
   public static void main(final String[] args) {
     if (args.length < 6) {
       throw new IllegalArgumentException(
-        "To run this example, include the kmsKeyId as args[0], ddbTableName as args[1],"
-        + " partitionKeyName as args[2], sortKeyName as args[3], partitionKeyValue as args[4]"
-        + " sortKeyValue as args[5]"
+        "To run this example, include the kmsKeyId as args[0], ddbTableName as args[1]," +
+        " partitionKeyName as args[2], sortKeyName as args[3], partitionKeyValue as args[4]" +
+        " sortKeyValue as args[5]"
       );
     }
     final String kmsKeyId = args[0];
@@ -214,6 +214,13 @@ public class BasicPutGetExample {
     final String sortKeyName = args[3];
     final String partitionKeyValue = args[4];
     final String sortKeyValue = args[5];
-    PutItemGetItem(kmsKeyId, ddbTableName, partitionKeyName, sortKeyName, partitionKeyValue, sortKeyValue);
+    PutItemGetItem(
+      kmsKeyId,
+      ddbTableName,
+      partitionKeyName,
+      sortKeyName,
+      partitionKeyValue,
+      sortKeyValue
+    );
   }
 }

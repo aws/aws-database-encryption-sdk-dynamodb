@@ -1,10 +1,10 @@
 package software.amazon.cryptography.examples.migration;
 
 import java.util.HashMap;
+import java.util.UUID;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
-import java.util.UUID;
 
 public class TestUtils {
 
@@ -18,7 +18,7 @@ public class TestUtils {
 
   public static final String PARTITION_KEY =
     "PlaintextMigrationExample" + UUID.randomUUID();
-  
+
   /**
    * Deletes an item from a DynamoDB table.
    *

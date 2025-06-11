@@ -66,7 +66,13 @@ public class TestMigrationExampleStep2 {
     );
     List<String> sortkeys = Arrays.asList("0", "1", "2", "3");
     for (String sortkey : sortkeys) {
-      TestUtils.cleanUpDDBItem(TestUtils.TEST_DDB_TABLE_NAME, "partition_key", "sort_key", TestUtils.PARTITION_KEY, sortkey);
+      TestUtils.cleanUpDDBItem(
+        TestUtils.TEST_DDB_TABLE_NAME,
+        "partition_key",
+        "sort_key",
+        TestUtils.PARTITION_KEY,
+        sortkey
+      );
     }
   }
 }
