@@ -384,6 +384,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestBatchWriteItem(c1, c2, globalRecords);
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
+        BasicIoTestUpdateItem(c1, c2, globalRecords);
+        BasicIoTestDeleteItem(c1, c2, globalRecords);
         BasicIoTestExecuteStatement(c1, c2);
       }
     }
@@ -833,6 +835,108 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestGetItem(rClient, records);
       BasicIoTestScan(rClient, records);
       BasicIoTestTransactGetItems(rClient, records);
+    }
+
+    method BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      WriteAllRecords(wClient, records);
+
+      // Update each record by appending "-updated" to the partition key
+      for i := 0 to |records| {
+        :- expect Need(HashName in records[i].item, "");
+
+        // Get the current value of the partition key
+        var currentValue;
+        currentValue := records[i].item[HashName].N;
+
+        // Append "-updated" to the current value
+        var newValue := currentValue + "-updated";
+
+        // Create an update expression to update the partition key
+        var updateExpr := "SET #pk = :val";
+        var exprAttrNames := map["#pk" := HashName];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(newValue)];
+
+        var updateInput := DDB.UpdateItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          UpdateExpression := Some(updateExpr),
+          ExpressionAttributeNames := Some(exprAttrNames),
+          ExpressionAttributeValues := Some(exprAttrValues),
+          ReturnValues := None,
+          ReturnConsumedCapacity := None,
+          ReturnItemCollectionMetrics := None,
+          ConditionExpression := None
+        );
+
+        var updateSignedItemResult := wClient.UpdateItem(updateInput);
+
+        expect updateSignedItemResult.Failure?, "UpdateItem should have failed for signed item.";
+        // This error is of type DynamoDbEncryptionTransformsException
+        // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+        // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+        expect updateSignedItemResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+        var hasDynamoDbEncryptionTransformsException? := String.HasSubString(updateSignedItemResult.error.objMessage, "Update Expressions forbidden on signed attributes");
+        expect hasDynamoDbEncryptionTransformsException?.Some?;
+      }
+    }
+
+    method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      WriteAllRecords(wClient, records);
+
+      // Only delete half of the records to verify selective deletion
+      var deleteCount := |records| / 2;
+
+      for i := 0 to deleteCount {
+        :- expect Need(HashName in records[i].item, "");
+
+        var deleteInput := DDB.DeleteItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          Expected := None,
+          ReturnValues := None,
+          ReturnConsumedCapacity := None,
+          ReturnItemCollectionMetrics := None,
+          ConditionExpression := None,
+          ExpressionAttributeNames := None,
+          ExpressionAttributeValues := None
+        );
+
+        var _ :- expect wClient.DeleteItem(deleteInput);
+      }
+
+      // Verify deletions were successful
+      for i := 0 to |records| {
+        :- expect Need(HashName in records[i].item, "");
+
+        var getInput := DDB.GetItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          AttributesToGet := None,
+          ConsistentRead := None,
+          ReturnConsumedCapacity := None,
+          ProjectionExpression := None,
+          ExpressionAttributeNames := None
+        );
+
+        var out := rClient.GetItem(getInput);
+
+        if i < deleteCount {
+          // Deleted items should not be found
+          expect out.Success?;
+          expect out.value.Item.None?, "Item " + String.Base10Int2String(i) + " should have been deleted";
+        } else {
+          // Non-deleted items should still exist
+          expect out.Success?;
+          expect out.value.Item.Some?;
+          expect NormalizeItem(out.value.Item.value) == NormalizeItem(records[i].item);
+        }
+      }
     }
 
     method BasicIoTestExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
