@@ -841,12 +841,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
       WriteAllRecords(wClient, records);
 
       // Update each record by appending "-updated" to the partition key
       for i := 0 to |records| {
-        :- expect Need(HashName in records[i].item, "");
-
         // Get the current value of the partition key
         var currentValue;
         currentValue := records[i].item[HashName].N;
@@ -879,7 +878,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
         expect updateSignedItemResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
         var hasDynamoDbEncryptionTransformsException? := String.HasSubString(updateSignedItemResult.error.objMessage, "Update Expressions forbidden on signed attributes");
-        expect hasDynamoDbEncryptionTransformsException?.Some?;
+        expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
       }
     }
 
@@ -887,55 +886,36 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
       WriteAllRecords(wClient, records);
 
-      // Only delete half of the records to verify selective deletion
-      var deleteCount := |records| / 2;
-
-      for i := 0 to deleteCount {
-        :- expect Need(HashName in records[i].item, "");
+      // Try to delete records with a condition expression with condition to
+      // delete records if the record has an attribute "randomAttribute" with value "random"
+      // These are random attribute and value because we conditional expression should fail before going into dynamodb.
+      for i := 0 to |records| {
+        // Set up condition expression to only delete if randomAttribute = "random"
+        var conditionExpr := "#attr = :val";
+        var exprAttrNames := map["#attr" := "randomAttribute"];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S("random")];
 
         var deleteInput := DDB.DeleteItemInput(
           TableName := TableName,
           Key := map[HashName := records[i].item[HashName]],
-          Expected := None,
-          ReturnValues := None,
-          ReturnConsumedCapacity := None,
-          ReturnItemCollectionMetrics := None,
-          ConditionExpression := None,
-          ExpressionAttributeNames := None,
-          ExpressionAttributeValues := None
+          ConditionExpression := Some(conditionExpr),
+          ExpressionAttributeNames := Some(exprAttrNames),
+          ExpressionAttributeValues := Some(exprAttrValues)
         );
 
-        var _ :- expect wClient.DeleteItem(deleteInput);
-      }
+        // The delete operation will succeed only if the condition is met
+        var deleteResult := wClient.DeleteItem(deleteInput);
 
-      // Verify deletions were successful
-      for i := 0 to |records| {
-        :- expect Need(HashName in records[i].item, "");
-
-        var getInput := DDB.GetItemInput(
-          TableName := TableName,
-          Key := map[HashName := records[i].item[HashName]],
-          AttributesToGet := None,
-          ConsistentRead := None,
-          ReturnConsumedCapacity := None,
-          ProjectionExpression := None,
-          ExpressionAttributeNames := None
-        );
-
-        var out := rClient.GetItem(getInput);
-
-        if i < deleteCount {
-          // Deleted items should not be found
-          expect out.Success?;
-          expect out.value.Item.None?, "Item " + String.Base10Int2String(i) + " should have been deleted";
-        } else {
-          // Non-deleted items should still exist
-          expect out.Success?;
-          expect out.value.Item.Some?;
-          expect NormalizeItem(out.value.Item.value) == NormalizeItem(records[i].item);
-        }
+        expect deleteResult.Failure?, "DeleteItem should have failed.";
+        // This error is of type DynamoDbEncryptionTransformsException
+        // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+        // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+        expect deleteResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+        var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
+        expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
       }
     }
 
