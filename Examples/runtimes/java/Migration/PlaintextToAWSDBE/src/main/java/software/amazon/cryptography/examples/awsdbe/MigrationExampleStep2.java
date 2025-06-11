@@ -45,7 +45,8 @@ public class MigrationExampleStep2 {
   public static void MigrationStep2(
     String kmsKeyId,
     String ddbTableName,
-    int sortReadValue
+    int sortReadValue,
+    String partitionKey
   ) {
     // 1. Continue to configure your Keyring, Table Schema, legacy attribute actions,
     //    and allowedUnsignedAttributes, and old DynamoDBEncryptor as you did in Step 1.
@@ -121,7 +122,7 @@ public class MigrationExampleStep2 {
     // 5. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be encrypted.
     final SimpleClass item = new SimpleClass();
-    item.setPartitionKey("PlaintextMigrationExample");
+    item.setPartitionKey(partitionKey);
     item.setSortKey(2);
     item.setAttribute1("this will be encrypted and signed");
     item.setAttribute3("this will never be encrypted nor signed");
@@ -136,13 +137,13 @@ public class MigrationExampleStep2 {
     //    during Step 2 or after), then the DDB enhanced client will decrypt the
     //    item client-sid and surface it in our code as a plaintext item.
     SimpleClass itemToGet = new SimpleClass();
-    itemToGet.setPartitionKey("PlaintextMigrationExample");
+    itemToGet.setPartitionKey(partitionKey);
     itemToGet.setSortKey(sortReadValue);
 
     SimpleClass returnedItem = table.getItem(itemToGet);
 
     // Demonstrate we get the expected item back
-    assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
+    assert returnedItem.getPartitionKey().equals(partitionKey);
     assert returnedItem
       .getAttribute1()
       .equals("this will be encrypted and signed");
@@ -158,6 +159,7 @@ public class MigrationExampleStep2 {
     final String ddbTableName = args[1];
     // You can manipulate this value to demonstrate reading records written in other steps
     final int sortReadValue = Integer.parseInt(args[2]);
-    MigrationStep2(kmsKeyId, ddbTableName, sortReadValue);
+    final String partitionKey = args[3];
+    MigrationStep2(kmsKeyId, ddbTableName, sortReadValue, partitionKey);
   }
 }
