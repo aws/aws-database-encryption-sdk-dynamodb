@@ -55,7 +55,8 @@ public class TestEncryptExistingTable {
 
   public static void EncryptExistingTable(
     String kmsKeyId,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKey
   ) {
     // 1. Continue to configure your Keyring, Table Schema,
     //    and allowedUnsignedAttributes as you did in Step 1.
@@ -139,7 +140,7 @@ public class TestEncryptExistingTable {
     Map<String, AttributeValue> expressionAttributesValues = new HashMap<>();
     expressionAttributesValues.put(
       ":plaintexttest",
-      AttributeValue.builder().s("PlaintextMigrationExample").build()
+      AttributeValue.builder().s(partitionKey).build()
     );
 
     ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest
@@ -202,7 +203,8 @@ public class TestEncryptExistingTable {
     // When: Execute migration, Then: Success (i.e. encrypts 2 plaintext values)
     EncryptExistingTable(
       TestUtils.TEST_KMS_KEY_ID,
-      TestUtils.TEST_DDB_TABLE_NAME
+      TestUtils.TEST_DDB_TABLE_NAME,
+      TestUtils.PARTITION_KEY
     );
 
     List<String> sortkeys = Arrays.asList("0", "1", "2");
