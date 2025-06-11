@@ -1002,7 +1002,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect hasDynamoDbEncryptionTransformsExceptionForMixedBatch?.Some?;
     }
 
-
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
     {
       var exp := NormalizeItem(expected);
