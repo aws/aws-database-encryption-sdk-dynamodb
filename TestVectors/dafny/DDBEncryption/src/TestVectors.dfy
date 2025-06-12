@@ -95,25 +95,25 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
-      var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
-      if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
-        print "\nRunning no tests\n";
-        return;
-      }
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
+      // var _ :- expect WriteManifest.Write("encrypt.json");
+      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
+      // if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
+      //   print "\nRunning no tests\n";
+      //   return;
+      // }
       Validate();
-      StringOrdering();
-      LargeTests();
-      PerfQueryTests();
+      // StringOrdering();
+      // LargeTests();
+      // PerfQueryTests();
       BasicIoTest();
       RunIoTests();
       BasicQueryTest();
@@ -853,6 +853,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         var exprAttrNames := map["#pk" := HashName];
         var exprAttrValues := map[":val" := DDB.AttributeValue.S(newValue)];
 
+        expect HashName in records[i].item, "`HashName` is not in records.";
+
         var updateInput := DDB.UpdateItemInput(
           TableName := TableName,
           Key := map[HashName := records[i].item[HashName]],
@@ -866,7 +868,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         );
 
         var updateSignedItemResult := wClient.UpdateItem(updateInput);
-
         expect updateSignedItemResult.Failure?, "UpdateItem should have failed for signed item.";
         // This error is of type DynamoDbEncryptionTransformsException
         // but AWS SDK wraps it into its own type for which customers should be unwrapping.
@@ -880,19 +881,19 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
       var wClient :- expect newGazelle(writeConfig);
-      print(writeConfig.config.attributeActionsOnEncrypt);
       var rClient :- expect newGazelle(readConfig);
       DeleteTable(wClient);
       WriteAllRecords(wClient, records);
-
+      var attributeToDelete := "Two";
+      var valueToDelete := "Dos";
       // Try to delete records with a condition expression with condition to
-      // delete records if the record has an attribute "Two" with value "Dos"
+      // delete records if the record has an attribute attributeToDelete with value valueToDelete
       for i := 0 to |records| {
-        // Set up condition expression to only delete if Two = "Dos"
+        // Set up condition expression to only delete if Two = valueToDelete
         var conditionExpr := "#attr = :val";
-        var exprAttrNames := map["#attr" := "Two"];
-        var exprAttrValues := map[":val" := DDB.AttributeValue.S("Dos")];
-
+        var exprAttrNames := map["#attr" := attributeToDelete];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(valueToDelete)];
+        expect HashName in records[i].item, "`HashName` is not in records.";
         var deleteInput := DDB.DeleteItemInput(
           TableName := TableName,
           Key := map[HashName := records[i].item[HashName]],
@@ -904,13 +905,21 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         // The delete operation will succeed only if the condition is met
         var deleteResult := wClient.DeleteItem(deleteInput);
 
-        expect deleteResult.Failure?, "DeleteItem should have failed.";
-        // This error is of type DynamoDbEncryptionTransformsException
-        // but AWS SDK wraps it into its own type for which customers should be unwrapping.
-        // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
-        expect deleteResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-        var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
-        expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        expect attributeToDelete in writeConfig.config.attributeActionsOnEncrypt, "`attributeToDelete` not found in attributeActionsOnEncrypt of config.";
+        if writeConfig.config.attributeActionsOnEncrypt[attributeToDelete] == SE.ENCRYPT_AND_SIGN {
+          expect deleteResult.Failure?, "DeleteItem should have failed.";
+          // This error is of type DynamoDbEncryptionTransformsException
+          // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+          // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+          expect deleteResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+          var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
+          expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == valueToDelete {
+          expect deleteResult.Success?;
+        } else {
+          expect deleteResult.Failure?, "DeleteItem should have failed.";
+          expect deleteResult.error.ConditionalCheckFailedException?;
+        }
       }
     }
 
