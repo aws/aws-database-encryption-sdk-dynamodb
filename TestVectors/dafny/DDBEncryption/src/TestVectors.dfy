@@ -886,6 +886,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         Statement := insertStatementForUnconfiguredTable
       );
       var insertResultUnconfiguredTable := wClient.ExecuteStatement(inputInsertStatementForUnconfiguredTable);
+      print(insertResultUnconfiguredTable);
       expect insertResultUnconfiguredTable.Success?;
 
       var selectStatementForUnconfiguredTable := "SELECT * FROM \"" + unConfiguredTable + "\" WHERE " + HashName + " = 0";
