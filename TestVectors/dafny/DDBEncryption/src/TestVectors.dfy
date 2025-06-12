@@ -202,15 +202,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       expect !bad;
     }
-    method DeleteTable(client : DDB.IDynamoDBClient)
+    method DeleteTable(client : DDB.IDynamoDBClient, nameonly tableName: DDB.TableArn := TableName)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
-      var res := client.DeleteTable(DDB.DeleteTableInput(TableName := TableName));
+      var res := client.DeleteTable(DDB.DeleteTableInput(TableName := tableName));
     }
 
-    method SetupTestTable(writeConfig : TableConfig, readConfig : TableConfig)
+    method SetupTestTable(writeConfig : TableConfig, readConfig : TableConfig, nameonly createTableInput: DDB.CreateTableInput := schemaOnEncrypt)
       returns (wClient : DDB.IDynamoDBClient, rClient : DDB.IDynamoDBClient)
       ensures wClient.ValidState() && rClient.ValidState()
       ensures fresh(wClient) && fresh(wClient.Modifies)
@@ -218,8 +218,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       wClient :- expect newGazelle(writeConfig);
       rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      DeleteTable(client := wClient, tableName := createTableInput.TableName);
+      var _ :-  expect wClient.CreateTable(createTableInput);
     }
 
     function GetUsed(q : SimpleQuery) : (DDB.ExpressionAttributeNameMap, DDB.ExpressionAttributeValueMap)
@@ -850,14 +850,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       // Create a PartiQL INSERT statement
       // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
-      var insertStatement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'";
+      var insertStatement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'}";
       var inputForInsertStatement := DDB.ExecuteStatementInput(
-        Statement := insertStatement,
-        Parameters := None,
-        ConsistentRead := None,
-        NextToken := None,
-        ReturnConsumedCapacity := None,
-        Limit := None
+        Statement := insertStatement
       );
       var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
       expect resultForInsertStatement.Failure?, "ExecuteStatement should have failed";
@@ -870,14 +865,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       // Create a PartiQL SELECT statement
       // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
-      var selectStatement := "SELECT * FROM " + TableName + " WHERE partition_key = 'a' AND sort_key = 'b'";
+      var selectStatement := "SELECT * FROM \"" + TableName + "\" WHERE partition_key = 'a' AND sort_key = 'b'}";
       var inputForSelectStatement := DDB.ExecuteStatementInput(
-        Statement := selectStatement,
-        Parameters := None,
-        ConsistentRead := Some(true),
-        NextToken := None,
-        ReturnConsumedCapacity := None,
-        Limit := None
+        Statement := selectStatement
       );
       var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
       expect resultForSelectStatement.Failure?, "ExecuteStatement should have failed";
@@ -887,6 +877,25 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
       var hasDynamoDbEncryptionTransformsExceptionForSelectStatement? := String.HasSubString(resultForSelectStatement.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
       expect hasDynamoDbEncryptionTransformsExceptionForSelectStatement?.Some?;
+
+      // Test for unconfigured Table
+      var unConfiguredTable := "unConfiguredTable";
+      var _, _ := SetupTestTable(writeConfig, readConfig, createTableInput := MakeCreateTableInput(tableName := unConfiguredTable));
+      var insertStatementForUnconfiguredTable := "INSERT INTO \"" + unConfiguredTable + "\" VALUE {'" + HashName + "': 0, 'attribute1': 'a'}";
+      var inputInsertStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
+        Statement := insertStatementForUnconfiguredTable
+      );
+      var insertResultUnconfiguredTable := wClient.ExecuteStatement(inputInsertStatementForUnconfiguredTable);
+      expect insertResultUnconfiguredTable.Success?;
+
+      var selectStatementForUnconfiguredTable := "SELECT * FROM \"" + unConfiguredTable + "\" WHERE " + HashName + " = 0";
+      var inputSelectStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
+        Statement := selectStatementForUnconfiguredTable
+      );
+      var selectResultUnconfiguredTable := rClient.ExecuteStatement(inputSelectStatementForUnconfiguredTable);
+      selectResultUnconfiguredTable.Success?;
+
+      DeleteTable(client := wClient, tableName := unConfiguredTable);
     }
 
     method BasicIoTestExecuteTransaction(writeConfig : TableConfig, readConfig : TableConfig)
@@ -1257,11 +1266,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
   }
 
-  function MakeCreateTableInput() : DDB.CreateTableInput
+  function MakeCreateTableInput(nameonly tableName: DDB.TableName := TableName) : DDB.CreateTableInput
   {
     DDB.CreateTableInput (
       AttributeDefinitions := [DDB.AttributeDefinition(AttributeName := HashName, AttributeType := DDB.ScalarAttributeType.N)],
-      TableName := TableName,
+      TableName := tableName,
       KeySchema := [DDB.KeySchemaElement(AttributeName := HashName, KeyType := DDB.HASH)],
       LocalSecondaryIndexes := None,
       GlobalSecondaryIndexes := None,
