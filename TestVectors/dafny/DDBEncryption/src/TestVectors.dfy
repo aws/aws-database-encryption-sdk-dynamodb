@@ -846,12 +846,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       // Update each record by appending "-updated" to the partition key
       for i := 0 to |records| {
-        // Get the current value of the partition key
-        var currentValue;
-        currentValue := records[i].item[HashName].N;
-
-        // Append "-updated" to the current value
-        var newValue := currentValue + "-updated";
+        var newValue := "updated";
 
         // Create an update expression to update the partition key
         var updateExpr := "SET #pk = :val";
@@ -885,18 +880,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
       var wClient :- expect newGazelle(writeConfig);
+      print(writeConfig.config.attributeActionsOnEncrypt);
       var rClient :- expect newGazelle(readConfig);
       DeleteTable(wClient);
       WriteAllRecords(wClient, records);
 
       // Try to delete records with a condition expression with condition to
-      // delete records if the record has an attribute "randomAttribute" with value "random"
-      // These are random attribute and value because we conditional expression should fail before going into dynamodb.
+      // delete records if the record has an attribute "Two" with value "Dos"
       for i := 0 to |records| {
-        // Set up condition expression to only delete if randomAttribute = "random"
+        // Set up condition expression to only delete if Two = "Dos"
         var conditionExpr := "#attr = :val";
-        var exprAttrNames := map["#attr" := "randomAttribute"];
-        var exprAttrValues := map[":val" := DDB.AttributeValue.S("random")];
+        var exprAttrNames := map["#attr" := "Two"];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S("Dos")];
 
         var deleteInput := DDB.DeleteItemInput(
           TableName := TableName,
