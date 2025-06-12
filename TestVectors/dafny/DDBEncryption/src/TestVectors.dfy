@@ -893,7 +893,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         Statement := selectStatementForUnconfiguredTable
       );
       var selectResultUnconfiguredTable := rClient.ExecuteStatement(inputSelectStatementForUnconfiguredTable);
-      selectResultUnconfiguredTable.Success?;
+      expect selectResultUnconfiguredTable.Success?;
 
       DeleteTable(client := wClient, tableName := unConfiguredTable);
     }
