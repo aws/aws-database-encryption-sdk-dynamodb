@@ -384,7 +384,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestBatchWriteItem(c1, c2, globalRecords);
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
-        BasicIoTestUpdateItem(c1, c2, globalRecords);
+        BasicIoTestUpdateItem(c1, c2, globalRecords, "One");
+        BasicIoTestUpdateItem(c1, c2, globalRecords, "Two");
         BasicIoTestDeleteItem(c1, c2, globalRecords);
         BasicIoTestExecuteStatement(c1, c2);
       }
@@ -837,7 +838,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestTransactGetItems(rClient, records);
     }
 
-    method BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
+    method {:only} BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToUpdate: DDB.AttributeName)
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
@@ -847,14 +848,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       // Update each record by appending "updated" to the partition key
       for i := 0 to |records| {
         var newValue := "updated";
-
         // Create an update expression to update the partition key
-        var updateExpr := "SET #pk = :val";
-        var exprAttrNames := map["#pk" := HashName];
+        var updateExpr := "SET #att = :val";
+        expect attributeToUpdate in writeConfig.config.attributeActionsOnEncrypt, "`attributeToUpdate` not in attributeActionsOnEncrypt";
+        var exprAttrNames := map["#att" := attributeToUpdate];
         var exprAttrValues := map[":val" := DDB.AttributeValue.S(newValue)];
-
         expect HashName in records[i].item, "`HashName` is not in records.";
-
         var updateInput := DDB.UpdateItemInput(
           TableName := TableName,
           Key := map[HashName := records[i].item[HashName]],
@@ -866,15 +865,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           ReturnItemCollectionMetrics := None,
           ConditionExpression := None
         );
-
-        var updateSignedItemResult := wClient.UpdateItem(updateInput);
-        expect updateSignedItemResult.Failure?, "UpdateItem should have failed for signed item.";
-        // This error is of type DynamoDbEncryptionTransformsException
-        // but AWS SDK wraps it into its own type for which customers should be unwrapping.
-        // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
-        expect updateSignedItemResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
-        var hasDynamoDbEncryptionTransformsException? := String.HasSubString(updateSignedItemResult.error.objMessage, "Update Expressions forbidden on signed attributes");
-        expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        var updateResult := wClient.UpdateItem(updateInput);
+        if writeConfig.config.attributeActionsOnEncrypt[attributeToUpdate] == SE.ENCRYPT_AND_SIGN || writeConfig.config.attributeActionsOnEncrypt[attributeToUpdate] == SE.SIGN_ONLY {
+          expect updateResult.Failure?, "UpdateItem should have failed for signed item.";
+          // This error is of type DynamoDbEncryptionTransformsException
+          // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+          // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+          expect updateResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+          var hasDynamoDbEncryptionTransformsException? := String.HasSubString(updateResult.error.objMessage, "Update Expressions forbidden on signed attributes");
+          expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        } else {
+          expect updateResult.Success?;
+        }
       }
     }
 
