@@ -883,15 +883,26 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var _, _ := SetupTestTable(writeConfig, readConfig, createTableInput := MakeCreateTableInput(tableName := unConfiguredTable));
       var insertStatementForUnconfiguredTable := "INSERT INTO \"" + unConfiguredTable + "\" VALUE {'" + HashName + "': 0, 'attribute1': 'a'}";
       var inputInsertStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
-        Statement := insertStatementForUnconfiguredTable
+        Statement := insertStatementForUnconfiguredTable,
+        Parameters := None,
+        ConsistentRead := None,
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := None,
+        ReturnValuesOnConditionCheckFailure := None
       );
       var insertResultUnconfiguredTable := wClient.ExecuteStatement(inputInsertStatementForUnconfiguredTable);
-      print(insertResultUnconfiguredTable);
       expect insertResultUnconfiguredTable.Success?;
 
       var selectStatementForUnconfiguredTable := "SELECT * FROM \"" + unConfiguredTable + "\" WHERE " + HashName + " = 0";
       var inputSelectStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
-        Statement := selectStatementForUnconfiguredTable
+        Statement := selectStatementForUnconfiguredTable,
+        Parameters := None,
+        ConsistentRead := None,
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := None,
+        ReturnValuesOnConditionCheckFailure := None
       );
       var selectResultUnconfiguredTable := rClient.ExecuteStatement(inputSelectStatementForUnconfiguredTable);
       expect selectResultUnconfiguredTable.Success?;
