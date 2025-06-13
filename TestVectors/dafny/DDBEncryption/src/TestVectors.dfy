@@ -838,7 +838,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestTransactGetItems(rClient, records);
     }
 
-    method {:only} BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToUpdate: DDB.AttributeName)
+    method BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToUpdate: DDB.AttributeName)
     {
       var wClient :- expect newGazelle(writeConfig);
       var rClient :- expect newGazelle(readConfig);
