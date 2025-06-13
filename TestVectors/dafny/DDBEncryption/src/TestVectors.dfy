@@ -882,13 +882,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var unConfiguredTable := "unConfiguredTable";
       var _, _ := SetupTestTable(writeConfig, readConfig, createTableInput := MakeCreateTableInput(tableName := unConfiguredTable));
       var insertStatementForUnconfiguredTable := "INSERT INTO \"" + unConfiguredTable + "\" VALUE {'" + HashName + "': 0, 'attribute1': 'a'}";
+      var limit : DDB.PositiveIntegerObject := 5;
       var inputInsertStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
         Statement := insertStatementForUnconfiguredTable,
         Parameters := None,
         ConsistentRead := None,
         NextToken := None,
         ReturnConsumedCapacity := None,
-        Limit := 5,
+        Limit := Some(limit),
         ReturnValuesOnConditionCheckFailure := None
       );
       var insertResultUnconfiguredTable := wClient.ExecuteStatement(inputInsertStatementForUnconfiguredTable);
@@ -901,7 +902,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ConsistentRead := None,
         NextToken := None,
         ReturnConsumedCapacity := None,
-        Limit := 5,
+        Limit := Some(limit),
         ReturnValuesOnConditionCheckFailure := None
       );
       var selectResultUnconfiguredTable := rClient.ExecuteStatement(inputSelectStatementForUnconfiguredTable);
