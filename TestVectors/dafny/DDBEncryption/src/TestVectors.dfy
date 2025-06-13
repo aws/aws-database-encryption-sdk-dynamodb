@@ -888,7 +888,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ConsistentRead := None,
         NextToken := None,
         ReturnConsumedCapacity := None,
-        Limit := None,
+        Limit := 5,
         ReturnValuesOnConditionCheckFailure := None
       );
       var insertResultUnconfiguredTable := wClient.ExecuteStatement(inputInsertStatementForUnconfiguredTable);
@@ -901,7 +901,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ConsistentRead := None,
         NextToken := None,
         ReturnConsumedCapacity := None,
-        Limit := None,
+        Limit := 5,
         ReturnValuesOnConditionCheckFailure := None
       );
       var selectResultUnconfiguredTable := rClient.ExecuteStatement(inputSelectStatementForUnconfiguredTable);
