@@ -397,6 +397,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestBatchWriteItem(c1, c2, globalRecords);
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
+        BasicIoTestUpdateItem(c1, c2, globalRecords, "One");
+        BasicIoTestUpdateItem(c1, c2, globalRecords, "Two");
+        BasicIoTestDeleteItem(c1, c2, globalRecords);
         BasicIoTestExecuteStatement(c1, c2);
         BasicIoTestExecuteTransaction(c1, c2);
         BasicIoTestBatchExecuteStatement(c1, c2);
@@ -842,6 +845,93 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestGetItem(rClient, records);
       BasicIoTestScan(rClient, records);
       BasicIoTestTransactGetItems(rClient, records);
+    }
+
+    method BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToUpdate: DDB.AttributeName)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      WriteAllRecords(wClient, records);
+
+      // Update each record by appending "updated" to the partition key
+      for i := 0 to |records| {
+        var newValue := "updated";
+        // Create an update expression to update the partition key
+        var updateExpr := "SET #att = :val";
+        expect attributeToUpdate in writeConfig.config.attributeActionsOnEncrypt, "`attributeToUpdate` not in attributeActionsOnEncrypt";
+        var exprAttrNames := map["#att" := attributeToUpdate];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(newValue)];
+        expect HashName in records[i].item, "`HashName` is not in records.";
+        var updateInput := DDB.UpdateItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          UpdateExpression := Some(updateExpr),
+          ExpressionAttributeNames := Some(exprAttrNames),
+          ExpressionAttributeValues := Some(exprAttrValues),
+          ReturnValues := None,
+          ReturnConsumedCapacity := None,
+          ReturnItemCollectionMetrics := None,
+          ConditionExpression := None
+        );
+        var updateResult := wClient.UpdateItem(updateInput);
+        if writeConfig.config.attributeActionsOnEncrypt[attributeToUpdate] == SE.ENCRYPT_AND_SIGN || writeConfig.config.attributeActionsOnEncrypt[attributeToUpdate] == SE.SIGN_ONLY {
+          expect updateResult.Failure?, "UpdateItem should have failed for signed item.";
+          // This error is of type DynamoDbEncryptionTransformsException
+          // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+          // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+          expect updateResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+          var hasDynamoDbEncryptionTransformsException? := String.HasSubString(updateResult.error.objMessage, "Update Expressions forbidden on signed attributes");
+          expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        } else {
+          expect updateResult.Success?;
+        }
+      }
+    }
+
+    method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
+    {
+      var wClient :- expect newGazelle(writeConfig);
+      var rClient :- expect newGazelle(readConfig);
+      DeleteTable(wClient);
+      WriteAllRecords(wClient, records);
+      var attributeToDelete := "Two";
+      var valueToDelete := "Dos";
+      // Try to delete records with a condition expression with condition to
+      // delete records if the record has an attribute attributeToDelete with value valueToDelete
+      for i := 0 to |records| {
+        // Set up condition expression to only delete if Two = valueToDelete
+        var conditionExpr := "#attr = :val";
+        var exprAttrNames := map["#attr" := attributeToDelete];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(valueToDelete)];
+        expect HashName in records[i].item, "`HashName` is not in records.";
+        var deleteInput := DDB.DeleteItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          ConditionExpression := Some(conditionExpr),
+          ExpressionAttributeNames := Some(exprAttrNames),
+          ExpressionAttributeValues := Some(exprAttrValues)
+        );
+
+        // The delete operation will succeed only if the condition is met
+        var deleteResult := wClient.DeleteItem(deleteInput);
+
+        expect attributeToDelete in writeConfig.config.attributeActionsOnEncrypt, "`attributeToDelete` not found in attributeActionsOnEncrypt of config.";
+        if writeConfig.config.attributeActionsOnEncrypt[attributeToDelete] == SE.ENCRYPT_AND_SIGN {
+          expect deleteResult.Failure?, "DeleteItem should have failed.";
+          // This error is of type DynamoDbEncryptionTransformsException
+          // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+          // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+          expect deleteResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+          var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
+          expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == valueToDelete {
+          expect deleteResult.Success?;
+        } else {
+          expect deleteResult.Failure?, "DeleteItem should have failed.";
+          expect deleteResult.error.ConditionalCheckFailedException?;
+        }
+      }
     }
 
     method BasicIoTestExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
