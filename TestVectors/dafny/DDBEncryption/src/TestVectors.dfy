@@ -852,7 +852,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       WriteAllRecords(wClient, records);
-
       // Update each record by appending "updated" to the partition key
       for i := 0 to |records| {
         var newValue := "updated";
@@ -908,10 +907,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           ExpressionAttributeValues := Some(exprAttrValues),
           ReturnValues := Some(DDB.ReturnValue.ALL_OLD)
         );
-
-        // The delete operation will succeed only if the condition is met
         var deleteResult := wClient.DeleteItem(deleteInput);
-
         expect attributeToDelete in writeConfig.config.attributeActionsOnEncrypt, "`attributeToDelete` not found in attributeActionsOnEncrypt of config.";
         if writeConfig.config.attributeActionsOnEncrypt[attributeToDelete] == SE.ENCRYPT_AND_SIGN {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
