@@ -399,7 +399,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
         BasicIoTestUpdateItem(c1, c2, globalRecords, "One");
         BasicIoTestUpdateItem(c1, c2, globalRecords, "Two");
-        BasicIoTestDeleteItem(c1, c2, globalRecords);
+        BasicIoTestDeleteItem(c1, c2, globalRecords, "One", "Uno");
+        BasicIoTestDeleteItem(c1, c2, globalRecords, "Two", "Dos");
         BasicIoTestExecuteStatement(c1, c2);
         BasicIoTestExecuteTransaction(c1, c2);
         BasicIoTestBatchExecuteStatement(c1, c2);
@@ -849,9 +850,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToUpdate: DDB.AttributeName)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       WriteAllRecords(wClient, records);
 
       // Update each record by appending "updated" to the partition key
@@ -889,21 +888,19 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
+    method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToDelete: DDB.AttributeName, expectedAttributeValue: string)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       WriteAllRecords(wClient, records);
-      var attributeToDelete := "Two";
-      var valueToDelete := "Dos";
+      // var attributeToDelete := "Two";
+      // var valueToDelete := "Dos";
       // Try to delete records with a condition expression with condition to
-      // delete records if the record has an attribute attributeToDelete with value valueToDelete
+      // delete records if the record has an attribute attributeToDelete with value expectedAttributeValue
       for i := 0 to |records| {
-        // Set up condition expression to only delete if Two = valueToDelete
+        // Set up condition expression to only delete if Two = expectedAttributeValue
         var conditionExpr := "#attr = :val";
         var exprAttrNames := map["#attr" := attributeToDelete];
-        var exprAttrValues := map[":val" := DDB.AttributeValue.S(valueToDelete)];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(expectedAttributeValue)];
         expect HashName in records[i].item, "`HashName` is not in records.";
         var deleteInput := DDB.DeleteItemInput(
           TableName := TableName,
@@ -926,7 +923,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           expect deleteResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
           var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
           expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
-        } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == valueToDelete {
+        } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == expectedAttributeValue {
           expect deleteResult.Success?, "DeleteItem should have failed.";
           expect deleteResult.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
           expect deleteResult.value.Attributes.value == records[i].item, "Wrong item was deleted.";
