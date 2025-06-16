@@ -901,7 +901,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           Key := map[HashName := records[i].item[HashName]],
           ConditionExpression := Some(conditionExpr),
           ExpressionAttributeNames := Some(exprAttrNames),
-          ExpressionAttributeValues := Some(exprAttrValues)
+          ExpressionAttributeValues := Some(exprAttrValues),
+          ReturnValues := Some(DDB.ReturnValue.ALL_OLD)
         );
 
         // The delete operation will succeed only if the condition is met
@@ -918,9 +919,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
         } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == valueToDelete {
           expect deleteResult.Success?;
+          print("\n");
+          print(deleteResult);
         } else {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
-          expect deleteResult.error.ConditionalCheckFailedException?;
+          expect deleteResult.error.ConditionalCheckFailedException?, "DeleteItem should have failed with ConditionalCheckFailedException";
         }
       }
     }
