@@ -24,8 +24,6 @@ primary key configuration:
 """
 from aws_dbesdk_dynamodb.structures.dynamodb import LegacyPolicy
 
-# Import from new AWS Database Encryption SDK
-# Import from legacy DynamoDB Encryption Client
 from .common import setup_awsdbe_client_with_legacy_override
 
 

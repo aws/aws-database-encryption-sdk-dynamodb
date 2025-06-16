@@ -3,8 +3,6 @@
 from aws_dbesdk_dynamodb.internaldafny.generated.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes import (
     DynamoDbItemEncryptorConfig_DynamoDbItemEncryptorConfig,
     Error_DynamoDbItemEncryptorException,
-    EncryptItemOutput_EncryptItemOutput,
-    DecryptItemOutput_DecryptItemOutput,
     DecryptItemInput_DecryptItemInput,
     EncryptItemInput_EncryptItemInput,
 )
@@ -72,10 +70,6 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
         legacy_instance = InternalLegacyOverride()
         legacy_instance.encryptor = legacy_override.encryptor
         legacy_instance.policy = legacy_override.policy
-        # # Access the value property, not calling it as a function
-        # legacy_instance.encryption_context = maybe_encryption_context.value
-        # # Access the value property, not calling it as a function
-        # legacy_instance.attribute_actions = maybe_actions.value
         legacy_instance.crypto_config = CryptoConfig(
             materials_provider=legacy_override.encryptor._materials_provider,
             encryption_context=maybe_encryption_context.value,

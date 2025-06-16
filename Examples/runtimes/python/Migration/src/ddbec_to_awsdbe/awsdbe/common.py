@@ -157,7 +157,7 @@ def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: st
         policy=policy,
     )
 
-    # 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
+    # 3. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     #    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     #    We will use the `CreateMrkMultiKeyring` method to create this keyring,
     #    as it will correctly handle both single region and Multi-Region KMS Keys.
@@ -167,7 +167,7 @@ def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: st
     )
     kms_mrk_multi_keyring: IKeyring = mat_prov.create_aws_kms_mrk_multi_keyring(input=kms_mrk_multi_keyring_input)
 
-    # 2. Configure which attributes are encrypted and/or signed when writing new items.
+    # 4. Configure which attributes are encrypted and/or signed when writing new items.
     #    For each attribute that may exist on the items we plan to write to our DynamoDbTable,
     #    we must explicitly configure how they should be treated during item encryption:
     #      - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
@@ -181,7 +181,7 @@ def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: st
         ":attribute3": CryptoAction.DO_NOTHING,
     }
 
-    # 3. Configure which attributes we expect to be included in the signature
+    # 5. Configure which attributes we expect to be included in the signature
     #    when reading items. There are two options for configuring this:
     #
     #    - (Recommended) Configure `allowedUnsignedAttributesPrefix`:
@@ -211,7 +211,7 @@ def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: st
     #   the ":" prefix should be considered unauthenticated.
     unsignAttrPrefix: str = ":"
 
-    # 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
+    # 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
     #    without the legacy override
     table_configs = {}
     table_config = DynamoDbTableEncryptionConfig(
@@ -235,7 +235,7 @@ def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: st
     table_configs[ddb_table_name] = table_config
     tables_config = DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
 
-    # 5. Create the EncryptedClient
+    # 7. Create the EncryptedClient
     return EncryptedClient(
         client=boto3.client("dynamodb"),
         encryption_config=tables_config,
