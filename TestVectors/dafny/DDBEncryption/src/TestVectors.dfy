@@ -892,8 +892,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       WriteAllRecords(wClient, records);
-      // var attributeToDelete := "Two";
-      // var valueToDelete := "Dos";
       // Try to delete records with a condition expression with condition to
       // delete records if the record has an attribute attributeToDelete with value expectedAttributeValue
       for i := 0 to |records| {
