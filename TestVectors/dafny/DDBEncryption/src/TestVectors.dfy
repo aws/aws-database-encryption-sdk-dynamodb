@@ -918,9 +918,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
           expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
         } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == valueToDelete {
-          expect deleteResult.Success?;
-          print("\n");
-          print(deleteResult);
+          expect deleteResult.Success?, "DeleteItem should have failed.";
+          expect deleteResult.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
+          expect deleteResult.value.Attributes.value == records[i].item, "Wrong item was deleted.";
         } else {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
           expect deleteResult.error.ConditionalCheckFailedException?, "DeleteItem should have failed with ConditionalCheckFailedException";
