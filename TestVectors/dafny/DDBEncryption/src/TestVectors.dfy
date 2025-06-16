@@ -925,6 +925,16 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
           expect deleteResult.error.ConditionalCheckFailedException?, "DeleteItem should have failed with ConditionalCheckFailedException";
         }
+      
+        var deleteInputWithoutConditionExpression := DDB.DeleteItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          ReturnValues := Some(DDB.ReturnValue.ALL_OLD)
+        );
+        var deleteResultForWithoutConditionExpressionCase := wClient.DeleteItem(deleteInputWithoutConditionExpression);
+        expect deleteResultForWithoutConditionExpressionCase.Success?, "DeleteItem should have failed.";
+        expect deleteResultForWithoutConditionExpressionCase.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
+        expect deleteResultForWithoutConditionExpressionCase.value.Attributes.value == records[i].item, "Wrong item was deleted.";
       }
     }
 
