@@ -401,6 +401,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestUpdateItem(c1, c2, globalRecords, "Two");
         BasicIoTestDeleteItem(c1, c2, globalRecords, "One", "Uno");
         BasicIoTestDeleteItem(c1, c2, globalRecords, "Two", "Dos");
+        BasicIoTestDeleteItemWithoutConditionExpression(c1, c2, globalRecords, "One", "Uno");
+        BasicIoTestDeleteItemWithoutConditionExpression(c1, c2, globalRecords, "Two", "Dos");
         BasicIoTestExecuteStatement(c1, c2);
         BasicIoTestExecuteTransaction(c1, c2);
         BasicIoTestBatchExecuteStatement(c1, c2);
@@ -925,7 +927,14 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
           expect deleteResult.error.ConditionalCheckFailedException?, "DeleteItem should have failed with ConditionalCheckFailedException";
         }
-      
+      }
+    }
+
+    method BasicIoTestDeleteItemWithoutConditionExpression(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToDelete: DDB.AttributeName, expectedAttributeValue: string)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+      WriteAllRecords(wClient, records);
+      for i := 0 to |records| {      
         var deleteInputWithoutConditionExpression := DDB.DeleteItemInput(
           TableName := TableName,
           Key := map[HashName := records[i].item[HashName]],
