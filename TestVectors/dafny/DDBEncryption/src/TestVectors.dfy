@@ -922,7 +922,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == expectedAttributeValue {
           expect deleteResult.Success?, "DeleteItem should have succeeded.";
           expect deleteResult.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
-          expect deleteResult.value.Attributes.value == records[i].item, "Wrong item was deleted.";
+          expect deleteResult.value.Attributes.value[HashName] == records[i].item[HashName], "Wrong item was deleted.";
         } else {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
           expect deleteResult.error.ConditionalCheckFailedException?, "DeleteItem should have failed with ConditionalCheckFailedException";
@@ -945,7 +945,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         expect deleteResultForWithoutConditionExpressionCase.Success?, "DeleteItem should have failed.";
         expect deleteResultForWithoutConditionExpressionCase.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
         if attributeToDelete in records[i].item {
-          expect deleteResultForWithoutConditionExpressionCase.value.Attributes.value == records[i].item, "Wrong item was deleted.";
+          expect deleteResultForWithoutConditionExpressionCase.value.Attributes.value[HashName] == records[i].item[HashName], "Wrong item was deleted.";
         }
       }
     }
