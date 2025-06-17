@@ -922,6 +922,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == expectedAttributeValue {
           expect deleteResult.Success?, "DeleteItem should have succeeded.";
           expect deleteResult.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
+          expect HashName in deleteResult.value.Attributes.value, "Deleted item does not have right partition key:" + HashName;
           expect deleteResult.value.Attributes.value[HashName] == records[i].item[HashName], "Wrong item was deleted.";
         } else {
           expect deleteResult.Failure?, "DeleteItem should have failed.";
@@ -945,6 +946,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         expect deleteResultForWithoutConditionExpressionCase.Success?, "DeleteItem should have failed.";
         expect deleteResultForWithoutConditionExpressionCase.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
         if attributeToDelete in records[i].item {
+          expect HashName in deleteResultForWithoutConditionExpressionCase.value.Attributes.value, "Deleted item does not have right partition key:" + HashName;
           expect deleteResultForWithoutConditionExpressionCase.value.Attributes.value[HashName] == records[i].item[HashName], "Wrong item was deleted.";
         }
       }
