@@ -9,13 +9,13 @@ can read data from all other migration steps.
 """
 import pytest
 
-from ....src.ddbec_to_awsdbe.awsdbe import (
+from .....src.ddbec_to_awsdbe.awsdbe.client import (
     migration_step_1,
     migration_step_2,
     migration_step_3,
 )
-from ....src.ddbec_to_awsdbe.ddbec import migration_step_0
-from ..test_utils import TEST_DDB_TABLE_NAME, TEST_KMS_KEY_ID
+from .....src.ddbec_to_awsdbe.ddbec.client import migration_step_0
+from ...test_utils import TEST_DDB_TABLE_NAME, TEST_KMS_KEY_ID
 
 pytestmark = [pytest.mark.examples]
 

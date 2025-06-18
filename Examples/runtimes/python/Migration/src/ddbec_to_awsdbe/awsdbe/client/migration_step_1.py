@@ -6,7 +6,7 @@ Migration Step 1.
 
 This is an example demonstrating how to start using the
 AWS Database Encryption SDK with a pre-existing table used with DynamoDB Encryption Client.
-In this example, you configure a DynamoDb Encryption Interceptor to do the following:
+In this example, you configure a EncryptedClient to do the following:
   - Read items encrypted in the old format
   - Continue to encrypt items in the old format on write
   - Read items encrypted in the new format
@@ -31,10 +31,9 @@ def migration_step_1(kms_key_id: str, ddb_table_name: str, sort_read_value: int 
     """
     Migration Step 1: Using the AWS Database Encryption SDK with Legacy Override.
 
-    Args:
-        kms_key_id: The ARN of the KMS key to use for encryption
-        ddb_table_name: The name of the DynamoDB table
-        sort_read_value: The sort key value to read
+    :param kms_key_id: The ARN of the KMS key to use for encryption
+    :param ddb_table_name: The name of the DynamoDB table
+    :param sort_read_value: The sort key value to read
 
     """
     # 1. Create a DynamoDB Encryption SDK client with legacy override.

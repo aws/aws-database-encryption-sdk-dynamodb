@@ -26,15 +26,11 @@ from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptograph
 
 def setup_pure_awsdbe_client(kms_key_id: str, ddb_table_name: str):
     """
-    Set up a pure AWS Database Encryption SDK client without legacy override.
+    Set up a pure AWS Database Encryption SDK EncryptedClient without legacy override.
 
-    Args:
-        kms_key_id: The ARN of the KMS key to use for encryption
-        ddb_table_name: The name of the DynamoDB table
-
-    Returns:
-        Encrypted table client for DynamoDB
-
+    :param kms_key_id: The ARN of the KMS key to use for encryption
+    :param ddb_table_name: The name of the DynamoDB table
+    :returns EncryptedClient for DynamoDB
     """
     # 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     #    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
@@ -122,15 +118,12 @@ def setup_pure_awsdbe_client(kms_key_id: str, ddb_table_name: str):
 
 def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: str, policy: str):
     """
-    Set up an AWS Database Encryption SDK client with legacy override.
+    Set up an AWS Database Encryption SDK EncryptedClient with legacy override.
 
-    Args:
-        kms_key_id: The ARN of the KMS key to use for encryption
-        ddb_table_name: The name of the DynamoDB table
-        policy: The policy required for the Legacy Override configuration
-
-    Returns:
-        Encrypted table client for DynamoDB
+    :param kms_key_id: The ARN of the KMS key to use for encryption
+    :param ddb_table_name: The name of the DynamoDB table
+    :param policy: The policy required for the Legacy Override configuration
+    :returns EncryptedClient for DynamoDB
 
     """
     # 0. Create AWS SDK DynamoDB Client

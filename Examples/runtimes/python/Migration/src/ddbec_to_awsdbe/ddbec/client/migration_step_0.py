@@ -6,7 +6,7 @@ Migration Step 0.
 
 This is an example demonstrating use with the DynamoDb Encryption Client.
 and is the starting state for our migration to the AWS Database Encryption SDK for DynamoDb.
-In this example we configure a DynamoDBMapper configured to encrypt and decrypt
+In this example we configure an AWS SDK Client configured to encrypt and decrypt
 items. The encryption and decryption of data is configured to use a KMS Key as the root of trust.
 
 Running this example requires access to the DDB Table whose name

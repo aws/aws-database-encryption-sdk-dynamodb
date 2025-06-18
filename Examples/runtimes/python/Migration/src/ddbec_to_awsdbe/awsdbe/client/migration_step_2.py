@@ -31,10 +31,9 @@ def migration_step_2(kms_key_id: str, ddb_table_name: str, sort_read_value: int 
     """
     Migration Step 2: Using pure AWS DBESDK and legacy override together.
 
-    Args:
-        kms_key_id: The ARN of the KMS key to use for encryption
-        ddb_table_name: The name of the DynamoDB table
-        sort_read_value: The sort key value to read
+    :param kms_key_id: The ARN of the KMS key to use for encryption
+    :param ddb_table_name: The name of the DynamoDB table
+    :param sort_read_value: The sort key value to read
 
     """
     # 1. Create a DynamoDB Encryption SDK client with legacy override.
