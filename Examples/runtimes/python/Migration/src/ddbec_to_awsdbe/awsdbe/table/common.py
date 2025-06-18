@@ -9,7 +9,7 @@ from aws_cryptographic_material_providers.mpl.models import (
     DBEAlgorithmSuiteId,
 )
 from aws_cryptographic_material_providers.mpl.references import IKeyring
-from aws_dbesdk_dynamodb.encrypted.client import EncryptedClient
+from aws_dbesdk_dynamodb.encrypted.table import EncryptedTable
 from aws_dbesdk_dynamodb.structures.dynamodb import (
     DynamoDbTableEncryptionConfig,
     DynamoDbTablesEncryptionConfig,
@@ -20,17 +20,17 @@ from aws_dbesdk_dynamodb.structures.structured_encryption import (
 )
 
 # Import from legacy DynamoDB Encryption Client
-from dynamodb_encryption_sdk.encrypted.client import EncryptedClient as LegacyEncryptedClient
+from dynamodb_encryption_sdk.encrypted.table import EncryptedTable as LegacyEncryptedTable
 from dynamodb_encryption_sdk.material_providers.aws_kms import AwsKmsCryptographicMaterialsProvider
 
 
-def setup_pure_awsdbe_client(kms_key_id: str, ddb_table_name: str):
+def setup_pure_awsdbe_table(kms_key_id: str, ddb_table_name: str):
     """
-    Set up a pure AWS Database Encryption SDK EncryptedClient without legacy override.
+    Set up a pure AWS Database Encryption SDK EncryptedTable without legacy override.
 
     :param kms_key_id: The ARN of the KMS key to use for encryption
     :param ddb_table_name: The name of the DynamoDB table
-    :returns EncryptedClient for DynamoDB
+    :returns EncryptedTable for DynamoDB
     """
     # 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     #    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
@@ -109,37 +109,37 @@ def setup_pure_awsdbe_client(kms_key_id: str, ddb_table_name: str):
     table_configs[ddb_table_name] = table_config
     tables_config = DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
 
-    # 5. Create the EncryptedClient
-    return EncryptedClient(
-        client=boto3.client("dynamodb"),
+    # 5. Create the DB-ESDK EncryptedTable
+    return EncryptedTable(
+        table=boto3.resource("dynamodb").Table(ddb_table_name),
         encryption_config=tables_config,
     )
 
 
-def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: str, policy: str):
+def setup_awsdbe_table_with_legacy_override(kms_key_id: str, ddb_table_name: str, policy: str):
     """
-    Set up an AWS Database Encryption SDK EncryptedClient with legacy override.
+    Set up an AWS Database Encryption SDK EncryptedTable with legacy override.
 
     :param kms_key_id: The ARN of the KMS key to use for encryption
     :param ddb_table_name: The name of the DynamoDB table
     :param policy: The policy required for the Legacy Override configuration
-    :returns EncryptedClient for DynamoDB
+    :returns EncryptedTable for DynamoDB
 
     """
     # 0. Create AWS SDK DynamoDB Client
-    ddb_client = boto3.client("dynamodb")
+    ddb_table = boto3.resource("dynamodb").Table(ddb_table_name)
 
-    # 1. Create the legacy EncryptedClient
+    # 1. Create the legacy EncryptedTable
     cmp = AwsKmsCryptographicMaterialsProvider(key_id=kms_key_id)
-    legacy_encrypted_client = LegacyEncryptedClient(
-        client=ddb_client,
+    legacy_encrypted_table = LegacyEncryptedTable(
+        table=ddb_table,
         materials_provider=cmp,
     )
 
     # 2. Configure our legacy behavior, inputting the DynamoDBEncryptor, attribute actions
     #    created above, and  legacy policy.
     legacy_override = LegacyOverride(
-        encryptor=legacy_encrypted_client,
+        encryptor=legacy_encrypted_table,
         attribute_actions_on_encrypt={
             "partition_key": CryptoAction.SIGN_ONLY,
             "sort_key": CryptoAction.SIGN_ONLY,
@@ -228,8 +228,8 @@ def setup_awsdbe_client_with_legacy_override(kms_key_id: str, ddb_table_name: st
     table_configs[ddb_table_name] = table_config
     tables_config = DynamoDbTablesEncryptionConfig(table_encryption_configs=table_configs)
 
-    # 7. Create the EncryptedClient
-    return EncryptedClient(
-        client=boto3.client("dynamodb"),
+    # 7. Create the DB-ESDK EncryptedTable
+    return EncryptedTable(
+        table=boto3.resource("dynamodb").Table(ddb_table_name),
         encryption_config=tables_config,
     )

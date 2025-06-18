@@ -24,65 +24,59 @@ primary key configuration:
 from aws_dbesdk_dynamodb.structures.dynamodb import LegacyPolicy
 
 # Import from new AWS Database Encryption SDK
-from .common import setup_awsdbe_client_with_legacy_override
+from .common import setup_awsdbe_table_with_legacy_override
 
 
-def migration_step_2_with_client(kms_key_id: str, ddb_table_name: str, sort_read_value: int = 2):
+def migration_step_2_with_table(kms_key_id: str, ddb_table_name: str, sort_read_value: int = 2):
     """
-    Migration Step 2: Using pure AWS DBESDK and legacy override together with EncryptedClient.
+    Migration Step 2: Using pure AWS DBESDK and legacy override together.
 
     :param kms_key_id: The ARN of the KMS key to use for encryption
     :param ddb_table_name: The name of the DynamoDB table
     :param sort_read_value: The sort key value to read
 
     """
-    # 1. Create a EncryptedClient with legacy override.
+    # 1. Create a EncryptedTable with legacy override.
     #    When configuring our legacy behavior, use `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
     #    With this policy, you will continue to read items in both formats,
     #    but will only write new items using the new format.
-    encrypted_client = setup_awsdbe_client_with_legacy_override(
+    encrypted_table = setup_awsdbe_table_with_legacy_override(
         kms_key_id, ddb_table_name, policy=LegacyPolicy.FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT
     )
 
-    # 2. Put an item into your table using the DB ESDK Client.
+    # 2. Put an item into your table using the EncryptedTable.
     #    This item will be encrypted in the latest format, using the
     #    configuration from your modelled class to decide
     #    which attribute to encrypt and/or sign.
     item_to_encrypt = {
-        "partition_key": {"S": "MigrationExampleForPython"},
-        "sort_key": {"N": str(2)},
-        "attribute1": {"S": "encrypt and sign me!"},
-        "attribute2": {"S": "sign me!"},
-        ":attribute3": {"S": "ignore me!"},
+        "partition_key": "MigrationExampleForPythonTable",
+        "sort_key": 2,
+        "attribute1": "encrypt and sign me!",
+        "attribute2": "sign me!",
+        ":attribute3": "ignore me!",
     }
 
-    put_item_request = {
-        "TableName": ddb_table_name,
-        "Item": item_to_encrypt,
-    }
+    put_item_response = encrypted_table.put_item(Item=item_to_encrypt)
 
-    put_item_response = encrypted_client.put_item(**put_item_request)
     # Demonstrate that PutItem succeeded
     assert put_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
-    # 3. Get an item back from the table using the Client.
+    # 3. Get an item back from the table using the EncryptedTable.
     #    If this is an item written in the old format (e.g. any item written
     #    during Step 0 or 1), then we will attempt to decrypt the item
     #    using the legacy behavior.
     #    If this is an item written in the new format (e.g. any item written
     #    during Step 2 or after), then we will attempt to decrypt the item using
     #    the non-legacy behavior.
-    key_to_get = {"partition_key": {"S": "MigrationExampleForPython"}, "sort_key": {"N": str(sort_read_value)}}
-
-    get_item_request = {"TableName": ddb_table_name, "Key": key_to_get}
-    get_item_response = encrypted_client.get_item(**get_item_request)
+    key_to_get = {"partition_key": "MigrationExampleForPythonTable", "sort_key": sort_read_value}
+    get_item_response = encrypted_table.get_item(Key=key_to_get)
 
     # Demonstrate that GetItem succeeded and returned the decrypted item
     assert get_item_response["ResponseMetadata"]["HTTPStatusCode"] == 200
     decrypted_item = get_item_response["Item"]
     # Demonstrate we get the expected item back
-    assert decrypted_item["partition_key"]["S"] == "MigrationExampleForPython"
-    assert decrypted_item["sort_key"]["N"] == str(sort_read_value)
-    assert decrypted_item["attribute1"]["S"] == "encrypt and sign me!"
-    assert decrypted_item["attribute2"]["S"] == "sign me!"
-    assert decrypted_item[":attribute3"]["S"] == "ignore me!"
+    assert decrypted_item["partition_key"] == "MigrationExampleForPythonTable"
+    assert decrypted_item["sort_key"] == sort_read_value
+    assert decrypted_item["attribute1"] == "encrypt and sign me!"
+    assert decrypted_item["attribute2"] == "sign me!"
+    assert decrypted_item[":attribute3"] == "ignore me!"
