@@ -1,69 +1,45 @@
-# Migration Examples: Legacy DynamoDB Encryption Client to AWS Database Encryption SDK
+# DyanmoDb Encryption Client to AWS Database Encryption SDK for DynamoDb Migration
 
-These examples demonstrate a complete migration path from the legacy AWS DynamoDB Encryption Client Python library to the new AWS Database Encryption SDK for DynamoDB.
+This projects demonstrates the three Steps necessary to migration to the AWS Database Encryption SDK for DynamoDb
+if you are currently using the DynamoDb Encryption Client.
 
-## Overview
+[Step 0](./ddbec/README.md) demonstrates the starting state for your system.
 
-The migration process is demonstrated through a series of example steps that show how to gradually transition from the legacy client to the new SDK while maintaining compatibility with previously encrypted data.
+## Step 1
 
-## Migration Steps
+In Step 1, you update your system to do the following:
 
-### Step 0: Legacy DynamoDB Encryption Client
+- continue to read items in the old format
+- continue to write items in the old format
+- prepare to read items in the new format
 
-[migration_step_0.py](./ddbec/migration_step_0.py) demonstrates using the legacy DynamoDB Encryption Client to encrypt and decrypt items. This represents the starting point for migration.
+When you deploy changes in Step 1, you should not expect any behavior change in your system,
+and your dataset still consists of data written in the old format.
 
-Key concepts:
+You must ensure that the changes in Step 1 make it to all your reads before you proceed to step 2.
 
-- Setting up the legacy client with an AWS KMS cryptographic materials provider
-- Defining attribute actions for encryption/signing
-- Storing and retrieving encrypted items
+## Step 2
 
-### Step 1: AWS Database Encryption SDK with Legacy Override
+In Step 2, you update your system to do the following:
 
-[migration_step_1.py](./awsdbe/migration_step_1.py) demonstrates how to start using the AWS Database Encryption SDK with a pre-existing table used with the DynamoDB Encryption Client.
+- continue to read items in the old format
+- start writing items in the new format
+- continue to read items in the new format
 
-Key concepts:
+When you deploy changes in Step 2, you are introducing a new encryption format to your system,
+and must make sure that all your readers are updated with the changes from Step 1.
 
-- Configure AWS DBESDK to read items encrypted in the legacy format
-- Continue to encrypt items in the legacy format (FORCE_LEGACY_ENCRYPT_ALLOW_DECRYPT policy)
-- Read items encrypted in the new format
-- Deploy this step to all readers before moving to step 2
+Before you move onto the next step, you will need to re-encrypt all old items in your dataset
+to use the newest format. How you will want to do this, and how long you may want to remain in this Step,
+depends on your system and your desired security properties for old and new items.
 
-### Step 2: Full Migration to AWS Database Encryption SDK
+## Step 3
 
-[migration_step_2.py](./awsdbe/migration_step_2.py) demonstrates the next step in the migration process, using both the pure AWS DBESDK client and the legacy-override client side by side.
+Once all old items are re-encrypted to use the new format,
+you may update your system to do the following:
 
-Key concepts:
+- continue to write items in the new format
+- continue to read items in the new format
+- do not accept reading items in the old format
 
-- Create a pure AWS DBESDK client for new data
-- Keep using legacy-override client when needed for legacy data
-- Re-encrypt legacy data with the new client
-- Demonstrate that the legacy-override client can read both formats
-
-### Step 3: Complete Migration - Using Only AWS DBESDK
-
-[migration_step_3.py](./awsdbe/migration_step_3.py) demonstrates the final state of the migration, where all data has been re-encrypted using the new format.
-
-Key concepts:
-
-- Use only the pure AWS DBESDK client (no more legacy override)
-- Verify all previously re-encrypted data is readable
-- Add new data using the pure client
-
-## Prerequisites
-
-Before running these examples:
-
-1. Replace `common.KMS_KEY_ID` with a valid AWS KMS key ID or alias
-2. Ensure you have AWS credentials configured with permissions for:
-   - DynamoDB (CreateTable, PutItem, GetItem, etc.)
-   - KMS (GenerateDataKey, Decrypt)
-3. Have both libraries installed:
-   - Legacy library: `pip install dynamodb-encryption-sdk`
-   - New SDK: `pip install aws-dbesdk-dynamodb`
-
-## Important Notes
-
-- These examples create a real DynamoDB table and perform actual AWS KMS operations, which may incur AWS charges
-- By default, the examples leave the created table intact when they finish - uncomment the table deletion code in the example scripts if you want to clean up resources
-- These examples are focused on demonstrating a migration path and are not production-ready code
+Once you have deployed these changes to your system, you have completed migration.

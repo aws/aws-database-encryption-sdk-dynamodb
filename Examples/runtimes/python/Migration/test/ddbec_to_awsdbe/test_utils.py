@@ -1,3 +1,5 @@
+# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 """Test constants."""
 
 # This is a public KMS Key that MUST only be used for testing, and MUST NOT be used for any production data

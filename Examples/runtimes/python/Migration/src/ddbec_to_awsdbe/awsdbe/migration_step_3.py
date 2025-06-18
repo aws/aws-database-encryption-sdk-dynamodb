@@ -4,16 +4,13 @@
 """
 Migration Step 3.
 
-This is an example demonstrating the final state of migrating
-from the DynamoDB Encryption Client to AWS Database Encryption SDK. At this point,
-all your data has been re-encrypted with the new format, and you are ready to
-stop using the legacy override feature entirely.
+This is an example demonstrating how to update your configuration
+to stop accepting reading items encrypted using the old format.
+In order to proceed with this step, you will need to re-encrypt all
+old items in your table.
 
-In this example, you'll do the following:
-  - Use only the pure AWS DBESDK client for all operations
-  - Verify that items that were originally encrypted with the legacy client can be read
-    after they have been re-encrypted
-  - Add new items with the pure client
+Once you complete Step 3, you can be sure that all items being read by your system
+ensure the security properties configured for the new format.
 
 Running this example requires access to the DDB Table whose name
 is provided in CLI arguments.
