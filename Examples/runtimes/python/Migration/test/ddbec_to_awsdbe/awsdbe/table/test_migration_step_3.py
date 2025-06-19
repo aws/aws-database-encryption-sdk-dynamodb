@@ -8,6 +8,9 @@ and ensures that step 3 (using only AWS DBESDK) behaves correctly with data
 from different migration stages.
 """
 import pytest
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
+    DynamoDbItemEncryptor,
+)
 
 from .....src.ddbec_to_awsdbe.awsdbe.table import (
     migration_step_1,
@@ -31,10 +34,9 @@ def test_migration_step_3_with_table():
     migration_step_0.migration_step_0_with_table(
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=0
     )
-    # TODO: Fix Exception Handling Correctly & Ensure Correct Exceptions were thrown
     # When: Execute Step 3 with sort_read_value=0
-    # Then: throws Exception (i.e. cannot read values in old format)
-    with pytest.raises(Exception):
+    # Then: throws DynamoDbItemEncryptor Exception (i.e. cannot read values in old format)
+    with pytest.raises(DynamoDbItemEncryptor):
         migration_step_3.migration_step_3_with_table(
             kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=0
         )
@@ -44,8 +46,8 @@ def test_migration_step_3_with_table():
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=1
     )
     # When: Execute Step 3 with sort_read_value=1
-    # Then: throws Exception (i.e. cannot read values in old format)
-    with pytest.raises(Exception):
+    # Then: throws DynamoDbItemEncryptor Exception (i.e. cannot read values in old format)
+    with pytest.raises(DynamoDbItemEncryptor):
         migration_step_3.migration_step_3_with_table(
             kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=1
         )

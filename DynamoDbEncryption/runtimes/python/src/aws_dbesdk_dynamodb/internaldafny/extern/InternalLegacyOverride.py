@@ -66,7 +66,6 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
             isinstance(legacy_override.encryptor, EncryptedClient)
             or isinstance(legacy_override.encryptor, EncryptedTable)
             or isinstance(legacy_override.encryptor, EncryptedResource)
-            or isinstance(legacy_override.encryptor, EncryptedPaginator)
         ):
             return InternalLegacyOverride.CreateBuildFailure(
                 InternalLegacyOverride.CreateError("Legacy encryptor is not supported")
@@ -99,10 +98,12 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
         """Create the legacy encryption context from the config."""
         try:
             # Convert Dafny types to Python strings for the encryption context
-            table_name = InternalLegacyOverride.ToNative(config.logicalTableName)
-            partition_key_name = InternalLegacyOverride.ToNative(config.partitionKeyName)
+            table_name = InternalLegacyOverride.DafnyStringToNativeString(config.logicalTableName)
+            partition_key_name = InternalLegacyOverride.DafnyStringToNativeString(config.partitionKeyName)
             sort_key_name = (
-                InternalLegacyOverride.ToNative(config.sortKeyName.value) if config.sortKeyName.is_Some else None
+                InternalLegacyOverride.DafnyStringToNativeString(config.sortKeyName.value)
+                if config.sortKeyName.is_Some
+                else None
             )
 
             # Create the legacy encryption context with the extracted values
@@ -128,7 +129,7 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
             # Map the action from the config to legacy actions
             attribute_actions = {}
             for key, action in attribute_actions_on_encrypt.items:
-                key_str = InternalLegacyOverride.ToNative(key)
+                key_str = InternalLegacyOverride.DafnyStringToNativeString(key)
 
                 # Map the action type to the appropriate CryptoAction
                 if action == CryptoAction_ENCRYPT__AND__SIGN():
@@ -151,11 +152,8 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
     def EncryptItem(self, input: EncryptItemInput_EncryptItemInput):
         """Encrypt an item using the legacy DynamoDB encryptor.
 
-        Args:
-            input: EncryptItemInput containing the plaintext item to encrypt
-
-        Returns:
-            Result containing the encrypted item or an error
+        :param input: EncryptItemInput containing the plaintext item to encrypt
+        :returns Result containing the encrypted item or an error
         """
         try:
             # Precondition: Policy MUST allow the caller to encrypt.
@@ -190,11 +188,8 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
     def DecryptItem(self, input: DecryptItemInput_DecryptItemInput):
         """Decrypt an item using the legacy DynamoDB encryptor.
 
-        Args:
-            input: DecryptItemInput containing the encrypted item to decrypt
-
-        Returns:
-            Result containing the decrypted item or an error
+        :param input: DecryptItemInput containing the encrypted item to decrypt
+        :returns Result containing the decrypted item or an error
         """
         try:
             # Precondition: Policy MUST allow the caller to decrypt.
@@ -235,11 +230,8 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
         """
         Determine if the input is from a legacy client.
 
-        Args:
-            input: The decrypt item input to check
-
-        Returns:
-            Boolean indicating if the input is from a legacy client
+        :param input: The decrypt item input to check
+        :returns Boolean indicating if the input is from a legacy client
         """
         if not input.is_DecryptItemInput:
             return False
@@ -258,11 +250,11 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
         )
 
     @staticmethod
-    def ToNative(dafny_input):
+    def DafnyStringToNativeString(dafny_input):
         return b"".join(ord(c).to_bytes(2, "big") for c in dafny_input).decode("utf-16-be")
 
     @staticmethod
-    def ToDafny(native_input):
+    def NativeStringToDafnyString(native_input):
         return Seq(
             "".join([chr(int.from_bytes(pair, "big")) for pair in zip(*[iter(native_input.encode("utf-16-be"))] * 2)])
         )
@@ -270,7 +262,7 @@ class InternalLegacyOverride(aws_dbesdk_dynamodb.internaldafny.generated.Interna
     @staticmethod
     def CreateError(message):
         """Create an Error with the given message."""
-        return Error_DynamoDbItemEncryptorException(InternalLegacyOverride.ToDafny(message))
+        return Error_DynamoDbItemEncryptorException(InternalLegacyOverride.NativeStringToDafnyString(message))
 
 
 aws_dbesdk_dynamodb.internaldafny.generated.InternalLegacyOverride.InternalLegacyOverride = InternalLegacyOverride

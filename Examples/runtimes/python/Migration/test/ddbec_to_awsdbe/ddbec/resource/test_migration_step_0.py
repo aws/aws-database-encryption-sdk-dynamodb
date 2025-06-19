@@ -8,6 +8,7 @@ and ensures that step 0 (using legacy DynamoDB Encryption Client) behaves correc
 with data from different migration stages.
 """
 import pytest
+from dynamodb_encryption_sdk.exceptions import DecryptionError
 
 from .....src.ddbec_to_awsdbe.awsdbe.resource import (
     migration_step_1,
@@ -42,8 +43,8 @@ def test_migration_step_0_with_resource():
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=2
     )
     # When: Execute Step 0 with sort_read_value=2
-    # Then: throws Exception (i.e. cannot read values in new format)
-    with pytest.raises(Exception):  # The exact exception may vary in Python implementation
+    # Then: throws DecryptionError Exception (i.e. cannot read values in new format)
+    with pytest.raises(DecryptionError):  # The exact exception may vary in Python implementation
         migration_step_0.migration_step_0_with_resource(
             kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=2
         )
@@ -53,8 +54,8 @@ def test_migration_step_0_with_resource():
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=3
     )
     # When: Execute Step 0 with sort_read_value=3
-    # Then: throws Exception (i.e. cannot read values in new format)
-    with pytest.raises(Exception):  # The exact exception may vary in Python implementation
+    # Then: throws DecryptionError Exception (i.e. cannot read values in new format)
+    with pytest.raises(DecryptionError):  # The exact exception may vary in Python implementation
         migration_step_0.migration_step_0_with_resource(
             kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=3
         )
