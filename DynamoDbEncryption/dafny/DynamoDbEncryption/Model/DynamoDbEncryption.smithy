@@ -286,6 +286,9 @@ integer BeaconBitLength
 @range(min: 1)
 integer VersionNumber
 
+@range(min: 1)
+integer BucketCount
+
 @length(min: 1, max: 1)
 string Char
 
@@ -796,6 +799,8 @@ structure BeaconVersion {
   encryptedParts : EncryptedPartsList,
   @javadoc("The list of Signed Parts that may be included in any compound beacon.")
   signedParts : SignedPartsList,
+  @javadoc("The number of separate buckets across which beacons should be divided.")
+  numberOfBuckets : BucketCount
 }
 
 //= specification/searchable-encryption/search-config.md#initialization

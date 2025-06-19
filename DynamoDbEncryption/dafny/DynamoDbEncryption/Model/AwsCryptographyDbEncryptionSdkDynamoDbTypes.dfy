@@ -17,7 +17,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   import AwsCryptographyKeyStoreTypes
   import AwsCryptographyPrimitivesTypes
   import ComAmazonawsDynamodbTypes
-    // Generic helpers for verification of mock/unit tests.
+  // Generic helpers for verification of mock/unit tests.
   datatype DafnyCallEvent<I, O> = DafnyCallEvent(input: I, output: O)
 
   // Begin Generated Types
@@ -46,11 +46,16 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly compoundBeacons: Option<CompoundBeaconList> := Option.None ,
     nameonly virtualFields: Option<VirtualFieldList> := Option.None ,
     nameonly encryptedParts: Option<EncryptedPartsList> := Option.None ,
-    nameonly signedParts: Option<SignedPartsList> := Option.None
+    nameonly signedParts: Option<SignedPartsList> := Option.None ,
+    nameonly numberOfBuckets: Option<BucketCount> := Option.None
   )
   type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
   predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
     ( 1 <= |x| <= 1 )
+  }
+  type BucketCount = x: int32 | IsValid_BucketCount(x) witness *
+  predicate method IsValid_BucketCount(x: int32) {
+    ( 1 <= x  )
   }
   type Char = x: string | IsValid_Char(x) witness *
   predicate method IsValid_Char(x: string) {
