@@ -89,7 +89,7 @@ module TransactWriteItemsTransform {
                                          item.Put.value.ExpressionAttributeNames,
                                          item.Put.value.ExpressionAttributeValues);
 
-        var bucket := GetRandomBucket(tableConfig);
+        var bucket :- GetRandomBucket(tableConfig);
         var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item, bucket);
 
         var encryptRes := tableConfig.itemEncryptor.EncryptItem(

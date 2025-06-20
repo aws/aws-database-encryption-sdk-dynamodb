@@ -43,7 +43,7 @@ module ScanTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-    var bucket := []; // TODO
+      var bucket := []; // TODO
       var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput, bucket);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }

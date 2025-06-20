@@ -32,7 +32,7 @@ module AttributeResolver {
         );
     } else {
       var tableConfig := config.tableEncryptionConfigs[input.TableName];
-      var bucket := GetRandomBucket(tableConfig); // TODO - should this be input?
+      var bucket :- GetRandomBucket(tableConfig);
       var vf :- GetVirtualFields(tableConfig.search.value, input.Item, input.Version);
       var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version, bucket);
       return Success(

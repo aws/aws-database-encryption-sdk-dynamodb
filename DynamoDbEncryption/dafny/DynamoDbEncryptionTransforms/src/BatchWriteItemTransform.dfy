@@ -54,7 +54,7 @@ module BatchWriteItemTransform {
             //# The Item MUST be [writable](ddb-support.md#writable).
             var _ :- IsWriteable(tableConfig, req.PutRequest.value.Item);
 
-            var bucket := GetRandomBucket(tableConfig);
+            var bucket :- GetRandomBucket(tableConfig);
             var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item, bucket);
 
             var encryptRes := tableConfig.itemEncryptor.EncryptItem(EncTypes.EncryptItemInput(plaintextItem:=item));
