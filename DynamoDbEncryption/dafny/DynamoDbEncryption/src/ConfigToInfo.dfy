@@ -315,8 +315,13 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
-    var numBuckets : nat := config.numberOfBuckets.UnwrapOr(1) as nat;
-    :- Need(0 < numBuckets < INT32_MAX_LIMIT, E("Invalid number of buckets specified"));
+
+    var numBuckets : int := config.numberOfBuckets.UnwrapOr(1) as int;
+    :- Need(0 <= numBuckets < INT32_MAX_LIMIT, E("Invalid number of buckets specified, " + Base10Int2String(numBuckets) + ", must be 0 < numberOfBuckets <= 255."));
+    // Zero is invalid, but in Java we can't distinguish None from Some(0)
+    if numBuckets == 0 {
+      numBuckets := 1;
+    }
     return I.MakeBeaconVersion(
         config.version as I.VersionNumber,
         source,
