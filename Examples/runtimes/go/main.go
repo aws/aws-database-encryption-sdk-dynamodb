@@ -8,4 +8,5 @@ import (
 func main() {
 	keyring.AwsKmsKeyringExample(utils.KmsKeyID(), utils.DdbTableName())
 	keyring.RawAesExample(utils.DdbTableName(), utils.KeyNamespace(), utils.KeyName(), utils.GenerateAes256KeyBytes())
+	keyring.MrkDiscoveryMultiKeyringExample(utils.KmsKeyID(), utils.DdbTableName(), utils.DefaultKMSKeyAccountID(), utils.DefaultKmsKeyRegion())
 }
