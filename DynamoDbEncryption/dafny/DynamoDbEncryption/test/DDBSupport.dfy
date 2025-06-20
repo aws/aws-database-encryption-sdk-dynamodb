@@ -22,7 +22,7 @@ module TestDDBSupport {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var search := SI.SearchInfo([bv], 0);
-    var newItem :- expect AddSignedBeacons(Some(search), SimpleItem);
+    var newItem :- expect AddSignedBeacons(Some(search), SimpleItem, []);
     assert IsValid_AttributeName("aws_dbe_v_1");
     assert IsValid_AttributeName("JustSigned");
     var expectedNew : DDB.AttributeMap := map[
@@ -51,7 +51,7 @@ module TestDDBSupport {
       ExpressionAttributeValues := Some(expressionAttributeValues),
       KeyConditionExpression := Some("TheKeyField = :value")
     );
-    var result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+    var result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput, []);
 
     // Verify Success with branch key id plus beacon
     expressionAttributeValues := map[
@@ -63,7 +63,7 @@ module TestDDBSupport {
       ExpressionAttributeValues := Some(expressionAttributeValues),
       KeyConditionExpression := Some("TheKeyField = :value AND std2 = :other")
     );
-    result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+    result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput, []);
 
     // Verify Failure with beacon but no branch key id
     queryInput := DDB.QueryInput (
@@ -71,7 +71,7 @@ module TestDDBSupport {
       ExpressionAttributeValues := Some(expressionAttributeValues),
       KeyConditionExpression := Some("std2 = :other")
     );
-    var result2 := QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+    var result2 := QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput, []);
     expect result2 == Failure(AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error.DynamoDbEncryptionException(
                                 message := "Need KeyId because of beacon std2 but no KeyId found in query"));
 
@@ -86,6 +86,6 @@ module TestDDBSupport {
       ExpressionAttributeValues := Some(expressionAttributeValues),
       KeyConditionExpression := Some("#keyfield = :value AND #beacon = :other")
     );
-    result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
+    result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput, []);
   }
 }

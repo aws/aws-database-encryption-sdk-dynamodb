@@ -58,13 +58,14 @@ module PutItemTransform {
                                      input.sdkInput.ConditionExpression,
                                      input.sdkInput.ExpressionAttributeNames,
                                      input.sdkInput.ExpressionAttributeValues);
-    var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item);
+    var bucket := GetRandomBucket(tableConfig);
+    var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item, bucket);
     var encryptRes := tableConfig.itemEncryptor.EncryptItem(
       EncTypes.EncryptItemInput(plaintextItem:=item)
     );
     var encrypted :- MapError(encryptRes);
     var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, Util.MaybeFromOptionKeyId(keyId));
+    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, Util.MaybeFromOptionKeyId(keyId), bucket);
     return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem + beacons)));
   }
 

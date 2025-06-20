@@ -315,12 +315,15 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
+    var numBuckets : nat := config.numberOfBuckets.UnwrapOr(1) as nat;
+    :- Need(0 < numBuckets < INT32_MAX_LIMIT, E("Invalid number of buckets specified"));
     return I.MakeBeaconVersion(
         config.version as I.VersionNumber,
         source,
         beacons,
         virtualFields,
-        outer.attributeActionsOnEncrypt
+        outer.attributeActionsOnEncrypt,
+        numBuckets as uint32
       );
   }
 

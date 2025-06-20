@@ -141,14 +141,14 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId)
+  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : Bytes)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
       return Success(map[]);
     } else {
-      output := search.value.GenerateEncryptedBeacons(item, keyId);
+      output := search.value.GenerateEncryptedBeacons(item, keyId, bucket);
     }
   }
 
@@ -156,7 +156,7 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap)
+  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, bucket : Bytes)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
 
@@ -172,7 +172,7 @@ module DynamoDBSupport {
     if search.None? {
       return Success(item);
     } else {
-      var newAttrs :- search.value.GenerateSignedBeacons(item);
+      var newAttrs :- search.value.GenerateSignedBeacons(item, bucket);
 
       //= specification/dynamodb-encryption-client/ddb-support.md#addsignedbeacons
       //# If the attribute NAME already exists,
@@ -223,7 +223,7 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  method QueryInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.QueryInput)
+  method QueryInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.QueryInput, bucket : Bytes)
     returns (output : Result<DDB.QueryInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
@@ -238,7 +238,7 @@ module DynamoDBSupport {
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.Beaconize(search.value.curr(), oldContext, keyId);
+      var newContext :- Filter.Beaconize(search.value.curr(), oldContext, keyId, bucket);
       return Success(req.(
                      KeyConditionExpression := newContext.keyExpr,
                      FilterExpression := newContext.filterExpr,
@@ -249,7 +249,7 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryOutput object for searchable encryption.
-  method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput)
+  method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput, bucket : Bytes)
     returns (output : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
     ensures output.Success? ==> output.value.Items.Some?
@@ -265,7 +265,8 @@ module DynamoDBSupport {
         req.KeyConditionExpression,
         req.FilterExpression,
         req.ExpressionAttributeNames,
-        req.ExpressionAttributeValues);
+        req.ExpressionAttributeValues,
+        bucket);
       SequenceIsSafeBecauseItIsInMemory(newItems);
       :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
@@ -294,7 +295,7 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanInput object for searchable encryption.
-  method ScanInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.ScanInput)
+  method ScanInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.ScanInput, bucket : Bytes)
     returns (output : Result<DDB.ScanInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
@@ -309,7 +310,7 @@ module DynamoDBSupport {
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var context := Filter.ExprContext(None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.Beaconize(search.value.curr(), context, keyId);
+      var newContext :- Filter.Beaconize(search.value.curr(), context, keyId, bucket);
       return Success(req.(
                      FilterExpression := newContext.filterExpr,
                      ExpressionAttributeNames := newContext.names,
@@ -319,7 +320,7 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanOutput object for searchable encryption.
-  method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput)
+  method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput, bucket : Bytes)
     returns (ret : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
     ensures ret.Success? ==> ret.value.Items.Some?
@@ -335,7 +336,8 @@ module DynamoDBSupport {
         None,
         req.FilterExpression,
         req.ExpressionAttributeNames,
-        req.ExpressionAttributeValues);
+        req.ExpressionAttributeValues,
+        bucket);
       SequenceIsSafeBecauseItIsInMemory(newItems);
       :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
@@ -380,6 +382,7 @@ module DynamoDBSupport {
     fields : seq<string>,
     bv : SearchableEncryptionInfo.BeaconVersion,
     item : DDB.AttributeMap,
+    bucket : Bytes,
     results : map<string, string> := map[])
     : (output : Result<map<string, string>, Error>)
     requires forall x <- fields :: x in bv.beacons
@@ -392,20 +395,20 @@ module DynamoDBSupport {
     else
       var beacon := bv.beacons[fields[0 as uint32]];
       if beacon.Compound? then
-        var optValue :- beacon.cmp.getNaked(item, bv.virtualFields);
+        var optValue :- beacon.cmp.getNaked(item, bv.virtualFields, bucket);
         if optValue.Some? then
-          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, results[fields[0] := optValue.value])
+          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results[fields[0] := optValue.value])
         else
-          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, results)
+          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results)
       else
-        GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, results)
+        GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results)
   }
 
-  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap)
+  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap, bucket : Bytes)
     returns (output : Result<map<string, string>, Error>)
   {
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.beacons.Keys, CharLess);
-    output := GetCompoundBeaconsLoop(beaconNames, beaconVersion, item);
+    output := GetCompoundBeaconsLoop(beaconNames, beaconVersion, item, bucket);
   }
 
 }

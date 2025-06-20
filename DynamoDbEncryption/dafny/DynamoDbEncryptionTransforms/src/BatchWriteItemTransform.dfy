@@ -7,6 +7,7 @@ module BatchWriteItemTransform {
   import opened DdbMiddlewareConfig
   import opened DynamoDbMiddlewareSupport
   import opened Wrappers
+  import opened StandardLibrary.UInt
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
@@ -53,12 +54,13 @@ module BatchWriteItemTransform {
             //# The Item MUST be [writable](ddb-support.md#writable).
             var _ :- IsWriteable(tableConfig, req.PutRequest.value.Item);
 
-            var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item);
+            var bucket := GetRandomBucket(tableConfig);
+            var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item, bucket);
 
             var encryptRes := tableConfig.itemEncryptor.EncryptItem(EncTypes.EncryptItemInput(plaintextItem:=item));
             var encrypted :- MapError(encryptRes);
             var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-            var beaconAttrs :- GetEncryptedBeacons(tableConfig, req.PutRequest.value.Item, Util.MaybeFromOptionKeyId(keyId));
+            var beaconAttrs :- GetEncryptedBeacons(tableConfig, req.PutRequest.value.Item, Util.MaybeFromOptionKeyId(keyId), bucket);
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
             //# The PutRequest request's `Item` field MUST be replaced

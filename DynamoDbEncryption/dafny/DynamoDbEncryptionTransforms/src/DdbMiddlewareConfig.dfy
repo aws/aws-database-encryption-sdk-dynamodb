@@ -5,6 +5,7 @@ include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy"
 module DdbMiddlewareConfig {
   import opened Wrappers
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened StandardLibrary.UInt
   import DynamoDbItemEncryptor
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
@@ -27,6 +28,18 @@ module DdbMiddlewareConfig {
   {
     || tableName !in config.tableEncryptionConfigs
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+  }
+
+  function method GetRandomBucket(config : TableConfig) : seq<uint8>
+  {
+    if config.search.Some? then
+      var numBuckets : uint32 := config.search.value.versions[0].numBuckets;
+      if numBuckets <= 1 then
+        []
+      else
+        [1] // TODO
+    else
+      []
   }
 
   predicate ValidTableConfig?(config: TableConfig) {

@@ -42,7 +42,7 @@ module BaseBeacon {
     //= specification/searchable-encryption/beacons.md#basichash
     //= type=implication
     //# * basicHash MUST take an [hmac key](./search-config.md#hmac-key-generation), a [beacon length](#beacon-length) and a sequence of bytes as input.
-    function method {:opaque} hash(val : Bytes, key : Bytes, length : BeaconLength)
+    function method {:opaque} hash(val : Bytes, key : Bytes, length : BeaconLength, bucket : Bytes)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
                 //= specification/searchable-encryption/beacons.md#basichash
@@ -50,8 +50,8 @@ module BaseBeacon {
                 //# * basicHash MUST produce a non-empty string as output.
                 && |ret.value| > 0
 
-                && getHmac(val, key).Success?
-                && var hash := getHmac(val, key).value;
+                && getHmac(val+bucket, key).Success?
+                && var hash := getHmac(val+bucket, key).value;
 
                 //= specification/searchable-encryption/beacons.md#basichash
                 //= type=implication
@@ -64,19 +64,19 @@ module BaseBeacon {
                 && |ret.value| == (((length as uint8) + 3) / 4) as nat
 
     {
-      var hash :- getHmac(val, key);
+      var hash :- getHmac(val + bucket, key);
       Success(BytesToHex(hash, length))
     }
 
     // Get the standard hash for the UTF8 encoded representation of this string.
-    function method {:opaque} hashStr(val : string, key : Bytes, length : BeaconLength) : (res : Result<string, Error>)
+    function method {:opaque} hashStr(val : string, key : Bytes, length : BeaconLength, bucket : Bytes) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
     {
       var str := UTF8.Encode(val);
       if str.Failure? then
         Failure(E(str.error))
       else
-        hash(str.value, key, length)
+        hash(str.value, key, length, bucket)
     }
 
     // calculate the HMAC for some bytes
@@ -142,16 +142,16 @@ module BaseBeacon {
     asSet : bool,
     share : Option<string>
   ) {
-    function method {:opaque} hash(val : Bytes, key : Bytes)
+    function method {:opaque} hash(val : Bytes, key : Bytes, bucket : Bytes)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
                 && |ret.value| > 0
-                && base.hash(val, key, length).Success?
-                && ret.value == base.hash(val, key, length).value
+                && base.hash(val, key, length, bucket).Success?
+                && ret.value == base.hash(val, key, length, bucket).value
 
                 && |ret.value| == (((length as uint8) + 3) / 4) as nat
     {
-      base.hash(val, key, length)
+      base.hash(val, key, length, bucket)
     }
 
     // return the name of the hmac key to use
@@ -170,7 +170,7 @@ module BaseBeacon {
     //= type=implication
     //# * string hash MUST take a string and some [key materials](./search-config.md#get-beacon-key-materials)
     //# as input, and produce a string as output.
-    function method {:opaque} hashStr(val : string, keys : HmacKeyMap) : (res : Result<string, Error>)
+    function method {:opaque} hashStr(val : string, keys : HmacKeyMap, bucket : Bytes) : (res : Result<string, Error>)
       ensures res.Success? ==> |res.value| > 0
 
       //= specification/searchable-encryption/beacons.md#string-hash
@@ -182,18 +182,18 @@ module BaseBeacon {
                 && keyName() in keys
                 && UTF8.Encode(val).Success?
                 && var str := UTF8.Encode(val).value;
-                && hash(str, keys[keyName()]).Success?
-                && res.value == hash(str, keys[keyName()]).value
+                && hash(str, keys[keyName()], bucket).Success?
+                && res.value == hash(str, keys[keyName()], bucket).value
     {
       :- Need(keyName() in keys, E("Internal Error, no key for " + keyName()));
       var str := UTF8.Encode(val);
       if str.Failure? then
         Failure(E(str.error))
       else
-        hash(str.value, keys[keyName()])
+        hash(str.value, keys[keyName()], bucket)
     }
 
-    function method {:opaque} ValueToSet(value : DDB.AttributeValue, key : Bytes) : (ret : Result<DDB.AttributeValue, Error>)
+    function method {:opaque} ValueToSet(value : DDB.AttributeValue, key : Bytes, bucket : Bytes) : (ret : Result<DDB.AttributeValue, Error>)
       ensures ret.Success? ==> ret.value.SS?
       ensures !value.SS? && !value.NS? && !value.BS? ==> ret.Failure?
       ensures ret.Success? ==> HasNoDuplicates(ret.value.SS)
@@ -201,9 +201,9 @@ module BaseBeacon {
       reveal HasNoDuplicates();
       assert HasNoDuplicates<string>([]);
       var beaconSeq :- match value {
-        case SS(n) => BeaconizeStringSet(n, key)
-        case NS(n) => BeaconizeNumberSet(n, key)
-        case BS(n) => BeaconizeBinarySet(n, key)
+        case SS(n) => BeaconizeStringSet(n, key, bucket)
+        case NS(n) => BeaconizeNumberSet(n, key, bucket)
+        case BS(n) => BeaconizeBinarySet(n, key, bucket)
         case _ => Failure(E("Beacon " + base.name + " has style AsSet, but attribute has type " + AttrTypeToStr(value) + "."))
       };
       Success(DDB.AttributeValue.SS(beaconSeq))
@@ -212,22 +212,22 @@ module BaseBeacon {
     //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
     //= type=implication
     //# * This operation MUST take an [hmac key](./search-config.md#hmac-key-generation), a record as input, and produce an optional [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html).
-    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
+    function method {:opaque} getHash(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes, bucket : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
       //= specification/searchable-encryption/beacons.md#value-for-a-standard-beacon
       //= type=implication
       //# * If this beacon is marked AsSet then this operation MUST return the
       //# [set value](#value-for-a-set-standard-beacon),
       //# otherwise it MUST return the [non-set value](#value-for-a-non-set-standard-beacon)
-      ensures asSet ==> ret == getHashSet(item, key)
-      ensures !asSet ==> ret == getHashNonSet(item, vf, key)
+      ensures asSet ==> ret == getHashSet(item, key, bucket)
+      ensures !asSet ==> ret == getHashNonSet(item, vf, key, bucket)
     {
       if asSet then
-        getHashSet(item, key)
+        getHashSet(item, key, bucket)
       else
-        getHashNonSet(item, vf, key)
+        getHashNonSet(item, vf, key, bucket)
     }
 
-    function method {:opaque} getHashSet(item : DDB.AttributeMap, key : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
+    function method {:opaque} getHashSet(item : DDB.AttributeMap, key : Bytes, bucket : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
       requires asSet
       ensures ret.Success? ==>
                 //= specification/searchable-encryption/beacons.md#value-for-a-set-standard-beacon
@@ -254,10 +254,10 @@ module BaseBeacon {
         //= specification/searchable-encryption/beacons.md#asset-initialization
         //# * The Standard Beacon MUST be stored in the item as a Set,
         //# comprised of the [beacon values](#beacon-value) of all the elements in the original Set.
-        var setValue :- ValueToSet(value.value, key);
+        var setValue :- ValueToSet(value.value, key, bucket);
         Success(Some(setValue))
     }
-    function method {:opaque} getHashNonSet(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
+    function method {:opaque} getHashNonSet(item : DDB.AttributeMap, vf : VirtualFieldMap, key : Bytes, bucket : Bytes) : (ret : Result<Option<DDB.AttributeValue>, Error>)
       requires !asSet
       ensures ret.Success? ==>
                 //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
@@ -276,17 +276,17 @@ module BaseBeacon {
                    //= type=implication
                    //# * This operation MUST convert the attribute value of the associated field to
                    //# a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
-                && (bytes.Some? ==> ret.value.Some? && hash(bytes.value, key).Success? && ret.value.value == DDB.AttributeValue.S(hash(bytes.value, key).value))
+                && (bytes.Some? ==> ret.value.Some? && hash(bytes.value, key, bucket).Success? && ret.value.value == DDB.AttributeValue.S(hash(bytes.value, key, bucket).value))
                    //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
                    //= type=implication
                    //# * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
-                && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length).Success? && ret.value.value == DDB.AttributeValue.S(base.hash(bytes.value, key, length).value))
+                && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length, bucket).Success? && ret.value.value == DDB.AttributeValue.S(base.hash(bytes.value, key, length, bucket).value))
     {
       var bytes :- VirtToBytes(loc, item, vf);
       if bytes.None? then
         Success(None)
       else
-        var res :- hash(bytes.value, key);
+        var res :- hash(bytes.value, key, bucket);
         Success(Some(DDB.AttributeValue.S(res)))
     }
 
@@ -303,7 +303,7 @@ module BaseBeacon {
         [loc[0].key]
     }
 
-    function method {:tailrecursion} BeaconizeStringSet(value : DDB.StringSetAttributeValue, key : Bytes, converted : seq<string> := [])
+    function method {:tailrecursion} BeaconizeStringSet(value : DDB.StringSetAttributeValue, key : Bytes, bucket : Bytes, converted : seq<string> := [])
       : (ret : Result<seq<string>, Error>)
       requires HasNoDuplicates(converted)
       ensures ret.Success? ==> HasNoDuplicates(ret.value)
@@ -312,15 +312,15 @@ module BaseBeacon {
         Success(converted)
       else
         var bytes :- DynamoToStruct.TopLevelAttributeToBytes(DDB.AttributeValue.S(value[0])).MapFailure(e => E(e));
-        var h :- hash(bytes, key);
+        var h :- hash(bytes, key, bucket);
         if h in converted then
-          BeaconizeStringSet(value[1..], key, converted)
+          BeaconizeStringSet(value[1..], key, bucket, converted)
         else
           reveal HasNoDuplicates();
-          BeaconizeStringSet(value[1..], key, converted + [h])
+          BeaconizeStringSet(value[1..], key, bucket, converted + [h])
     }
 
-    function method {:tailrecursion} BeaconizeNumberSet(value : DDB.NumberSetAttributeValue, key : Bytes, converted : seq<string> := [])
+    function method {:tailrecursion} BeaconizeNumberSet(value : DDB.NumberSetAttributeValue, key : Bytes, bucket : Bytes, converted : seq<string> := [])
       : (ret : Result<seq<string>, Error>)
       requires HasNoDuplicates(converted)
       ensures ret.Success? ==> HasNoDuplicates(ret.value)
@@ -329,15 +329,15 @@ module BaseBeacon {
         Success(converted)
       else
         var bytes :- DynamoToStruct.TopLevelAttributeToBytes(DDB.AttributeValue.N(value[0])).MapFailure(e => E(e));
-        var h :- hash(bytes, key);
+        var h :- hash(bytes, key, bucket);
         if h in converted then
-          BeaconizeNumberSet(value[1..], key, converted)
+          BeaconizeNumberSet(value[1..], key, bucket, converted)
         else
           reveal HasNoDuplicates();
-          BeaconizeNumberSet(value[1..], key, converted + [h])
+          BeaconizeNumberSet(value[1..], key, bucket, converted + [h])
     }
 
-    function method {:tailrecursion} BeaconizeBinarySet(value : DDB.BinarySetAttributeValue, key : Bytes, converted : seq<string> := [])
+    function method {:tailrecursion} BeaconizeBinarySet(value : DDB.BinarySetAttributeValue, key : Bytes, bucket : Bytes, converted : seq<string> := [])
       : (ret : Result<seq<string>, Error>)
       requires HasNoDuplicates(converted)
       ensures ret.Success? ==> HasNoDuplicates(ret.value)
@@ -346,32 +346,32 @@ module BaseBeacon {
         Success(converted)
       else
         var bytes :- DynamoToStruct.TopLevelAttributeToBytes(DDB.AttributeValue.B(value[0])).MapFailure(e => E(e));
-        var h :- hash(bytes, key);
+        var h :- hash(bytes, key, bucket);
         if h in converted then
-          BeaconizeBinarySet(value[1..], key, converted)
+          BeaconizeBinarySet(value[1..], key, bucket, converted)
         else
           reveal HasNoDuplicates();
-          BeaconizeBinarySet(value[1..], key, converted + [h])
+          BeaconizeBinarySet(value[1..], key, bucket, converted + [h])
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue, key : Bytes, forContains : bool)
+    function method GetBeaconValue(value : DDB.AttributeValue, key : Bytes, forContains : bool, bucket : Bytes)
       : (ret : Result<DDB.AttributeValue, Error>)
     {
       // in query, allow beaconization of terminals
       if asSet && !value.S? && !value.N? && !value.B? then
-        ValueToSet(value, key)
+        ValueToSet(value, key, bucket)
       else if forContains && (value.SS? || value.NS? || value.BS?) then
-        ValueToSet(value, key)
+        ValueToSet(value, key, bucket)
       else
         var bytes :- DynamoToStruct.TopLevelAttributeToBytes(value).MapFailure(e => E(e));
-        var h :- hash(bytes, key);
+        var h :- hash(bytes, key, bucket);
         Success(DDB.AttributeValue.S(h))
     }
 
     //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
     //= type=implication
     //# * getPart MUST take an [hmac key](./search-config.md#hmac-key-generation), a sequence of bytes as input, and produce a string.
-    function method {:opaque} getPart(val : Bytes, key : Bytes)
+    function method {:opaque} getPart(val : Bytes, key : Bytes, bucket : Bytes)
       : (ret : Result<string, Error>)
       requires 0 < |val|
 
@@ -382,10 +382,10 @@ module BaseBeacon {
                 //= specification/searchable-encryption/beacons.md#getpart-for-a-standard-beacon
                 //= type=implication
                 //# * getPart MUST return the [basicHash](#basichash) of the input and the configured [beacon length](#beacon-length).
-                && base.hash(val, key, length).Success?
-                && ret.value == base.hash(val, key, length).value
+                && base.hash(val, key, length, bucket).Success?
+                && ret.value == base.hash(val, key, length, bucket).value
     {
-      base.hash(val, key, length)
+      base.hash(val, key, length, bucket)
     }
     predicate ValidState() {true}
   }

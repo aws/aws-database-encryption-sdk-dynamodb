@@ -45,7 +45,8 @@ module QueryTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in Query with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-      var finalResult :- QueryInputForBeacons(tableConfig, input.sdkInput);
+      var bucket := []; // TODO
+      var finalResult :- QueryInputForBeacons(tableConfig, input.sdkInput, bucket);
       return Success(QueryInputTransformOutput(transformedInput := finalResult));
     }
   }
@@ -105,7 +106,8 @@ module QueryTransform {
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-query
     //# The resulting decrypted response MUST be [filtered](ddb-support.md#queryoutputforbeacons) from the result.
     var decryptedOutput := input.sdkOutput.(Items := Some(decryptedItems));
-    var finalResult :- QueryOutputForBeacons(tableConfig, input.originalInput, decryptedOutput);
+    var bucket := []; // Not used
+    var finalResult :- QueryOutputForBeacons(tableConfig, input.originalInput, decryptedOutput, bucket);
     return Success(QueryOutputTransformOutput(transformedOutput := finalResult));
   }
 }

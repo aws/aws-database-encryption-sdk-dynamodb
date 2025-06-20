@@ -7,6 +7,7 @@ module AttributeResolver {
   import opened DdbMiddlewareConfig
   import opened DynamoDbMiddlewareSupport
   import opened Wrappers
+  import opened StandardLibrary.UInt
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
@@ -31,8 +32,9 @@ module AttributeResolver {
         );
     } else {
       var tableConfig := config.tableEncryptionConfigs[input.TableName];
+      var bucket := GetRandomBucket(tableConfig); // TODO - should this be input?
       var vf :- GetVirtualFields(tableConfig.search.value, input.Item, input.Version);
-      var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version);
+      var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version, bucket);
       return Success(
           ResolveAttributesOutput(
             VirtualFields := vf,
