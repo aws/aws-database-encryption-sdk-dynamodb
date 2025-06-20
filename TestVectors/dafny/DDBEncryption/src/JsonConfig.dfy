@@ -571,7 +571,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32, partitionIdBytes, logicalKeyStoreNameBytes);
 
-    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[]);
+    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[], 1);
     return Success(bv);
   }
 

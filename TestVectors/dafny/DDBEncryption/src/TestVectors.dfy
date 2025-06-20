@@ -151,7 +151,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           var query := SimpleQuery(None, None, expr, []);
           var items1 := FullScan(client, query, Some(map[]), vals);
           var bv :- expect GetFakeBeaconVersion();
-          var items2 :- expect Filter.FilterResults(bv, subRecords, None, expr, None, vals);
+          var items2 :- expect Filter.FilterResults(bv, subRecords, None, expr, None, vals, []);
           CompareRecordsDisordered2(items1, items2);
         }
       }
