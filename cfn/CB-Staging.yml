@@ -55,7 +55,7 @@ Resources:
         Type: NO_CACHE
       Environment:
         ComputeType: BUILD_GENERAL1_LARGE
-        Image: "aws/codebuild/standard:5.0"
+        Image: "aws/codebuild/standard:6.0"
         ImagePullCredentialsType: CODEBUILD
         PrivilegedMode: true
         Type: LINUX_CONTAINER

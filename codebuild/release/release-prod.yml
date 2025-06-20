@@ -16,6 +16,7 @@ phases:
   install:
     runtime-versions:
       java: corretto8
+      dotnet: 6.0
     commands:
       - cd ..
       # Get Dafny
@@ -27,6 +28,7 @@ phases:
       - unzip -qq gradle.zip && rm gradle.zip
       - export PATH="$PWD/gradle-7.6/bin:$PATH"
       - cd  aws-database-encryption-sdk-dynamodb/
+      - make -C submodules/MaterialProviders/StandardLibrary setup_net
   pre_build:
     commands:
       - aws secretsmanager get-secret-value --region us-west-2 --secret-id Maven-GPG-Keys-Release --query SecretBinary --output text | base64 -d > ~/mvn_gpg.tgz
