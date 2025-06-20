@@ -943,7 +943,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           ReturnValues := Some(DDB.ReturnValue.ALL_OLD)
         );
         var deleteResultForWithoutConditionExpressionCase := wClient.DeleteItem(deleteInputWithoutConditionExpression);
-        expect deleteResultForWithoutConditionExpressionCase.Success?, "DeleteItem should have failed.";
+        expect deleteResultForWithoutConditionExpressionCase.Success?, "DeleteItem should have succeeded.";
         expect deleteResultForWithoutConditionExpressionCase.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
         if attributeToDelete in records[i].item {
           expect HashName in deleteResultForWithoutConditionExpressionCase.value.Attributes.value, "Deleted item does not have right partition key:" + HashName;
