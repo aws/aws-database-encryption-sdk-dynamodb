@@ -218,11 +218,11 @@ module {:options "-functionSyntax:4"} WriteManifest {
   const DoNothing : CryptoAction := 3
 
   const A : string := "A"
-  const B : string := "퀀" // Ud000"
-  const C : string := "﹌" // Ufe4c"
-  const D : string := "𐀁" // U10001
-  const E : string := "𐀂" // U10002 - same high surrogate as D
-  const F : string := "𠀂" // U20002 - different high surrogate as D
+  const B : string := "\ud000" // "Ud000" <-> "퀀"
+  const C : string := "\ufe4c" // "Ufe4c" <-> "﹌"
+  const D : string := "\uD800\uDC01" // "U10001" <-> "𐀁" (surrogate pair: "\uD800\uDC01")
+  const E : string := "\uD800\uDC02" // "U10002" <-> "𐀂" (same high surrogate as D: "\uD800\uDC02")
+  const F : string := "\uD840\uDC02" // "U20002" <-> "𠀂"  (different high surrogate as D: "\D840\uDC02")
 
   lemma CheckLengths()
     ensures |A| == 1
