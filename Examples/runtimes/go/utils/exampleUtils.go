@@ -6,16 +6,21 @@ package utils
 import "crypto/rand"
 
 const (
-	kmsKeyID                = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
-	ddbTableName            = "DynamoDbEncryptionInterceptorTestTableCS"
-	keyNamespace            = "my-key-namespace"
-	keyName                 = "my-key-name"
-	aesKeyBytes             = 32 // 256 bits = 32 bytes
-	defaultKMSKeyAccountID  = "658956600833"
-	defaultKmsKeyRegion     = "us-west-2"
-	testKeystoreName        = "KeyStoreDdbTable"
-	testLogicalKeystoreName = "KeyStoreDdbTable"
-	testKeystoreKmsKeyID    = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	kmsKeyID                       = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
+	ddbTableName                   = "DynamoDbEncryptionInterceptorTestTableCS"
+	keyNamespace                   = "my-key-namespace"
+	keyName                        = "my-key-name"
+	aesKeyBytes                    = 32 // 256 bits = 32 bytes
+	defaultKMSKeyAccountID         = "658956600833"
+	defaultKmsKeyRegion            = "us-west-2"
+	testKeystoreName               = "KeyStoreDdbTable"
+	testLogicalKeystoreName        = "KeyStoreDdbTable"
+	testKeystoreKmsKeyID           = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	testBranchKeyWrappingKmsKeyArn = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	testBranchKeystoreDdbTableName = "KeyStoreDdbTable"
+	testKmsEcdhKeyIdP256Sender     = "arn:aws:kms:us-west-2:370957321024:key/eabdf483-6be2-4d2d-8ee4-8c2583d416e9"
+	testKmsEcdhKeyIdP256Recipient  = "arn:aws:kms:us-west-2:370957321024:key/0265c8e9-5b6a-4055-8f70-63719e09fda5"
+	testKmsRsaKeyID                = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
 )
 
 func TestKeystoreName() string {
@@ -74,6 +79,26 @@ func HandleError(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func TestBranchKeyWrappingKmsKeyArn() string {
+	return testBranchKeyWrappingKmsKeyArn
+}
+
+func TestBranchKeystoreDdbTableName() string {
+	return testBranchKeystoreDdbTableName
+}
+
+func TestKmsEcdhKeyIdP256Sender() string {
+	return testKmsEcdhKeyIdP256Sender
+}
+
+func TestKmsEcdhKeyIdP256Recipient() string {
+	return testKmsEcdhKeyIdP256Recipient
+}
+
+func TestKmsRsaKeyID() string {
+	return testKmsRsaKeyID
 }
 
 func GenerateAes256KeyBytes() []byte {

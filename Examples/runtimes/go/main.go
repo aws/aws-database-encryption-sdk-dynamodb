@@ -13,9 +13,15 @@ import (
 func main() {
 	keyring.AwsKmsKeyringExample(utils.KmsKeyID(), utils.DdbTableName())
 	keyring.RawAesExample(utils.DdbTableName(), utils.KeyNamespace(), utils.KeyName(), utils.GenerateAes256KeyBytes())
-	keyring.MrkDiscoveryMultiKeyringExample(utils.KmsKeyID(), utils.DdbTableName(), utils.DefaultKMSKeyAccountID(), utils.DefaultKmsKeyRegion())
 	itemencryptor.ItemEncryptDecryptExample(utils.KmsKeyID(), utils.DdbTableName())
 	misc.GetEncryptedDataKeyDescriptionExample(utils.KmsKeyID(), utils.DdbTableName())
 	misc.MultiPutGetExample(utils.KmsKeyID(), utils.DdbTableName())
-	misc.CreateBranchKeyIDExample(utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
+	keyring.MrkDiscoveryMultiKeyringExample(utils.KmsKeyID(), utils.DdbTableName(), utils.DefaultKMSKeyAccountID(), utils.DefaultKmsKeyRegion())
+
+	branchKey1 := misc.CreateBranchKeyIDExample(utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
+	branchKey2 := misc.CreateBranchKeyIDExample(utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
+
+	keyring.HierarchicalKeyringExample(utils.DdbTableName(), branchKey1, branchKey2, utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
+	keyring.KmsEcdhKeyringExample(utils.DdbTableName(), utils.TestKmsEcdhKeyIdP256Sender(), utils.TestKmsEcdhKeyIdP256Recipient())
+	keyring.KmsRsaKeyringExample(utils.DdbTableName(), utils.TestKmsRsaKeyID())
 }
