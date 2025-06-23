@@ -43,8 +43,7 @@ module ScanTransform {
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in UpdateItem with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
 
-      var bucket := []; // TODO
-      var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput, bucket);
+      var finalResult :- ScanInputForBeacons(tableConfig, input.sdkInput);
       return Success(ScanInputTransformOutput(transformedInput := finalResult));
     }
   }
@@ -104,8 +103,7 @@ module ScanTransform {
     //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#decrypt-after-scan
     //# The resulting decrypted response MUST be [filtered](ddb-support.md#scanoutputforbeacons) from the result.
     var decryptedOutput := input.sdkOutput.(Items := Some(decryptedItems));
-    var bucket := []; // Not used
-    var finalResult :- ScanOutputForBeacons(tableConfig, input.originalInput, decryptedOutput, bucket);
+    var finalResult :- ScanOutputForBeacons(tableConfig, input.originalInput, decryptedOutput);
     return Success(ScanOutputTransformOutput(transformedOutput := finalResult));
   }
 }

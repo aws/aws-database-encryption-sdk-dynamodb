@@ -1794,6 +1794,24 @@ module DynamoDBFilterExpr {
   }
 
   // return an error if any encrypted field exists in the query
+  method UsesEncryptedField(
+    expr : seq<Token>,
+    encrypted : set<string>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (output : Option<string>)
+  {
+    for i := 0 to |expr| {
+      if expr[i].Attr? {
+        var name := GetAttrName(expr[i], names);
+        if name in encrypted {
+          return Some(name);
+        }
+      }
+    }
+    return None;
+  }
+
   method TestParsedExpr(
     expr : seq<Token>,
     encrypted : set<string>,
@@ -1801,13 +1819,9 @@ module DynamoDBFilterExpr {
   )
     returns (output : Outcome<Error>)
   {
-    for i := 0 to |expr| {
-      if expr[i].Attr? {
-        var name := GetAttrName(expr[i], names);
-        if name in encrypted {
-          return Fail(E("Query is using encrypted field : " + name + "."));
-        }
-      }
+    var hasEncField := UsesEncryptedField(expr, encrypted, names);
+    if hasEncField.Some? {
+      return Fail(E("Query is using encrypted field : " + hasEncField.value + "."));
     }
     return Pass;
   }

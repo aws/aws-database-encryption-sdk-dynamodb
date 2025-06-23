@@ -23,12 +23,14 @@ module DynamoDBSupport {
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
   import opened SearchableEncryptionInfo
+  import StandardLibrary.String
   import UTF8
   import SortedSets
   import Seq
   import Update = DynamoDbUpdateExpr
   import Filter = DynamoDBFilterExpr
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
+  import NN = DynamoDbNormalizeNumber
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // At the moment, this means that no attribute names starts with "aws_dbe_",
@@ -222,8 +224,51 @@ module DynamoDBSupport {
     Success(DoRemoveBeacons(item))
   }
 
+  // If filter expression is 'bucket=NN ...' return (..., NN)
+  // else return (None, 0)
+  function method ExtractBucketNumber(filterExpr : Option<string>) : (Option<string>, uint32)
+  {
+    if filterExpr.None? then
+      (None, 0)
+    else if "bucket=" < filterExpr.value then
+      var nFilter := filterExpr.value[7..];
+      var nDigits := NN.CountDigits(nFilter);
+      if nDigits == 0 then
+        (None, 0)
+      else
+        var num := NN.StrToInt(nFilter[..nDigits]);
+        if num.Failure? then
+          (None, 0)
+        else if INT32_MAX_LIMIT < num.value then
+          (None, 0)
+        else
+          (Some(nFilter[nDigits..]), num.value as uint32)
+    else
+      (None, 0)
+  }
+
+  // Extract aws_dbe_bucket = NN from filterExpr and return bucket
+  function method ExtractBucket(search : SearchableEncryptionInfo.BeaconVersion, filterExpr : Option<string>)
+    : Result<(Option<string>, seq<uint8>), Error>
+  {
+    if search.numBuckets <= 1 then
+      Success((filterExpr, []))
+    else
+      var (nFilter, bucket) := ExtractBucketNumber(filterExpr);
+      if nFilter.Some? then
+        :- Need(bucket < search.numBuckets, E("Bucket number specified in FilterExpression was " + String.Base10Int2String(bucket as int) + "but it must be less than the number of buckets " + String.Base10Int2String(search.numBuckets as int)));
+        :- Need(bucket < 256, E("Bucket must be less than 256")); // unreachable
+        if bucket == 0 then
+          Success((nFilter, []))
+        else
+          Success((nFilter, [bucket as uint8]))
+      else
+        // TODO - if no encrypted beacons then OK
+        Failure(E("When numberOfBuckets is greater than one, FilterExpression must start with 'aws_dbe_bucket = NN && '"))
+  }
+
   // Transform a QueryInput object for searchable encryption.
-  method QueryInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.QueryInput, bucket : Bytes)
+  method QueryInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.QueryInput)
     returns (output : Result<DDB.QueryInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
@@ -237,7 +282,10 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+
+      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression);
+      var (newFilter, bucket) := foo;
+      var oldContext := Filter.ExprContext(req.KeyConditionExpression, newFilter, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var newContext :- Filter.Beaconize(search.value.curr(), oldContext, keyId, bucket);
       return Success(req.(
                      KeyConditionExpression := newContext.keyExpr,
@@ -249,7 +297,7 @@ module DynamoDBSupport {
   }
 
   // Transform a QueryOutput object for searchable encryption.
-  method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput, bucket : Bytes)
+  method QueryOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.QueryInput, resp : DDB.QueryOutput)
     returns (output : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
     ensures output.Success? ==> output.value.Items.Some?
@@ -259,11 +307,13 @@ module DynamoDBSupport {
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
       return Success(resp.(Items := Some(trimmedItems)));
     } else {
+      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression);
+      var (newFilter, bucket) := foo;
       var newItems :- Filter.FilterResults(
         search.value.curr(),
         resp.Items.value,
         req.KeyConditionExpression,
-        req.FilterExpression,
+        newFilter,
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues,
         bucket);
@@ -295,7 +345,7 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanInput object for searchable encryption.
-  method ScanInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.ScanInput, bucket : Bytes)
+  method ScanInputForBeacons(search : Option<ValidSearchInfo>, actions : AttributeActions, req : DDB.ScanInput)
     returns (output : Result<DDB.ScanInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
@@ -309,7 +359,9 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var context := Filter.ExprContext(None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression);
+      var (newFilter, bucket) := foo;
+      var context := Filter.ExprContext(None, newFilter, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var newContext :- Filter.Beaconize(search.value.curr(), context, keyId, bucket);
       return Success(req.(
                      FilterExpression := newContext.filterExpr,
@@ -320,7 +372,7 @@ module DynamoDBSupport {
   }
 
   // Transform a ScanOutput object for searchable encryption.
-  method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput, bucket : Bytes)
+  method ScanOutputForBeacons(search : Option<ValidSearchInfo>, req : DDB.ScanInput, resp : DDB.ScanOutput)
     returns (ret : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
     ensures ret.Success? ==> ret.value.Items.Some?
@@ -330,11 +382,13 @@ module DynamoDBSupport {
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
       return Success(resp.(Items := Some(trimmedItems)));
     } else {
+      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression);
+      var (newFilter, bucket) := foo;
       var newItems :- Filter.FilterResults(
         search.value.curr(),
         resp.Items.value,
         None,
-        req.FilterExpression,
+        newFilter,
         req.ExpressionAttributeNames,
         req.ExpressionAttributeValues,
         bucket);

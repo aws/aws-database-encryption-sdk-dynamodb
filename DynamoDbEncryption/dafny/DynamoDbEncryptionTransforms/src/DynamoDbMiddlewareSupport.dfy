@@ -185,18 +185,18 @@ module DynamoDbMiddlewareSupport {
   }
 
   // Transform a QueryInput object for searchable encryption.
-  method {:opaque} QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput, bucket : seq<uint8>)
+  method {:opaque} QueryInputForBeacons(config : ValidTableConfig, req : DDB.QueryInput)
     returns (output : Result<DDB.QueryInput, Error>)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.QueryInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req, bucket);
+    var ret := BS.QueryInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // Transform a QueryOutput object for searchable encryption.
-  method QueryOutputForBeacons(config : ValidTableConfig, req : DDB.QueryInput, resp : DDB.QueryOutput, bucket : seq<uint8>)
+  method QueryOutputForBeacons(config : ValidTableConfig, req : DDB.QueryInput, resp : DDB.QueryOutput)
     returns (output : Result<DDB.QueryOutput, Error>)
     requires resp.Items.Some?
     ensures output.Success? ==> output.value.Items.Some?
@@ -204,23 +204,23 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.QueryOutputForBeacons(config.search, req, resp, bucket);
+    var ret := BS.QueryOutputForBeacons(config.search, req, resp);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // Transform a ScanInput object for searchable encryption.
-  method ScanInputForBeacons(config : ValidTableConfig, req : DDB.ScanInput, bucket : seq<uint8>)
+  method ScanInputForBeacons(config : ValidTableConfig, req : DDB.ScanInput)
     returns (output : Result<DDB.ScanInput, Error>)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.ScanInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req, bucket);
+    var ret := BS.ScanInputForBeacons(config.search, config.itemEncryptor.config.attributeActionsOnEncrypt, req);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // Transform a ScanOutput object for searchable encryption.
-  method ScanOutputForBeacons(config : ValidTableConfig, req : DDB.ScanInput, resp : DDB.ScanOutput, bucket : seq<uint8>)
+  method ScanOutputForBeacons(config : ValidTableConfig, req : DDB.ScanInput, resp : DDB.ScanOutput)
     returns (output : Result<DDB.ScanOutput, Error>)
     requires resp.Items.Some?
     ensures output.Success? ==> output.value.Items.Some?
@@ -228,7 +228,7 @@ module DynamoDbMiddlewareSupport {
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.ScanOutputForBeacons(config.search, req, resp, bucket);
+    var ret := BS.ScanOutputForBeacons(config.search, req, resp);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
