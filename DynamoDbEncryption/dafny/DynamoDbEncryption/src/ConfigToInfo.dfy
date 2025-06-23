@@ -141,7 +141,7 @@ module SearchConfigToInfo {
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
   {
-    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
     // It is not-good that the MPL is initialized here;
     // The MPL has a config object that could hold customer intent that affects behavior.
     // Today, it does not. But tomorrow?

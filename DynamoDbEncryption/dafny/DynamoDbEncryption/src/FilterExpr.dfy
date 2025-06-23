@@ -677,6 +677,15 @@ module DynamoDBFilterExpr {
     if 0 < tup.0 then [tup.1] + ParseExpr(s, Add(pos, tup.0)) else []
   }
 
+  function method {:tailrecursion} ParseExprOpt(s: Option<string>) : (res: seq<Token>)
+    ensures s.None? || s.value == [] ==> res == []
+  {
+    if s.None? then
+      []
+    else
+      ParseExpr(s.value)
+  }
+
   // convert ch to lower case
   function method ByteLower(ch: uint8): uint8
   {
