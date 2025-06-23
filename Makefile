@@ -51,7 +51,7 @@ format_java_misc-check: setup_prettier
 	npx prettier --plugin=prettier-plugin-java . --check
 
 setup_prettier:
-	npm i --no-save prettier@3 prettier-plugin-java@2.5
+	npm i --no-save prettier@3.5.3 prettier-plugin-java@2.5
 
 # Generate the top-level project.properties file using smithy-dafny.
 # This is for the benefit of the nightly Dafny CI,
