@@ -84,14 +84,14 @@ func kmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename s
 	//     - encryptionAlgorithm: Must be either RSAES_OAEP_SHA_256 or RSAES_OAEP_SHA_1
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
-	
+
 	kmsClient := kms.NewFromConfig(cfg, func(o *kms.Options) {
 		o.Region = "us-west-2"
 	})
-	
+
 	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
 	utils.HandleError(err)
-	
+
 	createAwsKmsRsaKeyringInput := mpltypes.CreateAwsKmsRsaKeyringInput{
 		KmsClient:           kmsClient,
 		KmsKeyId:            rsaKeyArn,
@@ -152,7 +152,7 @@ func kmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename s
 	// As of v3.0.0, the only supported algorithmSuite without asymmetric signing is
 	// ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384.
 	algorithmSuiteID := mpltypes.DBEAlgorithmSuiteIdAlgAes256GcmHkdfSha512CommitKeySymsigHmacSha384
-	
+
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
 		LogicalTableName:               ddbTableName,
 		PartitionKeyName:               partitionKey,
@@ -162,7 +162,7 @@ func kmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename s
 		AllowedUnsignedAttributePrefix: &unsignAttrPrefix,
 		AlgorithmSuiteId:               &algorithmSuiteID,
 	}
-	
+
 	tableConfigsMap := make(map[string]dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig)
 	tableConfigsMap[ddbTableName] = tableConfig
 	listOfTableConfigs := dbesdkdynamodbencryptiontypes.DynamoDbTablesEncryptionConfig{
@@ -188,13 +188,8 @@ func kmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename s
 		Item:      item,
 	}
 
-	putResponse, err := ddb.PutItem(context.TODO(), putInput)
+	_, err = ddb.PutItem(context.TODO(), putInput)
 	utils.HandleError(err)
-
-	// Demonstrate that PutItem succeeded
-	if putResponse.ResultMetadata.Get("HTTPStatusCode") != 200 {
-		panic("PutItem did not return HTTP 200")
-	}
 
 	// 8. Get the item back from our table using the client.
 	//    The client will decrypt the item client-side using the RSA keyring
@@ -218,22 +213,17 @@ func kmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename s
 	getResponse, err := ddb.GetItem(context.TODO(), getInput)
 	utils.HandleError(err)
 
-	// Demonstrate that GetItem succeeded and returned the decrypted item
-	if getResponse.ResultMetadata.Get("HTTPStatusCode") != 200 {
-		panic("GetItem did not return HTTP 200")
-	}
-	
 	returnedItem := getResponse.Item
 	if !reflect.DeepEqual(item, returnedItem) {
 		panic("Decrypted item does not match original item")
 	}
-	
+
 	// Verify the sensitive data was decrypted correctly
 	sensitiveDataAttr, exists := returnedItem["sensitive_data"]
 	if !exists {
 		panic("sensitive_data attribute not found in returned item")
 	}
-	
+
 	if sensitiveDataValue, ok := sensitiveDataAttr.(*types.AttributeValueMemberS); ok {
 		if sensitiveDataValue.Value != "encrypt and sign me!" {
 			panic("Decrypted sensitive_data does not match expected value")
@@ -266,20 +256,20 @@ func writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename string) {
 	// The public key will be written to the file rsaPublicKeyFilename.
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
-	
+
 	getterForPublicKey := kms.NewFromConfig(cfg, func(o *kms.Options) {
 		o.Region = "us-west-2"
 	})
-	
+
 	response, err := getterForPublicKey.GetPublicKey(context.TODO(), &kms.GetPublicKeyInput{
 		KeyId: aws.String(rsaKeyArn),
 	})
 	utils.HandleError(err)
-	
+
 	publicKeyByteArray := response.PublicKey
 
 	// Create PEM formatted public key
-	pemContent := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----\n", 
+	pemContent := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----\n",
 		encodeToPemBase64(publicKeyByteArray))
 
 	// Ensure directory exists
@@ -297,7 +287,7 @@ func writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename string) {
 func encodeToPemBase64(data []byte) string {
 	const lineLength = 64
 	encoded := base64.StdEncoding.EncodeToString(data)
-	
+
 	// Add line breaks every 64 characters
 	var result strings.Builder
 	for i := 0; i < len(encoded); i += lineLength {
@@ -310,6 +300,6 @@ func encodeToPemBase64(data []byte) string {
 			result.WriteString("\n")
 		}
 	}
-	
+
 	return result.String()
 }

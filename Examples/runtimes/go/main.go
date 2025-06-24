@@ -24,4 +24,5 @@ func main() {
 	keyring.HierarchicalKeyringExample(utils.DdbTableName(), branchKey1, branchKey2, utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
 	keyring.KmsEcdhKeyringExample(utils.DdbTableName(), utils.TestKmsEcdhKeyIdP256Sender(), utils.TestKmsEcdhKeyIdP256Recipient())
 	keyring.KmsRsaKeyringExample(utils.DdbTableName(), utils.TestKmsRsaKeyID())
+	keyring.RawRsaKeyringExample(utils.DdbTableName())
 }
