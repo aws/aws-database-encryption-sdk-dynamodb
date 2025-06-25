@@ -2,6 +2,10 @@
 
 ## [3.9.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.8.1...v3.9.0) (2025-06-25)
 
+This release is available in the following languages:
+
+- Java
+
 ### Maintenance
 
 * **dafny:** Add ExecuteStatement test  ([#1932](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1932)) ([66a19ab](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/66a19ab7d9ddea1018cbb01da053020148e4a1e7))
