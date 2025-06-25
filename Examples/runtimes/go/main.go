@@ -4,6 +4,7 @@
 package main
 
 import (
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/clientsupplier"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/itemencryptor"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
@@ -25,4 +26,5 @@ func main() {
 	keyring.KmsEcdhKeyringExample(utils.DdbTableName(), utils.TestKmsEcdhKeyIdP256Sender(), utils.TestKmsEcdhKeyIdP256Recipient())
 	keyring.KmsRsaKeyringExample(utils.DdbTableName(), utils.TestKmsRsaKeyID())
 	keyring.RawRsaKeyringExample(utils.DdbTableName())
+	clientsupplier.ClientSupplierExample(utils.DdbTableName(), utils.TestMrkReplicaKeyIdUsEast1(), utils.DefaultKMSKeyAccountID(), []string{"eu-west-1"})
 }
