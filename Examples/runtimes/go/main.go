@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/itemencryptor"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/searchableencryption"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
 )
 
@@ -27,4 +28,8 @@ func main() {
 	keyring.KmsRsaKeyringExample(utils.DdbTableName(), utils.TestKmsRsaKeyID())
 	keyring.RawRsaKeyringExample(utils.DdbTableName())
 	clientsupplier.ClientSupplierExample(utils.DdbTableName(), utils.TestMrkReplicaKeyIdUsEast1(), utils.DefaultKMSKeyAccountID(), []string{"eu-west-1"})
+
+	// Create a branch key for searchable encryption example
+	branchKeyForSearchable := misc.CreateBranchKeyIDExample(utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
+	searchableencryption.BasicSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKeyForSearchable, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
 }
