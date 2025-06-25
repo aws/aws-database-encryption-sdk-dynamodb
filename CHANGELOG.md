@@ -8,18 +8,18 @@ This release is available in the following languages:
 
 ### Maintenance
 
-* **dafny:** Add ExecuteStatement test  ([#1932](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1932)) ([66a19ab](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/66a19ab7d9ddea1018cbb01da053020148e4a1e7))
-* **dafny:** Add Update and delete test  ([#1942](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1942)) ([3bd48ba](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3bd48bacc6e9ca458931031062ee97f351f9de32))
-* **dafny:** change nat to uint64 in many places ([#1852](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1852)) ([ec22b7d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ec22b7d316678f4d836837e751bdfcf41f461441))
-* **dafny:** further performance enhancements ([#1834](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1834)) ([ea94693](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ea9469327109a61e544425479dfb2c6be514ce5a))
-* **dafny:** improve performance ([#1900](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1900)) ([ccf61d6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ccf61d6a9c49385f1cccde0cda9c0609ba050455))
-* **dafny:** improve performance of searchable encryption ([#1931](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1931)) ([8b71004](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8b710042e1bc0516b70a9f9674edab7f775d236f))
-* **dafny:** reduce use of BigInteger ([#1872](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1872)) ([eb7679a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/eb7679afa9fb6383a76fd71f9e7a4e40bbe53c8a))
-* **dafny:** test ExecuteTransaction and BatchExecuteStatement ([#1941](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1941)) ([69c37c6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/69c37c6a8491b2a5aadf74c4f80355b0593aed32))
-* **deps:** Bump MPL version to 1.11.0 ([#1945](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1945)) ([efdd373](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/efdd373ab91fc7465be0f0d05d8018f59131ee6f))
-* further performance improvements ([#1826](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1826)) ([3194054](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3194054eea95c640d0ac469911e950fc76953dd6))
-* improve performance ([#1622](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1622)) ([8ca2883](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8ca288345fe7371711c1c51e1d064538686e25f1))
-* update README for missing info  ([#1939](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1939)) ([354f4f6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/354f4f6c48ed6c60914f5ce0feaba64de7ed2587))
+- **dafny:** Add ExecuteStatement test ([#1932](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1932)) ([66a19ab](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/66a19ab7d9ddea1018cbb01da053020148e4a1e7))
+- **dafny:** Add Update and delete test ([#1942](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1942)) ([3bd48ba](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3bd48bacc6e9ca458931031062ee97f351f9de32))
+- **dafny:** change nat to uint64 in many places ([#1852](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1852)) ([ec22b7d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ec22b7d316678f4d836837e751bdfcf41f461441))
+- **dafny:** further performance enhancements ([#1834](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1834)) ([ea94693](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ea9469327109a61e544425479dfb2c6be514ce5a))
+- **dafny:** improve performance ([#1900](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1900)) ([ccf61d6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ccf61d6a9c49385f1cccde0cda9c0609ba050455))
+- **dafny:** improve performance of searchable encryption ([#1931](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1931)) ([8b71004](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8b710042e1bc0516b70a9f9674edab7f775d236f))
+- **dafny:** reduce use of BigInteger ([#1872](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1872)) ([eb7679a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/eb7679afa9fb6383a76fd71f9e7a4e40bbe53c8a))
+- **dafny:** test ExecuteTransaction and BatchExecuteStatement ([#1941](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1941)) ([69c37c6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/69c37c6a8491b2a5aadf74c4f80355b0593aed32))
+- **deps:** Bump MPL version to 1.11.0 ([#1945](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1945)) ([efdd373](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/efdd373ab91fc7465be0f0d05d8018f59131ee6f))
+- further performance improvements ([#1826](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1826)) ([3194054](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/3194054eea95c640d0ac469911e950fc76953dd6))
+- improve performance ([#1622](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1622)) ([8ca2883](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8ca288345fe7371711c1c51e1d064538686e25f1))
+- update README for missing info ([#1939](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1939)) ([354f4f6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/354f4f6c48ed6c60914f5ce0feaba64de7ed2587))
 
 ## [3.8.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.8.0...v3.8.1) (2025-04-01)
 
