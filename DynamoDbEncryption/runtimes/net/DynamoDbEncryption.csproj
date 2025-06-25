@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
 
-    <Version>3.8.1</Version>
+    <Version>3.9.0</Version>
 
     <AssemblyName>AWS.Cryptography.DbEncryptionSDK.DynamoDb</AssemblyName>
     <PackageId>AWS.Cryptography.DbEncryptionSDK.DynamoDb</PackageId>
