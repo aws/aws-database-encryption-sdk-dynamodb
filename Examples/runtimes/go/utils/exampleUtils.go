@@ -23,6 +23,8 @@ const (
 	testKmsRsaKeyID                = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
 	testMrkReplicaKeyIdUsEast1     = "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
 	testMrkReplicaKeyIdEuWest1     = "arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
+	unitInspectionTestDdbTableName = "UnitInspectionTestTableCS"
+	simpleBeaconTestDdbTableName   = "SimpleBeaconTestTable"
 )
 
 func TestKeystoreName() string {
@@ -118,4 +120,12 @@ func TestMrkReplicaKeyIdUsEast1() string {
 
 func TestMrkReplicaKeyIdEuWest1() string {
 	return testMrkReplicaKeyIdEuWest1
+}
+
+func UnitInspectionTestDdbTableName() string {
+	return unitInspectionTestDdbTableName
+}
+
+func SimpleBeaconTestDdbTableName() string {
+	return simpleBeaconTestDdbTableName
 }

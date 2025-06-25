@@ -29,7 +29,8 @@ func main() {
 	keyring.RawRsaKeyringExample(utils.DdbTableName())
 	clientsupplier.ClientSupplierExample(utils.DdbTableName(), utils.TestMrkReplicaKeyIdUsEast1(), utils.DefaultKMSKeyAccountID(), []string{"eu-west-1"})
 
-	// Create a branch key for searchable encryption example
-	branchKeyForSearchable := misc.CreateBranchKeyIDExample(utils.TestKeystoreName(), utils.TestLogicalKeystoreName(), utils.TestKeystoreKmsKeyId())
-	searchableencryption.BasicSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKeyForSearchable, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
+	searchableencryption.BasicSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKey1, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
+	searchableencryption.BeaconStylesSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKey1, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
+	searchableencryption.CompoundBeaconSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKey2, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
+	searchableencryption.VirtualBeaconSearchableEncryptionExample(utils.SimpleBeaconTestDdbTableName(), branchKey2, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
 }
