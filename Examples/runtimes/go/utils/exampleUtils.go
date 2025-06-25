@@ -21,6 +21,8 @@ const (
 	testKmsEcdhKeyIdP256Sender     = "arn:aws:kms:us-west-2:370957321024:key/eabdf483-6be2-4d2d-8ee4-8c2583d416e9"
 	testKmsEcdhKeyIdP256Recipient  = "arn:aws:kms:us-west-2:370957321024:key/0265c8e9-5b6a-4055-8f70-63719e09fda5"
 	testKmsRsaKeyID                = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
+	testMrkReplicaKeyIdUsEast1     = "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
+	testMrkReplicaKeyIdEuWest1     = "arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
 )
 
 func TestKeystoreName() string {
@@ -108,4 +110,12 @@ func GenerateAes256KeyBytes() []byte {
 	_, err := rand.Read(key)
 	HandleError(err)
 	return key
+}
+
+func TestMrkReplicaKeyIdUsEast1() string {
+	return testMrkReplicaKeyIdUsEast1
+}
+
+func TestMrkReplicaKeyIdEuWest1() string {
+	return testMrkReplicaKeyIdEuWest1
 }
