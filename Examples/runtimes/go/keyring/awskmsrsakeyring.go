@@ -57,7 +57,7 @@ func KmsRsaKeyringExample(ddbTableName, rsaKeyArn, rsaPublicKeyFilename string) 
 	// You may provide your own RSA public key at rsaPublicKeyFilename.
 	// This must be the public key for the RSA key represented at rsaKeyArn.
 	// If this file is not present, this will write a UTF-8 encoded PEM file for you.
-	if shouldGetNewPublicKey(rsaPublicKeyFilename) {
+	if utils.FileExists(rsaPublicKeyFilename) {
 		writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename)
 	}
 
@@ -213,22 +213,7 @@ func KmsRsaKeyringExample(ddbTableName, rsaKeyArn, rsaPublicKeyFilename string) 
 	fmt.Println("AWS KMS RSA Keyring Example successful.")
 }
 
-func shouldGetNewPublicKey(rsaPublicKeyFilename string) bool {
-	// Check if a public key file already exists
-	if _, err := os.Stat(rsaPublicKeyFilename); err == nil {
-		// If a public key file already exists: do not overwrite existing file
-		return false
-	}
-	// If file is not present, generate a new key pair
-	return true
-}
-
 func writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename string) {
-	// Safety check: Validate file is not present
-	if _, err := os.Stat(rsaPublicKeyFilename); err == nil {
-		panic("writePublicKeyPemForRsaKey will not overwrite existing PEM files")
-	}
-
 	// This code will call KMS to get the public key for the KMS RSA key.
 	// You must have kms:GetPublicKey permissions on the key for this to succeed.
 	// The public key will be written to the file rsaPublicKeyFilename.

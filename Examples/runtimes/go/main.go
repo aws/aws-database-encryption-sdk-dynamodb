@@ -47,6 +47,15 @@ func main() {
 		utils.DdbTableName(),
 		utils.TestKmsRsaKeyID(),
 		utils.DefaultRsaPublicKeyFilename())
+	keyring.RawRsaKeyringExample(
+		utils.DdbTableName(),
+		utils.ExampleRsaPublicKeyFilename(),
+		utils.ExampleRsaPrivateKeyFilename())
+	keyring.MrkDiscoveryMultiKeyringExample(
+		utils.KmsKeyID(),
+		utils.DdbTableName(),
+		utils.DefaultKMSKeyAccountID(),
+		utils.DefaultKmsKeyRegion())
 
 	// item encryptor example
 	itemencryptor.ItemEncryptDecryptExample(

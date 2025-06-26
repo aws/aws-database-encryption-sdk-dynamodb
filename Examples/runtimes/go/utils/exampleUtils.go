@@ -3,22 +3,35 @@
 
 package utils
 
-import "crypto/rand"
+import (
+	"crypto/rand"
+	"os"
+)
 
 const (
-	kmsKeyID                    = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
-	ddbTableName                = "DynamoDbEncryptionInterceptorTestTableCS"
-	keyNamespace                = "my-key-namespace"
-	keyName                     = "my-key-name"
-	aesKeyBytes                 = 32 // 256 bits = 32 bytes
-	testKeystoreName            = "KeyStoreDdbTable"
-	testLogicalKeystoreName     = "KeyStoreDdbTable"
-	testKeystoreKmsKeyId        = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
-	defaultRsaPublicKeyFilename = "KmsRsaKeyringPublicKey.pem"
-	testKmsRsaKeyID             = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
-	defaultKMSKeyAccountID      = "658956600833"
-	defaultKmsKeyRegion         = "us-west-2"
+	kmsKeyID                     = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
+	ddbTableName                 = "DynamoDbEncryptionInterceptorTestTableCS"
+	keyNamespace                 = "my-key-namespace"
+	keyName                      = "my-key-name"
+	aesKeyBytes                  = 32 // 256 bits = 32 bytes
+	testKeystoreName             = "KeyStoreDdbTable"
+	testLogicalKeystoreName      = "KeyStoreDdbTable"
+	testKeystoreKmsKeyId         = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	defaultRsaPublicKeyFilename  = "KmsRsaKeyringPublicKey.pem"
+	testKmsRsaKeyID              = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
+	defaultKMSKeyAccountID       = "658956600833"
+	defaultKmsKeyRegion          = "us-west-2"
+	exampleRsaPrivateKeyFilename = "RawRsaKeyringExamplePrivateKey.pem"
+	exampleRsaPublicKeyFilename  = "RawRsaKeyringExamplePublicKey.pem"
 )
+
+func ExampleRsaPublicKeyFilename() string {
+	return exampleRsaPublicKeyFilename
+}
+
+func ExampleRsaPrivateKeyFilename() string {
+	return exampleRsaPrivateKeyFilename
+}
 
 func DefaultKMSKeyAccountID() []string {
 	return []string{defaultKMSKeyAccountID}
@@ -93,4 +106,9 @@ func GenerateAes256KeyBytes() []byte {
 	_, err := rand.Read(key)
 	HandleError(err)
 	return key
+}
+
+func FileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
 }
