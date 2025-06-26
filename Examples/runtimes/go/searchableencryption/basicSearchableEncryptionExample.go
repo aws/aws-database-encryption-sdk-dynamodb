@@ -33,23 +33,24 @@ Running this example requires access to a DDB table with the
 following key configuration:
   - Partition key is named "work_id" with type (S)
   - Sort key is named "inspection_date" with type (S)
+
 This table must have a Global Secondary Index (GSI) configured named "last4-unit-index":
   - Partition key is named "aws_dbe_b_inspector_id_last4" with type (S)
   - Sort key is named "aws_dbe_b_unit" with type (S)
 
 In this example for storing unit inspection information, this schema is utilized for the data:
- - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
- - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
- - "inspector_id_last4" stores the last 4 digits of the ID of the inspector performing the work
- - "unit" stores a 12-digit serial number for the unit being inspected
+  - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
+  - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
+  - "inspector_id_last4" stores the last 4 digits of the ID of the inspector performing the work
+  - "unit" stores a 12-digit serial number for the unit being inspected
 
 The example requires the following ordered input command line parameters:
-  1. DDB table name for table to put/query data from
-  2. Branch key ID for a branch key that was previously created in your key store. See the
-     CreateKeyStoreKeyExample.
-  3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
-     provided in arg 2
-  4. Branch key DDB table name for the DDB table representing the branch key store
+ 1. DDB table name for table to put/query data from
+ 2. Branch key ID for a branch key that was previously created in your key store. See the
+    CreateKeyStoreKeyExample.
+ 3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
+    provided in arg 2
+ 4. Branch key DDB table name for the DDB table representing the branch key store
 */
 func BasicSearchableEncryptionExample(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName string) {
 	const gsiName = "last4-unit-index"
@@ -230,8 +231,8 @@ func BasicSearchableEncryptionExample(ddbTableName, branchKeyId, branchKeyWrappi
 	//      - DO_NOTHING: The attribute is not encrypted and not included in the signature
 	//    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
 	attributeActionsOnEncrypt := map[string]dbesdkstructuredencryptiontypes.CryptoAction{
-		"work_id":            dbesdkstructuredencryptiontypes.CryptoActionSignOnly,      // Our partition attribute must be SIGN_ONLY
-		"inspection_date":    dbesdkstructuredencryptiontypes.CryptoActionSignOnly,      // Our sort attribute must be SIGN_ONLY
+		"work_id":            dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our partition attribute must be SIGN_ONLY
+		"inspection_date":    dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our sort attribute must be SIGN_ONLY
 		"inspector_id_last4": dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
 		"unit":               dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
 	}

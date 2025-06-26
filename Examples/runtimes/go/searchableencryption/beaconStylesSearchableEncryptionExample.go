@@ -25,10 +25,13 @@ import (
 
 /*
 This example demonstrates how to use Beacons Styles on Standard Beacons on encrypted attributes,
-    put an item with the beacon, and query against that beacon.
+
+	put an item with the beacon, and query against that beacon.
+
 This example follows a use case of a database that stores food information.
-    This is an extension of the "BasicSearchableEncryptionExample" in this directory
-    and uses the same table schema.
+
+	This is an extension of the "BasicSearchableEncryptionExample" in this directory
+	and uses the same table schema.
 
 Running this example requires access to a DDB table with the
 following key configuration:
@@ -36,21 +39,21 @@ following key configuration:
   - Sort key is named "inspection_time" with type (S)
 
 In this example for storing food information, this schema is utilized for the data:
- - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
- - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
- - "fruit" stores one type of fruit
- - "basket" stores a set of types of fruit
- - "dessert" stores one type of dessert
- - "veggies" stores a set of types of vegetable
- - "work_type" stores a unit inspection category
+  - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
+  - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
+  - "fruit" stores one type of fruit
+  - "basket" stores a set of types of fruit
+  - "dessert" stores one type of dessert
+  - "veggies" stores a set of types of vegetable
+  - "work_type" stores a unit inspection category
 
 The example requires the following ordered input command line parameters:
-  1. DDB table name for table to put/query data from
-  2. Branch key ID for a branch key that was previously created in your key store. See the
-     CreateKeyStoreKeyExample.
-  3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
-     provided in arg 2
-  4. Branch key DDB table ARN for the DDB table representing the branch key store
+ 1. DDB table name for table to put/query data from
+ 2. Branch key ID for a branch key that was previously created in your key store. See the
+    CreateKeyStoreKeyExample.
+ 3. Branch key wrapping KMS key ARN for the KMS key used to create the branch key with ID
+    provided in arg 2
+ 4. Branch key DDB table ARN for the DDB table representing the branch key store
 */
 func BeaconStylesSearchableEncryptionExample(ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName string) {
 	// 1. Create Beacons.
@@ -173,11 +176,11 @@ func BeaconStylesSearchableEncryptionExample(ddbTableName, branchKeyId, branchKe
 		Value: singleKeyStore,
 	}
 	beaconVersion := dbesdkdynamodbencryptiontypes.BeaconVersion{
-		StandardBeacons:  standardBeaconList,
-		CompoundBeacons:  compoundBeaconList,
-		Version:          1, // MUST be 1
-		KeyStore:         keyStore,
-		KeySource:        &beaconKeySource,
+		StandardBeacons: standardBeaconList,
+		CompoundBeacons: compoundBeaconList,
+		Version:         1, // MUST be 1
+		KeyStore:        keyStore,
+		KeySource:       &beaconKeySource,
 	}
 
 	beaconVersions := []dbesdkdynamodbencryptiontypes.BeaconVersion{beaconVersion}
@@ -198,8 +201,8 @@ func BeaconStylesSearchableEncryptionExample(ddbTableName, branchKeyId, branchKe
 
 	// 5. Configure which attributes are encrypted and/or signed when writing new items.
 	attributeActionsOnEncrypt := map[string]dbesdkstructuredencryptiontypes.CryptoAction{
-		"work_id":         dbesdkstructuredencryptiontypes.CryptoActionSignOnly,      // Our partition attribute must be SIGN_ONLY
-		"inspection_date": dbesdkstructuredencryptiontypes.CryptoActionSignOnly,      // Our sort attribute must be SIGN_ONLY
+		"work_id":         dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our partition attribute must be SIGN_ONLY
+		"inspection_date": dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our sort attribute must be SIGN_ONLY
 		"dessert":         dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
 		"fruit":           dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
 		"basket":          dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
