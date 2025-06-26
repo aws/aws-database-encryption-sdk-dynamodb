@@ -26,6 +26,7 @@ ExecuteStatementTransform_Compile
 ExecuteTransactionTransform_Compile
 GetItemTransform_Compile
 Maps_Compile
+OptimizedMergeSort_Compile
 PutItemTransform_Compile
 QueryTransform_Compile
 ScanTransform_Compile
