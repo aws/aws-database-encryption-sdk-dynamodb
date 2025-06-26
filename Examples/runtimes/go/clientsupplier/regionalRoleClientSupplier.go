@@ -24,7 +24,7 @@ type RegionalRoleClientSupplier struct{}
 // GetClient implements the IClientSupplier interface
 func (r *RegionalRoleClientSupplier) GetClient(input mpltypes.GetClientInput) (kms.Client, error) {
 	supplierConfig := NewRegionalRoleClientSupplierConfig()
-	
+
 	roleArn, exists := supplierConfig.RegionIamRoleMap[input.Region]
 	if !exists {
 		return kms.Client{}, mpltypes.AwsCryptographicMaterialProvidersException{

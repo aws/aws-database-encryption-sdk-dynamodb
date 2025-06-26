@@ -107,12 +107,12 @@ func ClientSupplierExample(ddbTableName, keyArn string, accountIds, regions []st
 
 	// 4. Create the DynamoDb Encryption configuration for the table we will be writing to.
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
-		LogicalTableName:                ddbTableName,
-		PartitionKeyName:                "partition_key",
-		SortKeyName:                     aws.String("sort_key"),
-		AttributeActionsOnEncrypt:       attributeActionsOnEncrypt,
-		Keyring:                         mrkKeyringWithClientSupplier,
-		AllowedUnsignedAttributePrefix:  &unsignAttrPrefix,
+		LogicalTableName:               ddbTableName,
+		PartitionKeyName:               "partition_key",
+		SortKeyName:                    aws.String("sort_key"),
+		AttributeActionsOnEncrypt:      attributeActionsOnEncrypt,
+		Keyring:                        mrkKeyringWithClientSupplier,
+		AllowedUnsignedAttributePrefix: &unsignAttrPrefix,
 	}
 
 	tableConfigs := map[string]dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
@@ -203,10 +203,10 @@ func ClientSupplierExample(ddbTableName, keyArn string, accountIds, regions []st
 	// 10. Create a new config and client using the discovery keyring.
 	//     This is the same setup as above, except we provide the discovery keyring to the config.
 	onlyReplicaKeyTableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
-		LogicalTableName:                ddbTableName,
-		PartitionKeyName:                "partition_key",
-		SortKeyName:                     aws.String("sort_key"),
-		AttributeActionsOnEncrypt:       attributeActionsOnEncrypt,
+		LogicalTableName:          ddbTableName,
+		PartitionKeyName:          "partition_key",
+		SortKeyName:               aws.String("sort_key"),
+		AttributeActionsOnEncrypt: attributeActionsOnEncrypt,
 		// Provide discovery keyring here
 		Keyring:                        mrkDiscoveryClientSupplierKeyring,
 		AllowedUnsignedAttributePrefix: &unsignAttrPrefix,
