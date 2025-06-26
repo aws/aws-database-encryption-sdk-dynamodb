@@ -25,6 +25,7 @@ const (
 	testMrkReplicaKeyIdEuWest1     = "arn:aws:kms:eu-west-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
 	unitInspectionTestDdbTableName = "UnitInspectionTestTableCS"
 	simpleBeaconTestDdbTableName   = "SimpleBeaconTestTable"
+	testComplexDdbTableName        = "ComplexBeaconTestTable"
 )
 
 func TestKeystoreName() string {
@@ -128,4 +129,8 @@ func UnitInspectionTestDdbTableName() string {
 
 func SimpleBeaconTestDdbTableName() string {
 	return simpleBeaconTestDdbTableName
+}
+
+func TestComplexDdbTableName() string {
+	return testComplexDdbTableName
 }
