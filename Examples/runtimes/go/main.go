@@ -43,6 +43,10 @@ func main() {
 		utils.TestKeystoreName(),
 		utils.TestLogicalKeystoreName(),
 		utils.TestKeystoreKmsKeyId())
+	keyring.KmsRsaKeyringExample(
+		utils.DdbTableName(),
+		utils.TestKmsRsaKeyID(),
+		utils.DefaultRsaPublicKeyFilename())
 
 	// item encryptor example
 	itemencryptor.ItemEncryptDecryptExample(
