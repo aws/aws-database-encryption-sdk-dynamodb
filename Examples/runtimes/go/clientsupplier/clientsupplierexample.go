@@ -243,7 +243,6 @@ func ClientSupplierExample(ddbTableName, keyArn string, accountIds, regions []st
 	utils.HandleError(err)
 
 	// Demonstrate that GetItem succeeded and returned the decrypted item
-	fmt.Println("GetItem with discovery keyring completed successfully")
 	onlyReplicaKeyReturnedItem := onlyReplicaKeyGetResponse.Item
 	onlyReplicaKeySensitiveData := onlyReplicaKeyReturnedItem["sensitive_data"].(*types.AttributeValueMemberS).Value
 	if onlyReplicaKeySensitiveData != "encrypt and sign me!" {
