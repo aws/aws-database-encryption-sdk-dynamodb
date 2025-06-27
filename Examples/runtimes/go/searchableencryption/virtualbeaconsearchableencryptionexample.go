@@ -356,15 +356,36 @@ func VirtualBeaconSearchableEncryptionExample(
 	}
 	resolveOutput, err := transformsClient.ResolveAttributes(context.TODO(), resolveInput)
 	utils.HandleError(err)
-	fmt.Println(len(resolveOutput.CompoundBeacons))
+	// CompoundBeacons is empty because we have no Compound Beacons configured
+	if len(resolveOutput.CompoundBeacons) != 0 {
+		panic("CompoundBeacons is not empty although it is not configured")
+	}
+	// Verify that VirtualFields has the expected value
+	virtualFields := resolveOutput.VirtualFields
+	if (len(virtualFields)) != 1 {
+		panic("VirtualFields does not have the expected length")
+	}
+	if virtualFields["stateAndHasTestResult"] != "CAt" {
+		panic("VirtualFields does not have the expected value")
+	}
 
+	// 13. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(encryptionConfig)
 	utils.HandleError(err)
-
-	// 13. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
 	ddb := dynamodb.NewFromConfig(cfg, dbEsdkMiddleware.CreateMiddleware())
 
 	// 14. Put two items into our table using the above client.
+	//     The two items will differ only in their `customer_id` attribute (primary key)
+	//         and their `hasTestResult` attribute.
+	//     We will query against these items to demonstrate how to use our setup above
+	//         to query against our `stateAndHasTestResult` beacon.
+	//     Before the item gets sent to DynamoDb, it will be encrypted
+	//         client-side, according to our configuration.
+	//     Since our configuration includes a beacon on a virtual field named
+	//         `stateAndHasTestResult`, the client will add an attribute
+	//         to the item with name `aws_dbe_b_stateAndHasTestResult`.
+	//         Its value will be an HMAC truncated to as many bits as the
+	//         beacon's `length` parameter; i.e. 5.
 	itemWithHasTestResultPutRequest := &dynamodb.PutItemInput{
 		TableName: aws.String(ddbTableName),
 		Item:      itemWithHasTestResult,
@@ -382,6 +403,17 @@ func VirtualBeaconSearchableEncryptionExample(
 	utils.HandleError(err)
 
 	// 15. Query by stateAndHasTestResult attribute.
+	//     Note that we are constructing the query as if we were querying on plaintext values.
+	//     However, the DDB encryption client will detect that this attribute name has a beacon configured.
+	//     The client will add the beaconized attribute name and attribute value to the query,
+	//         and transform the query to use the beaconized name and value.
+	//     Internally, the client will query for and receive all items with a matching HMAC value in the beacon field.
+	//     This may include a number of "false positives" with different ciphertext, but the same truncated HMAC.
+	//     e.g. if truncate(HMAC("CAt"), 5) == truncate(HMAC("DCf"), 5), the query will return both items.
+	//     The client will decrypt all returned items to determine which ones have the expected attribute values,
+	//         and only surface items with the correct plaintext to the user.
+	//     This procedure is internal to the client and is abstracted away from the user;
+	//     e.g. the user will only see "CAt" and never "DCf", though the actual query returned both.
 	expressionAttributeNames := map[string]string{
 		"#stateAndHasTestResult": "stateAndHasTestResult",
 	}
