@@ -6,15 +6,25 @@ package utils
 import "crypto/rand"
 
 const (
-	kmsKeyID                = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
-	ddbTableName            = "DynamoDbEncryptionInterceptorTestTableCS"
-	keyNamespace            = "my-key-namespace"
-	keyName                 = "my-key-name"
-	aesKeyBytes             = 32 // 256 bits = 32 bytes
-	testKeystoreName        = "KeyStoreDdbTable"
-	testLogicalKeystoreName = "KeyStoreDdbTable"
-	testKeystoreKmsKeyId    = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	kmsKeyID                   = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
+	ddbTableName               = "DynamoDbEncryptionInterceptorTestTableCS"
+	keyNamespace               = "my-key-namespace"
+	keyName                    = "my-key-name"
+	aesKeyBytes                = 32 // 256 bits = 32 bytes
+	testKeystoreName           = "KeyStoreDdbTable"
+	testLogicalKeystoreName    = "KeyStoreDdbTable"
+	testKeystoreKmsKeyId       = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	defaultKMSKeyAccountID     = "658956600833"
+	testMrkReplicaKeyIdUsEast1 = "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
 )
+
+func TestMrkReplicaKeyIdUsEast1() string {
+	return testMrkReplicaKeyIdUsEast1
+}
+
+func DefaultKMSKeyAccountID() []string {
+	return []string{defaultKMSKeyAccountID}
+}
 
 func TestKeystoreName() string {
 	return testKeystoreName

@@ -4,6 +4,7 @@
 package main
 
 import (
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/clientsupplier"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/itemencryptor"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+	clientsupplier.ClientSupplierExample(utils.DdbTableName(), utils.TestMrkReplicaKeyIdUsEast1(), utils.DefaultKMSKeyAccountID(), []string{"eu-west-1"})
 	keyring.AwsKmsKeyringExample(utils.KmsKeyID(), utils.DdbTableName())
 	keyring.RawAesExample(utils.DdbTableName(), utils.KeyNamespace(), utils.KeyName(), utils.GenerateAes256KeyBytes())
 	itemencryptor.ItemEncryptDecryptExample(utils.KmsKeyID(), utils.DdbTableName())
