@@ -13,7 +13,11 @@ import (
 
 func main() {
 	// clientsupplier example
-	clientsupplier.ClientSupplierExample(utils.DdbTableName(), utils.TestMrkReplicaKeyIdUsEast1(), utils.DefaultKMSKeyAccountID(), []string{"eu-west-1"})
+	clientsupplier.ClientSupplierExample(
+		utils.DdbTableName(),
+		utils.TestMrkReplicaKeyIdUsEast1(),
+		utils.DefaultKMSKeyAccountID(),
+		utils.AlternateRegionKmsKeyRegionAsAList())
 	// misc examples
 	misc.GetEncryptedDataKeyDescriptionExample(
 		utils.KmsKeyID(),
