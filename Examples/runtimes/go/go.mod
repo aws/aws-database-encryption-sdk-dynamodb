@@ -2,7 +2,7 @@ module github.com/aws/aws-database-encryption-sdk-dynamodb/examples
 
 go 1.23.2
 
-replace github.com/aws/aws-database-encryption-sdk-dynamodb => ../../../DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go
+replace github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk => ../../../DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go
 
 replace github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl => ../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/
 
@@ -16,7 +16,7 @@ replace github.com/aws/aws-cryptographic-material-providers-library/releases/go/
 
 require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
-	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
+	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk v0.0.0
 	github.com/aws/aws-sdk-go-v2 v1.32.8
 	github.com/aws/aws-sdk-go-v2/config v1.28.10
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.2
