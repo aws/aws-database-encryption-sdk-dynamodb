@@ -69,4 +69,9 @@ func main() {
 		branchKey1,
 		utils.TestKeystoreKmsKeyId(),
 		utils.TestKeystoreName())
+	searchableencryption.BeaconStylesSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey1,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
 }
