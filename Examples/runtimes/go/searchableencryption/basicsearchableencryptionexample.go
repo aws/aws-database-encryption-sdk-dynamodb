@@ -31,16 +31,16 @@ This example follows a use case of a database that stores unit inspection inform
 
 Running this example requires access to a DDB table with the
 following key configuration:
-  - Partition key is named "work_id" with type (S)
-  - Sort key is named "inspection_date" with type (S)
+  - Partition key is named partitionKeyName with type (S)
+  - Sort key is named sortKey with type (S)
 
 This table must have a Global Secondary Index (GSI) configured named "last4-unit-index":
   - Partition key is named "aws_dbe_b_inspector_id_last4" with type (S)
   - Sort key is named "aws_dbe_b_unit" with type (S)
 
 In this example for storing unit inspection information, this schema is utilized for the data:
-  - "work_id" stores a unique identifier for a unit inspection work order (v4 UUID)
-  - "inspection_date" stores an ISO 8601 date for the inspection (YYYY-MM-DD)
+  - partitionKeyName stores a unique identifier for a unit inspection work order (v4 UUID)
+  - sortKey stores an ISO 8601 date for the inspection (YYYY-MM-DD)
   - "inspector_id_last4" stores the last 4 digits of the ID of the inspector performing the work
   - "unit" stores a 12-digit serial number for the unit being inspected
 
@@ -58,7 +58,8 @@ func BasicSearchableEncryptionExample(
 	branchKeyWrappingKmsKeyArn,
 	branchKeyDdbTableName string) {
 	const gsiName = "last4-unit-index"
-
+	partitionKeyName := "work_id"
+	sortKey := "inspection_date"
 	// 1. Configure Beacons.
 	//    The beacon name must be the name of a table attribute that will be encrypted.
 	//    The `length` parameter dictates how many bits are in the beacon attribute value.
@@ -236,8 +237,8 @@ func BasicSearchableEncryptionExample(
 	//      - DO_NOTHING: The attribute is not encrypted and not included in the signature
 	//    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
 	attributeActionsOnEncrypt := map[string]dbesdkstructuredencryptiontypes.CryptoAction{
-		"work_id":            dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our partition attribute must be SIGN_ONLY
-		"inspection_date":    dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our sort attribute must be SIGN_ONLY
+		partitionKeyName:     dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our partition attribute must be SIGN_ONLY
+		sortKey:              dbesdkstructuredencryptiontypes.CryptoActionSignOnly,       // Our sort attribute must be SIGN_ONLY
 		"inspector_id_last4": dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
 		"unit":               dbesdkstructuredencryptiontypes.CryptoActionEncryptAndSign, // Beaconized attributes must be encrypted
 	}
@@ -252,8 +253,8 @@ func BasicSearchableEncryptionExample(
 
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
 		LogicalTableName:          ddbTableName,
-		PartitionKeyName:          "work_id",
-		SortKeyName:               aws.String("inspection_date"),
+		PartitionKeyName:          partitionKeyName,
+		SortKeyName:               &sortKey,
 		AttributeActionsOnEncrypt: attributeActionsOnEncrypt,
 		Keyring:                   kmsKeyring,
 		Search:                    &searchConfig,
@@ -283,8 +284,8 @@ func BasicSearchableEncryptionExample(
 	//    aws_dbe_b_inspector_id_last4 = truncate(HMAC("4321"), 10)
 	//    aws_dbe_b_unit = truncate(HMAC("123456789012"), 30)
 	item := map[string]types.AttributeValue{
-		"work_id":            &types.AttributeValueMemberS{Value: "1313ba89-5661-41eb-ba6c-cb1b4cb67b2d"},
-		"inspection_date":    &types.AttributeValueMemberS{Value: "2023-06-13"},
+		partitionKeyName:     &types.AttributeValueMemberS{Value: "1313ba89-5661-41eb-ba6c-cb1b4cb67b2d"},
+		sortKey:              &types.AttributeValueMemberS{Value: "2023-06-13"},
 		"inspector_id_last4": &types.AttributeValueMemberS{Value: "4321"},
 		"unit":               &types.AttributeValueMemberS{Value: "123456789012"},
 	}
