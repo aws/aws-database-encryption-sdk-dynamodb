@@ -102,8 +102,6 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor
 
 # Go
-# TODO-Go-ORR: Define the name later https://sim.amazon.com/issues/CrypTool-5444
-# This will probably get changes to */releases/go/* but I will bring this to the team later.
 GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk"
 
 GO_DEPENDENCY_MODULE_NAMES := \
