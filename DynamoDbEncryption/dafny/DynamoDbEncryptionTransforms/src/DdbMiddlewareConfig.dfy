@@ -5,12 +5,14 @@ include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy"
 module DdbMiddlewareConfig {
   import opened Wrappers
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened StandardLibrary.UInt
   import DynamoDbItemEncryptor
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
   import HexStrings
+  import Random
 
   datatype TableConfig = TableConfig(
     physicalTableName: ComAmazonawsDynamodbTypes.TableName,
@@ -27,6 +29,29 @@ module DdbMiddlewareConfig {
   {
     || tableName !in config.tableEncryptionConfigs
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+  }
+
+  method GetRandomBucket(config : TableConfig) returns (output : Result<seq<uint8>, Error>)
+  {
+    if config.search.None? {
+      return Success([]);
+    }
+    var numBuckets : uint32 := config.search.value.versions[0].numBuckets;
+    if numBuckets <= 1 {
+      return Success([]);
+    }
+    if (numBuckets > 255) {
+      return Failure(E("Number of buckets exceeds 255"));
+    }
+
+    var randR := Random.GenerateBytes(1);
+    var rand : seq<uint8> :- randR.MapFailure(e => E("Failed to get random byte"));
+    var bucket := rand[0] % (numBuckets as uint8);
+    if bucket == 0 {
+      return Success([]);
+    } else {
+      return Success([bucket as uint8]);
+    }
   }
 
   predicate ValidTableConfig?(config: TableConfig) {

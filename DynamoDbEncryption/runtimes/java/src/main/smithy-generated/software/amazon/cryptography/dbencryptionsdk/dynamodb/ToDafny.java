@@ -180,6 +180,14 @@ public class ToDafny {
         : Option.create_None(
           DafnySequence._typeDescriptor(SignedPart._typeDescriptor())
         );
+    Option<Integer> numberOfBuckets;
+    numberOfBuckets =
+      Objects.nonNull(nativeValue.numberOfBuckets())
+        ? Option.create_Some(
+          TypeDescriptor.INT,
+          (nativeValue.numberOfBuckets())
+        )
+        : Option.create_None(TypeDescriptor.INT);
     return new BeaconVersion(
       version,
       keyStore,
@@ -188,7 +196,8 @@ public class ToDafny {
       compoundBeacons,
       virtualFields,
       encryptedParts,
-      signedParts
+      signedParts,
+      numberOfBuckets
     );
   }
 
