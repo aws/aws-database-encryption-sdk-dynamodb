@@ -7,7 +7,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/test/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
