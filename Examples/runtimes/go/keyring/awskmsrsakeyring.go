@@ -57,7 +57,7 @@ func KmsRsaKeyringExample(ddbTableName, rsaKeyArn, rsaPublicKeyFilename string) 
 	// You may provide your own RSA public key at rsaPublicKeyFilename.
 	// This must be the public key for the RSA key represented at rsaKeyArn.
 	// If this file is not present, this will write a UTF-8 encoded PEM file for you.
-	if utils.FileExists(rsaPublicKeyFilename) {
+	if !utils.FileExists(rsaPublicKeyFilename) {
 		writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename)
 	}
 
