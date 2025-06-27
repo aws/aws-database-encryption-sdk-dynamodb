@@ -6,6 +6,7 @@ package clientsupplier
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	mpl "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygenerated"
 	mpltypes "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
@@ -169,11 +170,9 @@ func ClientSupplierExample(ddbTableName, keyArn string, accountIds, regions []st
 	getResponse, err := ddbClient.GetItem(context.Background(), getRequest)
 	utils.HandleError(err)
 
-	// Demonstrate that GetItem succeeded and returned the decrypted item
-	returnedItem := getResponse.Item
-	sensitiveData := returnedItem["sensitive_data"].(*types.AttributeValueMemberS).Value
-	if sensitiveData != "encrypt and sign me!" {
-		panic("Decrypted data does not match expected value")
+	// Verify the decrypted item
+	if !reflect.DeepEqual(item, getResponse.Item) {
+		panic("Decrypted item does not match original item")
 	}
 
 	// 9. Create a MRK discovery multi-keyring with a custom client supplier.
@@ -242,11 +241,9 @@ func ClientSupplierExample(ddbTableName, keyArn string, accountIds, regions []st
 	onlyReplicaKeyGetResponse, err := onlyReplicaKeyDdbClient.GetItem(context.Background(), onlyReplicaKeyGetRequest)
 	utils.HandleError(err)
 
-	// Demonstrate that GetItem succeeded and returned the decrypted item
-	onlyReplicaKeyReturnedItem := onlyReplicaKeyGetResponse.Item
-	onlyReplicaKeySensitiveData := onlyReplicaKeyReturnedItem["sensitive_data"].(*types.AttributeValueMemberS).Value
-	if onlyReplicaKeySensitiveData != "encrypt and sign me!" {
-		panic("Decrypted data from discovery keyring does not match expected value")
+	// Verify the decrypted item
+	if !reflect.DeepEqual(item, onlyReplicaKeyGetResponse.Item) {
+		panic("Decrypted item does not match original item")
 	}
 
 	fmt.Println("Client Supplier Example completed successfully")
