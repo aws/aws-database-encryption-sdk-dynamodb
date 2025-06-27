@@ -21,15 +21,19 @@ const (
 	testKmsRsaKeyID              = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
 	defaultKMSKeyAccountID       = "658956600833"
 	defaultKmsKeyRegion          = "us-west-2"
+	alternateRegionKmsKeyRegion  = "eu-west-1"
 	exampleRsaPrivateKeyFilename = "RawRsaKeyringExamplePrivateKey.pem"
 	exampleRsaPublicKeyFilename  = "RawRsaKeyringExamplePublicKey.pem"
 	testMrkReplicaKeyIdUsEast1   = "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
 )
 
+func AlternateRegionKmsKeyRegionAsAList() []string {
+	return []string{alternateRegionKmsKeyRegion}
+}
+
 func TestMrkReplicaKeyIdUsEast1() string {
 	return testMrkReplicaKeyIdUsEast1
 }
-
 func ExampleRsaPublicKeyFilename() string {
 	return exampleRsaPublicKeyFilename
 }
