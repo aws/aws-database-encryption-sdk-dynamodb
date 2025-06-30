@@ -140,6 +140,10 @@ INDEX_FILE_PATH=dafny/DDBEncryption/src/LibraryIndex.dfy
 INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.wrapped\"} WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
 INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
 
+ITEMENCRYPTOR_INDEX_FILE_PATH=dafny/WrappedDynamoDbItemEncryptor/src/Index.dfy
+ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.wrapped\" } WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {"
+ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {"
+
 _sed_types_file_remove_extern:
 	echo "no types file"
 
