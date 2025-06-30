@@ -1,4 +1,4 @@
-module github.com/aws/aws-database-encryption-sdk-dynamodb/test
+module github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/test
 
 go 1.23.2
 
@@ -13,9 +13,10 @@ replace (
 
 require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.1
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0
 	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.2
 	github.com/aws/smithy-go v1.22.1
@@ -23,7 +24,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.1 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.32.8 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.28.10 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.51 // indirect
