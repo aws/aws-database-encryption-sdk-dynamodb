@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/searchableencryption"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/searchableencryption/complexexample"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
 )
 
@@ -33,4 +34,5 @@ func main() {
 	searchableencryption.BeaconStylesSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKey1, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
 	searchableencryption.CompoundBeaconSearchableEncryptionExample(utils.UnitInspectionTestDdbTableName(), branchKey2, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
 	searchableencryption.VirtualBeaconSearchableEncryptionExample(utils.SimpleBeaconTestDdbTableName(), branchKey2, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
+	complexexample.ComplexSearchableEncryptionExample(utils.TestComplexDdbTableName(), branchKey1, utils.TestBranchKeyWrappingKmsKeyArn(), utils.TestBranchKeystoreDdbTableName())
 }
