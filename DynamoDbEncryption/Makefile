@@ -102,9 +102,7 @@ SERVICE_DEPS_DynamoDbEncryptionTransforms := \
 	DynamoDbEncryption/dafny/DynamoDbItemEncryptor
 
 # Go
-# TODO-Go-ORR: Define the name later https://sim.amazon.com/issues/CrypTool-5444
-# This will probably get changes to */releases/go/* but I will bring this to the team later.
-GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb"
+GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk"
 
 GO_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.primitives=github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives \
@@ -114,10 +112,10 @@ GO_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.keyStore=github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl \
 	--dependency-library-name=sdk.com.amazonaws.dynamodb=github.com/aws/aws-sdk-go-v2/service/dynamodb \
 	--dependency-library-name=sdk.com.amazonaws.kms=github.com/aws/aws-sdk-go-v2/service/kms \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=github.com/aws/aws-database-encryption-sdk-dynamodb
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk
 	
 TRANSLATION_RECORD_GO := \
     submodules/MaterialProviders/StandardLibrary/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \

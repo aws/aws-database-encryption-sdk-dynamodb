@@ -3,7 +3,7 @@
 package awscryptographydbencryptionsdkdynamodbsmithygenerated
 
 import (
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/AwsCryptographyDbEncryptionSdkDynamoDbTypes"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/AwsCryptographyDbEncryptionSdkDynamoDbTypes"
 )
 
 type LegacyDynamoDbEncryptor struct {
