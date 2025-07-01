@@ -12,6 +12,9 @@ import (
 
 func main() {
 	// misc examples
+	misc.BasicPutGetExample(
+		utils.KmsKeyID(),
+		utils.DdbTableName())
 	misc.GetEncryptedDataKeyDescriptionExample(
 		utils.KmsKeyID(),
 		utils.DdbTableName())
