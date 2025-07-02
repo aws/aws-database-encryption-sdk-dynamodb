@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/itemencryptor"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/searchableencryption"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
 )
 
@@ -64,4 +65,26 @@ func main() {
 	itemencryptor.ItemEncryptDecryptExample(
 		utils.KmsKeyID(),
 		utils.DdbTableName())
+
+	// searchable encryption example
+	searchableencryption.BasicSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey1,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	searchableencryption.BeaconStylesSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey1,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	searchableencryption.CompoundBeaconSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey2,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	searchableencryption.VirtualBeaconSearchableEncryptionExample(
+		utils.SimpleBeaconTestDdbTableName(),
+		branchKey2,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
 }
