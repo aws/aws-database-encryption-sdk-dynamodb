@@ -33,13 +33,6 @@ import (
  * our workshop using the encryption client.
  */
 
-// SetupBeaconConfig creates and configures a DynamoDB client with searchable encryption
-// for complex beacon queries. This function demonstrates how to set up:
-// - Standard beacons for individual attributes
-// - Compound beacons for multi-attribute queries
-// - Encrypted and signed parts for beacon construction
-// - Hierarchical keyring for key management
-// - Complete table encryption configuration
 func SetupBeaconConfig(ctx context.Context, ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName string) (*dynamodb.Client, error) {
 	// 1. Create Keystore and branch key.
 	//    These are the same constructions as in the Basic examples, which describe this in more detail.
