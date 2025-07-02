@@ -141,7 +141,7 @@ module SearchConfigToInfo {
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
   {
-    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
     // It is not-good that the MPL is initialized here;
     // The MPL has a config object that could hold customer intent that affects behavior.
     // Today, it does not. But tomorrow?
@@ -315,12 +315,20 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
+
+    var numBuckets : int := config.numberOfBuckets.UnwrapOr(1) as int;
+    :- Need(0 <= numBuckets < INT32_MAX_LIMIT, E("Invalid number of buckets specified, " + Base10Int2String(numBuckets) + ", must be 0 < numberOfBuckets <= 255."));
+    // Zero is invalid, but in Java we can't distinguish None from Some(0)
+    if numBuckets == 0 {
+      numBuckets := 1;
+    }
     return I.MakeBeaconVersion(
         config.version as I.VersionNumber,
         source,
         beacons,
         virtualFields,
-        outer.attributeActionsOnEncrypt
+        outer.attributeActionsOnEncrypt,
+        numBuckets as uint32
       );
   }
 

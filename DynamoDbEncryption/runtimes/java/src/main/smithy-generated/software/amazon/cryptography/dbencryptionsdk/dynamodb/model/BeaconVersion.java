@@ -52,6 +52,11 @@ public class BeaconVersion {
    */
   private final List<SignedPart> signedParts;
 
+  /**
+   * The number of separate buckets across which beacons should be divided.
+   */
+  private final int numberOfBuckets;
+
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
     this.keyStore = builder.keyStore();
@@ -61,6 +66,7 @@ public class BeaconVersion {
     this.virtualFields = builder.virtualFields();
     this.encryptedParts = builder.encryptedParts();
     this.signedParts = builder.signedParts();
+    this.numberOfBuckets = builder.numberOfBuckets();
   }
 
   /**
@@ -117,6 +123,13 @@ public class BeaconVersion {
    */
   public List<SignedPart> signedParts() {
     return this.signedParts;
+  }
+
+  /**
+   * @return The number of separate buckets across which beacons should be divided.
+   */
+  public int numberOfBuckets() {
+    return this.numberOfBuckets;
   }
 
   public Builder toBuilder() {
@@ -208,6 +221,16 @@ public class BeaconVersion {
      */
     List<SignedPart> signedParts();
 
+    /**
+     * @param numberOfBuckets The number of separate buckets across which beacons should be divided.
+     */
+    Builder numberOfBuckets(int numberOfBuckets);
+
+    /**
+     * @return The number of separate buckets across which beacons should be divided.
+     */
+    int numberOfBuckets();
+
     BeaconVersion build();
   }
 
@@ -231,6 +254,10 @@ public class BeaconVersion {
 
     protected List<SignedPart> signedParts;
 
+    protected int numberOfBuckets;
+
+    private boolean _numberOfBucketsSet = false;
+
     protected BuilderImpl() {}
 
     protected BuilderImpl(BeaconVersion model) {
@@ -243,6 +270,8 @@ public class BeaconVersion {
       this.virtualFields = model.virtualFields();
       this.encryptedParts = model.encryptedParts();
       this.signedParts = model.signedParts();
+      this.numberOfBuckets = model.numberOfBuckets();
+      this._numberOfBucketsSet = true;
     }
 
     public Builder version(int version) {
@@ -318,6 +347,16 @@ public class BeaconVersion {
       return this.signedParts;
     }
 
+    public Builder numberOfBuckets(int numberOfBuckets) {
+      this.numberOfBuckets = numberOfBuckets;
+      this._numberOfBucketsSet = true;
+      return this;
+    }
+
+    public int numberOfBuckets() {
+      return this.numberOfBuckets;
+    }
+
     public BeaconVersion build() {
       if (!this._versionSet) {
         throw new IllegalArgumentException(
@@ -380,6 +419,11 @@ public class BeaconVersion {
       ) {
         throw new IllegalArgumentException(
           "The size of `signedParts` must be greater than or equal to 1"
+        );
+      }
+      if (this._numberOfBucketsSet && this.numberOfBuckets() < 1) {
+        throw new IllegalArgumentException(
+          "`numberOfBuckets` must be greater than or equal to 1"
         );
       }
       return new BeaconVersion(this);
