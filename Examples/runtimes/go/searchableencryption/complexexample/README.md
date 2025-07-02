@@ -16,8 +16,8 @@ This also walks through some example query expressions one can use to search the
 ```
 .
 ├── complexsearchableencryptionexample.go // Main entry point for example
-├── BeaconConfig // Sets up beacons and searchable encryption configuration
+├── beaconconfig.go // Sets up beacons and searchable encryption configuration
 ├── putrequests.go // PUT requests added to the DDB table
-├── PutRequests // QUERY requests executed on the DDB table
+├── queryrequests.go // QUERY requests executed on the DDB table
 └── README.md
 ```
