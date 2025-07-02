@@ -33,7 +33,12 @@ import (
  * our workshop using the encryption client.
  */
 
-func SetupBeaconConfig(ctx context.Context, ddbTableName, branchKeyId, branchKeyWrappingKmsKeyArn, branchKeyDdbTableName string) (*dynamodb.Client, error) {
+func SetupBeaconConfig(
+	ctx context.Context,
+	ddbTableName,
+	branchKeyId,
+	branchKeyWrappingKmsKeyArn,
+	branchKeyDdbTableName string) (*dynamodb.Client, error) {
 	// 1. Create Keystore and branch key.
 	//    These are the same constructions as in the Basic examples, which describe this in more detail.
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -64,7 +69,7 @@ func SetupBeaconConfig(ctx context.Context, ddbTableName, branchKeyId, branchKey
 	//    For this example, we use a standard beacon length of 4.
 	//    The BasicSearchableEncryptionExample gives a more thorough consideration of beacon length.
 	//    For production applications, one should always exercise rigor when deciding beacon length, including
-	//        examining population size and considering performance.
+	//    examining population size and considering performance.
 	standardBeaconList := []dbesdkdynamodbencryptiontypes.StandardBeacon{
 		{Name: "EmployeeID", Length: 4},
 		{Name: "TicketNumber", Length: 4},
@@ -109,7 +114,7 @@ func SetupBeaconConfig(ctx context.Context, ddbTableName, branchKeyId, branchKey
 	//    These are unencrypted attributes we would like to use in beacon queries.
 	//    In this example, all of these represent dates or times.
 	//    Keeping these attributes unencrypted allows us to use them in comparison-based queries. If a signed
-	//        part is the first part in a compound beacon, then that part can be used in comparison for sorting.
+	//    part is the first part in a compound beacon, then that part can be used in comparison for sorting.
 	signedPartList := []dbesdkdynamodbencryptiontypes.SignedPart{
 		{Name: "TicketModTime", Prefix: "M-"},
 		{Name: "MeetingStart", Prefix: "MS-"},

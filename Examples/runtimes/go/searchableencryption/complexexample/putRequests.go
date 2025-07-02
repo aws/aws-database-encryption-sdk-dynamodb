@@ -20,9 +20,9 @@ import (
  * right for your particular data set:
  * https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/searchable-encryption.html#are-beacons-right-for-me
  *
- * This class implements PutItem calls to populate a DDB table with items from our workshop.
+ * This file implements PutItem calls to populate a DDB table with items from our workshop.
  * By providing a DynamoDbClient that is configured to use searchable encryption,
- *   this class will encrypt the data client side and add beacon attributes to the items.
+ *   this file will encrypt the data client side and add beacon attributes to the items.
  * This only implements a single item of each of the 6 record types from Demo.md. Adding the remaining
  *   items would extend the test and example coverage.
  */
@@ -65,7 +65,7 @@ func listAttr(l []types.AttributeValue) types.AttributeValue {
 	return &types.AttributeValueMemberL{Value: l}
 }
 
-// emeeting.json
+// meeting.json
 // PutAllMeetingItemsToTable puts all meeting items to the table
 func PutAllMeetingItemsToTable(ctx context.Context, ddbTableName string, ddb *dynamodb.Client) error {
 	// Meeting 1
