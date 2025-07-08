@@ -94,5 +94,5 @@ jobs:
         run: |
           # Run simple examples
           tox -e dynamodbencryption
-          # Run migration examples
-          tox -e migration
+          # Run legacy migration examples
+          tox -e legacymigration
