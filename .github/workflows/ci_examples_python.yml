@@ -96,3 +96,5 @@ jobs:
           tox -e dynamodbencryption
           # Run legacy migration examples
           tox -e legacymigration
+          # Run plaintext migration examples
+          tox -e plaintextmigration
