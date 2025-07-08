@@ -37,9 +37,9 @@ def test_migration_step_0_with_paginator():
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=2
     )
     # When: Execute Step 0 with sort_read_value=2
-    # Then: throws KeyError (i.e. cannot read encrypted values)
-    # KeyError: attribute1 now has type "B" (binary) instead of "S" (string)
-    with pytest.raises(KeyError):
+    # Then: throws AssertionError (i.e. cannot read encrypted values)
+    # AssertionError is raised when attributes have type "B" (binary) instead of "S" (string)
+    with pytest.raises(AssertionError):
         migration_step_0.migration_step_0_with_paginator(ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=2)
 
     # Given: Step 3 has succeeded
@@ -47,7 +47,7 @@ def test_migration_step_0_with_paginator():
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=3
     )
     # When: Execute Step 0 with sort_read_value=3
-    # Then: throws KeyError (i.e. cannot read encrypted values)
-    # KeyError: attribute1 now has type "B" (binary) instead of "S" (string)
-    with pytest.raises(KeyError):
+    # Then: throws AssertionError (i.e. cannot read encrypted values)
+    # AssertionError is raised when attributes have type "B" (binary) instead of "S" (string)
+    with pytest.raises(AssertionError):
         migration_step_0.migration_step_0_with_paginator(ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=3)

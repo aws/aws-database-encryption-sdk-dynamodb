@@ -66,6 +66,6 @@ def migration_step_0_with_client(ddb_table_name: str, sort_read_value: int = 0):
     # Demonstrate we get the expected item back
     assert plaintext_item["partition_key"]["S"] == "PlaintextMigrationExample"
     assert plaintext_item["sort_key"]["N"] == str(sort_read_value)
-    assert plaintext_item["attribute1"]["S"] == "encrypt and sign me!"
-    assert plaintext_item["attribute2"]["S"] == "sign me!"
-    assert plaintext_item[":attribute3"]["S"] == "ignore me!"
+    assert "S" in plaintext_item["attribute1"] and plaintext_item["attribute1"]["S"] == "encrypt and sign me!"
+    assert "S" in plaintext_item["attribute2"] and plaintext_item["attribute2"]["S"] == "sign me!"
+    assert "S" in plaintext_item[":attribute3"] and plaintext_item[":attribute3"]["S"] == "ignore me!"

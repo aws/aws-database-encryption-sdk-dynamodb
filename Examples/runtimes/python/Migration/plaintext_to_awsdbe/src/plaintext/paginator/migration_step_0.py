@@ -68,6 +68,6 @@ def migration_step_0_with_paginator(ddb_table_name: str, sort_read_value: int = 
     item = next((i for i in items if i["sort_key"]["N"] == str(sort_read_value)), None)
     assert item is not None
     assert item["partition_key"]["S"] == "PlaintextMigrationExample"
-    assert item["attribute1"]["S"] == "encrypt and sign me!"
-    assert item["attribute2"]["S"] == "sign me!"
-    assert item[":attribute3"]["S"] == "ignore me!"
+    assert "S" in item["attribute1"] and item["attribute1"]["S"] == "encrypt and sign me!"
+    assert "S" in item["attribute2"] and item["attribute2"]["S"] == "sign me!"
+    assert "S" in item[":attribute3"] and item[":attribute3"]["S"] == "ignore me!"
