@@ -1,4 +1,4 @@
-module github.com/aws/aws-database-encryption-sdk-dynamodb
+module github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk
 
 go 1.23.2
 

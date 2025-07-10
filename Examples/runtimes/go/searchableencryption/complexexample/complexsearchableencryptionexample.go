@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 )
 
 /*
