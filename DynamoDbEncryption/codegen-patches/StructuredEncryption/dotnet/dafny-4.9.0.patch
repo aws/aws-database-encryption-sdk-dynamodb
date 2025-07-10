@@ -1,0 +1,38 @@
+diff --git b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/CollectionOfErrors.cs a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/CollectionOfErrors.cs
+index 0f4c3ff9..a966d3aa 100644
+--- b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/CollectionOfErrors.cs
++++ a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/CollectionOfErrors.cs
+@@ -8,9 +8,17 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
+   public class CollectionOfErrors : Exception
+   {
+     public readonly System.Collections.Generic.List<Exception> list;
+-    public CollectionOfErrors(System.Collections.Generic.List<Exception> list, string message) : base(message) { this.list = list; }
++    public CollectionOfErrors(System.Collections.Generic.List<Exception> list, string message) : base(message + $"\n List: \n{ListAsString(list)}") { this.list = list; }
+     public CollectionOfErrors(string message) : base(message) { this.list = new System.Collections.Generic.List<Exception>(); }
+     public CollectionOfErrors() : base("CollectionOfErrors") { this.list = new System.Collections.Generic.List<Exception>(); }
++    private static string ListAsString(List<Exception> list)
++    {
++      if (list.Count < 1) return "";
++      string[] msgArr = new string[list.Count];
++      for (int i = 0; i < list.Count; i++)
++        msgArr[i] = $"{list[i].GetType().Name} :: {list[i].Message}";
++      return String.Join("\n\t", msgArr);
++    }
+   }
+ 
+ }
+diff --git b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
+index 6de665f3..6a802466 100644
+--- b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
++++ a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
+@@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
+ {
+   public static class TypeConversion
+   {
+-    private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+-
+-    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
+-
+     public static AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S18_AuthenticateAction(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthenticateAction value)
+     {
+       if (value.is_SIGN) return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction.SIGN;
