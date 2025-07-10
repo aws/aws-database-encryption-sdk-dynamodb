@@ -408,6 +408,7 @@ func BeaconVersion_FromDafny(input interface{}) awscryptographydbencryptionsdkdy
 		VirtualFields:   Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
 		EncryptedParts:  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
 		SignedParts:     Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+		NumberOfBuckets: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_numberOfBuckets_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_numberOfBuckets().UnwrapOr(nil)),
 	}
 
 }
@@ -1367,6 +1368,16 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDaf
 	}
 	return fieldValue
 }
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_numberOfBuckets_FromDafny(input interface{}) *int32 {
+	return func() *int32 {
+		var b int32
+		if input == nil {
+			return nil
+		}
+		b = input.(int32)
+		return &b
+	}()
+}
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
 	return func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
 		var u awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy
@@ -1468,6 +1479,7 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_FromDafn
 		VirtualFields:   Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
 		EncryptedParts:  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
 		SignedParts:     Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+		NumberOfBuckets: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_numberOfBuckets_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_numberOfBuckets().UnwrapOr(nil)),
 	}
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input interface{}) int32 {

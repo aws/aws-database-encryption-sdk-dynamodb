@@ -539,6 +539,7 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     keys : MaybeKeyMap,
     newValues: DDB.ExpressionAttributeValueMap,
+    bucket : Bytes,
     acc : seq<Token> := []
   )
     : Result<ParsedContext, Error>
@@ -557,27 +558,27 @@ module DynamoDBFilterExpr {
         if OpNeedsBeacon(expr, pos) then
           var newName := b.beacons[oldName].getBeaconName();
           if isIndirectName then
-            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, acc + [expr[pos]])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, bucket, acc + [expr[pos]])
           else
-            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [Attr(newName, TermLocMap(newName))])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [Attr(newName, TermLocMap(newName))])
         else
-          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
+          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [expr[pos]])
       else
-        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [expr[pos]])
     else if expr[pos].Value? then
       var name := expr[pos].s;
       :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
       var oldValue := oldValues[name];
       var eb :- BeaconForValue(b, expr, pos, names, oldValues);
-      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains);
+      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains, bucket);
       //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
       //# If a single value in ExpressionAttributeValues is used in more than one context,
       //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
       //# are both beacons, this operation MUST fail.
       :- Need(name !in newValues || newValues[name] == newValue, E(name + " used in two different contexts, which is not allowed."));
-      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], bucket, acc + [expr[pos]])
     else
-      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [expr[pos]])
   }
 
   // Convert the tokens back into an expression
@@ -674,6 +675,15 @@ module DynamoDBFilterExpr {
   {
     var tup := FindIndexToken(s, pos);
     if 0 < tup.0 then [tup.1] + ParseExpr(s, Add(pos, tup.0)) else []
+  }
+
+  function method {:tailrecursion} ParseExprOpt(s: Option<string>) : (res: seq<Token>)
+    ensures s.None? || s.value == [] ==> res == []
+  {
+    if s.None? then
+      []
+    else
+      ParseExpr(s.value)
   }
 
   // convert ch to lower case
@@ -1517,7 +1527,8 @@ module DynamoDBFilterExpr {
     parsed : seq<Token>,
     ItemList : DDB.ItemList,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    values : DDB.ExpressionAttributeValueMap
+    values : DDB.ExpressionAttributeValueMap,
+    bucket : Bytes
   )
     returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
@@ -1526,7 +1537,7 @@ module DynamoDBFilterExpr {
   {
     var acc : DDB.ItemList := [];
     for i := 0 to |ItemList| {
-      var newAttrs :- b.GeneratePlainBeacons(ItemList[i]);
+      var newAttrs :- b.GeneratePlainBeacons(ItemList[i], bucket);
       var doesMatch :- EvalExpr(parsed, ItemList[i] + newAttrs, names, values);
       if doesMatch {
         acc := acc + [ItemList[i]];
@@ -1542,7 +1553,8 @@ module DynamoDBFilterExpr {
     KeyExpression : Option<DDB.KeyExpression>,
     FilterExpression : Option<DDB.ConditionExpression>,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    values: Option<DDB.ExpressionAttributeValueMap>)
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    bucket : Bytes)
     returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
     ensures b.ValidState()
@@ -1554,19 +1566,19 @@ module DynamoDBFilterExpr {
       var afterKeys;
       if KeyExpression.Some? {
         var parsed := ParseExpr(KeyExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], bucket);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
-        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
+        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values, bucket);
       } else {
         afterKeys := ItemList;
       }
       if FilterExpression.Some? {
         var parsed := ParseExpr(FilterExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], bucket);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
-        output := FilterItems(b, expr2, afterKeys, expr.names, expr.values);
+        output := FilterItems(b, expr2, afterKeys, expr.names, expr.values, bucket);
       } else {
         return Success(afterKeys);
       }
@@ -1738,6 +1750,7 @@ module DynamoDBFilterExpr {
     b : SI.BeaconVersion,
     context : ExprContext,
     keyId : MaybeKeyId,
+    bucket : Bytes,
     naked : bool := false
   )
     returns (output : Result<ExprContext, Error>)
@@ -1764,14 +1777,14 @@ module DynamoDBFilterExpr {
 
       if context.keyExpr.Some? {
         var parsed := ParseExpr(context.keyExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, bucket);
         newKeyExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
       if context.filterExpr.Some? {
         var parsed := ParseExpr(context.filterExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, bucket);
         newFilterExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
@@ -1790,6 +1803,24 @@ module DynamoDBFilterExpr {
   }
 
   // return an error if any encrypted field exists in the query
+  method UsesEncryptedField(
+    expr : seq<Token>,
+    encrypted : set<string>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (output : Option<string>)
+  {
+    for i := 0 to |expr| {
+      if expr[i].Attr? {
+        var name := GetAttrName(expr[i], names);
+        if name in encrypted {
+          return Some(name);
+        }
+      }
+    }
+    return None;
+  }
+
   method TestParsedExpr(
     expr : seq<Token>,
     encrypted : set<string>,
@@ -1797,13 +1828,9 @@ module DynamoDBFilterExpr {
   )
     returns (output : Outcome<Error>)
   {
-    for i := 0 to |expr| {
-      if expr[i].Attr? {
-        var name := GetAttrName(expr[i], names);
-        if name in encrypted {
-          return Fail(E("Query is using encrypted field : " + name + "."));
-        }
-      }
+    var hasEncField := UsesEncryptedField(expr, encrypted, names);
+    if hasEncField.Some? {
+      return Fail(E("Query is using encrypted field : " + hasEncField.value + "."));
     }
     return Pass;
   }

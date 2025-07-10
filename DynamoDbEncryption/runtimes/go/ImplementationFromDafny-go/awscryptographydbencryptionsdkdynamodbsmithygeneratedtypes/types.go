@@ -783,6 +783,8 @@ type BeaconVersion struct {
 
 	EncryptedParts []EncryptedPart
 
+	NumberOfBuckets *int32
+
 	SignedParts []SignedPart
 
 	VirtualFields []VirtualField
@@ -818,6 +820,11 @@ func (input BeaconVersion) Validate() error {
 	}
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate()
+	}
+	if input.NumberOfBuckets != nil {
+		if *input.NumberOfBuckets < 1 {
+			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.NumberOfBuckets)
+		}
 	}
 	if len(input.SignedParts) < 1 {
 		return fmt.Errorf("SignedPartsList has a minimum length of 1 but has the length of %d.", len(input.SignedParts))
