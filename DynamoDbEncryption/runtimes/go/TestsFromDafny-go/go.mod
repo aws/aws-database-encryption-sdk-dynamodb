@@ -3,21 +3,21 @@ module github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-
 go 1.23.2
 
 replace (
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.0.0 => ../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/go/ImplementationFromDafny-go/
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.0 => ../../../../submodules/MaterialProviders/ComAmazonawsKms/runtimes/go/ImplementationFromDafny-go/
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0 => ../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0 => ../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/go/ImplementationFromDafny-go/
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb => ../../../../submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/go/ImplementationFromDafny-go/
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms => ../../../../submodules/MaterialProviders/ComAmazonawsKms/runtimes/go/ImplementationFromDafny-go/
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl => ../../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives => ../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/go/ImplementationFromDafny-go/
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library => ../../../../submodules/MaterialProviders/StandardLibrary/runtimes/go/ImplementationFromDafny-go/
-	github.com/aws/aws-database-encryption-sdk-dynamodb => ../ImplementationFromDafny-go
+	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk => ../ImplementationFromDafny-go
 )
 
 require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb v0.0.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.1
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0
-	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
+	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk v0.0.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.2
 	github.com/aws/smithy-go v1.22.1
 	github.com/dafny-lang/DafnyRuntimeGo/v4 v4.9.2
