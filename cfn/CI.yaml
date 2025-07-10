@@ -271,6 +271,13 @@ Resources:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestJavaTableName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}/index/*"
+          # See: https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/python-using.html#python-helpers
+          # To use the client helper classes in DDBEC, the caller must have permission to call the DynamoDB DescribeTable operation on the target table.
+          - Effect: Allow
+            Action:
+              - dynamodb:DescribeTable
+            Resource:
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
 
   KMSUsage:
     Type: "AWS::IAM::ManagedPolicy"
