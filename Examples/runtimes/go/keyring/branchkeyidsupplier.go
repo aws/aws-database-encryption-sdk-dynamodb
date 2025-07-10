@@ -6,7 +6,7 @@ package keyring
 import (
 	"fmt"
 
-	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
+	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 

@@ -4,13 +4,13 @@
 package main
 
 import (
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/clientsupplier"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/itemencryptor"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/searchableencryption"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/searchableencryption/complexexample"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/clientsupplier"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/itemencryptor"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/keyring"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/misc"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/searchableencryption"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/searchableencryption/complexexample"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 )
 
 func main() {
