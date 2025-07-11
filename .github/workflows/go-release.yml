@@ -15,7 +15,7 @@ on:
 
 jobs:
   get-dafny-version:
-    uses: ./.github/workflows/dafny_version.yaml
+    uses: ./.github/workflows/dafny_version.yml
 
   go-release:
     needs: get-dafny-version
