@@ -2,7 +2,8 @@ name: Go Release Automation
 
 on:
   push:
-    - *
+    branches:
+      - rishav/go-release
     # inputs:
     #   project-name:
     #     description: "Project name (e.g., DynamoDbEncryption)"
