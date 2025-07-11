@@ -1,16 +1,16 @@
 name: Go Release Automation
 
 on:
-  workflow_dispatch:
-    inputs:
-      project-name:
-        description: "Project name (e.g., DynamoDbEncryption)"
-        required: true
-        type: string
-      version:
-        description: "Version (e.g., v0.1.0)"
-        required: true
-        type: string
+  push:
+    # inputs:
+    #   project-name:
+    #     description: "Project name (e.g., DynamoDbEncryption)"
+    #     required: true
+    #     type: string
+    #   version:
+    #     description: "Version (e.g., v0.1.0)"
+    #     required: true
+    #     type: string
 
 jobs:
   get-dafny-version:
@@ -30,12 +30,12 @@ jobs:
           git config --global core.longpaths true
 
       # KMS and MPL tests need to use credentials which can call KMS
-      - name: Configure AWS Credentials for Tests
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-MPL-Dafny-Role-us-west-2
-          role-session-name: GoReleaseTest
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: GoRelease-DBESDK-Tests
 
       - name: Checkout repository
         uses: actions/checkout@v4
