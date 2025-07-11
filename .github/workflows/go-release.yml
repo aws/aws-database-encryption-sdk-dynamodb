@@ -1,18 +1,16 @@
 name: Go Release Automation
 
 on:
-  push:
-    branches:
-      - rishav/go-release
-    # inputs:
-    #   project-name:
-    #     description: "Project name (e.g., DynamoDbEncryption)"
-    #     required: true
-    #     type: string
-    #   version:
-    #     description: "Version (e.g., v0.1.0)"
-    #     required: true
-    #     type: string
+  workflow_dispatch:
+    inputs:
+      project-name:
+        description: "Project name (e.g., DynamoDbEncryption)"
+        required: true
+        type: string
+      version:
+        description: "Version (e.g., v0.1.0)"
+        required: true
+        type: string
 
 jobs:
   get-dafny-version:
