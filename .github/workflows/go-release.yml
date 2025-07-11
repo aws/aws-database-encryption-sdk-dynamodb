@@ -72,6 +72,7 @@ jobs:
       - name: Get release directory name
         id: release-dir
         run: |
+          chmod +x ./scripts/go-release-automation.sh
           RELEASE_DIR_NAME=$(./scripts/go-release-automation.sh get_release_dir_name "${{ github.event.inputs.project-name }}" "${{ github.event.inputs.version }}")
           echo "releaseDirName=$RELEASE_DIR_NAME" >> $GITHUB_OUTPUT
 
