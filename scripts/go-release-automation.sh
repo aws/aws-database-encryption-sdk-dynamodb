@@ -97,11 +97,11 @@ run_release_script() {
   # Prepare for commit
   echo "creating a branch..."
 
-#   git checkout -b "golang-release-staging-branch/$RELEASE_DIR_NAME/${VERSION}"
-#   git add *
+  git checkout -b "golang-release-staging-branch/$RELEASE_DIR_NAME/${VERSION}"
+  git add *
 
-#   git commit -m "Release $RELEASE_DIR_NAME Go module ${VERSION}"
-#   git push origin "golang-release-staging-branch/$RELEASE_DIR_NAME/${VERSION}"
+  git commit -m "Release $RELEASE_DIR_NAME Go module ${VERSION}"
+  git push origin "golang-release-staging-branch/$RELEASE_DIR_NAME/${VERSION}"
 }
 
 "$@"
