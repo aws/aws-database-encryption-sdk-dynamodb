@@ -2,6 +2,7 @@ name: Go Release Automation
 
 on:
   push:
+    - *
     # inputs:
     #   project-name:
     #     description: "Project name (e.g., DynamoDbEncryption)"
