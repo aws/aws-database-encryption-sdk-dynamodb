@@ -26,6 +26,7 @@ on:
 jobs:
   testGo:
     strategy:
+      fail-fast: false
       matrix:
         library: [DynamoDbEncryption, TestVectors]
         os: [ubuntu-22.04, macos-13]
