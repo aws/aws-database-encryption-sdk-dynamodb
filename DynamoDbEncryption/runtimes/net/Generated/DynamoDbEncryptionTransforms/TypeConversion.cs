@@ -5277,7 +5277,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       if (concrete._compoundBeacons.is_Some) converted.CompoundBeacons = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.CompoundBeacon>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_compoundBeacons(concrete._compoundBeacons);
       if (concrete._virtualFields.is_Some) converted.VirtualFields = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M13_virtualFields(concrete._virtualFields);
       if (concrete._encryptedParts.is_Some) converted.EncryptedParts = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M14_encryptedParts(concrete._encryptedParts);
-      if (concrete._signedParts.is_Some) converted.SignedParts = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M11_signedParts(concrete._signedParts); return converted;
+      if (concrete._signedParts.is_Some) converted.SignedParts = (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M11_signedParts(concrete._signedParts);
+      if (concrete._numberOfBuckets.is_Some) converted.NumberOfBuckets = (int)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_numberOfBuckets(concrete._numberOfBuckets); return converted;
     }
     public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IBeaconVersion ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion(AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconVersion value)
     {
@@ -5286,7 +5287,8 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> var_virtualFields = value.IsSetVirtualFields() ? value.VirtualFields : (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField>)null;
       System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> var_encryptedParts = value.IsSetEncryptedParts() ? value.EncryptedParts : (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart>)null;
       System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> var_signedParts = value.IsSetSignedParts() ? value.SignedParts : (System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)null;
-      return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconVersion(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M7_version(value.Version), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M8_keyStore(value.KeyStore), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M9_keySource(value.KeySource), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_standardBeacons(value.StandardBeacons), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_compoundBeacons(var_compoundBeacons), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M13_virtualFields(var_virtualFields), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M14_encryptedParts(var_encryptedParts), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M11_signedParts(var_signedParts));
+      int? var_numberOfBuckets = value.IsSetNumberOfBuckets() ? value.NumberOfBuckets : (int?)null;
+      return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.BeaconVersion(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M7_version(value.Version), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M8_keyStore(value.KeyStore), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M9_keySource(value.KeySource), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_standardBeacons(value.StandardBeacons), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_compoundBeacons(var_compoundBeacons), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M13_virtualFields(var_virtualFields), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M14_encryptedParts(var_encryptedParts), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M11_signedParts(var_signedParts), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_numberOfBuckets(var_numberOfBuckets));
     }
     public static Amazon.DynamoDBv2.BatchStatementErrorCodeEnum FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S27_BatchStatementErrorCodeEnum(software.amazon.cryptography.services.dynamodb.internaldafny.types._IBatchStatementErrorCodeEnum value)
     {
@@ -5410,6 +5412,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     {
       return value == null ? Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_None() : Wrappers_Compile.Option<Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList((System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart>)value));
     }
+    public static int? FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_numberOfBuckets(Wrappers_Compile._IOption<int> value)
+    {
+      return value.is_None ? (int?)null : FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount(value.Extract());
+    }
+    public static Wrappers_Compile._IOption<int> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S13_BeaconVersion__M15_numberOfBuckets(int? value)
+    {
+      return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount((int)value));
+    }
     public static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_PutRequest__M4_Item(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue> value)
     {
       return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S24_PutItemInputAttributeMap(value);
@@ -5504,6 +5514,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     public static Dafny.ISequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList(System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> value)
     {
       return Dafny.Sequence<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISignedPart>.FromArray(value.Select(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_SignedPartsList__M6_member).ToArray());
+    }
+    public static int FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount(int value)
+    {
+      return value;
+    }
+    public static int ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount(int value)
+    {
+      return value;
     }
     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.SingleKeyStore FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S15_BeaconKeySource__M6_single(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ISingleKeyStore value)
     {

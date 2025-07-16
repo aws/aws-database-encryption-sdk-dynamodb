@@ -15,6 +15,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> _virtualFields;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> _encryptedParts;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> _signedParts;
+    private int? _numberOfBuckets;
     public int Version
     {
       get { return this._version.GetValueOrDefault(); }
@@ -87,6 +88,15 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._signedParts != null;
     }
+    public int NumberOfBuckets
+    {
+      get { return this._numberOfBuckets.GetValueOrDefault(); }
+      set { this._numberOfBuckets = value; }
+    }
+    public bool IsSetNumberOfBuckets()
+    {
+      return this._numberOfBuckets.HasValue;
+    }
     public void Validate()
     {
       if (!IsSetVersion()) throw new System.ArgumentException("Missing value for required property 'Version'");
@@ -123,6 +133,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
         {
           throw new System.ArgumentException(
               String.Format("Member SignedParts of structure BeaconVersion has List type SignedPartsList which has a minimum length of 1 but was given a value with length {0}.", SignedParts.Count));
+        }
+      }
+      if (IsSetNumberOfBuckets())
+      {
+        if (NumberOfBuckets < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member NumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", NumberOfBuckets));
         }
       }
     }
