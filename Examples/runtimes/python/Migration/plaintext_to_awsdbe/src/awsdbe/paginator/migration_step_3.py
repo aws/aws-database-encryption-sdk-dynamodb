@@ -19,7 +19,7 @@ primary key configuration:
   - Sort key is named "sort_key" with type (N)
 """
 
-from ..client.common import setup_pure_awsdbe_client
+from ..client.common import setup_awsdbe_client_without_plaintext_override
 
 
 def migration_step_3_with_paginator(kms_key_id: str, ddb_table_name: str, sort_read_value: int = 3):
@@ -33,7 +33,9 @@ def migration_step_3_with_paginator(kms_key_id: str, ddb_table_name: str, sort_r
     # 1. Create an EncryptedClient without plaintext override.
     #    Without a plaintext override, both reads and writes will use the AWS Database Encryption SDK,
     #    meaning that we can only read items that have been encrypted and we will always encrypt items on write.
-    encrypted_client = setup_pure_awsdbe_client(kms_key_id=kms_key_id, ddb_table_name=ddb_table_name)
+    encrypted_client = setup_awsdbe_client_without_plaintext_override(
+        kms_key_id=kms_key_id, ddb_table_name=ddb_table_name
+    )
 
     # 2. Put an example item into our DynamoDb table using the Encrypted Client.
     #    This item will be encrypted using the DB Encryption SDK, using the

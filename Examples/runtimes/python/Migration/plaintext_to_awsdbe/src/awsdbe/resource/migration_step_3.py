@@ -20,7 +20,7 @@ primary key configuration:
   - Sort key is named "sort_key" with type (N)
 """
 
-from .common import setup_pure_awsdbe_resource
+from .common import setup_awsdbe_resource_without_plaintext_override
 
 
 def migration_step_3_with_resource(kms_key_id: str, ddb_table_name: str, sort_read_value: int = 3):
@@ -33,7 +33,7 @@ def migration_step_3_with_resource(kms_key_id: str, ddb_table_name: str, sort_re
     """
     # 1. Create the EncryptedResource.
     #    Do not configure any plaintext override.
-    encrypted_resource = setup_pure_awsdbe_resource(kms_key_id, ddb_table_name)
+    encrypted_resource = setup_awsdbe_resource_without_plaintext_override(kms_key_id, ddb_table_name)
 
     # 2. Write a batch of items to the table using the Encrypted Resource.
     #    These items will be encrypted using the DB Encryption SDK, using the

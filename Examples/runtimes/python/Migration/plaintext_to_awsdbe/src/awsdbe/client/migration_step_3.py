@@ -20,7 +20,7 @@ primary key configuration:
   - Sort key is named "sort_key" with type (S)
 """
 
-from .common import setup_pure_awsdbe_client
+from .common import setup_awsdbe_client_without_plaintext_override
 
 
 def migration_step_3_with_client(kms_key_id: str, ddb_table_name: str, sort_read_value: int = 3):
@@ -33,7 +33,7 @@ def migration_step_3_with_client(kms_key_id: str, ddb_table_name: str, sort_read
     """
     # 1. Create the EncryptedClient.
     #    Do not configure any plaintext override.
-    encrypted_client = setup_pure_awsdbe_client(kms_key_id, ddb_table_name)
+    encrypted_client = setup_awsdbe_client_without_plaintext_override(kms_key_id, ddb_table_name)
 
     # 2. Put an item into your table using the Encrypted Client.
     #    This item will be encrypted using the DB Encryption SDK, using the

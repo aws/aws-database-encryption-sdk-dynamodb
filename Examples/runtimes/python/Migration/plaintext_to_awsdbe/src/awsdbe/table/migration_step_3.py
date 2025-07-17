@@ -20,7 +20,7 @@ primary key configuration:
   - Sort key is named "sort_key" with type (N)
 """
 
-from .common import setup_pure_awsdbe_table
+from .common import setup_awsdbe_table_without_plaintext_override
 
 
 def migration_step_3_with_table(kms_key_id: str, ddb_table_name: str, sort_read_value: int = 3):
@@ -33,7 +33,7 @@ def migration_step_3_with_table(kms_key_id: str, ddb_table_name: str, sort_read_
     """
     # 1. Create the EncryptedTable.
     #    Do not configure any plaintext override.
-    encrypted_table = setup_pure_awsdbe_table(kms_key_id, ddb_table_name)
+    encrypted_table = setup_awsdbe_table_without_plaintext_override(kms_key_id, ddb_table_name)
 
     # 2. Put an item into your table using the Encrypted Table.
     #    This item will be encrypted using the DB Encryption SDK, using the

@@ -7,11 +7,16 @@ This test validates the compatibility behavior for step 3 (pure AWS DBESDK witho
 Step 3 can only read encrypted items and will fail with plaintext items.
 """
 import pytest
+from aws_dbesdk_dynamodb.smithygenerated.aws_cryptography_dbencryptionsdk_dynamodb_transforms.errors import (
+    DynamoDbItemEncryptor,
+)
 
 from ....src.awsdbe.table import (
+    migration_step_1,
     migration_step_2,
     migration_step_3,
 )
+from ....src.plaintext.table import migration_step_0
 from ...test_utils import TEST_DDB_TABLE_NAME, TEST_KMS_KEY_ID
 
 pytestmark = [pytest.mark.examples]
@@ -24,7 +29,27 @@ def test_migration_step_3_with_table():
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=3
     )
 
-    # Given: Step 2 has succeeded (writing encrypted data)
+    # Given: Step 0 has succeeded
+    migration_step_0.migration_step_0_with_table(ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=0)
+    # When: Execute Step 3 with sort_read_value=0
+    # Then: throws DynamoDbItemEncryptor Exception (i.e. cannot read values in plaintext format)
+    with pytest.raises(DynamoDbItemEncryptor):
+        migration_step_3.migration_step_3_with_table(
+            kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=0
+        )
+
+    # Given: Step 1 has succeeded
+    migration_step_1.migration_step_1_with_table(
+        kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=1
+    )
+    # When: Execute Step 3 with sort_read_value=1
+    # Then: throws DynamoDbItemEncryptor Exception (i.e. cannot read values in plaintext format)
+    with pytest.raises(DynamoDbItemEncryptor):
+        migration_step_3.migration_step_3_with_table(
+            kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=1
+        )
+
+    # Given: Step 2 has succeeded
     migration_step_2.migration_step_2_with_table(
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=2
     )
@@ -33,7 +58,3 @@ def test_migration_step_3_with_table():
     migration_step_3.migration_step_3_with_table(
         kms_key_id=TEST_KMS_KEY_ID, ddb_table_name=TEST_DDB_TABLE_NAME, sort_read_value=2
     )
-
-    # Note: Step 3 cannot read plaintext items (those written by Step 0 or Step 1)
-    # If attempted, it would throw an error because those items don't have the
-    # necessary encryption material

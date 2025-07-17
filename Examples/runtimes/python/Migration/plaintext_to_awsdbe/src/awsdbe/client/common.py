@@ -19,7 +19,7 @@ from aws_dbesdk_dynamodb.structures.structured_encryption import (
 )
 
 
-def setup_pure_awsdbe_client(kms_key_id: str, ddb_table_name: str):
+def setup_awsdbe_client_without_plaintext_override(kms_key_id: str, ddb_table_name: str):
     """
     Set up a pure AWS Database Encryption SDK EncryptedClient without plaintext override.
 
@@ -183,6 +183,7 @@ def setup_awsdbe_client_with_plaintext_override(kms_key_id: str, ddb_table_name:
         sort_key_name="sort_key",
         attribute_actions_on_encrypt=attribute_actions_on_encrypt,
         keyring=kms_mrk_multi_keyring,
+        # Provide plaintext_override policy to the config here
         plaintext_override=policy,
         allowed_unsigned_attribute_prefix=unsignAttrPrefix,
         # Specifying an algorithm suite is not required,
