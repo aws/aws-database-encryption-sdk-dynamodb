@@ -72,7 +72,7 @@ jobs:
           java-version: "17"
 
       - name: Update MPL submodule
-        working-directory: submodules/MaterialProvider
+        working-directory: submodules/MaterialProviders
         run: |
           git fetch
           git checkout ${{inputs.mpl-commit}}
