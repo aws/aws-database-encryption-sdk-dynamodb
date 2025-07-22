@@ -11,6 +11,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private int? _length;
     private string _loc;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle _style;
+    private int? _numberOfBuckets;
     public string Name
     {
       get { return this._name; }
@@ -47,6 +48,15 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._style != null;
     }
+    public int NumberOfBuckets
+    {
+      get { return this._numberOfBuckets.GetValueOrDefault(); }
+      set { this._numberOfBuckets = value; }
+    }
+    public bool IsSetNumberOfBuckets()
+    {
+      return this._numberOfBuckets.HasValue;
+    }
     public void Validate()
     {
       if (!IsSetName()) throw new System.ArgumentException("Missing value for required property 'Name'");
@@ -57,6 +67,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
         {
           throw new System.ArgumentException(
               String.Format("Member Loc of structure StandardBeacon has type TerminalLocation which has a minimum length of 1 but was given the value '{0}' which has length {1}.", Loc, Loc.Length));
+        }
+      }
+      if (IsSetNumberOfBuckets())
+      {
+        if (NumberOfBuckets < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member NumberOfBuckets of structure StandardBeacon has type BucketCount which has a minimum of 1 but was given the value {0}.", NumberOfBuckets));
         }
       }
     }

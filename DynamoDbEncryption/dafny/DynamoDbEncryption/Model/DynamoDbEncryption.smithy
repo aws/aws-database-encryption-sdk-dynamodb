@@ -672,6 +672,8 @@ structure StandardBeacon {
   loc : TerminalLocation,
   @javadoc("Optional augmented behavior.")
   style : BeaconStyle,
+  @javadoc("The number of separate buckets across which this particular beacon should be divided. Ths must be no greater than the global numberOfBuckets, and can never be changed once an item containing this beacon has been written.")
+  numberOfBuckets : BucketCount
 }
 
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization

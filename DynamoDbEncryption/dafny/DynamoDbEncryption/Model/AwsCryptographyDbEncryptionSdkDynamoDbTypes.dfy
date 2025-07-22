@@ -402,7 +402,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly name: string ,
     nameonly length: BeaconBitLength ,
     nameonly loc: Option<TerminalLocation> := Option.None ,
-    nameonly style: Option<BeaconStyle> := Option.None
+    nameonly style: Option<BeaconStyle> := Option.None ,
+    nameonly numberOfBuckets: Option<BucketCount> := Option.None
   )
   type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *
   predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {

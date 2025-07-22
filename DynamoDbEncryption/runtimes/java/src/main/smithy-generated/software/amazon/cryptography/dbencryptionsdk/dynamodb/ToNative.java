@@ -725,6 +725,11 @@ public class ToNative {
         ToNative.BeaconStyle(dafnyValue.dtor_style().dtor_value())
       );
     }
+    if (dafnyValue.dtor_numberOfBuckets().is_Some()) {
+      nativeBuilder.numberOfBuckets(
+        (dafnyValue.dtor_numberOfBuckets().dtor_value())
+      );
+    }
     return nativeBuilder.build();
   }
 

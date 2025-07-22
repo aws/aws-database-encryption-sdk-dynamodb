@@ -5612,14 +5612,16 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.StandardBeacon converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.StandardBeacon(); converted.Name = (string)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M4_name(concrete._name);
       converted.Length = (int)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M6_length(concrete._length);
       if (concrete._loc.is_Some) converted.Loc = (string)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M3_loc(concrete._loc);
-      if (concrete._style.is_Some) converted.Style = (AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M5_style(concrete._style); return converted;
+      if (concrete._style.is_Some) converted.Style = (AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M5_style(concrete._style);
+      if (concrete._numberOfBuckets.is_Some) converted.NumberOfBuckets = (int)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M15_numberOfBuckets(concrete._numberOfBuckets); return converted;
     }
     public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IStandardBeacon ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon(AWS.Cryptography.DbEncryptionSDK.DynamoDb.StandardBeacon value)
     {
       value.Validate();
       string var_loc = value.IsSetLoc() ? value.Loc : (string)null;
       AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle var_style = value.IsSetStyle() ? value.Style : (AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle)null;
-      return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M4_name(value.Name), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M6_length(value.Length), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M3_loc(var_loc), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M5_style(var_style));
+      int? var_numberOfBuckets = value.IsSetNumberOfBuckets() ? value.NumberOfBuckets : (int?)null;
+      return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.StandardBeacon(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M4_name(value.Name), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M6_length(value.Length), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M3_loc(var_loc), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M5_style(var_style), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M15_numberOfBuckets(var_numberOfBuckets));
     }
     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.CompoundBeacon FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._ICompoundBeacon value)
     {
@@ -5766,6 +5768,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     public static Wrappers_Compile._IOption<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IBeaconStyle> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M5_style(AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle value)
     {
       return value == null ? Wrappers_Compile.Option<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IBeaconStyle>.create_None() : Wrappers_Compile.Option<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IBeaconStyle>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BeaconStyle((AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle)value));
+    }
+    public static int? FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M15_numberOfBuckets(Wrappers_Compile._IOption<int> value)
+    {
+      return value.is_None ? (int?)null : FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount(value.Extract());
+    }
+    public static Wrappers_Compile._IOption<int> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_StandardBeacon__M15_numberOfBuckets(int? value)
+    {
+      return value == null ? Wrappers_Compile.Option<int>.create_None() : Wrappers_Compile.Option<int>.create_Some(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount((int)value));
     }
     public static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S14_CompoundBeacon__M4_name(Dafny.ISequence<char> value)
     {

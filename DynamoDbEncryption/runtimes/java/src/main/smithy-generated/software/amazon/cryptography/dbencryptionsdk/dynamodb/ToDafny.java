@@ -834,7 +834,15 @@ public class ToDafny {
           ToDafny.BeaconStyle(nativeValue.style())
         )
         : Option.create_None(BeaconStyle._typeDescriptor());
-    return new StandardBeacon(name, length, loc, style);
+    Option<Integer> numberOfBuckets;
+    numberOfBuckets =
+      Objects.nonNull(nativeValue.numberOfBuckets())
+        ? Option.create_Some(
+          TypeDescriptor.INT,
+          (nativeValue.numberOfBuckets())
+        )
+        : Option.create_None(TypeDescriptor.INT);
+    return new StandardBeacon(name, length, loc, style, numberOfBuckets);
   }
 
   public static Upper Upper(

@@ -525,6 +525,8 @@ type StandardBeacon struct {
 
 	Loc *string
 
+	NumberOfBuckets *int32
+
 	Style BeaconStyle
 }
 
@@ -538,6 +540,11 @@ func (input StandardBeacon) Validate() error {
 	if input.Loc != nil {
 		if len(*input.Loc) < 1 {
 			return fmt.Errorf("TerminalLocation has a minimum length of 1 but has the length of %d.", len(*input.Loc))
+		}
+	}
+	if input.NumberOfBuckets != nil {
+		if *input.NumberOfBuckets < 1 {
+			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.NumberOfBuckets)
 		}
 	}
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() != nil {

@@ -275,9 +275,10 @@ func CompoundBeacon_FromDafny(input interface{}) awscryptographydbencryptionsdkd
 
 func StandardBeacon_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
-		Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
-		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
-		Style:  Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		Length:          Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
+		Loc:             Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
+		Style:           Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		NumberOfBuckets: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_numberOfBuckets_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_numberOfBuckets().UnwrapOr(nil)),
 	}
 
 }
@@ -1045,6 +1046,16 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(in
 	return union
 
 }
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_numberOfBuckets_FromDafny(input interface{}) *int32 {
+	return func() *int32 {
+		var b int32
+		if input == nil {
+			return nil
+		}
+		b = input.(int32)
+		return &b
+	}()
+}
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input interface{}) string {
 	return func() string {
 
@@ -1294,9 +1305,10 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Fro
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeaconList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
-		Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
-		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
-		Style:  Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		Length:          Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
+		Loc:             Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
+		Style:           Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		NumberOfBuckets: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_numberOfBuckets_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_numberOfBuckets().UnwrapOr(nil)),
 	}
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
