@@ -9,7 +9,7 @@ replace (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives => ../../../../submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/go/ImplementationFromDafny-go/
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library => ../../../../submodules/MaterialProviders/StandardLibrary/runtimes/go/ImplementationFromDafny-go/
 	github.com/aws/aws-cryptographic-material-providers-library/testvectors => ../../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/
-	github.com/aws/aws-database-encryption-sdk-dynamodb => ../../../../DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/
+	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk => ../../../../DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/
 	github.com/aws/aws-database-encryption-sdk-dynamodb/testvectors => ../ImplementationFromDafny-go/
 )
 
@@ -18,9 +18,9 @@ require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.0.0
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.0.0
-	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.0.0
+	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.0
 	github.com/aws/aws-cryptographic-material-providers-library/testvectors v0.0.0
-	github.com/aws/aws-database-encryption-sdk-dynamodb v0.0.0
+	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk v0.0.0
 	github.com/aws/aws-database-encryption-sdk-dynamodb/testvectors v0.0.0
 	github.com/dafny-lang/DafnyRuntimeGo/v4 v4.9.2
 )
