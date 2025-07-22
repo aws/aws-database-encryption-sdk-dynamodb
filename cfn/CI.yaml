@@ -256,6 +256,7 @@ Resources:
               - dynamodb:Scan
               - dynamodb:Query
               - dynamodb:UpdateItem
+              - dynamodb:DescribeTable
             Resource:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
