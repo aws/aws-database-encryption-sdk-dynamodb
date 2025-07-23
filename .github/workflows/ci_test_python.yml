@@ -31,7 +31,7 @@ jobs:
             ubuntu-22.04,
             # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
             # Windows is tested with non-Dafny-transpiled Python tests.
-            # windows-latest
+            windows-latest,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
