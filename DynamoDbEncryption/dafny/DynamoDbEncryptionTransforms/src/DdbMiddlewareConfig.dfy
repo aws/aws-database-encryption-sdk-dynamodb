@@ -129,6 +129,7 @@ module DdbMiddlewareConfig {
   predicate OneSearchValidState(config : TableConfig)
   {
     && (config.search.Some? ==> config.search.value.ValidState())
+    && config.bucketSelector.ValidState()
   }
   predicate SearchValidState(config: Config)
   {
@@ -139,6 +140,7 @@ module DdbMiddlewareConfig {
   {
     (set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].itemEncryptor.Modifies :: o)
     + (set t <- config.tableEncryptionConfigs.Keys, o <- OneSearchModifies(config.tableEncryptionConfigs[t]) :: o)
+    + (set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].bucketSelector.Modifies :: o)
   }
 
   predicate ValidConfig?(config: Config)
