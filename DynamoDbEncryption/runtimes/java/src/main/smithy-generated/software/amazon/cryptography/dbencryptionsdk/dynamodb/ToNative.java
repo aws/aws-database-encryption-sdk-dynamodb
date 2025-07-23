@@ -35,6 +35,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedData
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.EncryptedPart;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumberInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumberOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionUnion;
@@ -374,6 +376,11 @@ public class ToNative {
         )
       );
     }
+    if (dafnyValue.dtor_bucketSelector().is_Some()) {
+      nativeBuilder.bucketSelector(
+        ToNative.BucketSelector(dafnyValue.dtor_bucketSelector().dtor_value())
+      );
+    }
     return nativeBuilder.build();
   }
 
@@ -464,6 +471,28 @@ public class ToNative {
         dafnyValue.dtor_branchKeyId()
       )
     );
+    return nativeBuilder.build();
+  }
+
+  public static GetBucketNumberInput GetBucketNumberInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput dafnyValue
+  ) {
+    GetBucketNumberInput.Builder nativeBuilder = GetBucketNumberInput.builder();
+    nativeBuilder.item(
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeMap(
+        dafnyValue.dtor_item()
+      )
+    );
+    nativeBuilder.numberOfBuckets((dafnyValue.dtor_numberOfBuckets()));
+    return nativeBuilder.build();
+  }
+
+  public static GetBucketNumberOutput GetBucketNumberOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberOutput dafnyValue
+  ) {
+    GetBucketNumberOutput.Builder nativeBuilder =
+      GetBucketNumberOutput.builder();
+    nativeBuilder.bucketNumber((dafnyValue.dtor_bucketNumber()));
     return nativeBuilder.build();
   }
 
@@ -1043,6 +1072,12 @@ public class ToNative {
       software.amazon.smithy.dafny.conversion.ToNative.Simple::String,
       software.amazon.cryptography.dbencryptionsdk.dynamodb.ToNative::DynamoDbTableEncryptionConfig
     );
+  }
+
+  public static IBucketSelector BucketSelector(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector dafnyValue
+  ) {
+    return BucketSelector.wrap(dafnyValue);
   }
 
   public static IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(

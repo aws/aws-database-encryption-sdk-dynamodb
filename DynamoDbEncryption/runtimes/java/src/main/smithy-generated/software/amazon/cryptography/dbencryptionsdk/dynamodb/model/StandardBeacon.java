@@ -246,6 +246,11 @@ public class StandardBeacon {
           "`numberOfBuckets` must be greater than or equal to 1"
         );
       }
+      if (this._numberOfBucketsSet && this.numberOfBuckets() > 255) {
+        throw new IllegalArgumentException(
+          "`numberOfBuckets` must be less than or equal to 255."
+        );
+      }
       return new StandardBeacon(this);
     }
   }

@@ -49,6 +49,30 @@ service DynamoDbEncryption {
     errors: [ DynamoDbEncryptionException ]
 }
 
+resource BucketSelector {
+  operations: [GetBucketNumber]
+}
+
+@reference(resource: BucketSelector)
+structure BucketSelectorReference {}
+
+operation GetBucketNumber {
+  input: GetBucketNumberInput,
+  output: GetBucketNumberOutput,
+}
+
+structure GetBucketNumberInput {
+  @required
+  item: AttributeMap,
+  @required
+  numberOfBuckets : BucketCount
+}
+
+structure GetBucketNumberOutput {
+  @required
+  bucketNumber: BucketNumber
+}
+
 @javadoc("Returns encrypted data key description.")
 operation GetEncryptedDataKeyDescription {
     input: GetEncryptedDataKeyDescriptionInput,
@@ -206,7 +230,10 @@ structure DynamoDbTableEncryptionConfig {
     @javadoc("A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.")
     legacyOverride: LegacyOverride,
     @javadoc("A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.")
-    plaintextOverride: PlaintextOverride
+    plaintextOverride: PlaintextOverride,
+
+    @javadoc("How to choose the bucket for an item. Default behavior is a random between 0 and numberOfBuckets.")
+    bucketSelector: BucketSelectorReference,
 }
 
 map AttributeActions {
@@ -286,8 +313,11 @@ integer BeaconBitLength
 @range(min: 1)
 integer VersionNumber
 
-@range(min: 1)
+@range(min: 1, max: 255)
 integer BucketCount
+
+@range(min: 0, max: 254)
+integer BucketNumber
 
 @length(min: 1, max: 1)
 string Char

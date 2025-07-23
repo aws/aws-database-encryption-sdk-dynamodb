@@ -13,6 +13,44 @@ module DdbMiddlewareConfig {
   import DDB = ComAmazonawsDynamodbTypes
   import HexStrings
   import Random
+  import StandardLibrary.String
+
+  class DefaultBucketSelector extends DDBE.IBucketSelector
+  {
+    predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    { History in Modifies }
+
+    constructor ()
+      ensures ValidState() && fresh(History) && fresh(Modifies)
+    {
+      History := new DDBE.IBucketSelectorCallHistory();
+      Modifies := { History };
+    }
+
+    predicate GetBucketNumberEnsuresPublicly (
+      input: DDBE.GetBucketNumberInput ,
+      output: Result<DDBE.GetBucketNumberOutput, DDBE.Error> )
+      : (outcome: bool)
+    {
+      true
+    }
+
+    method GetBucketNumber'(input: DDBE.GetBucketNumberInput)
+      returns (output: Result<DDBE.GetBucketNumberOutput, DDBE.Error> )
+      requires ValidState()
+      modifies Modifies - {History}
+      decreases Modifies - {History}
+      ensures ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+    {
+      var randR := Random.GenerateBytes(1);
+      var rand : seq<uint8> :- randR.MapFailure(e => DDBE.DynamoDbEncryptionException(message := "Failed to get random byte"));
+      var bucket := (rand[0] % (input.numberOfBuckets as uint8)) as DDBE.BucketNumber;
+      return Success(DDBE.GetBucketNumberOutput(bucketNumber := bucket));
+    }
+  }
 
   datatype TableConfig = TableConfig(
     physicalTableName: ComAmazonawsDynamodbTypes.TableName,
@@ -21,7 +59,8 @@ module DdbMiddlewareConfig {
     sortKeyName: Option<string>,
     itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
     search : Option<SearchableEncryptionInfo.ValidSearchInfo>,
-    plaintextOverride: AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride
+    plaintextOverride: AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride,
+    bucketSelector: DDBE.IBucketSelector
   )
 
   // return true if records written to the table should NOT be encrypted or otherwise modified
@@ -32,6 +71,9 @@ module DdbMiddlewareConfig {
   }
 
   method GetRandomBucket(config : TableConfig) returns (output : Result<seq<uint8>, Error>)
+    modifies config.bucketSelector.Modifies
+    requires config.bucketSelector.ValidState()
+    ensures config.bucketSelector.ValidState()
   {
     if config.search.None? {
       return Success([]);
@@ -44,13 +86,17 @@ module DdbMiddlewareConfig {
       return Failure(E("Number of buckets exceeds 255"));
     }
 
-    var randR := Random.GenerateBytes(1);
-    var rand : seq<uint8> :- randR.MapFailure(e => E("Failed to get random byte"));
-    var bucket := rand[0] % (numBuckets as uint8);
-    if bucket == 0 {
+    var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput( item := map[], numberOfBuckets := numBuckets as DDBE.BucketCount));
+    var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+
+    if out.bucketNumber == 0 {
       return Success([]);
+    } else if numBuckets as DDBE.BucketCount <= out.bucketNumber {
+      return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been no more than " + String.Base10Int2String(numBuckets as int)));
+    } else if out.bucketNumber < 0 {
+      return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been positive."));
     } else {
-      return Success([bucket as uint8]);
+      return Success([out.bucketNumber as uint8]);
     }
   }
 

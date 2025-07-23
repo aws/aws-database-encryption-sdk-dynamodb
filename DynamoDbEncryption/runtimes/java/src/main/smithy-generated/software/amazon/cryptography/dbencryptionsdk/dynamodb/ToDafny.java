@@ -34,6 +34,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionUnion;
@@ -420,6 +422,22 @@ public class ToDafny {
           ToDafny.PlaintextOverride(nativeValue.plaintextOverride())
         )
         : Option.create_None(PlaintextOverride._typeDescriptor());
+    Option<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector
+    > bucketSelector;
+    bucketSelector =
+      Objects.nonNull(nativeValue.bucketSelector())
+        ? Option.create_Some(
+          TypeDescriptor.reference(
+            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector.class
+          ),
+          ToDafny.BucketSelector(nativeValue.bucketSelector())
+        )
+        : Option.create_None(
+          TypeDescriptor.reference(
+            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector.class
+          )
+        );
     return new DynamoDbTableEncryptionConfig(
       logicalTableName,
       partitionKeyName,
@@ -432,7 +450,8 @@ public class ToDafny {
       keyring,
       cmm,
       legacyOverride,
-      plaintextOverride
+      plaintextOverride,
+      bucketSelector
     );
   }
 
@@ -541,6 +560,30 @@ public class ToDafny {
         nativeValue.branchKeyId()
       );
     return new GetBranchKeyIdFromDdbKeyOutput(branchKeyId);
+  }
+
+  public static GetBucketNumberInput GetBucketNumberInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumberInput nativeValue
+  ) {
+    DafnyMap<
+      ? extends DafnySequence<? extends Character>,
+      ? extends AttributeValue
+    > item;
+    item =
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeMap(
+        nativeValue.item()
+      );
+    Integer numberOfBuckets;
+    numberOfBuckets = (nativeValue.numberOfBuckets());
+    return new GetBucketNumberInput(item, numberOfBuckets);
+  }
+
+  public static GetBucketNumberOutput GetBucketNumberOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumberOutput nativeValue
+  ) {
+    Integer bucketNumber;
+    bucketNumber = (nativeValue.bucketNumber());
+    return new GetBucketNumberOutput(bucketNumber);
   }
 
   public static GetEncryptedDataKeyDescriptionInput GetEncryptedDataKeyDescriptionInput(
@@ -1228,6 +1271,12 @@ public class ToDafny {
       software.amazon.smithy.dafny.conversion.ToDafny.Simple::CharacterSequence,
       software.amazon.cryptography.dbencryptionsdk.dynamodb.ToDafny::DynamoDbTableEncryptionConfig
     );
+  }
+
+  public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector BucketSelector(
+    IBucketSelector nativeValue
+  ) {
+    return BucketSelector.wrap(nativeValue).impl();
   }
 
   public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(

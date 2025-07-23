@@ -526,6 +526,18 @@ module SearchConfigToInfo {
       Failure(E("Beacon " + name + " is shared to " + share + " which is not defined."))
   }
 
+  predicate method BucketConstraintOk(outer : DynamoDbTableEncryptionConfig, inner : Option<BucketCount>)
+  {
+    if inner.None? || outer.search.None? || |outer.search.value.versions| == 0 then
+      true
+    else
+      var num := outer.search.value.versions[0].numberOfBuckets;
+      if num.None? then
+        false
+      else
+        inner.value < num.value
+  }
+
   // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
     beacons : seq<StandardBeacon>,
@@ -588,10 +600,10 @@ module SearchConfigToInfo {
         //# A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
         case sharedSet(t) => share := Some(t.other); isAsSet := true;
       }
-
     }
+    :- Need(BucketConstraintOk(outer, beacons[0].numberOfBuckets), E("Constrained numberOfBuckets for  " + beacons[0].name + " must be less than the global numberOfBuckets."));
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
-                                          isPartOnly, isAsSet, share);
+                                          isPartOnly, isAsSet, share, beacons[0].numberOfBuckets);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)

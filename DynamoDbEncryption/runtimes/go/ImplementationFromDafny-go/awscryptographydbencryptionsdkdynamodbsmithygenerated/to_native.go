@@ -45,6 +45,25 @@ func GetEncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput AwsCryptographyD
 
 }
 
+func GetBucketNumberInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBucketNumberInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBucketNumberInput {
+
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBucketNumberInput{Item: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_FromDafny(dafnyInput.Dtor_item()),
+		NumberOfBuckets: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuckets_FromDafny(dafnyInput.Dtor_numberOfBuckets()),
+	}
+
+}
+
+func GetBucketNumberOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBucketNumberOutput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBucketNumberOutput {
+
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBucketNumberOutput{BucketNumber: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberOutput_bucketNumber_FromDafny(dafnyOutput.Dtor_bucketNumber())}
+
+}
+
+func BucketSelector_FromDafny(dafnyResource AwsCryptographyDbEncryptionSdkDynamoDbTypes.IBucketSelector) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.IBucketSelector {
+
+	return &BucketSelector{dafnyResource}
+}
+
 func GetBranchKeyIdFromDdbKeyInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBranchKeyIdFromDdbKeyInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyInput {
 
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBranchKeyIdFromDdbKeyInput{DdbKey: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_FromDafny(dafnyInput.Dtor_ddbKey())}
@@ -493,6 +512,12 @@ func DynamoDbTableEncryptionConfig_FromDafny(input interface{}) awscryptographyd
 		}(),
 		LegacyOverride:    Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_legacyOverride().UnwrapOr(nil)),
 		PlaintextOverride: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_plaintextOverride().UnwrapOr(nil)),
+		BucketSelector: func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.IBucketSelector {
+			if input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_bucketSelector().UnwrapOr(nil) == nil {
+				return nil
+			}
+			return BucketSelector_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_bucketSelector().UnwrapOr(nil).(AwsCryptographyDbEncryptionSdkDynamoDbTypes.IBucketSelector))
+		}(),
 	}
 
 }
@@ -610,6 +635,33 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branc
 		s := string(dafny.ToByteArray(a.(dafny.Sequence)))
 
 		return &s
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
+	var m map[string]dynamodbtypes.AttributeValue = make(map[string]dynamodbtypes.AttributeValue)
+	if input == nil {
+		return nil
+	}
+	for i := dafny.Iterate(input.(dafny.Map).Items()); ; {
+		val, ok := i()
+		if !ok {
+			break
+		}
+		m[comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeMap_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeMap_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+	}
+	return m
+
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuckets_FromDafny(input interface{}) int32 {
+	return func() int32 {
+		var b = input.(int32)
+		return b
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberOutput_bucketNumber_FromDafny(input interface{}) int32 {
+	return func() int32 {
+		var b = input.(int32)
+		return b
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyInput_ddbKey_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
@@ -1678,5 +1730,11 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList
 		}(),
 		LegacyOverride:    Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_legacyOverride().UnwrapOr(nil)),
 		PlaintextOverride: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_plaintextOverride().UnwrapOr(nil)),
+		BucketSelector: func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.IBucketSelector {
+			if input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_bucketSelector().UnwrapOr(nil) == nil {
+				return nil
+			}
+			return BucketSelector_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.DynamoDbTableEncryptionConfig).Dtor_bucketSelector().UnwrapOr(nil).(AwsCryptographyDbEncryptionSdkDynamoDbTypes.IBucketSelector))
+		}(),
 	}
 }

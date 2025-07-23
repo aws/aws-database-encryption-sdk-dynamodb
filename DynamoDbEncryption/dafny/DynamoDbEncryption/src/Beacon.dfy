@@ -15,6 +15,7 @@ module BaseBeacon {
   import opened DynamoDbEncryptionUtil
   import opened DdbVirtualFields
   import opened Seq
+  import opened StandardLibrary.MemoryMath
   import DynamoToStruct
 
   import DDB = ComAmazonawsDynamodbTypes
@@ -111,7 +112,8 @@ module BaseBeacon {
     loc : string,
     partOnly : bool,
     asSet : bool,
-    share : Option<string>
+    share : Option<string>,
+    numberOfBuckets : Option<BucketCount>
   )
     : (ret : Result<ValidStandardBeacon, Error>)
     ensures ret.Success? ==>
@@ -121,6 +123,8 @@ module BaseBeacon {
     var termLoc :- TermLoc.MakeTermLoc(loc);
     var beaconName := BeaconPrefix + name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
+    var numBuckets : nat := if numberOfBuckets.Some? then numberOfBuckets.value as nat else 0;
+    :- Need(numBuckets < 256, E(beaconName + " has numberOfBuckets greater than 255"));
     Success(StandardBeacon.StandardBeacon(
               BeaconBase (
                 client := client,
@@ -131,7 +135,8 @@ module BaseBeacon {
               termLoc,
               partOnly,
               asSet,
-              share
+              share,
+              numBuckets as uint8
             ))
   }
   datatype StandardBeacon = StandardBeacon (
@@ -140,18 +145,27 @@ module BaseBeacon {
     loc : TermLoc.TermLoc,
     partOnly : bool,
     asSet : bool,
-    share : Option<string>
+    share : Option<string>,
+    numberOfBuckets : uint8
   ) {
+    function method constrained_bucket(bucket : Bytes) : Bytes
+    {
+      SequenceIsSafeBecauseItIsInMemory(bucket);
+      if numberOfBuckets == 0 || |bucket| as uint64 == 0 then
+        bucket
+      else
+        [bucket[0] % numberOfBuckets]
+    }
     function method {:opaque} hash(val : Bytes, key : Bytes, bucket : Bytes)
       : (ret : Result<string, Error>)
       ensures ret.Success? ==>
                 && |ret.value| > 0
-                && base.hash(val, key, length, bucket).Success?
-                && ret.value == base.hash(val, key, length, bucket).value
+                && base.hash(val, key, length, constrained_bucket(bucket)).Success?
+                && ret.value == base.hash(val, key, length, constrained_bucket(bucket)).value
 
                 && |ret.value| == (((length as uint8) + 3) / 4) as nat
     {
-      base.hash(val, key, length, bucket)
+      base.hash(val, key, length, constrained_bucket(bucket))
     }
 
     // return the name of the hmac key to use

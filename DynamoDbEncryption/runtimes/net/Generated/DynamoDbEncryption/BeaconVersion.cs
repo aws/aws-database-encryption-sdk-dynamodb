@@ -142,6 +142,11 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
           throw new System.ArgumentException(
               String.Format("Member NumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", NumberOfBuckets));
         }
+        if (NumberOfBuckets > 255)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member NumberOfBuckets of structure BeaconVersion has type BucketCount which has a maximum of 255 but was given the value {0}.", NumberOfBuckets));
+        }
       }
     }
   }

@@ -19,6 +19,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private AWS.Cryptography.MaterialProviders.ICryptographicMaterialsManager _cmm;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.LegacyOverride _legacyOverride;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.PlaintextOverride _plaintextOverride;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.IBucketSelector _bucketSelector;
     public string LogicalTableName
     {
       get { return this._logicalTableName; }
@@ -126,6 +127,15 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     public bool IsSetPlaintextOverride()
     {
       return this._plaintextOverride != null;
+    }
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.IBucketSelector BucketSelector
+    {
+      get { return this._bucketSelector; }
+      set { this._bucketSelector = value; }
+    }
+    public bool IsSetBucketSelector()
+    {
+      return this._bucketSelector != null;
     }
     public void Validate()
     {

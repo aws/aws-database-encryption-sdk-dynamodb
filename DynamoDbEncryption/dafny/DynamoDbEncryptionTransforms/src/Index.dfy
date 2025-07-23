@@ -205,6 +205,12 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
       assert inputConfig.partitionKeyName == encConfig.partitionKeyName;
       assert inputConfig.sortKeyName == encConfig.sortKeyName;
 
+      var bucketSelector;
+      if inputConfig.bucketSelector.Some? {
+        bucketSelector := inputConfig.bucketSelector.value;
+      } else {
+        bucketSelector := new DefaultBucketSelector();
+      }
       var internalConfig: DdbMiddlewareConfig.ValidTableConfig := DdbMiddlewareConfig.TableConfig(
         physicalTableName := tableName,
         logicalTableName := inputConfig.logicalTableName,
@@ -212,7 +218,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
         sortKeyName := inputConfig.sortKeyName,
         itemEncryptor := itemEncryptor,
         search := search,
-        plaintextOverride := inputConfig.plaintextOverride.UnwrapOr(AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ)
+        plaintextOverride := inputConfig.plaintextOverride.UnwrapOr(AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ),
+        bucketSelector := bucketSelector
       );
 
       internalConfigs := internalConfigs[tableName := internalConfig];

@@ -55,7 +55,76 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   }
   type BucketCount = x: int32 | IsValid_BucketCount(x) witness *
   predicate method IsValid_BucketCount(x: int32) {
-    ( 1 <= x  )
+    ( 1 <= x <= 255 )
+  }
+  type BucketNumber = x: int32 | IsValid_BucketNumber(x) witness *
+  predicate method IsValid_BucketNumber(x: int32) {
+    ( 0 <= x <= 254 )
+  }
+  class IBucketSelectorCallHistory {
+    ghost constructor() {
+      GetBucketNumber := [];
+    }
+    ghost var GetBucketNumber: seq<DafnyCallEvent<GetBucketNumberInput, Result<GetBucketNumberOutput, Error>>>
+  }
+  trait {:termination false} IBucketSelector
+  {
+    // Helper to define any additional modifies/reads clauses.
+    // If your operations need to mutate state,
+    // add it in your constructor function:
+    // Modifies := {your, fields, here, History};
+    // If you do not need to mutate anything:
+    // Modifies := {History};
+
+    ghost const Modifies: set<object>
+    // For an unassigned field defined in a trait,
+    // Dafny can only assign a value in the constructor.
+    // This means that for Dafny to reason about this value,
+    // it needs some way to know (an invariant),
+    // about the state of the object.
+    // This builds on the Valid/Repr paradigm
+    // To make this kind requires safe to add
+    // to methods called from unverified code,
+    // the predicate MUST NOT take any arguments.
+    // This means that the correctness of this requires
+    // MUST only be evaluated by the class itself.
+    // If you require any additional mutation,
+    // then you MUST ensure everything you need in ValidState.
+    // You MUST also ensure ValidState in your constructor.
+    predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    ghost const History: IBucketSelectorCallHistory
+    predicate GetBucketNumberEnsuresPublicly(input: GetBucketNumberInput , output: Result<GetBucketNumberOutput, Error>)
+    // The public method to be called by library consumers
+    method GetBucketNumber ( input: GetBucketNumberInput )
+      returns (output: Result<GetBucketNumberOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`GetBucketNumber
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures History.GetBucketNumber == old(History.GetBucketNumber) + [DafnyCallEvent(input, output)]
+    {
+      output := GetBucketNumber' (input);
+      History.GetBucketNumber := History.GetBucketNumber + [DafnyCallEvent(input, output)];
+    }
+    // The method to implement in the concrete class.
+    method GetBucketNumber' ( input: GetBucketNumberInput )
+      returns (output: Result<GetBucketNumberOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History}
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+
   }
   type Char = x: string | IsValid_Char(x) witness *
   predicate method IsValid_Char(x: string) {
@@ -250,7 +319,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
     nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
     nameonly legacyOverride: Option<LegacyOverride> := Option.None ,
-    nameonly plaintextOverride: Option<PlaintextOverride> := Option.None
+    nameonly plaintextOverride: Option<PlaintextOverride> := Option.None ,
+    nameonly bucketSelector: Option<IBucketSelector> := Option.None
   )
   type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
   datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
@@ -276,6 +346,13 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   )
   datatype GetBranchKeyIdFromDdbKeyOutput = | GetBranchKeyIdFromDdbKeyOutput (
     nameonly branchKeyId: string
+  )
+  datatype GetBucketNumberInput = | GetBucketNumberInput (
+    nameonly item: ComAmazonawsDynamodbTypes.AttributeMap ,
+    nameonly numberOfBuckets: BucketCount
+  )
+  datatype GetBucketNumberOutput = | GetBucketNumberOutput (
+    nameonly bucketNumber: BucketNumber
   )
   datatype GetEncryptedDataKeyDescriptionInput = | GetEncryptedDataKeyDescriptionInput (
     nameonly input: GetEncryptedDataKeyDescriptionUnion
