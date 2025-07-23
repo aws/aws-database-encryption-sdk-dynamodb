@@ -294,7 +294,7 @@ module BaseBeacon {
                    //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
                    //= type=implication
                    //# * This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
-                && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length, bucket).Success? && ret.value.value == DDB.AttributeValue.S(base.hash(bytes.value, key, length, bucket).value))
+                && (bytes.Some? ==> ret.value.Some? && base.hash(bytes.value, key, length, constrained_bucket(bucket)).Success? && ret.value.value == DDB.AttributeValue.S(base.hash(bytes.value, key, length, constrained_bucket(bucket)).value))
     {
       var bytes :- VirtToBytes(loc, item, vf);
       if bytes.None? then
