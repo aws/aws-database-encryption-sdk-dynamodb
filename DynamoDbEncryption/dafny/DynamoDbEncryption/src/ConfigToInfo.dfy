@@ -535,7 +535,7 @@ module SearchConfigToInfo {
       if num.None? then
         false
       else
-        inner.value < num.value
+        inner.value <= num.value
   }
 
   // convert configured StandardBeacons to internal Beacons
