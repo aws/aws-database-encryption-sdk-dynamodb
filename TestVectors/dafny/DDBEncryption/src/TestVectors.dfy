@@ -242,7 +242,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ensures client.ValidState()
       modifies client.Modifies
     {
-      var counts: array<int> := new int[100];
+      var counts: array<int> := new int[100](i => 0);
       for i := 0 to numBuckets {
         DoBucketQuery(client, i, q, counts, queryName, custom, numBuckets);
       }
