@@ -1,5 +1,59 @@
 {
+  "GSI" : [
+    ["ATTR_INDEX1", "aws_dbe_b_Attr1"],
+    ["ATTR_INDEX2", "aws_dbe_b_Attr2"],
+    ["ATTR_INDEX3", "aws_dbe_b_Attr3"],
+    ["ATTR_INDEX4", "aws_dbe_b_Attr4"],
+    ["ATTR_INDEX5", "aws_dbe_b_Attr5"],
+    ["ATTR_INDEX15", "aws_dbe_b_Attr1", "aws_dbe_b_Attr5"],
+    ["ATTR_INDEX51", "aws_dbe_b_Attr5", "aws_dbe_b_Attr1"]
+  ],
   "largeEncryptionConfigs": {
+    "bucket_encrypt" : {
+      "partitionKeyName": "RecNum",
+      "attributeActionsOnEncrypt": {
+        "RecNum": "SIGN_ONLY",
+        "Attr1" : "ENCRYPT_AND_SIGN",
+        "Attr2" : "ENCRYPT_AND_SIGN",
+        "Attr3" : "ENCRYPT_AND_SIGN",
+        "Attr4" : "ENCRYPT_AND_SIGN",
+        "Attr5" : "ENCRYPT_AND_SIGN",
+        "PreferredBucket" : "SIGN_ONLY"
+      },
+      "search": {
+        "versions": [
+          {
+            "numberOfBuckets": 5,
+            "standardBeacons": [
+              {
+                "Name": "Attr1",
+                "Length": 32,
+                "numberOfBuckets" : 1
+              },
+              {
+                "Name": "Attr2",
+                "Length": 32,
+                "numberOfBuckets" : 2
+              },
+              {
+                "Name": "Attr3",
+                "Length": 32,
+                "numberOfBuckets" : 3
+              },
+              {
+                "Name": "Attr4",
+                "Length": 32,
+                "numberOfBuckets" : 4
+              },
+              {
+                "Name": "Attr5",
+                "Length": 32
+              }
+            ]
+          }
+        ]
+      }
+    },
     "full_encrypt": {
       "partitionKeyName": "PK",
       "attributeActionsOnEncrypt": {

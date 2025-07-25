@@ -154,7 +154,11 @@ module BaseBeacon {
       if numberOfBuckets == 0 || |bucket| as uint64 == 0 then
         bucket
       else
-        [bucket[0] % numberOfBuckets]
+        var newBucket : uint8 := bucket[0] % numberOfBuckets;
+        if newBucket == 0 then
+          []
+        else
+          [newBucket]
     }
     function method {:opaque} hash(val : Bytes, key : Bytes, bucket : Bytes)
       : (ret : Result<string, Error>)

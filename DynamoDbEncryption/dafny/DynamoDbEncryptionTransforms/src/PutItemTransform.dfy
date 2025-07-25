@@ -58,7 +58,7 @@ module PutItemTransform {
                                      input.sdkInput.ConditionExpression,
                                      input.sdkInput.ExpressionAttributeNames,
                                      input.sdkInput.ExpressionAttributeValues);
-    var bucket :- GetRandomBucket(tableConfig);
+    var bucket :- GetRandomBucket(tableConfig, input.sdkInput.Item);
     var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item, bucket);
     var encryptRes := tableConfig.itemEncryptor.EncryptItem(
       EncTypes.EncryptItemInput(plaintextItem:=item)

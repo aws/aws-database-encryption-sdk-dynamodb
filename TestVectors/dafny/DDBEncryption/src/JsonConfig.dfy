@@ -499,6 +499,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var compoundBeacons : seq<Types.CompoundBeacon> := [];
     var virtualFields : seq<Types.VirtualField> := [];
     var keySource : Option<Types.BeaconKeySource> := None;
+    var numberOfBuckets: Option<Types.BucketCount> := None;
 
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
@@ -507,6 +508,13 @@ module {:options "-functionSyntax:4"} JsonConfig {
         case "standardBeacons" => standardBeacons :- GetStandardBeacons(obj.1);
         case "compoundBeacons" => compoundBeacons :- GetCompoundBeacons(obj.1);
         case "virtualFields" => virtualFields :- GetVirtualFields(obj.1);
+        case "numberOfBuckets" =>
+          :- Need(obj.1.Number?, "numberOfBuckets must be of type Number.");
+          var num :- DecimalToNat(obj.1.num);
+          expect 0 < num < INT32_MAX_LIMIT;
+          var num2 := num as int32;
+          expect Types.IsValid_BucketCount(num2);
+          numberOfBuckets := Some(num as Types.BucketCount);
         case _ => return Failure("Unexpected part of a beacon version : '" + obj.0 + "'");
       }
     }
@@ -529,7 +537,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
                      compoundBeacons := OptSeq(compoundBeacons),
                      virtualFields := OptSeq(virtualFields),
                      encryptedParts := None,
-                     signedParts := None
+                     signedParts := None,
+                     numberOfBuckets := numberOfBuckets
                    )
       );
   }
@@ -628,7 +637,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var results := prev;
     for i := 0 to |gsi| {
       for j := 0 to |gsi[i].KeySchema| {
-        if forall k <- prev :: k.AttributeName != gsi[i].KeySchema[j].AttributeName {
+        if forall k <- results :: k.AttributeName != gsi[i].KeySchema[j].AttributeName {
           results := results +  [DDB.AttributeDefinition(AttributeName := gsi[i].KeySchema[j].AttributeName, AttributeType := DDB.ScalarAttributeType.S)];
         }
       }
@@ -1096,6 +1105,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var name : string := "";
     var length : int := -1;
     var loc : Option<Types.TerminalLocation> := None;
+    var numberOfBuckets: Option<Types.BucketCount> := None;
+
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
@@ -1109,12 +1120,19 @@ module {:options "-functionSyntax:4"} JsonConfig {
           :- Need(obj.1.String?, "Standard Beacon Location must be a string");
           :- Need(0 < |obj.1.str|, "Standard Beacon Location must nt be an empty string.");
           loc := Some(obj.1.str);
+        case "numberOfBuckets" =>
+          :- Need(obj.1.Number?, "numberOfBuckets must be of type Number.");
+          var num :- DecimalToNat(obj.1.num);
+          expect 0 < num < INT32_MAX_LIMIT;
+          var num2 := num as int32;
+          expect Types.IsValid_BucketCount(num2);
+          numberOfBuckets := Some(num as Types.BucketCount);
         case _ => return Failure("Unexpected part of a standard beacon : '" + data.obj[i].0 + "'");
       }
     }
     :- Need(0 < |name|, "Each Standard Beacon needs a name.");
     :- Need(0 < length < 100 && Types.IsValid_BeaconBitLength(length as int32), "Each Standard Beacon needs a length between 1 and 63.");
-    return Success(Types.StandardBeacon(name := name, length := length as Types.BeaconBitLength, loc := loc, style := None));
+    return Success(Types.StandardBeacon(name := name, length := length as Types.BeaconBitLength, loc := loc, style := None, numberOfBuckets := numberOfBuckets));
   }
 
   method GetGSIs(data : JSON) returns (output : Result<seq<DDB.GlobalSecondaryIndex> , string>)
@@ -1152,10 +1170,15 @@ module {:options "-functionSyntax:4"} JsonConfig {
                      IndexName := data.arr[0].str,
                      KeySchema := schema,
                      Projection := DDB.Projection(
-                       ProjectionType := None,
+                       ProjectionType := Some(DDB.ProjectionType.ALL),
                        NonKeyAttributes := None
                      ),
-                     ProvisionedThroughput := None
+                     ProvisionedThroughput := Some(
+                       DDB.ProvisionedThroughput (
+                         ReadCapacityUnits:= 5,
+                         WriteCapacityUnits:= 5
+                       )
+                     )
                    ));
   }
 

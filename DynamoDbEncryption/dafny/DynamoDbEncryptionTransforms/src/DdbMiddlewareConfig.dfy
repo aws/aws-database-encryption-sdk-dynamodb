@@ -53,7 +53,7 @@ module DdbMiddlewareConfig {
   }
 
   datatype TableConfig = TableConfig(
-    physicalTableName: ComAmazonawsDynamodbTypes.TableName,
+    physicalTableName: DDB.TableName,
     logicalTableName: string,
     partitionKeyName: string,
     sortKeyName: Option<string>,
@@ -70,7 +70,7 @@ module DdbMiddlewareConfig {
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
   }
 
-  method GetRandomBucket(config : TableConfig) returns (output : Result<seq<uint8>, Error>)
+  method GetRandomBucket(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<seq<uint8>, Error>)
     modifies config.bucketSelector.Modifies
     requires config.bucketSelector.ValidState()
     ensures config.bucketSelector.ValidState()
@@ -86,9 +86,8 @@ module DdbMiddlewareConfig {
       return Failure(E("Number of buckets exceeds 255"));
     }
 
-    var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput( item := map[], numberOfBuckets := numBuckets as DDBE.BucketCount));
+    var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets as DDBE.BucketCount));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
-
     if out.bucketNumber == 0 {
       return Success([]);
     } else if numBuckets as DDBE.BucketCount <= out.bucketNumber {

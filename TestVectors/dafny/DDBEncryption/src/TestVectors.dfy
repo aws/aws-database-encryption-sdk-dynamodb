@@ -50,6 +50,46 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   const PerfIterations : uint32 := 1000
 
+  class TestBucketSelector extends Types.IBucketSelector
+  {
+    ghost predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    { History in Modifies }
+
+    constructor ()
+      ensures ValidState() && fresh(History) && fresh(Modifies)
+    {
+      History := new Types.IBucketSelectorCallHistory();
+      Modifies := { History };
+    }
+
+    ghost predicate GetBucketNumberEnsuresPublicly (
+      input: Types.GetBucketNumberInput ,
+      output: Result<Types.GetBucketNumberOutput, Types.Error> )
+      : (outcome: bool)
+    {
+      true
+    }
+
+    method GetBucketNumber'(input: Types.GetBucketNumberInput)
+      returns (output: Result<Types.GetBucketNumberOutput, Types.Error> )
+      requires ValidState()
+      modifies Modifies - {History}
+      decreases Modifies - {History}
+      ensures ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+    {
+      // print "\nGetBucketNumber\n", input.item, "\n";
+      expect "PreferredBucket" in input.item;
+      expect input.item["PreferredBucket"].N?;
+      var bucket :- expect StrToInt(input.item["PreferredBucket"].N);
+      expect 0 <= bucket < INT32_MAX_LIMIT;
+      expect Types.IsValid_BucketNumber(bucket as int32);
+      return Success(Types.GetBucketNumberOutput(bucketNumber := bucket as Types.BucketNumber));
+    }
+  }
+
   datatype TestVectorConfig = TestVectorConfig (
     schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
@@ -113,6 +153,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       Validate();
       StringOrdering();
+      BucketTests();
       LargeTests();
       PerfQueryTests();
       BasicIoTest();
@@ -125,6 +166,230 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       DecryptTests();
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       DeleteTable(client);
+    }
+
+    function MakeBucketRecord(x : nat) : DDB.AttributeMap
+    {
+      var num := String.Base10Int2String(x);
+      var num2 := String.Base10Int2String(x%5);
+
+      map[
+        HashName := DDB.AttributeValue.N(num),
+        "Attr1" := DDB.AttributeValue.S("AAAA"),
+        "Attr2" := DDB.AttributeValue.S("BBBB"),
+        "Attr3" := DDB.AttributeValue.S("CCCC"),
+        "Attr4" := DDB.AttributeValue.S("DDDD"),
+        "Attr5" := DDB.AttributeValue.S("EEEE"),
+        "PreferredBucket" := DDB.AttributeValue.N(num2)
+      ]
+    }
+
+    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numBuckets : nat)
+      requires counts.Length == 100
+      requires client.ValidState()
+      requires client.Modifies !! {counts}
+      requires 0 < numBuckets
+      ensures client.ValidState()
+      modifies client.Modifies
+      modifies counts
+    {
+      var lastKey : Option<DDB.Key> := None;
+      var numReturned : nat := 0;
+      for i := 0 to 100
+        invariant client.ValidState()
+        invariant client.Modifies !! {counts}
+      {
+        var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
+        var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
+        var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values[":aws_dbe_bucket" := bucketNumber]));
+        var result :- expect client.Query(q);
+        if result.Items.Some? {
+          numReturned := numReturned + |result.Items.value|;
+          for j := 0 to |result.Items.value|
+            invariant client.ValidState()
+            invariant client.Modifies !! {counts}
+          {
+            var item := result.Items.value[j];
+            expect HashName in item;
+            expect item[HashName].N?;
+            var pkStr := item[HashName].N;
+            var pkNum :- expect StrToInt(pkStr);
+            expect 0 <= pkNum < 100;
+            counts[pkNum] := counts[pkNum] + 1;
+            if custom {
+              expect "PreferredBucket" in item;
+              expect item["PreferredBucket"].N?;
+              var stored_bucket :- expect StrToInt(item["PreferredBucket"].N);
+              expect bucket == stored_bucket % numBuckets;
+            }
+          }
+        }
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
+          lastKey := result.LastEvaluatedKey;
+        } else {
+          break;
+        }
+      }
+      if numReturned == 0 {
+        print "Query ", queryName, " for bucket ", bucket, " returned no values", "\n";
+        expect false;
+      }
+    }
+
+    method TestBucketQueries(client : DDB.IDynamoDBClient, numBuckets : nat, q : DDB.QueryInput, queryName : string, custom : bool := false)
+      requires 0 < numBuckets
+      requires client.ValidState()
+      ensures client.ValidState()
+      modifies client.Modifies
+    {
+      var counts: array<int> := new int[100];
+      for i := 0 to numBuckets {
+        DoBucketQuery(client, i, q, counts, queryName, custom, numBuckets);
+      }
+      var wasBad : bool := false;
+      for i := 0 to 100 {
+        if counts[i] == 0 {
+          print "Bucket Query ", queryName, " did not find record ", i, "\n";
+          wasBad := true;
+        } else if counts[i] != 1 {
+          print "Bucket Query ", queryName, " returned record ", i, " ", counts[i], " times\n";
+          wasBad := true;
+        }
+      }
+      expect !wasBad;
+    }
+
+    function GetBucketQuery1() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX1"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr1 = :attr1"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA")])
+      )
+    }
+    function GetBucketQuery15() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX15"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery51() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX51"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery2() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX2"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr2 = :attr2"),
+        ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB")])
+      )
+    }
+    function GetBucketQuery3() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX3"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr3 = :attr3"),
+        ExpressionAttributeValues := Some(map[":attr3" := DDB.AttributeValue.S("CCCC")])
+      )
+    }
+    function GetBucketQuery4() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX4"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr4 = :attr4"),
+        ExpressionAttributeValues := Some(map[":attr4" := DDB.AttributeValue.S("DDDD")])
+      )
+    }
+    function GetBucketQuery5() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX5"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr5 = :attr5"),
+        ExpressionAttributeValues := Some(map[":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+
+    method BucketTests()
+    {
+      BucketTest1();
+      BucketTest2();
+    }
+
+    // Fill table with 100 records. Different RecNum, same data otherwise
+    // Make a variety of bucketed queries. Ensure that
+    // 1) All items are returned in some bucket
+    // 2) Every bucket holds at least one item
+    method BucketTest1()
+    {
+      expect "bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["bucket_encrypt"];
+      var wClient, rClient := SetupTestTable(config, config);
+      for i : nat := 0 to 100 {
+        var putInput := DDB.PutItemInput(
+          TableName := TableName,
+          Item := MakeBucketRecord(i)
+        );
+        var _ :-  expect wClient.PutItem(putInput);
+      }
+      var q1 := DDB.QueryInput(
+        TableName := TableName
+      );
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), "bucket query 5");
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), "bucket query 4");
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3");
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2");
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1");
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 5");
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 5");
+    }
+
+    // As BucketTest1, but with custom bucket selector
+    method BucketTest2()
+    {
+      expect "bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["bucket_encrypt"];
+      var testSelector := new TestBucketSelector();
+      var nConfig := config.config.(bucketSelector := Some(testSelector));
+      config := config.(config := nConfig);
+      var wClient, rClient := SetupTestTable(config, config);
+      for i : nat := 0 to 100 {
+        var putInput := DDB.PutItemInput(
+          TableName := TableName,
+          Item := MakeBucketRecord(i)
+        );
+        var _ :-  expect wClient.PutItem(putInput);
+      }
+      var q1 := DDB.QueryInput(
+        TableName := TableName
+      );
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), "bucket query 5", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), "bucket query 4", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2", true);
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 5", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 5", true);
     }
 
     function NewOrderRecord(i : nat, str : string) : Record
