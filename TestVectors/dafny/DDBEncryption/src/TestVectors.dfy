@@ -338,7 +338,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     // Fill table with 100 records. Different RecNum, same data otherwise
     // Make a variety of bucketed queries. Ensure that
-    // 1) All items are returned in some bucket
+    // 1) Every item is returned exactly once
     // 2) Every bucket holds at least one item
     method BucketTest1()
     {
@@ -416,7 +416,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           var query := SimpleQuery(None, None, expr, []);
           var items1 := FullScan(client, query, Some(map[]), vals);
           var bv :- expect GetFakeBeaconVersion();
-          var items2 :- expect Filter.FilterResults(bv, subRecords, None, expr, None, vals, []);
+          var items2 :- expect Filter.FilterResults(bv, subRecords, None, expr, None, vals);
           CompareRecordsDisordered2(items1, items2);
         }
       }

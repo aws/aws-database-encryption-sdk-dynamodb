@@ -294,7 +294,7 @@ module CompoundBeacon {
     }
 
     // calculate value for a single piece of a compound beacon query string
-    function method FindAndCalcPart(value : string, keys : MaybeKeyMap, bucket : Bytes) : Result<string, Error>
+    function method FindAndCalcPart(value : string, keys : MaybeKeyMap, bucket : BucketNumber) : Result<string, Error>
       requires !keys.DontUseKeys?
     {
       var part :- partFromPrefix(parts, value);
@@ -309,7 +309,7 @@ module CompoundBeacon {
     }
 
     // for the given attribute value, return the beacon value
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, bucket : Bytes) : Result<DDB.AttributeValue, Error>
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, bucket : BucketNumber) : Result<DDB.AttributeValue, Error>
       requires !keys.DontUseKeys?
     {
       if !value.S? then
@@ -334,7 +334,7 @@ module CompoundBeacon {
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
       keys : MaybeKeyMap,
-      bucket : Bytes,
+      bucket : BucketNumber,
       acc : string := "")
       : (ret : Result<Option<string>, Error>)
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
@@ -374,7 +374,7 @@ module CompoundBeacon {
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
       keys : MaybeKeyMap,
-      bucket : Bytes
+      bucket : BucketNumber
     )
       : (ret : Result<Option<string>, Error>)
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
@@ -394,7 +394,7 @@ module CompoundBeacon {
     //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
     //= type=implication
     //# * This operation MUST take a record as input, and produce an optional string.
-    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : Bytes) : (res : Result<Option<string>, Error>)
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : BucketNumber) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                 //= type=implication
@@ -409,7 +409,7 @@ module CompoundBeacon {
     }
 
     // return the unhashed beacon value, necessary for final client-side filtering
-    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap, bucket : Bytes) : (res : Result<Option<string>, Error>)
+    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap, bucket : BucketNumber) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 && |res.value.value| > 0
     {
@@ -444,7 +444,7 @@ module CompoundBeacon {
     //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
     //= type=implication
     //# * getPart MUST take a string as input and produce a string.
-    function method {:opaque} getPart(val : string, keys : HmacKeyMap, bucket : Bytes)
+    function method {:opaque} getPart(val : string, keys : HmacKeyMap, bucket : BucketNumber)
       : (ret : Result<string, Error>)
       //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
       //= type=implication
@@ -465,7 +465,7 @@ module CompoundBeacon {
       calcParts(pieces, keys, bucket)
     }
 
-    function method calcPart(piece : string, keys : HmacKeyMap, bucket : Bytes)
+    function method calcPart(piece : string, keys : HmacKeyMap, bucket : BucketNumber)
       : (ret : Result<string, Error>)
 
       ensures ret.Success? ==>
@@ -486,7 +486,7 @@ module CompoundBeacon {
       PartValueCalc(piece, Keys(keys), thePart, bucket)
     }
 
-    function method calcParts(pieces : seq<string>, keys : HmacKeyMap, bucket : Bytes, acc : string := [])
+    function method calcParts(pieces : seq<string>, keys : HmacKeyMap, bucket : BucketNumber, acc : string := [])
       : (ret : Result<string, Error>)
       requires |pieces| > 0 || |acc| > 0
       ensures ret.Success? ==> |ret.value| > 0
@@ -570,7 +570,7 @@ module CompoundBeacon {
     //# Part Value Calculation MUST take some [key materials](./search-config.md#get-beacon-key-materials),
     //# a string (the value for which the beacon is being calculated)
     //# and a [Part](#part) as input, and return a string as output.
-    function method {:opaque} PartValueCalc(data : string, keys : MaybeKeyMap, part : BeaconPart, bucket : Bytes)
+    function method {:opaque} PartValueCalc(data : string, keys : MaybeKeyMap, part : BeaconPart, bucket : BucketNumber)
       : (ret : Result<string, Error>)
       requires !keys.DontUseKeys?
 

@@ -518,20 +518,20 @@ module SearchableEncryptionInfo {
       versions[currWrite].IsVirtualField(field)
     }
 
-    method GeneratePlainBeacons(item : DDB.AttributeMap, bucket : Bytes) returns (output : Result<DDB.AttributeMap, Error>)
+    method GeneratePlainBeacons(item : DDB.AttributeMap, bucket : BucketNumber) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
     {
       output := versions[currWrite].GeneratePlainBeacons(item, bucket);
     }
 
-    method GenerateSignedBeacons(item : DDB.AttributeMap, bucket : Bytes) returns (output : Result<DDB.AttributeMap, Error>)
+    method GenerateSignedBeacons(item : DDB.AttributeMap, bucket : BucketNumber) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
       output := versions[currWrite].GenerateSignedBeacons(item, bucket);
     }
-    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : Bytes) returns (output : Result<DDB.AttributeMap, Error>)
+    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : BucketNumber) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
@@ -551,7 +551,7 @@ module SearchableEncryptionInfo {
       else
         cmp.isEncrypted()
     }
-    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : Bytes)
+    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : BucketNumber)
       : (ret : Result<Option<DDB.AttributeValue>, Error>)
       requires !keys.DontUseKeys?
 
@@ -574,7 +574,7 @@ module SearchableEncryptionInfo {
         else
           Success(Some(DDB.AttributeValue.S(strHash.value)))
     }
-    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap, bucket : Bytes) : Result<Option<DDB.AttributeValue>, Error>
+    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap, bucket : BucketNumber) : Result<Option<DDB.AttributeValue>, Error>
     {
       if Standard? then
         std.getNaked(item, vf)
@@ -585,7 +585,7 @@ module SearchableEncryptionInfo {
         else
           Success(Some(DS(str.value)))
     }
-    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : Bytes) : Result<Option<DDB.AttributeValue>, Error>
+    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : BucketNumber) : Result<Option<DDB.AttributeValue>, Error>
     {
       if keys.DontUseKeys? then
         naked(item, vf, bucket)
@@ -614,7 +614,7 @@ module SearchableEncryptionInfo {
         cmp.GetFields(virtualFields)
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, forContains : bool, bucket : Bytes)
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, forContains : bool, bucket : BucketNumber)
       : Result<DDB.AttributeValue, Error>
     {
       if keys.DontUseKeys? then
@@ -804,7 +804,7 @@ module SearchableEncryptionInfo {
     }
 
     // Get all beacons with plaintext values
-    method GeneratePlainBeacons(item : DDB.AttributeMap, bucket : Bytes)
+    method GeneratePlainBeacons(item : DDB.AttributeMap, bucket : BucketNumber)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
     {
@@ -812,7 +812,7 @@ module SearchableEncryptionInfo {
     }
 
     // Get all beacons on fields that are signed, but not encrypted
-    method GenerateSignedBeacons(item : DDB.AttributeMap, bucket : Bytes)
+    method GenerateSignedBeacons(item : DDB.AttributeMap, bucket : BucketNumber)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
@@ -835,7 +835,7 @@ module SearchableEncryptionInfo {
     }
 
     // Get all beacons on encrypted fields
-    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : Bytes)
+    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : BucketNumber)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
@@ -872,7 +872,7 @@ module SearchableEncryptionInfo {
       output := GenerateBeacons2(beaconNames, item, hmacKeys, EncryptedBeacon, bucket);
     }
 
-    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : MaybeKeyMap, bucket : Bytes) : Result<Option<DDB.AttributeValue>, Error>
+    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : MaybeKeyMap, bucket : BucketNumber) : Result<Option<DDB.AttributeValue>, Error>
       requires name in beacons
     {
       beacons[name].attrHash(item, virtualFields, keys, bucket)
@@ -883,7 +883,7 @@ module SearchableEncryptionInfo {
       item : DDB.AttributeMap,
       keys : MaybeKeyMap,
       bType : BeaconType,
-      bucket : Bytes,
+      bucket : BucketNumber,
       acc : DDB.AttributeMap := map[]
     )
       : Result<DDB.AttributeMap, Error>

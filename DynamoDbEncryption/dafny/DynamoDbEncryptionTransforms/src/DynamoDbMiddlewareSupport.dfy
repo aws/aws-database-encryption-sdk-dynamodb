@@ -87,7 +87,7 @@ module DynamoDbMiddlewareSupport {
 
   // AddSignedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, bucket : seq<uint8>)
+  method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, bucket : ET.BucketNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
@@ -100,7 +100,7 @@ module DynamoDbMiddlewareSupport {
 
   // GetEncryptedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning just the new items.
-  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId, bucket : seq<uint8>)
+  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId, bucket : ET.BucketNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
@@ -242,7 +242,7 @@ module DynamoDbMiddlewareSupport {
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
-  method GetCompoundBeacons(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>, bucket : seq<uint8>)
+  method GetCompoundBeacons(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>, bucket : ET.BucketNumber)
     returns (output : Result<map<string, string>, Error>)
   {
     if version.Some? && version.value != 1 {

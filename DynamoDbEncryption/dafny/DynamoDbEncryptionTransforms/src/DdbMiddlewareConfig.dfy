@@ -70,17 +70,17 @@ module DdbMiddlewareConfig {
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
   }
 
-  method GetRandomBucket(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<seq<uint8>, Error>)
+  method GetRandomBucket(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<DDBE.BucketNumber, Error>)
     modifies config.bucketSelector.Modifies
     requires config.bucketSelector.ValidState()
     ensures config.bucketSelector.ValidState()
   {
     if config.search.None? {
-      return Success([]);
+      return Success(0);
     }
     var numBuckets : uint32 := config.search.value.versions[0].numBuckets;
     if numBuckets <= 1 {
-      return Success([]);
+      return Success(0);
     }
     if (numBuckets > 255) {
       return Failure(E("Number of buckets exceeds 255"));
@@ -89,13 +89,13 @@ module DdbMiddlewareConfig {
     var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets as DDBE.BucketCount));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
     if out.bucketNumber == 0 {
-      return Success([]);
+      return Success(0);
     } else if numBuckets as DDBE.BucketCount <= out.bucketNumber {
       return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been no more than " + String.Base10Int2String(numBuckets as int)));
     } else if out.bucketNumber < 0 {
       return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been positive."));
     } else {
-      return Success([out.bucketNumber as uint8]);
+      return Success(out.bucketNumber);
     }
   }
 

@@ -143,7 +143,7 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : Bytes)
+  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : BucketNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
@@ -158,7 +158,7 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, bucket : Bytes)
+  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, bucket : BucketNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
 
@@ -224,16 +224,18 @@ module DynamoDBSupport {
     Success(DoRemoveBeacons(item))
   }
   const BucketName : string := ":aws_dbe_bucket"
+  const BucketQueriesName : string := ":aws_dbe_bucket_queries"
 
-  function method GetNumber(val : DDB.AttributeValue) : Result<uint32, Error>
+  function method GetNumber(val : DDB.AttributeValue, name : string) : Result<uint32, Error>
   {
     if val.N? then
       var val :- NN.StrToInt(val.N).MapFailure(e => E(e));
-      :- Need(0 <= val < INT32_MAX_LIMIT, E("Value of " + BucketName + " out of range."));
+      :- Need(0 <= val < INT32_MAX_LIMIT, E("Value of " + name + " out of range."));
       Success(val as uint32)
     else
-      Failure(E("Value of " + BucketName + " is not numeric (i.e. 'N')"))
+      Failure(E("Value of " + name + " is not numeric (i.e. 'N')"))
   }
+
   // If names[":aws_dbe_bucket"] holds S(N)' return (Some(names - {":aws_dbe_bucket"}), Some(N))
   // else return (None, None)
   function method ExtractBucketNumber(names : Option<DDB.ExpressionAttributeValueMap>) : Result<(Option<DDB.ExpressionAttributeValueMap>, Option<uint32>), Error>
@@ -241,7 +243,7 @@ module DynamoDBSupport {
     if names.None? then
       Success((None, None))
     else if BucketName in names.value then
-      var val :- GetNumber(names.value[BucketName]);
+      var val :- GetNumber(names.value[BucketName], BucketName);
       if |names.value| == 1 then
         Success((None, Some(val)))
       else
@@ -250,26 +252,41 @@ module DynamoDBSupport {
       Success((None, None))
   }
 
+  function method ExtractBucketQueries(names : Option<DDB.ExpressionAttributeValueMap>) : Result<(Option<DDB.ExpressionAttributeValueMap>, Option<uint32>), Error>
+  {
+    if names.None? then
+      Success((None, None))
+    else if BucketQueriesName in names.value then
+      var val :- GetNumber(names.value[BucketQueriesName], BucketQueriesName);
+      if |names.value| == 1 then
+        Success((None, Some(val)))
+      else
+        Success((Some(names.value - {BucketQueriesName}), Some(val)))
+    else
+      Success((None, None))
+  }
+
   // Extract aws_dbe_bucket = NN from filterExpr and return bucket
   method ExtractBucket(search : SearchableEncryptionInfo.BeaconVersion, keyExpr : Option<string>, filterExpr : Option<string>, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>, actions : AttributeActions)
-    returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, seq<uint8>), Error>)
+    returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, BucketNumber, Option<BucketNumber>), Error>)
   {
     if search.numBuckets <= 1 {
-      return Success((values, []));
+      :- Need(values.None? || BucketName !in values.value, E(""));
+      :- Need(values.None? || BucketQueriesName !in values.value, E(""));
+      return Success((values, 0, None));
     }
 
     var foo :- ExtractBucketNumber(values);
     var (nValues, bucket) := foo;
     if bucket.Some? {
       :- Need(bucket.value < search.numBuckets, E("Bucket number specified in FilterExpression was " + String.Base10Int2String(bucket.value as int) + "but it must be less than the number of buckets " + String.Base10Int2String(search.numBuckets as int)));
-      :- Need(bucket.value < 256, E("Bucket must be less than 256")); // unreachable
-      var nbucket := (bucket.value as nat) as uint8;
-      if nbucket == 0 {
-        return Success((nValues, []));
-      } else {
-        return Success((nValues, [nbucket]));
-      }
+      :- Need(bucket.value < 255, E("Bucket must be less than 255")); // unreachable
+      var nbucket := (bucket.value as nat) as BucketNumber;
+      return Success((nValues, nbucket, None));
     }
+
+    :- Need(values.None? || BucketQueriesName !in values.value, E(""));
+
     // No bucket specified is OK if no encrypted fields are searched
     var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
     var filterHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(filterExpr), encrypted, names);
@@ -277,7 +294,7 @@ module DynamoDBSupport {
     if keyHasEncField.Some? || filterHasEncField.Some? {
       return Failure(E("When numberOfBuckets is greater than one, FilterExpression must start with 'aws_dbe_bucket = NN && '"));
     } else {
-      return Success((values, []));
+      return Success((values, 0, None));
     }
   }
 
@@ -298,7 +315,7 @@ module DynamoDBSupport {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
 
       var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
-      var (newValues, bucket) := foo;
+      var (newValues, bucket, bucket_queries) := foo;
       var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, newValues, req.ExpressionAttributeNames);
       var newContext :- Filter.Beaconize(search.value.curr(), oldContext, keyId, bucket);
       return Success(req.(
@@ -321,16 +338,13 @@ module DynamoDBSupport {
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
       return Success(resp.(Items := Some(trimmedItems)));
     } else {
-      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, map[]);
-      var (newValues, bucket) := foo;
       var newItems :- Filter.FilterResults(
         search.value.curr(),
         resp.Items.value,
         req.KeyConditionExpression,
         req.FilterExpression,
         req.ExpressionAttributeNames,
-        newValues,
-        bucket);
+        req.ExpressionAttributeValues);
       SequenceIsSafeBecauseItIsInMemory(newItems);
       :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
@@ -374,7 +388,7 @@ module DynamoDBSupport {
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, None, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
-      var (newValues, bucket) := foo;
+      var (newValues, bucket, bucket_queries) := foo;
       var context := Filter.ExprContext(None, req.FilterExpression, newValues, req.ExpressionAttributeNames);
       var newContext :- Filter.Beaconize(search.value.curr(), context, keyId, bucket);
       return Success(req.(
@@ -396,16 +410,13 @@ module DynamoDBSupport {
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
       return Success(resp.(Items := Some(trimmedItems)));
     } else {
-      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, None, req.ExpressionAttributeNames, req.ExpressionAttributeValues, map[]);
-      var (newValues, bucket) := foo;
       var newItems :- Filter.FilterResults(
         search.value.curr(),
         resp.Items.value,
         None,
         req.FilterExpression,
         req.ExpressionAttributeNames,
-        newValues,
-        bucket);
+        req.ExpressionAttributeValues);
       SequenceIsSafeBecauseItIsInMemory(newItems);
       :- Need(|newItems| as uint64 < INT32_MAX_LIMIT as uint64, DynamoDbEncryptionUtil.E("This is impossible."));
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), newItems);
@@ -450,7 +461,7 @@ module DynamoDBSupport {
     fields : seq<string>,
     bv : SearchableEncryptionInfo.BeaconVersion,
     item : DDB.AttributeMap,
-    bucket : Bytes,
+    bucket : BucketNumber,
     results : map<string, string> := map[])
     : (output : Result<map<string, string>, Error>)
     requires forall x <- fields :: x in bv.beacons
@@ -472,7 +483,7 @@ module DynamoDBSupport {
         GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results)
   }
 
-  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap, bucket : Bytes)
+  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap, bucket : BucketNumber)
     returns (output : Result<map<string, string>, Error>)
   {
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.beacons.Keys, CharLess);

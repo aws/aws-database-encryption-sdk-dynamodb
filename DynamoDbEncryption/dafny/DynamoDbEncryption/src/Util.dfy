@@ -80,6 +80,33 @@ module DynamoDbEncryptionUtil {
     }
   }
 
+  const MAX_BUCKET_COUNT : nat := 255
+
+  type BucketBytes = x: seq<uint8> | Valid_BucketBytes(x) witness []
+  newtype OptBucketCount  = x: int | 0 <= x <= MAX_BUCKET_COUNT
+
+  function method BucketBytesToNumber(x : BucketBytes) : BucketNumber
+  {
+    if |x| == 0 then
+      0
+    else
+      x[0] as BucketNumber
+  }
+
+  function method BucketNumberToBytes(x : BucketNumber) : BucketBytes
+  {
+    if x == 0 then
+      []
+    else
+      [x as uint8]
+  }
+
+  predicate method Valid_BucketBytes(x : seq<uint8>)
+  {
+    && |x| <= 1
+    && (|x| == 1 ==> (0 < x[0] < (MAX_BUCKET_COUNT as uint8)))
+  }
+
   function printFromFunction<T>(x: T): () {
     ()
   } by method {

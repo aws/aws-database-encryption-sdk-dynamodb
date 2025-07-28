@@ -539,7 +539,7 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     keys : MaybeKeyMap,
     newValues: DDB.ExpressionAttributeValueMap,
-    bucket : Bytes,
+    bucket : BucketNumber,
     acc : seq<Token> := []
   )
     : Result<ParsedContext, Error>
@@ -1528,7 +1528,7 @@ module DynamoDBFilterExpr {
     ItemList : DDB.ItemList,
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap,
-    bucket : Bytes
+    bucket : BucketNumber
   )
     returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
@@ -1553,9 +1553,8 @@ module DynamoDBFilterExpr {
     KeyExpression : Option<DDB.KeyExpression>,
     FilterExpression : Option<DDB.ConditionExpression>,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    values: Option<DDB.ExpressionAttributeValueMap>,
-    bucket : Bytes)
-    returns (output : Result<DDB.ItemList, Error>)
+    values: Option<DDB.ExpressionAttributeValueMap>
+  ) returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
     ensures b.ValidState()
     modifies b.Modifies()
@@ -1563,6 +1562,8 @@ module DynamoDBFilterExpr {
     if |ItemList| == 0 || (KeyExpression.None? && FilterExpression.None?) {
       return Success(ItemList);
     } else {
+      // We don't actually need bucket_bytes if we're just filtering
+      var bucket : BucketNumber := 0;
       var afterKeys;
       if KeyExpression.Some? {
         var parsed := ParseExpr(KeyExpression.value);
@@ -1750,7 +1751,7 @@ module DynamoDBFilterExpr {
     b : SI.BeaconVersion,
     context : ExprContext,
     keyId : MaybeKeyId,
-    bucket : Bytes,
+    bucket : BucketNumber,
     naked : bool := false
   )
     returns (output : Result<ExprContext, Error>)
