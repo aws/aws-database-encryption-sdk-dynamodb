@@ -13,7 +13,8 @@
 • e.g. transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
 
   datatype ExprContext = ExprContext (
-    expr : Option<DDB.ConditionExpression>,
+    keyExpr : Option<DDB.KeyExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
@@ -1744,6 +1745,57 @@ module DynamoDBFilterExpr {
     values: DDB.ExpressionAttributeValueMap,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
+
+  method DoBeaconize(
+    b : SI.BeaconVersion,
+    context : ExprContext,
+    keyId : MaybeKeyId,
+    bucket : BucketNumber,
+    queries : Option<BucketCount>
+  )
+    returns (output : Result<ExprContext, Error>)
+    requires b.ValidState()
+    requires bucket < b.numBuckets
+    requires queries.Some? ==> bucket < queries.value <= b.numBuckets
+    ensures b.ValidState()
+    modifies b.Modifies()
+  {
+    if queries.None? || queries.value == b.numBuckets || (b.numBuckets - bucket) <= queries.value {
+      output := Beaconize(b, context, keyId, bucket);
+    } else {
+      var curr_bucket : BucketNumber := bucket;
+      var exprs : seq<string> := [];
+      var tmpOutput : ExprContext := ExprContext(None, None, None, None);
+      while curr_bucket < b.numBuckets
+        invariant b.ValidState()
+      {
+        tmpOutput :- Beaconize(b, context, keyId, curr_bucket);
+        if tmpOutput.filterExpr.Some? {
+          if tmpOutput.filterExpr.value !in exprs {
+            exprs := exprs + [tmpOutput.filterExpr.value];
+          }
+        }
+        if (b.numBuckets - curr_bucket) <= queries.value {
+          break;
+        } else {
+          curr_bucket := curr_bucket + queries.value;
+        }
+      }
+      if |exprs| < 2 {
+        return Success(tmpOutput);
+      } else {
+        var new_filter : string := "";
+        SequenceIsSafeBecauseItIsInMemory(exprs);
+        for i : uint64 := 0 to |exprs| as uint64 {
+          if i != 0 {
+            new_filter := new_filter + " OR ";
+          }
+          new_filter := new_filter + "(" + exprs[i] + ")";
+        }
+        return Success(tmpOutput.(filterExpr := Some(new_filter)));
+      }
+    }
+  }
 
   // transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
   // if naked == true, it becomes "aws_dbe_b_A = B"

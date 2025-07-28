@@ -722,7 +722,7 @@ module SearchableEncryptionInfo {
     beacons : BeaconMap,
     virtualFields : VirtualFieldMap,
     actions : AttributeActions,
-    numBuckets : uint32
+    numBuckets : BucketCount
   )
     : (ret : Result<ValidBeaconVersion, Error>)
     requires version == 1
@@ -750,7 +750,7 @@ module SearchableEncryptionInfo {
     beaconNames : seq<string>,
     stdNames : seq<string>,
     encryptedFields : set<string>,
-    numBuckets : uint32
+    numBuckets : BucketCount
   ) {
 
     function Modifies() : set<object>
