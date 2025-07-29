@@ -317,7 +317,7 @@ module SearchConfigToInfo {
     }
 
     var numBuckets : int := config.numberOfBuckets.UnwrapOr(1) as int;
-    :- Need(0 <= numBuckets < INT32_MAX_LIMIT, E("Invalid number of buckets specified, " + Base10Int2String(numBuckets) + ", must be 0 < numberOfBuckets <= 255."));
+    :- Need(0 <= numBuckets < MAX_BUCKET_COUNT, E("Invalid number of buckets specified, " + Base10Int2String(numBuckets) + ", must be 0 < numberOfBuckets <= 255."));
     // Zero is invalid, but in Java we can't distinguish None from Some(0)
     if numBuckets == 0 {
       numBuckets := 1;
@@ -328,7 +328,7 @@ module SearchConfigToInfo {
         beacons,
         virtualFields,
         outer.attributeActionsOnEncrypt,
-        numBuckets as uint32
+        numBuckets as BucketCount
       );
   }
 

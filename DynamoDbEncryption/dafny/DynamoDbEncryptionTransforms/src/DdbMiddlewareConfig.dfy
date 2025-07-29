@@ -78,15 +78,12 @@ module DdbMiddlewareConfig {
     if config.search.None? {
       return Success(0);
     }
-    var numBuckets : uint32 := config.search.value.versions[0].numBuckets;
+    var numBuckets := config.search.value.versions[0].numBuckets;
     if numBuckets <= 1 {
       return Success(0);
     }
-    if (numBuckets > 255) {
-      return Failure(E("Number of buckets exceeds 255"));
-    }
 
-    var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets as DDBE.BucketCount));
+    var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
     if out.bucketNumber == 0 {
       return Success(0);

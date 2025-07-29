@@ -271,7 +271,8 @@ module DynamoDBSupport {
   // Extract aws_dbe_bucket = NN from filterExpr and return bucket
   method ExtractBucket(search : SearchableEncryptionInfo.BeaconVersion, keyExpr : Option<string>, filterExpr : Option<string>, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>, actions : AttributeActions)
     returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, BucketNumber, Option<BucketCount>), Error>)
-    ensures output.Success? && output.value.2.Some? ==> output.value.1 < output.value.2.value
+    ensures output.Success? ==> output.value.1 < search.numBuckets
+    ensures output.Success? && output.value.2.Some? ==> output.value.1 < output.value.2.value <= search.numBuckets
   {
     if search.numBuckets <= 1 {
       :- Need(values.None? || BucketName !in values.value, E(""));
