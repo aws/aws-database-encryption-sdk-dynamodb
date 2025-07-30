@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
-index d0a4e58..4e9890c 100644
+index 6f4a75dc..e9babb91 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
 @@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
@@ -10,6 +10,6 @@ index d0a4e58..4e9890c 100644
 -
 -    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
 -
-     public static AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S18_AuthenticateAction(software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._IAuthenticateAction value)
+     public static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S25_EncryptPathStructureInput__M9_tableName(Dafny.ISequence<char> value)
      {
-       if (value.is_SIGN) return AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.AuthenticateAction.SIGN;
+       return FromDafny_N6_smithy__N3_api__S6_String(value);
