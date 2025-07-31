@@ -4,8 +4,14 @@
 package utils
 
 import (
+	"context"
 	"crypto/rand"
 	"os"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 const (
@@ -136,4 +142,33 @@ func GenerateAes256KeyBytes() []byte {
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
+}
+
+func DeleteItem(
+	tableName string,
+	partitionKeyName string,
+	partitionKeyValue string,
+	sortKeyName string,
+	sortKeyValue string,
+) {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	HandleError(err)
+
+	// Create DynamoDB client
+	client := dynamodb.NewFromConfig(cfg)
+	// Build the key attributes map with both partition and sort keys
+	key := map[string]types.AttributeValue{
+		partitionKeyName: &types.AttributeValueMemberS{Value: partitionKeyValue},
+		sortKeyName:      &types.AttributeValueMemberN{Value: sortKeyValue},
+	}
+
+	// Create the DeleteItem input
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(tableName),
+		Key:       key,
+	}
+
+	// Execute the DeleteItem operation
+	_, err = client.DeleteItem(context.TODO(), input)
+	HandleError(err)
 }
