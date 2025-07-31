@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
-index 28ba1ad5..1ae74a4c 100644
+index e8ca3ce8..35957991 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
 @@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
@@ -10,6 +10,6 @@ index 28ba1ad5..1ae74a4c 100644
 -
 -    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
 -
-     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.ParsedHeader FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S17_EncryptItemOutput__M12_parsedHeader(Wrappers_Compile._IOption<software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types._IParsedHeader> value)
+     public static AWS.Cryptography.Primitives.AwsCryptographicPrimitives FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S25_AtomicPrimitivesReference(software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient value)
      {
-       return value.is_None ? (AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.ParsedHeader)null : FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S12_ParsedHeader(value.Extract());
+       if (value is software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient dafnyValue)

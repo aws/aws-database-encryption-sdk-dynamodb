@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbEncryption/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbEncryption/TypeConversion.cs
-index 76a38a2a..11c466ad 100644
+index b842a7af..164b16c5 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbEncryption/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbEncryption/TypeConversion.cs
 @@ -7,10 +7,43 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
@@ -46,6 +46,6 @@ index 76a38a2a..11c466ad 100644
 +      }
 +    }
 +    // END MANUAL EDIT
-     public static System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.DynamoDb.DynamoDbTableEncryptionConfig> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S33_DynamoDbTableEncryptionConfigList(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IDynamoDbTableEncryptionConfig> value)
+     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S5_AsSet(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IAsSet value)
      {
-       return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S33_DynamoDbTableEncryptionConfigList__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S33_DynamoDbTableEncryptionConfigList__M5_value(pair.Cdr));
+       software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.AsSet concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.AsSet)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet(); return converted;
