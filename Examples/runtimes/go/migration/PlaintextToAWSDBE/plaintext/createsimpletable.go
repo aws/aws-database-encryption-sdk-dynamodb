@@ -32,6 +32,7 @@ func CreateSimpleTable(ddbClient *dynamodb.Client, ddbTableName string) {
 				AttributeType: types.ScalarAttributeTypeN,
 			},
 		},
+		BillingMode: "PAY_PER_REQUEST",
 	}
 
 	_, err := ddbClient.CreateTable(context.TODO(), input)
