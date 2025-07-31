@@ -4,7 +4,6 @@ on:
     types: [opened, reopened]
   issue_comment:
     types: [created]
-  push:
 
 jobs:
   notify-issue:
