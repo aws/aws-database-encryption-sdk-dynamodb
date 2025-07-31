@@ -6,6 +6,7 @@
     ["ATTR_INDEX4", "aws_dbe_b_Attr4"],
     ["ATTR_INDEX5", "aws_dbe_b_Attr5"],
     ["ATTR_INDEX15", "aws_dbe_b_Attr1", "aws_dbe_b_Attr5"],
+    ["ATTR_INDEX23", "aws_dbe_b_Attr2", "aws_dbe_b_Attr3"],
     ["ATTR_INDEX51", "aws_dbe_b_Attr5", "aws_dbe_b_Attr1"]
   ],
   "largeEncryptionConfigs": {
