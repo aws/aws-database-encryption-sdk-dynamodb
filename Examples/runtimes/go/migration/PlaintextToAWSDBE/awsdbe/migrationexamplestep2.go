@@ -50,9 +50,9 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	// you must use the plaintext override `FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`.
 	// This plaintext override means:
 	// 	- Write: Items are forbidden to be written as plaintext.
-	//  	Items will be written as encrypted items.
+	//  	     Items will be written as encrypted items.
 	//  - Read: Items are allowed to be read as plaintext.
-	//  	Items are allowed to be read as encrypted items.
+	//  	    Items are allowed to be read as encrypted items.
 
 	listOfTableConfigs := configureTable(kmsKeyID, ddbTableName, dbesdkdynamodbencryptiontypes.PlaintextOverrideForbidPlaintextWriteAllowPlaintextRead)
 
