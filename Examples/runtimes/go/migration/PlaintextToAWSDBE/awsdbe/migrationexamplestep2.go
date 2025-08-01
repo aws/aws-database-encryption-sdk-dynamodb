@@ -47,7 +47,7 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	//    This is common across all the steps.
 
 	// When creating encryption configuration for your table,
-	// you must use the plaintext override `FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ`.
+	// you must use the plaintext override `PlaintextOverrideForbidPlaintextWriteAllowPlaintextRead`.
 	// This plaintext override means:
 	// 	- Write: Items are forbidden to be written as plaintext.
 	//  	     Items will be written as encrypted items.
