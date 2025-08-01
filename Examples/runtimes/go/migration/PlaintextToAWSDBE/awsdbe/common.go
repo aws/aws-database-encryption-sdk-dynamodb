@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 )
 
-func configureTable(kmsKeyID, ddbTableName string) dbesdkdynamodbencryptiontypes.DynamoDbTablesEncryptionConfig {
+func configureTable(kmsKeyID, ddbTableName string, plaintextOverride dbesdkdynamodbencryptiontypes.PlaintextOverride) dbesdkdynamodbencryptiontypes.DynamoDbTablesEncryptionConfig {
 
 	// Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
 	// We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -61,12 +61,6 @@ func configureTable(kmsKeyID, ddbTableName string) dbesdkdynamodbencryptiontypes
 	// Again, while we are not writing encrypted items,
 	// we should expect to be able to read encrypted items.
 
-	// This `PlaintextOverrideForcePlaintextWriteAllowPlaintextRead` means:
-	//  - Write: Items are forced to be written as plaintext.
-	//           Items may not be written as encrypted items.
-	//  - Read: Items are allowed to be read as plaintext.
-	//          Items are allowed to be read as encrypted items.
-	plaintextOverride := dbesdkdynamodbencryptiontypes.PlaintextOverrideForcePlaintextWriteAllowPlaintextRead
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
 		LogicalTableName:          ddbTableName,
 		PartitionKeyName:          partitionKeyName,
