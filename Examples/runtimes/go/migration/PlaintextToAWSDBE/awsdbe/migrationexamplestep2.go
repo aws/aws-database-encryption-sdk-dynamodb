@@ -3,6 +3,7 @@ package awsdbe
 import (
 	// Standard imports
 	"context"
+	"fmt"
 	"reflect"
 
 	// AWS SDK imports
@@ -103,4 +104,5 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	if !reflect.DeepEqual(item, result.Item) {
 		panic("Decrypted item does not match original item")
 	}
+	fmt.Println("MigrationStep2 completed successfully")
 }

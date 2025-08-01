@@ -2,6 +2,7 @@ package awsdbe
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -105,5 +106,5 @@ func MigrationStep1(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	if !reflect.DeepEqual(item, result.Item) {
 		panic("Decrypted item does not match original item")
 	}
-
+	fmt.Println("MigrationStep1 completed successfully")
 }
