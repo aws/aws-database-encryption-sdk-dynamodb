@@ -1789,6 +1789,18 @@ module DynamoDBFilterExpr {
     var result_filter := old_context.filterExpr.value;
     var new_values := SortedSets.ComputeSetToSequence(new_context.values.value.Keys);
     SequenceIsSafeBecauseItIsInMemory(new_values);
+    var allUnchanged := true;
+    for i : uint64 := 0 to |new_values| as uint64
+    {
+      if new_values[i] !in old_context.values.value {
+        allUnchanged := false;
+        break;
+      }
+    }
+    if allUnchanged {
+      return Success(old_context);
+    }
+
     for i : uint64 := 0 to |new_values| as uint64
     {
       var key := new_values[i];

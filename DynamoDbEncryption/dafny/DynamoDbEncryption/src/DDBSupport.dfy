@@ -236,6 +236,20 @@ module DynamoDBSupport {
       Failure(E("Value of " + name + " is not numeric (i.e. 'N')"))
   }
 
+  // Unlike Query, Scan must not specify BucketName nor BucketQueriesName
+  function method TestBucketForScan(names : Option<DDB.ExpressionAttributeValueMap>)
+    : Result<bool, Error>
+  {
+    if names.None? then
+      Success(true)
+    else if BucketName in names.value then
+      Failure(E("A value for " + BucketName + " must not be specified for Scan operations."))
+    else if BucketQueriesName in names.value then
+      Failure(E("A value for " + BucketQueriesName + " must not be specified for Scan operations."))
+    else
+      Success(true)
+  }
+
   // If names[":aws_dbe_bucket"] holds S(N)' return (Some(names - {":aws_dbe_bucket"}), Some(N))
   // else return (None, None)
   function method ExtractBucketNumber(names : Option<DDB.ExpressionAttributeValueMap>)
@@ -400,10 +414,11 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, None, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
-      var (newValues, bucket, bucket_queries) := foo;
-      var context := Filter.ExprContext(None, req.FilterExpression, newValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.DoBeaconize(search.value.curr(), context, keyId, bucket, bucket_queries);
+      var _ :- TestBucketForScan(req.ExpressionAttributeValues);
+      var context := Filter.ExprContext(None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
+      // For Scan, we always treat it as {:aws_dbe_bucket := 0, :aws_dbe_bucket_queries := 1}
+      var numQueries := if search.value.curr().numBuckets == 1 then None else Some(1);
+      var newContext :- Filter.DoBeaconize(search.value.curr(), context, keyId, 0, Some(1));
       return Success(req.(
                      FilterExpression := newContext.filterExpr,
                      ExpressionAttributeNames := newContext.names,

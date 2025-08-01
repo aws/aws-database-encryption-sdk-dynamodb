@@ -80,7 +80,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ensures GetBucketNumberEnsuresPublicly(input, output)
       ensures unchanged(History)
     {
-      // print "\nGetBucketNumber\n", input.item, "\n";
       expect "PreferredBucket" in input.item;
       expect input.item["PreferredBucket"].N?;
       var bucket :- expect StrToInt(input.item["PreferredBucket"].N);
@@ -241,8 +240,30 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : nat, q : DDB.QueryInput, queryName : string, custom : bool := false, filtered : bool := false)
+    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, filtered : bool, numQueries : nat)
+      requires counts.Length == 100
+      requires client.ValidState()
+      requires client.Modifies !! {counts}
       requires 0 < numQueries
+      ensures client.ValidState()
+      modifies client.Modifies
+      modifies counts
+    {
+      var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
+      var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
+      values := values[":aws_dbe_bucket" := bucketNumber];
+      if filtered {
+        var bucketQueries := DDB.AttributeValue.N(String.Base10Int2String(numQueries));
+        values := values[":aws_dbe_bucket_queries" := bucketQueries];
+      }
+      var q := query.(ExpressionAttributeValues := Some(values));
+      var result := client.Query(q);
+      // expect result.Failure?;
+    }
+
+
+    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : nat, q : DDB.QueryInput, queryName : string, custom : bool := false, filtered : bool := false)
+      requires 0 < numQueries <= 5
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
@@ -251,6 +272,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i := 0 to numQueries {
         DoBucketQuery(client, i, q, counts, queryName, custom, filtered, numQueries);
       }
+      for i := numQueries to 5 {
+        TestBucketQueryFailure(client, i, q, counts, queryName, custom, filtered, numQueries);
+      }
+
       var wasBad : bool := false;
       for i := 0 to 100 {
         if counts[i] == 0 {

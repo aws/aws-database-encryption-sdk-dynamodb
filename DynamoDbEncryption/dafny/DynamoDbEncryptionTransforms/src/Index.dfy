@@ -310,6 +310,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
 
     constructor {:vcs_split_on_every_assert} (config: Operations.InternalConfig)
     {
+      assert Operations.ValidInternalConfig?(config);
       this.config := config;
       History := new IDynamoDbEncryptionTransformsClientCallHistory();
       Modifies := Operations.ModifiesInternalConfig(config) + {History};

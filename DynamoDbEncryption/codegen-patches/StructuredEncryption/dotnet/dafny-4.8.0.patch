@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
-index b01717ff..02de5d49 100644
+index df81f311..ac28fc2a 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/StructuredEncryption/TypeConversion.cs
 @@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
@@ -10,6 +10,6 @@ index b01717ff..02de5d49 100644
 -
 -    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
 -
-     public static AWS.Cryptography.Primitives.AwsCryptographicPrimitives FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S25_AtomicPrimitivesReference(software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient value)
+     public static AWS.Cryptography.Primitives.AtomicPrimitives FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S25_AtomicPrimitivesReference(software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient value)
      {
        if (value is software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient dafnyValue)
