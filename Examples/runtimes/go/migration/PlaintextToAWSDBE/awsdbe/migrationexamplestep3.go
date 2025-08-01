@@ -4,7 +4,6 @@ import (
 	// Standard imports
 	"context"
 	"fmt"
-	"reflect"
 
 	// AWS SDK imports
 
@@ -34,7 +33,7 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 */
-func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue string) {
+func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue string) error {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
 
@@ -63,10 +62,11 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 
 	// 6. Put an item into your table.
 	//    This item will be encrypted.
+	encryptedAndSignedValue := "this will be encrypted and signed"
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
-		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyValue},
-		"attribute1":    &types.AttributeValueMemberS{Value: "this will be encrypted and signed"},
+		"sort_key":      &types.AttributeValueMemberN{Value: "3"},
+		"attribute1":    &types.AttributeValueMemberS{Value: encryptedAndSignedValue},
 		"attribute2":    &types.AttributeValueMemberS{Value: "this will never be encrypted, but it will be signed"},
 		"attribute3":    &types.AttributeValueMemberS{Value: "this will never be encrypted nor signed"},
 	}
@@ -77,7 +77,11 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	}
 
 	_, err = ddb.PutItem(context.TODO(), &putInput)
-	utils.HandleError(err)
+	// We return this error because we run test against the error.
+	// When used in production code, you can decide how you can to handle errors.
+	if err != nil {
+		return err
+	}
 
 	// 7. Get an item back from the table.
 	//    If this is an item written in plaintext (i.e. any item written
@@ -87,7 +91,7 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	//    item client-sid and surface it in our code as a plaintext item.
 	key := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
-		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyValue},
+		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyReadValue},
 	}
 
 	getInput := &dynamodb.GetItemInput{
@@ -97,11 +101,20 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	}
 
 	result, err := ddb.GetItem(context.TODO(), getInput)
-	utils.HandleError(err)
+	// We return this error because we run test against the error.
+	// When used in production code, you can decide how you can to handle errors.
+	if err != nil {
+		return err
+	}
 
-	// Demonstrate we get the expected item back
-	if !reflect.DeepEqual(item, result.Item) {
+	// Verify we got the expected item back
+	if partitionKeyValue != result.Item["partition_key"].(*types.AttributeValueMemberS).Value {
+		panic("Decrypted item does not match original item")
+	}
+	if encryptedAndSignedValue != result.Item["attribute1"].(*types.AttributeValueMemberS).Value {
 		panic("Decrypted item does not match original item")
 	}
 	fmt.Println("MigrationStep3 completed successfully")
+
+	return nil
 }
