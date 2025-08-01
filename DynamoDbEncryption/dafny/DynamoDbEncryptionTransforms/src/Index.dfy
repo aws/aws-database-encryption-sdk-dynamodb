@@ -301,7 +301,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
 
   class DynamoDbEncryptionTransformsClient... {
 
-    predicate ValidState()
+    predicate {:vcs_split_on_every_assert} ValidState()
     {
       && Operations.ValidInternalConfig?(config)
       && History !in Operations.ModifiesInternalConfig(config)
@@ -314,6 +314,11 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
       this.config := config;
       History := new IDynamoDbEncryptionTransformsClientCallHistory();
       Modifies := Operations.ModifiesInternalConfig(config) + {History};
+      new;
+      assert Operations.ValidInternalConfig?(this.config);
+      assert History !in Operations.ModifiesInternalConfig(config);
+      assert Modifies == Operations.ModifiesInternalConfig(config) + {History};
+      assert ValidState();
     }
 
   }
