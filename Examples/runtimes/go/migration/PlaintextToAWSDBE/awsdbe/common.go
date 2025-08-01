@@ -15,13 +15,6 @@ func configureTable(kmsKeyID, ddbTableName string, plaintextOverride dbesdkdynam
 	// Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
 	// We will use the `CreateMrkMultiKeyring` method to create this keyring,
 	// as it will correctly handle both single region and Multi-Region KMS Keys.
-	//
-	// Note that while we still are not writing encrypted items,
-	// and our key will not be used to encrypt items in this example,
-	// our configuration specifies that we may read encrypted items,
-	// and we should expect to be able to decrypt and process any encrypted items.
-	// To that end, we must fully define our encryption configuration in
-	// this step.
 
 	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
 	utils.HandleError(err)
@@ -58,9 +51,6 @@ func configureTable(kmsKeyID, ddbTableName string, plaintextOverride dbesdkdynam
 	unsignedAttributes := []string{"attribute3"}
 
 	// Create encryption configuration for table.
-	// Again, while we are not writing encrypted items,
-	// we should expect to be able to read encrypted items.
-
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
 		LogicalTableName:          ddbTableName,
 		PartitionKeyName:          partitionKeyName,
