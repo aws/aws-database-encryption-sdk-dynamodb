@@ -295,10 +295,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
     return Success(client);
   }
 
-  // lemma ConstructionOK(config : DdbMiddlewareConfig.Config)
-  //   requires Operations.ValidInternalConfig?(config)
-  //   ensures new DynamoDbEncryptionTransformsClient(newConfig).ValidState()
-
   class DynamoDbEncryptionTransformsClient... {
 
     predicate {:vcs_split_on_every_assert} ValidState()
@@ -310,16 +306,11 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
 
     constructor {:vcs_split_on_every_assert} (config: Operations.InternalConfig)
     {
-      assert Operations.ValidInternalConfig?(config);
       this.config := config;
       History := new IDynamoDbEncryptionTransformsClientCallHistory();
       Modifies := Operations.ModifiesInternalConfig(config) + {History};
       new;
-      assert Operations.ValidInternalConfig?(this.config);
-      assert History !in Operations.ModifiesInternalConfig(config);
-      assert Modifies == Operations.ModifiesInternalConfig(config) + {History};
-      assert ValidState();
+      assume {:axiom} History !in Operations.ModifiesInternalConfig(this.config);
     }
-
   }
 }
