@@ -1,11 +1,8 @@
 package awsdbe
 
 import (
-	// Standard imports
 	"context"
 	"reflect"
-
-	// AWS SDK imports
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -14,6 +11,8 @@ import (
 
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/dbesdkmiddleware"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
+
+	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 )
 
 /*
@@ -43,7 +42,20 @@ func MigrationStep1(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	// 1. Configure your Keyring, attribute actions,
 	// 	  allowedUnsignedAttributes, and encryption configuration for table.
 	//    This is common across all the steps.
-	listOfTableConfigs := configureTable(kmsKeyID, ddbTableName)
+
+	// Note that while we still are not writing encrypted items,
+	// and our key will not be used to encrypt items in this example,
+	// our configuration specifies that we may read encrypted items,
+	// and we should expect to be able to decrypt and process any encrypted items.
+	// To that end, we must fully define our encryption configuration in
+	// this step.
+
+	// This `PlaintextOverrideForcePlaintextWriteAllowPlaintextRead` means:
+	//  - Write: Items are forced to be written as plaintext.
+	//           Items may not be written as encrypted items.
+	//  - Read: Items are allowed to be read as plaintext.
+	//          Items are allowed to be read as encrypted items.
+	listOfTableConfigs := configureTable(kmsKeyID, ddbTableName, dbesdkdynamodbencryptiontypes.PlaintextOverrideForcePlaintextWriteAllowPlaintextRead)
 
 	// 2. Create DynamoDB client with dbEsdkMiddleware
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(listOfTableConfigs)
