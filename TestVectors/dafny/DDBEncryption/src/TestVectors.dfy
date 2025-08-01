@@ -184,11 +184,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ]
     }
 
-    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numBuckets : nat)
+    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, filtered : bool, numQueries : nat)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
-      requires 0 < numBuckets
+      requires 0 < numQueries
       ensures client.ValidState()
       modifies client.Modifies
       modifies counts
@@ -201,7 +201,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       {
         var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
         var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
-        var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values[":aws_dbe_bucket" := bucketNumber]));
+        values := values[":aws_dbe_bucket" := bucketNumber];
+        if filtered {
+          var bucketQueries := DDB.AttributeValue.N(String.Base10Int2String(numQueries));
+          values := values[":aws_dbe_bucket_queries" := bucketQueries];
+        }
+        var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values));
         var result :- expect client.Query(q);
         if result.Items.Some? {
           numReturned := numReturned + |result.Items.value|;
@@ -220,7 +225,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
               expect "PreferredBucket" in item;
               expect item["PreferredBucket"].N?;
               var stored_bucket :- expect StrToInt(item["PreferredBucket"].N);
-              expect bucket == stored_bucket % numBuckets;
+              expect bucket == stored_bucket % numQueries;
             }
           }
         }
@@ -236,15 +241,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method TestBucketQueries(client : DDB.IDynamoDBClient, numBuckets : nat, q : DDB.QueryInput, queryName : string, custom : bool := false)
-      requires 0 < numBuckets
+    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : nat, q : DDB.QueryInput, queryName : string, custom : bool := false, filtered : bool := false)
+      requires 0 < numQueries
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
       var counts: array<int> := new int[100](i => 0);
-      for i := 0 to numBuckets {
-        DoBucketQuery(client, i, q, counts, queryName, custom, numBuckets);
+      for i := 0 to numQueries {
+        DoBucketQuery(client, i, q, counts, queryName, custom, filtered, numQueries);
       }
       var wasBad : bool := false;
       for i := 0 to 100 {
@@ -277,6 +282,56 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         FilterExpression := None,
         KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
         ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery15F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX1"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr1 = :attr1"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery25F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX2"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr2 = :attr2"),
+        ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery35F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX3"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr3 = :attr3"),
+        ExpressionAttributeValues := Some(map[":attr3" := DDB.AttributeValue.S("CCCC"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery45F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX4"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr4 = :attr4"),
+        ExpressionAttributeValues := Some(map[":attr4" := DDB.AttributeValue.S("DDDD"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery23() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX23"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr2 = :attr2 and Attr3 = :attr3"),
+        ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB"), ":attr3" := DDB.AttributeValue.S("CCCC")])
       )
     }
     function GetBucketQuery51() : DDB.QueryInput
@@ -360,8 +415,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3");
       TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2");
       TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1");
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 5");
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 5");
+
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 15");
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51");
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23");
+
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15F", false, true);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25F", false, true);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", false, true);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", false, true);
     }
 
     // As BucketTest1, but with custom bucket selector
@@ -388,8 +450,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3", true);
       TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2", true);
       TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 5", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 5", true);
+
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 15", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23", true);
+
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15F", true, true);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25F", true, true);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", true, true);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", true, true);
     }
 
     function NewOrderRecord(i : nat, str : string) : Record

@@ -44,6 +44,7 @@ module DynamoDBFilterExpr {
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import Norm = DynamoDbNormalizeNumber
   import StandardLibrary.Sequence
+  import SortedSets
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -1746,6 +1747,71 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>
   )
 
+  // transform index into character
+  function method AsChar(x : uint32) : (output : char)
+    requires x < 26
+    ensures 'A' <= output <= 'Z'
+  {
+    'A' + x as char
+  }
+
+  // try different prefixes on `prev` until something is found that is not in `values`
+  method MakeNewName(prev : string, values : DDB.ExpressionAttributeValueMap) returns (output : Result<string, Error>)
+    requires 0 < |prev|
+    ensures output.Success? ==>
+              && 0 < |output.value|
+              && prev < output.value
+              && output.value !in values
+  {
+    var ch : char := 'A';
+    for i : uint32 := 0 to 26 {
+      for j : uint32 := 0 to 26 {
+        var new_str := prev + [AsChar(i), AsChar(j)];
+        if new_str !in values {
+          return Success(new_str);
+        }
+      }
+    }
+    return Failure(E("Could not find new name"));
+  }
+
+  // Combine old_context and new_context, assuming that both came from Beaconize called with different bucket numbers
+  // this updates values and filterExpr, e.g
+  // old_context : filterExpr = "(X = :x)" values = {":x" := "aaa"}
+  // new_context : filterExpr = "X = :x" values = {":x" := "bbb"}
+  // output : filterExpr = "(X = :x) OR (X = :xAA)" values = {":x" := "aaa", "xAA" := "bbb"}
+  method AddContext(old_context : ExprContext, new_context : ExprContext) returns (output : Result<ExprContext, Error>)
+  {
+    if old_context.filterExpr.None? || new_context.filterExpr.None? || old_context.values.None? || new_context.values.None? || new_context.values == old_context.values {
+      return Success(old_context);
+    }
+    var result_values := old_context.values.value;
+    var result_filter := old_context.filterExpr.value;
+    var new_values := SortedSets.ComputeSetToSequence(new_context.values.value.Keys);
+    SequenceIsSafeBecauseItIsInMemory(new_values);
+    for i : uint64 := 0 to |new_values| as uint64
+    {
+      var key := new_values[i];
+      if key in old_context.values.value && new_context.values.value[key] != old_context.values.value[key] {
+        if old_context.keyExpr.Some? {
+          var keyInIndex := String.HasSubString(old_context.keyExpr.value, key);
+          if keyInIndex.Some? {
+            return Failure(E("The value " + key + " is referenced by both the KeyConditionExpression and the FilterExpression, which is not allowed."));
+          }
+        }
+        if 0 == |key| {
+          return Failure(E("Unexpected zero length key in ExpressionAttributeValueMap"));
+        }
+        var new_key :- MakeNewName(key, result_values);
+        result_values := result_values[new_key := new_context.values.value[key]];
+        var nFilter := String.SearchAndReplaceAll(new_context.filterExpr.value, key, new_key);
+        result_filter := result_filter + " OR (" + nFilter + ")";
+      }
+    }
+    return Success(old_context.(filterExpr := Some(result_filter), values := Some(result_values)));
+  }
+
+  // Call Beaconize, possibly multiple times if fewer queries than buckets
   method DoBeaconize(
     b : SI.BeaconVersion,
     context : ExprContext,
@@ -1760,20 +1826,20 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if queries.None? || queries.value == b.numBuckets || (b.numBuckets - bucket) <= queries.value {
+    if queries.None? || queries.value == b.numBuckets || (b.numBuckets - bucket) <= queries.value || context.filterExpr.None? {
       output := Beaconize(b, context, keyId, bucket);
     } else {
       var curr_bucket : BucketNumber := bucket;
-      var exprs : seq<string> := [];
-      var tmpOutput : ExprContext := ExprContext(None, None, None, None);
+      var tmpOutput : ExprContext := context;
       while curr_bucket < b.numBuckets
         invariant b.ValidState()
       {
-        tmpOutput :- Beaconize(b, context, keyId, curr_bucket);
-        if tmpOutput.filterExpr.Some? {
-          if tmpOutput.filterExpr.value !in exprs {
-            exprs := exprs + [tmpOutput.filterExpr.value];
-          }
+        var localOut :- Beaconize(b, context, keyId, curr_bucket);
+        if curr_bucket == bucket {
+          var old_filter := localOut.filterExpr.UnwrapOr("");
+          tmpOutput := localOut.(filterExpr := Some("(" + old_filter + ")"));
+        } else {
+          tmpOutput :- AddContext(tmpOutput, localOut);
         }
         if (b.numBuckets - curr_bucket) <= queries.value {
           break;
@@ -1781,19 +1847,7 @@ module DynamoDBFilterExpr {
           curr_bucket := curr_bucket + queries.value;
         }
       }
-      if |exprs| < 2 {
-        return Success(tmpOutput);
-      } else {
-        var new_filter : string := "";
-        SequenceIsSafeBecauseItIsInMemory(exprs);
-        for i : uint64 := 0 to |exprs| as uint64 {
-          if i != 0 {
-            new_filter := new_filter + " OR ";
-          }
-          new_filter := new_filter + "(" + exprs[i] + ")";
-        }
-        return Success(tmpOutput.(filterExpr := Some(new_filter)));
-      }
+      return Success(tmpOutput);
     }
   }
 
