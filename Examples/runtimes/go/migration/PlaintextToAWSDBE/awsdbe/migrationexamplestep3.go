@@ -54,13 +54,13 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 
 	listOfTableConfigs := configureTable(kmsKeyID, ddbTableName, dbesdkdynamodbencryptiontypes.PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead)
 
-	// 5. Create DynamoDB client with dbEsdkMiddleware
+	// 2. Create DynamoDB client with dbEsdkMiddleware
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(listOfTableConfigs)
 	utils.HandleError(err)
 
 	ddb := dynamodb.NewFromConfig(cfg, dbEsdkMiddleware.CreateMiddleware())
 
-	// 6. Put an item into your table.
+	// 3. Put an item into your table.
 	//    This item will be encrypted.
 	encryptedAndSignedValue := "this will be encrypted and signed"
 	item := map[string]types.AttributeValue{
@@ -83,7 +83,7 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 		return err
 	}
 
-	// 7. Get an item back from the table.
+	// 4. Get an item back from the table.
 	//    If this is an item written in plaintext (i.e. any item written
 	//    during Step 0 or 1), then the item will still be in plaintext.
 	//    If this is an item that was encrypted client-side (i.e. any item written
