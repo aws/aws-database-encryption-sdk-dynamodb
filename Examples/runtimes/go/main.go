@@ -105,5 +105,6 @@ func main() {
 	plaintext.MigrationStep0(utils.DdbTableName(), partitionKeyValue, sortKeyValue)
 	awsdbe.MigrationStep1(utils.KmsKeyID(), utils.DdbTableName(), partitionKeyValue, sortKeyValue)
 	awsdbe.MigrationStep2(utils.KmsKeyID(), utils.DdbTableName(), partitionKeyValue, sortKeyValue)
+	awsdbe.MigrationStep3(utils.KmsKeyID(), utils.DdbTableName(), partitionKeyValue, sortKeyValue)
 	utils.DeleteItem(utils.DdbTableName(), "partition_key", partitionKeyValue, "sort_key", sortKeyValue)
 }

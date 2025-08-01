@@ -44,7 +44,14 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 
 	// When creating encryption configuration for your table,
 	// you must use the plaintext override `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead`.
+	// If you do not specify `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead`
+	// plaintext override defaults to `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead`,
+	// which is the desired behavior for a client interacting with a fully encrypted database.
 	// This plaintext override means:
+	// 	- Write: Items are forbidden to be written as plaintext.
+	//  	     Items will be written as encrypted items.
+	//  - Read: Items are forbidden to be read as plaintext.
+	//  	    Items will be read as encrypted items.
 
 	listOfTableConfigs := configureTable(kmsKeyID, ddbTableName, dbesdkdynamodbencryptiontypes.PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead)
 
@@ -96,5 +103,5 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyValue stri
 	if !reflect.DeepEqual(item, result.Item) {
 		panic("Decrypted item does not match original item")
 	}
-	fmt.Println("MigrationStep2 completed successfully")
+	fmt.Println("MigrationStep3 completed successfully")
 }
