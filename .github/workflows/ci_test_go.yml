@@ -140,8 +140,14 @@ jobs:
         run: |
           make test_go
 
-      - name: Test Examples
+      - name: Run Examples (this panics when on error)
         if: matrix.library == 'DynamoDbEncryption'
         working-directory: ./Examples/runtimes/go
         run: |
           go run main.go
+      
+      - name: Test Examples
+        if: matrix.library == 'DynamoDbEncryption'
+        working-directory: ./Examples/runtimes/go
+        run: |
+          go test ./...
