@@ -7,13 +7,10 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/clientsupplier"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/itemencryptor"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/keyring"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/migration/PlaintextToAWSDBE/awsdbe"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/migration/PlaintextToAWSDBE/plaintext"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/misc"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/searchableencryption"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/searchableencryption/complexexample"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
-	"github.com/google/uuid"
 )
 
 func main() {
@@ -103,14 +100,4 @@ func main() {
 		branchKey1,
 		utils.TestKeystoreKmsKeyId(),
 		utils.TestKeystoreName())
-
-	// migration examples
-	partitionKeyValue := uuid.New().String()
-	sortKeyValue := "0"
-
-	plaintext.MigrationStep0(utils.DdbTableName(), partitionKeyValue, sortKeyValue)
-	awsdbe.MigrationStep1(utils.KmsKeyID(), utils.DdbTableName(), partitionKeyValue, sortKeyValue)
-	awsdbe.MigrationStep2(utils.KmsKeyID(), utils.DdbTableName(), partitionKeyValue, sortKeyValue)
-	awsdbe.MigrationStep3(utils.KmsKeyID(), utils.DdbTableName(), partitionKeyValue, sortKeyValue)
-	utils.DeleteItem(utils.DdbTableName(), "partition_key", partitionKeyValue, "sort_key", sortKeyValue)
 }
