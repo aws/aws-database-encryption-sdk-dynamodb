@@ -42,7 +42,8 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	//    This is common across all the steps.
 
 	// When creating encryption configuration for your table,
-	// you must use the plaintext override `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead`.
+	// you can either not specify PlaintextOverride or use
+	// `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead` as PlaintextOverride.
 	// If you do not specify `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead`
 	// plaintext override defaults to `PlaintextOverrideForbidPlaintextWriteForbidPlaintextRead`,
 	// which is the desired behavior for a client interacting with a fully encrypted database.
@@ -83,19 +84,20 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 		return err
 	}
 
-	// 4. Get an item back from the table.
+	// 4. Get an item back from the table using the DynamoDb Client.
 	//    If this is an item written in plaintext (i.e. any item written
-	//    during Step 0 or 1), then the item will still be in plaintext.
+	//    during Step 0 or 1), then the read will fail, as we have
+	//    configured our client to forbid reading plaintext items.
 	//    If this is an item that was encrypted client-side (i.e. any item written
-	//    during Step 2 or after), then the DDB enhanced client will decrypt the
-	//    item client-side and surface it in our code as a plaintext item.
+	//    during Step 2 or after), then the item will be decrypted client-side
+	//    and surfaced as a plaintext item.
 	key := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyReadValue},
 	}
 
 	getInput := &dynamodb.GetItemInput{
-		TableName:      aws.String(ddbTableName),
+		TableName:      &ddbTableName,
 		Key:            key,
 		ConsistentRead: aws.Bool(true),
 	}
