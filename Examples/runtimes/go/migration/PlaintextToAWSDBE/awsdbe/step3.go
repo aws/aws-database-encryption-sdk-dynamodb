@@ -78,7 +78,7 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 
 	_, err = ddb.PutItem(context.TODO(), &putInput)
 	// We return this error because we run test against the error.
-	// When used in production code, you can decide how you can to handle errors.
+	// When used in production code, you can decide how you want to handle errors.
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	//    during Step 0 or 1), then the item will still be in plaintext.
 	//    If this is an item that was encrypted client-side (i.e. any item written
 	//    during Step 2 or after), then the DDB enhanced client will decrypt the
-	//    item client-sid and surface it in our code as a plaintext item.
+	//    item client-side and surface it in our code as a plaintext item.
 	key := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyReadValue},
@@ -102,7 +102,7 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 
 	result, err := ddb.GetItem(context.TODO(), getInput)
 	// We return this error because we run test against the error.
-	// When used in production code, you can decide how you can to handle errors.
+	// When used in production code, you can decide how you want to handle errors.
 	if err != nil {
 		return err
 	}
