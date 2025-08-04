@@ -97,7 +97,7 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	}
 
 	getInput := &dynamodb.GetItemInput{
-		TableName:      aws.String(ddbTableName),
+		TableName:      &ddbTableName,
 		Key:            key,
 		ConsistentRead: aws.Bool(true),
 	}
