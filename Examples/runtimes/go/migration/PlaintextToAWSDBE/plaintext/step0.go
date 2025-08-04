@@ -5,30 +5,49 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-// MigrationStep0 demonstrates plaintext database operations before encryption migration
+/*
+Migration Step 0: This is the pre-migration step for the
+plaintext-to-encrypted database migration, and is the starting
+state for our migration from a plaintext database to a
+client-side encrypted database encrypted using the
+AWS Database Encryption SDK for DynamoDb.
+
+In this example, we configure a DynamoDbClient to
+write a plaintext record to a table and read that record.
+This emulates the starting state of a plaintext-to-encrypted
+database migration; i.e. a plaintext database you can
+read and write to with the DynamoDbClient.
+
+Running this example requires access to the DDB Table whose name
+is provided in the function parameter.
+This table must be configured with the following
+primary key configuration:
+  - Partition key is named "partition_key" with type (S)
+  - Sort key is named "sort_key" with type (S)
+*/
 func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) {
-	// 1. Create a standard DynamoDB client (no encryption)
+	// 1. Create a standard DynamoDB client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
 	ddb := dynamodb.NewFromConfig(cfg)
 
-	// 2. Put an example item into our DynamoDB table in plaintext
+	// 2. Put an example item into DynamoDB table
+	//    This item will be stored in plaintext.
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
-		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyValue},
+		"sort_key":      &types.AttributeValueMemberN{Value: "0"},
 		"attribute1":    &types.AttributeValueMemberS{Value: "this will be encrypted and signed"},
 		"attribute2":    &types.AttributeValueMemberS{Value: "this will never be encrypted, but it will be signed"},
 		"attribute3":    &types.AttributeValueMemberS{Value: "this will never be encrypted nor signed"},
 	}
 
 	putInput := &dynamodb.PutItemInput{
-		TableName: aws.String(ddbTableName),
+		TableName: &ddbTableName,
 		Item:      item,
 	}
 	_, err = ddb.PutItem(context.TODO(), putInput)
@@ -41,7 +60,7 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) {
 	}
 
 	getInput := &dynamodb.GetItemInput{
-		TableName: aws.String(ddbTableName),
+		TableName: &ddbTableName,
 		Key:       key,
 	}
 	result, err := ddb.GetItem(context.TODO(), getInput)
