@@ -30,7 +30,7 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 */
-func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) {
+func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) error {
 	// 1. Create a standard DynamoDB client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
@@ -79,15 +79,26 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) {
 		panic("No item found")
 	}
 
-	returnedPartitionKey := result.Item["partition_key"].(*types.AttributeValueMemberS).Value
-	returnedAttribute1 := result.Item["attribute1"].(*types.AttributeValueMemberS).Value
+	returnedPartitionKey, ok := result.Item["partition_key"].(*types.AttributeValueMemberS)
+	if !ok {
+		// We return this error because we run test against the error.
+		// When used in production code, you can decide how you want to handle errors.
+		return fmt.Errorf("partition_key is not a string attribute")
+	}
+	returnedAttribute1, ok := result.Item["attribute1"].(*types.AttributeValueMemberS)
+	if !ok {
+		// We return this error because we run test against the error.
+		// When used in production code, you can decide how you want to handle errors.
+		return fmt.Errorf("partition_key is not a string attribute")
+	}
 
-	if returnedPartitionKey != partitionKeyValue {
+	if returnedPartitionKey.Value != partitionKeyValue {
 		panic(fmt.Sprintf("Expected partition key %s, got %s", partitionKeyValue, returnedPartitionKey))
 	}
-	if returnedAttribute1 != "this will be encrypted and signed" {
+	if returnedAttribute1.Value != "this will be encrypted and signed" {
 		panic(fmt.Sprintf("Expected attribute1 value, got %s", returnedAttribute1))
 	}
 
 	fmt.Println("MigrationStep0 completed successfully")
+	return nil
 }
