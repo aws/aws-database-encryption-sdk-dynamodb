@@ -24,7 +24,8 @@ func TestMigrationStep3(t *testing.T) {
 
 	// When: Execute Step 3 with sortReadValue=0, Then: should panic (cannot read plaintext values)
 	// MigrationStep3(kmsKeyID, tableName, partitionKey, sortKeys[0])
-	utils.AssertServiceError(MigrationStep3(kmsKeyID, tableName, partitionKey, sortKeys[0]), "DynamoDB", "GetItem", "Encrypted item missing expected header and footer attributes")
+	err = MigrationStep3(kmsKeyID, tableName, partitionKey, sortKeys[0])
+	utils.AssertServiceError(err, "DynamoDB", "GetItem", "Encrypted item missing expected header and footer attributes")
 
 	// Given: Step 1 has succeeded
 	err = MigrationStep1(kmsKeyID, tableName, partitionKey, sortKeys[1])
