@@ -128,6 +128,26 @@ module {:options "-functionSyntax:4"} WriteManifest {
         ""allowedUnsignedAttributes"" : [""Stuff"", ""Junk""]
       }"
 
+  // Configuration with a new encrypted attribute not present in basic config
+  const ExpandedConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""ENCRYPT_AND_SIGN"",
+          ""NewAttribute"": ""ENCRYPT_AND_SIGN""
+        }
+      }"
+
+  // Configuration with a new sign-only attribute not present in basic config
+  const ExpandedSignConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""ENCRYPT_AND_SIGN"",
+          ""NewAttribute"": ""SIGN_ONLY""
+        }
+      }"
+
   method TextToJson(x: string) returns (output : JSON)
   {
     var str :- expect UTF8.Encode(x);
@@ -396,8 +416,15 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var test12 := MakeTest("12", "positive-encrypt", "Basic encrypt V2 switching1", LongerV2Config1, BasicRecord, Some(LongerV2Config2));
     var test13 := MakeTest("13", "positive-encrypt", "Basic encrypt V2 switching2", LongerV2Config2, BasicRecord, Some(LongerV2Config1));
     var test14 := MakeTest("14", "positive-encrypt", "Special characters in attribute names", SpecialConfig, SpecialRecord);
+
+    // Comprehensive tests for schema evolution scenarios based on AddNewAttributeExample
+    var test15 := MakeTest("15", "positive-encrypt", "Encrypt with basic config, decrypt expecting new ENCRYPT_AND_SIGN attribute", BasicConfig, BasicRecord, Some(ExpandedConfig));
+    var test16 := MakeTest("16", "positive-encrypt", "Encrypt with basic config, decrypt expecting new SIGN_ONLY attribute", BasicConfig, BasicRecord, Some(ExpandedSignConfig));
+    var test17 := MakeTest("17", "positive-encrypt", "Encrypt with expanded config having new attribute, decrypt with basic config", ExpandedConfig, BasicRecord, Some(BasicConfig));
+    var test18 := MakeTest("18", "positive-encrypt", "Encrypt with expanded SIGN_ONLY config having new attribute, decrypt with basic config", ExpandedSignConfig, BasicRecord, Some(BasicConfig));
+
     var configTests := MakeConfigTests();
-    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14] + configTests;
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15, test16, test17, test18] + configTests;
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);
