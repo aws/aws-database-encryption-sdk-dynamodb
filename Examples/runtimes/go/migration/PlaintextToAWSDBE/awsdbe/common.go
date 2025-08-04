@@ -15,7 +15,6 @@ func configureTable(kmsKeyID, ddbTableName string, plaintextOverride dbesdkdynam
 	// Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
 	// We will use the `CreateMrkMultiKeyring` method to create this keyring,
 	// as it will correctly handle both single region and Multi-Region KMS Keys.
-
 	matProv, err := mpl.NewClient(mpltypes.MaterialProvidersConfig{})
 	utils.HandleError(err)
 
