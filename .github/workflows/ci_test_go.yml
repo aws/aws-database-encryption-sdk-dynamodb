@@ -145,7 +145,7 @@ jobs:
         working-directory: ./Examples/runtimes/go
         run: |
           go run main.go
-      
+
       - name: Test Examples
         if: matrix.library == 'DynamoDbEncryption'
         working-directory: ./Examples/runtimes/go
