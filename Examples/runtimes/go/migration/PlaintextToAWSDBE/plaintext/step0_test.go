@@ -41,7 +41,7 @@ func TestMigrationStep0(t *testing.T) {
 	utils.AssertErrorMessage(err, "partition_key is not a string attribute")
 
 	// Cleanup
-	for _, sortKey := range sortKeys[:3] { // Only clean up items we created
+	for _, sortKey := range sortKeys { // Only clean up items we created
 		utils.DeleteItem(tableName, "partition_key", partitionKey, "sort_key", sortKey)
 	}
 }
