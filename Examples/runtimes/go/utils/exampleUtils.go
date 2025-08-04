@@ -6,12 +6,15 @@ package utils
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/smithy-go"
 )
 
 const (
@@ -127,6 +130,33 @@ func HandleError(err error) {
 	// In your code, errors should be properly handled.
 	if err != nil {
 		panic(err)
+	}
+}
+
+func AssertServiceError(err error, service string, operation string, errorMessage string) {
+	if err == nil {
+		panic("Expected error but got no error")
+	}
+	var oe *smithy.OperationError
+	if errors.As(err, &oe) {
+		if oe.Service() != service {
+			panic("Expected service to be: " + service + " but got: " + oe.Service())
+		}
+		if oe.Operation() != operation {
+			panic("Expected Operation to be: " + operation + " but got: " + oe.Operation())
+		}
+		if !strings.Contains(oe.Unwrap().Error(), errorMessage) {
+			panic("Expected message to contain: " + errorMessage + " but got: " + oe.Unwrap().Error())
+		}
+	}
+}
+
+func AssertErrorMessage(err error, expectedMessage string) {
+	if err == nil {
+		panic("Expected error but got no error")
+	}
+	if !strings.Contains(err.Error(), expectedMessage) {
+		panic("Expected error containing: `" + expectedMessage + "` but got:" + err.Error())
 	}
 }
 
