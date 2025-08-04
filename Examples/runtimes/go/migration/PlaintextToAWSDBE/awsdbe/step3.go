@@ -27,7 +27,7 @@ Before you move onto this step, you will need to encrypt all plaintext items in 
 How you will want to do this depends on your system.
 
 Running this example requires access to the DDB Table whose name
-is provided in CLI arguments.
+is provided in the function parameter.
 This table must be configured with the following
 primary key configuration:
   - Partition key is named "partition_key" with type (S)

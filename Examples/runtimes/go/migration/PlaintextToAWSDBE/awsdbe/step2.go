@@ -31,7 +31,7 @@ Before you move onto the next step, you will need to encrypt all plaintext items
 How you will want to do this depends on your system.
 
 Running this example requires access to the DDB Table whose name
-is provided in CLI arguments.
+is provided in the function parameter.
 This table must be configured with the following
 primary key configuration:
   - Partition key is named "partition_key" with type (S)
@@ -80,7 +80,7 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	_, err = ddb.PutItem(context.TODO(), &putInput)
 
 	// We return this error because we run test against the error.
-	// When used in production code, you can decide how you can to handle errors.
+	// When used in production code, you can decide how you want to handle errors.
 	if err != nil {
 		return err
 	}
@@ -89,8 +89,8 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	//    If this is an item written in plaintext (i.e. any item written
 	//    during Step 0 or 1), then the item will still be in plaintext.
 	//    If this is an item that was encrypted client-side (i.e. any item written
-	//    during Step 2 or after), then the DDB enhanced client will decrypt the
-	//    item client-sid and surface it in our code as a plaintext item.
+	//    during Step 2 or after), then the DDB client will decrypt the
+	//    item client-side and surface it in our code as a plaintext item.
 	key := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyReadValue},
@@ -104,7 +104,7 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 
 	result, err := ddb.GetItem(context.TODO(), getInput)
 	// We return this error because we run test against the error.
-	// When used in production code, you can decide how you can to handle errors.
+	// When used in production code, you can decide how you want to handle errors.
 	if err != nil {
 		return err
 	}

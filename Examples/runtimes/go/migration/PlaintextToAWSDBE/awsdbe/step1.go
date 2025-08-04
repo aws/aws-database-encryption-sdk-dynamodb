@@ -29,7 +29,7 @@ Before you move on to step 2, ensure that these changes have successfully been d
 to all of your readers.
 
 Running this example requires access to the DDB Table whose name
-is provided in CLI arguments.
+is provided in the function parameter.
 This table must be configured with the following
 primary key configuration:
   - Partition key is named "partition_key" with type (S)
@@ -82,7 +82,7 @@ func MigrationStep1(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	_, err = ddb.PutItem(context.TODO(), &putInput)
 
 	// We return this error because we run test against the error.
-	// When used in production code, you can decide how you can to handle errors.
+	// When used in production code, you can decide how you want to handle errors.
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func MigrationStep1(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 
 	result, err := ddb.GetItem(context.TODO(), getInput)
 	// We return this error because we run test against the error.
-	// When used in production code, you can decide how you can to handle errors.
+	// When used in production code, you can decide how you want to handle errors.
 	if err != nil {
 		return err
 	}
