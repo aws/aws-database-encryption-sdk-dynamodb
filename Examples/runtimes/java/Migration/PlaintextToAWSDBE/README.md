@@ -1,4 +1,4 @@
-# DyanmoDb Encryption Client to AWS Database Encryption SDK for DynamoDb Migration
+# Plaintext DynamoDB Table to AWS Database Encryption SDK Encrypted Table Migration
 
 This projects demonstrates the steps necessary
 to migrate to the AWS Database Encryption SDK for DynamoDb
