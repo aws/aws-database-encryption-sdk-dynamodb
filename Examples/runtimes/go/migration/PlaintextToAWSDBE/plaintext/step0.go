@@ -53,7 +53,15 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) {
 	_, err = ddb.PutItem(context.TODO(), putInput)
 	utils.HandleError(err)
 
-	// 3. Get an item back from the table as it was written
+	// 3. Get an item back from the table as it was written.
+	//    If this is an item written in plaintext (i.e. any item written
+	//    during Step 0 or 1), then the item will still be in plaintext
+	//    and will be able to be processed.
+	//    If this is an item that was encrypted client-side (i.e. any item written
+	//    during Step 2 or after), then the item will still be encrypted client-side
+	//    and will be unable to be processed in your code. To decrypt and process
+	//    client-side encrypted items, you will need to configure encrypted reads on
+	//    your dynamodb client (this is configured from Step 1 onwards).
 	key := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyValue},
