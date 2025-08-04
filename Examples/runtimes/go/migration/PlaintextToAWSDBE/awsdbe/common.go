@@ -27,7 +27,7 @@ func configureTable(kmsKeyID, ddbTableName string, plaintextOverride dbesdkdynam
 	// Configure which attributes are encrypted and/or signed when writing new items.
 	// For each attribute that may exist on the items we plan to write to our DynamoDbTable,
 	// we must explicitly configure how they should be treated during item encryption:
-	// 	- ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
+	//  - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
 	//  - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
 	//  - DO_NOTHING: The attribute is not encrypted and not included in the signature
 	partitionKeyName := "partition_key"
