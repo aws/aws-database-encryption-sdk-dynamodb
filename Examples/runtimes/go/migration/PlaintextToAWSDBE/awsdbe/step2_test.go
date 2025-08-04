@@ -12,20 +12,35 @@ func TestMigrationStep2(t *testing.T) {
 	kmsKeyID := utils.KmsKeyID()
 	tableName := utils.DdbTableName()
 	partitionKey := uuid.New().String()
-	sortKeys := []string{"0", "1", "2"}
+	sortKeys := []string{"0", "1", "2", "3"}
 
 	// Successfully executes Step 2
-	MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[2])
+	err := MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[2])
+	utils.HandleError(err)
 
 	// Given: Step 0 has succeeded
-	plaintext.MigrationStep0(tableName, partitionKey, sortKeys[0])
+	err = plaintext.MigrationStep0(tableName, partitionKey, sortKeys[0])
+	utils.HandleError(err)
+
 	// When: Execute Step 2 with sortReadValue=0, Then: Success (i.e. can read plaintext values)
-	MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[0])
+	err = MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[0])
+	utils.HandleError(err)
 
 	// Given: Step 1 has succeeded
-	MigrationStep1(kmsKeyID, tableName, partitionKey, sortKeys[1])
+	err = MigrationStep1(kmsKeyID, tableName, partitionKey, sortKeys[1])
+	utils.HandleError(err)
+
 	// When: Execute Step 2 with sortReadValue=1, Then: Success (i.e. can read encrypted values)
-	MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[1])
+	err = MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[1])
+	utils.HandleError(err)
+
+	// Given: Step 3 has succeeded
+	err = MigrationStep3(kmsKeyID, tableName, partitionKey, sortKeys[3])
+	utils.HandleError(err)
+
+	// When: Execute Step 2 with sortReadValue=3, Then: Success (i.e. can read encrypted values)
+	err = MigrationStep2(kmsKeyID, tableName, partitionKey, sortKeys[3])
+	utils.HandleError(err)
 
 	// Cleanup
 	for _, sortKey := range sortKeys {
