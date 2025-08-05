@@ -136,7 +136,7 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""NewThing"": ""ENCRYPT_AND_SIGN""
         }
       }"
-  // Configuration with a new sign-only attribute not present in basic config  
+  // Configuration with a new sign-only attribute not present in basic config
   const ExpandedSignConfig := @"{
         ""attributeActionsOnEncrypt"": {
           ""RecNum"": ""SIGN_ONLY"",
@@ -145,7 +145,6 @@ module {:options "-functionSyntax:4"} WriteManifest {
           ""NewThing"": ""SIGN_ONLY""
         }
       }"
-
   // Configuration with a new DO_NOTHING attribute not present in basic config
   const ExpandedDoNothingConfig := @"{
         ""attributeActionsOnEncrypt"": {
