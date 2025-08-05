@@ -113,7 +113,7 @@ module BaseBeacon {
     partOnly : bool,
     asSet : bool,
     share : Option<string>,
-    numberOfBuckets : Option<BucketCount>
+    numberOfBuckets : BucketCount
   )
     : (ret : Result<ValidStandardBeacon, Error>)
     ensures ret.Success? ==>
@@ -123,8 +123,6 @@ module BaseBeacon {
     var termLoc :- TermLoc.MakeTermLoc(loc);
     var beaconName := BeaconPrefix + name;
     :- Need(DDB.IsValid_AttributeName(beaconName), E(beaconName + " is not a valid attribute name."));
-    var numBuckets : nat := if numberOfBuckets.Some? then numberOfBuckets.value as nat else 0;
-    // :- Need(numBuckets < 256, E(beaconName + " has numberOfBuckets greater than 255"));
     Success(StandardBeacon.StandardBeacon(
               BeaconBase (
                 client := client,
@@ -136,7 +134,7 @@ module BaseBeacon {
               partOnly,
               asSet,
               share,
-              numBuckets as OptBucketCount
+              numberOfBuckets
             ))
   }
   datatype StandardBeacon = StandardBeacon (
@@ -146,7 +144,7 @@ module BaseBeacon {
     partOnly : bool,
     asSet : bool,
     share : Option<string>,
-    numberOfBuckets : OptBucketCount
+    numberOfBuckets : BucketCount
   ) {
 
     function method constrained_bucket(bucket : BucketNumber) : BucketBytes
@@ -154,7 +152,7 @@ module BaseBeacon {
       if numberOfBuckets == 0 || bucket == 0 then
         BucketNumberToBytes(bucket)
       else
-        var newBucket : BucketNumber := (bucket as OptBucketCount % numberOfBuckets) as BucketNumber;
+        var newBucket : BucketNumber := (bucket as BucketCount % numberOfBuckets) as BucketNumber;
         BucketNumberToBytes(newBucket)
     }
 

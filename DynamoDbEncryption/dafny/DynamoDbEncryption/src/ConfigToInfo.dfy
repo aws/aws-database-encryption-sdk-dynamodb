@@ -526,18 +526,25 @@ module SearchConfigToInfo {
       Failure(E("Beacon " + name + " is shared to " + share + " which is not defined."))
   }
 
-  predicate method BucketConstraintOk(outer : DynamoDbTableEncryptionConfig, inner : Option<BucketCount>)
+  function method GetBucketCount(outer : DynamoDbTableEncryptionConfig, inner : Option<BucketCount>, name : string) :
+    Result<BucketCount,Error>
   {
-    if inner.None? || outer.search.None? || |outer.search.value.versions| == 0 then
-      true
+    if outer.search.None? || |outer.search.value.versions| == 0 then
+      Success(1)
     else
       var num := outer.search.value.versions[0].numberOfBuckets;
-      if num.None? then
-        false
+      if BucketCountNone(num) then
+        if !BucketCountNone(inner) then
+          Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but there is not global numberOfBuckets set."))
+        else
+          Success(1)
+      else if BucketCountNone(inner) then
+        Success(num.value)
+      else if inner.value < num.value then
+        Success(inner.value)
       else
-        inner.value <= num.value
+        Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the global numberOfBuckets " + Base10Int2String(num.value as int)))
   }
-
   // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
     beacons : seq<StandardBeacon>,
@@ -601,9 +608,9 @@ module SearchConfigToInfo {
         case sharedSet(t) => share := Some(t.other); isAsSet := true;
       }
     }
-    :- Need(BucketConstraintOk(outer, beacons[0].numberOfBuckets), E("Constrained numberOfBuckets for  " + beacons[0].name + " must be less than the global numberOfBuckets."));
+    var bucketCount :- GetBucketCount(outer, beacons[0].numberOfBuckets, beacons[0].name);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
-                                          isPartOnly, isAsSet, share, beacons[0].numberOfBuckets);
+                                          isPartOnly, isAsSet, share, bucketCount);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)

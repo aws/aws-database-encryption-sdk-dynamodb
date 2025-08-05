@@ -132,6 +132,15 @@ module CompoundBeacon {
       && OrderedParts(parts, numSigned)
     }
 
+    function method getNumQueries(globalMax : BucketCount) : BucketCount
+    {
+      var counts := GetBucketCountsFromValue(DDB.AttributeValue.S(""));
+      if counts.Failure? then
+        1
+      else
+        lcmSeq(counts.value, globalMax)
+    }
+
     // no prefix is a prefix of another prefix
     // that is, no ambiguity when determining which prefix is used in a value
     predicate ValidPrefixSet()
@@ -326,6 +335,28 @@ module CompoundBeacon {
         else
           var result := Join(beaconParts, [split]);
           Success(DDB.AttributeValue.S(result))
+    }
+
+    function method GetBucketCountsFromParts(inParts : seq<BeaconPart>) : seq<BucketCount>
+    {
+      if |inParts| == 0 then
+        []
+      else if inParts[0].Encrypted? then
+        [inParts[0].beacon.numberOfBuckets]
+      else
+        []
+    }
+
+    // for the given attribute value, return the beacon value
+    function method GetBucketCountsFromValue(value : DDB.AttributeValue) : Result<seq<BucketCount>, Error>
+    {
+      if !value.S? then
+        Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
+      else
+        var parts := Split(value.S, split);
+        var partsUsed :- Sequence.MapWithResult(s => getPartFromPrefix(s), parts);
+        var _ :- ValidatePartOrder(partsUsed, value.S);
+        Success(GetBucketCountsFromParts(partsUsed))
     }
 
     // return the beacon value for this constructor, if possible

@@ -180,6 +180,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         "Attr3" := DDB.AttributeValue.S("CCCC"),
         "Attr4" := DDB.AttributeValue.S("DDDD"),
         "Attr5" := DDB.AttributeValue.S("EEEE"),
+        "Attr6" := DDB.AttributeValue.S("FFFF"),
         "PreferredBucket" := DDB.AttributeValue.N(num2)
       ]
     }
@@ -471,20 +472,20 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var q1 := DDB.QueryInput(
         TableName := TableName
       );
-      TestBucketQueries(rClient, 5, GetBucketQuery5(), "bucket query 5", true);
-      TestBucketQueries(rClient, 4, GetBucketQuery4(), "bucket query 4", true);
-      TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3", true);
-      TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2", true);
-      TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), "bucket query 5a", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), "bucket query 4a", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3a", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2a", true);
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1a", true);
 
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 15", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 15a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23a", true);
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15F", true, true);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25F", true, true);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", true, true);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", true, true);
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15Fa", true, true);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25Fa", true, true);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35Fa", true, true);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45Fa", true, true);
     }
 
     function NewOrderRecord(i : nat, str : string) : Record

@@ -544,6 +544,13 @@ module SearchableEncryptionInfo {
     | Standard(std : BaseBeacon.ValidStandardBeacon)
     | Compound(cmp : CompoundBeacon.ValidCompoundBeacon)
   {
+    function method getNumQueries(globalMax : BucketCount) : BucketCount
+    {
+      if Standard? then
+        std.numberOfBuckets
+      else
+        cmp.getNumQueries(globalMax)
+    }
     predicate method isEncrypted()
     {
       if Standard? then

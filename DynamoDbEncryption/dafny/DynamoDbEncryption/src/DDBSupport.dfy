@@ -315,9 +315,8 @@ module DynamoDBSupport {
     :- Need(values.None? || BucketQueriesName !in values.value, E(""));
 
     // No bucket specified is OK if no encrypted fields are searched
-    var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
-    var filterHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(filterExpr), encrypted, names);
-    var keyHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(keyExpr), encrypted, names);
+    var filterHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(filterExpr), actions, names);
+    var keyHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(keyExpr), actions, names);
     if keyHasEncField.Some? || filterHasEncField.Some? {
       return Failure(E("When numberOfBuckets is greater than one, FilterExpression must start with 'aws_dbe_bucket = NN && '"));
     } else {
@@ -343,6 +342,15 @@ module DynamoDBSupport {
 
       var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
       var (newValues, bucket, bucket_queries) := foo;
+      var numQueries :- Filter.GetNumQueries(actions, req.KeyConditionExpression, req.ExpressionAttributeNames, search.value.curr());
+      if numQueries < bucket {
+        return Failure(E("Bucket number was " + String.Base10Int2String(bucket as int) + " but should have been less than number of queries : " + String.Base10Int2String(numQueries as int)));
+      }
+      if bucket_queries.Some? {
+        if numQueries != bucket_queries.value {
+          return Failure(E("Number of queries was " + String.Base10Int2String(numQueries as int) + " but should have been " + String.Base10Int2String(bucket_queries.value as int)));
+        }
+      }
       var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, newValues, req.ExpressionAttributeNames);
       var newContext :- Filter.DoBeaconize(search.value.curr(), oldContext, keyId, bucket, bucket_queries);
       return Success(req.(

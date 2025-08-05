@@ -101,6 +101,12 @@ module DynamoDbEncryptionUtil {
       [x as uint8]
   }
 
+  // Java is broken, None becomes Some(0)
+  predicate method BucketCountNone(x : Option<BucketCount>)
+  {
+    x.None? || x.value == 0
+  }
+
   predicate method Valid_BucketBytes(x : seq<uint8>)
   {
     && |x| <= 1
@@ -113,4 +119,68 @@ module DynamoDbEncryptionUtil {
     print x,"\n";
     return ();
   }
+  function printFromFunction2<T, U>(x: T, y : U): () {
+    ()
+  } by method {
+    print x, " ", y, "\n";
+    return ();
+  }
+  function printFromFunction3<T, U, V>(x: T, y : U, z : V): () {
+    ()
+  } by method {
+    print x, " ", y, " ", z, "\n";
+    return ();
+  }
+
+  function method gcd(a : nat, b : nat) : nat
+    requires 0 < a || 0 < b
+    ensures 0 < gcd(a, b)
+    ensures 0 < b ==> gcd(a, b) <= b
+    decreases b
+  {
+    if b == 0 then
+      a
+    else
+      gcd(b, a % b)
+  }
+
+  function method lcm(a : nat, b : nat) : nat
+    requires 0 < a && 0 < b
+    ensures 0 < lcm(a, b)
+  {
+    (a / gcd(a, b)) * b
+  }
+
+  function method lcmBucket(a : BucketCount, b : BucketCount, max : BucketCount) : BucketCount
+    requires 0 < a && 0 < b
+    ensures 0 < lcmBucket(a, b, max)
+  {
+    if a == 1 || b == max then
+      b
+    else if b == 1 || a == max then
+      a
+    else
+      var result := lcm(a as nat, b as nat);
+      if result < max as nat then
+        result as BucketCount
+      else
+        max
+  }
+
+  function method lcmSeq(values : seq<BucketCount>, max : BucketCount) : BucketCount
+    // requires forall i <- values :: i <= max
+    decreases |values|
+  {
+    if |values| == 0 then
+      1
+    else if |values| == 1 then
+      values[0]
+    else
+      var res := lcmBucket(values[0], values[1], max);
+      if |values| == 2 then
+        res as BucketCount
+      else
+        lcmSeq([res as BucketCount] + values[2..], max)
+  }
+
 }

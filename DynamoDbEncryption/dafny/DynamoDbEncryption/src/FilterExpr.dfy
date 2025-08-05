@@ -1796,6 +1796,10 @@ module DynamoDBFilterExpr {
         allUnchanged := false;
         break;
       }
+      if new_context.values.value[new_values[i]] != old_context.values.value[new_values[i]] {
+        allUnchanged := false;
+        break;
+      }
     }
     if allUnchanged {
       return Success(old_context);
@@ -1924,7 +1928,7 @@ module DynamoDBFilterExpr {
   // return an error if any encrypted field exists in the query
   method UsesEncryptedField(
     expr : seq<Token>,
-    encrypted : set<string>,
+    actions : AttributeActions,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
     returns (output : Option<string>)
@@ -1932,7 +1936,7 @@ module DynamoDBFilterExpr {
     for i := 0 to |expr| {
       if expr[i].Attr? {
         var name := GetAttrName(expr[i], names);
-        if name in encrypted {
+        if name in actions && actions[name] == SE.ENCRYPT_AND_SIGN {
           return Some(name);
         }
       }
@@ -1942,12 +1946,12 @@ module DynamoDBFilterExpr {
 
   method TestParsedExpr(
     expr : seq<Token>,
-    encrypted : set<string>,
+    actions : AttributeActions,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
     returns (output : Outcome<Error>)
   {
-    var hasEncField := UsesEncryptedField(expr, encrypted, names);
+    var hasEncField := UsesEncryptedField(expr, actions, names);
     if hasEncField.Some? {
       return Fail(E("Query is using encrypted field : " + hasEncField.value + "."));
     }
@@ -1963,14 +1967,76 @@ module DynamoDBFilterExpr {
   )
     returns (output : Result<bool, Error>)
   {
-    var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
     if keyExpr.Some? {
-      :- TestParsedExpr(ParseExpr(keyExpr.value), encrypted, names);
+      :- TestParsedExpr(ParseExpr(keyExpr.value), actions, names);
     }
     if filterExpr.Some? {
-      :- TestParsedExpr(ParseExpr(filterExpr.value), encrypted, names);
+      :- TestParsedExpr(ParseExpr(filterExpr.value), actions, names);
     }
     return Success(true);
+  }
+
+  // return an list of encrypted attributes used in expression
+  method GetEncryptedAttrs (
+    actions : AttributeActions,
+    expr : string,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (output : seq<string>)
+  {
+    var pExpr := ParseExpr(expr);
+    var result : seq<string> := [];
+    for i := 0 to |pExpr| {
+      if pExpr[i].Attr? {
+        var name := GetAttrName(pExpr[i], names);
+        if name in actions && actions[name] == SE.ENCRYPT_AND_SIGN {
+          result := result + [GetAttrName(pExpr[i], names)];
+        }
+      }
+    }
+    return result;
+  }
+
+  // return the number of queries necessary for these encrypted attributes
+  method GetNumQueriesForAttrs(attrs : seq<string>, b : SI.BeaconVersion) returns (output : Result<BucketCount, Error>)
+    ensures output.Success? ==> 0 < output.value
+  {
+    if |attrs| == 0 {
+      return Success(1);
+    } else if |attrs| == 1 {
+      var attr := attrs[0];
+      if attr !in b.beacons {
+        return Failure(E("No beacon for " + attr));
+      }
+      return Success(b.beacons[attr].getNumQueries(b.numBuckets));
+    } else if |attrs| == 2 {
+      var attr1 := attrs[0];
+      if attr1 !in b.beacons {
+        return Failure(E("No beacon for " + attr1));
+      }
+      var attr2 := attrs[1];
+      if attr2 !in b.beacons {
+        return Failure(E("No beacon for " + attr2));
+      }
+      return Success(lcmBucket(b.beacons[attr1].getNumQueries(b.numBuckets), b.beacons[attr2].getNumQueries(b.numBuckets), b.numBuckets));
+    } else {
+      return Failure(E("More than two attributes not implemented yet"));
+    }
+  }
+
+  method GetNumQueries (
+    actions : AttributeActions,
+    expr : Option<string>,
+    names : Option<DDB.ExpressionAttributeNameMap>,
+    b : SI.BeaconVersion
+  )
+    returns (output : Result<BucketCount, Error>)
+  {
+    if expr.None? {
+      return Success(1);
+    }
+    var attrs := GetEncryptedAttrs(actions, expr.value, names);
+    output := GetNumQueriesForAttrs(attrs, b);
   }
 
 }
