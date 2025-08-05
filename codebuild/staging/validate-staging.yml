@@ -15,6 +15,7 @@ phases:
   install:
     runtime-versions:
       java: $JAVA_ENV_VERSION
+      dotnet: 6.0
     commands:
       - cd ..
       # Get Dafny
@@ -26,6 +27,7 @@ phases:
       - unzip -qq gradle.zip && rm gradle.zip
       - export PATH="$PWD/gradle-7.6/bin:$PATH"
       - cd  aws-database-encryption-sdk-dynamodb/
+      - make -C submodules/MaterialProviders/StandardLibrary setup_net
   pre_build:
     commands:
       # Get published CA DBESDK jar

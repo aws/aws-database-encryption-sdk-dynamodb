@@ -19,6 +19,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
   import opened DynamoDbEncryptionUtil
   import opened DdbItemJson
   import opened JsonConfig
+  import StandardLibrary.String
 
   import WriteManifest
   import EncryptManifest
@@ -201,12 +202,24 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       expect !bad;
     }
-    method DeleteTable(client : DDB.IDynamoDBClient)
+    method DeleteTable(client : DDB.IDynamoDBClient, nameonly tableName: DDB.TableArn := TableName)
       requires client.ValidState()
       ensures client.ValidState()
       modifies client.Modifies
     {
-      var res := client.DeleteTable(DDB.DeleteTableInput(TableName := TableName));
+      var res := client.DeleteTable(DDB.DeleteTableInput(TableName := tableName));
+    }
+
+    method SetupTestTable(writeConfig : TableConfig, readConfig : TableConfig, nameonly createTableInput: DDB.CreateTableInput := schemaOnEncrypt)
+      returns (wClient : DDB.IDynamoDBClient, rClient : DDB.IDynamoDBClient)
+      ensures wClient.ValidState() && rClient.ValidState()
+      ensures fresh(wClient) && fresh(wClient.Modifies)
+      ensures fresh(rClient) && fresh(rClient.Modifies)
+    {
+      wClient :- expect newGazelle(writeConfig);
+      rClient :- expect newGazelle(readConfig);
+      DeleteTable(client := wClient, tableName := createTableInput.TableName);
+      var _ :-  expect wClient.CreateTable(createTableInput);
     }
 
     function GetUsed(q : SimpleQuery) : (DDB.ExpressionAttributeNameMap, DDB.ExpressionAttributeValueMap)
@@ -384,6 +397,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         BasicIoTestBatchWriteItem(c1, c2, globalRecords);
         BasicIoTestPutItem(c1, c2, globalRecords);
         BasicIoTestTransactWriteItems(c1, c2, globalRecords);
+        BasicIoTestUpdateItem(c1, c2, globalRecords, "One");
+        BasicIoTestUpdateItem(c1, c2, globalRecords, "Two");
+        BasicIoTestDeleteItem(c1, c2, globalRecords, "One", "Uno");
+        BasicIoTestDeleteItem(c1, c2, globalRecords, "Two", "Dos");
+        BasicIoTestDeleteItemWithoutConditionExpression(c1, c2, globalRecords, "One", "Uno");
+        BasicIoTestDeleteItemWithoutConditionExpression(c1, c2, globalRecords, "Two", "Dos");
+        BasicIoTestExecuteStatement(c1, c2);
+        BasicIoTestExecuteTransaction(c1, c2);
+        BasicIoTestBatchExecuteStatement(c1, c2);
       }
     }
 
@@ -738,10 +760,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestBatchWriteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -777,10 +796,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BasicIoTestTransactWriteItems(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>)
     {
-      var wClient :- expect newGazelle(writeConfig);
-      var rClient :- expect newGazelle(readConfig);
-      DeleteTable(wClient);
-      var _ :-  expect wClient.CreateTable(schemaOnEncrypt);
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
       var i := 0;
       while i < |records| {
         var count := 10;
@@ -832,6 +848,288 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BasicIoTestGetItem(rClient, records);
       BasicIoTestScan(rClient, records);
       BasicIoTestTransactGetItems(rClient, records);
+    }
+
+    method BasicIoTestUpdateItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToUpdate: DDB.AttributeName)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+      WriteAllRecords(wClient, records);
+      // Update each record by appending "updated" to the partition key
+      for i := 0 to |records| {
+        var newValue := "updated";
+        // Create an update expression to update the partition key
+        var updateExpr := "SET #att = :val";
+        expect attributeToUpdate in writeConfig.config.attributeActionsOnEncrypt, "`attributeToUpdate` not in attributeActionsOnEncrypt";
+        var exprAttrNames := map["#att" := attributeToUpdate];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(newValue)];
+        expect HashName in records[i].item, "`HashName` is not in records.";
+        var updateInput := DDB.UpdateItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          UpdateExpression := Some(updateExpr),
+          ExpressionAttributeNames := Some(exprAttrNames),
+          ExpressionAttributeValues := Some(exprAttrValues),
+          ReturnValues := None,
+          ReturnConsumedCapacity := None,
+          ReturnItemCollectionMetrics := None,
+          ConditionExpression := None
+        );
+        var updateResult := wClient.UpdateItem(updateInput);
+        if writeConfig.config.attributeActionsOnEncrypt[attributeToUpdate] == SE.ENCRYPT_AND_SIGN || writeConfig.config.attributeActionsOnEncrypt[attributeToUpdate] == SE.SIGN_ONLY {
+          expect updateResult.Failure?, "UpdateItem should have failed for signed item.";
+          // This error is of type DynamoDbEncryptionTransformsException
+          // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+          // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+          expect updateResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+          var hasDynamoDbEncryptionTransformsException? := String.HasSubString(updateResult.error.objMessage, "Update Expressions forbidden on signed attributes");
+          expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        } else {
+          expect updateResult.Success?;
+        }
+      }
+    }
+
+    method BasicIoTestDeleteItem(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToDelete: DDB.AttributeName, expectedAttributeValue: string)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+      WriteAllRecords(wClient, records);
+      // Try to delete records with a condition expression with condition to
+      // delete records if the record has an attribute attributeToDelete with value expectedAttributeValue
+      for i := 0 to |records| {
+        // Set up condition expression to only delete if Two = expectedAttributeValue
+        var conditionExpr := "#attr = :val";
+        var exprAttrNames := map["#attr" := attributeToDelete];
+        var exprAttrValues := map[":val" := DDB.AttributeValue.S(expectedAttributeValue)];
+        expect HashName in records[i].item, "`HashName` is not in records.";
+        var deleteInput := DDB.DeleteItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          ConditionExpression := Some(conditionExpr),
+          ExpressionAttributeNames := Some(exprAttrNames),
+          ExpressionAttributeValues := Some(exprAttrValues),
+          ReturnValues := Some(DDB.ReturnValue.ALL_OLD)
+        );
+        var deleteResult := wClient.DeleteItem(deleteInput);
+        expect attributeToDelete in writeConfig.config.attributeActionsOnEncrypt, "`attributeToDelete` not found in attributeActionsOnEncrypt of config.";
+        if writeConfig.config.attributeActionsOnEncrypt[attributeToDelete] == SE.ENCRYPT_AND_SIGN {
+          expect deleteResult.Failure?, "DeleteItem should have failed.";
+          // This error is of type DynamoDbEncryptionTransformsException
+          // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+          // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+          expect deleteResult.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+          var hasDynamoDbEncryptionTransformsException? := String.HasSubString(deleteResult.error.objMessage, "Condition Expressions forbidden on encrypted attributes");
+          expect hasDynamoDbEncryptionTransformsException?.Some?, "Error might is not be of type DynamoDbEncryptionTransformsException";
+        } else if attributeToDelete in records[i].item && records[i].item[attributeToDelete].S? && records[i].item[attributeToDelete].S == expectedAttributeValue {
+          expect deleteResult.Success?, "DeleteItem should have succeeded.";
+          expect deleteResult.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
+          expect HashName in deleteResult.value.Attributes.value, "Deleted item does not have right partition key:" + HashName;
+          expect deleteResult.value.Attributes.value[HashName] == records[i].item[HashName], "Wrong item was deleted.";
+        } else {
+          expect deleteResult.Failure?, "DeleteItem should have failed.";
+          expect deleteResult.error.ConditionalCheckFailedException?, "DeleteItem should have failed with ConditionalCheckFailedException";
+        }
+      }
+    }
+
+    method BasicIoTestDeleteItemWithoutConditionExpression(writeConfig : TableConfig, readConfig : TableConfig, records : seq<Record>, attributeToDelete: DDB.AttributeName, expectedAttributeValue: string)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+      WriteAllRecords(wClient, records);
+      for i := 0 to |records| {
+        expect HashName in records[i].item, "`HashName` is not in records.";
+        var deleteInputWithoutConditionExpression := DDB.DeleteItemInput(
+          TableName := TableName,
+          Key := map[HashName := records[i].item[HashName]],
+          ReturnValues := Some(DDB.ReturnValue.ALL_OLD)
+        );
+        var deleteResultForWithoutConditionExpressionCase := wClient.DeleteItem(deleteInputWithoutConditionExpression);
+        expect deleteResultForWithoutConditionExpressionCase.Success?, "DeleteItem should have succeeded.";
+        expect deleteResultForWithoutConditionExpressionCase.value.Attributes.Some?, "DeleteItemOutput should have had some attribute because ReturnValues was set as `ALL_OLD` in DeleteItemInput";
+        if attributeToDelete in records[i].item {
+          expect HashName in deleteResultForWithoutConditionExpressionCase.value.Attributes.value, "Deleted item does not have right partition key:" + HashName;
+          expect deleteResultForWithoutConditionExpressionCase.value.Attributes.value[HashName] == records[i].item[HashName], "Wrong item was deleted.";
+        }
+      }
+    }
+
+    method BasicIoTestExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+
+      // Create a PartiQL INSERT statement
+      // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
+      var insertStatement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'a'}";
+      var inputForInsertStatement := DDB.ExecuteStatementInput(
+        Statement := insertStatement
+      );
+      var resultForInsertStatement := wClient.ExecuteStatement(inputForInsertStatement);
+      expect resultForInsertStatement.Failure?, "ExecuteStatement should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForInsertStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForInsertStatement? := String.HasSubString(resultForInsertStatement.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForInsertStatement?.Some?;
+
+      // Create a PartiQL SELECT statement
+      // The dynamodb attributes are random and non-existent because ExecuteStatement is supposed to be failed before going into dynamodb.
+      var selectStatement := "SELECT * FROM \"" + TableName + "\" WHERE partition_key = 'a' AND sort_key = 'b'}";
+      var inputForSelectStatement := DDB.ExecuteStatementInput(
+        Statement := selectStatement
+      );
+      var resultForSelectStatement := rClient.ExecuteStatement(inputForSelectStatement);
+      expect resultForSelectStatement.Failure?, "ExecuteStatement should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForSelectStatement.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForSelectStatement? := String.HasSubString(resultForSelectStatement.error.objMessage, "ExecuteStatement not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForSelectStatement?.Some?;
+
+      // Test for unconfigured Table
+      var unConfiguredTable := "unConfiguredTable";
+      var _, _ := SetupTestTable(writeConfig, readConfig, createTableInput := MakeCreateTableInput(tableName := unConfiguredTable));
+      var insertStatementForUnconfiguredTable := "INSERT INTO \"" + unConfiguredTable + "\" VALUE {'" + HashName + "': 0, 'attribute1': 'a'}";
+      var limit : DDB.PositiveIntegerObject := 5;
+      var inputInsertStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
+        Statement := insertStatementForUnconfiguredTable,
+        Parameters := None,
+        ConsistentRead := None,
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := Some(limit),
+        ReturnValuesOnConditionCheckFailure := None
+      );
+      var insertResultUnconfiguredTable := wClient.ExecuteStatement(inputInsertStatementForUnconfiguredTable);
+      expect insertResultUnconfiguredTable.Success?;
+
+      var selectStatementForUnconfiguredTable := "SELECT * FROM \"" + unConfiguredTable + "\" WHERE " + HashName + " = 0";
+      var inputSelectStatementForUnconfiguredTable := DDB.ExecuteStatementInput(
+        Statement := selectStatementForUnconfiguredTable,
+        Parameters := None,
+        ConsistentRead := None,
+        NextToken := None,
+        ReturnConsumedCapacity := None,
+        Limit := Some(limit),
+        ReturnValuesOnConditionCheckFailure := None
+      );
+      var selectResultUnconfiguredTable := rClient.ExecuteStatement(inputSelectStatementForUnconfiguredTable);
+      expect selectResultUnconfiguredTable.Success?;
+
+      DeleteTable(client := wClient, tableName := unConfiguredTable);
+    }
+
+    method BasicIoTestExecuteTransaction(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+
+      // Create a PartiQL transaction with INSERT and SELECT statements
+      // The dynamodb attributes are random and non-existent because ExecuteTransaction is supposed to fail before going to dynamodb
+      var statements := [
+        DDB.ParameterizedStatement(
+          Statement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'value1'}",
+          Parameters := None
+        ),
+        DDB.ParameterizedStatement(
+          Statement := "SELECT * FROM " + TableName + " WHERE partition_key = 'a' AND sort_key = 'b'",
+          Parameters := None
+        )
+      ];
+
+      var inputForTransaction := DDB.ExecuteTransactionInput(
+        TransactStatements := statements,
+        ClientRequestToken := None
+      );
+
+      // Test with write client
+      var resultForWriteTransaction := wClient.ExecuteTransaction(inputForTransaction);
+      expect resultForWriteTransaction.Failure?, "ExecuteTransaction should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForWriteTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForWriteTransaction? := String.HasSubString(resultForWriteTransaction.error.objMessage, "ExecuteTransaction not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForWriteTransaction?.Some?;
+
+      // Test with read client
+      var resultForReadTransaction := rClient.ExecuteTransaction(inputForTransaction);
+      expect resultForReadTransaction.Failure?, "ExecuteTransaction should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForReadTransaction.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForReadTransaction? := String.HasSubString(resultForReadTransaction.error.objMessage, "ExecuteTransaction not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForReadTransaction?.Some?;
+    }
+
+    method BasicIoTestBatchExecuteStatement(writeConfig : TableConfig, readConfig : TableConfig)
+    {
+      var wClient, rClient := SetupTestTable(writeConfig, readConfig);
+
+      // Create a batch of PartiQL statements
+      // The dynamodb attributes are random and non-existent because BatchExecuteStatement is supposed to fail before going into dynamodb
+      var statements := [
+        DDB.BatchStatementRequest(
+          Statement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'a', 'sort_key': 'b', 'attribute1': 'value1'}",
+          Parameters := None,
+          ConsistentRead := None
+        ),
+        DDB.BatchStatementRequest(
+          Statement := "INSERT INTO \"" + TableName + "\" VALUE {'partition_key': 'c', 'sort_key': 'd', 'attribute1': 'value2'}",
+          Parameters := None,
+          ConsistentRead := None
+        ),
+        DDB.BatchStatementRequest(
+          Statement := "SELECT * FROM " + TableName + " WHERE partition_key = 'a' AND sort_key = 'b'",
+          Parameters := None,
+          ConsistentRead := Some(true)
+        )
+      ];
+
+      // Test with write client for batch insert
+      var inputForBatchInsert := DDB.BatchExecuteStatementInput(
+        Statements := statements[..2],  // Just the INSERT statements
+        ReturnConsumedCapacity := None
+      );
+
+      var resultForBatchInsert := wClient.BatchExecuteStatement(inputForBatchInsert);
+      expect resultForBatchInsert.Failure?, "BatchExecuteStatement for inserts should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForBatchInsert.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForBatchInsert? := String.HasSubString(resultForBatchInsert.error.objMessage, "BatchExecuteStatement not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForBatchInsert?.Some?;
+
+      // Test with read client for batch select
+      var inputForBatchSelect := DDB.BatchExecuteStatementInput(
+        Statements := statements[2..],  // Just the SELECT statement
+        ReturnConsumedCapacity := None
+      );
+
+      var resultForBatchSelect := rClient.BatchExecuteStatement(inputForBatchSelect);
+      expect resultForBatchSelect.Failure?, "BatchExecuteStatement for selects should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForBatchSelect.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForBatchSelect? := String.HasSubString(resultForBatchSelect.error.objMessage, "BatchExecuteStatement not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForBatchSelect?.Some?;
+
+      // Test with mixed batch (both inserts and selects)
+      var inputForMixedBatch := DDB.BatchExecuteStatementInput(
+        Statements := statements,  // All statements
+        ReturnConsumedCapacity := None
+      );
+
+      var resultForMixedBatch := wClient.BatchExecuteStatement(inputForMixedBatch);
+      expect resultForMixedBatch.Failure?, "BatchExecuteStatement for mixed batch should have failed";
+      // This error is of type DynamoDbEncryptionTransformsException
+      // but AWS SDK wraps it into its own type for which customers should be unwrapping.
+      // In test vectors, we still have to change the error from AWS SDK to dafny so it turns out to be OpaqueWithText.
+      expect resultForMixedBatch.error.OpaqueWithText?, "Error should have been of type OpaqueWithText";
+      var hasDynamoDbEncryptionTransformsExceptionForMixedBatch? := String.HasSubString(resultForMixedBatch.error.objMessage, "BatchExecuteStatement not Supported on encrypted tables.");
+      expect hasDynamoDbEncryptionTransformsExceptionForMixedBatch?.Some?;
     }
 
     method FindMatchingRecord(expected : DDB.AttributeMap, actual : DDB.ItemList) returns (output : bool)
@@ -1088,11 +1386,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
   }
 
-  function MakeCreateTableInput() : DDB.CreateTableInput
+  function MakeCreateTableInput(nameonly tableName: DDB.TableName := TableName) : DDB.CreateTableInput
   {
     DDB.CreateTableInput (
       AttributeDefinitions := [DDB.AttributeDefinition(AttributeName := HashName, AttributeType := DDB.ScalarAttributeType.N)],
-      TableName := TableName,
+      TableName := tableName,
       KeySchema := [DDB.KeySchemaElement(AttributeName := HashName, KeyType := DDB.HASH)],
       LocalSecondaryIndexes := None,
       GlobalSecondaryIndexes := None,

@@ -13,7 +13,7 @@ batch:
         variables:
           JAVA_ENV_VERSION: corretto8
           JAVA_NUMERIC_VERSION: 8
-        image: aws/codebuild/standard:5.0
+        image: aws/codebuild/standard:6.0
 
     - identifier: validate_staging_corretto8
       depend-on:
@@ -23,7 +23,7 @@ batch:
         variables:
           JAVA_ENV_VERSION: corretto8
           JAVA_NUMERIC_VERSION: 8
-        image: aws/codebuild/standard:5.0
+        image: aws/codebuild/standard:6.0
 
     - identifier: validate_staging_corretto11
       depend-on:
@@ -33,7 +33,7 @@ batch:
         variables:
           JAVA_ENV_VERSION: corretto11
           JAVA_NUMERIC_VERSION: 11
-        image: aws/codebuild/standard:5.0
+        image: aws/codebuild/standard:6.0
 
     - identifier: validate_staging_corretto17
       depend-on:
@@ -55,7 +55,7 @@ batch:
         variables:
           JAVA_ENV_VERSION: corretto8
           JAVA_NUMERIC_VERSION: 8
-        image: aws/codebuild/standard:5.0
+        image: aws/codebuild/standard:6.0
 
     ## The following steps are expected to fail; since maven central takes time to
     ## update its index. For now, a manual download of the jar is needed to assert artifacts are
@@ -68,7 +68,7 @@ batch:
         variables:
           JAVA_ENV_VERSION: corretto8
           JAVA_NUMERIC_VERSION: 8
-        image: aws/codebuild/standard:5.0
+        image: aws/codebuild/standard:6.0
 
     - identifier: validate_release_corretto11
       depend-on:
@@ -78,7 +78,7 @@ batch:
         variables:
           JAVA_ENV_VERSION: corretto11
           JAVA_NUMERIC_VERSION: 11
-        image: aws/codebuild/standard:5.0
+        image: aws/codebuild/standard:6.0
 
     - identifier: validate_release_corretto17
       depend-on:
