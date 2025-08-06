@@ -33,7 +33,7 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 */
-func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue string) error {
+func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyReadValue string) error {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
 
@@ -66,7 +66,7 @@ func MigrationStep3(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyReadValue 
 	encryptedAndSignedValue := "this will be encrypted and signed"
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
-		"sort_key":      &types.AttributeValueMemberN{Value: "3"},
+		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyWriteValue},
 		"attribute1":    &types.AttributeValueMemberS{Value: encryptedAndSignedValue},
 		"attribute2":    &types.AttributeValueMemberS{Value: "this will never be encrypted, but it will be signed"},
 		"attribute3":    &types.AttributeValueMemberS{Value: "this will never be encrypted nor signed"},

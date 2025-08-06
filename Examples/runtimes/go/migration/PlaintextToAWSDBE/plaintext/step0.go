@@ -30,7 +30,7 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 */
-func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) error {
+func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyReadValue string) error {
 	// 1. Create a standard DynamoDB client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
@@ -40,7 +40,7 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) error 
 	//    This item will be stored in plaintext.
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
-		"sort_key":      &types.AttributeValueMemberN{Value: "0"},
+		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyWriteValue},
 		"attribute1":    &types.AttributeValueMemberS{Value: "this will be encrypted and signed"},
 		"attribute2":    &types.AttributeValueMemberS{Value: "this will never be encrypted, but it will be signed"},
 		"attribute3":    &types.AttributeValueMemberS{Value: "this will never be encrypted nor signed"},
@@ -64,7 +64,7 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyValue string) error 
 	//    your dynamodb client (this is configured from Step 1 onwards).
 	key := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
-		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyValue},
+		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyReadValue},
 	}
 
 	getInput := &dynamodb.GetItemInput{
