@@ -1833,16 +1833,16 @@ module DynamoDBFilterExpr {
     context : ExprContext,
     keyId : MaybeKeyId,
     bucket : BucketNumber,
-    queries : Option<BucketCount>
+    queries : BucketCount
   )
     returns (output : Result<ExprContext, Error>)
     requires b.ValidState()
     requires bucket < b.numBuckets
-    requires queries.Some? ==> bucket < queries.value <= b.numBuckets
+    requires bucket < queries <= b.numBuckets
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if queries.None? || queries.value == b.numBuckets || (b.numBuckets - bucket) <= queries.value || context.filterExpr.None? {
+    if queries == b.numBuckets || (b.numBuckets - bucket) <= queries || context.filterExpr.None? {
       output := Beaconize(b, context, keyId, bucket);
     } else {
       var curr_bucket : BucketNumber := bucket;
@@ -1857,10 +1857,10 @@ module DynamoDBFilterExpr {
         } else {
           tmpOutput :- AddContext(tmpOutput, localOut);
         }
-        if (b.numBuckets - curr_bucket) <= queries.value {
+        if (b.numBuckets - curr_bucket) <= queries {
           break;
         } else {
-          curr_bucket := curr_bucket + queries.value;
+          curr_bucket := curr_bucket + queries;
         }
       }
       return Success(tmpOutput);

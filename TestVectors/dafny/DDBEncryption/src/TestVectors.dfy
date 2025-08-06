@@ -185,7 +185,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ]
     }
 
-    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, filtered : bool, numQueries : nat)
+    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : nat)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
@@ -203,10 +203,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
         var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
         values := values[":aws_dbe_bucket" := bucketNumber];
-        if filtered {
-          var bucketQueries := DDB.AttributeValue.N(String.Base10Int2String(numQueries));
-          values := values[":aws_dbe_bucket_queries" := bucketQueries];
-        }
         var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values));
         var result :- expect client.Query(q);
         if result.Items.Some? {
@@ -242,7 +238,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, filtered : bool, numQueries : nat)
+    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : nat)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
@@ -254,17 +250,13 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
       var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
       values := values[":aws_dbe_bucket" := bucketNumber];
-      if filtered {
-        var bucketQueries := DDB.AttributeValue.N(String.Base10Int2String(numQueries));
-        values := values[":aws_dbe_bucket_queries" := bucketQueries];
-      }
       var q := query.(ExpressionAttributeValues := Some(values));
       var result := client.Query(q);
-      // expect result.Failure?;
+      expect result.Failure?;
     }
 
 
-    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : nat, q : DDB.QueryInput, queryName : string, custom : bool := false, filtered : bool := false)
+    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : nat, q : DDB.QueryInput, queryName : string, custom : bool := false)
       requires 0 < numQueries <= 5
       requires client.ValidState()
       ensures client.ValidState()
@@ -272,10 +264,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var counts: array<int> := new int[100](i => 0);
       for i := 0 to numQueries {
-        DoBucketQuery(client, i, q, counts, queryName, custom, filtered, numQueries);
+        DoBucketQuery(client, i, q, counts, queryName, custom, numQueries);
       }
       for i := numQueries to 5 {
-        TestBucketQueryFailure(client, i, q, counts, queryName, custom, filtered, numQueries);
+        TestBucketQueryFailure(client, i, q, counts, queryName, custom, numQueries);
       }
 
       var wasBad : bool := false;
@@ -414,6 +406,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     method BucketTests()
     {
+      print "BucketTests\n";
       BucketTest1();
       BucketTest2();
     }
@@ -447,10 +440,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51");
       TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23");
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15F", false, true);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25F", false, true);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", false, true);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", false, true);
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15F", false);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25F", false);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", false);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", false);
     }
 
     // As BucketTest1, but with custom bucket selector
@@ -482,10 +475,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51a", true);
       TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23a", true);
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15Fa", true, true);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25Fa", true, true);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35Fa", true, true);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45Fa", true, true);
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15Fa", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25Fa", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35Fa", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45Fa", true);
     }
 
     function NewOrderRecord(i : nat, str : string) : Record

@@ -27,7 +27,7 @@ module TestBaseBeacon {
     var primitives :- expect Primitives.AtomicPrimitives();
 
     var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
-    var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None, 0);
+    var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None, 1);
     var bytes :- expect bb.getHmac([1,2,3], key := [1,2]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
     var str :- expect b.hash([1,2,3], key := [1,2], bucket := 0);

@@ -224,7 +224,6 @@ module DynamoDBSupport {
     Success(DoRemoveBeacons(item))
   }
   const BucketName : string := ":aws_dbe_bucket"
-  const BucketQueriesName : string := ":aws_dbe_bucket_queries"
 
   function method GetNumber(val : DDB.AttributeValue, name : string) : Result<uint32, Error>
   {
@@ -236,7 +235,7 @@ module DynamoDBSupport {
       Failure(E("Value of " + name + " is not numeric (i.e. 'N')"))
   }
 
-  // Unlike Query, Scan must not specify BucketName nor BucketQueriesName
+  // Unlike Query, Scan must not specify BucketName
   function method TestBucketForScan(names : Option<DDB.ExpressionAttributeValueMap>)
     : Result<bool, Error>
   {
@@ -244,8 +243,6 @@ module DynamoDBSupport {
       Success(true)
     else if BucketName in names.value then
       Failure(E("A value for " + BucketName + " must not be specified for Scan operations."))
-    else if BucketQueriesName in names.value then
-      Failure(E("A value for " + BucketQueriesName + " must not be specified for Scan operations."))
     else
       Success(true)
   }
@@ -267,31 +264,14 @@ module DynamoDBSupport {
       Success((None, None))
   }
 
-  function method ExtractBucketQueries(names : Option<DDB.ExpressionAttributeValueMap>)
-    : Result<(Option<DDB.ExpressionAttributeValueMap>, Option<uint32>), Error>
-  {
-    if names.None? then
-      Success((None, None))
-    else if BucketQueriesName in names.value then
-      var val :- GetNumber(names.value[BucketQueriesName], BucketQueriesName);
-      if |names.value| == 1 then
-        Success((None, Some(val)))
-      else
-        Success((Some(names.value - {BucketQueriesName}), Some(val)))
-    else
-      Success((None, None))
-  }
-
   // Extract aws_dbe_bucket = NN from filterExpr and return bucket
   method ExtractBucket(search : SearchableEncryptionInfo.BeaconVersion, keyExpr : Option<string>, filterExpr : Option<string>, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>, actions : AttributeActions)
-    returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, BucketNumber, Option<BucketCount>), Error>)
+    returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, BucketNumber), Error>)
     ensures output.Success? ==> output.value.1 < search.numBuckets
-    ensures output.Success? && output.value.2.Some? ==> output.value.1 < output.value.2.value <= search.numBuckets
   {
     if search.numBuckets <= 1 {
-      :- Need(values.None? || BucketName !in values.value, E(""));
-      :- Need(values.None? || BucketQueriesName !in values.value, E(""));
-      return Success((values, 0, None));
+      :- Need(values.None? || BucketName !in values.value, E("If no buckets are configured, do not specify " + BucketName));
+      return Success((values, 0));
     }
 
     var foo :- ExtractBucketNumber(values);
@@ -299,28 +279,16 @@ module DynamoDBSupport {
     if bucket.Some? {
       :- Need(bucket.value < search.numBuckets as uint32, E(BucketName + " specified in FilterExpression was " + String.Base10Int2String(bucket.value as int) + " must be less than the number of buckets: " + String.Base10Int2String(search.numBuckets as int)));
       var nBucket := (bucket.value as nat) as BucketNumber;
-
-      var bar :- ExtractBucketQueries(values2);
-      var (values3, queries) := bar;
-      if queries.Some? {
-        :- Need(0 < queries.value <= search.numBuckets as uint32, E(BucketQueriesName + " specified in FilterExpression was " + String.Base10Int2String(queries.value as int) + " must be greater than zero and less than or equal to the number of buckets: " + String.Base10Int2String(search.numBuckets as int)));
-        :- Need(bucket.value < queries.value, E(BucketName + " value of " + String.Base10Int2String(bucket.value as int) + " should have been less than the " + BucketQueriesName + " value  of " + String.Base10Int2String(queries.value as int)));
-        var nQueries := (queries.value as nat) as BucketCount;
-        return Success((values3, nBucket, Some(nQueries)));
-      } else {
-        return Success((values2, nBucket, None));
-      }
+      return Success((values2, nBucket));
     }
-
-    :- Need(values.None? || BucketQueriesName !in values.value, E(""));
 
     // No bucket specified is OK if no encrypted fields are searched
     var filterHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(filterExpr), actions, names);
     var keyHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(keyExpr), actions, names);
     if keyHasEncField.Some? || filterHasEncField.Some? {
-      return Failure(E("When numberOfBuckets is greater than one, FilterExpression must start with 'aws_dbe_bucket = NN && '"));
+      return Failure(E("When numberOfBuckets is greater than one, XXXValues must contain " + BucketName));
     } else {
-      return Success((values, 0, None));
+      return Success((values, 0));
     }
   }
 
@@ -341,18 +309,13 @@ module DynamoDBSupport {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
 
       var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
-      var (newValues, bucket, bucket_queries) := foo;
+      var (newValues, bucket) := foo;
       var numQueries :- Filter.GetNumQueries(actions, req.KeyConditionExpression, req.ExpressionAttributeNames, search.value.curr());
-      if numQueries < bucket {
+      if numQueries <= bucket {
         return Failure(E("Bucket number was " + String.Base10Int2String(bucket as int) + " but should have been less than number of queries : " + String.Base10Int2String(numQueries as int)));
       }
-      if bucket_queries.Some? {
-        if numQueries != bucket_queries.value {
-          return Failure(E("Number of queries was " + String.Base10Int2String(numQueries as int) + " but should have been " + String.Base10Int2String(bucket_queries.value as int)));
-        }
-      }
       var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, newValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.DoBeaconize(search.value.curr(), oldContext, keyId, bucket, bucket_queries);
+      var newContext :- Filter.DoBeaconize(search.value.curr(), oldContext, keyId, bucket, numQueries);
       return Success(req.(
                      KeyConditionExpression := newContext.keyExpr,
                      FilterExpression := newContext.filterExpr,
@@ -424,9 +387,7 @@ module DynamoDBSupport {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var _ :- TestBucketForScan(req.ExpressionAttributeValues);
       var context := Filter.ExprContext(None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      // For Scan, we always treat it as {:aws_dbe_bucket := 0, :aws_dbe_bucket_queries := 1}
-      var numQueries := if search.value.curr().numBuckets == 1 then None else Some(1);
-      var newContext :- Filter.DoBeaconize(search.value.curr(), context, keyId, 0, Some(1));
+      var newContext :- Filter.DoBeaconize(search.value.curr(), context, keyId, 0, 1);
       return Success(req.(
                      FilterExpression := newContext.filterExpr,
                      ExpressionAttributeNames := newContext.names,
