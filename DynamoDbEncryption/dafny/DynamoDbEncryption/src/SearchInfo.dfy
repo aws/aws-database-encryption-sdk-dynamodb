@@ -545,9 +545,13 @@ module SearchableEncryptionInfo {
     | Compound(cmp : CompoundBeacon.ValidCompoundBeacon)
   {
     function method getNumQueries(globalMax : BucketCount) : BucketCount
+      ensures 0 <= getNumQueries(globalMax) <= globalMax
     {
       if Standard? then
-        std.numberOfBuckets
+        if std.numberOfBuckets <= globalMax then
+          std.numberOfBuckets
+        else
+          globalMax
       else
         cmp.getNumQueries(globalMax)
     }

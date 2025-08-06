@@ -307,7 +307,6 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-
       var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
       var (newValues, bucket) := foo;
       var numQueries :- Filter.GetNumQueries(actions, req.KeyConditionExpression, req.ExpressionAttributeNames, search.value.curr());

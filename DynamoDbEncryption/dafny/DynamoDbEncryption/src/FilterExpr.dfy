@@ -1999,7 +1999,7 @@ module DynamoDBFilterExpr {
 
   // return the number of queries necessary for these encrypted attributes
   method GetNumQueriesForAttrs(attrs : seq<string>, b : SI.BeaconVersion) returns (output : Result<BucketCount, Error>)
-    ensures output.Success? ==> 0 < output.value
+    ensures output.Success? ==> output.value <= b.numBuckets
   {
     if |attrs| == 0 {
       return Success(1);
@@ -2031,6 +2031,7 @@ module DynamoDBFilterExpr {
     b : SI.BeaconVersion
   )
     returns (output : Result<BucketCount, Error>)
+    ensures output.Success? ==> output.value <= b.numBuckets
   {
     if expr.None? {
       return Success(1);
