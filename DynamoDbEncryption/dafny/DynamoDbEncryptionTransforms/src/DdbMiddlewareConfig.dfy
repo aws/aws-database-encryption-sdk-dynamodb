@@ -12,45 +12,7 @@ module DdbMiddlewareConfig {
   import SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
   import HexStrings
-  import Random
   import StandardLibrary.String
-
-  class DefaultBucketSelector extends DDBE.IBucketSelector
-  {
-    predicate ValidState()
-      ensures ValidState() ==> History in Modifies
-    { History in Modifies }
-
-    constructor ()
-      ensures ValidState() && fresh(History) && fresh(Modifies)
-    {
-      History := new DDBE.IBucketSelectorCallHistory();
-      Modifies := { History };
-    }
-
-    predicate GetBucketNumberEnsuresPublicly (
-      input: DDBE.GetBucketNumberInput ,
-      output: Result<DDBE.GetBucketNumberOutput, DDBE.Error> )
-      : (outcome: bool)
-    {
-      true
-    }
-
-    method GetBucketNumber'(input: DDBE.GetBucketNumberInput)
-      returns (output: Result<DDBE.GetBucketNumberOutput, DDBE.Error> )
-      requires ValidState()
-      modifies Modifies - {History}
-      decreases Modifies - {History}
-      ensures ValidState()
-      ensures GetBucketNumberEnsuresPublicly(input, output)
-      ensures unchanged(History)
-    {
-      var randR := Random.GenerateBytes(1);
-      var rand : seq<uint8> :- randR.MapFailure(e => DDBE.DynamoDbEncryptionException(message := "Failed to get random byte"));
-      var bucket := (rand[0] % (input.numberOfBuckets as uint8)) as DDBE.BucketNumber;
-      return Success(DDBE.GetBucketNumberOutput(bucketNumber := bucket));
-    }
-  }
 
   datatype TableConfig = TableConfig(
     physicalTableName: DDB.TableName,
@@ -59,8 +21,7 @@ module DdbMiddlewareConfig {
     sortKeyName: Option<string>,
     itemEncryptor: DynamoDbItemEncryptor.DynamoDbItemEncryptorClient,
     search : Option<SearchableEncryptionInfo.ValidSearchInfo>,
-    plaintextOverride: AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride,
-    bucketSelector: DDBE.IBucketSelector
+    plaintextOverride: AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride
   )
 
   // return true if records written to the table should NOT be encrypted or otherwise modified
@@ -71,9 +32,9 @@ module DdbMiddlewareConfig {
   }
 
   method GetRandomBucket(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<DDBE.BucketNumber, Error>)
-    modifies config.bucketSelector.Modifies
-    requires config.bucketSelector.ValidState()
-    ensures config.bucketSelector.ValidState()
+    modifies if config.search.Some? then config.search.value.curr().bucketSelector.Modifies else {}
+    requires if config.search.Some? then config.search.value.curr().bucketSelector.ValidState() else true
+    ensures if config.search.Some? then config.search.value.curr().bucketSelector.ValidState() else true
   {
     if config.search.None? {
       return Success(0);
@@ -83,7 +44,7 @@ module DdbMiddlewareConfig {
       return Success(0);
     }
 
-    var outR := config.bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets));
+    var outR := config.search.value.curr().bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
     if out.bucketNumber == 0 {
       return Success(0);
@@ -125,7 +86,6 @@ module DdbMiddlewareConfig {
   predicate OneSearchValidState(config : TableConfig)
   {
     && (config.search.Some? ==> config.search.value.ValidState())
-    && config.bucketSelector.ValidState()
   }
   predicate SearchValidState(config: Config)
   {
@@ -136,7 +96,6 @@ module DdbMiddlewareConfig {
   {
     (set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].itemEncryptor.Modifies :: o)
     + (set t <- config.tableEncryptionConfigs.Keys, o <- OneSearchModifies(config.tableEncryptionConfigs[t]) :: o)
-    + (set t <- config.tableEncryptionConfigs.Keys, o <- config.tableEncryptionConfigs[t].bucketSelector.Modifies :: o)
   }
 
   predicate ValidConfig?(config: Config)

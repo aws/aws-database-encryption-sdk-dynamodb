@@ -40,5 +40,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
       if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
       return TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S36_GetEncryptedDataKeyDescriptionOutput(result.dtor_value);
     }
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetNumberOfQueriesOutput GetNumberOfQueries(AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetNumberOfQueriesInput input)
+    {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetNumberOfQueriesInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S23_GetNumberOfQueriesInput(input);
+      Wrappers_Compile._IResult<software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetNumberOfQueriesOutput, software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IError> result = _impl.GetNumberOfQueries(internalInput);
+      if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+      return TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S24_GetNumberOfQueriesOutput(result.dtor_value);
+    }
   }
 }

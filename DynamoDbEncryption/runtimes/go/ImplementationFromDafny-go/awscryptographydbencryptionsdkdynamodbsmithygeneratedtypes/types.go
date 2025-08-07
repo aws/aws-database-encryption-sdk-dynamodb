@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographykeystoresmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
@@ -72,6 +73,21 @@ func (input GetEncryptedDataKeyDescriptionOutput) Aws_cryptography_dbEncryptionS
 		if item.Validate() != nil {
 			return item.Validate()
 		}
+	}
+
+	return nil
+}
+
+type GetNumberOfQueriesOutput struct {
+	NumberOfQueries int32
+}
+
+func (input GetNumberOfQueriesOutput) Validate() error {
+	if input.NumberOfQueries < 1 {
+		return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", input.NumberOfQueries)
+	}
+	if input.NumberOfQueries > 255 {
+		return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", input.NumberOfQueries)
 	}
 
 	return nil
@@ -221,6 +237,15 @@ func (input GetEncryptedDataKeyDescriptionInput) Aws_cryptography_dbEncryptionSd
 	return nil
 }
 
+type GetNumberOfQueriesInput struct {
+	Input dynamodb.QueryInput
+}
+
+func (input GetNumberOfQueriesInput) Validate() error {
+
+	return nil
+}
+
 type AsSet struct {
 }
 
@@ -363,6 +388,14 @@ type SharedSet struct {
 }
 
 func (input SharedSet) Validate() error {
+
+	return nil
+}
+
+type BucketSelectorReference struct {
+}
+
+func (input BucketSelectorReference) Validate() error {
 
 	return nil
 }
@@ -789,11 +822,15 @@ type BeaconVersion struct {
 
 	Version int32
 
+	BucketSelector IBucketSelector
+
 	CompoundBeacons []CompoundBeacon
+
+	DefaultNumberOfBuckets *int32
 
 	EncryptedParts []EncryptedPart
 
-	NumberOfBuckets *int32
+	MaximumNumberOfBuckets *int32
 
 	SignedParts []SignedPart
 
@@ -825,18 +862,26 @@ func (input BeaconVersion) Validate() error {
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate()
 	}
+	if input.DefaultNumberOfBuckets != nil {
+		if *input.DefaultNumberOfBuckets < 1 {
+			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.DefaultNumberOfBuckets)
+		}
+		if *input.DefaultNumberOfBuckets > 255 {
+			return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", *input.DefaultNumberOfBuckets)
+		}
+	}
 	if len(input.EncryptedParts) < 1 {
 		return fmt.Errorf("EncryptedPartsList has a minimum length of 1 but has the length of %d.", len(input.EncryptedParts))
 	}
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate()
 	}
-	if input.NumberOfBuckets != nil {
-		if *input.NumberOfBuckets < 1 {
-			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.NumberOfBuckets)
+	if input.MaximumNumberOfBuckets != nil {
+		if *input.MaximumNumberOfBuckets < 1 {
+			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.MaximumNumberOfBuckets)
 		}
-		if *input.NumberOfBuckets > 255 {
-			return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", *input.NumberOfBuckets)
+		if *input.MaximumNumberOfBuckets > 255 {
+			return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", *input.MaximumNumberOfBuckets)
 		}
 	}
 	if len(input.SignedParts) < 1 {
@@ -932,14 +977,6 @@ func (input GetBucketNumberOutput) Validate() error {
 	if input.BucketNumber > 254 {
 		return fmt.Errorf("BucketNumber has a maximum of 254 but has the value of %d.", input.BucketNumber)
 	}
-
-	return nil
-}
-
-type BucketSelectorReference struct {
-}
-
-func (input BucketSelectorReference) Validate() error {
 
 	return nil
 }
@@ -1051,8 +1088,6 @@ type DynamoDbTableEncryptionConfig struct {
 	AllowedUnsignedAttributePrefix *string
 
 	AllowedUnsignedAttributes []string
-
-	BucketSelector IBucketSelector
 
 	Cmm awscryptographymaterialproviderssmithygeneratedtypes.ICryptographicMaterialsManager
 

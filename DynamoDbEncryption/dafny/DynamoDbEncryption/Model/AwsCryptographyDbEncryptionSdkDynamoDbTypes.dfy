@@ -47,7 +47,9 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly virtualFields: Option<VirtualFieldList> := Option.None ,
     nameonly encryptedParts: Option<EncryptedPartsList> := Option.None ,
     nameonly signedParts: Option<SignedPartsList> := Option.None ,
-    nameonly numberOfBuckets: Option<BucketCount> := Option.None
+    nameonly maximumNumberOfBuckets: Option<BucketCount> := Option.None ,
+    nameonly defaultNumberOfBuckets: Option<BucketCount> := Option.None ,
+    nameonly bucketSelector: Option<IBucketSelector> := Option.None
   )
   type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
   predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
@@ -166,9 +168,11 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     ghost constructor() {
       CreateDynamoDbEncryptionBranchKeyIdSupplier := [];
       GetEncryptedDataKeyDescription := [];
+      GetNumberOfQueries := [];
     }
     ghost var CreateDynamoDbEncryptionBranchKeyIdSupplier: seq<DafnyCallEvent<CreateDynamoDbEncryptionBranchKeyIdSupplierInput, Result<CreateDynamoDbEncryptionBranchKeyIdSupplierOutput, Error>>>
     ghost var GetEncryptedDataKeyDescription: seq<DafnyCallEvent<GetEncryptedDataKeyDescriptionInput, Result<GetEncryptedDataKeyDescriptionOutput, Error>>>
+    ghost var GetNumberOfQueries: seq<DafnyCallEvent<GetNumberOfQueriesInput, Result<GetNumberOfQueriesOutput, Error>>>
   }
   trait {:termination false} IDynamoDbEncryptionClient
   {
@@ -237,6 +241,21 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
         && ValidState()
       ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
       ensures History.GetEncryptedDataKeyDescription == old(History.GetEncryptedDataKeyDescription) + [DafnyCallEvent(input, output)]
+
+    predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+    // The public method to be called by library consumers
+    method GetNumberOfQueries ( input: GetNumberOfQueriesInput )
+      returns (output: Result<GetNumberOfQueriesOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`GetNumberOfQueries
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetNumberOfQueriesEnsuresPublicly(input, output)
+      ensures History.GetNumberOfQueries == old(History.GetNumberOfQueries) + [DafnyCallEvent(input, output)]
 
   }
   datatype DynamoDbEncryptionConfig = | DynamoDbEncryptionConfig (
@@ -319,8 +338,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly keyring: Option<AwsCryptographyMaterialProvidersTypes.IKeyring> := Option.None ,
     nameonly cmm: Option<AwsCryptographyMaterialProvidersTypes.ICryptographicMaterialsManager> := Option.None ,
     nameonly legacyOverride: Option<LegacyOverride> := Option.None ,
-    nameonly plaintextOverride: Option<PlaintextOverride> := Option.None ,
-    nameonly bucketSelector: Option<IBucketSelector> := Option.None
+    nameonly plaintextOverride: Option<PlaintextOverride> := Option.None
   )
   type DynamoDbTableEncryptionConfigList = map<ComAmazonawsDynamodbTypes.TableName, DynamoDbTableEncryptionConfig>
   datatype DynamoDbTablesEncryptionConfig = | DynamoDbTablesEncryptionConfig (
@@ -363,6 +381,12 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype GetEncryptedDataKeyDescriptionUnion =
     | header(header: seq<uint8>)
     | item(item: ComAmazonawsDynamodbTypes.AttributeMap)
+  datatype GetNumberOfQueriesInput = | GetNumberOfQueriesInput (
+    nameonly input: ComAmazonawsDynamodbTypes.QueryInput
+  )
+  datatype GetNumberOfQueriesOutput = | GetNumberOfQueriesOutput (
+    nameonly numberOfQueries: BucketCount
+  )
   datatype GetPrefix = | GetPrefix (
     nameonly length: int32
   )
@@ -662,6 +686,26 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbService
       History.GetEncryptedDataKeyDescription := History.GetEncryptedDataKeyDescription + [DafnyCallEvent(input, output)];
     }
 
+    predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+    {Operations.GetNumberOfQueriesEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method GetNumberOfQueries ( input: GetNumberOfQueriesInput )
+      returns (output: Result<GetNumberOfQueriesOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`GetNumberOfQueries
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetNumberOfQueriesEnsuresPublicly(input, output)
+      ensures History.GetNumberOfQueries == old(History.GetNumberOfQueries) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.GetNumberOfQueries(config, input);
+      History.GetNumberOfQueries := History.GetNumberOfQueries + [DafnyCallEvent(input, output)];
+    }
+
   }
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
@@ -711,4 +755,20 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations {
     ensures
       && ValidInternalConfig?(config)
     ensures GetEncryptedDataKeyDescriptionEnsuresPublicly(input, output)
+
+
+  predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method GetNumberOfQueries ( config: InternalConfig , input: GetNumberOfQueriesInput )
+    returns (output: Result<GetNumberOfQueriesOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+    modifies ModifiesInternalConfig(config)
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config)
+    ensures
+      && ValidInternalConfig?(config)
+    ensures GetNumberOfQueriesEnsuresPublicly(input, output)
 }

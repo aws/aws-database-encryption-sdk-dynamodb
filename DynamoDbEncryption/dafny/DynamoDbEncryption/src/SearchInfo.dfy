@@ -733,19 +733,20 @@ module SearchableEncryptionInfo {
     beacons : BeaconMap,
     virtualFields : VirtualFieldMap,
     actions : AttributeActions,
-    numBuckets : BucketCount
+    bucketSelector: IBucketSelector,
+    maxBuckets : BucketCount
   )
     : (ret : Result<ValidBeaconVersion, Error>)
     requires version == 1
     requires keySource.ValidState()
-    requires 0 < numBuckets
+    requires bucketSelector.ValidState()
   {
     // We happen to order these values, but this ordering MUST NOT be relied upon.
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
     var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
     FilterPreservesHasNoDuplicates((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
     var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
-    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames, stdKeys, encrypted, numBuckets);
+    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames, stdKeys, encrypted, bucketSelector, maxBuckets);
     assert bv.ValidState();
     Success(bv)
   }
@@ -761,12 +762,13 @@ module SearchableEncryptionInfo {
     beaconNames : seq<string>,
     stdNames : seq<string>,
     encryptedFields : set<string>,
+    bucketSelector: IBucketSelector,
     numBuckets : BucketCount
   ) {
 
     function Modifies() : set<object>
     {
-      keySource.Modifies()
+      keySource.Modifies() + bucketSelector.Modifies
     }
 
     predicate ValidState()
@@ -779,6 +781,7 @@ module SearchableEncryptionInfo {
       && (forall k <- stdNames :: k in beacons)
       && Seq.HasNoDuplicates(stdNames)
       && 0 < numBuckets
+      && bucketSelector.ValidState()
     }
 
     predicate method IsBeacon(field : string)

@@ -760,47 +760,46 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                                 tmp1.cmm.value.ValidState()
     requires var tmps2 := set t2 | t2 in config.tableEncryptionConfigs.Values;
              forall tmp2 :: tmp2 in tmps2 ==>
-                              tmp2.bucketSelector.Some? ==>
-                                tmp2.bucketSelector.value.ValidState()
+                              tmp2.legacyOverride.Some? ==>
+                                tmp2.legacyOverride.value.encryptor.ValidState()
     requires var tmps3 := set t3 | t3 in config.tableEncryptionConfigs.Values;
              forall tmp3 :: tmp3 in tmps3 ==>
-                              tmp3.legacyOverride.Some? ==>
-                                tmp3.legacyOverride.value.encryptor.ValidState()
-    requires var tmps4 := set t4 | t4 in config.tableEncryptionConfigs.Values;
-             forall tmp4 :: tmp4 in tmps4 ==>
-                              tmp4.search.Some? ==>
-                                var tmps5 := set t5 | t5 in tmp4.search.value.versions;
-                                forall tmp5 :: tmp5 in tmps5 ==>
-                                                 tmp5.keyStore.ValidState()
-    requires var tmps6 := set t6 | t6 in config.tableEncryptionConfigs.Values;
-             forall tmp6 :: tmp6 in tmps6 ==>
-                              tmp6.search.Some? ==>
-                                var tmps7 := set t7 | t7 in tmp6.search.value.versions;
-                                forall tmp7 :: tmp7 in tmps7 ==>
-                                                 tmp7.keySource.single? ==>
-                                                   tmp7.keySource.single.cache.Some? ==>
-                                                     tmp7.keySource.single.cache.value.Shared? ==>
-                                                       tmp7.keySource.single.cache.value.Shared.ValidState()
-    requires var tmps8 := set t8 | t8 in config.tableEncryptionConfigs.Values;
-             forall tmp8 :: tmp8 in tmps8 ==>
-                              tmp8.search.Some? ==>
-                                var tmps9 := set t9 | t9 in tmp8.search.value.versions;
-                                forall tmp9 :: tmp9 in tmps9 ==>
-                                                 tmp9.keySource.multi? ==>
-                                                   tmp9.keySource.multi.cache.Some? ==>
-                                                     tmp9.keySource.multi.cache.value.Shared? ==>
-                                                       tmp9.keySource.multi.cache.value.Shared.ValidState()
-    modifies set tmps10 <- set t10 <- config.tableEncryptionConfigs.Values | true
-                                                                             && t10.keyring.Some?
-                             :: t10.keyring.value,
-               obj <- tmps10.Modifies | obj in tmps10.Modifies :: obj
+                              tmp3.search.Some? ==>
+                                var tmps4 := set t4 | t4 in tmp3.search.value.versions;
+                                forall tmp4 :: tmp4 in tmps4 ==>
+                                                 tmp4.keyStore.ValidState()
+    requires var tmps5 := set t5 | t5 in config.tableEncryptionConfigs.Values;
+             forall tmp5 :: tmp5 in tmps5 ==>
+                              tmp5.search.Some? ==>
+                                var tmps6 := set t6 | t6 in tmp5.search.value.versions;
+                                forall tmp6 :: tmp6 in tmps6 ==>
+                                                 tmp6.bucketSelector.Some? ==>
+                                                   tmp6.bucketSelector.value.ValidState()
+    requires var tmps7 := set t7 | t7 in config.tableEncryptionConfigs.Values;
+             forall tmp7 :: tmp7 in tmps7 ==>
+                              tmp7.search.Some? ==>
+                                var tmps8 := set t8 | t8 in tmp7.search.value.versions;
+                                forall tmp8 :: tmp8 in tmps8 ==>
+                                                 tmp8.keySource.single? ==>
+                                                   tmp8.keySource.single.cache.Some? ==>
+                                                     tmp8.keySource.single.cache.value.Shared? ==>
+                                                       tmp8.keySource.single.cache.value.Shared.ValidState()
+    requires var tmps9 := set t9 | t9 in config.tableEncryptionConfigs.Values;
+             forall tmp9 :: tmp9 in tmps9 ==>
+                              tmp9.search.Some? ==>
+                                var tmps10 := set t10 | t10 in tmp9.search.value.versions;
+                                forall tmp10 :: tmp10 in tmps10 ==>
+                                                  tmp10.keySource.multi? ==>
+                                                    tmp10.keySource.multi.cache.Some? ==>
+                                                      tmp10.keySource.multi.cache.value.Shared? ==>
+                                                        tmp10.keySource.multi.cache.value.Shared.ValidState()
     modifies set tmps11 <- set t11 <- config.tableEncryptionConfigs.Values | true
-                                                                             && t11.cmm.Some?
-                             :: t11.cmm.value,
+                                                                             && t11.keyring.Some?
+                             :: t11.keyring.value,
                obj <- tmps11.Modifies | obj in tmps11.Modifies :: obj
     modifies set tmps12 <- set t12 <- config.tableEncryptionConfigs.Values | true
-                                                                             && t12.bucketSelector.Some?
-                             :: t12.bucketSelector.value,
+                                                                             && t12.cmm.Some?
+                             :: t12.cmm.value,
                obj <- tmps12.Modifies | obj in tmps12.Modifies :: obj
     modifies set tmps13 <- set t13 <- config.tableEncryptionConfigs.Values | true
                                                                              && t13.legacyOverride.Some?
@@ -814,102 +813,113 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
     modifies set tmps16 <- set t16 <- config.tableEncryptionConfigs.Values | true
                                                                              && t16.search.Some?
                              , t17 <- t16.search.value.versions | true
-                                                                  && t17.keySource.single?
-                                                                  && t17.keySource.single.cache.Some?
-                                                                  && t17.keySource.single.cache.value.Shared?
-                             :: t17.keySource.single.cache.value.Shared,
+                                                                  && t17.bucketSelector.Some?
+                             :: t17.bucketSelector.value,
                obj <- tmps16.Modifies | obj in tmps16.Modifies :: obj
     modifies set tmps18 <- set t18 <- config.tableEncryptionConfigs.Values | true
                                                                              && t18.search.Some?
                              , t19 <- t18.search.value.versions | true
-                                                                  && t19.keySource.multi?
-                                                                  && t19.keySource.multi.cache.Some?
-                                                                  && t19.keySource.multi.cache.value.Shared?
-                             :: t19.keySource.multi.cache.value.Shared,
+                                                                  && t19.keySource.single?
+                                                                  && t19.keySource.single.cache.Some?
+                                                                  && t19.keySource.single.cache.value.Shared?
+                             :: t19.keySource.single.cache.value.Shared,
                obj <- tmps18.Modifies | obj in tmps18.Modifies :: obj
+    modifies set tmps20 <- set t20 <- config.tableEncryptionConfigs.Values | true
+                                                                             && t20.search.Some?
+                             , t21 <- t20.search.value.versions | true
+                                                                  && t21.keySource.multi?
+                                                                  && t21.keySource.multi.cache.Some?
+                                                                  && t21.keySource.multi.cache.value.Shared?
+                             :: t21.keySource.multi.cache.value.Shared,
+               obj <- tmps20.Modifies | obj in tmps20.Modifies :: obj
     ensures res.Success? ==>
               && fresh(res.value)
               && fresh(res.value.Modifies
-                       - ( set tmps20 <- set t20 <- config.tableEncryptionConfigs.Values | true
-                                                                                           && t20.keyring.Some?
-                                           :: t20.keyring.value,
-                             obj <- tmps20.Modifies | obj in tmps20.Modifies :: obj
-                       ) - ( set tmps21 <- set t21 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t21.cmm.Some?
-                                             :: t21.cmm.value,
-                               obj <- tmps21.Modifies | obj in tmps21.Modifies :: obj
-                       ) - ( set tmps22 <- set t22 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t22.bucketSelector.Some?
-                                             :: t22.bucketSelector.value,
-                               obj <- tmps22.Modifies | obj in tmps22.Modifies :: obj
+                       - ( set tmps22 <- set t22 <- config.tableEncryptionConfigs.Values | true
+                                                                                           && t22.keyring.Some?
+                                           :: t22.keyring.value,
+                             obj <- tmps22.Modifies | obj in tmps22.Modifies :: obj
                        ) - ( set tmps23 <- set t23 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t23.legacyOverride.Some?
-                                             :: t23.legacyOverride.value.encryptor,
+                                                                                             && t23.cmm.Some?
+                                             :: t23.cmm.value,
                                obj <- tmps23.Modifies | obj in tmps23.Modifies :: obj
                        ) - ( set tmps24 <- set t24 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t24.search.Some?
-                                             , t25 <- t24.search.value.versions | true
-                                             :: t25.keyStore,
+                                                                                             && t24.legacyOverride.Some?
+                                             :: t24.legacyOverride.value.encryptor,
                                obj <- tmps24.Modifies | obj in tmps24.Modifies :: obj
-                       ) - ( set tmps26 <- set t26 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t26.search.Some?
-                                             , t27 <- t26.search.value.versions | true
-                                                                                  && t27.keySource.single?
-                                                                                  && t27.keySource.single.cache.Some?
-                                                                                  && t27.keySource.single.cache.value.Shared?
-                                             :: t27.keySource.single.cache.value.Shared,
-                               obj <- tmps26.Modifies | obj in tmps26.Modifies :: obj
-                       ) - ( set tmps28 <- set t28 <- config.tableEncryptionConfigs.Values | true
-                                                                                             && t28.search.Some?
-                                             , t29 <- t28.search.value.versions | true
-                                                                                  && t29.keySource.multi?
-                                                                                  && t29.keySource.multi.cache.Some?
-                                                                                  && t29.keySource.multi.cache.value.Shared?
-                                             :: t29.keySource.multi.cache.value.Shared,
-                               obj <- tmps28.Modifies | obj in tmps28.Modifies :: obj
+                       ) - ( set tmps25 <- set t25 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t25.search.Some?
+                                             , t26 <- t25.search.value.versions | true
+                                             :: t26.keyStore,
+                               obj <- tmps25.Modifies | obj in tmps25.Modifies :: obj
+                       ) - ( set tmps27 <- set t27 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t27.search.Some?
+                                             , t28 <- t27.search.value.versions | true
+                                                                                  && t28.bucketSelector.Some?
+                                             :: t28.bucketSelector.value,
+                               obj <- tmps27.Modifies | obj in tmps27.Modifies :: obj
+                       ) - ( set tmps29 <- set t29 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t29.search.Some?
+                                             , t30 <- t29.search.value.versions | true
+                                                                                  && t30.keySource.single?
+                                                                                  && t30.keySource.single.cache.Some?
+                                                                                  && t30.keySource.single.cache.value.Shared?
+                                             :: t30.keySource.single.cache.value.Shared,
+                               obj <- tmps29.Modifies | obj in tmps29.Modifies :: obj
+                       ) - ( set tmps31 <- set t31 <- config.tableEncryptionConfigs.Values | true
+                                                                                             && t31.search.Some?
+                                             , t32 <- t31.search.value.versions | true
+                                                                                  && t32.keySource.multi?
+                                                                                  && t32.keySource.multi.cache.Some?
+                                                                                  && t32.keySource.multi.cache.value.Shared?
+                                             :: t32.keySource.multi.cache.value.Shared,
+                               obj <- tmps31.Modifies | obj in tmps31.Modifies :: obj
                        ) )
               && fresh(res.value.History)
               && res.value.ValidState()
-    ensures var tmps30 := set t30 | t30 in config.tableEncryptionConfigs.Values;
-            forall tmp30 :: tmp30 in tmps30 ==>
-                              tmp30.keyring.Some? ==>
-                                tmp30.keyring.value.ValidState()
-    ensures var tmps31 := set t31 | t31 in config.tableEncryptionConfigs.Values;
-            forall tmp31 :: tmp31 in tmps31 ==>
-                              tmp31.cmm.Some? ==>
-                                tmp31.cmm.value.ValidState()
-    ensures var tmps32 := set t32 | t32 in config.tableEncryptionConfigs.Values;
-            forall tmp32 :: tmp32 in tmps32 ==>
-                              tmp32.bucketSelector.Some? ==>
-                                tmp32.bucketSelector.value.ValidState()
     ensures var tmps33 := set t33 | t33 in config.tableEncryptionConfigs.Values;
             forall tmp33 :: tmp33 in tmps33 ==>
-                              tmp33.legacyOverride.Some? ==>
-                                tmp33.legacyOverride.value.encryptor.ValidState()
+                              tmp33.keyring.Some? ==>
+                                tmp33.keyring.value.ValidState()
     ensures var tmps34 := set t34 | t34 in config.tableEncryptionConfigs.Values;
             forall tmp34 :: tmp34 in tmps34 ==>
-                              tmp34.search.Some? ==>
-                                var tmps35 := set t35 | t35 in tmp34.search.value.versions;
-                                forall tmp35 :: tmp35 in tmps35 ==>
-                                                  tmp35.keyStore.ValidState()
+                              tmp34.cmm.Some? ==>
+                                tmp34.cmm.value.ValidState()
+    ensures var tmps35 := set t35 | t35 in config.tableEncryptionConfigs.Values;
+            forall tmp35 :: tmp35 in tmps35 ==>
+                              tmp35.legacyOverride.Some? ==>
+                                tmp35.legacyOverride.value.encryptor.ValidState()
     ensures var tmps36 := set t36 | t36 in config.tableEncryptionConfigs.Values;
             forall tmp36 :: tmp36 in tmps36 ==>
                               tmp36.search.Some? ==>
                                 var tmps37 := set t37 | t37 in tmp36.search.value.versions;
                                 forall tmp37 :: tmp37 in tmps37 ==>
-                                                  tmp37.keySource.single? ==>
-                                                    tmp37.keySource.single.cache.Some? ==>
-                                                      tmp37.keySource.single.cache.value.Shared? ==>
-                                                        tmp37.keySource.single.cache.value.Shared.ValidState()
+                                                  tmp37.keyStore.ValidState()
     ensures var tmps38 := set t38 | t38 in config.tableEncryptionConfigs.Values;
             forall tmp38 :: tmp38 in tmps38 ==>
                               tmp38.search.Some? ==>
                                 var tmps39 := set t39 | t39 in tmp38.search.value.versions;
                                 forall tmp39 :: tmp39 in tmps39 ==>
-                                                  tmp39.keySource.multi? ==>
-                                                    tmp39.keySource.multi.cache.Some? ==>
-                                                      tmp39.keySource.multi.cache.value.Shared? ==>
-                                                        tmp39.keySource.multi.cache.value.Shared.ValidState()
+                                                  tmp39.bucketSelector.Some? ==>
+                                                    tmp39.bucketSelector.value.ValidState()
+    ensures var tmps40 := set t40 | t40 in config.tableEncryptionConfigs.Values;
+            forall tmp40 :: tmp40 in tmps40 ==>
+                              tmp40.search.Some? ==>
+                                var tmps41 := set t41 | t41 in tmp40.search.value.versions;
+                                forall tmp41 :: tmp41 in tmps41 ==>
+                                                  tmp41.keySource.single? ==>
+                                                    tmp41.keySource.single.cache.Some? ==>
+                                                      tmp41.keySource.single.cache.value.Shared? ==>
+                                                        tmp41.keySource.single.cache.value.Shared.ValidState()
+    ensures var tmps42 := set t42 | t42 in config.tableEncryptionConfigs.Values;
+            forall tmp42 :: tmp42 in tmps42 ==>
+                              tmp42.search.Some? ==>
+                                var tmps43 := set t43 | t43 in tmp42.search.value.versions;
+                                forall tmp43 :: tmp43 in tmps43 ==>
+                                                  tmp43.keySource.multi? ==>
+                                                    tmp43.keySource.multi.cache.Some? ==>
+                                                      tmp43.keySource.multi.cache.value.Shared? ==>
+                                                        tmp43.keySource.multi.cache.value.Shared.ValidState()
 
   // Helper functions for the benefit of native code to create a Success(client) without referring to Dafny internals
   function method CreateSuccessOfClient(client: IDynamoDbEncryptionTransformsClient): Result<IDynamoDbEncryptionTransformsClient, Error> {

@@ -6,8 +6,6 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.BucketSelector;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.IBucketSelector;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.CryptographicMaterialsManager;
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
@@ -80,11 +78,6 @@ public class DynamoDbTableEncryptionConfig {
    */
   private final PlaintextOverride plaintextOverride;
 
-  /**
-   * How to choose the bucket for an item. Default behavior is a random between 0 and numberOfBuckets.
-   */
-  private final IBucketSelector bucketSelector;
-
   protected DynamoDbTableEncryptionConfig(BuilderImpl builder) {
     this.logicalTableName = builder.logicalTableName();
     this.partitionKeyName = builder.partitionKeyName();
@@ -99,7 +92,6 @@ public class DynamoDbTableEncryptionConfig {
     this.cmm = builder.cmm();
     this.legacyOverride = builder.legacyOverride();
     this.plaintextOverride = builder.plaintextOverride();
-    this.bucketSelector = builder.bucketSelector();
   }
 
   /**
@@ -184,13 +176,6 @@ public class DynamoDbTableEncryptionConfig {
    */
   public PlaintextOverride plaintextOverride() {
     return this.plaintextOverride;
-  }
-
-  /**
-   * @return How to choose the bucket for an item. Default behavior is a random between 0 and numberOfBuckets.
-   */
-  public IBucketSelector bucketSelector() {
-    return this.bucketSelector;
   }
 
   public Builder toBuilder() {
@@ -326,16 +311,6 @@ public class DynamoDbTableEncryptionConfig {
      */
     PlaintextOverride plaintextOverride();
 
-    /**
-     * @param bucketSelector How to choose the bucket for an item. Default behavior is a random between 0 and numberOfBuckets.
-     */
-    Builder bucketSelector(IBucketSelector bucketSelector);
-
-    /**
-     * @return How to choose the bucket for an item. Default behavior is a random between 0 and numberOfBuckets.
-     */
-    IBucketSelector bucketSelector();
-
     DynamoDbTableEncryptionConfig build();
   }
 
@@ -365,8 +340,6 @@ public class DynamoDbTableEncryptionConfig {
 
     protected PlaintextOverride plaintextOverride;
 
-    protected IBucketSelector bucketSelector;
-
     protected BuilderImpl() {}
 
     protected BuilderImpl(DynamoDbTableEncryptionConfig model) {
@@ -383,7 +356,6 @@ public class DynamoDbTableEncryptionConfig {
       this.cmm = model.cmm();
       this.legacyOverride = model.legacyOverride();
       this.plaintextOverride = model.plaintextOverride();
-      this.bucketSelector = model.bucketSelector();
     }
 
     public Builder logicalTableName(String logicalTableName) {
@@ -498,15 +470,6 @@ public class DynamoDbTableEncryptionConfig {
 
     public PlaintextOverride plaintextOverride() {
       return this.plaintextOverride;
-    }
-
-    public Builder bucketSelector(IBucketSelector bucketSelector) {
-      this.bucketSelector = BucketSelector.wrap(bucketSelector);
-      return this;
-    }
-
-    public IBucketSelector bucketSelector() {
-      return this.bucketSelector;
     }
 
     public DynamoDbTableEncryptionConfig build() {

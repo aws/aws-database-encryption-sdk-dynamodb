@@ -15,6 +15,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetNumberOfQueriesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbEncryptionClient;
 
 public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
@@ -77,6 +79,33 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
     } catch (RuntimeException ex) {
       return Result.create_Failure(
         GetEncryptedDataKeyDescriptionOutput._typeDescriptor(),
+        Error._typeDescriptor(),
+        ToDafny.Error(ex)
+      );
+    }
+  }
+
+  public Result<
+    GetNumberOfQueriesOutput,
+    Error
+  > GetNumberOfQueries(
+    GetNumberOfQueriesInput dafnyInput
+  ) {
+    try {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesInput nativeInput =
+        ToNative.GetNumberOfQueriesInput(dafnyInput);
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesOutput nativeOutput =
+        this._impl.GetNumberOfQueries(nativeInput);
+      GetNumberOfQueriesOutput dafnyOutput =
+        ToDafny.GetNumberOfQueriesOutput(nativeOutput);
+      return Result.create_Success(
+        GetNumberOfQueriesOutput._typeDescriptor(),
+        Error._typeDescriptor(),
+        dafnyOutput
+      );
+    } catch (RuntimeException ex) {
+      return Result.create_Failure(
+        GetNumberOfQueriesOutput._typeDescriptor(),
         Error._typeDescriptor(),
         ToDafny.Error(ex)
       );

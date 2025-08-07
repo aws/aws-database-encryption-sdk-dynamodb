@@ -5,6 +5,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.List;
 import java.util.Objects;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.BucketSelector;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.IBucketSelector;
 import software.amazon.cryptography.keystore.KeyStore;
 
 /**
@@ -38,7 +40,7 @@ public class BeaconVersion {
   private final List<CompoundBeacon> compoundBeacons;
 
   /**
-   * The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+   * The Virtual Fields to be calculated, supporting other searchable encryption configurations.
    */
   private final List<VirtualField> virtualFields;
 
@@ -55,7 +57,17 @@ public class BeaconVersion {
   /**
    * The number of separate buckets across which beacons should be divided.
    */
-  private final int numberOfBuckets;
+  private final int maximumNumberOfBuckets;
+
+  /**
+   * The number of buckets for any beacon that doesn't specify a numberOfBuckets
+   */
+  private final int defaultNumberOfBuckets;
+
+  /**
+   * How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+   */
+  private final IBucketSelector bucketSelector;
 
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
@@ -66,7 +78,9 @@ public class BeaconVersion {
     this.virtualFields = builder.virtualFields();
     this.encryptedParts = builder.encryptedParts();
     this.signedParts = builder.signedParts();
-    this.numberOfBuckets = builder.numberOfBuckets();
+    this.maximumNumberOfBuckets = builder.maximumNumberOfBuckets();
+    this.defaultNumberOfBuckets = builder.defaultNumberOfBuckets();
+    this.bucketSelector = builder.bucketSelector();
   }
 
   /**
@@ -105,7 +119,7 @@ public class BeaconVersion {
   }
 
   /**
-   * @return The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+   * @return The Virtual Fields to be calculated, supporting other searchable encryption configurations.
    */
   public List<VirtualField> virtualFields() {
     return this.virtualFields;
@@ -128,8 +142,22 @@ public class BeaconVersion {
   /**
    * @return The number of separate buckets across which beacons should be divided.
    */
-  public int numberOfBuckets() {
-    return this.numberOfBuckets;
+  public int maximumNumberOfBuckets() {
+    return this.maximumNumberOfBuckets;
+  }
+
+  /**
+   * @return The number of buckets for any beacon that doesn't specify a numberOfBuckets
+   */
+  public int defaultNumberOfBuckets() {
+    return this.defaultNumberOfBuckets;
+  }
+
+  /**
+   * @return How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+   */
+  public IBucketSelector bucketSelector() {
+    return this.bucketSelector;
   }
 
   public Builder toBuilder() {
@@ -192,12 +220,12 @@ public class BeaconVersion {
     List<CompoundBeacon> compoundBeacons();
 
     /**
-     * @param virtualFields The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+     * @param virtualFields The Virtual Fields to be calculated, supporting other searchable encryption configurations.
      */
     Builder virtualFields(List<VirtualField> virtualFields);
 
     /**
-     * @return The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+     * @return The Virtual Fields to be calculated, supporting other searchable encryption configurations.
      */
     List<VirtualField> virtualFields();
 
@@ -222,14 +250,34 @@ public class BeaconVersion {
     List<SignedPart> signedParts();
 
     /**
-     * @param numberOfBuckets The number of separate buckets across which beacons should be divided.
+     * @param maximumNumberOfBuckets The number of separate buckets across which beacons should be divided.
      */
-    Builder numberOfBuckets(int numberOfBuckets);
+    Builder maximumNumberOfBuckets(int maximumNumberOfBuckets);
 
     /**
      * @return The number of separate buckets across which beacons should be divided.
      */
-    int numberOfBuckets();
+    int maximumNumberOfBuckets();
+
+    /**
+     * @param defaultNumberOfBuckets The number of buckets for any beacon that doesn't specify a numberOfBuckets
+     */
+    Builder defaultNumberOfBuckets(int defaultNumberOfBuckets);
+
+    /**
+     * @return The number of buckets for any beacon that doesn't specify a numberOfBuckets
+     */
+    int defaultNumberOfBuckets();
+
+    /**
+     * @param bucketSelector How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+     */
+    Builder bucketSelector(IBucketSelector bucketSelector);
+
+    /**
+     * @return How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+     */
+    IBucketSelector bucketSelector();
 
     BeaconVersion build();
   }
@@ -254,9 +302,15 @@ public class BeaconVersion {
 
     protected List<SignedPart> signedParts;
 
-    protected int numberOfBuckets;
+    protected int maximumNumberOfBuckets;
 
-    private boolean _numberOfBucketsSet = false;
+    private boolean _maximumNumberOfBucketsSet = false;
+
+    protected int defaultNumberOfBuckets;
+
+    private boolean _defaultNumberOfBucketsSet = false;
+
+    protected IBucketSelector bucketSelector;
 
     protected BuilderImpl() {}
 
@@ -270,8 +324,11 @@ public class BeaconVersion {
       this.virtualFields = model.virtualFields();
       this.encryptedParts = model.encryptedParts();
       this.signedParts = model.signedParts();
-      this.numberOfBuckets = model.numberOfBuckets();
-      this._numberOfBucketsSet = true;
+      this.maximumNumberOfBuckets = model.maximumNumberOfBuckets();
+      this._maximumNumberOfBucketsSet = true;
+      this.defaultNumberOfBuckets = model.defaultNumberOfBuckets();
+      this._defaultNumberOfBucketsSet = true;
+      this.bucketSelector = model.bucketSelector();
     }
 
     public Builder version(int version) {
@@ -347,14 +404,33 @@ public class BeaconVersion {
       return this.signedParts;
     }
 
-    public Builder numberOfBuckets(int numberOfBuckets) {
-      this.numberOfBuckets = numberOfBuckets;
-      this._numberOfBucketsSet = true;
+    public Builder maximumNumberOfBuckets(int maximumNumberOfBuckets) {
+      this.maximumNumberOfBuckets = maximumNumberOfBuckets;
+      this._maximumNumberOfBucketsSet = true;
       return this;
     }
 
-    public int numberOfBuckets() {
-      return this.numberOfBuckets;
+    public int maximumNumberOfBuckets() {
+      return this.maximumNumberOfBuckets;
+    }
+
+    public Builder defaultNumberOfBuckets(int defaultNumberOfBuckets) {
+      this.defaultNumberOfBuckets = defaultNumberOfBuckets;
+      this._defaultNumberOfBucketsSet = true;
+      return this;
+    }
+
+    public int defaultNumberOfBuckets() {
+      return this.defaultNumberOfBuckets;
+    }
+
+    public Builder bucketSelector(IBucketSelector bucketSelector) {
+      this.bucketSelector = BucketSelector.wrap(bucketSelector);
+      return this;
+    }
+
+    public IBucketSelector bucketSelector() {
+      return this.bucketSelector;
     }
 
     public BeaconVersion build() {
@@ -421,14 +497,32 @@ public class BeaconVersion {
           "The size of `signedParts` must be greater than or equal to 1"
         );
       }
-      if (this._numberOfBucketsSet && this.numberOfBuckets() < 1) {
+      if (
+        this._maximumNumberOfBucketsSet && this.maximumNumberOfBuckets() < 1
+      ) {
         throw new IllegalArgumentException(
-          "`numberOfBuckets` must be greater than or equal to 1"
+          "`maximumNumberOfBuckets` must be greater than or equal to 1"
         );
       }
-      if (this._numberOfBucketsSet && this.numberOfBuckets() > 255) {
+      if (
+        this._maximumNumberOfBucketsSet && this.maximumNumberOfBuckets() > 255
+      ) {
         throw new IllegalArgumentException(
-          "`numberOfBuckets` must be less than or equal to 255."
+          "`maximumNumberOfBuckets` must be less than or equal to 255."
+        );
+      }
+      if (
+        this._defaultNumberOfBucketsSet && this.defaultNumberOfBuckets() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "`defaultNumberOfBuckets` must be greater than or equal to 1"
+        );
+      }
+      if (
+        this._defaultNumberOfBucketsSet && this.defaultNumberOfBuckets() > 255
+      ) {
+        throw new IllegalArgumentException(
+          "`defaultNumberOfBuckets` must be less than or equal to 255."
         );
       }
       return new BeaconVersion(this);

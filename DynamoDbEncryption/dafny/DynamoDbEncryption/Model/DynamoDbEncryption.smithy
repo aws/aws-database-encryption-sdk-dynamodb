@@ -21,6 +21,7 @@ use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#AttributeMap
+use com.amazonaws.dynamodb#QueryInput
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#Key
@@ -45,7 +46,7 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 )
 service DynamoDbEncryption {
     version: "2024-04-02",
-    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription, GetNumberOfQueries],
     errors: [ DynamoDbEncryptionException ]
 }
 
@@ -71,6 +72,20 @@ structure GetBucketNumberInput {
 structure GetBucketNumberOutput {
   @required
   bucketNumber: BucketNumber
+}
+
+@javadoc("Return the necessary number of query operations for this query, based on bucket usage.")
+operation GetNumberOfQueries {
+    input: GetNumberOfQueriesInput,
+    output: GetNumberOfQueriesOutput,
+}
+structure GetNumberOfQueriesInput {
+    @required
+    input: QueryInput
+}
+structure GetNumberOfQueriesOutput {
+    @required
+    numberOfQueries: BucketCount
 }
 
 @javadoc("Returns encrypted data key description.")
@@ -231,9 +246,6 @@ structure DynamoDbTableEncryptionConfig {
     legacyOverride: LegacyOverride,
     @javadoc("A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.")
     plaintextOverride: PlaintextOverride,
-
-    @javadoc("How to choose the bucket for an item. Default behavior is a random between 0 and numberOfBuckets.")
-    bucketSelector: BucketSelectorReference,
 }
 
 map AttributeActions {
@@ -274,7 +286,7 @@ structure LegacyDynamoDbEncryptorReference {}
 @javadoc("A configuration for overriding encryption and/or decryption to instead perform legacy encryption and decryption.")
 structure LegacyOverride {
     @required
-    @javadoc("A policy which configurates whether legacy behavior overrides encryption and/or decryption.")
+    @javadoc("A policy which configures whether legacy behavior overrides encryption and/or decryption.")
     policy: LegacyPolicy,
     @required
     @javadoc("A configuration for the legacy DynamoDB Encryption Client's Encryptor.")
@@ -509,7 +521,7 @@ structure GetSegment {
   @javadoc("The characters to split on.")
   split : Char,
   @required
-  @javadoc("The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.")
+  @javadoc("The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.")
   index : Integer
 }
 
@@ -669,7 +681,7 @@ structure Constructor {
 //# - A name -- a string
 //# - A required flag -- a boolean
 
-@javadoc("A part of a Compound Becaon Construction.")
+@javadoc("A part of a Compound Beacon Construction.")
 structure ConstructorPart {
   @required
   @javadoc("The name of the Encrypted Part or Signed Part for which this constructor part gets a value.")
@@ -824,15 +836,22 @@ structure BeaconVersion {
 
   @javadoc("The Compound Beacons to be written with items.")
   compoundBeacons : CompoundBeaconList,
-  @javadoc("The Virtual Fields to be calculated, supporting other searchable enryption configurations.")
+  @javadoc("The Virtual Fields to be calculated, supporting other searchable encryption configurations.")
   virtualFields : VirtualFieldList,
 
   @javadoc("The list of Encrypted Parts that may be included in any compound beacon.")
   encryptedParts : EncryptedPartsList,
   @javadoc("The list of Signed Parts that may be included in any compound beacon.")
   signedParts : SignedPartsList,
+
   @javadoc("The number of separate buckets across which beacons should be divided.")
-  numberOfBuckets : BucketCount
+  maximumNumberOfBuckets : BucketCount,
+
+  @javadoc("The number of buckets for any beacon that doesn't specify a numberOfBuckets")
+  defaultNumberOfBuckets : BucketCount,
+
+  @javadoc("How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.")
+  bucketSelector: BucketSelectorReference,
 }
 
 //= specification/searchable-encryption/search-config.md#initialization

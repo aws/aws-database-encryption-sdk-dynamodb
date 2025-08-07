@@ -452,7 +452,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect "bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["bucket_encrypt"];
       var testSelector := new TestBucketSelector();
-      var nConfig := config.config.(bucketSelector := Some(testSelector));
+      expect config.config.search.Some?;
+      var version := config.config.search.value.versions[0].(bucketSelector := Some(testSelector));
+      var nSearch := config.config.search.value.(versions := [version]);
+      var nConfig := config.config.(search := Some(nSearch));
       config := config.(config := nConfig);
       var wClient, rClient := SetupTestTable(config, config);
       for i : nat := 0 to 100 {

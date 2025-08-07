@@ -40,6 +40,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumb
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionUnion;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPrefix;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSegment;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSegments;
@@ -204,9 +206,19 @@ public class ToNative {
         ToNative.SignedPartsList(dafnyValue.dtor_signedParts().dtor_value())
       );
     }
-    if (dafnyValue.dtor_numberOfBuckets().is_Some()) {
-      nativeBuilder.numberOfBuckets(
-        (dafnyValue.dtor_numberOfBuckets().dtor_value())
+    if (dafnyValue.dtor_maximumNumberOfBuckets().is_Some()) {
+      nativeBuilder.maximumNumberOfBuckets(
+        (dafnyValue.dtor_maximumNumberOfBuckets().dtor_value())
+      );
+    }
+    if (dafnyValue.dtor_defaultNumberOfBuckets().is_Some()) {
+      nativeBuilder.defaultNumberOfBuckets(
+        (dafnyValue.dtor_defaultNumberOfBuckets().dtor_value())
+      );
+    }
+    if (dafnyValue.dtor_bucketSelector().is_Some()) {
+      nativeBuilder.bucketSelector(
+        ToNative.BucketSelector(dafnyValue.dtor_bucketSelector().dtor_value())
       );
     }
     return nativeBuilder.build();
@@ -376,11 +388,6 @@ public class ToNative {
         )
       );
     }
-    if (dafnyValue.dtor_bucketSelector().is_Some()) {
-      nativeBuilder.bucketSelector(
-        ToNative.BucketSelector(dafnyValue.dtor_bucketSelector().dtor_value())
-      );
-    }
     return nativeBuilder.build();
   }
 
@@ -517,6 +524,28 @@ public class ToNative {
         dafnyValue.dtor_EncryptedDataKeyDescriptionOutput()
       )
     );
+    return nativeBuilder.build();
+  }
+
+  public static GetNumberOfQueriesInput GetNumberOfQueriesInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetNumberOfQueriesInput dafnyValue
+  ) {
+    GetNumberOfQueriesInput.Builder nativeBuilder =
+      GetNumberOfQueriesInput.builder();
+    nativeBuilder.input(
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.QueryInput(
+        dafnyValue.dtor_input()
+      )
+    );
+    return nativeBuilder.build();
+  }
+
+  public static GetNumberOfQueriesOutput GetNumberOfQueriesOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetNumberOfQueriesOutput dafnyValue
+  ) {
+    GetNumberOfQueriesOutput.Builder nativeBuilder =
+      GetNumberOfQueriesOutput.builder();
+    nativeBuilder.numberOfQueries((dafnyValue.dtor_numberOfQueries()));
     return nativeBuilder.build();
   }
 

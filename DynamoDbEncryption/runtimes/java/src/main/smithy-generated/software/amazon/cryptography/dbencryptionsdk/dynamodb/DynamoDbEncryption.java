@@ -15,6 +15,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.CreateDynamoD
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesOutput;
 
 public class DynamoDbEncryption {
 
@@ -83,6 +85,25 @@ public class DynamoDbEncryption {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.GetEncryptedDataKeyDescriptionOutput(result.dtor_value());
+  }
+
+  /**
+   * Return the necessary number of query operations for this query, based on bucket usage.
+   *
+   */
+  public GetNumberOfQueriesOutput GetNumberOfQueries(
+    GetNumberOfQueriesInput input
+  ) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetNumberOfQueriesInput dafnyValue =
+      ToDafny.GetNumberOfQueriesInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetNumberOfQueriesOutput,
+      Error
+    > result = this._impl.GetNumberOfQueries(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.GetNumberOfQueriesOutput(result.dtor_value());
   }
 
   protected IDynamoDbEncryptionClient impl() {

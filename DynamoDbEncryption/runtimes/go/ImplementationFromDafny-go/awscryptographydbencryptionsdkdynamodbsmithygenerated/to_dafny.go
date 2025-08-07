@@ -3,6 +3,7 @@
 package awscryptographydbencryptionsdkdynamodbsmithygenerated
 
 import (
+	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb/ComAmazonawsDynamodbTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb/comamazonawsdynamodbsmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyKeyStoreTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyMaterialProvidersTypes"
@@ -19,6 +20,7 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygenerated"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/smithy-go"
 	"github.com/dafny-lang/DafnyRuntimeGo/v4/dafny"
@@ -56,6 +58,24 @@ func GetEncryptedDataKeyDescriptionOutput_ToDafny(nativeOutput awscryptographydb
 	return func() AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionOutput {
 
 		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_GetEncryptedDataKeyDescriptionOutput_.Create_GetEncryptedDataKeyDescriptionOutput_(Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_ToDafny(nativeOutput.EncryptedDataKeyDescriptionOutput))
+	}()
+
+}
+
+func GetNumberOfQueriesInput_ToDafny(nativeInput awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetNumberOfQueriesInput) AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesInput {
+
+	return func() AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesInput {
+
+		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_GetNumberOfQueriesInput_.Create_GetNumberOfQueriesInput_(Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesInput_input_ToDafny(nativeInput.Input))
+	}()
+
+}
+
+func GetNumberOfQueriesOutput_ToDafny(nativeOutput awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetNumberOfQueriesOutput) AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesOutput {
+
+	return func() AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesOutput {
+
+		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_GetNumberOfQueriesOutput_.Create_GetNumberOfQueriesOutput_(Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesOutput_numberOfQueries_ToDafny(nativeOutput.NumberOfQueries))
 	}()
 
 }
@@ -455,7 +475,12 @@ func VirtualField_ToDafny(nativeInput awscryptographydbencryptionsdkdynamodbsmit
 func BeaconVersion_ToDafny(nativeInput awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion) AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion {
 	return func() AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion {
 
-		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_BeaconVersion_.Create_BeaconVersion_(Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_ToDafny(nativeInput.Version), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_ToDafny(nativeInput.KeyStore), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_ToDafny(nativeInput.KeySource), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_ToDafny(nativeInput.StandardBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_ToDafny(nativeInput.CompoundBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_ToDafny(nativeInput.VirtualFields), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_ToDafny(nativeInput.EncryptedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_ToDafny(nativeInput.SignedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_numberOfBuckets_ToDafny(nativeInput.NumberOfBuckets))
+		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_BeaconVersion_.Create_BeaconVersion_(Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_ToDafny(nativeInput.Version), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_ToDafny(nativeInput.KeyStore), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_ToDafny(nativeInput.KeySource), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_ToDafny(nativeInput.StandardBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_ToDafny(nativeInput.CompoundBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_ToDafny(nativeInput.VirtualFields), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_ToDafny(nativeInput.EncryptedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_ToDafny(nativeInput.SignedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_maximumNumberOfBuckets_ToDafny(nativeInput.MaximumNumberOfBuckets), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_defaultNumberOfBuckets_ToDafny(nativeInput.DefaultNumberOfBuckets), func() Wrappers.Option {
+			if (nativeInput.BucketSelector) == nil {
+				return Wrappers.Companion_Option_.Create_None_()
+			}
+			return Wrappers.Companion_Option_.Create_Some_(BucketSelector_ToDafny(nativeInput.BucketSelector))
+		}())
 	}()
 
 }
@@ -543,12 +568,7 @@ func DynamoDbTableEncryptionConfig_ToDafny(nativeInput awscryptographydbencrypti
 				return Wrappers.Companion_Option_.Create_None_()
 			}
 			return Wrappers.Companion_Option_.Create_Some_(awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(nativeInput.Cmm))
-		}(), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_ToDafny(nativeInput.LegacyOverride), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_ToDafny(nativeInput.PlaintextOverride), func() Wrappers.Option {
-			if (nativeInput.BucketSelector) == nil {
-				return Wrappers.Companion_Option_.Create_None_()
-			}
-			return Wrappers.Companion_Option_.Create_Some_(BucketSelector_ToDafny(nativeInput.BucketSelector))
-		}())
+		}(), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_ToDafny(nativeInput.LegacyOverride), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_ToDafny(nativeInput.PlaintextOverride))
 	}()
 
 }
@@ -675,6 +695,20 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branc
 			}
 			return res
 		}())
+	}()
+}
+
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesInput_input_ToDafny(input dynamodb.QueryInput) ComAmazonawsDynamodbTypes.QueryInput {
+	return func() ComAmazonawsDynamodbTypes.QueryInput {
+
+		return ComAmazonawsDynamodbTypes.Companion_QueryInput_.Create_QueryInput_(comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_TableName_ToDafny(input.TableName), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_IndexName_ToDafny(input.IndexName), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_Select_ToDafny(input.Select), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_AttributesToGet_ToDafny(input.AttributesToGet), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_Limit_ToDafny(input.Limit), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ConsistentRead_ToDafny(input.ConsistentRead), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_KeyConditions_ToDafny(input.KeyConditions), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_QueryFilter_ToDafny(input.QueryFilter), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ConditionalOperator_ToDafny(input.ConditionalOperator), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ScanIndexForward_ToDafny(input.ScanIndexForward), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExclusiveStartKey_ToDafny(input.ExclusiveStartKey), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ReturnConsumedCapacity_ToDafny(input.ReturnConsumedCapacity), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ProjectionExpression_ToDafny(input.ProjectionExpression), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_FilterExpression_ToDafny(input.FilterExpression), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_KeyConditionExpression_ToDafny(input.KeyConditionExpression), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExpressionAttributeNames_ToDafny(input.ExpressionAttributeNames), comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExpressionAttributeValues_ToDafny(input.ExpressionAttributeValues))
+	}()
+}
+
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesOutput_numberOfQueries_ToDafny(input int32) int32 {
+	return func() int32 {
+
+		return input
 	}()
 }
 
@@ -1567,7 +1601,16 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_ToDafny
 	}()
 }
 
-func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_numberOfBuckets_ToDafny(input *int32) Wrappers.Option {
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_maximumNumberOfBuckets_ToDafny(input *int32) Wrappers.Option {
+	return func() Wrappers.Option {
+		if input == nil {
+			return Wrappers.Companion_Option_.Create_None_()
+		}
+		return Wrappers.Companion_Option_.Create_Some_(*input)
+	}()
+}
+
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_defaultNumberOfBuckets_ToDafny(input *int32) Wrappers.Option {
 	return func() Wrappers.Option {
 		if input == nil {
 			return Wrappers.Companion_Option_.Create_None_()
@@ -1691,7 +1734,12 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_ToDafny(inp
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_ToDafny(input awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion) AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion {
 	return func() AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion {
 
-		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_BeaconVersion_.Create_BeaconVersion_(Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_ToDafny(input.Version), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_ToDafny(input.KeyStore), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_ToDafny(input.KeySource), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_ToDafny(input.StandardBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_ToDafny(input.CompoundBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_ToDafny(input.VirtualFields), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_ToDafny(input.EncryptedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_ToDafny(input.SignedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_numberOfBuckets_ToDafny(input.NumberOfBuckets))
+		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_BeaconVersion_.Create_BeaconVersion_(Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_ToDafny(input.Version), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_ToDafny(input.KeyStore), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_ToDafny(input.KeySource), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_ToDafny(input.StandardBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_ToDafny(input.CompoundBeacons), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_ToDafny(input.VirtualFields), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_ToDafny(input.EncryptedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_ToDafny(input.SignedParts), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_maximumNumberOfBuckets_ToDafny(input.MaximumNumberOfBuckets), Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_defaultNumberOfBuckets_ToDafny(input.DefaultNumberOfBuckets), func() Wrappers.Option {
+			if (input.BucketSelector) == nil {
+				return Wrappers.Companion_Option_.Create_None_()
+			}
+			return Wrappers.Companion_Option_.Create_Some_(BucketSelector_ToDafny(input.BucketSelector))
+		}())
 	}()
 }
 
@@ -1886,11 +1934,6 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfigList
 				return Wrappers.Companion_Option_.Create_None_()
 			}
 			return Wrappers.Companion_Option_.Create_Some_(awscryptographymaterialproviderssmithygenerated.CryptographicMaterialsManager_ToDafny(input.Cmm))
-		}(), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_ToDafny(input.LegacyOverride), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_ToDafny(input.PlaintextOverride), func() Wrappers.Option {
-			if (input.BucketSelector) == nil {
-				return Wrappers.Companion_Option_.Create_None_()
-			}
-			return Wrappers.Companion_Option_.Create_Some_(BucketSelector_ToDafny(input.BucketSelector))
-		}())
+		}(), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_legacyOverride_ToDafny(input.LegacyOverride), Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbTableEncryptionConfig_plaintextOverride_ToDafny(input.PlaintextOverride))
 	}()
 }

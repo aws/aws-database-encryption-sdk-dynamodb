@@ -28,7 +28,7 @@
       "search": {
         "versions": [
           {
-            "numberOfBuckets": 5,
+            "maximumNumberOfBuckets": 5,
             "standardBeacons": [
               {
                 "Name": "Attr1",

@@ -15,7 +15,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> _virtualFields;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> _encryptedParts;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> _signedParts;
-    private int? _numberOfBuckets;
+    private int? _maximumNumberOfBuckets;
+    private int? _defaultNumberOfBuckets;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.IBucketSelector _bucketSelector;
     public int Version
     {
       get { return this._version.GetValueOrDefault(); }
@@ -88,14 +90,32 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._signedParts != null;
     }
-    public int NumberOfBuckets
+    public int MaximumNumberOfBuckets
     {
-      get { return this._numberOfBuckets.GetValueOrDefault(); }
-      set { this._numberOfBuckets = value; }
+      get { return this._maximumNumberOfBuckets.GetValueOrDefault(); }
+      set { this._maximumNumberOfBuckets = value; }
     }
-    public bool IsSetNumberOfBuckets()
+    public bool IsSetMaximumNumberOfBuckets()
     {
-      return this._numberOfBuckets.HasValue;
+      return this._maximumNumberOfBuckets.HasValue;
+    }
+    public int DefaultNumberOfBuckets
+    {
+      get { return this._defaultNumberOfBuckets.GetValueOrDefault(); }
+      set { this._defaultNumberOfBuckets = value; }
+    }
+    public bool IsSetDefaultNumberOfBuckets()
+    {
+      return this._defaultNumberOfBuckets.HasValue;
+    }
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.IBucketSelector BucketSelector
+    {
+      get { return this._bucketSelector; }
+      set { this._bucketSelector = value; }
+    }
+    public bool IsSetBucketSelector()
+    {
+      return this._bucketSelector != null;
     }
     public void Validate()
     {
@@ -135,17 +155,30 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
               String.Format("Member SignedParts of structure BeaconVersion has List type SignedPartsList which has a minimum length of 1 but was given a value with length {0}.", SignedParts.Count));
         }
       }
-      if (IsSetNumberOfBuckets())
+      if (IsSetMaximumNumberOfBuckets())
       {
-        if (NumberOfBuckets < 1)
+        if (MaximumNumberOfBuckets < 1)
         {
           throw new System.ArgumentException(
-              String.Format("Member NumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", NumberOfBuckets));
+              String.Format("Member MaximumNumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", MaximumNumberOfBuckets));
         }
-        if (NumberOfBuckets > 255)
+        if (MaximumNumberOfBuckets > 255)
         {
           throw new System.ArgumentException(
-              String.Format("Member NumberOfBuckets of structure BeaconVersion has type BucketCount which has a maximum of 255 but was given the value {0}.", NumberOfBuckets));
+              String.Format("Member MaximumNumberOfBuckets of structure BeaconVersion has type BucketCount which has a maximum of 255 but was given the value {0}.", MaximumNumberOfBuckets));
+        }
+      }
+      if (IsSetDefaultNumberOfBuckets())
+      {
+        if (DefaultNumberOfBuckets < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member DefaultNumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", DefaultNumberOfBuckets));
+        }
+        if (DefaultNumberOfBuckets > 255)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member DefaultNumberOfBuckets of structure BeaconVersion has type BucketCount which has a maximum of 255 but was given the value {0}.", DefaultNumberOfBuckets));
         }
       }
     }

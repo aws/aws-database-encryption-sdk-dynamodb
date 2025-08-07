@@ -26,6 +26,7 @@ module SearchConfigToInfo {
   import opened StandardLibrary.MemoryMath
   import MaterialProviders
   import SortedSets
+  import Random
 
   import I = SearchableEncryptionInfo
   import V = DdbVirtualFields
@@ -266,6 +267,47 @@ module SearchConfigToInfo {
     output := ConvertVersionWithSource(outer, config, source);
   }
 
+  class DefaultBucketSelector extends IBucketSelector
+  {
+    predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    { History in Modifies }
+
+    constructor ()
+      ensures ValidState() && fresh(History) && fresh(Modifies)
+    {
+      History := new IBucketSelectorCallHistory();
+      Modifies := { History };
+    }
+
+    predicate GetBucketNumberEnsuresPublicly (
+      input: GetBucketNumberInput ,
+      output: Result<GetBucketNumberOutput, Error> )
+      : (outcome: bool)
+    {
+      true
+    }
+
+    method GetBucketNumber'(input: GetBucketNumberInput)
+      returns (output: Result<GetBucketNumberOutput, Error> )
+      requires ValidState()
+      modifies Modifies - {History}
+      decreases Modifies - {History}
+      ensures ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+    {
+      if input.numberOfBuckets == 1 {
+        return Success(GetBucketNumberOutput(bucketNumber := 0));
+      } else {
+        var randR := Random.GenerateBytes(1);
+        var rand : seq<uint8> :- randR.MapFailure(e => DynamoDbEncryptionException(message := "Failed to get random byte"));
+        var bucket := (rand[0] % (input.numberOfBuckets as uint8)) as BucketNumber;
+        return Success(GetBucketNumberOutput(bucketNumber := bucket));
+      }
+    }
+  }
+
   // convert configured BeaconVersion to internal BeaconVersion
   method ConvertVersionWithSource(
     outer : DynamoDbTableEncryptionConfig,
@@ -280,8 +322,19 @@ module SearchConfigToInfo {
               && output.value.ValidState()
               && output.value.keySource == source
   {
+    var maxBuckets : BucketCount := config.maximumNumberOfBuckets.UnwrapOr(1);
+    var defaultBuckets : BucketCount := config.defaultNumberOfBuckets.UnwrapOr(maxBuckets);
+    :- Need(0 <= maxBuckets as nat < MAX_BUCKET_COUNT, E("Invalid number of buckets specified, " + Base10Int2String(maxBuckets as int) + ", must be 0 < maximumNumberOfBuckets <= 255."));
+    // Zero is invalid, but in Java we can't distinguish None from Some(0)
+    if maxBuckets == 0 {
+      maxBuckets := 1;
+    }
+    if defaultBuckets == 0 {
+      defaultBuckets := maxBuckets;
+    }
+
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
-    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields);
+    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields, maxBuckets, defaultBuckets);
 
     var signed := if config.signedParts.Some? then config.signedParts.value else [];
 
@@ -315,20 +368,22 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
+      var bucketSelector;
+      if outer.search.Some? && outer.search.value.versions[0].bucketSelector.Some? {
+        bucketSelector := outer.search.value.versions[0].bucketSelector.value;
+        assume {:axiom} bucketSelector.ValidState();
+      } else {
+        bucketSelector := new DefaultBucketSelector();
+      }
 
-    var numBuckets : int := config.numberOfBuckets.UnwrapOr(1) as int;
-    :- Need(0 <= numBuckets < MAX_BUCKET_COUNT, E("Invalid number of buckets specified, " + Base10Int2String(numBuckets) + ", must be 0 < numberOfBuckets <= 255."));
-    // Zero is invalid, but in Java we can't distinguish None from Some(0)
-    if numBuckets == 0 {
-      numBuckets := 1;
-    }
     return I.MakeBeaconVersion(
         config.version as I.VersionNumber,
         source,
         beacons,
         virtualFields,
         outer.attributeActionsOnEncrypt,
-        numBuckets as BucketCount
+        bucketSelector,
+        maxBuckets
       );
   }
 
@@ -526,31 +581,28 @@ module SearchConfigToInfo {
       Failure(E("Beacon " + name + " is shared to " + share + " which is not defined."))
   }
 
-  function method GetBucketCount(outer : DynamoDbTableEncryptionConfig, inner : Option<BucketCount>, name : string) :
+  function method GetBucketCount(outer : DynamoDbTableEncryptionConfig, inner : Option<BucketCount>, name : string, maxBuckets : BucketCount, defaultBuckets : BucketCount) :
     Result<BucketCount,Error>
   {
     if outer.search.None? || |outer.search.value.versions| == 0 then
       Success(1)
     else
-      var num := outer.search.value.versions[0].numberOfBuckets;
-      if BucketCountNone(num) then
-        if !BucketCountNone(inner) then
-          Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but there is not global numberOfBuckets set."))
-        else
-          Success(1)
-      else if BucketCountNone(inner) then
-        Success(num.value)
-      else if inner.value < num.value then
+      if BucketCountNone(inner) then
+        Success(defaultBuckets)
+      else if inner.value < maxBuckets then
         Success(inner.value)
       else
-        Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the global numberOfBuckets " + Base10Int2String(num.value as int)))
+        Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the maximumNumberOfBuckets " + Base10Int2String(maxBuckets as int)))
   }
+
   // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
     beacons : seq<StandardBeacon>,
     outer : DynamoDbTableEncryptionConfig,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
+    maxBuckets : BucketCount,
+    defaultBuckets : BucketCount,
     converted : I.BeaconMap := map[])
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
@@ -608,7 +660,7 @@ module SearchConfigToInfo {
         case sharedSet(t) => share := Some(t.other); isAsSet := true;
       }
     }
-    var bucketCount :- GetBucketCount(outer, beacons[0].numberOfBuckets, beacons[0].name);
+    var bucketCount :- GetBucketCount(outer, beacons[0].numberOfBuckets, beacons[0].name, maxBuckets, defaultBuckets);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
                                           isPartOnly, isAsSet, share, bucketCount);
 
@@ -628,7 +680,7 @@ module SearchConfigToInfo {
                        + ", but virtual field " + badField.value + " is already defined on that single location."));
     }
 
-    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
+    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, maxBuckets, defaultBuckets, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 
   // optional location, defaults to name

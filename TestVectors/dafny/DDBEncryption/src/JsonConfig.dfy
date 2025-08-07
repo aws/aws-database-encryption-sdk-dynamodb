@@ -33,6 +33,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import CreateInterceptedDDBClient
   import DynamoDbItemEncryptor
   import CreateWrappedItemEncryptor
+  import SearchConfigToInfo
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
 
@@ -499,7 +500,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var compoundBeacons : seq<Types.CompoundBeacon> := [];
     var virtualFields : seq<Types.VirtualField> := [];
     var keySource : Option<Types.BeaconKeySource> := None;
-    var numberOfBuckets: Option<Types.BucketCount> := None;
+    var maximumNumberOfBuckets: Option<Types.BucketCount> := None;
+    var defaultNumberOfBuckets: Option<Types.BucketCount> := None;
 
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
@@ -508,13 +510,20 @@ module {:options "-functionSyntax:4"} JsonConfig {
         case "standardBeacons" => standardBeacons :- GetStandardBeacons(obj.1);
         case "compoundBeacons" => compoundBeacons :- GetCompoundBeacons(obj.1);
         case "virtualFields" => virtualFields :- GetVirtualFields(obj.1);
-        case "numberOfBuckets" =>
-          :- Need(obj.1.Number?, "numberOfBuckets must be of type Number.");
+        case "maximumNumberOfBuckets" =>
+          :- Need(obj.1.Number?, "maximumNumberOfBuckets must be of type Number.");
           var num :- DecimalToNat(obj.1.num);
           expect 0 < num < INT32_MAX_LIMIT;
           var num2 := num as int32;
           expect Types.IsValid_BucketCount(num2);
-          numberOfBuckets := Some(num as Types.BucketCount);
+          maximumNumberOfBuckets := Some(num as Types.BucketCount);
+        case "defaultNumberOfBuckets" =>
+          :- Need(obj.1.Number?, "defaultNumberOfBuckets must be of type Number.");
+          var num :- DecimalToNat(obj.1.num);
+          expect 0 < num < INT32_MAX_LIMIT;
+          var num2 := num as int32;
+          expect Types.IsValid_BucketCount(num2);
+          defaultNumberOfBuckets := Some(num as Types.BucketCount);
         case _ => return Failure("Unexpected part of a beacon version : '" + obj.0 + "'");
       }
     }
@@ -538,7 +547,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
                      virtualFields := OptSeq(virtualFields),
                      encryptedParts := None,
                      signedParts := None,
-                     numberOfBuckets := numberOfBuckets
+                     maximumNumberOfBuckets := maximumNumberOfBuckets,
+                     defaultNumberOfBuckets := defaultNumberOfBuckets
                    )
       );
   }
@@ -580,7 +590,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32, partitionIdBytes, logicalKeyStoreNameBytes);
 
-    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[], 1);
+    var sel := new SearchConfigToInfo.DefaultBucketSelector();
+    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[], sel, 1);
     return Success(bv);
   }
 
