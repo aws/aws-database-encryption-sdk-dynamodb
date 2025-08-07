@@ -368,13 +368,13 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
-      var bucketSelector;
-      if outer.search.Some? && outer.search.value.versions[0].bucketSelector.Some? {
-        bucketSelector := outer.search.value.versions[0].bucketSelector.value;
-        assume {:axiom} bucketSelector.ValidState();
-      } else {
-        bucketSelector := new DefaultBucketSelector();
-      }
+    var bucketSelector;
+    if outer.search.Some? && outer.search.value.versions[0].bucketSelector.Some? {
+      bucketSelector := outer.search.value.versions[0].bucketSelector.value;
+      assume {:axiom} bucketSelector.ValidState();
+    } else {
+      bucketSelector := new DefaultBucketSelector();
+    }
 
     return I.MakeBeaconVersion(
         config.version as I.VersionNumber,
@@ -587,12 +587,12 @@ module SearchConfigToInfo {
     if outer.search.None? || |outer.search.value.versions| == 0 then
       Success(1)
     else
-      if BucketCountNone(inner) then
-        Success(defaultBuckets)
-      else if inner.value < maxBuckets then
-        Success(inner.value)
-      else
-        Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the maximumNumberOfBuckets " + Base10Int2String(maxBuckets as int)))
+    if BucketCountNone(inner) then
+      Success(defaultBuckets)
+    else if inner.value < maxBuckets then
+      Success(inner.value)
+    else
+      Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the maximumNumberOfBuckets " + Base10Int2String(maxBuckets as int)))
   }
 
   // convert configured StandardBeacons to internal Beacons

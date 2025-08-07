@@ -85,10 +85,7 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
     }
   }
 
-  public Result<
-    GetNumberOfQueriesOutput,
-    Error
-  > GetNumberOfQueries(
+  public Result<GetNumberOfQueriesOutput, Error> GetNumberOfQueries(
     GetNumberOfQueriesInput dafnyInput
   ) {
     try {
@@ -96,8 +93,9 @@ public class TestDynamoDbEncryption implements IDynamoDbEncryptionClient {
         ToNative.GetNumberOfQueriesInput(dafnyInput);
       software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetNumberOfQueriesOutput nativeOutput =
         this._impl.GetNumberOfQueries(nativeInput);
-      GetNumberOfQueriesOutput dafnyOutput =
-        ToDafny.GetNumberOfQueriesOutput(nativeOutput);
+      GetNumberOfQueriesOutput dafnyOutput = ToDafny.GetNumberOfQueriesOutput(
+        nativeOutput
+      );
       return Result.create_Success(
         GetNumberOfQueriesOutput._typeDescriptor(),
         Error._typeDescriptor(),
