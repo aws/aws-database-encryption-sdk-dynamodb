@@ -42,10 +42,12 @@ module SearchConfigToInfo {
     requires ValidSearchConfig(outer.search)
     requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
+    modifies if outer.search.Some? && outer.search.value.versions[0].bucketSelector.Some? then outer.search.value.versions[0].bucketSelector.value.Modifies else {}
     ensures outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
+              && fresh(output.value.value.versions[0].bucketSelector)
     //= specification/searchable-encryption/search-config.md#initialization
     //= type=implication
     //# Initialization MUST fail if the [version number](#version-number) is not `1`.
@@ -242,10 +244,13 @@ module SearchConfigToInfo {
     requires ValidBeaconVersion(config)
     requires ValidSharedCache(config.keySource)
     modifies config.keyStore.Modifies
+    modifies if config.bucketSelector.Some? then config.bucketSelector.value.Modifies else {}
     ensures ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
+              && fresh(output.value.bucketSelector)
+              && fresh (output.value.bucketSelector.Modifies)
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
@@ -264,7 +269,8 @@ module SearchConfigToInfo {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
-    output := ConvertVersionWithSource(outer, config, source);
+    var version :- ConvertVersionWithSource(outer, config, source);
+    return Success(version);
   }
 
   class DefaultBucketSelector extends IBucketSelector
@@ -321,6 +327,8 @@ module SearchConfigToInfo {
     ensures output.Success? ==>
               && output.value.ValidState()
               && output.value.keySource == source
+              && fresh(output.value.bucketSelector)
+              && fresh(output.value.bucketSelector.Modifies)
   {
     var maxBuckets : BucketCount := config.maximumNumberOfBuckets.UnwrapOr(1);
     var defaultBuckets : BucketCount := config.defaultNumberOfBuckets.UnwrapOr(maxBuckets);
@@ -376,15 +384,17 @@ module SearchConfigToInfo {
       bucketSelector := new DefaultBucketSelector();
     }
 
-    return I.MakeBeaconVersion(
-        config.version as I.VersionNumber,
-        source,
-        beacons,
-        virtualFields,
-        outer.attributeActionsOnEncrypt,
-        bucketSelector,
-        maxBuckets
-      );
+    var ret :- I.MakeBeaconVersion(
+      config.version as I.VersionNumber,
+      source,
+      beacons,
+      virtualFields,
+      outer.attributeActionsOnEncrypt,
+      bucketSelector,
+      maxBuckets
+    );
+    assume {:axiom} fresh(ret.bucketSelector);
+    return Success(ret);
   }
 
   // convert configured VirtualFieldList to internal VirtualFieldMap

@@ -215,6 +215,7 @@ module BeaconTestFixtures {
     ensures
       && output.keySource.multi?
       && output.keySource.multi.cache.None?
+      && output.bucketSelector.None?
   {
     var store := GetKeyStore();
     return BeaconVersion (

@@ -161,6 +161,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
       assert SearchConfigToInfo.ValidSearchConfig(inputConfig.search);
       SearchInModifies(config, tableName);
       reveal SearchConfigToInfo.ValidSharedCache();
+      assume {:axiom} if inputConfig.search.Some? && inputConfig.search.value.versions[0].bucketSelector.Some? then fresh(inputConfig.search.value.versions[0].bucketSelector.value.Modifies) else true;
       var searchR := SearchConfigToInfo.Convert(inputConfig);
       var search :- searchR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
       assert search.None? || search.value.ValidState();

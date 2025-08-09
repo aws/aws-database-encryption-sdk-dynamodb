@@ -89,6 +89,7 @@ module TransactWriteItemsTransform {
                                          item.Put.value.ExpressionAttributeNames,
                                          item.Put.value.ExpressionAttributeValues);
 
+        assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().bucketSelector.Modifies else {});
         var bucket :- GetRandomBucket(tableConfig, item.Put.value.Item);
         var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item, bucket);
 

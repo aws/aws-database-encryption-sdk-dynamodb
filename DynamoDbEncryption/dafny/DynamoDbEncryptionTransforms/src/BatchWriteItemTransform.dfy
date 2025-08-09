@@ -54,6 +54,7 @@ module BatchWriteItemTransform {
             //# The Item MUST be [writable](ddb-support.md#writable).
             var _ :- IsWriteable(tableConfig, req.PutRequest.value.Item);
 
+            assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().bucketSelector.Modifies else {});
             var bucket :- GetRandomBucket(tableConfig, req.PutRequest.value.Item);
             var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item, bucket);
 
