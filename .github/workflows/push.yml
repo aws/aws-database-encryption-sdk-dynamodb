@@ -4,7 +4,7 @@ name: Push CI
 on:
   push:
     branches:
-      - main
+      - est-MPL0.2.1
 
 jobs:
   getVersion:
