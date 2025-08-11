@@ -4,8 +4,17 @@
 package utils
 
 import (
+	"context"
 	"crypto/rand"
+	"errors"
 	"os"
+	"strings"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/smithy-go"
 )
 
 const (
@@ -124,6 +133,33 @@ func HandleError(err error) {
 	}
 }
 
+func AssertServiceError(err error, service string, operation string, errorMessage string) {
+	if err == nil {
+		panic("Expected error but got no error")
+	}
+	var oe *smithy.OperationError
+	if errors.As(err, &oe) {
+		if oe.Service() != service {
+			panic("Expected service to be: " + service + " but got: " + oe.Service())
+		}
+		if oe.Operation() != operation {
+			panic("Expected Operation to be: " + operation + " but got: " + oe.Operation())
+		}
+		if !strings.Contains(oe.Unwrap().Error(), errorMessage) {
+			panic("Expected message to contain: " + errorMessage + " but got: " + oe.Unwrap().Error())
+		}
+	}
+}
+
+func AssertErrorMessage(err error, expectedMessage string) {
+	if err == nil {
+		panic("Expected error but got no error")
+	}
+	if !strings.Contains(err.Error(), expectedMessage) {
+		panic("Expected error containing: `" + expectedMessage + "` but got:" + err.Error())
+	}
+}
+
 func GenerateAes256KeyBytes() []byte {
 	key := make([]byte, aesKeyBytes)
 	// crypto/rand is used here for demonstration.
@@ -136,4 +172,33 @@ func GenerateAes256KeyBytes() []byte {
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
+}
+
+func DeleteItem(
+	tableName string,
+	partitionKeyName string,
+	partitionKeyValue string,
+	sortKeyName string,
+	sortKeyValue string,
+) {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	HandleError(err)
+
+	// Create DynamoDB client
+	client := dynamodb.NewFromConfig(cfg)
+	// Build the key attributes map with both partition and sort keys
+	key := map[string]types.AttributeValue{
+		partitionKeyName: &types.AttributeValueMemberS{Value: partitionKeyValue},
+		sortKeyName:      &types.AttributeValueMemberN{Value: sortKeyValue},
+	}
+
+	// Create the DeleteItem input
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(tableName),
+		Key:       key,
+	}
+
+	// Execute the DeleteItem operation
+	_, err = client.DeleteItem(context.TODO(), input)
+	HandleError(err)
 }
