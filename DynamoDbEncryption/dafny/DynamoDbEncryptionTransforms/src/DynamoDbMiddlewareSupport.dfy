@@ -25,6 +25,13 @@ module DynamoDbMiddlewareSupport {
   import SI = SearchableEncryptionInfo
 
 
+  method GetNumberOfQueries(config : ValidTableConfig, query : DDB.QueryInput) returns (output : Result<ET.BucketCount, Error>)
+    requires config.search.Some?
+  {
+    var numQueries := BS.GetNumberOfQueries(config.search.value.versions[0], /*config.attributeActionsOnEncrypt*/map[], query);
+    return numQueries.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+  }
+
   predicate method NoMap<X,Y>(m : Option<map<X,Y>>)
   {
     OptionalMapIsSafeBecauseItIsInMemory(m);

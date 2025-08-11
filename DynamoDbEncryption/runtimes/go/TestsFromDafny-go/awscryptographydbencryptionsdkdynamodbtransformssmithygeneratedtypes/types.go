@@ -9,6 +9,21 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+type GetNumberOfQueriesOutput struct {
+	NumberOfQueries int32
+}
+
+func (input GetNumberOfQueriesOutput) Validate() error {
+	if input.NumberOfQueries < 1 {
+		return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", input.NumberOfQueries)
+	}
+	if input.NumberOfQueries > 255 {
+		return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", input.NumberOfQueries)
+	}
+
+	return nil
+}
+
 type ResolveAttributesOutput struct {
 	CompoundBeacons map[string]string
 
@@ -518,6 +533,15 @@ type PutItemInputTransformOutput struct {
 }
 
 func (input PutItemInputTransformOutput) Validate() error {
+
+	return nil
+}
+
+type GetNumberOfQueriesInput struct {
+	Input dynamodb.QueryInput
+}
+
+func (input GetNumberOfQueriesInput) Validate() error {
 
 	return nil
 }

@@ -199,6 +199,18 @@ func GetItemOutputTransformOutput_FromDafny(dafnyOutput AwsCryptographyDbEncrypt
 
 }
 
+func GetNumberOfQueriesInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.GetNumberOfQueriesInput) awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetNumberOfQueriesInput {
+
+	return awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetNumberOfQueriesInput{Input: Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_GetNumberOfQueriesInput_input_FromDafny(dafnyInput.Dtor_input())}
+
+}
+
+func GetNumberOfQueriesOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.GetNumberOfQueriesOutput) awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetNumberOfQueriesOutput {
+
+	return awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetNumberOfQueriesOutput{NumberOfQueries: Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_GetNumberOfQueriesOutput_numberOfQueries_FromDafny(dafnyOutput.Dtor_numberOfQueries())}
+
+}
+
 func PutItemInputTransformInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput) awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.PutItemInputTransformInput {
 
 	return awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.PutItemInputTransformInput{SdkInput: Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_PutItemInputTransformInput_sdkInput_FromDafny(dafnyInput.Dtor_sdkInput())}
@@ -685,6 +697,32 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_GetItemOutputTransform
 	return dynamodb.GetItemOutput{Item: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_GetItemOutput_Item_FromDafny(input.(ComAmazonawsDynamodbTypes.GetItemOutput).Dtor_Item().UnwrapOr(nil)),
 		ConsumedCapacity: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_GetItemOutput_ConsumedCapacity_FromDafny(input.(ComAmazonawsDynamodbTypes.GetItemOutput).Dtor_ConsumedCapacity().UnwrapOr(nil)),
 	}
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_GetNumberOfQueriesInput_input_FromDafny(input interface{}) dynamodb.QueryInput {
+	return dynamodb.QueryInput{TableName: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_TableName_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_TableName()),
+		IndexName:                 comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_IndexName_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_IndexName().UnwrapOr(nil)),
+		Select:                    comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_Select_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_Select().UnwrapOr(nil)),
+		AttributesToGet:           comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_AttributesToGet_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_AttributesToGet().UnwrapOr(nil)),
+		Limit:                     comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_Limit_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_Limit().UnwrapOr(nil)),
+		ConsistentRead:            comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ConsistentRead_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ConsistentRead().UnwrapOr(nil)),
+		KeyConditions:             comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_KeyConditions_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_KeyConditions().UnwrapOr(nil)),
+		QueryFilter:               comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_QueryFilter_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_QueryFilter().UnwrapOr(nil)),
+		ConditionalOperator:       comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ConditionalOperator_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ConditionalOperator().UnwrapOr(nil)),
+		ScanIndexForward:          comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ScanIndexForward_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ScanIndexForward().UnwrapOr(nil)),
+		ExclusiveStartKey:         comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExclusiveStartKey_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ExclusiveStartKey().UnwrapOr(nil)),
+		ReturnConsumedCapacity:    comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ReturnConsumedCapacity_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ReturnConsumedCapacity().UnwrapOr(nil)),
+		ProjectionExpression:      comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ProjectionExpression_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ProjectionExpression().UnwrapOr(nil)),
+		FilterExpression:          comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_FilterExpression_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_FilterExpression().UnwrapOr(nil)),
+		KeyConditionExpression:    comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_KeyConditionExpression_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_KeyConditionExpression().UnwrapOr(nil)),
+		ExpressionAttributeNames:  comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExpressionAttributeNames_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ExpressionAttributeNames().UnwrapOr(nil)),
+		ExpressionAttributeValues: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExpressionAttributeValues_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ExpressionAttributeValues().UnwrapOr(nil)),
+	}
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_GetNumberOfQueriesOutput_numberOfQueries_FromDafny(input interface{}) int32 {
+	return func() int32 {
+		var b = input.(int32)
+		return b
+	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_transforms_PutItemInputTransformInput_sdkInput_FromDafny(input interface{}) dynamodb.PutItemInput {
 	return dynamodb.PutItemInput{TableName: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_PutItemInput_TableName_FromDafny(input.(ComAmazonawsDynamodbTypes.PutItemInput).Dtor_TableName()),

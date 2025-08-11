@@ -21,7 +21,6 @@ use aws.cryptography.dbEncryptionSdk.structuredEncryption#CryptoAction
 
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#AttributeMap
-use com.amazonaws.dynamodb#QueryInput
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeName
 use com.amazonaws.dynamodb#Key
@@ -46,7 +45,7 @@ use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
 )
 service DynamoDbEncryption {
     version: "2024-04-02",
-    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription, GetNumberOfQueries],
+    operations: [ CreateDynamoDbEncryptionBranchKeyIdSupplier, GetEncryptedDataKeyDescription],
     errors: [ DynamoDbEncryptionException ]
 }
 
@@ -72,20 +71,6 @@ structure GetBucketNumberInput {
 structure GetBucketNumberOutput {
   @required
   bucketNumber: BucketNumber
-}
-
-@javadoc("Return the necessary number of query operations for this query, based on bucket usage.")
-operation GetNumberOfQueries {
-    input: GetNumberOfQueriesInput,
-    output: GetNumberOfQueriesOutput,
-}
-structure GetNumberOfQueriesInput {
-    @required
-    input: QueryInput
-}
-structure GetNumberOfQueriesOutput {
-    @required
-    numberOfQueries: BucketCount
 }
 
 @javadoc("Returns encrypted data key description.")

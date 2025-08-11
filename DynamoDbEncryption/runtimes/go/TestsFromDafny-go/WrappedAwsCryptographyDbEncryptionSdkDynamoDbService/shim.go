@@ -41,12 +41,3 @@ func (shim *Shim) GetEncryptedDataKeyDescription(input AwsCryptographyDbEncrypti
 	}
 	return Wrappers.Companion_Result_.Create_Success_(awscryptographydbencryptionsdkdynamodbsmithygenerated.GetEncryptedDataKeyDescriptionOutput_ToDafny(*native_response))
 }
-
-func (shim *Shim) GetNumberOfQueries(input AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesInput) Wrappers.Result {
-	var native_request = awscryptographydbencryptionsdkdynamodbsmithygenerated.GetNumberOfQueriesInput_FromDafny(input)
-	var native_response, native_error = shim.client.GetNumberOfQueries(context.Background(), native_request)
-	if native_error != nil {
-		return Wrappers.Companion_Result_.Create_Failure_(awscryptographydbencryptionsdkdynamodbsmithygenerated.Error_ToDafny(native_error))
-	}
-	return Wrappers.Companion_Result_.Create_Success_(awscryptographydbencryptionsdkdynamodbsmithygenerated.GetNumberOfQueriesOutput_ToDafny(*native_response))
-}

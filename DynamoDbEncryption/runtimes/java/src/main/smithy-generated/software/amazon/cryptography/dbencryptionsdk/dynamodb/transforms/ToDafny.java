@@ -43,6 +43,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internal
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetItemOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.IDynamoDbEncryptionTransformsClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.PutItemInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.PutItemInputTransformOutput;
@@ -489,6 +491,25 @@ public class ToDafny {
         nativeValue.transformedOutput()
       );
     return new GetItemOutputTransformOutput(transformedOutput);
+  }
+
+  public static GetNumberOfQueriesInput GetNumberOfQueriesInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesInput nativeValue
+  ) {
+    QueryInput input;
+    input =
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.QueryInput(
+        nativeValue.input()
+      );
+    return new GetNumberOfQueriesInput(input);
+  }
+
+  public static GetNumberOfQueriesOutput GetNumberOfQueriesOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesOutput nativeValue
+  ) {
+    Integer numberOfQueries;
+    numberOfQueries = (nativeValue.numberOfQueries());
+    return new GetNumberOfQueriesOutput(numberOfQueries);
   }
 
   public static PutItemInputTransformInput PutItemInputTransformInput(

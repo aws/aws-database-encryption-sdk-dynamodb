@@ -45,6 +45,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Ge
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.OpaqueWithTextError;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemInputTransformInput;
@@ -563,6 +565,28 @@ public class ToNative {
         dafnyValue.dtor_transformedOutput()
       )
     );
+    return nativeBuilder.build();
+  }
+
+  public static GetNumberOfQueriesInput GetNumberOfQueriesInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesInput dafnyValue
+  ) {
+    GetNumberOfQueriesInput.Builder nativeBuilder =
+      GetNumberOfQueriesInput.builder();
+    nativeBuilder.input(
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.QueryInput(
+        dafnyValue.dtor_input()
+      )
+    );
+    return nativeBuilder.build();
+  }
+
+  public static GetNumberOfQueriesOutput GetNumberOfQueriesOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesOutput dafnyValue
+  ) {
+    GetNumberOfQueriesOutput.Builder nativeBuilder =
+      GetNumberOfQueriesOutput.builder();
+    nativeBuilder.numberOfQueries((dafnyValue.dtor_numberOfQueries()));
     return nativeBuilder.build();
   }
 

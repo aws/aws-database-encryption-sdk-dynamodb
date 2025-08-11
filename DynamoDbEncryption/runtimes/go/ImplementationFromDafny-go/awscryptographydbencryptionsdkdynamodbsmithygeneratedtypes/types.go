@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographykeystoresmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
@@ -73,21 +72,6 @@ func (input GetEncryptedDataKeyDescriptionOutput) Aws_cryptography_dbEncryptionS
 		if item.Validate() != nil {
 			return item.Validate()
 		}
-	}
-
-	return nil
-}
-
-type GetNumberOfQueriesOutput struct {
-	NumberOfQueries int32
-}
-
-func (input GetNumberOfQueriesOutput) Validate() error {
-	if input.NumberOfQueries < 1 {
-		return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", input.NumberOfQueries)
-	}
-	if input.NumberOfQueries > 255 {
-		return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", input.NumberOfQueries)
 	}
 
 	return nil
@@ -233,15 +217,6 @@ func (input GetEncryptedDataKeyDescriptionInput) Aws_cryptography_dbEncryptionSd
 			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
-
-	return nil
-}
-
-type GetNumberOfQueriesInput struct {
-	Input dynamodb.QueryInput
-}
-
-func (input GetNumberOfQueriesInput) Validate() error {
 
 	return nil
 }

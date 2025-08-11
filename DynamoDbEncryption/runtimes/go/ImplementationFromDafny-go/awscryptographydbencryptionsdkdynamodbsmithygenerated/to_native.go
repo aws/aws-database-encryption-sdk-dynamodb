@@ -3,7 +3,6 @@
 package awscryptographydbencryptionsdkdynamodbsmithygenerated
 
 import (
-	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb/ComAmazonawsDynamodbTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb/comamazonawsdynamodbsmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyKeyStoreTypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/AwsCryptographyMaterialProvidersTypes"
@@ -18,7 +17,6 @@ import (
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygenerated"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/dafny-lang/DafnyRuntimeGo/v4/dafny"
 )
@@ -44,18 +42,6 @@ func GetEncryptedDataKeyDescriptionInput_FromDafny(dafnyInput AwsCryptographyDbE
 func GetEncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetEncryptedDataKeyDescriptionOutput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionOutput {
 
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetEncryptedDataKeyDescriptionOutput{EncryptedDataKeyDescriptionOutput: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionOutput_EncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput.Dtor_EncryptedDataKeyDescriptionOutput())}
-
-}
-
-func GetNumberOfQueriesInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetNumberOfQueriesInput {
-
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetNumberOfQueriesInput{Input: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesInput_input_FromDafny(dafnyInput.Dtor_input())}
-
-}
-
-func GetNumberOfQueriesOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetNumberOfQueriesOutput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetNumberOfQueriesOutput {
-
-	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetNumberOfQueriesOutput{NumberOfQueries: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesOutput_numberOfQueries_FromDafny(dafnyOutput.Dtor_numberOfQueries())}
 
 }
 
@@ -650,32 +636,6 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_EncryptedDataKeyDescription_branc
 		s := string(dafny.ToByteArray(a.(dafny.Sequence)))
 
 		return &s
-	}()
-}
-func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesInput_input_FromDafny(input interface{}) dynamodb.QueryInput {
-	return dynamodb.QueryInput{TableName: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_TableName_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_TableName()),
-		IndexName:                 comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_IndexName_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_IndexName().UnwrapOr(nil)),
-		Select:                    comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_Select_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_Select().UnwrapOr(nil)),
-		AttributesToGet:           comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_AttributesToGet_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_AttributesToGet().UnwrapOr(nil)),
-		Limit:                     comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_Limit_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_Limit().UnwrapOr(nil)),
-		ConsistentRead:            comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ConsistentRead_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ConsistentRead().UnwrapOr(nil)),
-		KeyConditions:             comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_KeyConditions_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_KeyConditions().UnwrapOr(nil)),
-		QueryFilter:               comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_QueryFilter_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_QueryFilter().UnwrapOr(nil)),
-		ConditionalOperator:       comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ConditionalOperator_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ConditionalOperator().UnwrapOr(nil)),
-		ScanIndexForward:          comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ScanIndexForward_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ScanIndexForward().UnwrapOr(nil)),
-		ExclusiveStartKey:         comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExclusiveStartKey_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ExclusiveStartKey().UnwrapOr(nil)),
-		ReturnConsumedCapacity:    comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ReturnConsumedCapacity_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ReturnConsumedCapacity().UnwrapOr(nil)),
-		ProjectionExpression:      comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ProjectionExpression_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ProjectionExpression().UnwrapOr(nil)),
-		FilterExpression:          comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_FilterExpression_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_FilterExpression().UnwrapOr(nil)),
-		KeyConditionExpression:    comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_KeyConditionExpression_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_KeyConditionExpression().UnwrapOr(nil)),
-		ExpressionAttributeNames:  comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExpressionAttributeNames_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ExpressionAttributeNames().UnwrapOr(nil)),
-		ExpressionAttributeValues: comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_QueryInput_ExpressionAttributeValues_FromDafny(input.(ComAmazonawsDynamodbTypes.QueryInput).Dtor_ExpressionAttributeValues().UnwrapOr(nil)),
-	}
-}
-func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetNumberOfQueriesOutput_numberOfQueries_FromDafny(input interface{}) int32 {
-	return func() int32 {
-		var b = input.(int32)
-		return b
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {

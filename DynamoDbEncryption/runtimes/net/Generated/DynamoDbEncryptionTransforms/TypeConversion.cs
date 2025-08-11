@@ -2147,6 +2147,42 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
     {
       return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S13_GetItemOutput(value);
     }
+    public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesInput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput(software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IGetNumberOfQueriesInput value)
+    {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesInput concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesInput)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesInput converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesInput(); converted.Input = (Amazon.DynamoDBv2.Model.QueryRequest)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput__M5_input(concrete._input); return converted;
+    }
+    public static software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IGetNumberOfQueriesInput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput(AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesInput value)
+    {
+      value.Validate();
+
+      return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesInput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput__M5_input(value.Input));
+    }
+    public static Amazon.DynamoDBv2.Model.QueryRequest FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput__M5_input(software.amazon.cryptography.services.dynamodb.internaldafny.types._IQueryInput value)
+    {
+      return FromDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput(value);
+    }
+    public static software.amazon.cryptography.services.dynamodb.internaldafny.types._IQueryInput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput__M5_input(Amazon.DynamoDBv2.Model.QueryRequest value)
+    {
+      return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S10_QueryInput(value);
+    }
+    public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesOutput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput(software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IGetNumberOfQueriesOutput value)
+    {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesOutput concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesOutput)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesOutput converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesOutput(); converted.NumberOfQueries = (int)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput__M15_numberOfQueries(concrete._numberOfQueries); return converted;
+    }
+    public static software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IGetNumberOfQueriesOutput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput(AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesOutput value)
+    {
+      value.Validate();
+
+      return new software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesOutput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput__M15_numberOfQueries(value.NumberOfQueries));
+    }
+    public static int FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput__M15_numberOfQueries(int value)
+    {
+      return FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount(value);
+    }
+    public static int ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput__M15_numberOfQueries(int value)
+    {
+      return ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S11_BucketCount(value);
+    }
     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.PutItemInputTransformInput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S26_PutItemInputTransformInput(software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IPutItemInputTransformInput value)
     {
       software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.PutItemInputTransformInput concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.PutItemInputTransformInput)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.PutItemInputTransformInput converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.PutItemInputTransformInput(); converted.SdkInput = (Amazon.DynamoDBv2.Model.PutItemRequest)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S26_PutItemInputTransformInput__M8_sdkInput(concrete._sdkInput); return converted;

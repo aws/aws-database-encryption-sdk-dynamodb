@@ -32,6 +32,18 @@ module DynamoDBSupport {
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import NN = DynamoDbNormalizeNumber
 
+  method GetNumberOfQueries(search : SearchableEncryptionInfo.BeaconVersion, actions : AttributeActions, query : DDB.QueryInput)
+    returns (output : Result<BucketCount, Error>)
+  {
+    var numberOfQueries :- Filter.GetNumQueries(
+      actions,
+      query.FilterExpression,
+      query.ExpressionAttributeNames,
+      search
+    );
+    return Success(numberOfQueries);
+  }
+
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
   // At the moment, this means that no attribute names starts with "aws_dbe_",
   // as all other attribute names would need to be configured, and all the

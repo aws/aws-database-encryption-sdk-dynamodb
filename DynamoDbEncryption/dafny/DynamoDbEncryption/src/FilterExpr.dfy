@@ -1756,18 +1756,17 @@ module DynamoDBFilterExpr {
   }
 
   // try different prefixes on `prev` until something is found that is not in `values`
-  method MakeNewName(prev : string, values : DDB.ExpressionAttributeValueMap) returns (output : Result<string, Error>)
+  method MakeNewName(prev : string, values : DDB.ExpressionAttributeValueMap, value : DDB.AttributeValue) returns (output : Result<string, Error>)
     requires 0 < |prev|
     ensures output.Success? ==>
               && 0 < |output.value|
               && prev < output.value
-              && output.value !in values
   {
     var ch : char := 'A';
     for i : uint32 := 0 to 26 {
       for j : uint32 := 0 to 26 {
         var new_str := prev + [AsChar(i), AsChar(j)];
-        if new_str !in values {
+        if new_str !in values || values[new_str] == value {
           return Success(new_str);
         }
       }
@@ -1785,8 +1784,6 @@ module DynamoDBFilterExpr {
     if old_context.filterExpr.None? || new_context.filterExpr.None? || old_context.values.None? || new_context.values.None? || new_context.values == old_context.values {
       return Success(old_context);
     }
-    var result_values := old_context.values.value;
-    var result_filter := old_context.filterExpr.value;
     var new_values := SortedSets.ComputeSetToSequence(new_context.values.value.Keys);
     SequenceIsSafeBecauseItIsInMemory(new_values);
     var allUnchanged := true;
@@ -1805,6 +1802,8 @@ module DynamoDBFilterExpr {
       return Success(old_context);
     }
 
+    var result_values := old_context.values.value;
+    var result_filter := new_context.filterExpr.value;
     for i : uint64 := 0 to |new_values| as uint64
     {
       var key := new_values[i];
@@ -1818,12 +1817,12 @@ module DynamoDBFilterExpr {
         if 0 == |key| {
           return Failure(E("Unexpected zero length key in ExpressionAttributeValueMap"));
         }
-        var new_key :- MakeNewName(key, result_values);
+        var new_key :- MakeNewName(key, result_values, new_context.values.value[key]);
         result_values := result_values[new_key := new_context.values.value[key]];
-        var nFilter := String.SearchAndReplaceAll(new_context.filterExpr.value, key, new_key);
-        result_filter := result_filter + " OR (" + nFilter + ")";
+        result_filter := String.SearchAndReplaceAll(result_filter, key, new_key);
       }
     }
+    result_filter := old_context.filterExpr.value + " OR (" + result_filter + ")";
     return Success(old_context.(filterExpr := Some(result_filter), values := Some(result_values)));
   }
 
@@ -1863,6 +1862,9 @@ module DynamoDBFilterExpr {
           curr_bucket := curr_bucket + queries;
         }
       }
+      print "\nDoBeaconize ", bucket, " ", queries, "\n";
+      print "input : ", context, "\n";
+      print "output : ", tmpOutput, "\n";
       return Success(tmpOutput);
     }
   }

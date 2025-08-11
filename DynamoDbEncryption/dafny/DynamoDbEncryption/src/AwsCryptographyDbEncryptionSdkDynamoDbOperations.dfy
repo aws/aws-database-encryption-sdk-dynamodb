@@ -43,16 +43,6 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         )
       );
   }
-  predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
-  {true}
-
-  method GetNumberOfQueries(config: InternalConfig, input: GetNumberOfQueriesInput)
-    returns (output: Result<GetNumberOfQueriesOutput, Error>)
-    ensures GetNumberOfQueriesEnsuresPublicly(input, output)
-  {
-    return Success(GetNumberOfQueriesOutput(numberOfQueries := 1));
-  }
-
 
   predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
   {true}

@@ -103,6 +103,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
       ExecuteTransactionInputTransform := [];
       ExecuteTransactionOutputTransform := [];
       ResolveAttributes := [];
+      GetNumberOfQueries := [];
     }
     ghost var PutItemInputTransform: seq<DafnyCallEvent<PutItemInputTransformInput, Result<PutItemInputTransformOutput, Error>>>
     ghost var PutItemOutputTransform: seq<DafnyCallEvent<PutItemOutputTransformInput, Result<PutItemOutputTransformOutput, Error>>>
@@ -131,6 +132,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
     ghost var ExecuteTransactionInputTransform: seq<DafnyCallEvent<ExecuteTransactionInputTransformInput, Result<ExecuteTransactionInputTransformOutput, Error>>>
     ghost var ExecuteTransactionOutputTransform: seq<DafnyCallEvent<ExecuteTransactionOutputTransformInput, Result<ExecuteTransactionOutputTransformOutput, Error>>>
     ghost var ResolveAttributes: seq<DafnyCallEvent<ResolveAttributesInput, Result<ResolveAttributesOutput, Error>>>
+    ghost var GetNumberOfQueries: seq<DafnyCallEvent<GetNumberOfQueriesInput, Result<GetNumberOfQueriesOutput, Error>>>
   }
   trait {:termination false} IDynamoDbEncryptionTransformsClient
   {
@@ -564,6 +566,21 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
       ensures ResolveAttributesEnsuresPublicly(input, output)
       ensures History.ResolveAttributes == old(History.ResolveAttributes) + [DafnyCallEvent(input, output)]
 
+    predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+    // The public method to be called by library consumers
+    method GetNumberOfQueries ( input: GetNumberOfQueriesInput )
+      returns (output: Result<GetNumberOfQueriesOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`GetNumberOfQueries
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetNumberOfQueriesEnsuresPublicly(input, output)
+      ensures History.GetNumberOfQueries == old(History.GetNumberOfQueries) + [DafnyCallEvent(input, output)]
+
   }
   datatype ExecuteStatementInputTransformInput = | ExecuteStatementInputTransformInput (
     nameonly sdkInput: ComAmazonawsDynamodbTypes.ExecuteStatementInput
@@ -603,6 +620,12 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
   )
   datatype GetItemOutputTransformOutput = | GetItemOutputTransformOutput (
     nameonly transformedOutput: ComAmazonawsDynamodbTypes.GetItemOutput
+  )
+  datatype GetNumberOfQueriesInput = | GetNumberOfQueriesInput (
+    nameonly input: ComAmazonawsDynamodbTypes.QueryInput
+  )
+  datatype GetNumberOfQueriesOutput = | GetNumberOfQueriesOutput (
+    nameonly numberOfQueries: AwsCryptographyDbEncryptionSdkDynamoDbTypes.BucketCount
   )
   datatype PutItemInputTransformInput = | PutItemInputTransformInput (
     nameonly sdkInput: ComAmazonawsDynamodbTypes.PutItemInput
@@ -1482,6 +1505,26 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
       History.ResolveAttributes := History.ResolveAttributes + [DafnyCallEvent(input, output)];
     }
 
+    predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+    {Operations.GetNumberOfQueriesEnsuresPublicly(input, output)}
+    // The public method to be called by library consumers
+    method GetNumberOfQueries ( input: GetNumberOfQueriesInput )
+      returns (output: Result<GetNumberOfQueriesOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`GetNumberOfQueries
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetNumberOfQueriesEnsuresPublicly(input, output)
+      ensures History.GetNumberOfQueries == old(History.GetNumberOfQueries) + [DafnyCallEvent(input, output)]
+    {
+      output := Operations.GetNumberOfQueries(config, input);
+      History.GetNumberOfQueries := History.GetNumberOfQueries + [DafnyCallEvent(input, output)];
+    }
+
   }
 }
 abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations {
@@ -1922,4 +1965,20 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperatio
     ensures
       && ValidInternalConfig?(config)
     ensures ResolveAttributesEnsuresPublicly(input, output)
+
+
+  predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+  // The private method to be refined by the library developer
+
+
+  method GetNumberOfQueries ( config: InternalConfig , input: GetNumberOfQueriesInput )
+    returns (output: Result<GetNumberOfQueriesOutput, Error>)
+    requires
+      && ValidInternalConfig?(config)
+    modifies ModifiesInternalConfig(config)
+    // Dafny will skip type parameters when generating a default decreases clause.
+    decreases ModifiesInternalConfig(config)
+    ensures
+      && ValidInternalConfig?(config)
+    ensures GetNumberOfQueriesEnsuresPublicly(input, output)
 }
