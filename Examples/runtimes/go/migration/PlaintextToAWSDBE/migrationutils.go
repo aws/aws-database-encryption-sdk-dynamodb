@@ -9,7 +9,6 @@ import (
 
 func VerifyReturnedItem(result *dynamodb.GetItemOutput, partitionKeyValue, sortKeyValue, encryptedAndSignedValue, signOnlyValue, doNothingValue string) error {
 	returnedPartitionKey, ok := result.Item["partition_key"].(*types.AttributeValueMemberS)
-	fmt.Println(returnedPartitionKey.Value)
 	if !ok {
 		// We return this error because we run test against the error.
 		// When used in production code, you can decide how you want to handle errors.
