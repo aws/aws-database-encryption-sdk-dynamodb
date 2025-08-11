@@ -35,13 +35,13 @@ module DynamoDBSupport {
   method GetNumberOfQueries(search : SearchableEncryptionInfo.BeaconVersion, actions : AttributeActions, query : DDB.QueryInput)
     returns (output : Result<BucketCount, Error>)
   {
-    var numberOfQueries :- Filter.GetNumQueries(
-      actions,
-      query.FilterExpression,
-      query.ExpressionAttributeNames,
-      search
-    );
-    return Success(numberOfQueries);
+    // var numberOfQueries :- Filter.GetNumQueries(
+    //   actions,
+    //   query.FilterExpression,
+    //   query.ExpressionAttributeNames,
+    //   search
+    // );
+    return Success(1);
   }
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.
@@ -321,7 +321,7 @@ module DynamoDBSupport {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
       var (newValues, bucket) := foo;
-      var numQueries :- Filter.GetNumQueries(actions, req.KeyConditionExpression, req.ExpressionAttributeNames, search.value.curr());
+      var numQueries :- Filter.GetNumQueries(search.value.curr(), req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       if numQueries <= bucket {
         return Failure(E("Bucket number was " + String.Base10Int2String(bucket as int) + " but should have been less than number of queries : " + String.Base10Int2String(numQueries as int)));
       }

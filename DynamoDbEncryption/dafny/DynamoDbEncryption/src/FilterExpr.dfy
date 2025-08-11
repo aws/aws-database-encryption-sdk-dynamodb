@@ -1659,6 +1659,31 @@ module DynamoDBFilterExpr {
       GetBeaconKeyIds2(pos+1, bv, expr, values, names, soFar)
   }
 
+  method {:tailrecursion} GetValues(
+    bv : SI.BeaconVersion,
+    expr : seq<Token>,
+    values: DDB.ExpressionAttributeValueMap,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (ret : Result<seq<(SI.Beacon, string)>, Error>)
+  {
+    var result : seq<(SI.Beacon, string)> := [];
+    SequenceIsSafeBecauseItIsInMemory(expr);
+    for pos : uint64 := 0 to |expr| as uint64 {
+      if expr[pos].Value? {
+        :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
+        var oldValue := values[expr[pos].s];
+        if oldValue.S? {
+          var attr := AttrForValue(expr, pos as nat);
+          if attr.Some? && attr.value.s in bv.beacons {
+            result := result + [(bv.beacons[attr.value.s], oldValue.S)];
+          }
+        }
+      }
+    }
+    return Success(result);
+  }
+
   // Search through the query expression to find any Multi-Tenant KeyIds
   function method GetBeaconKeyIds(
     bv : SI.BeaconVersion,
@@ -1675,6 +1700,32 @@ module DynamoDBFilterExpr {
     else
       var parsed := ParseExpr(expr.value);
       GetBeaconKeyIds2(0, bv, parsed, values, names, soFar)
+  }
+
+  method GetNumQueries(
+    bv : SI.BeaconVersion,
+    keyExpr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (ret : Result<BucketCount, Error>)
+    ensures ret.Success? ==> ret.value <= bv.numBuckets
+  {
+    if keyExpr.None? || values.None? {
+      return Success(1);
+    }
+    var parsed := ParseExpr(keyExpr.value);
+    var values :- GetValues(bv, parsed, values.value, names);
+
+    if |values| == 0 {
+      return Success(1);
+    } else if |values| == 1 {
+      return Success(values[0].0.getNumQueries(bv.numBuckets));
+    } else if |values| == 2 {
+      return Success(lcmBucket(values[0].0.getNumQueries(bv.numBuckets), values[1].0.getNumQueries(bv.numBuckets), bv.numBuckets));
+    } else {
+      return Failure(E("More than two attributes not implemented yet"));
+    }
   }
 
   // Search through the query expressions to find the Multi-Tenant KeyId
@@ -1862,9 +1913,6 @@ module DynamoDBFilterExpr {
           curr_bucket := curr_bucket + queries;
         }
       }
-      print "\nDoBeaconize ", bucket, " ", queries, "\n";
-      print "input : ", context, "\n";
-      print "output : ", tmpOutput, "\n";
       return Success(tmpOutput);
     }
   }
@@ -2025,21 +2073,4 @@ module DynamoDBFilterExpr {
       return Failure(E("More than two attributes not implemented yet"));
     }
   }
-
-  method GetNumQueries (
-    actions : AttributeActions,
-    expr : Option<string>,
-    names : Option<DDB.ExpressionAttributeNameMap>,
-    b : SI.BeaconVersion
-  )
-    returns (output : Result<BucketCount, Error>)
-    ensures output.Success? ==> output.value <= b.numBuckets
-  {
-    if expr.None? {
-      return Success(1);
-    }
-    var attrs := GetEncryptedAttrs(actions, expr.value, names);
-    output := GetNumQueriesForAttrs(attrs, b);
-  }
-
 }
