@@ -135,18 +135,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
-      // var _ :- expect WriteManifest.Write("encrypt.json");
-      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
+      var _ :- expect WriteManifest.Write("encrypt.json");
+      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
       if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
         print "\nRunning no tests\n";
         return;
@@ -154,16 +154,16 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       Validate();
       StringOrdering();
       BucketTests();
-      // LargeTests();
-      // PerfQueryTests();
-      // BasicIoTest();
-      // RunIoTests();
-      // BasicQueryTest();
-      // ConfigModTest();
-      // ComplexTests();
-      // WriteTests();
-      // RoundTripTests();
-      // DecryptTests();
+      LargeTests();
+      PerfQueryTests();
+      BasicIoTest();
+      RunIoTests();
+      BasicQueryTest();
+      ConfigModTest();
+      ComplexTests();
+      WriteTests();
+      RoundTripTests();
+      DecryptTests();
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       DeleteTable(client);
     }
@@ -522,7 +522,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     method BucketTests()
     {
       print "BucketTests\n";
-      BucketTest3();
+      // BucketTest3(); Not doing anything yet
       BucketTest1();
       BucketTest2();
     }
