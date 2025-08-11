@@ -14,6 +14,7 @@ import (
 
 	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/dbesdkmiddleware"
+	plaintexttoawsdbe "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/migration/PlaintextToAWSDBE"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 )
 
@@ -64,12 +65,14 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyWriteValue
 	// 3. Put an item into your table.
 	//    This item will be encrypted.
 	encryptedAndSignedValue := "this will be encrypted and signed"
+	signOnlyValue := "this will never be encrypted, but it will be signed"
+	doNothingValue := "this will never be encrypted nor signed"
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyWriteValue},
 		"attribute1":    &types.AttributeValueMemberS{Value: encryptedAndSignedValue},
-		"attribute2":    &types.AttributeValueMemberS{Value: "this will never be encrypted, but it will be signed"},
-		"attribute3":    &types.AttributeValueMemberS{Value: "this will never be encrypted nor signed"},
+		"attribute2":    &types.AttributeValueMemberS{Value: signOnlyValue},
+		"attribute3":    &types.AttributeValueMemberS{Value: doNothingValue},
 	}
 
 	putInput := dynamodb.PutItemInput{
@@ -110,11 +113,9 @@ func MigrationStep2(kmsKeyID, ddbTableName, partitionKeyValue, sortKeyWriteValue
 	}
 
 	// Verify we got the expected item back
-	if partitionKeyValue != result.Item["partition_key"].(*types.AttributeValueMemberS).Value {
-		panic("Decrypted item does not match original item")
-	}
-	if encryptedAndSignedValue != result.Item["attribute1"].(*types.AttributeValueMemberS).Value {
-		panic("Decrypted item does not match original item")
+	err = plaintexttoawsdbe.VerifyReturnedItem(result, partitionKeyValue, sortKeyReadValue, encryptedAndSignedValue, signOnlyValue, doNothingValue)
+	if err != nil {
+		return err
 	}
 	fmt.Println("MigrationStep2 completed successfully")
 	return nil

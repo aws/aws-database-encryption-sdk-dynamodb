@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	plaintexttoawsdbe "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/migration/PlaintextToAWSDBE"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -38,12 +39,15 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyR
 
 	// 2. Put an example item into DynamoDB table
 	//    This item will be stored in plaintext.
+	encryptedAndSignedValue := "this will be encrypted and signed"
+	signOnlyValue := "this will never be encrypted, but it will be signed"
+	doNothingValue := "this will never be encrypted nor signed"
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyWriteValue},
-		"attribute1":    &types.AttributeValueMemberS{Value: "this will be encrypted and signed"},
-		"attribute2":    &types.AttributeValueMemberS{Value: "this will never be encrypted, but it will be signed"},
-		"attribute3":    &types.AttributeValueMemberS{Value: "this will never be encrypted nor signed"},
+		"attribute1":    &types.AttributeValueMemberS{Value: encryptedAndSignedValue},
+		"attribute2":    &types.AttributeValueMemberS{Value: signOnlyValue},
+		"attribute3":    &types.AttributeValueMemberS{Value: doNothingValue},
 	}
 
 	putInput := &dynamodb.PutItemInput{
@@ -79,24 +83,9 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyR
 		panic("No item found")
 	}
 
-	returnedPartitionKey, ok := result.Item["partition_key"].(*types.AttributeValueMemberS)
-	if !ok {
-		// We return this error because we run test against the error.
-		// When used in production code, you can decide how you want to handle errors.
-		return fmt.Errorf("partition_key is not a string attribute")
-	}
-	returnedAttribute1, ok := result.Item["attribute1"].(*types.AttributeValueMemberS)
-	if !ok {
-		// We return this error because we run test against the error.
-		// When used in production code, you can decide how you want to handle errors.
-		return fmt.Errorf("partition_key is not a string attribute")
-	}
-
-	if returnedPartitionKey.Value != partitionKeyValue {
-		panic(fmt.Sprintf("Expected partition key %s, got %s", partitionKeyValue, returnedPartitionKey))
-	}
-	if returnedAttribute1.Value != "this will be encrypted and signed" {
-		panic(fmt.Sprintf("Expected attribute1 value, got %s", returnedAttribute1))
+	err = plaintexttoawsdbe.VerifyReturnedItem(result, partitionKeyValue, sortKeyReadValue, encryptedAndSignedValue, signOnlyValue, doNothingValue)
+	if err != nil {
+		return err
 	}
 
 	fmt.Println("MigrationStep0 completed successfully")

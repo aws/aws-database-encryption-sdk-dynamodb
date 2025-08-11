@@ -32,13 +32,13 @@ func TestMigrationStep0(t *testing.T) {
 
 	// When: Execute Step 0 with sortReadValue=2, Then: should error out when reading encrypted items.
 	err = MigrationStep0(tableName, partitionKey, sortKeys[0], sortKeys[2])
-	utils.AssertErrorMessage(err, "partition_key is not a string attribute")
+	utils.AssertErrorMessage(err, "attribute1 is not a string attribute")
 
 	// Given: Step 3 has succeeded (if it exists)
 	awsdbe.MigrationStep3(kmsKeyID, tableName, partitionKey, sortKeys[3], sortKeys[3])
 	// When: Execute Step 0 with sortReadValue=3, Then: should error out
 	err = MigrationStep0(tableName, partitionKey, sortKeys[0], sortKeys[3])
-	utils.AssertErrorMessage(err, "partition_key is not a string attribute")
+	utils.AssertErrorMessage(err, "attribute1 is not a string attribute")
 
 	// Cleanup
 	for _, sortKey := range sortKeys { // Only clean up items we created
