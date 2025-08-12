@@ -1724,7 +1724,8 @@ module DynamoDBFilterExpr {
     } else if |values| == 2 {
       return Success(lcmBucket(values[0].0.getNumQueries(bv.numBuckets), values[1].0.getNumQueries(bv.numBuckets), bv.numBuckets));
     } else {
-      return Failure(E("More than two attributes not implemented yet"));
+      print "\nThat's Odd : \n", keyExpr, "\n\n";
+      return Success(1); // FIXME
     }
   }
 
