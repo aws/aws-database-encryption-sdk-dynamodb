@@ -132,13 +132,16 @@ module CompoundBeacon {
       && OrderedParts(parts, numSigned)
     }
 
-    function method getNumQueries(globalMax : BucketCount) : BucketCount
+    method getNumQueries(globalMax : BucketCount, value : string) returns (output : BucketCount)
+      ensures output <= globalMax
     {
-      var counts := GetBucketCountsFromValue(DDB.AttributeValue.S(""));
-      if counts.Failure? then
-        1
-      else
-        lcmSeq(counts.value, globalMax)
+      var counts := GetBucketCountsFromValue(DDB.AttributeValue.S(value));
+      if counts.Failure? {
+        return 1;
+      } else {
+        output := lcmSeq(counts.value, globalMax);
+        return;
+      }
     }
 
     // no prefix is a prefix of another prefix

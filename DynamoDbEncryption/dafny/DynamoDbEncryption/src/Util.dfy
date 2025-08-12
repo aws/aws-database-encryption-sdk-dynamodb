@@ -8,6 +8,7 @@ module DynamoDbEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import DDB = ComAmazonawsDynamodbTypes
 
   const ReservedPrefix := "aws_dbe_"
@@ -151,14 +152,24 @@ module DynamoDbEncryptionUtil {
     (a / gcd(a, b)) * b
   }
 
+  function method bmin(a : BucketCount, b : BucketCount) : (output : BucketCount)
+    ensures output <= a
+    ensures output <= b
+  {
+    if a <= b then
+      a
+    else
+      b
+  }
+
   function method lcmBucket(a : BucketCount, b : BucketCount, max : BucketCount) : BucketCount
     requires 0 < a && 0 < b
-    ensures 0 < lcmBucket(a, b, max)
+    ensures 0 < lcmBucket(a, b, max) <= max
   {
-    if a == 1 || b == max then
-      b
+    if a == 1 || b == max || a == b then
+      bmin(b, max)
     else if b == 1 || a == max then
-      a
+      bmin(a, max)
     else
       var result := lcm(a as nat, b as nat);
       if result < max as nat then
@@ -167,20 +178,21 @@ module DynamoDbEncryptionUtil {
         max
   }
 
-  function method lcmSeq(values : seq<BucketCount>, max : BucketCount) : BucketCount
+  method lcmSeq(values : seq<BucketCount>, max : BucketCount) returns (output : BucketCount)
     // requires forall i <- values :: i <= max
-    decreases |values|
+    ensures output <= max
   {
-    if |values| == 0 then
-      1
-    else if |values| == 1 then
-      values[0]
-    else
-      var res := lcmBucket(values[0], values[1], max);
-      if |values| == 2 then
-        res as BucketCount
-      else
-        lcmSeq([res as BucketCount] + values[2..], max)
+    var result : BucketCount := 1;
+    SequenceIsSafeBecauseItIsInMemory(values);
+    for i : uint64 := 0 to |values| as uint64
+      invariant result <= max
+    {
+      var buckets := values[i];
+      if buckets == 1 || buckets == result {
+        continue;
+      }
+      result := lcmBucket(result, buckets, max);
+    }
+    return result;
   }
-
 }

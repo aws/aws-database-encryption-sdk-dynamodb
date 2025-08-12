@@ -320,11 +320,13 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect !wasBad;
     }
 
-    method TestBucketScan(client : DDB.IDynamoDBClient, q : DDB.ScanInput, queryName : string)
+    method TestBucketScan(client : DDB.IDynamoDBClient, q : DDB.ScanInput)
       requires client.ValidState()
+      requires q.FilterExpression.Some?
       ensures client.ValidState()
       modifies client.Modifies
     {
+      var queryName : string := q.FilterExpression.value;
       var counts: array<int> := new int[100](i => 0);
       DoBucketScan(client, q, counts, queryName);
 
@@ -341,62 +343,171 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       if wasBad {
         print "FAILED : ", queryName, "\n";
       }
-      // expect !wasBad;
+      expect !wasBad;
     }
 
-    function GetValueNameForAttr(attr : string) : DDB.AttributeName
-    {
-      if attr == "Attr1" then
-        ":attr1"
-      else if attr == "Attr2" then
-        ":attr2"
-      else if attr == "Attr3" then
-        ":attr3"
-      else if attr == "Attr4" then
-        ":attr4"
-      else if attr == "Attr5" then
-        ":attr5"
-      else if attr == "Attr6" then
+    const ValueNames : seq<DDB.AttributeName> :=
+      [
+        ":attr1",
+        ":attr2",
+        ":attr3",
+        ":attr4",
+        ":attr5",
         ":attr6"
-      else
-        ":notfound"
-    }
+      ]
 
-    function GetValueForAttr(attr : string) : DDB.AttributeValue
-    {
-      if attr == "Attr1" then
-        DDB.AttributeValue.S("AAAA")
-      else if attr == "Attr2" then
-        DDB.AttributeValue.S("BBBB")
-      else if attr == "Attr3" then
-        DDB.AttributeValue.S("CCCC")
-      else if attr == "Attr4" then
-        DDB.AttributeValue.S("DDDD")
-      else if attr == "Attr5" then
-        DDB.AttributeValue.S("EEEE")
-      else if attr == "Attr6" then
+    const AttrNames : seq<DDB.AttributeName> :=
+      [
+        "Attr1",
+        "Attr2",
+        "Attr3",
+        "Attr4",
+        "Attr5",
+        "Attr6"
+      ]
+
+    const AttrValues : seq<DDB.AttributeValue> :=
+      [
+        DDB.AttributeValue.S("AAAA"),
+        DDB.AttributeValue.S("BBBB"),
+        DDB.AttributeValue.S("CCCC"),
+        DDB.AttributeValue.S("DDDD"),
+        DDB.AttributeValue.S("EEEE"),
         DDB.AttributeValue.S("FFFF")
-      else
-        DDB.AttributeValue.S("Not Found")
-    }
+      ]
 
-    function GetBucketScan1(attr : string) : DDB.ScanInput
+    function GetBucketScan1(attr : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr < 6
+      ensures out.FilterExpression.Some?
     {
       DDB.ScanInput(
         TableName := TableName,
-        FilterExpression := Some(attr + " = " + GetValueNameForAttr(attr)),
-        ExpressionAttributeValues := Some(map[GetValueNameForAttr(attr) := GetValueForAttr(attr)])
+        FilterExpression := Some(AttrNames[attr] + " = " + ValueNames[attr]),
+        ExpressionAttributeValues := Some(map[ValueNames[attr] := AttrValues[attr]])
       )
     }
 
-    function GetBucketScan2(attr1 : string, attr2 : string) : DDB.ScanInput
+    function GetBucketScan2(attr1 : nat, attr2 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      ensures out.FilterExpression.Some?
     {
       DDB.ScanInput(
         TableName := TableName,
-        FilterExpression := Some(attr1 + " = " + GetValueNameForAttr(attr1) + " and " + attr2 + " = " + GetValueNameForAttr(attr2)),
-        ExpressionAttributeValues := Some(map[GetValueNameForAttr(attr1) := GetValueForAttr(attr1), GetValueNameForAttr(attr2) := GetValueForAttr(attr2)])
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2]
+          ])
       )
     }
+
+    function GetBucketScan3(attr1 : nat, attr2 : nat, attr3 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3]
+          ])
+      )
+    }
+
+    function GetBucketScan4(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      requires 0 <= attr4 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3] + " and " +
+          AttrNames[attr4] + " = " + ValueNames[attr4]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3],
+            ValueNames[attr4] := AttrValues[attr4]
+          ])
+      )
+    }
+
+    function GetBucketScan5(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      requires 0 <= attr4 < 6
+      requires 0 <= attr5 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3] + " and " +
+          AttrNames[attr4] + " = " + ValueNames[attr4] + " and " +
+          AttrNames[attr5] + " = " + ValueNames[attr5]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3],
+            ValueNames[attr4] := AttrValues[attr4],
+            ValueNames[attr5] := AttrValues[attr5]
+          ])
+      )
+    }
+
+    function GetBucketScan6(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat, attr6 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      requires 0 <= attr4 < 6
+      requires 0 <= attr5 < 6
+      requires 0 <= attr6 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3] + " and " +
+          AttrNames[attr4] + " = " + ValueNames[attr4] + " and " +
+          AttrNames[attr5] + " = " + ValueNames[attr5] + " and " +
+          AttrNames[attr6] + " = " + ValueNames[attr6]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3],
+            ValueNames[attr4] := AttrValues[attr4],
+            ValueNames[attr5] := AttrValues[attr5],
+            ValueNames[attr6] := AttrValues[attr6]
+          ])
+      )
+    }
+
+
 
     function GetBucketQuery1() : DDB.QueryInput
     {
@@ -527,27 +638,27 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       BucketTest2();
     }
 
-method PrintScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput)
-requires trans.ValidState()
-ensures trans.ValidState()
-modifies trans.Modifies
-{
-  var input := Trans.ScanInputTransformInput(sdkInput := q);
-  var res :- expect trans.ScanInputTransform(input);
-  print "\nScanInputTransform\n", q, "\n", res.transformedInput, "\n";
-}
+    // method PrintScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput)
+    //   requires trans.ValidState()
+    //   ensures trans.ValidState()
+    //   modifies trans.Modifies
+    // {
+    //   var input := Trans.ScanInputTransformInput(sdkInput := q);
+    //   var res :- expect trans.ScanInputTransform(input);
+    //   print "\nScanInputTransform\n", q, "\n", res.transformedInput, "\n";
+    // }
 
-method BucketTest3()
-{
-  expect "bucket_encrypt" in largeEncryptionConfigs;
-  var config := largeEncryptionConfigs["bucket_encrypt"];
-  var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
-  assume {:axiom} false;
-  var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
+    // method BucketTest3()
+    // {
+    //   expect "bucket_encrypt" in largeEncryptionConfigs;
+    //   var config := largeEncryptionConfigs["bucket_encrypt"];
+    //   var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
+    //   assume {:axiom} false;
+    //   var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
 
-  PrintScanTrans(trans, GetBucketScan2("Attr2", "Attr3"));
-  PrintScanTrans(trans, GetBucketScan2("Attr3", "Attr2"));
-}
+    //   PrintScanTrans(trans, GetBucketScan2("Attr2", "Attr3"));
+    //   PrintScanTrans(trans, GetBucketScan2("Attr3", "Attr2"));
+    // }
     // Fill table with 100 records. Different RecNum, same data otherwise
     // Make a variety of bucketed queries. Ensure that
     // 1) Every item is returned exactly once
@@ -582,21 +693,47 @@ method BucketTest3()
       TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", false);
       TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", false);
 
-
-      TestBucketScan(rClient, GetBucketScan1("Attr1"), "bucket scan 1");
-      TestBucketScan(rClient, GetBucketScan1("Attr2"), "bucket scan 2");
-      TestBucketScan(rClient, GetBucketScan1("Attr3"), "bucket scan 3");
-      TestBucketScan(rClient, GetBucketScan1("Attr4"), "bucket scan 4");
-      TestBucketScan(rClient, GetBucketScan1("Attr5"), "bucket scan 5");
-
-      TestBucketScan(rClient, GetBucketScan2("Attr1", "Attr2"), "bucket scan 12");
-      TestBucketScan(rClient, GetBucketScan2("Attr2", "Attr1"), "bucket scan 21");
-      TestBucketScan(rClient, GetBucketScan2("Attr1", "Attr3"), "bucket scan 13");
-      TestBucketScan(rClient, GetBucketScan2("Attr2", "Attr3"), "bucket scan 23");
-      TestBucketScan(rClient, GetBucketScan2("Attr3", "Attr1"), "bucket scan 31");
-      TestBucketScan(rClient, GetBucketScan2("Attr3", "Attr2"), "bucket scan 32");
-      TestBucketScan(rClient, GetBucketScan2("Attr5", "Attr1"), "bucket scan 51");
-      TestBucketScan(rClient, GetBucketScan2("Attr1", "Attr5"), "bucket scan 15");
+      var scanCount1 := 0;
+      var scanCount2 := 0;
+      var scanCount3 := 0;
+      var scanCount4 := 0;
+      var scanCount5 := 0;
+      var scanCount6 := 2;
+      TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
+      TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
+      for i := 0 to 6 {
+        scanCount1 := scanCount1 + 1;
+        TestBucketScan(rClient, GetBucketScan1(i));
+        for j := 0 to 6 {
+          if i != j {
+            scanCount2 := scanCount2 + 1;
+            TestBucketScan(rClient, GetBucketScan2(i, j));
+            for k := 0 to 6 {
+              if i != k && j != k {
+                scanCount3 := scanCount3 + 1;
+                TestBucketScan(rClient, GetBucketScan3(i, j, k));
+              }
+              for l := 0 to 6 {
+                if i != l && j != l && k != l {
+                  scanCount4 := scanCount4 + 1;
+                  if scanCount4 % 10 == 0 {
+                    TestBucketScan(rClient, GetBucketScan4(i, j, k, l));
+                  }
+                  for m := 0 to 6 {
+                    if i != m && j != m && k != m && l != m {
+                      scanCount5 := scanCount5 + 1;
+                      if scanCount5 % 100 == 0 {
+                        TestBucketScan(rClient, GetBucketScan5(i, j, k, l, m));
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      print "Full Bucket Scan Tests : ", scanCount1, " ",  scanCount2, " ",  scanCount3, " ",  scanCount4, " ",  scanCount5, " ", scanCount6, "\n";
     }
 
     // As BucketTest1, but with custom bucket selector

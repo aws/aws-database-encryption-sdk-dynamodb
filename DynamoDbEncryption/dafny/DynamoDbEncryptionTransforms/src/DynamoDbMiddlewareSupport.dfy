@@ -28,7 +28,7 @@ module DynamoDbMiddlewareSupport {
   method GetNumberOfQueries(config : ValidTableConfig, query : DDB.QueryInput) returns (output : Result<ET.BucketCount, Error>)
     requires config.search.Some?
   {
-    var numQueries := BS.GetNumberOfQueries(config.search.value.versions[0], /*config.attributeActionsOnEncrypt*/map[], query);
+    var numQueries := BS.GetNumberOfQueries(config.search.value.versions[0], query);
     return numQueries.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 

@@ -32,16 +32,16 @@ module DynamoDBSupport {
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import NN = DynamoDbNormalizeNumber
 
-  method GetNumberOfQueries(search : SearchableEncryptionInfo.BeaconVersion, actions : AttributeActions, query : DDB.QueryInput)
+  method GetNumberOfQueries(search : SearchableEncryptionInfo.BeaconVersion, query : DDB.QueryInput)
     returns (output : Result<BucketCount, Error>)
   {
-    // var numberOfQueries :- Filter.GetNumQueries(
-    //   actions,
-    //   query.FilterExpression,
-    //   query.ExpressionAttributeNames,
-    //   search
-    // );
-    return Success(1);
+    var numberOfQueries :- Filter.GetNumQueries(
+      search,
+      query.KeyConditionExpression,
+      query.ExpressionAttributeValues,
+      query.ExpressionAttributeNames
+    );
+    return Success(numberOfQueries);
   }
 
   // IsWritable examines an AttributeMap and fails if it is unsuitable for writing.

@@ -1716,17 +1716,18 @@ module DynamoDBFilterExpr {
     }
     var parsed := ParseExpr(keyExpr.value);
     var values :- GetValues(bv, parsed, values.value, names);
-
-    if |values| == 0 {
-      return Success(1);
-    } else if |values| == 1 {
-      return Success(values[0].0.getNumQueries(bv.numBuckets));
-    } else if |values| == 2 {
-      return Success(lcmBucket(values[0].0.getNumQueries(bv.numBuckets), values[1].0.getNumQueries(bv.numBuckets), bv.numBuckets));
-    } else {
-      print "\nThat's Odd : \n", keyExpr, "\n\n";
-      return Success(1); // FIXME
+    var result : BucketCount := 1;
+    SequenceIsSafeBecauseItIsInMemory(values);
+    for i : uint64 := 0 to |values| as uint64
+      invariant result <= bv.numBuckets
+    {
+      var buckets := values[i].0.getNumQueries(bv.numBuckets, values[0].1);
+      if buckets == 1 || buckets == result {
+        continue;
+      }
+      result := lcmBucket(result, buckets, bv.numBuckets);
     }
+    return Success(result);
   }
 
   // Search through the query expressions to find the Multi-Tenant KeyId
@@ -2025,53 +2026,5 @@ module DynamoDBFilterExpr {
       :- TestParsedExpr(ParseExpr(filterExpr.value), actions, names);
     }
     return Success(true);
-  }
-
-  // return an list of encrypted attributes used in expression
-  method GetEncryptedAttrs (
-    actions : AttributeActions,
-    expr : string,
-    names : Option<DDB.ExpressionAttributeNameMap>
-  )
-    returns (output : seq<string>)
-  {
-    var pExpr := ParseExpr(expr);
-    var result : seq<string> := [];
-    for i := 0 to |pExpr| {
-      if pExpr[i].Attr? {
-        var name := GetAttrName(pExpr[i], names);
-        if name in actions && actions[name] == SE.ENCRYPT_AND_SIGN {
-          result := result + [GetAttrName(pExpr[i], names)];
-        }
-      }
-    }
-    return result;
-  }
-
-  // return the number of queries necessary for these encrypted attributes
-  method GetNumQueriesForAttrs(attrs : seq<string>, b : SI.BeaconVersion) returns (output : Result<BucketCount, Error>)
-    ensures output.Success? ==> output.value <= b.numBuckets
-  {
-    if |attrs| == 0 {
-      return Success(1);
-    } else if |attrs| == 1 {
-      var attr := attrs[0];
-      if attr !in b.beacons {
-        return Failure(E("No beacon for " + attr));
-      }
-      return Success(b.beacons[attr].getNumQueries(b.numBuckets));
-    } else if |attrs| == 2 {
-      var attr1 := attrs[0];
-      if attr1 !in b.beacons {
-        return Failure(E("No beacon for " + attr1));
-      }
-      var attr2 := attrs[1];
-      if attr2 !in b.beacons {
-        return Failure(E("No beacon for " + attr2));
-      }
-      return Success(lcmBucket(b.beacons[attr1].getNumQueries(b.numBuckets), b.beacons[attr2].getNumQueries(b.numBuckets), b.numBuckets));
-    } else {
-      return Failure(E("More than two attributes not implemented yet"));
-    }
   }
 }
