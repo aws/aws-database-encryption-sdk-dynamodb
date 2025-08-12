@@ -135,7 +135,7 @@ public class MigrationExampleStep2 {
     //    during Step 0 or 1), then the item will still be in plaintext.
     //    If this is an item that was encrypted client-side (i.e. any item written
     //    during Step 2 or after), then the DDB enhanced client will decrypt the
-    //    item client-sid and surface it in our code as a plaintext item.
+    //    item client-side and surface it in our code as a plaintext item.
     SimpleClass itemToGet = new SimpleClass();
     itemToGet.setPartitionKey(partitionKey);
     itemToGet.setSortKey(sortReadValue);

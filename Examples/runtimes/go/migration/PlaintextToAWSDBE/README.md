@@ -4,7 +4,7 @@ This projects demonstrates the steps necessary
 to migrate to the AWS Database Encryption SDK for DynamoDb
 from a plaintext database.
 
-[Step 0](./src/main/java/software/amazon/cryptography/examples/plaintext/MigrationExampleStep0.java) demonstrates the starting state for your system.
+[Step 0](plaintext/step0.go) demonstrates the starting state for your system.
 
 ## Step 1
 
