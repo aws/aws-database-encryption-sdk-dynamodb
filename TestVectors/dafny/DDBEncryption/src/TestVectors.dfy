@@ -633,32 +633,38 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     method BucketTests()
     {
       print "BucketTests\n";
-      // BucketTest3(); Not doing anything yet
+      BucketTest3();
       BucketTest1();
       BucketTest2();
     }
 
-    // method PrintScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput)
-    //   requires trans.ValidState()
-    //   ensures trans.ValidState()
-    //   modifies trans.Modifies
-    // {
-    //   var input := Trans.ScanInputTransformInput(sdkInput := q);
-    //   var res :- expect trans.ScanInputTransform(input);
-    //   print "\nScanInputTransform\n", q, "\n", res.transformedInput, "\n";
-    // }
+    method TestScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput, expected : string)
+      requires trans.ValidState()
+      ensures trans.ValidState()
+      modifies trans.Modifies
+    {
+      var input := Trans.ScanInputTransformInput(sdkInput := q);
+      var res :- expect trans.ScanInputTransform(input);
+      if res.transformedInput.FilterExpression != Some(expected) {
+        print "Transform should have been\n", expected, "\nbut was\n", res.transformedInput.FilterExpression, "\n";
+      }
+    }
 
-    // method BucketTest3()
-    // {
-    //   expect "bucket_encrypt" in largeEncryptionConfigs;
-    //   var config := largeEncryptionConfigs["bucket_encrypt"];
-    //   var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
-    //   assume {:axiom} false;
-    //   var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
+    method BucketTest3()
+    {
+      expect "bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["bucket_encrypt"];
+      var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
+      assume {:axiom} false;
+      var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
 
-    //   PrintScanTrans(trans, GetBucketScan2("Attr2", "Attr3"));
-    //   PrintScanTrans(trans, GetBucketScan2("Attr3", "Attr2"));
-    // }
+      TestScanTrans(trans, GetBucketScan1(5), "Attr6 = :attr6");
+      TestScanTrans(trans, GetBucketScan1(1), "(aws_dbe_b_Attr2 = :attr2) OR (aws_dbe_b_Attr2 = :attr2AA)");
+      TestScanTrans(trans, GetBucketScan2(5, 1), "(Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2) OR (Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2AA)");
+      TestScanTrans(trans, GetBucketScan2(2, 3), "(aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
+      TestScanTrans(trans, GetBucketScan3(1, 2, 3), "(aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
+    }
+
     // Fill table with 100 records. Different RecNum, same data otherwise
     // Make a variety of bucketed queries. Ensure that
     // 1) Every item is returned exactly once
@@ -693,24 +699,17 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", false);
       TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", false);
 
-      var scanCount1 := 0;
-      var scanCount2 := 0;
-      var scanCount3 := 0;
       var scanCount4 := 0;
       var scanCount5 := 0;
-      var scanCount6 := 2;
       TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
       TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
       for i := 0 to 6 {
-        scanCount1 := scanCount1 + 1;
         TestBucketScan(rClient, GetBucketScan1(i));
         for j := 0 to 6 {
           if i != j {
-            scanCount2 := scanCount2 + 1;
             TestBucketScan(rClient, GetBucketScan2(i, j));
             for k := 0 to 6 {
               if i != k && j != k {
-                scanCount3 := scanCount3 + 1;
                 TestBucketScan(rClient, GetBucketScan3(i, j, k));
               }
               for l := 0 to 6 {
@@ -733,7 +732,6 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           }
         }
       }
-      print "Full Bucket Scan Tests : ", scanCount1, " ",  scanCount2, " ",  scanCount3, " ",  scanCount4, " ",  scanCount5, " ", scanCount6, "\n";
     }
 
     // As BucketTest1, but with custom bucket selector

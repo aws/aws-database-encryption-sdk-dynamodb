@@ -1832,51 +1832,42 @@ module DynamoDBFilterExpr {
   // old_context : filterExpr = "(X = :x)" values = {":x" := "aaa"}
   // new_context : filterExpr = "X = :x" values = {":x" := "bbb"}
   // output : filterExpr = "(X = :x) OR (X = :xAA)" values = {":x" := "aaa", "xAA" := "bbb"}
-  method AddContext(old_context : ExprContext, new_context : ExprContext) returns (output : Result<ExprContext, Error>)
+  method AddContext(old_values : DDB.ExpressionAttributeValueMap, new_filter : string, new_values : DDB.ExpressionAttributeValueMap)
+    returns (output : Result<(string, DDB.ExpressionAttributeValueMap), Error>)
   {
-    if old_context.filterExpr.None? || new_context.filterExpr.None? || old_context.values.None? || new_context.values.None? || new_context.values == old_context.values {
-      return Success(old_context);
-    }
-    var new_values := SortedSets.ComputeSetToSequence(new_context.values.value.Keys);
-    SequenceIsSafeBecauseItIsInMemory(new_values);
+    var new_value_keys := SortedSets.ComputeSetToSequence(new_values.Keys);
+    SequenceIsSafeBecauseItIsInMemory(new_value_keys);
     var allUnchanged := true;
-    for i : uint64 := 0 to |new_values| as uint64
+    for i : uint64 := 0 to |new_value_keys| as uint64
     {
-      if new_values[i] !in old_context.values.value {
+      if new_value_keys[i] !in old_values {
         allUnchanged := false;
         break;
       }
-      if new_context.values.value[new_values[i]] != old_context.values.value[new_values[i]] {
+      if new_values[new_value_keys[i]] != old_values[new_value_keys[i]] {
         allUnchanged := false;
         break;
       }
     }
     if allUnchanged {
-      return Success(old_context);
+      return Success((new_filter, old_values));
     }
 
-    var result_values := old_context.values.value;
-    var result_filter := new_context.filterExpr.value;
-    for i : uint64 := 0 to |new_values| as uint64
+    var result_values := old_values;
+    var result_filter := new_filter;
+    for i : uint64 := 0 to |new_value_keys| as uint64
     {
-      var key := new_values[i];
-      if key in old_context.values.value && new_context.values.value[key] != old_context.values.value[key] {
-        if old_context.keyExpr.Some? {
-          var keyInIndex := String.HasSubString(old_context.keyExpr.value, key);
-          if keyInIndex.Some? {
-            return Failure(E("The value " + key + " is referenced by both the KeyConditionExpression and the FilterExpression, which is not allowed."));
-          }
-        }
+      var key := new_value_keys[i];
+      if key in old_values && new_values[key] != old_values[key] {
         if 0 == |key| {
           return Failure(E("Unexpected zero length key in ExpressionAttributeValueMap"));
         }
-        var new_key :- MakeNewName(key, result_values, new_context.values.value[key]);
-        result_values := result_values[new_key := new_context.values.value[key]];
-        result_filter := String.SearchAndReplaceAll(result_filter, key, new_key);
+        var new_key :- MakeNewName(key, result_values, new_values[key]);
+        result_values := result_values[new_key := new_values[key]];
+        result_filter := String.SearchAndReplaceAllNot(result_filter, key, new_key, String.AlphaNumericUnder);
       }
     }
-    result_filter := old_context.filterExpr.value + " OR (" + result_filter + ")";
-    return Success(old_context.(filterExpr := Some(result_filter), values := Some(result_values)));
+    return Success((result_filter, result_values));
   }
 
   // Call Beaconize, possibly multiple times if fewer queries than buckets
@@ -1894,20 +1885,32 @@ module DynamoDBFilterExpr {
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if queries == b.numBuckets || (b.numBuckets - bucket) <= queries || context.filterExpr.None? {
+    if queries == b.numBuckets || (b.numBuckets - bucket) <= queries || context.filterExpr.None? || context.values.None? {
       output := Beaconize(b, context, keyId, bucket);
     } else {
       var curr_bucket : BucketNumber := bucket;
-      var tmpOutput : ExprContext := context;
+      var exprs : seq<string> := [];
+      var values : DDB.ExpressionAttributeValueMap := map[];
+      var keyExpr : Option<DDB.KeyExpression> := None;
+      var names : Option<DDB.ExpressionAttributeNameMap> := None;
+
       while curr_bucket < b.numBuckets
         invariant b.ValidState()
+        invariant curr_bucket == bucket || 0 < |exprs|
       {
         var localOut :- Beaconize(b, context, keyId, curr_bucket);
         if curr_bucket == bucket {
-          var old_filter := localOut.filterExpr.UnwrapOr("");
-          tmpOutput := localOut.(filterExpr := Some("(" + old_filter + ")"));
+          exprs := [localOut.filterExpr.UnwrapOr("")];
+          values := localOut.values.UnwrapOr(map[]);
+          keyExpr := localOut.keyExpr;
+          names := localOut.names;
         } else {
-          tmpOutput :- AddContext(tmpOutput, localOut);
+          var tmpOutput :- AddContext(values, localOut.filterExpr.UnwrapOr(""), localOut.values.UnwrapOr(map[]));
+          var (expr, value) := tmpOutput;
+          if expr !in exprs {
+            exprs := exprs + [expr];
+          }
+          values := value;
         }
         if (b.numBuckets - curr_bucket) <= queries {
           break;
@@ -1915,7 +1918,19 @@ module DynamoDBFilterExpr {
           curr_bucket := curr_bucket + queries;
         }
       }
-      return Success(tmpOutput);
+      var result_filter : string;
+      SequenceIsSafeBecauseItIsInMemory(exprs);
+      var exprs_size : uint64 := |exprs| as uint64;
+      assert 0 < exprs_size;
+      if exprs_size == 1 {
+        result_filter := exprs[0];
+      } else {
+        result_filter := "(" + exprs[0] + ")";
+        for i := 1 to exprs_size {
+          result_filter := result_filter + " OR (" + exprs[i] + ")";
+        }
+      }
+      return Success(ExprContext(keyExpr, Some(result_filter), Some(values), names));
     }
   }
 
