@@ -1864,7 +1864,7 @@ module DynamoDBFilterExpr {
         }
         var new_key :- MakeNewName(key, result_values, new_values[key]);
         result_values := result_values[new_key := new_values[key]];
-        result_filter := String.SearchAndReplaceAllNot(result_filter, key, new_key, String.AlphaNumericUnder);
+        result_filter := String.SearchAndReplaceAllWhole(result_filter, key, new_key, String.AlphaNumericUnder);
       }
     }
     return Success((result_filter, result_values));
