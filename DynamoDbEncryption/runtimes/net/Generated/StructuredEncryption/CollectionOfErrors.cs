@@ -8,9 +8,17 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
   public class CollectionOfErrors : Exception
   {
     public readonly System.Collections.Generic.List<Exception> list;
-    public CollectionOfErrors(System.Collections.Generic.List<Exception> list, string message) : base(message) { this.list = list; }
+    public CollectionOfErrors(System.Collections.Generic.List<Exception> list, string message) : base(message + $"\n List: \n{ListAsString(list)}") { this.list = list; }
     public CollectionOfErrors(string message) : base(message) { this.list = new System.Collections.Generic.List<Exception>(); }
     public CollectionOfErrors() : base("CollectionOfErrors") { this.list = new System.Collections.Generic.List<Exception>(); }
+    private static string ListAsString(List<Exception> list)
+    {
+      if (list.Count < 1) return "";
+      string[] msgArr = new string[list.Count];
+      for (int i = 0; i < list.Count; i++)
+        msgArr[i] = $"{list[i].GetType().Name} :: {list[i].Message}";
+      return String.Join("\n\t", msgArr);
+    }
   }
 
 }
