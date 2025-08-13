@@ -7,6 +7,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+const (
+	EncryptedAndSignedValue = "􏨾먱龹龱𐀂﹌𐀁𐀂𐀂𐀁. This will be encrypted and signed. 􏨾먱龹龱𐀂﹌𐀁𐀂𐀂𐀁"
+	SignOnlyValue           = "􏨾먱龹龱𐀂﹌𐀁𐀂𐀂𐀁. This will never be encrypted, but it will be signed. 􏨾먱龹龱𐀂﹌𐀁𐀂𐀂𐀁."
+	DoNothingValue          = "􏨾먱龹龱𐀂﹌𐀁𐀂𐀂𐀁. This will never be encrypted nor signed. 􏨾먱龹龱𐀂﹌𐀁𐀂𐀂𐀁."
+)
+
 func VerifyReturnedItem(result *dynamodb.GetItemOutput, partitionKeyValue, sortKeyValue, encryptedAndSignedValue, signOnlyValue, doNothingValue string) error {
 	returnedPartitionKey, ok := result.Item["partition_key"].(*types.AttributeValueMemberS)
 	if !ok {

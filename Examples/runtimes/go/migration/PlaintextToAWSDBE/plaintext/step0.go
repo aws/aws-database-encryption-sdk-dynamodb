@@ -31,7 +31,7 @@ primary key configuration:
   - Partition key is named "partition_key" with type (S)
   - Sort key is named "sort_key" with type (S)
 */
-func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyReadValue string) error {
+func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyReadValue, encryptedAndSignedValue, signOnlyValue, doNothingValue string) error {
 	// 1. Create a standard DynamoDB client
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
@@ -39,9 +39,6 @@ func MigrationStep0(ddbTableName, partitionKeyValue, sortKeyWriteValue, sortKeyR
 
 	// 2. Put an example item into DynamoDB table
 	//    This item will be stored in plaintext.
-	encryptedAndSignedValue := "this will be encrypted and signed"
-	signOnlyValue := "this will never be encrypted, but it will be signed"
-	doNothingValue := "this will never be encrypted nor signed"
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: partitionKeyValue},
 		"sort_key":      &types.AttributeValueMemberN{Value: sortKeyWriteValue},
