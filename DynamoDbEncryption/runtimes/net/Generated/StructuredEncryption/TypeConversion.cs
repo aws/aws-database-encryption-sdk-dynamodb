@@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.StructuredEncryption
 {
   public static class TypeConversion
   {
-    private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
-
-    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
-
     public static AWS.Cryptography.Primitives.AtomicPrimitives FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N20_structuredEncryption__S25_AtomicPrimitivesReference(software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient value)
     {
       if (value is software.amazon.cryptography.primitives.internaldafny.types.IAwsCryptographicPrimitivesClient dafnyValue)
