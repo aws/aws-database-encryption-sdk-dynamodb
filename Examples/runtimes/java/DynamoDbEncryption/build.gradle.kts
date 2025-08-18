@@ -67,8 +67,8 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:3.9.0")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.11.1-SNAPSHOT")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))
     implementation("software.amazon.awssdk:arns")
