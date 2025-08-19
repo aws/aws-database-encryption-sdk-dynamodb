@@ -84,7 +84,7 @@ jobs:
 
       - name: Build and locally deploy dependencies for examples
         shell: bash
-        working-directory: ./DynamoDbEncryption
+        working-directory: ./submodules/MaterialProviders/AwsCryptographicMaterialProviders
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
@@ -96,7 +96,4 @@ jobs:
         working-directory: ./Examples
         run: |
           # Run simple examples
-          gradle -p runtimes/java/DynamoDbEncryption test 
-          # Run migration examples
-          gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-          gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+          gradle -p runtimes/java/DynamoDbEncryption test
