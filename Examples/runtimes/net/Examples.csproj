@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" />
+    <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
+    <PackageReference Include="AWS.Cryptography.DbEncryptionSDK.DynamoDb" Version="3.7.0" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.202.5"/>
   </ItemGroup>
 
