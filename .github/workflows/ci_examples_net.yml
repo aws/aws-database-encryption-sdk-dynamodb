@@ -84,7 +84,7 @@ jobs:
 
       - name: Compile ${{ matrix.library }} implementation
         shell: bash
-        working-directory: ./${{ matrix.library }}
+        working-directory: ./submodules/MaterialProviders/AwsCryptographicMaterialProviders
         run: |
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
