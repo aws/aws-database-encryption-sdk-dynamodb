@@ -7,7 +7,8 @@ public class TestGetEncryptedDataKeyDescriptionExample {
 
   @Test
   public void TestGetEncryptedDataKeyDescription() {
-    final String partitionKeyValue = "GetEncryptedDataKeyDescriptionExample" + UUID.randomUUID();
+    final String partitionKeyValue =
+      "GetEncryptedDataKeyDescriptionExample" + UUID.randomUUID();
     final String partitionKeyName = "partition_key";
     final String sortKeyValue = "0";
     final String sortKeyName = "sort_key";
