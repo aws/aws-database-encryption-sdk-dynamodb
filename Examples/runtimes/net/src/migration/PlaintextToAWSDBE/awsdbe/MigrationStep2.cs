@@ -43,7 +43,7 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             // In this of migration we will use PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
             // which means:
             // - Write: Items are forbidden to be written as plaintext.
-            //         Items will be written as encrypted items.
+            //          Items will be written as encrypted items.
             // - Read: Items are allowed to be read as plaintext.
             //         Items are allowed to be read as encrypted items.
             var tableConfigs = Common.CreateTableConfigs(kmsKeyId, ddbTableName, PlaintextOverride.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ);

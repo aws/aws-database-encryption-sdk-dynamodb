@@ -40,7 +40,7 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             // In this of migration we will use PlaintextOverride.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ
             // which means:
             //     - Write: Items are forbidden to be written as plaintext.
-            //             Items will be written as encrypted items.
+            //              Items will be written as encrypted items.
             //     - Read: Items are forbidden to be read as plaintext.
             //             Items will be read as encrypted items.
             // Note: If you do not specify a PlaintextOverride, it defaults to
@@ -54,6 +54,8 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
 
             // 3. Put an item into our table using the above client.
             //    This item will be encrypted due to our PlaintextOverride configuration.
+            string partitionKeyName = "partition_key";
+            string sortKeyName = "sort_key";
             string encryptedAndSignedValue = MigrationUtils.ENCRYPTED_AND_SIGNED_VALUE;
             string signOnlyValue = MigrationUtils.SIGN_ONLY_VALUE;
             string doNothingValue = MigrationUtils.DO_NOTHING_VALUE;
