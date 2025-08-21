@@ -23,10 +23,12 @@ namespace Examples.migration.PlaintextToAWSDBE
             //  - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
             //  - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
             //  - DO_NOTHING: The attribute is not encrypted and not included in the signature
+            var partitionKeyName = "partition_key";
+            var sortKeyName = "sort_key";
             var attributeActionsOnEncrypt = new Dictionary<string, CryptoAction>
             {
-                ["partition_key"] = CryptoAction.SIGN_ONLY,
-                ["sort_key"] = CryptoAction.SIGN_ONLY,
+                [partitionKeyName] = CryptoAction.SIGN_ONLY,
+                [sortKeyName] = CryptoAction.SIGN_ONLY,
                 ["attribute1"] = CryptoAction.ENCRYPT_AND_SIGN,
                 ["attribute2"] = CryptoAction.SIGN_ONLY,
                 ["attribute3"] = CryptoAction.DO_NOTHING
@@ -65,8 +67,8 @@ namespace Examples.migration.PlaintextToAWSDBE
             var tableConfig = new DynamoDbTableEncryptionConfig
             {
                 LogicalTableName = ddbTableName,
-                PartitionKeyName = "partition_key",
-                SortKeyName = "sort_key",
+                PartitionKeyName = partitionKeyName,
+                SortKeyName = sortKeyName,
                 AttributeActionsOnEncrypt = attributeActionsOnEncrypt,
                 Keyring = kmsKeyring,
                 AllowedUnsignedAttributes = unsignedAttributes,
