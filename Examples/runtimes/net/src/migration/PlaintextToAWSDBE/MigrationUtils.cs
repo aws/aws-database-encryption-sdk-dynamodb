@@ -10,10 +10,20 @@ namespace Examples.migration.PlaintextToAWSDBE
     */
     public class MigrationUtils
     {
+        // Common attribute values used across all migration steps
+        public static readonly string ENCRYPTED_AND_SIGNED_VALUE = "this will be encrypted and signed";
+        public static readonly string SIGN_ONLY_VALUE = "this will never be encrypted, but it will be signed";
+        public static readonly string DO_NOTHING_VALUE = "this will never be encrypted nor signed";
+        
         // Verify that a returned item matches the expected values
         public static bool VerifyReturnedItem(GetItemResponse response, string partitionKeyValue, string sortKeyValue, 
-                                             string encryptedAndSignedValue, string signOnlyValue, string doNothingValue)
+                                             string encryptedAndSignedValue = null, string signOnlyValue = null, string doNothingValue = null)
         {
+            // Use default values if not provided
+            encryptedAndSignedValue = encryptedAndSignedValue ?? ENCRYPTED_AND_SIGNED_VALUE;
+            signOnlyValue = signOnlyValue ?? SIGN_ONLY_VALUE;
+            doNothingValue = doNothingValue ?? DO_NOTHING_VALUE;
+            
             var item = response.Item;
             
             // Verify partition key

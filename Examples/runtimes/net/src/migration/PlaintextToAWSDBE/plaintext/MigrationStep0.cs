@@ -40,9 +40,9 @@ namespace Examples.migration.PlaintextToAWSDBE.plaintext
 
                 // 2. Put an example item into DynamoDB table
                 //    This item will be stored in plaintext.
-                string encryptedAndSignedValue = "this will be encrypted and signed";
-                string signOnlyValue = "this will never be encrypted, but it will be signed";
-                string doNothingValue = "this will never be encrypted nor signed";
+                string encryptedAndSignedValue = MigrationUtils.ENCRYPTED_AND_SIGNED_VALUE;
+                string signOnlyValue = MigrationUtils.SIGN_ONLY_VALUE;
+                string doNothingValue = MigrationUtils.DO_NOTHING_VALUE;
                 var item = new Dictionary<string, AttributeValue>
                 {
                     ["partition_key"] = new AttributeValue { S = partitionKeyValue },
@@ -91,7 +91,7 @@ namespace Examples.migration.PlaintextToAWSDBE.plaintext
                     throw new Exception("No item found");
                 }
 
-                bool success = MigrationUtils.VerifyReturnedItem(getResponse, partitionKeyValue, sortKeyReadValue, encryptedAndSignedValue, signOnlyValue, doNothingValue);
+                bool success = MigrationUtils.VerifyReturnedItem(getResponse, partitionKeyValue, sortKeyReadValue);
                 if (success)
                 {
                     Console.WriteLine("MigrationStep0 completed successfully");
