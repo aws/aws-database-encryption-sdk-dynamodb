@@ -20,31 +20,26 @@ namespace Examples.migration.PlaintextToAWSDBE
         {           
             var item = response.Item;
             
-            // Verify partition key
             if (!item.ContainsKey("partition_key") || item["partition_key"].S != partitionKeyValue)
             {
                 throw new Exception($"partition_key mismatch: expected {partitionKeyValue}, got {(item.ContainsKey("partition_key") ? item["partition_key"].S : "null")}");
             }
             
-            // Verify sort key
             if (!item.ContainsKey("sort_key") || item["sort_key"].N != sortKeyValue)
             {
                 throw new Exception($"sort_key mismatch: expected {sortKeyValue}, got {(item.ContainsKey("sort_key") ? item["sort_key"].N : "null")}");
             }
             
-            // Verify attribute1 (will be encrypted and signed in future steps)
             if (!item.ContainsKey("attribute1") || item["attribute1"].S != ENCRYPTED_AND_SIGNED_VALUE)
             {
                 throw new Exception($"attribute1 mismatch: expected {ENCRYPTED_AND_SIGNED_VALUE}, got {(item.ContainsKey("attribute1") ? item["attribute1"].S : "null")}");
             }
             
-            // Verify attribute2 (will be signed but not encrypted in future steps)
             if (!item.ContainsKey("attribute2") || item["attribute2"].S != SIGN_ONLY_VALUE)
             {
                 throw new Exception($"attribute2 mismatch: expected {SIGN_ONLY_VALUE}, got {(item.ContainsKey("attribute2") ? item["attribute2"].S : "null")}");
             }
             
-            // Verify attribute3 (will neither be encrypted nor signed in future steps)
             if (!item.ContainsKey("attribute3") || item["attribute3"].S != DO_NOTHING_VALUE)
             {
                 throw new Exception($"attribute3 mismatch: expected {DO_NOTHING_VALUE}, got {(item.ContainsKey("attribute3") ? item["attribute3"].S : "null")}");
