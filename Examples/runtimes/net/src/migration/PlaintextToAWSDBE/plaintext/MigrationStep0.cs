@@ -33,76 +33,68 @@ namespace Examples.migration.PlaintextToAWSDBE.plaintext
     {
         public static async Task<bool> MigrationStep0Example(string ddbTableName, string partitionKeyValue, string sortKeyWriteValue, string sortKeyReadValue)
         {
-            try
+            // 1. Create a standard DynamoDB client
+            var ddb = new AmazonDynamoDBClient();
+
+            // 2. Put an example item into DynamoDB table
+            //    This item will be stored in plaintext.
+            string encryptedAndSignedValue = MigrationUtils.ENCRYPTED_AND_SIGNED_VALUE;
+            string signOnlyValue = MigrationUtils.SIGN_ONLY_VALUE;
+            string doNothingValue = MigrationUtils.DO_NOTHING_VALUE;
+            var item = new Dictionary<string, AttributeValue>
             {
-                // 1. Create a standard DynamoDB client
-                var ddb = new AmazonDynamoDBClient();
+                ["partition_key"] = new AttributeValue { S = partitionKeyValue },
+                ["sort_key"] = new AttributeValue { N = sortKeyWriteValue },
+                ["attribute1"] = new AttributeValue { S = encryptedAndSignedValue },
+                ["attribute2"] = new AttributeValue { S = signOnlyValue },
+                ["attribute3"] = new AttributeValue { S = doNothingValue }
+            };
 
-                // 2. Put an example item into DynamoDB table
-                //    This item will be stored in plaintext.
-                string encryptedAndSignedValue = MigrationUtils.ENCRYPTED_AND_SIGNED_VALUE;
-                string signOnlyValue = MigrationUtils.SIGN_ONLY_VALUE;
-                string doNothingValue = MigrationUtils.DO_NOTHING_VALUE;
-                var item = new Dictionary<string, AttributeValue>
-                {
-                    ["partition_key"] = new AttributeValue { S = partitionKeyValue },
-                    ["sort_key"] = new AttributeValue { N = sortKeyWriteValue },
-                    ["attribute1"] = new AttributeValue { S = encryptedAndSignedValue },
-                    ["attribute2"] = new AttributeValue { S = signOnlyValue },
-                    ["attribute3"] = new AttributeValue { S = doNothingValue }
-                };
-
-                var putRequest = new PutItemRequest
-                {
-                    TableName = ddbTableName,
-                    Item = item
-                };
-
-                var putResponse = await ddb.PutItemAsync(putRequest);
-                Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
-
-                // 3. Get an item back from the table as it was written.
-                //    If this is an item written in plaintext (i.e. any item written
-                //    during Step 0 or 1), then the item will still be in plaintext
-                //    and will be able to be processed.
-                //    If this is an item that was encrypted client-side (i.e. any item written
-                //    during Step 2 or after), then the item will still be encrypted client-side
-                //    and will be unable to be processed in your code. To decrypt and process
-                //    client-side encrypted items, you will need to configure encrypted reads on
-                //    your dynamodb client (this is configured from Step 1 onwards).
-                var key = new Dictionary<string, AttributeValue>
-                {
-                    ["partition_key"] = new AttributeValue { S = partitionKeyValue },
-                    ["sort_key"] = new AttributeValue { N = sortKeyReadValue }
-                };
-
-                var getRequest = new GetItemRequest
-                {
-                    TableName = ddbTableName,
-                    Key = key
-                };
-
-                var getResponse = await ddb.GetItemAsync(getRequest);
-                Debug.Assert(getResponse.HttpStatusCode == HttpStatusCode.OK);
-
-                // 4. Verify we get the expected item back
-                if (getResponse.Item == null)
-                {
-                    throw new Exception("No item found");
-                }
-
-                bool success = MigrationUtils.VerifyReturnedItem(getResponse, partitionKeyValue, sortKeyReadValue);
-                if (success)
-                {
-                    Console.WriteLine("MigrationStep0 completed successfully");
-                }
-                return success;
-            }
-            catch (Exception e)
+            var putRequest = new PutItemRequest
             {
-                Console.WriteLine($"Error in MigrationStep0: {e.Message}");
-                throw;
+                TableName = ddbTableName,
+                Item = item
+            };
+
+            var putResponse = await ddb.PutItemAsync(putRequest);
+            Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // 3. Get an item back from the table as it was written.
+            //    If this is an item written in plaintext (i.e. any item written
+            //    during Step 0 or 1), then the item will still be in plaintext
+            //    and will be able to be processed.
+            //    If this is an item that was encrypted client-side (i.e. any item written
+            //    during Step 2 or after), then the item will still be encrypted client-side
+            //    and will be unable to be processed in your code. To decrypt and process
+            //    client-side encrypted items, you will need to configure encrypted reads on
+            //    your dynamodb client (this is configured from Step 1 onwards).
+            var key = new Dictionary<string, AttributeValue>
+            {
+                ["partition_key"] = new AttributeValue { S = partitionKeyValue },
+                ["sort_key"] = new AttributeValue { N = sortKeyReadValue }
+            };
+
+            var getRequest = new GetItemRequest
+            {
+                TableName = ddbTableName,
+                Key = key
+            };
+
+            var getResponse = await ddb.GetItemAsync(getRequest);
+            Debug.Assert(getResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // 4. Verify we get the expected item back
+            if (getResponse.Item == null)
+            {
+                throw new Exception("No item found");
             }
+
+            bool success = MigrationUtils.VerifyReturnedItem(getResponse, partitionKeyValue, sortKeyReadValue);
+            if (success)
+            {
+                Console.WriteLine("MigrationStep0 completed successfully");
+            }
+            return success;
         }
 
     }

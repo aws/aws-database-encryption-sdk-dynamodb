@@ -35,41 +35,35 @@ namespace Examples.migration.PlaintextToAWSDBE.plaintext
             string partitionKey = Guid.NewGuid().ToString();
             string[] sortKeys = { "0", "1", "2", "3" };
 
-            try
-            {
-                // Successfully executes step 0
-                bool success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[0]);
-                Assert.True(success, "MigrationStep0 should complete successfully");
+            // Successfully executes step 0
+            bool success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[0]);
+            Assert.True(success, "MigrationStep0 should complete successfully");
 
-                // Given: Step 1 has succeeded
-                await awsdbe.MigrationStep1.MigrationStep1Example(kmsKeyID, tableName, partitionKey, sortKeys[1], sortKeys[1]);
-                
-                // When: Execute Step 0 with sortReadValue=1, Then: Success (i.e. can read plaintext values)
-                success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[1]);
-                Assert.True(success, "MigrationStep0 should be able to read items written by Step 1");
-                
-                // Given: Step 2 has succeeded
-                await awsdbe.MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[2]);
-                
-                // When: Execute Step 0 with sortReadValue=2, Then: should error out when reading encrypted items.
-                var exception = await Assert.ThrowsAsync<Exception>(() => 
-                    MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[2]));
+            // Given: Step 1 has succeeded
+            await awsdbe.MigrationStep1.MigrationStep1Example(kmsKeyID, tableName, partitionKey, sortKeys[1], sortKeys[1]);
+            
+            // When: Execute Step 0 with sortReadValue=1, Then: Success (i.e. can read plaintext values)
+            success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[1]);
+            Assert.True(success, "MigrationStep0 should be able to read items written by Step 1");
+            
+            // Given: Step 2 has succeeded
+            await awsdbe.MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[2]);
+            
+            // When: Execute Step 0 with sortReadValue=2, Then: should error out when reading encrypted items.
+            var exception = await Assert.ThrowsAsync<Exception>(() => 
+                MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[2]));
 
-                Assert.Contains("attribute1 mismatch", exception.Message);
-                
-                // Given: Step 3 has succeeded
-                await awsdbe.MigrationStep3.MigrationStep3Example(kmsKeyID, tableName, partitionKey, sortKeys[3], sortKeys[3]);
-                
-                // When: Execute Step 0 with sortReadValue=3, Then: should error out
-                exception = await Assert.ThrowsAsync<Exception>(() => 
-                    MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[3]));
-                Assert.Contains("attribute1 mismatch", exception.Message);
-            }
-            finally
-            {
-                // Cleanup
-                await MigrationUtils.CleanupItems(tableName, partitionKey, sortKeys);
-            }
+            Assert.Contains("attribute1 mismatch", exception.Message);
+            
+            // Given: Step 3 has succeeded
+            await awsdbe.MigrationStep3.MigrationStep3Example(kmsKeyID, tableName, partitionKey, sortKeys[3], sortKeys[3]);
+            
+            // When: Execute Step 0 with sortReadValue=3, Then: should error out
+            exception = await Assert.ThrowsAsync<Exception>(() => 
+                MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[3]));
+            Assert.Contains("attribute1 mismatch", exception.Message);
+
+            await MigrationUtils.CleanupItems(tableName, partitionKey, sortKeys);
         }
     }
 }
