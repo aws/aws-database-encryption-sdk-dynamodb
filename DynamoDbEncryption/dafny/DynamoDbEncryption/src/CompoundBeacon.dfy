@@ -345,9 +345,9 @@ module CompoundBeacon {
       if |inParts| == 0 then
         []
       else if inParts[0].Encrypted? then
-        [inParts[0].beacon.numberOfBuckets]
+        [inParts[0].beacon.numberOfBuckets] + GetBucketCountsFromParts(inParts[1..])
       else
-        []
+        GetBucketCountsFromParts(inParts[1..])
     }
 
     // for the given attribute value, return the beacon value

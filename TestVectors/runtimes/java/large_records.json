@@ -6,6 +6,7 @@
     ["ATTR_INDEX4", "aws_dbe_b_Attr4"],
     ["ATTR_INDEX5", "aws_dbe_b_Attr5"],
     ["ATTR_INDEX2671", "aws_dbe_b_Comp2671"],
+    ["ATTR_INDEX1472", "aws_dbe_b_Comp1472"],
     ["ATTR_INDEX15", "aws_dbe_b_Attr1", "aws_dbe_b_Attr5"],
     ["ATTR_INDEX21", "aws_dbe_b_Attr2", "aws_dbe_b_Attr1"],
     ["ATTR_INDEX23", "aws_dbe_b_Attr2", "aws_dbe_b_Attr3"],
@@ -117,6 +118,46 @@
                     },
                     {
                       "Name": "Attr1"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Name": "Comp1472",
+                "Split": ".",
+                "Encrypted": [
+                  {
+                    "Name": "Attr1",
+                    "Prefix": "1_"
+                  },
+                  {
+                    "Name": "Attr2",
+                    "Prefix": "2_"
+                  },
+                  {
+                    "Name": "Attr4",
+                    "Prefix": "4_"
+                  }
+                ],
+                "Signed": [
+                  {
+                    "Name": "Attr7",
+                    "Prefix": "7_"
+                  }
+                ],
+                "Constructors": [
+                  [
+                    {
+                      "Name": "Attr1"
+                    },
+                    {
+                      "Name": "Attr4"
+                    },
+                    {
+                      "Name": "Attr7"
+                    },
+                    {
+                      "Name": "Attr2"
                     }
                   ]
                 ]

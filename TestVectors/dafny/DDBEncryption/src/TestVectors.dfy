@@ -135,18 +135,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
-      // var _ :- expect WriteManifest.Write("encrypt.json");
-      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
-      // var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
+      var _ :- expect WriteManifest.Write("encrypt.json");
+      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
       if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
         print "\nRunning no tests\n";
         return;
@@ -154,18 +154,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       Validate();
       StringOrdering();
       BucketTests();
-      // LargeTests();
-      // PerfQueryTests();
-      // BasicIoTest();
-      // RunIoTests();
-      // BasicQueryTest();
-      // ConfigModTest();
-      // ComplexTests();
-      // WriteTests();
-      // RoundTripTests();
-      // DecryptTests();
-      // var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
-      // DeleteTable(client);
+      LargeTests();
+      PerfQueryTests();
+      BasicIoTest();
+      RunIoTests();
+      BasicQueryTest();
+      ConfigModTest();
+      ComplexTests();
+      WriteTests();
+      RoundTripTests();
+      DecryptTests();
+      var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+      DeleteTable(client);
     }
 
     function MakeBucketRecord(x : nat) : DDB.AttributeMap
@@ -186,11 +186,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ]
     }
 
-    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : nat)
+    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : Types.BucketNumber, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.BucketCount)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
-      requires 0 < numQueries
       ensures client.ValidState()
       modifies client.Modifies
       modifies counts
@@ -201,7 +200,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         invariant client.ValidState()
         invariant client.Modifies !! {counts}
       {
-        var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
+        var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket as int));
         var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
         values := values[":aws_dbe_bucket" := bucketNumber];
         var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values));
@@ -222,8 +221,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             if custom {
               expect "PreferredBucket" in item;
               expect item["PreferredBucket"].N?;
-              var stored_bucket :- expect StrToInt(item["PreferredBucket"].N);
-              expect bucket == stored_bucket % numQueries;
+              var stored_bucket : int :- expect StrToInt(item["PreferredBucket"].N);
+              expect bucket as int == stored_bucket % numQueries as int;
             }
           }
         }
@@ -276,7 +275,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     }
 
 
-    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : nat, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : nat)
+    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : Types.BucketCount, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.BucketCount)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
@@ -285,7 +284,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies client.Modifies
       modifies counts
     {
-      var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket));
+      var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket as int));
       var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
       values := values[":aws_dbe_bucket" := bucketNumber];
       var q := query.(ExpressionAttributeValues := Some(values));
@@ -293,18 +292,34 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect result.Failure?;
     }
 
-
-    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : nat, q : DDB.QueryInput, queryName : string, custom : bool := false)
+    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : Types.BucketCount, q : DDB.QueryInput, trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, queryName : string, custom : bool := false)
       requires 0 < numQueries <= 5
       requires client.ValidState()
+      requires trans.ValidState()
       ensures client.ValidState()
+      ensures trans.ValidState()
       modifies client.Modifies
+      modifies trans.Modifies
     {
+      var input := Trans.GetNumberOfQueriesInput(input := q);
+      var res :- expect trans.GetNumberOfQueries(input);
+      if res.numberOfQueries != numQueries {
+        print "numberOfQueries should have been\n", numQueries, " but was ", res.numberOfQueries, " for ", queryName,"\n";
+      }
+      expect res.numberOfQueries == numQueries;
+
       var counts: array<int> := new int[100](i => 0);
-      for i := 0 to numQueries {
+      for i : Types.BucketNumber := 0 to numQueries
+        invariant client.ValidState()
+        invariant trans.ValidState()
+      {
         DoBucketQuery(client, i, q, counts, queryName, custom, numQueries);
       }
-      for i := numQueries to 5 {
+
+      for i : Types.BucketNumber := numQueries to 5
+        invariant client.ValidState()
+        invariant trans.ValidState()
+      {
         TestBucketQueryFailure(client, i, q, counts, queryName, custom, numQueries);
       }
 
@@ -522,6 +537,32 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr2671" := DDB.AttributeValue.S("2_BBBB.6_FFFF.7_GGGG.1_AAAA")])
       )
     }
+    function GetCompScan2671() : DDB.ScanInput
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some("Comp2671 = :attr2671"),
+        ExpressionAttributeValues := Some(map[":attr2671" := DDB.AttributeValue.S("2_BBBB.6_FFFF.7_GGGG.1_AAAA")])
+      )
+    }
+    function GetCompQuery1472() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX1472"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Comp1472 = :attr1472"),
+        ExpressionAttributeValues := Some(map[":attr1472" := DDB.AttributeValue.S("1_AAAA.4_DDDD.7_GGGG.2_BBBB")])
+      )
+    }
+    function GetCompScan1472() : DDB.ScanInput
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some("Comp1472 = :attr1472"),
+        ExpressionAttributeValues := Some(map[":attr1472" := DDB.AttributeValue.S("1_AAAA.4_DDDD.7_GGGG.2_BBBB")])
+      )
+    }
 
     function GetBucketQuery1() : DDB.QueryInput
     {
@@ -665,14 +706,24 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    method MakeTrans(config : TableConfig) returns (output : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+      ensures fresh(output)
+      ensures fresh(output.Modifies)
+      ensures output.ValidState()
+    {
+      var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
+      assume {:axiom} false;
+      var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
+      return trans;
+    }
+
     method BucketTest3()
     {
       expect "bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["bucket_encrypt"];
-      var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
-      assume {:axiom} false;
-      var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
-
+      var trans := MakeTrans(config);
+      assert fresh(trans);
+      assert trans.ValidState();
       TestScanTrans(trans, GetBucketScan1(5), "Attr6 = :attr6");
       TestScanTrans(trans, GetBucketScan1(1), "(aws_dbe_b_Attr2 = :attr2) OR (aws_dbe_b_Attr2 = :attr2AA)");
       TestScanTrans(trans, GetBucketScan2(5, 1), "(Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2) OR (Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2AA)");
@@ -690,6 +741,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect "bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["bucket_encrypt"];
       var wClient, rClient := SetupTestTable(config, config);
+      var trans := MakeTrans(config);
+
       for i : nat := 0 to 100 {
         var putInput := DDB.PutItemInput(
           TableName := TableName,
@@ -700,20 +753,20 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var q1 := DDB.QueryInput(
         TableName := TableName
       );
-      TestBucketQueries(rClient, 5, GetBucketQuery5(), "bucket query 5");
-      TestBucketQueries(rClient, 4, GetBucketQuery4(), "bucket query 4");
-      TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3");
-      TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2");
-      TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1");
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), trans, "bucket query 5");
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), trans, "bucket query 4");
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), trans, "bucket query 3");
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), trans, "bucket query 2");
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), trans, "bucket query 1");
 
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 15");
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51");
-      TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23");
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), trans, "bucket query 15");
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51");
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23");
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15F", false);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25F", false);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35F", false);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45F", false);
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15F", false);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25F", false);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35F", false);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45F", false);
 
       var scanCount4 := 0;
       var scanCount5 := 0;
@@ -757,6 +810,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect "complex_bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["complex_bucket_encrypt"];
       var wClient, rClient := SetupTestTable(config, config);
+      var trans := MakeTrans(config);
+
       for i : nat := 0 to 100 {
         var putInput := DDB.PutItemInput(
           TableName := TableName,
@@ -764,12 +819,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         );
         var _ :-  expect wClient.PutItem(putInput);
       }
-      print "BucketTest4 Wrote";
-      TestBucketQueries(rClient, 2, GetCompQuery2671(), "comp query 2671");
-      print "BucketTest4 Did One";
-
-      // TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
-      TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
+      TestBucketQueries(rClient, 2, GetCompQuery2671(), trans, "comp query 2671");
+      TestBucketScan(rClient, GetCompScan2671());
+      TestBucketQueries(rClient, 4, GetCompQuery1472(), trans, "comp query 1472");
+      TestBucketScan(rClient, GetCompScan1472());
     }
 
     // As BucketTest1, but with custom bucket selector
@@ -785,6 +838,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var nConfig := config.config.(search := Some(nSearch));
       config := config.(config := nConfig);
       var wClient, rClient := SetupTestTable(config, config);
+      var trans := MakeTrans(config);
+
       for i : nat := 0 to 100 {
         var putInput := DDB.PutItemInput(
           TableName := TableName,
@@ -795,20 +850,20 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var q1 := DDB.QueryInput(
         TableName := TableName
       );
-      TestBucketQueries(rClient, 5, GetBucketQuery5(), "bucket query 5a", true);
-      TestBucketQueries(rClient, 4, GetBucketQuery4(), "bucket query 4a", true);
-      TestBucketQueries(rClient, 3, GetBucketQuery3(), "bucket query 3a", true);
-      TestBucketQueries(rClient, 2, GetBucketQuery2(), "bucket query 2a", true);
-      TestBucketQueries(rClient, 1, GetBucketQuery1(), "bucket query 1a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), trans, "bucket query 5a", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), trans, "bucket query 4a", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), trans, "bucket query 3a", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), trans, "bucket query 2a", true);
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), trans, "bucket query 1a", true);
 
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), "bucket query 15a", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), "bucket query 51a", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery23(), "bucket query 23a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), trans, "bucket query 15a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23a", true);
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), "bucket query 15Fa", true);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), "bucket query 25Fa", true);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), "bucket query 35Fa", true);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), "bucket query 45Fa", true);
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15Fa", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25Fa", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35Fa", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45Fa", true);
 
       // we don't test scan here, because scan doesn't use ":aws_dbe_bucket"
     }
@@ -1230,13 +1285,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       expect config in largeEncryptionConfigs;
       var tconfig := largeEncryptionConfigs[config];
-      var configs := Types.DynamoDbTablesEncryptionConfig (
-        tableEncryptionConfigs := map[TableName := tconfig.config]
-      );
-      // because there are lots of pre-conditions on configs
-      assume {:axiom} false;
-      var client :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
-      LargeTestsClient(client, config);
+      var trans := MakeTrans(tconfig);
+      LargeTestsClient(trans, config);
     }
 
     method LargeTestsClient(client : Trans.IDynamoDbEncryptionTransformsClient, config : string)
