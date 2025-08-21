@@ -62,12 +62,6 @@ namespace Examples.migration.PlaintextToAWSDBE
             var unsignedAttributes = new List<string> { "attribute3" };
 
             // Create the DynamoDb Encryption configuration for the table we will be writing to.
-            // This configuration uses PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
-            // which means:
-            //    - Write: Items are forced to be written as plaintext.
-            //             Items may not be written as encrypted items.
-            //    - Read: Items are allowed to be read as plaintext.
-            //            Items are allowed to be read as encrypted items.
             var tableConfig = new DynamoDbTableEncryptionConfig
             {
                 LogicalTableName = ddbTableName,
