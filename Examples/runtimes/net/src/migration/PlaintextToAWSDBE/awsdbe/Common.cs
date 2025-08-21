@@ -23,8 +23,8 @@ namespace Examples.migration.PlaintextToAWSDBE
             //  - ENCRYPT_AND_SIGN: The attribute is encrypted and included in the signature
             //  - SIGN_ONLY: The attribute not encrypted, but is still included in the signature
             //  - DO_NOTHING: The attribute is not encrypted and not included in the signature
-            var partitionKeyName = "partition_key";
-            var sortKeyName = "sort_key";
+            string partitionKeyName = "partition_key";
+            string sortKeyName = "sort_key";
             var attributeActionsOnEncrypt = new Dictionary<string, CryptoAction>
             {
                 [partitionKeyName] = CryptoAction.SIGN_ONLY,
