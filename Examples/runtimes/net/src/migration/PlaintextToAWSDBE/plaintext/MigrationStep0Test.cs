@@ -62,8 +62,12 @@ namespace Examples.migration.PlaintextToAWSDBE.plaintext
             exception = await Assert.ThrowsAsync<Exception>(() => 
                 MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[3]));
             Assert.Contains("attribute1 mismatch", exception.Message);
-
-            await MigrationUtils.CleanupItems(tableName, partitionKey, sortKeys);
+            
+            // Cleanup
+            foreach (var sortKey in sortKeys)
+            {
+                await TestUtils.CleanupItems(tableName, partitionKey, sortKey);
+            }
         }
     }
 }

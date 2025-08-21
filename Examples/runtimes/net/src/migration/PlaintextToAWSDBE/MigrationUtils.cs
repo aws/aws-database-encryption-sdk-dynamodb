@@ -16,14 +16,8 @@ namespace Examples.migration.PlaintextToAWSDBE
         public static readonly string DO_NOTHING_VALUE = "this will never be encrypted nor signed";
         
         // Verify that a returned item matches the expected values
-        public static bool VerifyReturnedItem(GetItemResponse response, string partitionKeyValue, string sortKeyValue, 
-                                             string encryptedAndSignedValue = null, string signOnlyValue = null, string doNothingValue = null)
-        {
-            // Use default values if not provided
-            encryptedAndSignedValue = encryptedAndSignedValue ?? ENCRYPTED_AND_SIGNED_VALUE;
-            signOnlyValue = signOnlyValue ?? SIGN_ONLY_VALUE;
-            doNothingValue = doNothingValue ?? DO_NOTHING_VALUE;
-            
+        public static bool VerifyReturnedItem(GetItemResponse response, string partitionKeyValue, string sortKeyValue)
+        {           
             var item = response.Item;
             
             // Verify partition key
@@ -39,55 +33,24 @@ namespace Examples.migration.PlaintextToAWSDBE
             }
             
             // Verify attribute1 (will be encrypted and signed in future steps)
-            if (!item.ContainsKey("attribute1") || item["attribute1"].S != encryptedAndSignedValue)
+            if (!item.ContainsKey("attribute1") || item["attribute1"].S != ENCRYPTED_AND_SIGNED_VALUE)
             {
-                throw new Exception($"attribute1 mismatch: expected {encryptedAndSignedValue}, got {(item.ContainsKey("attribute1") ? item["attribute1"].S : "null")}");
+                throw new Exception($"attribute1 mismatch: expected {ENCRYPTED_AND_SIGNED_VALUE}, got {(item.ContainsKey("attribute1") ? item["attribute1"].S : "null")}");
             }
             
             // Verify attribute2 (will be signed but not encrypted in future steps)
-            if (!item.ContainsKey("attribute2") || item["attribute2"].S != signOnlyValue)
+            if (!item.ContainsKey("attribute2") || item["attribute2"].S != SIGN_ONLY_VALUE)
             {
-                throw new Exception($"attribute2 mismatch: expected {signOnlyValue}, got {(item.ContainsKey("attribute2") ? item["attribute2"].S : "null")}");
+                throw new Exception($"attribute2 mismatch: expected {SIGN_ONLY_VALUE}, got {(item.ContainsKey("attribute2") ? item["attribute2"].S : "null")}");
             }
             
             // Verify attribute3 (will neither be encrypted nor signed in future steps)
-            if (!item.ContainsKey("attribute3") || item["attribute3"].S != doNothingValue)
+            if (!item.ContainsKey("attribute3") || item["attribute3"].S != DO_NOTHING_VALUE)
             {
-                throw new Exception($"attribute3 mismatch: expected {doNothingValue}, got {(item.ContainsKey("attribute3") ? item["attribute3"].S : "null")}");
+                throw new Exception($"attribute3 mismatch: expected {DO_NOTHING_VALUE}, got {(item.ContainsKey("attribute3") ? item["attribute3"].S : "null")}");
             }
             
             return true;
-        }
-
-        // Helper method to clean up test items
-        public static async System.Threading.Tasks.Task CleanupItems(string tableName, string partitionKey, string[] sortKeys)
-        {
-            var ddb = new Amazon.DynamoDBv2.AmazonDynamoDBClient();
-            
-            foreach (var sortKey in sortKeys)
-            {
-                try
-                {
-                    var key = new Dictionary<string, AttributeValue>
-                    {
-                        ["partition_key"] = new AttributeValue { S = partitionKey },
-                        ["sort_key"] = new AttributeValue { N = sortKey }
-                    };
-
-                    var deleteRequest = new DeleteItemRequest
-                    {
-                        TableName = tableName,
-                        Key = key
-                    };
-
-                    await ddb.DeleteItemAsync(deleteRequest);
-                }
-                catch (Exception e)
-                {
-                    // Log but don't fail if cleanup fails
-                    Console.WriteLine($"Warning: Failed to clean up test item with sort key {sortKey}: {e.Message}");
-                }
-            }
         }
     }
 }

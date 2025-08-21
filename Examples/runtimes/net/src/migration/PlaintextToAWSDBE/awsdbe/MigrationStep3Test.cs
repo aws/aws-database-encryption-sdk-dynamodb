@@ -71,7 +71,10 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             Assert.True(success, "MigrationStep3 should be able to read items written by Step 2");
 
             // Cleanup
-            await MigrationUtils.CleanupItems(tableName, partitionKey, sortKeys);
+            foreach (var sortKey in sortKeys)
+            {
+                await TestUtils.CleanupItems(tableName, partitionKey, sortKey);
+            }
         }
     }
 }
