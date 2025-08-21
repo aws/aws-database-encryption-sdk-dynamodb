@@ -1,9 +1,11 @@
 # AWS Database Encryption SDK Performance Test
 
-This project contains tests to benchmark the old v2 and the new v3 AWS Database Encryption SDK for DynamoDb in Java. 
+This project contains tests to benchmark the old v2 and the new v3 AWS Database Encryption SDK for DynamoDb in Java.
 
 ## Benchmarking
+
 ### Prerequisites
+
 You'd need the appropriate security credentials to run the Kms Key based tests. Also, build all the Gazelle dependecies and deploy to maven local.
 The idea of perf test is to run everything from local, before the changes make it to maven central.
 
@@ -14,9 +16,10 @@ In case of any failures, look into the `README` for `DynamoDbEncryption`.
 
 ### Gradle Jmh
 
-`` ./gradlew jmh``
+` ./gradlew jmh`
 
 This will generate a report on console as well as in `build/results/jmh/results.txt` with the following format:
+
 ```
 Benchmark                                             (plainTextFile)  Mode  Cnt    Score     Error  Units
 s.a.c.p.i.v2.AesKeyProviderTest.decrypt         single_attribute.json  avgt    3    2.428 ±   1.484  ms/op
@@ -39,9 +42,11 @@ AwsKmsKeyProviderTest_encrypt_jmhTest             205152              274349    
 where the columns are `OperationName     OriginalSize    EncryptedSize       Diff`
 
 ### IDE (or Main Class)
+
 1. Run the `main()` method in the TestBase class, or you can also run individual tests by executing the `main()` method in the respective classes.
 2. This serves the purpose of quickly debugging benchmarking/jmh issues.
 
 ## Profiling (Flamegraph) in IntelliJ
+
 1. Use the main method in each Test class and `Run with Profiler`.
 2. The graph would show the stack and the relative time taken by each of the method call

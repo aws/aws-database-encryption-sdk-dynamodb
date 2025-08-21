@@ -1,0 +1,5 @@
+{
+  "partition_key": "test-pk-001",
+  "sort_key": "test-sk-001",
+  "data": "This is a simple string attribute used for performance testing. It contains enough data to be meaningful but not so much as to skew results towards I/O operations rather than encryption/decryption performance."
+}
