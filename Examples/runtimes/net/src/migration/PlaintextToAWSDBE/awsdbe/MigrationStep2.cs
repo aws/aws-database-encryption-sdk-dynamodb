@@ -54,13 +54,15 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
 
             // 3. Put an item into our table using the above client.
             //    This item will be encrypted due to our PlaintextOverride configuration.
+            string partitionKeyName = "partition_key";
+            string sortKeyName = "sort_key";
             string encryptedAndSignedValue = MigrationUtils.ENCRYPTED_AND_SIGNED_VALUE;
             string signOnlyValue = MigrationUtils.SIGN_ONLY_VALUE;
             string doNothingValue = MigrationUtils.DO_NOTHING_VALUE;
             var item = new Dictionary<string, AttributeValue>
             {
-                ["partition_key"] = new AttributeValue { S = partitionKeyValue },
-                ["sort_key"] = new AttributeValue { N = sortKeyWriteValue },
+                [partitionKeyName] = new AttributeValue { S = partitionKeyValue },
+                [sortKeyName] = new AttributeValue { N = sortKeyWriteValue },
                 ["attribute1"] = new AttributeValue { S = encryptedAndSignedValue },
                 ["attribute2"] = new AttributeValue { S = signOnlyValue },
                 ["attribute3"] = new AttributeValue { S = doNothingValue }
@@ -83,8 +85,8 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             //    and surfaced as a plaintext item.
             var key = new Dictionary<string, AttributeValue>
             {
-                ["partition_key"] = new AttributeValue { S = partitionKeyValue },
-                ["sort_key"] = new AttributeValue { N = sortKeyReadValue }
+                [partitionKeyName] = new AttributeValue { S = partitionKeyValue },
+                [sortKeyName] = new AttributeValue { N = sortKeyReadValue }
             };
 
             var getRequest = new GetItemRequest
