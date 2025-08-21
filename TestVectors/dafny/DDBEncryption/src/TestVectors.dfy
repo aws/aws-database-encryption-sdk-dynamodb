@@ -767,7 +767,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       print "BucketTest4 Wrote";
       TestBucketQueries(rClient, 2, GetCompQuery2671(), "comp query 2671");
       print "BucketTest4 Did One";
-  
+
       // TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
       TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
     }
