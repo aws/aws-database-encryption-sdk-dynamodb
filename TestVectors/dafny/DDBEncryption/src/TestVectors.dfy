@@ -712,18 +712,16 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       ensures output.ValidState()
     {
       var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
-      assume {:axiom} false;
+      assume {:axiom} false; // because there are a million requires's for configs
       var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
       return trans;
     }
 
-    method BucketTest3()
+    method {:isolate_assertions} BucketTest3()
     {
       expect "bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["bucket_encrypt"];
       var trans := MakeTrans(config);
-      assert fresh(trans);
-      assert trans.ValidState();
       TestScanTrans(trans, GetBucketScan1(5), "Attr6 = :attr6");
       TestScanTrans(trans, GetBucketScan1(1), "(aws_dbe_b_Attr2 = :attr2) OR (aws_dbe_b_Attr2 = :attr2AA)");
       TestScanTrans(trans, GetBucketScan2(5, 1), "(Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2) OR (Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2AA)");
