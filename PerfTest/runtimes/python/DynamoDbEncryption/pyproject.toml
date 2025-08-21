@@ -1,0 +1,67 @@
+[tool.poetry]
+name = "aws-dbesdk-dynamodb-performance-tests"
+version = "0.1.0"
+description = "Performance tests comparing DDBEC v3 with DB-ESDK v4"
+authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11.0"
+aws-dbesdk-dynamodb = { path = "../../../../DynamoDbEncryption/runtimes/python", develop = false, extras = ["legacy-ddbec"]}
+boto3 = ">=1.26.0"
+pytest = "^7.4.0"
+pytest-benchmark = "^4.0.0"
+pandas = "^2.0.0"
+tabulate = "^0.9.0"
+click = "^8.1.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.0"
+pytest-benchmark = "^4.0.0"
+pytest-cov = "^4.1.0"
+tox = "^3"
+
+[build-system]
+requires = ["poetry-core<2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# Package linting
+
+[tool.poetry.group.linting]
+optional = true
+
+[tool.poetry.group.linting.dependencies]
+ruff = "^0.11.5"
+black = "^25.1.0"
+mypy = "^1.5.0"
+
+[tool.ruff]
+line-length=120
+indent-width=4
+target-version = "py311"
+
+[tool.ruff.lint]
+# Choose linting tools
+select = [
+    # pycodestyle: spacing, line length
+    "E",
+    # pyflakes: unused imports/variables
+    "F",
+    # isort: import sorting
+    "I",
+    # pydocstyle: docstring style
+    "D",
+]
+# Ignore incompatible linting options
+ignore=[
+    "D203", # `incorrect-blank-line-before-class`; incompatible with `no-blank-line-before-class` (D211)
+    "D212", # `multi-line-summary-first-line`; incompatible with `multi-line-summary-second-line` (D213)
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py311']
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
