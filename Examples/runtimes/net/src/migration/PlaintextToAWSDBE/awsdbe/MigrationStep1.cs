@@ -37,8 +37,6 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
     {
         public static async Task<bool> MigrationStep1Example(string kmsKeyId, string ddbTableName, string partitionKeyValue, string sortKeyWriteValue, string sortKeyReadValue)
         {
-            try
-            {
                 // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
                 //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
                 //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -178,12 +176,6 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
                     Console.WriteLine("MigrationStep1 completed successfully");
                 }
                 return success;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error in MigrationStep1: {e.Message}");
-                throw;
-            }
         }
     }
 }
