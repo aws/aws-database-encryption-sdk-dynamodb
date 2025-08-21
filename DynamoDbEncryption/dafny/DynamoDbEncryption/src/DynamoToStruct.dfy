@@ -40,7 +40,7 @@ module DynamoToStruct {
   }
   by method {
     var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(item.Keys);
-    var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
+    var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>((k: seq<AttributeName>, v: StructuredDataTerminal) => true, false);
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     for i : uint64 := 0 to |attrNames| as uint64 {
       var k := attrNames[i];
