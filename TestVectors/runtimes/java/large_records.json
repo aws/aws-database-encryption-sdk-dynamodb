@@ -104,19 +104,19 @@
                     "Prefix": "7_"
                   }
                 ],
-                "Constructors" : [
+                "Constructors": [
                   [
                     {
-                      "Name" : "Attr2"
+                      "Name": "Attr2"
                     },
                     {
-                      "Name" : "Attr6"
+                      "Name": "Attr6"
                     },
                     {
-                      "Name" : "Attr7"
+                      "Name": "Attr7"
                     },
                     {
-                      "Name" : "Attr1"
+                      "Name": "Attr1"
                     }
                   ]
                 ]
