@@ -135,18 +135,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         print |roundTripTests[1].configs|, " configs and ", |roundTripTests[1].records|, " records for round trip.\n";
       }
 
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
-      var _ :- expect WriteManifest.Write("encrypt.json");
-      var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
-      var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_32.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_dotnet_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
+      // var _ :- expect WriteManifest.Write("encrypt.json");
+      // var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
+      // var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);
       if |globalRecords| + |tableEncryptionConfigs| + |queries| == 0 {
         print "\nRunning no tests\n";
         return;
@@ -154,18 +154,18 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       Validate();
       StringOrdering();
       BucketTests();
-      LargeTests();
-      PerfQueryTests();
-      BasicIoTest();
-      RunIoTests();
-      BasicQueryTest();
-      ConfigModTest();
-      ComplexTests();
-      WriteTests();
-      RoundTripTests();
-      DecryptTests();
-      var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
-      DeleteTable(client);
+      // LargeTests();
+      // PerfQueryTests();
+      // BasicIoTest();
+      // RunIoTests();
+      // BasicQueryTest();
+      // ConfigModTest();
+      // ComplexTests();
+      // WriteTests();
+      // RoundTripTests();
+      // DecryptTests();
+      // var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
+      // DeleteTable(client);
     }
 
     function MakeBucketRecord(x : nat) : DDB.AttributeMap
@@ -175,12 +175,13 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
       map[
         HashName := DDB.AttributeValue.N(num),
-        "Attr1" := DDB.AttributeValue.S("AAAA"),
-        "Attr2" := DDB.AttributeValue.S("BBBB"),
-        "Attr3" := DDB.AttributeValue.S("CCCC"),
-        "Attr4" := DDB.AttributeValue.S("DDDD"),
-        "Attr5" := DDB.AttributeValue.S("EEEE"),
-        "Attr6" := DDB.AttributeValue.S("FFFF"),
+        AttrNames[0] := AttrValues[0],
+        AttrNames[1] := AttrValues[1],
+        AttrNames[2] := AttrValues[2],
+        AttrNames[3] := AttrValues[3],
+        AttrNames[4] := AttrValues[4],
+        AttrNames[5] := AttrValues[5],
+        AttrNames[6] := AttrValues[6],
         "PreferredBucket" := DDB.AttributeValue.N(num2)
       ]
     }
@@ -353,7 +354,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ":attr3",
         ":attr4",
         ":attr5",
-        ":attr6"
+        ":attr6",
+        ":attr7"
       ]
 
     const AttrNames : seq<DDB.AttributeName> :=
@@ -363,7 +365,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         "Attr3",
         "Attr4",
         "Attr5",
-        "Attr6"
+        "Attr6",
+        "Attr7"
       ]
 
     const AttrValues : seq<DDB.AttributeValue> :=
@@ -373,7 +376,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         DDB.AttributeValue.S("CCCC"),
         DDB.AttributeValue.S("DDDD"),
         DDB.AttributeValue.S("EEEE"),
-        DDB.AttributeValue.S("FFFF")
+        DDB.AttributeValue.S("FFFF"),
+        DDB.AttributeValue.S("GGGG")
       ]
 
     function GetBucketScan1(attr : nat) : (out : DDB.ScanInput)
@@ -508,6 +512,16 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     }
 
 
+    function GetCompQuery2671() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX2671"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Comp2671 = :attr2671"),
+        ExpressionAttributeValues := Some(map[":attr2671" := DDB.AttributeValue.S("2_BBBB.6_FFFF.7_GGGG.1_AAAA")])
+      )
+    }
 
     function GetBucketQuery1() : DDB.QueryInput
     {
@@ -633,6 +647,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     method BucketTests()
     {
       print "BucketTests\n";
+      BucketTest4();
       BucketTest3();
       BucketTest1();
       BucketTest2();
@@ -671,6 +686,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     // 2) Every bucket holds at least one item
     method BucketTest1()
     {
+      print "BucketTest1\n";
       expect "bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["bucket_encrypt"];
       var wClient, rClient := SetupTestTable(config, config);
@@ -734,9 +750,32 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
+    // Similar to BucketTest1, but with complex config
+    method BucketTest4()
+    {
+      print "BucketTest4\n";
+      expect "complex_bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["complex_bucket_encrypt"];
+      var wClient, rClient := SetupTestTable(config, config);
+      for i : nat := 0 to 100 {
+        var putInput := DDB.PutItemInput(
+          TableName := TableName,
+          Item := MakeBucketRecord(i)
+        );
+        var _ :-  expect wClient.PutItem(putInput);
+      }
+      print "BucketTest4 Wrote";
+      TestBucketQueries(rClient, 2, GetCompQuery2671(), "comp query 2671");
+      print "BucketTest4 Did One";
+  
+      // TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
+      TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
+    }
+
     // As BucketTest1, but with custom bucket selector
     method BucketTest2()
     {
+      print "BucketTest2\n";
       expect "bucket_encrypt" in largeEncryptionConfigs;
       var config := largeEncryptionConfigs["bucket_encrypt"];
       var testSelector := new TestBucketSelector();

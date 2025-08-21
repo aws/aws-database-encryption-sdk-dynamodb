@@ -985,7 +985,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
         case "Signed" => Signed :- GetSignedParts(obj.1);
         case "Encrypted" => Encrypted :- GetEncryptedParts(obj.1);
         case "Constructors" => constructors :- GetConstructors(obj.1);
-        case _ => return Failure("Unexpected part of a standard beacon : '" + data.obj[i].0 + "'");
+        case _ => return Failure("Unexpected part of a compound beacon : '" + data.obj[i].0 + "'");
       }
     }
     :- Need(0 < |name|, "Each Compound Beacon needs a name.");
@@ -1129,7 +1129,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
           length :- DecimalToNat(obj.1.num);
         case "Loc" =>
           :- Need(obj.1.String?, "Standard Beacon Location must be a string");
-          :- Need(0 < |obj.1.str|, "Standard Beacon Location must nt be an empty string.");
+          :- Need(0 < |obj.1.str|, "Standard Beacon Location must not be an empty string.");
           loc := Some(obj.1.str);
         case "numberOfBuckets" =>
           :- Need(obj.1.Number?, "numberOfBuckets must be of type Number.");

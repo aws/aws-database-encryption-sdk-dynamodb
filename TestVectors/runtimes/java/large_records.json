@@ -5,6 +5,7 @@
     ["ATTR_INDEX3", "aws_dbe_b_Attr3"],
     ["ATTR_INDEX4", "aws_dbe_b_Attr4"],
     ["ATTR_INDEX5", "aws_dbe_b_Attr5"],
+    ["ATTR_INDEX2671", "aws_dbe_b_Comp2671"],
     ["ATTR_INDEX15", "aws_dbe_b_Attr1", "aws_dbe_b_Attr5"],
     ["ATTR_INDEX21", "aws_dbe_b_Attr2", "aws_dbe_b_Attr1"],
     ["ATTR_INDEX23", "aws_dbe_b_Attr2", "aws_dbe_b_Attr3"],
@@ -23,12 +24,104 @@
         "Attr4": "ENCRYPT_AND_SIGN",
         "Attr5": "ENCRYPT_AND_SIGN",
         "Attr6": "SIGN_ONLY",
+        "Attr7": "SIGN_ONLY",
+        "Attr8": "SIGN_ONLY",
         "PreferredBucket": "SIGN_ONLY"
       },
       "search": {
         "versions": [
           {
             "maximumNumberOfBuckets": 5,
+            "standardBeacons": [
+              {
+                "Name": "Attr1",
+                "Length": 32,
+                "numberOfBuckets": 1
+              },
+              {
+                "Name": "Attr2",
+                "Length": 32,
+                "numberOfBuckets": 2
+              },
+              {
+                "Name": "Attr3",
+                "Length": 32,
+                "numberOfBuckets": 3
+              },
+              {
+                "Name": "Attr4",
+                "Length": 32,
+                "numberOfBuckets": 4
+              },
+              {
+                "Name": "Attr5",
+                "Length": 32
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "complex_bucket_encrypt": {
+      "partitionKeyName": "RecNum",
+      "attributeActionsOnEncrypt": {
+        "RecNum": "SIGN_ONLY",
+        "Attr1": "ENCRYPT_AND_SIGN",
+        "Attr2": "ENCRYPT_AND_SIGN",
+        "Attr3": "ENCRYPT_AND_SIGN",
+        "Attr4": "ENCRYPT_AND_SIGN",
+        "Attr5": "ENCRYPT_AND_SIGN",
+        "Attr6": "SIGN_ONLY",
+        "Attr7": "SIGN_ONLY",
+        "Attr8": "SIGN_ONLY",
+        "PreferredBucket": "SIGN_ONLY"
+      },
+      "search": {
+        "versions": [
+          {
+            "maximumNumberOfBuckets": 5,
+            "compoundBeacons": [
+              {
+                "Name": "Comp2671",
+                "Split": ".",
+                "Encrypted": [
+                  {
+                    "Name": "Attr1",
+                    "Prefix": "1_"
+                  },
+                  {
+                    "Name": "Attr2",
+                    "Prefix": "2_"
+                  }
+                ],
+                "Signed": [
+                  {
+                    "Name": "Attr6",
+                    "Prefix": "6_"
+                  },
+                  {
+                    "Name": "Attr7",
+                    "Prefix": "7_"
+                  }
+                ],
+                "Constructors" : [
+                  [
+                    {
+                      "Name" : "Attr2"
+                    },
+                    {
+                      "Name" : "Attr6"
+                    },
+                    {
+                      "Name" : "Attr7"
+                    },
+                    {
+                      "Name" : "Attr1"
+                    }
+                  ]
+                ]
+              }
+            ],
             "standardBeacons": [
               {
                 "Name": "Attr1",
