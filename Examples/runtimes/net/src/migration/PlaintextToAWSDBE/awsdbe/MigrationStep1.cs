@@ -36,7 +36,14 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
     public class MigrationStep1
     {
         public static async Task<bool> MigrationStep1Example(string kmsKeyId, string ddbTableName, string partitionKeyValue, string sortKeyWriteValue, string sortKeyReadValue)
-        {
+        {   
+            // 1. Create table configurations
+            // In this of migration we will use PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+            // which means:
+            //     - Write: Items are forced to be written as plaintext.
+            //              Items may not be written as encrypted items.
+            //     - Read: Items are allowed to be read as plaintext.
+            //             Items are allowed to be read as encrypted items.
             var tableConfigs = Common.CreateTableConfigs(kmsKeyId, ddbTableName, PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ);
 
             // 1. Create a new AWS SDK DynamoDb client using the TableEncryptionConfigs

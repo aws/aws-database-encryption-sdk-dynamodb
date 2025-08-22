@@ -10,24 +10,6 @@ using Examples.migration.PlaintextToAWSDBE.plaintext;
 
 namespace Examples.migration.PlaintextToAWSDBE.awsdbe
 {
-    /*
-    Test for Migration Step 2: This tests the second step in the
-    plaintext-to-encrypted database migration.
-    
-    This test verifies that:
-    1. Step 2 can successfully write encrypted items
-    2. Step 2 can read items written by Step 0 (plaintext)
-    3. Step 2 can read items written by Step 1 (plaintext)
-    4. Step 2 can read items written by itself (encrypted)
-    5. Step 2 can read items written by Step 3 (encrypted)
-    
-    Running this test requires access to the DDB Table whose name
-    is provided by TestUtils.TEST_DDB_TABLE_NAME.
-    This table must be configured with the following
-    primary key configuration:
-      - Partition key is named "partition_key" with type (S)
-      - Sort key is named "sort_key" with type (N)
-    */
     public class MigrationStep2Test
     {
         [Fact]

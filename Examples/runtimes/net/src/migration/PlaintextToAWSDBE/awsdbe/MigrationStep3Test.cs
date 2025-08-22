@@ -11,24 +11,6 @@ using AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor;
 
 namespace Examples.migration.PlaintextToAWSDBE.awsdbe
 {
-    /*
-    Test for Migration Step 3: This tests the final step in the
-    plaintext-to-encrypted database migration.
-    
-    This test verifies that:
-    1. Step 3 can successfully write encrypted items
-    2. Step 3 cannot read items written by Step 0 (plaintext) - should throw an exception
-    3. Step 3 cannot read items written by Step 1 (plaintext) - should throw an exception
-    4. Step 3 can read items written by Step 2 (encrypted)
-    5. Step 3 can read items written by itself (encrypted)
-    
-    Running this test requires access to the DDB Table whose name
-    is provided by TestUtils.TEST_DDB_TABLE_NAME.
-    This table must be configured with the following
-    primary key configuration:
-      - Partition key is named "partition_key" with type (S)
-      - Sort key is named "sort_key" with type (N)
-    */
     public class MigrationStep3Test
     {
         [Fact]
