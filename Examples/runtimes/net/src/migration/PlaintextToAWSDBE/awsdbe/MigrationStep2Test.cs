@@ -20,21 +20,21 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             string partitionKey = Guid.NewGuid().ToString();
             string[] sortKeys = { "0", "1", "2", "3" };
 
-            // Given: Step 0 has succeeded
-            bool success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[0]);
-            Assert.True(success, "MigrationStep0 should complete successfully");
-
-            // Given: Step 1 has succeeded
-            success = await MigrationStep1.MigrationStep1Example(kmsKeyID, tableName, partitionKey, sortKeys[1], sortKeys[1]);
-            Assert.True(success, "MigrationStep1 should complete successfully");
-
             // Successfully executes step 2
             success = await MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[2]);
             Assert.True(success, "MigrationStep2 should complete successfully");
 
+            // Given: Step 0 has succeeded
+            bool success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[0]);
+            Assert.True(success, "MigrationStep0 should complete successfully");
+
             // When: Execute Step 2 with sortReadValue=0, Then: Success (i.e. can read plaintext values from Step 0)
             success = await MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[0]);
             Assert.True(success, "MigrationStep2 should be able to read items written by Step 0");
+
+            // Given: Step 1 has succeeded
+            success = await MigrationStep1.MigrationStep1Example(kmsKeyID, tableName, partitionKey, sortKeys[1], sortKeys[1]);
+            Assert.True(success, "MigrationStep1 should complete successfully");
 
             // When: Execute Step 2 with sortReadValue=1, Then: Success (i.e. can read plaintext values from Step 1)
             success = await MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[1]);
