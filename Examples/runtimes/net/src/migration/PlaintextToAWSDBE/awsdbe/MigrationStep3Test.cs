@@ -32,19 +32,19 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             // Given: Step 2 has succeeded
             success = await MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[2]);
             Assert.True(success, "MigrationStep2 should complete successfully");
-            
+
             // Successfully executes step 3
             success = await MigrationStep3.MigrationStep3Example(kmsKeyID, tableName, partitionKey, sortKeys[3], sortKeys[3]);
             Assert.True(success, "MigrationStep3 should complete successfully");
-            
+
             // When: Execute Step 3 with sortReadValue=0, Then: should error out when reading plaintext items from Step 0
-            var exception = await Assert.ThrowsAsync<DynamoDbItemEncryptorException>(() => 
+            var exception = await Assert.ThrowsAsync<DynamoDbItemEncryptorException>(() =>
                 MigrationStep3.MigrationStep3Example(kmsKeyID, tableName, partitionKey, sortKeys[3], sortKeys[0]));
-            
+
             Assert.Contains("encrypted item missing expected header and footer attributes", exception.Message.ToLower());
 
             // When: Execute Step 3 with sortReadValue=1, Then: should error out when reading plaintext items from Step 1
-            exception = await Assert.ThrowsAsync<DynamoDbItemEncryptorException>(() => 
+            exception = await Assert.ThrowsAsync<DynamoDbItemEncryptorException>(() =>
                 MigrationStep3.MigrationStep3Example(kmsKeyID, tableName, partitionKey, sortKeys[3], sortKeys[1]));
             Assert.Contains("encrypted item missing expected header and footer attributes", exception.Message.ToLower());
 
