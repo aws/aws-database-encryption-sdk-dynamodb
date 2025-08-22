@@ -27,7 +27,7 @@ namespace Examples.migration.PlaintextToAWSDBE.plaintext
     This table must be configured with the following
     primary key configuration:
       - Partition key is named "partition_key" with type (S)
-      - Sort key is named "sort_key" with type (S)
+      - Sort key is named "sort_key" with type (N)
     */
     public class MigrationStep0
     {
