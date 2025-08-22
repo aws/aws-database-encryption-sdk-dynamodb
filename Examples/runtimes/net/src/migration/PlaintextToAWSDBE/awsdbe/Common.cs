@@ -16,7 +16,7 @@ namespace Examples.migration.PlaintextToAWSDBE
             var matProv = new MaterialProviders(new MaterialProvidersConfig());
             var keyringInput = new CreateAwsKmsMrkMultiKeyringInput { Generator = kmsKeyId };
             var kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
-            
+
             // Configure which attributes are encrypted and/or signed when writing new items.
             // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
             // we must explicitly configure how they should be treated during item encryption:
@@ -33,7 +33,7 @@ namespace Examples.migration.PlaintextToAWSDBE
                 ["attribute2"] = CryptoAction.SIGN_ONLY,
                 ["attribute3"] = CryptoAction.DO_NOTHING
             };
-            
+
             // Configure which attributes we expect to be excluded in the signature
             // when reading items. There are two options for configuring this:
             //

@@ -36,7 +36,7 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
     public class MigrationStep1
     {
         public static async Task<bool> MigrationStep1Example(string kmsKeyId, string ddbTableName, string partitionKeyValue, string sortKeyWriteValue, string sortKeyReadValue)
-        {   
+        {
             // 1. Create table configurations
             // In this of migration we will use PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
             // which means:
