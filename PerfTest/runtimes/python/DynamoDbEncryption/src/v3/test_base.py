@@ -41,13 +41,21 @@ class V3PerformanceTestBase(ABC):
         # Create materials provider
         self.materials_provider = self._create_materials_provider()
 
+        attribute_actions={
+                self.partition_key: CryptoAction.SIGN_ONLY,
+                self.sort_key: CryptoAction.SIGN_ONLY,
+            }
+
+        # Add all other attributes as ENCRYPT_AND_SIGN
+        for data_type, item in self.test_data.items():
+            for key in item:
+                if key not in attribute_actions:
+                    attribute_actions[key] = CryptoAction.ENCRYPT_AND_SIGN
+
         # Create attribute actions
         self.actions = AttributeActions(
             default_action=CryptoAction.ENCRYPT_AND_SIGN,
-            attribute_actions={
-                self.partition_key: CryptoAction.DO_NOTHING,
-                self.sort_key: CryptoAction.DO_NOTHING,
-            },
+            attribute_actions=attribute_actions,
         )
 
         # Create encryption context
@@ -75,20 +83,7 @@ class V3PerformanceTestBase(ABC):
         # Load single attribute data
         with open(SINGLE_ATTRIBUTE_FILE, "r") as f:
             single_data = json.load(f)
-            # Convert to DynamoDB format
-            ddb_item = {}
-            for k, v in single_data.items():
-                if isinstance(v, str):
-                    ddb_item[k] = {"S": v}
-                elif isinstance(v, (int, float)):
-                    ddb_item[k] = {"N": str(v)}
-                elif isinstance(v, bool):
-                    ddb_item[k] = {"BOOL": v}
-                elif isinstance(v, list):
-                    ddb_item[k] = {"L": [self._convert_to_ddb_value(item) for item in v]}
-                elif isinstance(v, dict):
-                    ddb_item[k] = {"M": {sk: self._convert_to_ddb_value(sv) for sk, sv in v.items()}}
-            data["single_attribute"] = ddb_item
+            data["single_attribute"] = self._convert_to_ddb_format(single_data)
 
         # Load nested attributes data
         with open(NESTED_ATTRIBUTES_FILE, "r") as f:
@@ -183,7 +178,9 @@ class V3PerformanceTestBase(ABC):
         def encrypt():
             return self.encrypt_item(item)
 
-        encrypted_item = benchmark(encrypt)
+        # Run the encryption benchmark in pedantic mode, which disables calibration
+        # and runs exactly 10 iterations per round for 5 rounds (50 total executions)
+        encrypted_item = benchmark.pedantic(encrypt, iterations=10, rounds=5)
 
         # Verify encryption actually worked
         self._verify_encryption(item, encrypted_item)
@@ -227,7 +224,9 @@ class V3PerformanceTestBase(ABC):
         def decrypt():
             return self.decrypt_item(encrypted_item)
 
-        decrypted_item = benchmark(decrypt)
+        # Run the decryption benchmark in pedantic mode, which disables calibration
+        # and runs exactly 10 iterations per round for 5 rounds (50 total executions)
+        decrypted_item = benchmark.pedantic(decrypt, iterations=10, rounds=5)
 
         # Verify decryption worked correctly - comprehensive verification
         assert decrypted_item[self.partition_key] == item[self.partition_key]

@@ -8,10 +8,10 @@ from typing import Any, Dict
 
 import boto3
 from aws_cryptographic_material_providers.mpl.references import IKeyring
+from aws_cryptographic_material_providers.mpl.models import DBEAlgorithmSuiteId
 from aws_dbesdk_dynamodb.encrypted.item import ItemEncryptor
 from aws_dbesdk_dynamodb.structures.item_encryptor import DynamoDbItemEncryptorConfig
 from aws_dbesdk_dynamodb.structures.structured_encryption import CryptoAction
-from aws_dbesdk_dynamodb.transform import ddb_to_dict
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -38,9 +38,6 @@ class V4PerformanceTestBase(ABC):
         # Load test data
         self.test_data = self._load_test_data()
 
-        # Create a real DynamoDB client (not used for actual AWS calls in performance tests)
-        self.dynamodb_client = boto3.client("dynamodb", region_name="us-west-2")
-
         # Create keyring
         self.keyring = self._create_keyring()
 
@@ -63,6 +60,15 @@ class V4PerformanceTestBase(ABC):
             attribute_actions_on_encrypt=self.attribute_actions,
             keyring=self.keyring,
             allowed_unsigned_attribute_prefix=":",
+            # Specifying an algorithm suite is not required,
+            # but is done here to demonstrate how to do so.
+            # We suggest using the
+            # `ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384` suite,
+            # which includes AES-GCM with key derivation, signing, and key commitment.
+            # This is also the default algorithm suite if one is not specified in this config.
+            # For more information on supported algorithm suites, see:
+            #   https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/supported-algorithms.html
+            algorithm_suite_id=DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384,
         )
 
         # Create the DynamoDb Item Encryptor
@@ -80,20 +86,7 @@ class V4PerformanceTestBase(ABC):
         # Load single attribute data
         with open(SINGLE_ATTRIBUTE_FILE, "r") as f:
             single_data = json.load(f)
-            # Convert to DynamoDB format
-            ddb_item = {}
-            for k, v in single_data.items():
-                if isinstance(v, str):
-                    ddb_item[k] = {"S": v}
-                elif isinstance(v, (int, float)):
-                    ddb_item[k] = {"N": str(v)}
-                elif isinstance(v, bool):
-                    ddb_item[k] = {"BOOL": v}
-                elif isinstance(v, list):
-                    ddb_item[k] = {"L": [self._convert_to_ddb_value(item) for item in v]}
-                elif isinstance(v, dict):
-                    ddb_item[k] = {"M": {sk: self._convert_to_ddb_value(sv) for sk, sv in v.items()}}
-            data["single_attribute"] = ddb_item
+            data["single_attribute"] = self._convert_to_ddb_format(single_data)
 
         # Load nested attributes data
         with open(NESTED_ATTRIBUTES_FILE, "r") as f:
@@ -186,7 +179,7 @@ class V4PerformanceTestBase(ABC):
         def encrypt():
             return self.encrypt_item(item)
 
-        encrypted_item = benchmark(encrypt)
+        encrypted_item = benchmark.pedantic(encrypt, iterations=10, rounds=5)
         self._verify_encryption(item, encrypted_item)
 
         # For encrypt: only report original (plaintext) size
@@ -214,7 +207,7 @@ class V4PerformanceTestBase(ABC):
         def decrypt():
             return self.decrypt_item(encrypted_item)
 
-        decrypted_item = benchmark(decrypt)
+        decrypted_item = benchmark.pedantic(decrypt, iterations=10, rounds=5)
 
         # Verify decryption worked correctly - comprehensive verification
         assert decrypted_item[self.partition_key] == item[self.partition_key]
