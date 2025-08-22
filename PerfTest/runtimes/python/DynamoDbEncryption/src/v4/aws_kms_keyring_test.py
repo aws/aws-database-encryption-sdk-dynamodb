@@ -1,5 +1,5 @@
 """Performance tests for DB-ESDK v4 with AWS KMS Keyring using EncryptedClient."""
-
+import boto3
 import pytest
 from aws_cryptographic_material_providers.mpl import AwsCryptographicMaterialProviders
 from aws_cryptographic_material_providers.mpl.config import MaterialProvidersConfig
@@ -11,7 +11,7 @@ from .test_base import V4PerformanceTestBase
 
 
 class V4AWSKMSKeyring(V4PerformanceTestBase):
-    """DB-ESDK v4 with AWS KMS Keyring using EncryptedClient."""
+    """DB-ESDK v4 with AWS KMS Keyring."""
 
     def _create_keyring(self) -> IKeyring:
         """Create the AWS KMS Keyring as shown in basic_put_get_example."""
@@ -31,7 +31,7 @@ class V4AWSKMSKeyring(V4PerformanceTestBase):
 
 # Create a singleton instance
 _test_instance = None
-
+_kms_client = boto3.client("kms")
 
 def get_test_instance():
     """Get or create the test instance."""

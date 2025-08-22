@@ -62,7 +62,7 @@ class PerformanceBranchKeyIdSupplier(IDynamoDbKeyBranchKeyIdSupplier):
 
 
 class V4HierarchyKeyring(V4PerformanceTestBase):
-    """DB-ESDK v4 with Hierarchy Keyring using EncryptedClient ."""
+    """DB-ESDK v4 with Hierarchy Keyring."""
 
     def __init__(self):
         """Initialize with keystore setup."""
@@ -73,10 +73,10 @@ class V4HierarchyKeyring(V4PerformanceTestBase):
         # 1. Create KeyStore configuration
         keystore = KeyStore(
             config=KeyStoreConfig(
-                ddb_client=boto3.client("dynamodb", region_name="us-west-2"),
+                ddb_client=_ddb_client,
                 ddb_table_name="KeyStoreTestTable",
                 logical_key_store_name="KeyStoreTestTable",
-                kms_client=boto3.client("kms", region_name="us-west-2"),
+                kms_client=_kms_client,
                 kms_configuration=KMSConfigurationKmsKeyArn(KMS_KEY_ARN),
             )
         )
@@ -119,7 +119,8 @@ class V4HierarchyKeyring(V4PerformanceTestBase):
 
 # Create a singleton instance
 _test_instance = None
-
+_kms_client = boto3.client("kms", region_name="us-west-2")
+_ddb_client = boto3.client("dynamodb", region_name="us-west-2")
 
 def get_test_instance():
     """Get or create the test instance."""
