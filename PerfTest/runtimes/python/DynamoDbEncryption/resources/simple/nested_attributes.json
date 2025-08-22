@@ -1,0 +1,37 @@
+{
+  "partition_key": "test-pk-002",
+  "sort_key": "test-sk-002",
+  "user": {
+    "id": "user-12345",
+    "profile": {
+      "name": "Test User",
+      "email": "test.user@example.com",
+      "preferences": {
+        "theme": "dark",
+        "language": "en-US",
+        "notifications": {
+          "email": true,
+          "push": false,
+          "sms": true
+        }
+      }
+    },
+    "metadata": {
+      "created": "2024-01-15T10:30:00Z",
+      "lastLogin": "2024-12-01T15:45:00Z",
+      "loginCount": 42
+    }
+  },
+  "settings": {
+    "privacy": {
+      "shareProfile": false,
+      "showEmail": false,
+      "allowMessages": true
+    },
+    "features": {
+      "beta": true,
+      "experimental": false,
+      "premium": true
+    }
+  }
+}
