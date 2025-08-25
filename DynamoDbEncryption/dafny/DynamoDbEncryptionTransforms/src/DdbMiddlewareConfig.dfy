@@ -5,15 +5,17 @@ include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy"
 module DdbMiddlewareConfig {
   import opened Wrappers
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened StandardLibrary.UInt
   import DynamoDbItemEncryptor
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
   import HexStrings
+  import StandardLibrary.String
 
   datatype TableConfig = TableConfig(
-    physicalTableName: ComAmazonawsDynamodbTypes.TableName,
+    physicalTableName: DDB.TableName,
     logicalTableName: string,
     partitionKeyName: string,
     sortKeyName: Option<string>,
@@ -27,6 +29,32 @@ module DdbMiddlewareConfig {
   {
     || tableName !in config.tableEncryptionConfigs
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+  }
+
+  method GetRandomBucket(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<DDBE.BucketNumber, Error>)
+    modifies if config.search.Some? then config.search.value.curr().bucketSelector.Modifies else {}
+    requires if config.search.Some? then config.search.value.curr().bucketSelector.ValidState() else true
+    ensures if config.search.Some? then config.search.value.curr().bucketSelector.ValidState() else true
+  {
+    if config.search.None? {
+      return Success(0);
+    }
+    var numBuckets := config.search.value.versions[0].numBuckets;
+    if numBuckets <= 1 {
+      return Success(0);
+    }
+
+    var outR := config.search.value.curr().bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(item := item, numberOfBuckets := numBuckets));
+    var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+    if out.bucketNumber == 0 {
+      return Success(0);
+    } else if numBuckets as DDBE.BucketCount <= out.bucketNumber {
+      return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been no more than " + String.Base10Int2String(numBuckets as int)));
+    } else if out.bucketNumber < 0 {
+      return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been positive."));
+    } else {
+      return Success(out.bucketNumber);
+    }
   }
 
   predicate ValidTableConfig?(config: TableConfig) {
