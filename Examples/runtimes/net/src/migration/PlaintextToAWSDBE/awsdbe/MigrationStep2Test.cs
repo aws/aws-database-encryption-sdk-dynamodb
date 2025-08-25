@@ -21,11 +21,11 @@ namespace Examples.migration.PlaintextToAWSDBE.awsdbe
             string[] sortKeys = { "0", "1", "2", "3" };
 
             // Successfully executes step 2
-            success = await MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[2]);
+            bool success = await MigrationStep2.MigrationStep2Example(kmsKeyID, tableName, partitionKey, sortKeys[2], sortKeys[2]);
             Assert.True(success, "MigrationStep2 should complete successfully");
 
             // Given: Step 0 has succeeded
-            bool success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[0]);
+            success = await MigrationStep0.MigrationStep0Example(tableName, partitionKey, sortKeys[0], sortKeys[0]);
             Assert.True(success, "MigrationStep0 should complete successfully");
 
             // When: Execute Step 2 with sortReadValue=0, Then: Success (i.e. can read plaintext values from Step 0)
