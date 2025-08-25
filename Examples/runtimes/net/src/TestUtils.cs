@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using Amazon.DynamoDBv2.Model;
 
 public class TestUtils
@@ -83,5 +84,22 @@ public class TestUtils
         if (value.NULL == true) Console.Write($"NULL {value.NULL}\n");
         if (value.IsBOOLSet) Console.Write($"BOOL {value.BOOL}\n");
         Console.Write("UNKNOWN\n");
+    }
+
+    // Helper method to clean up test items
+    public static async System.Threading.Tasks.Task CleanupItems(string tableName, string partitionKey, string sortKey)
+    {
+        var ddb = new Amazon.DynamoDBv2.AmazonDynamoDBClient();
+        var key = new Dictionary<string, AttributeValue>
+        {
+            ["partition_key"] = new AttributeValue { S = partitionKey },
+            ["sort_key"] = new AttributeValue { N = sortKey }
+        };
+        var deleteRequest = new DeleteItemRequest
+        {
+            TableName = tableName,
+            Key = key
+        };
+        await ddb.DeleteItemAsync(deleteRequest);
     }
 }
