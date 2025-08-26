@@ -4,7 +4,7 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
-use aws_db_esdk::PlaintextOverride;
+use aws_db_esdk::dynamodb::types::PlaintextOverride;
 use crate::migration::plaintext_to_awsdbe::migration_utils::{
     verify_returned_item, ENCRYPTED_AND_SIGNED_VALUE, SIGN_ONLY_VALUE, DO_NOTHING_VALUE,
 };

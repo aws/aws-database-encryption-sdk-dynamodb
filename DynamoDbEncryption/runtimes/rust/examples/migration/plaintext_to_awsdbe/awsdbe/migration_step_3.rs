@@ -4,7 +4,7 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 use aws_db_esdk::intercept::DbEsdkInterceptor;
-use aws_db_esdk::PlaintextOverride;
+use aws_db_esdk::dynamodb::types::PlaintextOverride;
 use crate::migration::plaintext_to_awsdbe::migration_utils::{
     verify_returned_item, ENCRYPTED_AND_SIGNED_VALUE, SIGN_ONLY_VALUE, DO_NOTHING_VALUE,
 };
@@ -70,11 +70,11 @@ pub async fn migration_step_3_example(
     let do_nothing_value = DO_NOTHING_VALUE;
     let item = HashMap::from([
         (
-            "partition_key".to_string(),
+            partition_key_name.to_string(),
             AttributeValue::S(partition_key_value.to_string()),
         ),
         (
-            "sort_key".to_string(),
+            sort_key_name.to_string(),
             AttributeValue::N(sort_key_write_value.to_string()),
         ),
         (
@@ -106,11 +106,11 @@ pub async fn migration_step_3_example(
     //    and surfaced as a plaintext item.
     let key = HashMap::from([
         (
-            "partition_key".to_string(),
+            partition_key_name.to_string(),
             AttributeValue::S(partition_key_value.to_string()),
         ),
         (
-            "sort_key".to_string(),
+            sort_key_name.to_string(),
             AttributeValue::N(sort_key_read_value.to_string()),
         ),
     ]);
