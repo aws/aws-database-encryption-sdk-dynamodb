@@ -134,3 +134,4 @@ jobs:
         shell: bash
         run: |
           cargo run --release --example main
+          argo test --release --example main
