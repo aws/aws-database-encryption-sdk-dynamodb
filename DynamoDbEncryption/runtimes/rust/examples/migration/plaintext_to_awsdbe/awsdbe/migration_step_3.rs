@@ -9,6 +9,12 @@ use crate::migration::plaintext_to_awsdbe::migration_utils::{
     verify_returned_item, ENCRYPTED_AND_SIGNED_VALUE, SIGN_ONLY_VALUE, DO_NOTHING_VALUE,
 };
 use crate::migration::plaintext_to_awsdbe::awsdbe::common::create_table_configs;
+// We import these packages for testing combination of migration steps  
+use crate::migration::plaintext_to_awsdbe::plaintext::migration_step_0::migration_step_0_example;
+use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_1::migration_step_1_example;
+use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_2::migration_step_2_example;
+use crate::test_utils;
+use uuid::Uuid;
 
 /*
 Migration Step 3: This is the final step in the migration process from
@@ -136,4 +142,47 @@ pub async fn migration_step_3_example(
     } else {
         Err("No item found".into())
     }
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_migration_step_3() -> Result<(), Box<dyn std::error::Error>> {
+    let kms_key_id = test_utils::TEST_KMS_KEY_ID;
+    let table_name = test_utils::TEST_DDB_TABLE_NAME;
+    let partition_key = Uuid::new_v4().to_string();
+    let sort_keys = ["0", "1", "2", "3"];
+
+    // Given: Step 0 has succeeded
+    let success = migration_step_0_example(table_name, &partition_key, sort_keys[0], sort_keys[0]).await?;
+    assert!(success, "MigrationStep0 should complete successfully");
+
+    // Given: Step 1 has succeeded
+    let success = migration_step_1_example(kms_key_id, table_name, &partition_key, sort_keys[1], sort_keys[1]).await?;
+    assert!(success, "MigrationStep1 should complete successfully");
+
+    // Given: Step 2 has succeeded
+    let success = migration_step_2_example(kms_key_id, table_name, &partition_key, sort_keys[2], sort_keys[2]).await?;
+    assert!(success, "MigrationStep2 should complete successfully");
+    
+    // Successfully executes step 3
+    let success = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[3]).await?;
+    assert!(success, "MigrationStep3 should complete successfully");
+    
+    // When: Execute Step 3 with sortReadValue=0, Then: should error out when reading plaintext items from Step 0
+    let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[0]).await;
+    assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
+
+    // When: Execute Step 3 with sortReadValue=1, Then: should error out when reading plaintext items from Step 1
+    let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[1]).await;
+    assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
+
+    // When: Execute Step 3 with sortReadValue=2, Then: Success (i.e. can read encrypted values from Step 2)
+    let success = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[2]).await?;
+    assert!(success, "MigrationStep3 should be able to read items written by Step 2");
+
+    // Cleanup
+    for sort_key in &sort_keys {
+        test_utils::cleanup_items(table_name, &partition_key, sort_key).await?;
+    }
+
+    Ok(())
 }
