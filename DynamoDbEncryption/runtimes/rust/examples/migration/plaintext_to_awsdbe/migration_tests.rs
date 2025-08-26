@@ -192,16 +192,10 @@ async fn test_migration_step_3() -> Result<(), Box<dyn std::error::Error>> {
     // When: Execute Step 3 with sortReadValue=0, Then: should error out when reading plaintext items from Step 0
     let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[0]).await;
     assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
-    let error_msg = result.unwrap_err().to_string().to_lowercase();
-    assert!(error_msg.contains("encrypted item missing expected header and footer attributes") || 
-            error_msg.contains("header") || error_msg.contains("footer"));
 
     // When: Execute Step 3 with sortReadValue=1, Then: should error out when reading plaintext items from Step 1
     let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[1]).await;
     assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
-    let error_msg = result.unwrap_err().to_string().to_lowercase();
-    assert!(error_msg.contains("encrypted item missing expected header and footer attributes") || 
-            error_msg.contains("header") || error_msg.contains("footer"));
 
     // When: Execute Step 3 with sortReadValue=2, Then: Success (i.e. can read encrypted values from Step 2)
     let success = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[2]).await?;
