@@ -14,6 +14,7 @@ pub mod keyring;
 pub mod multi_get_put_example;
 pub mod searchableencryption;
 pub mod test_utils;
+pub mod migration;
 
 use std::convert::From;
 
