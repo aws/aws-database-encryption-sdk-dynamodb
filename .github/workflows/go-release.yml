@@ -89,5 +89,5 @@ jobs:
 
       - name: print diff between development and release directory
         run: |
-          DIFF_FILES=$(diff -qr $PROJECT_NAME/runtimes/go/ImplementationFromDafny-go releases/go/$RELEASE_DIR_NAME || true)
+          DIFF_FILES=$(diff -qr ${{ github.event.inputs.project-name }}/runtimes/go/ImplementationFromDafny-go releases/go/$RELEASE_DIR_NAME || true)
           echo $DIFF_FILES
