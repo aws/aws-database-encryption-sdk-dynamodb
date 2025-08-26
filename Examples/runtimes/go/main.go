@@ -4,14 +4,26 @@
 package main
 
 import (
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/itemencryptor"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/keyring"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/misc"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/clientsupplier"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/itemencryptor"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/keyring"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/misc"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/searchableencryption"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/searchableencryption/complexexample"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 )
 
 func main() {
+	// clientsupplier example
+	clientsupplier.ClientSupplierExample(
+		utils.DdbTableName(),
+		utils.TestMrkReplicaKeyIdUsEast1(),
+		utils.DefaultKMSKeyAccountID(),
+		utils.AlternateRegionKmsKeyRegionAsAList())
 	// misc examples
+	misc.BasicPutGetExample(
+		utils.KmsKeyID(),
+		utils.DdbTableName())
 	misc.GetEncryptedDataKeyDescriptionExample(
 		utils.KmsKeyID(),
 		utils.DdbTableName())
@@ -61,4 +73,31 @@ func main() {
 	itemencryptor.ItemEncryptDecryptExample(
 		utils.KmsKeyID(),
 		utils.DdbTableName())
+
+	// searchable encryption example
+	searchableencryption.BasicSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey1,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	searchableencryption.BeaconStylesSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey1,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	searchableencryption.CompoundBeaconSearchableEncryptionExample(
+		utils.UnitInspectionTestDdbTableName(),
+		branchKey2,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	searchableencryption.VirtualBeaconSearchableEncryptionExample(
+		utils.SimpleBeaconTestDdbTableName(),
+		branchKey2,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
+	complexexample.ComplexSearchableEncryptionExample(
+		utils.TestComplexDdbTableName(),
+		branchKey1,
+		utils.TestKeystoreKmsKeyId(),
+		utils.TestKeystoreName())
 }
