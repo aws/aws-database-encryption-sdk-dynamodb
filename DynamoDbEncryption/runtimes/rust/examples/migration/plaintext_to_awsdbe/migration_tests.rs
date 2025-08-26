@@ -38,7 +38,7 @@ async fn cleanup_items(
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 async fn test_migration_step_0() -> Result<(), Box<dyn std::error::Error>> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let table_name = test_utils::TEST_DDB_TABLE_NAME;
@@ -62,7 +62,7 @@ async fn test_migration_step_0() -> Result<(), Box<dyn std::error::Error>> {
     // When: Execute Step 0 with sortReadValue=2, Then: should error out when reading encrypted items.
     let result = migration_step_0_example(table_name, &partition_key, sort_keys[0], sort_keys[2]).await;
     assert!(result.is_err(), "MigrationStep0 should fail when reading encrypted items");
-    assert!(result.unwrap_err().to_string().contains("attribute1 mismatch"));
+    assert!(result.unwrap_err().to_string().contains("attribute1 not found or not a string"));
     
     // Given: Step 3 has succeeded
     migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[3]).await?;
@@ -70,7 +70,7 @@ async fn test_migration_step_0() -> Result<(), Box<dyn std::error::Error>> {
     // When: Execute Step 0 with sortReadValue=3, Then: should error out
     let result = migration_step_0_example(table_name, &partition_key, sort_keys[0], sort_keys[3]).await;
     assert!(result.is_err(), "MigrationStep0 should fail when reading encrypted items");
-    assert!(result.unwrap_err().to_string().contains("attribute1 mismatch"));
+    assert!(result.unwrap_err().to_string().contains("attribute1 not found or not a string"));
     
     // Cleanup
     for sort_key in &sort_keys {
@@ -80,7 +80,7 @@ async fn test_migration_step_0() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 async fn test_migration_step_1() -> Result<(), Box<dyn std::error::Error>> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let table_name = test_utils::TEST_DDB_TABLE_NAME;
@@ -123,7 +123,7 @@ async fn test_migration_step_1() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 async fn test_migration_step_2() -> Result<(), Box<dyn std::error::Error>> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let table_name = test_utils::TEST_DDB_TABLE_NAME;
@@ -166,7 +166,7 @@ async fn test_migration_step_2() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 async fn test_migration_step_3() -> Result<(), Box<dyn std::error::Error>> {
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let table_name = test_utils::TEST_DDB_TABLE_NAME;
