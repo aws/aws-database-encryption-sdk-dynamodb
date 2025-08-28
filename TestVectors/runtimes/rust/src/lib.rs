@@ -17,6 +17,12 @@ pub mod intercept;
 #[cfg(feature = "wrapped-client")]
 pub mod wrapped;
 
+#[cfg(feature = "fips")]
+use aws_lc_fips_sys as aws_lc_sys_impl;
+
+#[cfg(not(feature = "fips"))]
+use aws_lc_sys as aws_lc_sys_impl;
+
 mod standard_library_conversions;
 mod standard_library_externs;
 
