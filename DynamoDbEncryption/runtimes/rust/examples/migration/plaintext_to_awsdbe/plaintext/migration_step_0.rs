@@ -6,12 +6,6 @@ use std::collections::HashMap;
 use crate::migration::plaintext_to_awsdbe::migration_utils::{
     verify_returned_item, ENCRYPTED_AND_SIGNED_VALUE, SIGN_ONLY_VALUE, DO_NOTHING_VALUE,
 };
-// We import these packages for testing combination of migration steps  
-use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_1::migration_step_1_example;
-use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_2::migration_step_2_example;
-use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_3::migration_step_3_example;
-use crate::test_utils;
-use uuid::Uuid;
 
 /*
 Migration Step 0: This is the pre-migration step for the
@@ -118,6 +112,12 @@ pub async fn migration_step_0_example(
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_migration_step_0() -> Result<(), Box<dyn std::error::Error>> {
+    use crate::migration::plaintext_to_awsdbe::plaintext::migration_step_0::migration_step_0_example;
+    use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_2::migration_step_2_example;
+    use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_3::migration_step_3_example;
+    use crate::test_utils;
+    use uuid::Uuid;
+
     let kms_key_id = test_utils::TEST_KMS_KEY_ID;
     let table_name = test_utils::TEST_DDB_TABLE_NAME;
     let partition_key = Uuid::new_v4().to_string();
