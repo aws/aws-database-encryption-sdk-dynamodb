@@ -84,7 +84,7 @@ The beacon string will be 1/4 this length.
 
 ### Terminal Location
 
-A terminal location designates a portion of a structured value. Defined [here](virtual.md#terminal-location).
+A [terminal location](virtual.md#terminal-location) designates a portion of a structured value.
 
 ### Standard Beacon
 
@@ -92,9 +92,9 @@ The simplest form of beacon is a standard beacon.
 
 To configure a single standard beacon, you need to provide
 
-1.  A name
-1.  A [terminal location](virtual.md#terminal-location)
-1.  A [beacon length](#beacon-length)
+1. A name
+1. A [terminal location](virtual.md#terminal-location)
+1. A [beacon length](#beacon-length)
 
 A hash is made from the value at the terminal location, and stored at
 at the top level of the structure with the name `aws_dbe_b_` followed by the configured name.
@@ -123,11 +123,11 @@ into a complex string, suitable for complex database operations.
 
 To configure a single compound beacon, you need to provide
 
-1.  A name
-1.  A split character
-1.  A list of encrypted parts
-1.  A list of signed parts
-1.  A list of constructors
+1. A name
+1. A split character
+1. A list of encrypted parts
+1. A list of signed parts
+1. A list of constructors
 
 The `name` is used in queries and index creation as if it were a regular field.
 "MyField" in examples below. It is an error if this name is the same as a configured
