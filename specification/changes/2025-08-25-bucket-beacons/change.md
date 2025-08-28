@@ -7,16 +7,16 @@
 
 ### BucketCount
 
-* An integer in the range 1..255
-* The number of possible buckets in some context
-* For customers not using BucketBeacons, this is always `1`
+- An integer in the range 1..255
+- The number of possible buckets in some context
+- For customers not using BucketBeacons, this is always `1`
 
 ### BucketNumber
 
-* An integer in the range 0..254
-* The number of the bucket currently under consideration in some context
-* For customers not using BucketBeacons, this is always `1`
-* Range can also be considered : `0 <= BucketNumber < BucketCount`
+- An integer in the range 0..254
+- The number of the bucket currently under consideration in some context
+- For customers not using BucketBeacons, this is always `1`
+- Range can also be considered : `0 <= BucketNumber < BucketCount`
 
 ### BucketSelector
 
@@ -73,15 +73,17 @@ Examines the [query](https://docs.aws.amazon.com/amazondynamodb/latest/APIRefere
        dynamoClient.query(query)
 
 In many situations, one already knows the number of queries,
-* `1` if buckets are not being used,
-* `maximumNumberOfBuckets` if buckets are being used, and nothing else is overridden
-* `numberOfBuckets` if a single bucketed beacon is involved.
+
+- `1` if buckets are not being used,
+- `maximumNumberOfBuckets` if buckets are being used, and nothing else is overridden
+- `numberOfBuckets` if a single bucketed beacon is involved.
 
 The actual value of GetNumberOfQueries is the minimum of
-* maximumNumberOfBuckets
-* The Least Common Multiple of the numbers of buckets in each
-[Standard Beacon](../../searchable-encryption/beacons.md#standard-beacon) involved,
-including those that are part of a [Compound Beacon](../../searchable-encryption/beacons.md#compound-beacon).
+
+- maximumNumberOfBuckets
+- The Least Common Multiple of the numbers of buckets in each
+  [Standard Beacon](../../searchable-encryption/beacons.md#standard-beacon) involved,
+  including those that are part of a [Compound Beacon](../../searchable-encryption/beacons.md#compound-beacon).
 
 It is an error to set `:aws_dbe_bucket` to a number greater than or equal to the value of `GetNumberOfQueries`.
 

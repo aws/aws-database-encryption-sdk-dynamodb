@@ -62,9 +62,10 @@ with four of the queries returning nothing.
 Maybe you need a different number of buckets for different standard beacons.
 
 For example, maybe
-* `LastName` has a terribly uneven distribution, and so needs 5 buckets.
-* `Phone` is pretty much unique in each item, and so only needs on bucket.
-* `Precinct` is just a little bit uneven, and so needs two beacons.
+
+- `LastName` has a terribly uneven distribution, and so needs 5 buckets.
+- `Phone` is pretty much unique in each item, and so only needs on bucket.
+- `Precinct` is just a little bit uneven, and so needs two beacons.
 
 To accomplish this, you set the number of buckets for the whole table to `5`,
 and then constrain the number of buckets for the other two beacons.
@@ -75,13 +76,14 @@ The ensures that the values are reasonably well distributed among the constraine
 while still guaranteeing that, given the bucket for the item,
 we can uniquely identify the bucket for the constrained beacon.
 
-***WARNING*** Adding or changing the constraint on a beacon is difficult, sometimes impossible;
+**_WARNING_** Adding or changing the constraint on a beacon is difficult, sometimes impossible;
 once any items have been written.
 
 The only situation in which you might consider adding a constraint to a beacon is if **all** of the following apply
-* You're going to use that beacon in an index (GSI)
-* The queries you make against that index are expected to return a very small number of results
-* Your security people have agreed that reducing the number of buckets for this beacon is acceptable.
+
+- You're going to use that beacon in an index (GSI)
+- The queries you make against that index are expected to return a very small number of results
+- Your security people have agreed that reducing the number of buckets for this beacon is acceptable.
 
 ### Behind the scenes
 
@@ -170,9 +172,10 @@ This would allow one to set `numberOfBuckets = 5` on the LastName beacon as abov
 and then choose the bucket for each item explicitly, based on the LastName value.
 Perhaps "Smith" would be divided among all 5 buckets, while "Svaboda" was always placed in bucket zero.
 This has two benefits
-* This can do a much better job of overcoming the [shortcoming of Beacons](#a-shortcoming-of-beacons),
-by only splitting the popular names, making the distribution of hashes ven more regular.
-* When querying on the LastName "Svaboda", only one query is needed, rather than five.
+
+- This can do a much better job of overcoming the [shortcoming of Beacons](#a-shortcoming-of-beacons),
+  by only splitting the popular names, making the distribution of hashes ven more regular.
+- When querying on the LastName "Svaboda", only one query is needed, rather than five.
 
 ## Changing Beacon Constraints
 
@@ -188,16 +191,16 @@ Why not? Because when we write, the item has a bucket, and each beacon calculate
 When we Query, the query has a bucket and each beacon calculates its bucket from the query's bucket.
 If you change a constraint, then the beacon bucket calculation at query time will not produce the same results as were used when the item was written. For example:
 
-* `maximumNumberOfBuckets` for a table is 5
-* Beacon A has no constraint
-* Beacon B is constrained to 2 buckets.
-* We write an item. Its bucket is 4.
-* Beacon A is put in bucket 4, beacon B is put in bucket `4 % 2` or 0.
-* We search with ":aws_dbe_bucket = 4". We look for beacon A in bucket 4 and beacon B in bucket 0
-* We find the item.
-* Now we change the constraint to `3`.
-* We search with ":aws_dbe_bucket = 4". We look for beacon A in bucket 4 and beacon B in bucket `4 % 3` or 1
-* We do not find the item.
+- `maximumNumberOfBuckets` for a table is 5
+- Beacon A has no constraint
+- Beacon B is constrained to 2 buckets.
+- We write an item. Its bucket is 4.
+- Beacon A is put in bucket 4, beacon B is put in bucket `4 % 2` or 0.
+- We search with ":aws_dbe_bucket = 4". We look for beacon A in bucket 4 and beacon B in bucket 0
+- We find the item.
+- Now we change the constraint to `3`.
+- We search with ":aws_dbe_bucket = 4". We look for beacon A in bucket 4 and beacon B in bucket `4 % 3` or 1
+- We do not find the item.
 
 ### Long answer
 
@@ -213,8 +216,9 @@ then all of the items can still be found.
 and include both plain standard beacons and standard beacons used as part of a compound beacon.
 
 Compatible in this context means that, for any ":aws_dbe_bucket = N",
-* before the change, all involved beacons were put in the same bucket
-* after the change, all involved beacons are put in the same bucket
+
+- before the change, all involved beacons were put in the same bucket
+- after the change, all involved beacons are put in the same bucket
 
 but the bucket before might be different than the bucket after.
 
