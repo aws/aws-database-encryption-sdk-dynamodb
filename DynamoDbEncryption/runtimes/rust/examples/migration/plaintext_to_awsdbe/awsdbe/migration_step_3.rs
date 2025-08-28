@@ -141,8 +141,8 @@ pub async fn migration_step_3_example(
 #[tokio::test(flavor = "multi_thread")]
 async fn test_migration_step_3() -> Result<(), Box<dyn std::error::Error>> {
     use crate::migration::plaintext_to_awsdbe::plaintext::migration_step_0::migration_step_0_example;
+    use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_1::migration_step_1_example;
     use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_2::migration_step_2_example;
-    use crate::migration::plaintext_to_awsdbe::awsdbe::migration_step_3::migration_step_3_example;
     use crate::test_utils;
     use uuid::Uuid;
 
