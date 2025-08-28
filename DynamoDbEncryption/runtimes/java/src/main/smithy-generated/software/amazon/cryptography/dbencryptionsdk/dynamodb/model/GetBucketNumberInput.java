@@ -13,9 +13,12 @@ public class GetBucketNumberInput {
 
   private final int numberOfBuckets;
 
+  private final String logicalTableName;
+
   protected GetBucketNumberInput(BuilderImpl builder) {
     this.item = builder.item();
     this.numberOfBuckets = builder.numberOfBuckets();
+    this.logicalTableName = builder.logicalTableName();
   }
 
   public Map<String, AttributeValue> item() {
@@ -24,6 +27,10 @@ public class GetBucketNumberInput {
 
   public int numberOfBuckets() {
     return this.numberOfBuckets;
+  }
+
+  public String logicalTableName() {
+    return this.logicalTableName;
   }
 
   public Builder toBuilder() {
@@ -43,6 +50,10 @@ public class GetBucketNumberInput {
 
     int numberOfBuckets();
 
+    Builder logicalTableName(String logicalTableName);
+
+    String logicalTableName();
+
     GetBucketNumberInput build();
   }
 
@@ -54,12 +65,15 @@ public class GetBucketNumberInput {
 
     private boolean _numberOfBucketsSet = false;
 
+    protected String logicalTableName;
+
     protected BuilderImpl() {}
 
     protected BuilderImpl(GetBucketNumberInput model) {
       this.item = model.item();
       this.numberOfBuckets = model.numberOfBuckets();
       this._numberOfBucketsSet = true;
+      this.logicalTableName = model.logicalTableName();
     }
 
     public Builder item(Map<String, AttributeValue> item) {
@@ -81,6 +95,15 @@ public class GetBucketNumberInput {
       return this.numberOfBuckets;
     }
 
+    public Builder logicalTableName(String logicalTableName) {
+      this.logicalTableName = logicalTableName;
+      return this;
+    }
+
+    public String logicalTableName() {
+      return this.logicalTableName;
+    }
+
     public GetBucketNumberInput build() {
       if (Objects.isNull(this.item())) {
         throw new IllegalArgumentException(
@@ -100,6 +123,11 @@ public class GetBucketNumberInput {
       if (this._numberOfBucketsSet && this.numberOfBuckets() > 255) {
         throw new IllegalArgumentException(
           "`numberOfBuckets` must be less than or equal to 255."
+        );
+      }
+      if (Objects.isNull(this.logicalTableName())) {
+        throw new IllegalArgumentException(
+          "Missing value for required field `logicalTableName`"
         );
       }
       return new GetBucketNumberInput(this);

@@ -584,7 +584,12 @@ public class ToDafny {
       );
     Integer numberOfBuckets;
     numberOfBuckets = (nativeValue.numberOfBuckets());
-    return new GetBucketNumberInput(item, numberOfBuckets);
+    DafnySequence<? extends Character> logicalTableName;
+    logicalTableName =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+        nativeValue.logicalTableName()
+      );
+    return new GetBucketNumberInput(item, numberOfBuckets, logicalTableName);
   }
 
   public static GetBucketNumberOutput GetBucketNumberOutput(

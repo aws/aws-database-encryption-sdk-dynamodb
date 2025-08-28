@@ -1306,6 +1306,8 @@ func (input GetBranchKeyIdFromDdbKeyInput) Aws_cryptography_dbEncryptionSdk_dyna
 type GetBucketNumberInput struct {
 	Item map[string]dynamodbtypes.AttributeValue
 
+	LogicalTableName string
+
 	NumberOfBuckets int32
 }
 

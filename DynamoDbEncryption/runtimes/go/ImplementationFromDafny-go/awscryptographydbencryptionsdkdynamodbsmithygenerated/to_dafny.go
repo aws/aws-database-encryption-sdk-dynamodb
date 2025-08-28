@@ -64,7 +64,7 @@ func GetBucketNumberInput_ToDafny(nativeInput awscryptographydbencryptionsdkdyna
 
 	return func() AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBucketNumberInput {
 
-		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_GetBucketNumberInput_.Create_GetBucketNumberInput_(Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_ToDafny(nativeInput.Item), Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuckets_ToDafny(nativeInput.NumberOfBuckets))
+		return AwsCryptographyDbEncryptionSdkDynamoDbTypes.Companion_GetBucketNumberInput_.Create_GetBucketNumberInput_(Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_ToDafny(nativeInput.Item), Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuckets_ToDafny(nativeInput.NumberOfBuckets), Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_logicalTableName_ToDafny(nativeInput.LogicalTableName))
 	}()
 
 }
@@ -692,6 +692,19 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuck
 	return func() int32 {
 
 		return input
+	}()
+}
+
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_logicalTableName_ToDafny(input string) dafny.Sequence {
+	return func() dafny.Sequence {
+
+		return func() dafny.Sequence {
+			res, err := UTF8.DecodeFromNativeGoByteArray([]byte(input))
+			if err != nil {
+				panic("invalid utf8 input provided")
+			}
+			return res
+		}()
 	}()
 }
 

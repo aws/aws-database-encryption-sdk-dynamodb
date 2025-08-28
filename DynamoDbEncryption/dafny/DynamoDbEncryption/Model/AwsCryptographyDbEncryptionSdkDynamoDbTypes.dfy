@@ -350,7 +350,8 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   )
   datatype GetBucketNumberInput = | GetBucketNumberInput (
     nameonly item: ComAmazonawsDynamodbTypes.AttributeMap ,
-    nameonly numberOfBuckets: BucketCount
+    nameonly numberOfBuckets: BucketCount ,
+    nameonly logicalTableName: string
   )
   datatype GetBucketNumberOutput = | GetBucketNumberOutput (
     nameonly bucketNumber: BucketNumber

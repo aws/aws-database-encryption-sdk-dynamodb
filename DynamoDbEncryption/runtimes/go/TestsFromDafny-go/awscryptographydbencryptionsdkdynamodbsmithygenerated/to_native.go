@@ -48,7 +48,8 @@ func GetEncryptedDataKeyDescriptionOutput_FromDafny(dafnyOutput AwsCryptographyD
 func GetBucketNumberInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetBucketNumberInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBucketNumberInput {
 
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetBucketNumberInput{Item: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_FromDafny(dafnyInput.Dtor_item()),
-		NumberOfBuckets: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuckets_FromDafny(dafnyInput.Dtor_numberOfBuckets()),
+		NumberOfBuckets:  Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuckets_FromDafny(dafnyInput.Dtor_numberOfBuckets()),
+		LogicalTableName: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_logicalTableName_FromDafny(dafnyInput.Dtor_logicalTableName()),
 	}
 
 }
@@ -657,6 +658,15 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_numberOfBuck
 	return func() int32 {
 		var b = input.(int32)
 		return b
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_logicalTableName_FromDafny(input interface{}) string {
+	return func() string {
+
+		a := UTF8.Encode(input.(dafny.Sequence)).Dtor_value()
+		s := string(dafny.ToByteArray(a.(dafny.Sequence)))
+
+		return s
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberOutput_bucketNumber_FromDafny(input interface{}) int32 {

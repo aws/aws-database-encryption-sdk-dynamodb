@@ -489,6 +489,11 @@ public class ToNative {
       )
     );
     nativeBuilder.numberOfBuckets((dafnyValue.dtor_numberOfBuckets()));
+    nativeBuilder.logicalTableName(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_logicalTableName()
+      )
+    );
     return nativeBuilder.build();
   }
 

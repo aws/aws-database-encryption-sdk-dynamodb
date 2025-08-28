@@ -65,7 +65,9 @@ structure GetBucketNumberInput {
   @required
   item: AttributeMap,
   @required
-  numberOfBuckets : BucketCount
+  numberOfBuckets : BucketCount,
+  @required
+  logicalTableName: String,
 }
 
 structure GetBucketNumberOutput {

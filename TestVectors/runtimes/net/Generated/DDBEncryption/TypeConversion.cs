@@ -895,13 +895,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
         public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetBucketNumberInput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetBucketNumberInput value)
         {
             software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetBucketNumberInput converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetBucketNumberInput(); converted.Item = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M4_item(concrete._item);
-            converted.NumberOfBuckets = (int)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M15_numberOfBuckets(concrete._numberOfBuckets); return converted;
+            converted.NumberOfBuckets = (int)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M15_numberOfBuckets(concrete._numberOfBuckets);
+            converted.LogicalTableName = (string)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M16_logicalTableName(concrete._logicalTableName); return converted;
         }
         public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IGetBucketNumberInput ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput(AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetBucketNumberInput value)
         {
             value.Validate();
 
-            return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M4_item(value.Item), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M15_numberOfBuckets(value.NumberOfBuckets));
+            return new software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput(ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M4_item(value.Item), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M15_numberOfBuckets(value.NumberOfBuckets), ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M16_logicalTableName(value.LogicalTableName));
         }
         public static System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M4_item(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue> value)
         {
@@ -910,6 +911,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
         public static Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.services.dynamodb.internaldafny.types._IAttributeValue> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M4_item(System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> value)
         {
             return ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S12_AttributeMap(value);
+        }
+        public static string FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M16_logicalTableName(Dafny.ISequence<char> value)
+        {
+            return FromDafny_N6_smithy__N3_api__S6_String(value);
+        }
+        public static Dafny.ISequence<char> ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M16_logicalTableName(string value)
+        {
+            return ToDafny_N6_smithy__N3_api__S6_String(value);
         }
         public static int FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S20_GetBucketNumberInput__M15_numberOfBuckets(int value)
         {
