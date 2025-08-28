@@ -50,6 +50,9 @@ format_java_misc: setup_prettier
 format_spec: setup_prettier
 	npx prettier --plugin=prettier-plugin-java specification --write
 
+format_workflow: setup_prettier
+	npx prettier --plugin=prettier-plugin-java .github --write
+
 format_java_misc-check: setup_prettier
 	npx prettier --plugin=prettier-plugin-java . --check
 

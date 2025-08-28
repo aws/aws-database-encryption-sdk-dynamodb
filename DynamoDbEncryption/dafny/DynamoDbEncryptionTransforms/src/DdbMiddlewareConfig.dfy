@@ -45,7 +45,7 @@ module DdbMiddlewareConfig {
     }
 
     var outR := config.search.value.curr().bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(
-      item := item, numberOfBuckets := numBuckets, logicalTableName := config.logicalTableName));
+                                                                            item := item, numberOfBuckets := numBuckets, logicalTableName := config.logicalTableName));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
     if out.bucketNumber == 0 {
       return Success(0);
