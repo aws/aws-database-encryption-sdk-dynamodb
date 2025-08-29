@@ -40,13 +40,13 @@ All existing databases are retroactively configured with one bucket.
 The hash for a value in bucket number zero is the same as the hash in an unbucketed system;
 therefore, there is no difference between "one bucket" and "not using buckets".
 
-Unfortunately, if you spread your items across N buckets,
-then to find all the items, you'll haver to make N queries.
-Only `Query` is affected. `Scan` and `Get` operations will continue to work as expected.
-The reason that Query has to change is that one queries against an index,
-and indexes have to exactly match a value, leaving to room for a `this OR that OR other` optimization.
+Unfortunately, when items are distributed across N buckets, retrieving all of them requires N separate queries.
+- Only the `Query` operation is affected.
+- `Scan` and `Get` operations continue to work as usual.
 
-Note that there is not way to look at an encrypted item and deduce what bucket it is in.
+The reason Query behaves differently is that it searches against an index, which requires an exact match. This leaves no opportunity to optimize the query with a “this OR that OR other” approach, unlike a Scan which examines all items.
+
+Note: There is no way to determine an item’s bucket just by looking at its encrypted value.
 
 ### Performance
 
@@ -174,7 +174,7 @@ Perhaps "Smith" would be divided among all 5 buckets, while "Svaboda" was always
 This has two benefits
 
 - This can do a much better job of overcoming the [shortcoming of Beacons](#a-shortcoming-of-beacons),
-  by only splitting the popular names, making the distribution of hashes ven more regular.
+  by only splitting the popular names, making the distribution of hashes even more regular.
 - When querying on the LastName "Svaboda", only one query is needed, rather than five.
 
 ## Changing Beacon Constraints
