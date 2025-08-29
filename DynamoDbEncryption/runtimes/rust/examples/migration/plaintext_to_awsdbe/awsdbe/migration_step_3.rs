@@ -151,29 +151,29 @@ async fn test_migration_step_3() -> Result<(), Box<dyn std::error::Error>> {
     let partition_key = Uuid::new_v4().to_string();
     let sort_keys = ["0", "1", "2", "3"];
 
+    // Successfully executes step 3
+    let success = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[3]).await?;
+    assert!(success, "MigrationStep3 should complete successfully");
+
     // Given: Step 0 has succeeded
     let success = migration_step_0_example(table_name, &partition_key, sort_keys[0], sort_keys[0]).await?;
     assert!(success, "MigrationStep0 should complete successfully");
+
+    // When: Execute Step 3 with sortReadValue=0, Then: should error out when reading plaintext items from Step 0
+    let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[0]).await;
+    assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
 
     // Given: Step 1 has succeeded
     let success = migration_step_1_example(kms_key_id, table_name, &partition_key, sort_keys[1], sort_keys[1]).await?;
     assert!(success, "MigrationStep1 should complete successfully");
 
-    // Given: Step 2 has succeeded
-    let success = migration_step_2_example(kms_key_id, table_name, &partition_key, sort_keys[2], sort_keys[2]).await?;
-    assert!(success, "MigrationStep2 should complete successfully");
-    
-    // Successfully executes step 3
-    let success = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[3]).await?;
-    assert!(success, "MigrationStep3 should complete successfully");
-    
-    // When: Execute Step 3 with sortReadValue=0, Then: should error out when reading plaintext items from Step 0
-    let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[0]).await;
-    assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
-
     // When: Execute Step 3 with sortReadValue=1, Then: should error out when reading plaintext items from Step 1
     let result = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[1]).await;
     assert!(result.is_err(), "MigrationStep3 should fail when reading plaintext items");
+
+    // Given: Step 2 has succeeded
+    let success = migration_step_2_example(kms_key_id, table_name, &partition_key, sort_keys[2], sort_keys[2]).await?;
+    assert!(success, "MigrationStep2 should complete successfully");
 
     // When: Execute Step 3 with sortReadValue=2, Then: Success (i.e. can read encrypted values from Step 2)
     let success = migration_step_3_example(kms_key_id, table_name, &partition_key, sort_keys[3], sort_keys[2]).await?;

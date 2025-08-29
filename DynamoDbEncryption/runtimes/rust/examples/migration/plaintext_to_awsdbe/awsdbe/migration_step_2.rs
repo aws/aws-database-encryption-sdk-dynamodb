@@ -150,21 +150,21 @@ async fn test_migration_step_2() -> Result<(), Box<dyn std::error::Error>> {
     let partition_key = Uuid::new_v4().to_string();
     let sort_keys = ["0", "1", "2", "3"];
 
-    // Given: Step 0 has succeeded
-    let success = migration_step_0_example(table_name, &partition_key, sort_keys[0], sort_keys[0]).await?;
-    assert!(success, "MigrationStep0 should complete successfully");
-
-    // Given: Step 1 has succeeded
-    let success = migration_step_1_example(kms_key_id, table_name, &partition_key, sort_keys[1], sort_keys[1]).await?;
-    assert!(success, "MigrationStep1 should complete successfully");
-
     // Successfully executes step 2
     let success = migration_step_2_example(kms_key_id, table_name, &partition_key, sort_keys[2], sort_keys[2]).await?;
     assert!(success, "MigrationStep2 should complete successfully");
 
+    // Given: Step 0 has succeeded
+    let success = migration_step_0_example(table_name, &partition_key, sort_keys[0], sort_keys[0]).await?;
+    assert!(success, "MigrationStep0 should complete successfully");
+
     // When: Execute Step 2 with sortReadValue=0, Then: Success (i.e. can read plaintext values from Step 0)
     let success = migration_step_2_example(kms_key_id, table_name, &partition_key, sort_keys[2], sort_keys[0]).await?;
     assert!(success, "MigrationStep2 should be able to read items written by Step 0");
+
+    // Given: Step 1 has succeeded
+    let success = migration_step_1_example(kms_key_id, table_name, &partition_key, sort_keys[1], sort_keys[1]).await?;
+    assert!(success, "MigrationStep1 should complete successfully");
 
     // When: Execute Step 2 with sortReadValue=1, Then: Success (i.e. can read plaintext values from Step 1)
     let success = migration_step_2_example(kms_key_id, table_name, &partition_key, sort_keys[2], sort_keys[1]).await?;
