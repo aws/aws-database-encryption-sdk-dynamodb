@@ -6,7 +6,7 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 import java.util.Objects;
 
 /**
- * A part of a Compound Becaon Construction.
+ * A part of a Compound Beacon Construction.
  */
 public class ConstructorPart {
 

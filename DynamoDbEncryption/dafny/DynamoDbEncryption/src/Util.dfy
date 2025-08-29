@@ -8,6 +8,7 @@ module DynamoDbEncryptionUtil {
   import opened Wrappers
   import opened StandardLibrary
   import opened StandardLibrary.UInt
+  import opened StandardLibrary.MemoryMath
   import DDB = ComAmazonawsDynamodbTypes
 
   const ReservedPrefix := "aws_dbe_"
@@ -80,10 +81,118 @@ module DynamoDbEncryptionUtil {
     }
   }
 
+  const MAX_BUCKET_COUNT : nat := 255
+
+  type BucketBytes = x: seq<uint8> | Valid_BucketBytes(x) witness []
+  newtype OptBucketCount  = x: int | 0 <= x <= MAX_BUCKET_COUNT
+
+  function method BucketBytesToNumber(x : BucketBytes) : BucketNumber
+  {
+    if |x| == 0 then
+      0
+    else
+      x[0] as BucketNumber
+  }
+
+  function method BucketNumberToBytes(x : BucketNumber) : BucketBytes
+  {
+    if x == 0 then
+      []
+    else
+      [x as uint8]
+  }
+
+  // Java is broken, None becomes Some(0)
+  predicate method BucketCountNone(x : Option<BucketCount>)
+  {
+    x.None? || x.value == 0
+  }
+
+  predicate method Valid_BucketBytes(x : seq<uint8>)
+  {
+    && |x| <= 1
+    && (|x| == 1 ==> (0 < x[0] < (MAX_BUCKET_COUNT as uint8)))
+  }
+
   function printFromFunction<T>(x: T): () {
     ()
   } by method {
     print x,"\n";
     return ();
+  }
+  function printFromFunction2<T, U>(x: T, y : U): () {
+    ()
+  } by method {
+    print x, " ", y, "\n";
+    return ();
+  }
+  function printFromFunction3<T, U, V>(x: T, y : U, z : V): () {
+    ()
+  } by method {
+    print x, " ", y, " ", z, "\n";
+    return ();
+  }
+
+  function method gcd(a : nat, b : nat) : nat
+    requires 0 < a || 0 < b
+    ensures 0 < gcd(a, b)
+    ensures 0 < b ==> gcd(a, b) <= b
+    decreases b
+  {
+    if b == 0 then
+      a
+    else
+      gcd(b, a % b)
+  }
+
+  function method lcm(a : nat, b : nat) : nat
+    requires 0 < a && 0 < b
+    ensures 0 < lcm(a, b)
+  {
+    (a / gcd(a, b)) * b
+  }
+
+  function method bmin(a : BucketCount, b : BucketCount) : (output : BucketCount)
+    ensures output <= a
+    ensures output <= b
+  {
+    if a <= b then
+      a
+    else
+      b
+  }
+
+  function method lcmBucket(a : BucketCount, b : BucketCount, max : BucketCount) : BucketCount
+    requires 0 < a && 0 < b
+    ensures 0 < lcmBucket(a, b, max) <= max
+  {
+    if a == 1 || b == max || a == b then
+      bmin(b, max)
+    else if b == 1 || a == max then
+      bmin(a, max)
+    else
+      var result := lcm(a as nat, b as nat);
+      if result < max as nat then
+        result as BucketCount
+      else
+        max
+  }
+
+  method lcmSeq(values : seq<BucketCount>, max : BucketCount) returns (output : BucketCount)
+    // requires forall i <- values :: i <= max
+    ensures output <= max
+  {
+    var result : BucketCount := 1;
+    SequenceIsSafeBecauseItIsInMemory(values);
+    for i : uint64 := 0 to |values| as uint64
+      invariant result <= max
+    {
+      var buckets := values[i];
+      if buckets == 1 || buckets == result {
+        continue;
+      }
+      result := lcmBucket(result, buckets, max);
+    }
+    return result;
   }
 }
