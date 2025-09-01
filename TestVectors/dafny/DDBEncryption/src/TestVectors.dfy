@@ -761,10 +761,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51");
       TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23");
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15F", false);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25F", false);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35F", false);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45F", false);
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15F");
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25F");
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35F");
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45F");
 
       var scanCount4 := 0;
       var scanCount5 := 0;

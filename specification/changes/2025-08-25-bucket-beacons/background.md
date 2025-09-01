@@ -4,7 +4,7 @@
 # Bucket Beacons
 
 `Bucket Beacons` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
-so they will be less likely to leak information when your data distribution is uneven.
+to add anonymity when your data distribution is uneven
 
 Probably read [changes](./change.md) first, as it gives a brief overview of the interface.
 
@@ -23,7 +23,7 @@ In this case, some hashes will have many many occurrences, and some will have on
 
 An external observer can look at census data and make an educated guess that the hashes with many occurrences are probably "Jones" or "Smith". Pretty soon, you've leaked real information.
 
-## Enter Bucket Beacons
+## Introducing Bucket Beacons
 
 One strategy to combat this is to further divide each item's beacons into separate `buckets`,
 so that the same value in different records might produce different hashes.
@@ -41,6 +41,7 @@ The hash for a value in bucket number zero is the same as the hash in an unbucke
 therefore, there is no difference between "one bucket" and "not using buckets".
 
 Unfortunately, when items are distributed across N buckets, retrieving all of them requires N separate queries.
+
 - Only the `Query` operation is affected.
 - `Scan` and `Get` operations continue to work as usual.
 
@@ -48,7 +49,7 @@ The reason Query behaves differently is that it searches against an index, which
 
 Note: There is no way to determine an item’s bucket just by looking at its encrypted value.
 
-### Performance
+### Performance Penalties
 
 Multiple queries will always take longer than one query, however;
 if the number of "pages" of results returned by DynamoDB for a query is large compared to the number of buckets,
@@ -56,6 +57,18 @@ then the overall query performance is not impacted very much.
 
 If the query is only expected to return one result, then of course, making five queries will take five time as long,
 with four of the queries returning nothing.
+
+### Performance Advantages
+
+On the other hand, bucket beacons can provide performance enhancements as well.
+
+Sometimes a common value can share the same hash as a rare one.
+In this case, a search for the rare one pays the penalty of retrieving and discarding all the
+matches for the common one.
+Bucket beacon reduces the maximum number occurrences of a single hash, reducing this penalty.
+
+Increasing the number of buckets can allow you to increase the length of a standard beacon,
+further decreasing the number of results that must be retrieved and discarded.
 
 ### Constrained Beacons
 
@@ -245,3 +258,64 @@ which tells the interceptor to calculate beacon A for bucket 4 and beacon B for 
 If you know exactly what data has been written, a long enough list of these would find all of the items.
 
 We don't want to implement this until we're sure someone would actually use it.
+
+## Migration
+
+A non-bucketed table is the same as a table with `maximumNumberOfBuckets == 1`.
+
+Further, each individual beacon can either be considered to be unconstrained,
+or constrained to one bucket.
+
+Given that, migration from non-bucketed to bucketed follows the same rules as any other change in bucket settings.
+
+You can always increase maximumNumberOfBuckets.
+It won't magically improve the anonymity of you existing data,
+but new data will be properly anonymized and both old and new data will be found when doing bucketed searches.
+
+The individual beacon constraints must remain unchanged.
+This when you first move to multiple bucket,
+each beacon must either be constrained to one bucket, or be unconstrained.
+
+## Test Strategy
+
+### Normal Operation
+
+Create a table with a maximum of 5 buckets, a variety of beacons with different numbers of buckets,
+and with GSIs built on a variety of combinations of those indexes.
+
+Put 100 items in that table, with different PK attributes,
+but the exact same values for all the other attributes.
+We expect around 20 items per bucket, and are pretty guaranteed that no bucket is empty.
+
+Perform a variety of queries against the table.
+For each, assert that
+
+- GetNumberOfQueries returns the expected value
+- When performing `GetNumberOfQueries` queries,
+  - each bucket returns at least one value
+  - every item is returned exactly one
+- When performing queries with the bucket number set to `GetNumberOfQueries` or greater, an error is returned.
+
+Perform a very large number of Scans against the table.
+These are easier to test, as they do not require a different index for each one, as the Query ones do.
+Test that a single Scan returns every item exactly once.
+
+### Test Bucket Selector
+
+Repeat [Normal Operation](#normal-operation), but
+
+- add an attribute to hold a bucket number
+- include a [Bucket Selector](../../searchable-encryption/search-config.md#bucket-selector)
+  that puts each item in the indicated bucket.
+- when searching on a bucket, assert that the item was in the correct bucket.
+
+### Test Filter Expressions
+
+The functionality of the [Filter Expressions for Query](../../dynamodb-encryption-client/ddb-support.md#filter-expressions-for-query) is well tested by the above.
+
+For a few scan operations, assert that the text of the calculated filter expressions are as expected.
+
+### Test Compound Beacons
+
+Create some complex compound beacons, create indexes with them,
+and repeat the same test as in [Normal Operation](#normal-operation).

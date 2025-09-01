@@ -5,9 +5,17 @@
 
 ## Version
 
-1.0.0
+1.1.0
 
 ### Changelog
+
+- 1.1.0
+  - add bucket beacons
+
+## Conventions used in this document
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
+in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
 ## Overview
 
@@ -276,11 +284,6 @@ If `NAME` appears in an record to be written,
 and `NAME` can also be constructed from other parts of the record,
 then the write must fail if the constructed and supplied values are not equal.
 
-### Conventions used in this document
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
-in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
-
 ### Standard Beacon Initialization
 
 On initialization of a Standard Beacon, the caller MUST provide:
@@ -291,12 +294,16 @@ On initialization of a Standard Beacon, the caller MUST provide:
 On initialization of a Standard Beacon, the caller MAY provide:
 
 - a [terminal location](virtual.md#terminal-location) -- a string
-- a [beacon style](beacon-style-initialization)
+- a [beacon style](#beacon-style-initialization)
+- a [number of buckets](#beacon-constraint)
 
 If no [terminal location](virtual.md#terminal-location) is provided,
 the `name` MUST be used as the [terminal location](virtual.md#terminal-location).
 
 Initialization MUST fail if two standard beacons are configured with the same location.
+
+Initialization MUST fail if [number of buckets](#beacon-constraint) is specified, and is greater than or equal to
+the maximum number of buckets specified in the [beacon version](search-config.md#beacon-version-initialization).
 
 ### Beacon Style Initialization
 
@@ -401,6 +408,19 @@ This name MUST match the name of one of the [encrypted](#encrypted-part-initiali
 These parts may come from these locally defined parts lists, or from the
 [Global Parts List](search-config.md#global-parts-list), in any combination.
 
+#### Beacon Constraint
+
+A beacon may be constrained to fewer buckets than is specified in the [beacon version](search-config.md#beacon-version-initialization).
+
+If an item is being written or queried as bucket `X`, but the [standard beacon](#standard-beacon-initialization) is constrained to only `N` buckets,
+then the bucket used to [encode](#bucket-beacon-encoding) the beacon MUST be `X % N`, where `%` is the modulo or remainder operation.
+
+Examples:
+
+- If a beacon is constrained to one bucket, then it is always encoded as bucket `0`.
+- If a beacon is constrained to three buckets, then the beacon is always encoded as bucket `0`, `1` or `2`.
+  If the current bucket is `7`, then the beacon is encoded as for bucket `1`.
+
 ### Default Construction
 
 - If no constructors are configured, a default constructor MUST be generated.
@@ -471,10 +491,22 @@ Both standard and compound beacons define two operations
 
 - This operation MUST convert the attribute value of the associated field to
   a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
+- The serialized form MUST be augmented as per [bucket beacon encoding](#bucket-beacon-encoding).
 - This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
 - The returned
   [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
   MUST be type "S" String.
+
+#### Bucket Beacon Encoding
+
+Bucket Beacon Encoding converts a sequence of bytes into a possibly different sequence of bytes.
+
+To calculate the [bucket number](search-config.md#bucketnumber) for this beacon by calculating `X % N`
+where `X` is the bucket specified and `N` is the [number of buckets](#beacon-constraint) specified for the beacon.
+
+If this number is zero, then the input sequence of bytes MUST be returned unchanged.
+
+Otherwise, a single byte with a value equal to this calculated bucket number, MUST be appended to the input sequence of bytes.
 
 ### value for a set standard beacon
 

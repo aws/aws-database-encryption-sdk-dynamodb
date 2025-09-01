@@ -5,6 +5,8 @@
 
 ## Version
 
+- 1.2.0
+  - Add bucket beacons
 - 1.1.0
   - [Update Cache Entry Identifier Formulas to shared cache across multiple Beacon Key Sources](../../changes/2024-09-13_cache-across-hierarchical-keyrings/change.md)
   - New optional parameter `Partition ID` used to distinguish Cryptographic Material Providers (i.e: Beacon Key Sources) writing to a cache
@@ -13,6 +15,13 @@
   - Initial record
 
 ### Changelog
+
+## Definitions
+
+### Conventions used in this document
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
+in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
 ## Overview
 
@@ -46,7 +55,7 @@ or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-cli
 
 On initialization of a Beacon Version, the caller MUST provide:
 
-- A [version number](#version number)
+- A [version number](#version-number)
 - A [Beacon Key Source](#beacon-key-source)
 - A [Keystore](#keystore)
 - A list of [standard beacons](beacons.md#standard-beacon-initialization)
@@ -57,8 +66,11 @@ On initialization of the Beacon Version, the caller MAY provide:
 - A list of [virtual fields](virtual.md#virtual-field-initialization)
 - A list of [signed parts](beacons.md#signed-part-initialization)
 - A list of [encrypted parts](beacons.md#encrypted-part-initialization)
+- A [maximum number of buckets](#max-buckets)
+- A [default number of buckets](#default-buckets)
+- A [bucket selector](#bucket-selector)
 
-Initialization MUST fail if the [version number](#version number) is not `1`.
+Initialization MUST fail if the [version number](#version-number) is not `1`.
 
 Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon)
 is not provided.
@@ -94,6 +106,10 @@ Initialization MUST fail if the name of a
 [compound beacons](beacons.md#compound-beacon)
 matches the name of a
 [standard beacons](beacons.md#standard-beacon)
+
+Initialization MUST fail if [default number of buckets](#default-buckets) is supplied but [maximum number of buckets](#max-buckets) is not.
+
+Initialization MUST fail if [default number of buckets](#default-buckets) is greater than or equal to [maximum number of buckets](#max-buckets).
 
 A [terminal location](virtual.md#terminal-location) is considered `signed` if
 the field that contains it is [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
@@ -513,3 +529,51 @@ Now, two [beacon versions](#beacon-version-initialization) (BV1 and BV2) are cre
   and BV2 (which uses Key Store client K2) will NOT be able to share cache entries.
 
 Notice that both K1 and K2 are clients for the same physical Key Store (K).
+
+## Bucket Beacons
+
+`Bucket Beacons` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
+to add anonymity when your data distribution is uneven. See [bucket beacon background](../changes/2025-08-25-bucket-beacons/background.md).
+
+### BucketCount
+
+A BucketCount is an integer between 1 and 255 inclusive.
+It refers to the total number of buckets in play.
+
+### BucketNumber
+
+A BucketNumber is an integer between 0 and 254 inclusive.
+It refers to a specific bucket, typically the bucket to which a DynamoDB item has been assigned.
+
+A BucketNumber only has meaning in the context of a BucketCount, where the BucketNumber must be less than the BucketCount.
+
+### Max Buckets
+
+The Max Buckets setting in a [beacon version](#beacon-version-initialization) configures the total number of buckets being used in a table.
+
+If not set, Max Buckets MUST default to `1`, which is synonymous with "no buckets are being used".
+
+### Default Buckets
+
+The Default Buckets setting a [beacon version](#beacon-version-initialization) configures the number of buckets used by all
+[standard beacons](beacons.md#standard-beacon-initialization) that do not directly specify a number of buckets.
+
+If not set, Max Buckets MUST default to [Max Buckets](#max-buckets).
+
+### Bucket Selector
+
+A Bucket Selector is an object that implements GetBucketNumber.
+
+GetBucketNumber MUST take as input
+
+- A DynamoDB Item (i.e an AttributeMap)
+- The [number of buckets](#max-buckets) defined in the associated [beacon version](#beacon-version-initialization).
+- The logical table name for this defined in the associated [table config](../dynamodb-encryption-client/ddb-table-encryption-config.md#structure).
+
+GetBucketNumber MUST return
+
+- The number of the bucket to use for this item
+
+It is an error for the Bucket Selector to return a number greater than or equal to the input [number of buckets](#max-buckets).
+
+The default implementation of the Bucket Selector MUST return a random number within the acceptable range, i.e. 0..[number of buckets](#max-buckets).
