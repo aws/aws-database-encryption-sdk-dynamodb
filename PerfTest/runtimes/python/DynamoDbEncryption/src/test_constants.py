@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 # Table Configuration
-TABLE_NAME = "Test_Table"
+TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable"
 PARTITION_KEY = "partition_key"
 SORT_KEY = "sort_key"
 
