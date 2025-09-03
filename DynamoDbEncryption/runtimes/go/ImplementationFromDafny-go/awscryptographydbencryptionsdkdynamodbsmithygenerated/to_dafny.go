@@ -580,14 +580,10 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionInp
 
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_header_ToDafny(input []byte) Wrappers.Option {
 	return func() Wrappers.Option {
-		v := make([]interface{}, 0, len(input))
 		if input == nil {
 			return Wrappers.Companion_Option_.Create_None_()
 		}
-		for _, e := range input {
-			v = append(v, e)
-		}
-		return Wrappers.Companion_Option_.Create_Some_(dafny.SeqFromArray(v, false))
+		return Wrappers.Companion_Option_.Create_Some_(dafny.SeqOfBytes(input))
 	}()
 }
 
