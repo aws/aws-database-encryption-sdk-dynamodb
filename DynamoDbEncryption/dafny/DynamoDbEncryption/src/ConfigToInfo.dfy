@@ -354,7 +354,7 @@ module SearchConfigToInfo {
       //= specification/searchable-encryption/search-config.md#beacon-version-initialization
       //# Initialization MUST fail if [default number of buckets](#default-buckets) is supplied but [maximum number of buckets](#max-buckets) is not.
     } else if maxBuckets <= defaultBucketsOpt.value {
-      return(E("Invalid defaultNumberOfBuckets specified, " + Base10Int2String(defaultBucketsOpt.value as int) + ", must be 0 < defaultNumberOfBuckets < maximumNumberOfBuckets."));
+      return(Failure(E("Invalid defaultNumberOfBuckets specified, " + Base10Int2String(defaultBucketsOpt.value as int) + ", must be 0 < defaultNumberOfBuckets < maximumNumberOfBuckets.")));
     } else {
       defaultBuckets := defaultBucketsOpt.value;
     }
