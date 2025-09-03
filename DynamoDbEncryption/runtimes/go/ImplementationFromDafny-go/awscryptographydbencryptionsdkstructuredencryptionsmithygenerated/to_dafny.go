@@ -251,27 +251,19 @@ func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_data_ToDafny
 
 func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_value_ToDafny(input []byte) dafny.Sequence {
 	return func() dafny.Sequence {
-		v := make([]interface{}, 0, len(input))
 		if input == nil {
 			return nil
 		}
-		for _, e := range input {
-			v = append(v, e)
-		}
-		return dafny.SeqFromArray(v, false)
+		return dafny.SeqOfBytes(input)
 	}()
 }
 
 func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_ToDafny(input []byte) dafny.Sequence {
 	return func() dafny.Sequence {
-		v := make([]interface{}, 0, len(input))
 		if input == nil {
 			return nil
 		}
-		for _, e := range input {
-			v = append(v, e)
-		}
-		return dafny.SeqFromArray(v, false)
+		return dafny.SeqOfBytes(input)
 	}()
 }
 
@@ -809,14 +801,10 @@ func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInp
 
 func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInput_headerBytes_ToDafny(input []byte) dafny.Sequence {
 	return func() dafny.Sequence {
-		v := make([]interface{}, 0, len(input))
 		if input == nil {
 			return nil
 		}
-		for _, e := range input {
-			v = append(v, e)
-		}
-		return dafny.SeqFromArray(v, false)
+		return dafny.SeqOfBytes(input)
 	}()
 }
 
