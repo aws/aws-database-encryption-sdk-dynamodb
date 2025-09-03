@@ -22,7 +22,7 @@ module TestDDBSupport {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect ConvertVersionWithSource(FullTableConfig, version, src);
     var search := SI.SearchInfo([bv], 0);
-    var newItem :- expect AddSignedBeacons(Some(search), SimpleItem);
+    var newItem :- expect AddSignedBeacons(Some(search), SimpleItem, 0);
     assert IsValid_AttributeName("aws_dbe_v_1");
     assert IsValid_AttributeName("JustSigned");
     var expectedNew : DDB.AttributeMap := map[

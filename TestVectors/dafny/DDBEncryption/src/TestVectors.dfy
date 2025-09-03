@@ -50,6 +50,45 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   const PerfIterations : uint32 := 1000
 
+  class TestBucketSelector extends Types.IBucketSelector
+  {
+    ghost predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    { History in Modifies }
+
+    constructor ()
+      ensures ValidState() && fresh(History) && fresh(Modifies)
+    {
+      History := new Types.IBucketSelectorCallHistory();
+      Modifies := { History };
+    }
+
+    ghost predicate GetBucketNumberEnsuresPublicly (
+      input: Types.GetBucketNumberInput ,
+      output: Result<Types.GetBucketNumberOutput, Types.Error> )
+      : (outcome: bool)
+    {
+      true
+    }
+
+    method GetBucketNumber'(input: Types.GetBucketNumberInput)
+      returns (output: Result<Types.GetBucketNumberOutput, Types.Error> )
+      requires ValidState()
+      modifies Modifies - {History}
+      decreases Modifies - {History}
+      ensures ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+    {
+      expect "PreferredBucket" in input.item;
+      expect input.item["PreferredBucket"].N?;
+      var bucket :- expect StrToInt(input.item["PreferredBucket"].N);
+      expect 0 <= bucket < INT32_MAX_LIMIT;
+      expect Types.IsValid_BucketNumber(bucket as int32);
+      return Success(Types.GetBucketNumberOutput(bucketNumber := bucket as Types.BucketNumber));
+    }
+  }
+
   datatype TestVectorConfig = TestVectorConfig (
     schemaOnEncrypt : DDB.CreateTableInput,
     globalRecords : seq<Record>,
@@ -114,6 +153,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       Validate();
       StringOrdering();
+      BucketTests();
       LargeTests();
       PerfQueryTests();
       BasicIoTest();
@@ -126,6 +166,704 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       DecryptTests();
       var client :- expect CreateInterceptedDDBClient.CreateVanillaDDBClient();
       DeleteTable(client);
+    }
+
+    function MakeBucketRecord(x : nat) : DDB.AttributeMap
+    {
+      var num := String.Base10Int2String(x);
+      var num2 := String.Base10Int2String(x%5);
+
+      map[
+        HashName := DDB.AttributeValue.N(num),
+        AttrNames[0] := AttrValues[0],
+        AttrNames[1] := AttrValues[1],
+        AttrNames[2] := AttrValues[2],
+        AttrNames[3] := AttrValues[3],
+        AttrNames[4] := AttrValues[4],
+        AttrNames[5] := AttrValues[5],
+        AttrNames[6] := AttrValues[6],
+        "PreferredBucket" := DDB.AttributeValue.N(num2)
+      ]
+    }
+
+    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : Types.BucketNumber, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.BucketCount)
+      requires counts.Length == 100
+      requires client.ValidState()
+      requires client.Modifies !! {counts}
+      ensures client.ValidState()
+      modifies client.Modifies
+      modifies counts
+    {
+      var lastKey : Option<DDB.Key> := None;
+      var numReturned : nat := 0;
+      for i := 0 to 100
+        invariant client.ValidState()
+        invariant client.Modifies !! {counts}
+      {
+        var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket as int));
+        var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
+        values := values[":aws_dbe_bucket" := bucketNumber];
+        var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values));
+        var result :- expect client.Query(q);
+        if result.Items.Some? {
+          numReturned := numReturned + |result.Items.value|;
+          for j := 0 to |result.Items.value|
+            invariant client.ValidState()
+            invariant client.Modifies !! {counts}
+          {
+            var item := result.Items.value[j];
+            expect HashName in item;
+            expect item[HashName].N?;
+            var pkStr := item[HashName].N;
+            var pkNum :- expect StrToInt(pkStr);
+            expect 0 <= pkNum < 100;
+            counts[pkNum] := counts[pkNum] + 1;
+            if custom {
+              expect "PreferredBucket" in item;
+              expect item["PreferredBucket"].N?;
+              var stored_bucket : int :- expect StrToInt(item["PreferredBucket"].N);
+              expect bucket as int == stored_bucket % numQueries as int;
+            }
+          }
+        }
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
+          lastKey := result.LastEvaluatedKey;
+        } else {
+          break;
+        }
+      }
+      if numReturned == 0 {
+        print "Query ", queryName, " for bucket ", bucket, " returned no values", "\n";
+        expect false;
+      }
+    }
+
+    method DoBucketScan(client : DDB.IDynamoDBClient, query : DDB.ScanInput, counts : array<int>, queryName : string)
+      requires counts.Length == 100
+      requires client.ValidState()
+      requires client.Modifies !! {counts}
+      ensures client.ValidState()
+      modifies client.Modifies
+      modifies counts
+    {
+      var lastKey : Option<DDB.Key> := None;
+      for i := 0 to 100
+        invariant client.ValidState()
+        invariant client.Modifies !! {counts}
+      {
+        var result :- expect client.Scan(query);
+        if result.Items.Some? {
+          for j := 0 to |result.Items.value|
+            invariant client.ValidState()
+            invariant client.Modifies !! {counts}
+          {
+            var item := result.Items.value[j];
+            expect HashName in item;
+            expect item[HashName].N?;
+            var pkStr := item[HashName].N;
+            var pkNum :- expect StrToInt(pkStr);
+            expect 0 <= pkNum < 100;
+            counts[pkNum] := counts[pkNum] + 1;
+          }
+        }
+        if result.LastEvaluatedKey.Some? && 0 < |result.LastEvaluatedKey.value| {
+          lastKey := result.LastEvaluatedKey;
+        } else {
+          break;
+        }
+      }
+    }
+
+
+    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : Types.BucketCount, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.BucketCount)
+      requires counts.Length == 100
+      requires client.ValidState()
+      requires client.Modifies !! {counts}
+      requires 0 < numQueries
+      ensures client.ValidState()
+      modifies client.Modifies
+      modifies counts
+    {
+      var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket as int));
+      var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
+      values := values[":aws_dbe_bucket" := bucketNumber];
+      var q := query.(ExpressionAttributeValues := Some(values));
+      var result := client.Query(q);
+      expect result.Failure?;
+    }
+
+    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : Types.BucketCount, q : DDB.QueryInput, trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, queryName : string, custom : bool := false)
+      requires 0 < numQueries <= 5
+      requires client.ValidState()
+      requires trans.ValidState()
+      ensures client.ValidState()
+      ensures trans.ValidState()
+      modifies client.Modifies
+      modifies trans.Modifies
+    {
+      var input := Trans.GetNumberOfQueriesInput(input := q);
+      var res :- expect trans.GetNumberOfQueries(input);
+      if res.numberOfQueries != numQueries {
+        print "numberOfQueries should have been\n", numQueries, " but was ", res.numberOfQueries, " for ", queryName,"\n";
+      }
+      expect res.numberOfQueries == numQueries;
+
+      var counts: array<int> := new int[100](i => 0);
+      for i : Types.BucketNumber := 0 to numQueries
+        invariant client.ValidState()
+        invariant trans.ValidState()
+      {
+        DoBucketQuery(client, i, q, counts, queryName, custom, numQueries);
+      }
+
+      for i : Types.BucketNumber := numQueries to 5
+        invariant client.ValidState()
+        invariant trans.ValidState()
+      {
+        TestBucketQueryFailure(client, i, q, counts, queryName, custom, numQueries);
+      }
+
+      var wasBad : bool := false;
+      for i := 0 to 100 {
+        if counts[i] == 0 {
+          print "Bucket Query ", queryName, " did not find record ", i, "\n";
+          wasBad := true;
+        } else if counts[i] != 1 {
+          print "Bucket Query ", queryName, " returned record ", i, " ", counts[i], " times\n";
+          wasBad := true;
+        }
+      }
+      expect !wasBad;
+    }
+
+    method TestBucketScan(client : DDB.IDynamoDBClient, q : DDB.ScanInput)
+      requires client.ValidState()
+      requires q.FilterExpression.Some?
+      ensures client.ValidState()
+      modifies client.Modifies
+    {
+      var queryName : string := q.FilterExpression.value;
+      var counts: array<int> := new int[100](i => 0);
+      DoBucketScan(client, q, counts, queryName);
+
+      var wasBad : bool := false;
+      for i := 0 to 100 {
+        if counts[i] == 0 {
+          print "Bucket Scan ", queryName, " did not find record ", i, "\n";
+          wasBad := true;
+        } else if counts[i] != 1 {
+          print "Bucket Scab ", queryName, " returned record ", i, " ", counts[i], " times\n";
+          wasBad := true;
+        }
+      }
+      if wasBad {
+        print "FAILED : ", queryName, "\n";
+      }
+      expect !wasBad;
+    }
+
+    const ValueNames : seq<DDB.AttributeName> :=
+      [
+        ":attr1",
+        ":attr2",
+        ":attr3",
+        ":attr4",
+        ":attr5",
+        ":attr6",
+        ":attr7"
+      ]
+
+    const AttrNames : seq<DDB.AttributeName> :=
+      [
+        "Attr1",
+        "Attr2",
+        "Attr3",
+        "Attr4",
+        "Attr5",
+        "Attr6",
+        "Attr7"
+      ]
+
+    const AttrValues : seq<DDB.AttributeValue> :=
+      [
+        DDB.AttributeValue.S("AAAA"),
+        DDB.AttributeValue.S("BBBB"),
+        DDB.AttributeValue.S("CCCC"),
+        DDB.AttributeValue.S("DDDD"),
+        DDB.AttributeValue.S("EEEE"),
+        DDB.AttributeValue.S("FFFF"),
+        DDB.AttributeValue.S("GGGG")
+      ]
+
+    function GetBucketScan1(attr : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(AttrNames[attr] + " = " + ValueNames[attr]),
+        ExpressionAttributeValues := Some(map[ValueNames[attr] := AttrValues[attr]])
+      )
+    }
+
+    function GetBucketScan2(attr1 : nat, attr2 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2]
+          ])
+      )
+    }
+
+    function GetBucketScan3(attr1 : nat, attr2 : nat, attr3 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3]
+          ])
+      )
+    }
+
+    function GetBucketScan4(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      requires 0 <= attr4 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3] + " and " +
+          AttrNames[attr4] + " = " + ValueNames[attr4]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3],
+            ValueNames[attr4] := AttrValues[attr4]
+          ])
+      )
+    }
+
+    function GetBucketScan5(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      requires 0 <= attr4 < 6
+      requires 0 <= attr5 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3] + " and " +
+          AttrNames[attr4] + " = " + ValueNames[attr4] + " and " +
+          AttrNames[attr5] + " = " + ValueNames[attr5]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3],
+            ValueNames[attr4] := AttrValues[attr4],
+            ValueNames[attr5] := AttrValues[attr5]
+          ])
+      )
+    }
+
+    function GetBucketScan6(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat, attr6 : nat) : (out : DDB.ScanInput)
+      requires 0 <= attr1 < 6
+      requires 0 <= attr2 < 6
+      requires 0 <= attr3 < 6
+      requires 0 <= attr4 < 6
+      requires 0 <= attr5 < 6
+      requires 0 <= attr6 < 6
+      ensures out.FilterExpression.Some?
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some(
+          AttrNames[attr1] + " = " + ValueNames[attr1] + " and " +
+          AttrNames[attr2] + " = " + ValueNames[attr2] + " and " +
+          AttrNames[attr3] + " = " + ValueNames[attr3] + " and " +
+          AttrNames[attr4] + " = " + ValueNames[attr4] + " and " +
+          AttrNames[attr5] + " = " + ValueNames[attr5] + " and " +
+          AttrNames[attr6] + " = " + ValueNames[attr6]),
+        ExpressionAttributeValues := Some(
+          map[
+            ValueNames[attr1] := AttrValues[attr1],
+            ValueNames[attr2] := AttrValues[attr2],
+            ValueNames[attr3] := AttrValues[attr3],
+            ValueNames[attr4] := AttrValues[attr4],
+            ValueNames[attr5] := AttrValues[attr5],
+            ValueNames[attr6] := AttrValues[attr6]
+          ])
+      )
+    }
+
+
+    function GetCompQuery2671() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX2671"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Comp2671 = :attr2671"),
+        ExpressionAttributeValues := Some(map[":attr2671" := DDB.AttributeValue.S("2_BBBB.6_FFFF.7_GGGG.1_AAAA")])
+      )
+    }
+    function GetCompScan2671() : DDB.ScanInput
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some("Comp2671 = :attr2671"),
+        ExpressionAttributeValues := Some(map[":attr2671" := DDB.AttributeValue.S("2_BBBB.6_FFFF.7_GGGG.1_AAAA")])
+      )
+    }
+    function GetCompQuery1472() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX1472"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Comp1472 = :attr1472"),
+        ExpressionAttributeValues := Some(map[":attr1472" := DDB.AttributeValue.S("1_AAAA.4_DDDD.7_GGGG.2_BBBB")])
+      )
+    }
+    function GetCompScan1472() : DDB.ScanInput
+    {
+      DDB.ScanInput(
+        TableName := TableName,
+        FilterExpression := Some("Comp1472 = :attr1472"),
+        ExpressionAttributeValues := Some(map[":attr1472" := DDB.AttributeValue.S("1_AAAA.4_DDDD.7_GGGG.2_BBBB")])
+      )
+    }
+
+    function GetBucketQuery1() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX1"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr1 = :attr1"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA")])
+      )
+    }
+    function GetBucketQuery15() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX15"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery15F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX1"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr1 = :attr1"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery25F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX2"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr2 = :attr2"),
+        ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery35F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX3"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr3 = :attr3"),
+        ExpressionAttributeValues := Some(map[":attr3" := DDB.AttributeValue.S("CCCC"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery45F() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX4"),
+        FilterExpression := Some("Attr5 = :attr5"),
+        KeyConditionExpression := Some("Attr4 = :attr4"),
+        ExpressionAttributeValues := Some(map[":attr4" := DDB.AttributeValue.S("DDDD"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery23() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX23"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr2 = :attr2 and Attr3 = :attr3"),
+        ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB"), ":attr3" := DDB.AttributeValue.S("CCCC")])
+      )
+    }
+    function GetBucketQuery51() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX51"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
+        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+    function GetBucketQuery2() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX2"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr2 = :attr2"),
+        ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB")])
+      )
+    }
+    function GetBucketQuery3() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX3"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr3 = :attr3"),
+        ExpressionAttributeValues := Some(map[":attr3" := DDB.AttributeValue.S("CCCC")])
+      )
+    }
+    function GetBucketQuery4() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX4"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr4 = :attr4"),
+        ExpressionAttributeValues := Some(map[":attr4" := DDB.AttributeValue.S("DDDD")])
+      )
+    }
+    function GetBucketQuery5() : DDB.QueryInput
+    {
+      DDB.QueryInput(
+        TableName := TableName,
+        IndexName := Some("ATTR_INDEX5"),
+        FilterExpression := None,
+        KeyConditionExpression := Some("Attr5 = :attr5"),
+        ExpressionAttributeValues := Some(map[":attr5" := DDB.AttributeValue.S("EEEE")])
+      )
+    }
+
+    method BucketTests()
+    {
+      print "BucketTests\n";
+      BucketTest4();
+      BucketTest3();
+      BucketTest1();
+      BucketTest2();
+    }
+
+    method TestScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput, expected : string)
+      requires trans.ValidState()
+      ensures trans.ValidState()
+      modifies trans.Modifies
+    {
+      var input := Trans.ScanInputTransformInput(sdkInput := q);
+      var res :- expect trans.ScanInputTransform(input);
+      if res.transformedInput.FilterExpression != Some(expected) {
+        print "Transform should have been\n", expected, "\nbut was\n", res.transformedInput.FilterExpression, "\n";
+      }
+    }
+
+    method MakeTrans(config : TableConfig) returns (output : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+      ensures fresh(output)
+      ensures fresh(output.Modifies)
+      ensures output.ValidState()
+    {
+      var configs := Types.DynamoDbTablesEncryptionConfig (tableEncryptionConfigs := map[TableName := config.config]);
+      assume {:axiom} false; // because there are a million requires's for configs
+      var trans :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
+      return trans;
+    }
+
+    method {:isolate_assertions} BucketTest3()
+    {
+      expect "bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["bucket_encrypt"];
+      var trans := MakeTrans(config);
+      TestScanTrans(trans, GetBucketScan1(5), "Attr6 = :attr6");
+      TestScanTrans(trans, GetBucketScan1(1), "(aws_dbe_b_Attr2 = :attr2) OR (aws_dbe_b_Attr2 = :attr2AA)");
+      TestScanTrans(trans, GetBucketScan2(5, 1), "(Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2) OR (Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2AA)");
+      TestScanTrans(trans, GetBucketScan2(2, 3), "(aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
+      TestScanTrans(trans, GetBucketScan3(1, 2, 3), "(aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
+    }
+
+    // Fill table with 100 records. Different RecNum, same data otherwise
+    // Make a variety of bucketed queries. Ensure that
+    // 1) Every item is returned exactly once
+    // 2) Every bucket holds at least one item
+    method BucketTest1()
+    {
+      print "BucketTest1\n";
+      expect "bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["bucket_encrypt"];
+      var wClient, rClient := SetupTestTable(config, config);
+      var trans := MakeTrans(config);
+
+      for i : nat := 0 to 100 {
+        var putInput := DDB.PutItemInput(
+          TableName := TableName,
+          Item := MakeBucketRecord(i)
+        );
+        var _ :-  expect wClient.PutItem(putInput);
+      }
+      var q1 := DDB.QueryInput(
+        TableName := TableName
+      );
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), trans, "bucket query 5");
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), trans, "bucket query 4");
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), trans, "bucket query 3");
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), trans, "bucket query 2");
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), trans, "bucket query 1");
+
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), trans, "bucket query 15");
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51");
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23");
+
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15F");
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25F");
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35F");
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45F");
+
+      var scanCount4 := 0;
+      var scanCount5 := 0;
+      TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
+      TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
+      for i := 0 to 6 {
+        TestBucketScan(rClient, GetBucketScan1(i));
+        for j := 0 to 6 {
+          if i != j {
+            TestBucketScan(rClient, GetBucketScan2(i, j));
+            for k := 0 to 6 {
+              if i != k && j != k {
+                TestBucketScan(rClient, GetBucketScan3(i, j, k));
+              }
+              for l := 0 to 6 {
+                if i != l && j != l && k != l {
+                  scanCount4 := scanCount4 + 1;
+                  if scanCount4 % 10 == 0 {
+                    TestBucketScan(rClient, GetBucketScan4(i, j, k, l));
+                  }
+                  for m := 0 to 6 {
+                    if i != m && j != m && k != m && l != m {
+                      scanCount5 := scanCount5 + 1;
+                      if scanCount5 % 100 == 0 {
+                        TestBucketScan(rClient, GetBucketScan5(i, j, k, l, m));
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Similar to BucketTest1, but with complex config
+    method BucketTest4()
+    {
+      print "BucketTest4\n";
+      expect "complex_bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["complex_bucket_encrypt"];
+      var wClient, rClient := SetupTestTable(config, config);
+      var trans := MakeTrans(config);
+
+      for i : nat := 0 to 100 {
+        var putInput := DDB.PutItemInput(
+          TableName := TableName,
+          Item := MakeBucketRecord(i)
+        );
+        var _ :-  expect wClient.PutItem(putInput);
+      }
+      TestBucketQueries(rClient, 2, GetCompQuery2671(), trans, "comp query 2671");
+      TestBucketScan(rClient, GetCompScan2671());
+      TestBucketQueries(rClient, 4, GetCompQuery1472(), trans, "comp query 1472");
+      TestBucketScan(rClient, GetCompScan1472());
+    }
+
+    // As BucketTest1, but with custom bucket selector
+    method BucketTest2()
+    {
+      print "BucketTest2\n";
+      expect "bucket_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["bucket_encrypt"];
+      var testSelector := new TestBucketSelector();
+      expect config.config.search.Some?;
+      var version := config.config.search.value.versions[0].(bucketSelector := Some(testSelector));
+      var nSearch := config.config.search.value.(versions := [version]);
+      var nConfig := config.config.(search := Some(nSearch));
+      config := config.(config := nConfig);
+      var wClient, rClient := SetupTestTable(config, config);
+      var trans := MakeTrans(config);
+
+      for i : nat := 0 to 100 {
+        var putInput := DDB.PutItemInput(
+          TableName := TableName,
+          Item := MakeBucketRecord(i)
+        );
+        var _ :-  expect wClient.PutItem(putInput);
+      }
+      var q1 := DDB.QueryInput(
+        TableName := TableName
+      );
+      TestBucketQueries(rClient, 5, GetBucketQuery5(), trans, "bucket query 5a", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery4(), trans, "bucket query 4a", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery3(), trans, "bucket query 3a", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery2(), trans, "bucket query 2a", true);
+      TestBucketQueries(rClient, 1, GetBucketQuery1(), trans, "bucket query 1a", true);
+
+      TestBucketQueries(rClient, 5, GetBucketQuery15(), trans, "bucket query 15a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51a", true);
+      TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23a", true);
+
+      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15Fa", true);
+      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25Fa", true);
+      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35Fa", true);
+      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45Fa", true);
+
+      // we don't test scan here, because scan doesn't use ":aws_dbe_bucket"
     }
 
     function NewOrderRecord(i : nat, str : string) : Record
@@ -545,13 +1283,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       expect config in largeEncryptionConfigs;
       var tconfig := largeEncryptionConfigs[config];
-      var configs := Types.DynamoDbTablesEncryptionConfig (
-        tableEncryptionConfigs := map[TableName := tconfig.config]
-      );
-      // because there are lots of pre-conditions on configs
-      assume {:axiom} false;
-      var client :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(configs);
-      LargeTestsClient(client, config);
+      var trans := MakeTrans(tconfig);
+      LargeTestsClient(trans, config);
     }
 
     method LargeTestsClient(client : Trans.IDynamoDbEncryptionTransformsClient, config : string)
