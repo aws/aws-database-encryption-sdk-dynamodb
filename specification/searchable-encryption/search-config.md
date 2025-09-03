@@ -558,7 +558,7 @@ If not set, Max Buckets MUST default to `1`, which is synonymous with "no bucket
 The Default Buckets setting a [beacon version](#beacon-version-initialization) configures the number of buckets used by all
 [standard beacons](beacons.md#standard-beacon-initialization) that do not directly specify a number of buckets.
 
-If not set, Max Buckets MUST default to [Max Buckets](#max-buckets).
+If not set, Default Buckets MUST default to [Max Buckets](#max-buckets).
 
 ### Bucket Selector
 

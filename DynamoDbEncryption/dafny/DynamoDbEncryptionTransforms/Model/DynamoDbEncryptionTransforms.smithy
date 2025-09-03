@@ -81,10 +81,18 @@ operation GetNumberOfQueries {
     input: GetNumberOfQueriesInput,
     output: GetNumberOfQueriesOutput,
 }
+
+//= specification/dynamodb-encryption-client/ddb-get-number-of-queries.md#input
+//= type=implication
+//# This operation MUST take as input the QueryInput structure under consideration.
 structure GetNumberOfQueriesInput {
     @required
     input: QueryInput
 }
+
+//= specification/dynamodb-encryption-client/ddb-get-number-of-queries.md#input
+//= type=implication
+//# This operation MUST return the number of queries necessary.
 structure GetNumberOfQueriesOutput {
     @required
     numberOfQueries: BucketCount

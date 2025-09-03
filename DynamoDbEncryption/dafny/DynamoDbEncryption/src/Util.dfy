@@ -96,8 +96,12 @@ module DynamoDbEncryptionUtil {
 
   function method BucketNumberToBytes(x : BucketNumber) : BucketBytes
   {
+    //= specification/searchable-encryption/beacons.md#bucket-beacon-encoding
+    //# If this number is zero, then the input sequence of bytes MUST be returned unchanged.
     if x == 0 then
       []
+    //= specification/searchable-encryption/beacons.md#bucket-beacon-encoding
+    //# Otherwise, a single byte with a value equal to this calculated bucket number, MUST be appended to the input sequence of bytes.
     else
       [x as uint8]
   }

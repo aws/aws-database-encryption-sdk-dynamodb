@@ -147,6 +147,9 @@ module BaseBeacon {
     numberOfBuckets : BucketCount
   ) {
 
+    //= specification/searchable-encryption/beacons.md#beacon-constraint
+    //# If an item is being written or queried as bucket `X`, but the [standard beacon](#standard-beacon-initialization) is constrained to only `N` buckets,
+    //# then the bucket used to [encode](#bucket-beacon-encoding) the beacon MUST be `X % N`, where `%` is the modulo or remainder operation.
     function method constrained_bucket(bucket : BucketNumber) : BucketBytes
     {
       if numberOfBuckets == 0 || bucket == 0 then
@@ -165,6 +168,8 @@ module BaseBeacon {
 
                 && |ret.value| == (((length as uint8) + 3) / 4) as nat
     {
+      //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
+      //# - The serialized form MUST be augmented as per [bucket beacon encoding](#bucket-beacon-encoding).
       base.hash(val, key, length, constrained_bucket(bucket))
     }
 

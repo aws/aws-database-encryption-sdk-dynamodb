@@ -294,6 +294,8 @@ module SearchConfigToInfo {
       true
     }
 
+    //= specification/searchable-encryption/search-config.md#bucket-selector
+    //# The default implementation of the Bucket Selector MUST return a random number within the acceptable range, i.e.
     method GetBucketNumber'(input: GetBucketNumberInput)
       returns (output: Result<GetBucketNumberOutput, Error> )
       requires ValidState()
@@ -331,14 +333,30 @@ module SearchConfigToInfo {
               && fresh(output.value.bucketSelector.Modifies)
   {
     var maxBuckets : BucketCount := config.maximumNumberOfBuckets.UnwrapOr(1);
-    var defaultBuckets : BucketCount := config.defaultNumberOfBuckets.UnwrapOr(maxBuckets);
-    :- Need(0 <= maxBuckets as nat < MAX_BUCKET_COUNT, E("Invalid number of buckets specified, " + Base10Int2String(maxBuckets as int) + ", must be 0 < maximumNumberOfBuckets <= 255."));
+    :- Need(0 <= maxBuckets as nat < MAX_BUCKET_COUNT, E("Invalid maximumNumberOfBuckets specified, " + Base10Int2String(maxBuckets as int) + ", must be 0 < maximumNumberOfBuckets <= 255."));
     // Zero is invalid, but in Java we can't distinguish None from Some(0)
     if maxBuckets == 0 {
       maxBuckets := 1;
     }
-    if defaultBuckets == 0 {
+
+    var defaultBucketsOpt : Option<BucketCount> := config.defaultNumberOfBuckets;
+    var defaultBuckets;
+
+    //= specification/searchable-encryption/search-config.md#default-buckets
+    //# If not set, Default Buckets MUST default to [Max Buckets](#max-buckets).
+    if defaultBucketsOpt.None? || defaultBucketsOpt.value == 0 {
       defaultBuckets := maxBuckets;
+
+      //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+      //# Initialization MUST fail if [default number of buckets](#default-buckets) is greater than or equal to [maximum number of buckets](#max-buckets).
+
+      // if maximumNumberOfBuckets is not set, then maxBuckets == 1, and so this is also covered
+      //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+      //# Initialization MUST fail if [default number of buckets](#default-buckets) is supplied but [maximum number of buckets](#max-buckets) is not.
+    } else if maxBuckets <= defaultBucketsOpt.value {
+      return(E("Invalid defaultNumberOfBuckets specified, " + Base10Int2String(defaultBucketsOpt.value as int) + ", must be 0 < defaultNumberOfBuckets < maximumNumberOfBuckets."));
+    } else {
+      defaultBuckets := defaultBucketsOpt.value;
     }
 
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
@@ -602,6 +620,9 @@ module SearchConfigToInfo {
     else if inner.value < maxBuckets then
       Success(inner.value)
     else
+      //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
+      //# Initialization MUST fail if [number of buckets](#beacon-constraint) is specified, and is greater than or equal to
+      //# the maximum number of buckets specified in the [beacon version](search-config.md#beacon-version-initialization).
       Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the maximumNumberOfBuckets " + Base10Int2String(maxBuckets as int)))
   }
 

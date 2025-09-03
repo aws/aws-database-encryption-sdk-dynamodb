@@ -61,6 +61,14 @@ operation GetBucketNumber {
   output: GetBucketNumberOutput,
 }
 
+//= specification/searchable-encryption/search-config.md#bucket-selector
+//= type=implication
+//# GetBucketNumber MUST take as input
+//#
+//# - A DynamoDB Item (i.e an AttributeMap)
+//# - The [number of buckets](#max-buckets) defined in the associated [beacon version](#beacon-version-initialization).
+//# - The logical table name for this defined in the associated [table config](../dynamodb-encryption-client/ddb-table-encryption-config.md#structure).
+
 structure GetBucketNumberInput {
   @required
   item: AttributeMap,
@@ -69,6 +77,12 @@ structure GetBucketNumberInput {
   @required
   logicalTableName: String,
 }
+
+//= specification/searchable-encryption/search-config.md#bucket-selector
+//= type=implication
+//# GetBucketNumber MUST return
+//#
+//# - The number of the bucket to use for this item
 
 structure GetBucketNumberOutput {
   @required
