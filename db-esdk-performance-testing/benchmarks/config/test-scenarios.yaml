@@ -1,4 +1,4 @@
-# ESDK Performance Test Scenarios Configuration
+# DB-ESDK Performance Test Scenarios Configuration
 
 # Data sizes to test (in bytes)
 # Categories are for organization only - code processes all sizes regardless of category
