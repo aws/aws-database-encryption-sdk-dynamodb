@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"runtime/metrics"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
@@ -21,65 +22,71 @@ import (
 
 // === Helper Functions ===
 
-// runPutGetCycle performs a single PutItem-GetItem cycle and measures performance
-func (b *DBESDKBenchmark) runPutGetCycle(data []byte, itemId string) (float64, float64, error) {
+// runBatchPutGetCycle performs a BatchWriteItem-BatchGetItem cycle with 25 items and measures performance
+func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte, baseItemId string) (float64, float64, error) {
 	ctx := context.Background()
 	tableName := b.Config.TableName
 
-	// Create DynamoDB item with test data
-	item := map[string]types.AttributeValue{
-		"partition_key": &types.AttributeValueMemberS{Value: "benchmark-test"},
-		"sort_key":      &types.AttributeValueMemberN{Value: itemId},
-		"attribute1":    &types.AttributeValueMemberB{Value: data}, // Store test data as binary
-		"attribute2":    &types.AttributeValueMemberS{Value: "sign me!"},
-		":attribute3":   &types.AttributeValueMemberS{Value: "ignore me!"},
+	// Create 25 write requests with same data, different sort_key
+	var writeRequests []types.WriteRequest
+	for i := 0; i < 25; i++ {
+		item := map[string]types.AttributeValue{
+			"partition_key": &types.AttributeValueMemberS{Value: "benchmark-test"},
+			"sort_key":      &types.AttributeValueMemberN{Value: strconv.Itoa(i)},
+			"attribute1":    &types.AttributeValueMemberB{Value: data},
+			"attribute2":    &types.AttributeValueMemberS{Value: "sign me!"},
+			":attribute3":   &types.AttributeValueMemberS{Value: "ignore me!"},
+		}
+		writeRequests = append(writeRequests, types.WriteRequest{
+			PutRequest: &types.PutRequest{Item: item},
+		})
 	}
 
-	// PutItem
-	putStart := time.Now()
-	putInput := &dynamodb.PutItemInput{
-		TableName: aws.String(tableName),
-		Item:      item,
-	}
-	_, err := b.DbesdkClient.PutItem(ctx, putInput)
+	// BatchWriteItem
+	batchWriteStart := time.Now()
+	_, err := b.DbesdkClient.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]types.WriteRequest{tableName: writeRequests},
+	})
 	if err != nil {
-		return 0, 0, fmt.Errorf("PutItem failed: %w", err)
+		return 0, 0, fmt.Errorf("BatchWriteItem failed: %w", err)
 	}
-	putDuration := time.Since(putStart).Seconds() * 1000
+	batchWriteDuration := time.Since(batchWriteStart).Seconds() * 1000
 
-	// GetItem
-	key := map[string]types.AttributeValue{
-		"partition_key": &types.AttributeValueMemberS{Value: "benchmark-test"},
-		"sort_key":      &types.AttributeValueMemberN{Value: itemId},
+	// Create 25 keys for BatchGetItem
+	var keys []map[string]types.AttributeValue
+	for i := 0; i < 25; i++ {
+		keys = append(keys, map[string]types.AttributeValue{
+			"partition_key": &types.AttributeValueMemberS{Value: "benchmark-test"},
+			"sort_key":      &types.AttributeValueMemberN{Value: strconv.Itoa(i)},
+		})
 	}
 
-	getStart := time.Now()
-	getInput := &dynamodb.GetItemInput{
-		TableName:      aws.String(tableName),
-		Key:            key,
-		ConsistentRead: aws.Bool(true),
-	}
-	result, err := b.DbesdkClient.GetItem(ctx, getInput)
+	// BatchGetItem
+	batchGetStart := time.Now()
+	result, err := b.DbesdkClient.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]types.KeysAndAttributes{
+			tableName: {Keys: keys, ConsistentRead: aws.Bool(true)},
+		},
+	})
 	if err != nil {
-		return 0, 0, fmt.Errorf("GetItem failed: %w", err)
+		return 0, 0, fmt.Errorf("BatchGetItem failed: %w", err)
 	}
-	getDuration := time.Since(getStart).Seconds() * 1000
+	batchGetDuration := time.Since(batchGetStart).Seconds() * 1000
 
-	// Verify data integrity
-	if result.Item == nil {
-		return 0, 0, fmt.Errorf("item not found")
-	}
-
-	retrievedData, ok := result.Item["attribute1"].(*types.AttributeValueMemberB)
-	if !ok {
-		return 0, 0, fmt.Errorf("attribute1 not found or wrong type")
+	// Verify 25 items retrieved with correct data size
+	items := result.Responses[tableName]
+	if len(items) != 25 {
+		return 0, 0, fmt.Errorf("expected 25 items, got %d", len(items))
 	}
 
-	if len(retrievedData.Value) != len(data) {
-		return 0, 0, fmt.Errorf("data size mismatch: expected %d, got %d", len(data), len(retrievedData.Value))
+	for _, item := range items {
+		retrievedData, ok := item["attribute1"].(*types.AttributeValueMemberB)
+		if !ok || len(retrievedData.Value) != len(data) {
+			return 0, 0, fmt.Errorf("data verification failed")
+		}
 	}
 
-	return putDuration, getDuration, nil
+	return batchWriteDuration, batchGetDuration, nil
 }
 
 // shouldRunTestType checks if a test type should be run based on quick config
@@ -107,7 +114,7 @@ func (b *DBESDKBenchmark) runThroughputTest(dataSize int, iterations int) (*Benc
 	// Warmup
 	for i := 0; i < b.Config.Iterations.Warmup; i++ {
 		itemId := fmt.Sprintf("%d", i) // Use numeric string for Number attribute
-		if _, _, err := b.runPutGetCycle(testData, itemId); err != nil {
+		if _, _, err := b.runBatchPutGetCycle(testData, itemId); err != nil {
 			return nil, fmt.Errorf("warmup iteration %d failed: %w", i, err)
 		}
 	}
@@ -126,7 +133,7 @@ func (b *DBESDKBenchmark) runThroughputTest(dataSize int, iterations int) (*Benc
 	for i := 0; i < iterations; i++ {
 		itemId := fmt.Sprintf("%d", 1000+i) // Use numeric string, offset to avoid warmup conflicts
 		iterationStart := time.Now()
-		putMs, getMs, err := b.runPutGetCycle(testData, itemId)
+		putMs, getMs, err := b.runBatchPutGetCycle(testData, itemId)
 		if err != nil {
 			return nil, fmt.Errorf("measurement iteration %d failed: %w", i, err)
 		}
@@ -244,7 +251,7 @@ func (b *DBESDKBenchmark) runMemoryTest(dataSize int) (*BenchmarkResult, error) 
 		// Run operation
 		operationStart := time.Now()
 		itemId := fmt.Sprintf("%d", 2000+i) // Use numeric string, offset to avoid conflicts
-		_, _, err := b.runPutGetCycle(data, itemId)
+		_, _, err := b.runBatchPutGetCycle(data, itemId)
 		operationDuration := time.Since(operationStart)
 
 		close(stopSampling)
