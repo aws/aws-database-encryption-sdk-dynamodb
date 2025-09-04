@@ -58,6 +58,11 @@ func New(configPath string) (*DBESDKBenchmark, error) {
 	}
 	benchmark.Config = config
 
+	// Setup MPL
+	if err := benchmark.setupMPL(); err != nil {
+		return nil, fmt.Errorf("failed to setup MPL: %w", err)
+	}
+
 	// Setup DB-ESDK
 	if err := benchmark.setupDBESDK(); err != nil {
 		return nil, fmt.Errorf("failed to setup DB-ESDK: %w", err)
@@ -67,6 +72,26 @@ func New(configPath string) (*DBESDKBenchmark, error) {
 		benchmark.CPUCount, benchmark.TotalMemoryGB)
 
 	return benchmark, nil
+}
+
+func (b *DBESDKBenchmark) setupMPL() error {
+	// Initialize the material providers client
+	matProvConfig := mpltypes.MaterialProvidersConfig{}
+	matProv, err := mplsmithygenerated.NewClient(matProvConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create material providers client: %w", err)
+	}
+
+	switch b.Config.Keyring {
+	case RawAESKeying:
+		b.Keyring, err = SetupRawAESKeyring(matProv)
+		if err != nil {
+			return fmt.Errorf("failed to create keyring: %w", err)
+		}
+	default:
+		return fmt.Errorf("unsupported keyring type: %s", b.Config.Keyring)
+	}
+	return nil
 }
 
 // setupDBESDK initializes the DynamoDB client with DB-ESDK middleware and creates a default keyring which is AES keyring
