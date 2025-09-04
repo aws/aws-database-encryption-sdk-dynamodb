@@ -41,3 +41,5 @@ concurrency_levels:
   - 16
 
 table_name: "dbesdk-performance-testing" # DynamoDB table name
+
+keyring: "raw-aes"

@@ -10,6 +10,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type KeyringType string
+
+const (
+	RawAESKeying KeyringType = "raw-aes"
+)
+
 // TestConfig represents the configuration for benchmark tests
 type TestConfig struct {
 	DataSizes struct {
@@ -24,6 +30,7 @@ type TestConfig struct {
 	ConcurrencyLevels []int        `yaml:"concurrency_levels"`
 	QuickConfig       *QuickConfig `yaml:"quick_config"`
 	TableName         string       `yaml:"table_name"`
+	Keyring           KeyringType  `yaml:"keyring"`
 }
 
 // QuickConfig represents the quick test configuration
