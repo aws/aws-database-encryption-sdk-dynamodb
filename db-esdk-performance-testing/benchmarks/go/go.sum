@@ -8,8 +8,6 @@ github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitiv
 github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.2.2/go.mod h1:mSUejB7V5Wo23naCw2ORAJ+5ZJkyaSvB6hQbKPVXNuA=
 github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.2 h1:k/OqY+NJcTlFByY1WcM6dF5ZC4kIZtZ8b3A9kRVAj8Y=
 github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.2/go.mod h1:j4QF5oVY9L1yNZrzoDu3l3d8TRh53uBw3FLZCL7xCTk=
-github.com/aws/aws-encryption-sdk/releases/go/encryption-sdk v0.2.0 h1:WD+Zmu/WR3rW8u1qfuKH1T10SXQPAb/Dtv+lRceAqzQ=
-github.com/aws/aws-encryption-sdk/releases/go/encryption-sdk v0.2.0/go.mod h1:dZucPyqttfAV6EEYohPSB8ZkF8yBqCiSltsK1Joa/Sg=
 github.com/aws/aws-sdk-go-v2 v1.38.1 h1:j7sc33amE74Rz0M/PoCpsZQ6OunLqys/m5antM0J+Z8=
 github.com/aws/aws-sdk-go-v2 v1.38.1/go.mod h1:9Q0OoGQoboYIAJyslFyF1f5K1Ryddop8gqMhWx/n4Wg=
 github.com/aws/aws-sdk-go-v2/config v1.31.2 h1:NOaSZpVGEH2Np/c1toSeW0jooNl+9ALmsUTZ8YvkJR0=
