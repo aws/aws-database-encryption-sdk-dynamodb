@@ -9,8 +9,10 @@ replace github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb
 require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.2.2
 	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk v0.0.0
+	github.com/aws/aws-sdk-go-v2 v1.38.1
 	github.com/aws/aws-sdk-go-v2/config v1.31.2
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.49.1
+	github.com/aws/smithy-go v1.22.5
 	github.com/schollz/progressbar/v3 v3.14.1
 	github.com/shirou/gopsutil/v3 v3.23.12
 	gopkg.in/yaml.v3 v3.0.1
@@ -21,7 +23,6 @@ require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms v0.2.2 // indirect
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives v0.2.2 // indirect
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library v0.2.2 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.38.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.6 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.4 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.4 // indirect
@@ -34,7 +35,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.28.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.33.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.38.0 // indirect
-	github.com/aws/smithy-go v1.22.5 // indirect
 	github.com/dafny-lang/DafnyRuntimeGo/v4 v4.11.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
