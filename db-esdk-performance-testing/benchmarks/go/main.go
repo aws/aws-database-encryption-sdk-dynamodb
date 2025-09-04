@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/aws/aws-encryption-sdk/esdk-performance-testing/benchmarks/go/benchmark"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/db-esdk-performance-testing/benchmarks/go/benchmark"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
