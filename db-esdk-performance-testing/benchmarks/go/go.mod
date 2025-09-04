@@ -1,15 +1,14 @@
-module github.com/aws/aws-encryption-sdk/esdk-performance-testing/benchmarks/go
+module github.com/aws/aws-database-encryption-sdk-dynamodb/db-esdk-performance-testing/benchmarks/go
 
 go 1.23.2
 
 toolchain go1.24.4
 
-replace github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk => ../../DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/
+replace github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk => ../../../DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/
 
 require (
 	github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl v0.2.2
 	github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk v0.0.0
-	github.com/aws/aws-encryption-sdk/releases/go/encryption-sdk v0.2.0
 	github.com/aws/aws-sdk-go-v2/config v1.31.2
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.49.1
 	github.com/schollz/progressbar/v3 v3.14.1
