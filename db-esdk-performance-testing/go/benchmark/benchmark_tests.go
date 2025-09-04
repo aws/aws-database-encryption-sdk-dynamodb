@@ -9,6 +9,7 @@ import (
 	"log"
 	"runtime"
 	"runtime/metrics"
+	"slices"
 	"sort"
 	"strconv"
 	"sync"
@@ -23,7 +24,7 @@ import (
 // === Helper Functions ===
 
 // runBatchPutGetCycle performs a BatchWriteItem-BatchGetItem cycle with 25 items and measures performance
-func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte, baseItemId string) (float64, float64, error) {
+func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte) (float64, float64, error) {
 	ctx := context.Background()
 	tableName := b.Config.TableName
 
@@ -81,7 +82,7 @@ func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte, baseItemId string) (f
 
 	for _, item := range items {
 		retrievedData, ok := item["attribute1"].(*types.AttributeValueMemberB)
-		if !ok || len(retrievedData.Value) != len(data) {
+		if !ok || !slices.Equal(retrievedData.Value, data) {
 			return 0, 0, fmt.Errorf("data verification failed")
 		}
 	}
@@ -113,8 +114,7 @@ func (b *DBESDKBenchmark) runThroughputTest(dataSize int, iterations int) (*Benc
 
 	// Warmup
 	for i := 0; i < b.Config.Iterations.Warmup; i++ {
-		itemId := fmt.Sprintf("%d", i) // Use numeric string for Number attribute
-		if _, _, err := b.runBatchPutGetCycle(testData, itemId); err != nil {
+		if _, _, err := b.runBatchPutGetCycle(testData); err != nil {
 			return nil, fmt.Errorf("warmup iteration %d failed: %w", i, err)
 		}
 	}
@@ -131,9 +131,8 @@ func (b *DBESDKBenchmark) runThroughputTest(dataSize int, iterations int) (*Benc
 
 	startTime := time.Now()
 	for i := 0; i < iterations; i++ {
-		itemId := fmt.Sprintf("%d", 1000+i) // Use numeric string, offset to avoid warmup conflicts
 		iterationStart := time.Now()
-		putMs, getMs, err := b.runBatchPutGetCycle(testData, itemId)
+		putMs, getMs, err := b.runBatchPutGetCycle(testData)
 		if err != nil {
 			return nil, fmt.Errorf("measurement iteration %d failed: %w", i, err)
 		}
@@ -250,8 +249,7 @@ func (b *DBESDKBenchmark) runMemoryTest(dataSize int) (*BenchmarkResult, error) 
 
 		// Run operation
 		operationStart := time.Now()
-		itemId := fmt.Sprintf("%d", 2000+i) // Use numeric string, offset to avoid conflicts
-		_, _, err := b.runBatchPutGetCycle(data, itemId)
+		_, _, err := b.runBatchPutGetCycle(data)
 		operationDuration := time.Since(operationStart)
 
 		close(stopSampling)
@@ -327,77 +325,77 @@ func (b *DBESDKBenchmark) runMemoryTest(dataSize int) (*BenchmarkResult, error) 
 // === Concurrent Test Implementation ===
 
 // runConcurrentTest runs concurrent operations benchmark test
-// func (b *DBESDKBenchmark) runConcurrentTest(dataSize int, concurrency int, iterationsPerWorker int) (*BenchmarkResult, error) {
-// 	log.Printf("Running concurrent test - Size: %d bytes, Concurrency: %d", dataSize, concurrency)
+func (b *DBESDKBenchmark) runConcurrentTest(dataSize int, concurrency int, iterationsPerWorker int) (*BenchmarkResult, error) {
+	log.Printf("Running concurrent test - Size: %d bytes, Concurrency: %d", dataSize, concurrency)
 
-// 	data := b.GenerateTestData(dataSize)
-// 	var allTimes []float64
-// 	var timesMutex sync.Mutex
-// 	var wg sync.WaitGroup
+	data := b.GenerateTestData(dataSize)
+	var allTimes []float64
+	var timesMutex sync.Mutex
+	var wg sync.WaitGroup
 
-// 	errorChan := make(chan error, concurrency)
-// 	startTime := time.Now()
+	errorChan := make(chan error, concurrency)
+	startTime := time.Now()
 
-// 	// Launch workers
-// 	for i := 0; i < concurrency; i++ {
-// 		wg.Add(1)
-// 		go func(workerID int) {
-// 			defer wg.Done()
+	// Launch workers
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
 
-// 			var workerTimes []float64
-// 			for j := 0; j < iterationsPerWorker; j++ {
-// 				iterStart := time.Now()
-// 				_, _, err := b.runEncryptDecryptCycle(data)
-// 				if err != nil {
-// 					errorChan <- fmt.Errorf("worker %d iteration %d failed: %w", workerID, j, err)
-// 					return
-// 				}
-// 				workerTimes = append(workerTimes, time.Since(iterStart).Seconds()*1000)
-// 			}
+			var workerTimes []float64
+			for j := 0; j < iterationsPerWorker; j++ {
+				iterStart := time.Now()
+				_, _, err := b.runBatchPutGetCycle(data)
+				if err != nil {
+					errorChan <- fmt.Errorf("worker %d iteration %d failed: %w", workerID, j, err)
+					return
+				}
+				workerTimes = append(workerTimes, time.Since(iterStart).Seconds()*1000)
+			}
 
-// 			timesMutex.Lock()
-// 			allTimes = append(allTimes, workerTimes...)
-// 			timesMutex.Unlock()
-// 		}(i)
-// 	}
+			timesMutex.Lock()
+			allTimes = append(allTimes, workerTimes...)
+			timesMutex.Unlock()
+		}(i)
+	}
 
-// 	wg.Wait()
-// 	totalDuration := time.Since(startTime).Seconds()
+	wg.Wait()
+	totalDuration := time.Since(startTime).Seconds()
 
-// 	// Check for errors
-// 	select {
-// 	case err := <-errorChan:
-// 		return nil, err
-// 	default:
-// 	}
+	// Check for errors
+	select {
+	case err := <-errorChan:
+		return nil, err
+	default:
+	}
 
-// 	// Calculate metrics
-// 	totalOps := concurrency * iterationsPerWorker
-// 	totalBytes := int64(totalOps * dataSize)
+	// Calculate metrics
+	totalOps := concurrency * iterationsPerWorker
+	totalBytes := int64(totalOps * dataSize)
 
-// 	sort.Float64s(allTimes)
-// 	result := &BenchmarkResult{
-// 		TestName:          "concurrent",
-// 		Language:          "go",
-// 		DataSize:          dataSize,
-// 		Concurrency:       concurrency,
-// 		EndToEndLatencyMs: Average(allTimes),
-// 		OpsPerSecond:      float64(totalOps) / totalDuration,
-// 		BytesPerSecond:    float64(totalBytes) / totalDuration,
-// 		P50Latency:        Percentile(allTimes, 0.50),
-// 		P95Latency:        Percentile(allTimes, 0.95),
-// 		P99Latency:        Percentile(allTimes, 0.99),
-// 		Timestamp:         time.Now().Format("2006-01-02 15:04:05"),
-// 		GoVersion:         runtime.Version(),
-// 		CPUCount:          b.CPUCount,
-// 		TotalMemoryGB:     b.TotalMemoryGB,
-// 	}
+	sort.Float64s(allTimes)
+	result := &BenchmarkResult{
+		TestName:          "concurrent",
+		Language:          "go",
+		DataSize:          dataSize,
+		Concurrency:       concurrency,
+		EndToEndLatencyMs: Average(allTimes),
+		OpsPerSecond:      float64(totalOps) / totalDuration,
+		BytesPerSecond:    float64(totalBytes) / totalDuration,
+		P50Latency:        Percentile(allTimes, 0.50),
+		P95Latency:        Percentile(allTimes, 0.95),
+		P99Latency:        Percentile(allTimes, 0.99),
+		Timestamp:         time.Now().Format("2006-01-02 15:04:05"),
+		GoVersion:         runtime.Version(),
+		CPUCount:          b.CPUCount,
+		TotalMemoryGB:     b.TotalMemoryGB,
+	}
 
-// 	log.Printf("Concurrent test completed - Ops/sec: %.2f, Avg latency: %.2f ms",
-// 		result.OpsPerSecond, result.EndToEndLatencyMs)
+	log.Printf("Concurrent test completed - Ops/sec: %.2f, Avg latency: %.2f ms",
+		result.OpsPerSecond, result.EndToEndLatencyMs)
 
-// 	return result, nil
-// }
+	return result, nil
+}
 
 // === Test Orchestration ===
 
@@ -430,22 +428,22 @@ func (b *DBESDKBenchmark) runMemoryTests(dataSizes []int) {
 }
 
 // runConcurrencyTests executes all concurrency tests
-// func (b *DBESDKBenchmark) runConcurrencyTests(dataSizes []int, concurrencyLevels []int) {
-// 	log.Println("Running concurrency tests...")
-// 	for _, dataSize := range dataSizes {
-// 		for _, concurrency := range concurrencyLevels {
-// 			if concurrency > 1 { // Skip single-threaded
-// 				result, err := b.runConcurrentTest(dataSize, concurrency, 5)
-// 				if err != nil {
-// 					log.Printf("Concurrent test failed: %v", err)
-// 					continue
-// 				}
-// 				b.Results = append(b.Results, *result)
-// 				log.Printf("Concurrent test completed: %.2f ops/sec @ %d threads", result.OpsPerSecond, concurrency)
-// 			}
-// 		}
-// 	}
-// }
+func (b *DBESDKBenchmark) runConcurrencyTests(dataSizes []int, concurrencyLevels []int) {
+	log.Println("Running concurrency tests...")
+	for _, dataSize := range dataSizes {
+		for _, concurrency := range concurrencyLevels {
+			if concurrency > 1 { // Skip single-threaded
+				result, err := b.runConcurrentTest(dataSize, concurrency, 5)
+				if err != nil {
+					log.Printf("Concurrent test failed: %v", err)
+					continue
+				}
+				b.Results = append(b.Results, *result)
+				log.Printf("Concurrent test completed: %.2f ops/sec @ %d threads", result.OpsPerSecond, concurrency)
+			}
+		}
+	}
+}
 
 // RunAllBenchmarks runs all configured benchmark tests
 func (b *DBESDKBenchmark) RunAllBenchmarks() error {
@@ -470,11 +468,11 @@ func (b *DBESDKBenchmark) RunAllBenchmarks() error {
 		log.Println("Skipping memory tests (not in test_types)")
 	}
 
-	// if b.shouldRunTestType("concurrency") {
-	// 	b.runConcurrencyTests(dataSizes, b.Config.ConcurrencyLevels)
-	// } else {
-	// 	log.Println("Skipping concurrency tests (not in test_types)")
-	// }
+	if b.shouldRunTestType("concurrency") {
+		b.runConcurrencyTests(dataSizes, b.Config.ConcurrencyLevels)
+	} else {
+		log.Println("Skipping concurrency tests (not in test_types)")
+	}
 
 	log.Printf("Benchmark suite completed. Total results: %d", len(b.Results))
 	return nil

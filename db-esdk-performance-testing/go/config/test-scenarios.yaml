@@ -3,8 +3,13 @@
 # Data sizes to test (in bytes)
 # Categories are for organization only - code processes all sizes regardless of category
 data_sizes:
+  small:
+    - 1024 # 1KB
+    - 5120 # 5KB
+    - 10240 # 10KB
   medium:
-    - 400 # 400KB
+    - 102400 # 100KB
+    - 400000 # 400KB
 
 # Quick test configuration (reduced test set for faster execution)
 quick_config:
