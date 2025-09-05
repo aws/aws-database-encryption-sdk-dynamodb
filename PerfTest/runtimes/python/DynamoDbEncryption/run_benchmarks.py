@@ -144,7 +144,7 @@ def generate_comparison_report(df, output_format="console"):
                         "DDBEC(v3) Mean (ms)": f"{v3_mean_ms:.3f}",
                         "DB ESDK(v4) Mean (ms)": f"{v4_mean_ms:.3f}",
                         "Difference (ms)": f"{diff_ms:.3f}",
-                        "DB ESDK(v4) vs DDBEC(v3) (%)": f"{((v4_mean / v3_mean) - 1) * 100:.2f}%",
+                        "DB ESDK(v4) vs DDBEC(v3)": f"{v3_mean/v4_mean:.2f}x faster" if v4_mean < v3_mean else f"{v4_mean/v3_mean:.2f}x slower",
                     }
 
                     # Add size information based on operation type
