@@ -4,12 +4,12 @@
 package benchmark
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"runtime"
 	"runtime/metrics"
-	"slices"
 	"sort"
 	"strconv"
 	"sync"
@@ -29,15 +29,23 @@ func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte) (float64, float64, er
 	tableName := b.Config.TableName
 
 	// Create 25 write requests with same data, different sort_key
-	var writeRequests []types.WriteRequest
+	var items []map[string]types.AttributeValue
+
 	for i := 0; i < 25; i++ {
 		item := map[string]types.AttributeValue{
 			"partition_key": &types.AttributeValueMemberS{Value: "benchmark-test"},
 			"sort_key":      &types.AttributeValueMemberN{Value: strconv.Itoa(i)},
-			"attribute1":    &types.AttributeValueMemberB{Value: data},
-			"attribute2":    &types.AttributeValueMemberS{Value: "sign me!"},
-			":attribute3":   &types.AttributeValueMemberS{Value: "ignore me!"},
+			"attribute1": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+				"data": &types.AttributeValueMemberB{Value: data},
+			}},
+			"attribute2":  &types.AttributeValueMemberS{Value: "sign me!"},
+			":attribute3": &types.AttributeValueMemberS{Value: "ignore me!"},
 		}
+		items = append(items, item)
+	}
+
+	var writeRequests []types.WriteRequest
+	for _, item := range items {
 		writeRequests = append(writeRequests, types.WriteRequest{
 			PutRequest: &types.PutRequest{Item: item},
 		})
@@ -75,15 +83,42 @@ func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte) (float64, float64, er
 	batchGetDuration := time.Since(batchGetStart).Seconds() * 1000
 
 	// Verify 25 items retrieved with correct data size
-	items := result.Responses[tableName]
-	if len(items) != 25 {
-		return 0, 0, fmt.Errorf("expected 25 items, got %d", len(items))
+	returnedItems := result.Responses[tableName]
+	if len(returnedItems) != 25 {
+		return 0, 0, fmt.Errorf("expected 25 items, got %d", len(returnedItems))
 	}
 
-	for _, item := range items {
-		retrievedData, ok := item["attribute1"].(*types.AttributeValueMemberB)
-		if !ok || !slices.Equal(retrievedData.Value, data) {
-			return 0, 0, fmt.Errorf("data verification failed")
+	// Verify each returned item
+	for i, item := range returnedItems {
+		if _, ok := item["attribute1"]; !ok {
+			return 0, 0, fmt.Errorf("item %d missing attribute1", i)
+		}
+
+		// Verify attribute1
+		if attr1, ok := item["attribute1"].(*types.AttributeValueMemberM); ok {
+			if dataAttr, ok := attr1.Value["data"].(*types.AttributeValueMemberB); ok {
+				if !bytes.Equal(dataAttr.Value, data) {
+					return 0, 0, fmt.Errorf("item %d data mismatch", i)
+				}
+			}
+		}
+
+		// Verify attribute2 value
+		if attr2, ok := item["attribute2"].(*types.AttributeValueMemberS); ok {
+			if attr2.Value != "sign me!" {
+				return 0, 0, fmt.Errorf("item %d attribute2 mismatch: got %s", i, attr2.Value)
+			}
+		} else {
+			return 0, 0, fmt.Errorf("item %d attribute2 wrong type", i)
+		}
+
+		// Verify :attribute3 value
+		if attr3, ok := item[":attribute3"].(*types.AttributeValueMemberS); ok {
+			if attr3.Value != "ignore me!" {
+				return 0, 0, fmt.Errorf("item %d :attribute3 mismatch: got %s", i, attr3.Value)
+			}
+		} else {
+			return 0, 0, fmt.Errorf("item %d :attribute3 wrong type", i)
 		}
 	}
 
