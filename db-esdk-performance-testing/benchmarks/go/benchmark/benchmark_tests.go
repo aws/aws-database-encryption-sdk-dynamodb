@@ -23,68 +23,6 @@ import (
 
 // === Helper Functions ===
 
-func CalculateItemSize(item map[string]types.AttributeValue) int {
-	totalSize := 0
-
-	for attributeName, attributeValue := range item {
-		// Add attribute name size
-		totalSize += len(attributeName)
-
-		// Add attribute value size
-		totalSize += calculateAttributeValueSize(attributeValue)
-	}
-
-	return totalSize
-}
-
-func calculateAttributeValueSize(av types.AttributeValue) int {
-	switch v := av.(type) {
-	case *types.AttributeValueMemberS:
-		return len(v.Value)
-	case *types.AttributeValueMemberN:
-		return len(v.Value)
-	case *types.AttributeValueMemberB:
-		return len(v.Value)
-	case *types.AttributeValueMemberBOOL:
-		return 1
-	case *types.AttributeValueMemberNULL:
-		return 1
-	case *types.AttributeValueMemberSS:
-		size := 0
-		for _, s := range v.Value {
-			size += len(s)
-		}
-		return size
-	case *types.AttributeValueMemberNS:
-		size := 0
-		for _, n := range v.Value {
-			size += len(n)
-		}
-		return size
-	case *types.AttributeValueMemberBS:
-		size := 0
-		for _, b := range v.Value {
-			size += len(b)
-		}
-		return size
-	case *types.AttributeValueMemberL:
-		size := 0
-		for _, item := range v.Value {
-			size += calculateAttributeValueSize(item)
-		}
-		return size
-	case *types.AttributeValueMemberM:
-		size := 0
-		for key, value := range v.Value {
-			size += len(key) // Nested attribute name
-			size += calculateAttributeValueSize(value)
-		}
-		return size
-	default:
-		return 0
-	}
-}
-
 // runBatchPutGetCycle performs a BatchWriteItem-BatchGetItem cycle with 25 items and measures performance
 func (b *DBESDKBenchmark) runBatchPutGetCycle(data []byte) (float64, float64, error) {
 	ctx := context.Background()
