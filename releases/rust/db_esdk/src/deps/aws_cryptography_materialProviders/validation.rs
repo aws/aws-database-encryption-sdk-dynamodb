@@ -1706,15 +1706,7 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     ))?;
     Ok(())
 }
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsHierarchicalKeyring(
-    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
-) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
-    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
-        input.clone(),
-    ))?;
-    Ok(())
-}
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateRawAesKeyring(
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateRawEcdhKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
@@ -1730,7 +1722,7 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     ))?;
     Ok(())
 }
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkDiscoveryKeyring(
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsHierarchicalKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
@@ -1746,7 +1738,7 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     ))?;
     Ok(())
 }
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateRawEcdhKeyring(
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkDiscoveryKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
@@ -1754,7 +1746,7 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     ))?;
     Ok(())
 }
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkMultiKeyring(
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateRawAesKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
@@ -1763,30 +1755,6 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkKeyring(
-    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
-) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
-    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
-        input.clone(),
-    ))?;
-    Ok(())
-}
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsDiscoveryMultiKeyring(
-    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
-) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
-    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
-        input.clone(),
-    ))?;
-    Ok(())
-}
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateMultiKeyring(
-    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
-) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
-    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
-        input.clone(),
-    ))?;
-    Ok(())
-}
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkDiscoveryMultiKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
@@ -1810,7 +1778,15 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     ))?;
     Ok(())
 }
-pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMultiKeyring(
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkMultiKeyring(
+    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
+        input.clone(),
+    ))?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsDiscoveryMultiKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
@@ -1819,6 +1795,30 @@ pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsEcdhKeyring(
+    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
+        input.clone(),
+    ))?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMultiKeyring(
+    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
+        input.clone(),
+    ))?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateMultiKeyring(
+    input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(
+        input.clone(),
+    ))?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_for_AwsCryptographicMaterialProviders_CreateAwsKmsMrkDiscoveryMultiKeyring(
     input: &crate::deps::aws_cryptography_materialProviders::types::keyring::KeyringRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
     validate_aws_Pcryptography_PmaterialProviders_HCreateKeyringOutput_Dkeyring(&Some(

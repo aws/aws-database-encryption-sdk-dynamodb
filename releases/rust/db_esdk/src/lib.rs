@@ -86,6 +86,12 @@ pub mod operation;
 /// Types for the transform client. Rarely useful.
 pub mod types;
 
+#[cfg(feature = "fips")]
+use aws_lc_fips_sys as aws_lc_sys_impl;
+
+#[cfg(not(feature = "fips"))]
+use aws_lc_sys as aws_lc_sys_impl;
+
 pub use client::Client;
 pub use types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
 
