@@ -17,8 +17,8 @@ import (
 
 func main() {
 	// Parse command line arguments
-	configPath := flag.String("config", "../../config/test-scenarios.yaml", "Path to test configuration file")
-	outputPath := flag.String("output", "../../results/raw-data/go_results.json", "Path to output results file")
+	configPath := flag.String("config", "../config/test-scenarios.yaml", "Path to test configuration file")
+	outputPath := flag.String("output", "../results/raw-data/go_results.json", "Path to output results file")
 	quick := flag.Bool("quick", false, "Run quick test with reduced iterations")
 	flag.Parse()
 
