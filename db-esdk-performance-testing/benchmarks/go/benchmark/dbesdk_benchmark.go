@@ -13,6 +13,8 @@ import (
 
 	mplsmithygenerated "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygenerated"
 	mpltypes "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
+	itemencryptor "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbitemencryptorsmithygenerated"
+	dbesdkitemencryptortypes "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbitemencryptorsmithygeneratedtypes"
 	dbesdkdynamodbencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes"
 	dbesdkstructuredencryptiontypes "github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
 	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/dbesdkmiddleware"
@@ -32,12 +34,13 @@ const (
 
 // DBESDKBenchmark is the main benchmark struct
 type DBESDKBenchmark struct {
-	Config        TestConfig
-	DbesdkClient  *dynamodb.Client
-	Keyring       mpltypes.IKeyring
-	Results       []BenchmarkResult
-	CPUCount      int
-	TotalMemoryGB float64
+	Config              TestConfig
+	DbesdkClient        *dynamodb.Client
+	ItemEncryptorClient *itemencryptor.Client
+	Keyring             mpltypes.IKeyring
+	Results             []BenchmarkResult
+	CPUCount            int
+	TotalMemoryGB       float64
 }
 
 // New creates a new benchmark instance
@@ -64,7 +67,7 @@ func New(configPath string) (*DBESDKBenchmark, error) {
 	}
 
 	// Setup DB-ESDK
-	if err := benchmark.setupDBESDK(); err != nil {
+	if err := benchmark.setupDBESDK(false); err != nil {
 		return nil, fmt.Errorf("failed to setup DB-ESDK: %w", err)
 	}
 
@@ -95,35 +98,7 @@ func (b *DBESDKBenchmark) setupMPL() error {
 }
 
 // setupDBESDK initializes the DynamoDB client with DB-ESDK middleware and creates a default keyring which is AES keyring
-func (b *DBESDKBenchmark) setupDBESDK() error {
-	ddbTableName := b.Config.TableName
-
-	// Initialize the material providers client
-	matProvConfig := mpltypes.MaterialProvidersConfig{}
-	matProv, err := mplsmithygenerated.NewClient(matProvConfig)
-	if err != nil {
-		return fmt.Errorf("failed to create material providers client: %w", err)
-	}
-
-	// Create default AES-256 keyring
-	key := make([]byte, 32) // 256-bit key
-	if _, err := rand.Read(key); err != nil {
-		return fmt.Errorf("failed to generate AES-256 key: %w", err)
-	}
-
-	keyringInput := mpltypes.CreateRawAesKeyringInput{
-		KeyName:      "test-aes-256-key",
-		KeyNamespace: "DB-ESDK-performance-test",
-		WrappingKey:  key,
-		WrappingAlg:  mpltypes.AesWrappingAlgAlgAes256GcmIv12Tag16,
-	}
-
-	keyring, err := matProv.CreateRawAesKeyring(context.Background(), keyringInput)
-	if err != nil {
-		return fmt.Errorf("failed to create keyring: %w", err)
-	}
-	b.Keyring = keyring
-
+func (b *DBESDKBenchmark) setupDBESDK(useItemEncryptor bool) error {
 	attributeActions := map[string]dbesdkstructuredencryptiontypes.CryptoAction{
 		"partition_key": dbesdkstructuredencryptiontypes.CryptoActionSignOnly,
 		"sort_key":      dbesdkstructuredencryptiontypes.CryptoActionSignOnly,
@@ -137,22 +112,41 @@ func (b *DBESDKBenchmark) setupDBESDK() error {
 	partitionKey := "partition_key"
 	sortKeyName := "sort_key"
 	algorithmSuiteID := mpltypes.DBEAlgorithmSuiteIdAlgAes256GcmHkdfSha512CommitKeyEcdsaP384SymsigHmacSha384
+
+	err := b.setupItemEncryptorClient(partitionKey, sortKeyName, allowedUnsignedAttributePrefix, algorithmSuiteID, attributeActions)
+	if err != nil {
+		return err
+	}
+
+	err = b.SetupDDB(partitionKey, sortKeyName, allowedUnsignedAttributePrefix, algorithmSuiteID, attributeActions)
+	if err != nil {
+		return err
+	}
+
+	log.Println("ESDK client initialized successfully")
+	return nil
+}
+
+func (b *DBESDKBenchmark) SetupDDB(partitionKey, sortKeyName, allowedUnsignedAttributePrefix string, algorithmSuiteID mpltypes.DBEAlgorithmSuiteId, attributeActions map[string]dbesdkstructuredencryptiontypes.CryptoAction) error {
 	tableConfig := dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig{
-		LogicalTableName:               ddbTableName,
+		LogicalTableName:               b.Config.TableName,
 		PartitionKeyName:               partitionKey,
 		SortKeyName:                    &sortKeyName,
 		AttributeActionsOnEncrypt:      attributeActions,
-		Keyring:                        keyring,
+		Keyring:                        b.Keyring,
 		AllowedUnsignedAttributePrefix: &allowedUnsignedAttributePrefix,
 		AlgorithmSuiteId:               &algorithmSuiteID,
 	}
 	tableConfigsMap := make(map[string]dbesdkdynamodbencryptiontypes.DynamoDbTableEncryptionConfig)
-	tableConfigsMap[ddbTableName] = tableConfig
+	tableConfigsMap[b.Config.TableName] = tableConfig
 	listOfTableConfigs := dbesdkdynamodbencryptiontypes.DynamoDbTablesEncryptionConfig{
 		TableEncryptionConfigs: tableConfigsMap,
 	}
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return fmt.Errorf("failed to load default config: %w", err)
+	}
 
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(listOfTableConfigs)
 	ddb := dynamodb.NewFromConfig(cfg, dbEsdkMiddleware.CreateMiddleware(), func(o *dynamodb.Options) {
@@ -161,7 +155,24 @@ func (b *DBESDKBenchmark) setupDBESDK() error {
 
 	b.DbesdkClient = ddb
 
-	log.Println("ESDK client initialized successfully")
+	return nil
+}
+
+func (b *DBESDKBenchmark) setupItemEncryptorClient(partitionKey, sortKeyName, allowedUnsignedAttributePrefix string, algorithmSuiteID mpltypes.DBEAlgorithmSuiteId, attributeActions map[string]dbesdkstructuredencryptiontypes.CryptoAction) error {
+	itemEncryptorConfig := dbesdkitemencryptortypes.DynamoDbItemEncryptorConfig{
+		LogicalTableName:               b.Config.TableName,
+		PartitionKeyName:               partitionKey,
+		SortKeyName:                    &sortKeyName,
+		AttributeActionsOnEncrypt:      attributeActions,
+		Keyring:                        b.Keyring,
+		AllowedUnsignedAttributePrefix: &allowedUnsignedAttributePrefix,
+		AlgorithmSuiteId:               &algorithmSuiteID,
+	}
+	itemEncryptorClient, err := itemencryptor.NewClient(itemEncryptorConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create item encryptor client: %w", err)
+	}
+	b.ItemEncryptorClient = itemEncryptorClient
 	return nil
 }
 
