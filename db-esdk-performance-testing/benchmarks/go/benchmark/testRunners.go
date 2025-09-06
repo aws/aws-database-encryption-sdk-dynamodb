@@ -133,7 +133,7 @@ func (b *DBESDKBenchmark) runMemoryTest(dataSize int) (*BenchmarkResult, error) 
 
 		// Run operation
 		operationStart := time.Now()
-		_, _, err := b.runBatchPutGetCycle(data)
+		_, _, err := b.runItemEncryptorCycle(data)
 		operationDuration := time.Since(operationStart)
 
 		close(stopSampling)
@@ -229,7 +229,7 @@ func (b *DBESDKBenchmark) runConcurrentTest(dataSize int, concurrency int, itera
 			var workerTimes []float64
 			for j := 0; j < iterationsPerWorker; j++ {
 				iterStart := time.Now()
-				_, _, err := b.runBatchPutGetCycle(data)
+				_, _, err := b.runItemEncryptorCycle(data)
 				if err != nil {
 					errorChan <- fmt.Errorf("worker %d iteration %d failed: %w", workerID, j, err)
 					return
@@ -291,7 +291,7 @@ func (b *DBESDKBenchmark) runThroughputTest(dataSize int, iterations int) (*Benc
 
 	// Warmup
 	for i := 0; i < b.Config.Iterations.Warmup; i++ {
-		if _, _, err := b.runBatchPutGetCycle(testData); err != nil {
+		if _, _, err := b.runItemEncryptorCycle(testData); err != nil {
 			return nil, fmt.Errorf("warmup iteration %d failed: %w", i, err)
 		}
 	}
@@ -309,7 +309,7 @@ func (b *DBESDKBenchmark) runThroughputTest(dataSize int, iterations int) (*Benc
 	startTime := time.Now()
 	for i := 0; i < iterations; i++ {
 		iterationStart := time.Now()
-		putMs, getMs, err := b.runBatchPutGetCycle(testData)
+		putMs, getMs, err := b.runItemEncryptorCycle(testData)
 		if err != nil {
 			return nil, fmt.Errorf("measurement iteration %d failed: %w", i, err)
 		}
