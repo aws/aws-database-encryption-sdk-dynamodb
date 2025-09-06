@@ -335,13 +335,8 @@ public final class ESDKBenchmark {
     return allResults;
   }
 
-  public static final class BatchPutGetResult {
-    public final double putLatencyMs;
-    public final double getLatencyMs;
-
-    public BatchPutGetResult(final double putLatencyMs, final double getLatencyMs) {
-      this.putLatencyMs = putLatencyMs;
-      this.getLatencyMs = getLatencyMs;
-    }
-  }
+  public record BatchPutGetResult(
+    double putLatencyMs,
+    double getLatencyMs
+  ) {}
 }
