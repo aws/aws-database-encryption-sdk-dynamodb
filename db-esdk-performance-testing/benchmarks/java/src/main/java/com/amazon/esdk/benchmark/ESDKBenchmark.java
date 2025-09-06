@@ -36,6 +36,10 @@ import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 import software.amazon.awssdk.services.dynamodb.model.WriteRequest;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
@@ -55,7 +59,7 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
 public final class ESDKBenchmark {
 
   final Config config;
-  final DynamoDbClient ddbClient;
+  final DynamoDbItemEncryptor itemEncryptor;
   final IKeyring keyring;
   final String tableName;
   // System information
@@ -74,10 +78,10 @@ public final class ESDKBenchmark {
 
     // Setup DB-ESDK with local DynamoDB
     this.keyring = setupKeyring();
-    this.ddbClient = setupDynamoDbClient();
+    this.itemEncryptor = setupItemEncryptorClient();
     
     // Create table if it doesn't exist
-    createTableIfNotExists();
+    // createTableIfNotExists();
 
     System.out.println(
       "Initialized DB-ESDK Benchmark - CPU cores: " +
@@ -115,7 +119,7 @@ public final class ESDKBenchmark {
     return matProv.CreateRawAesKeyring(keyringInput);
   }
 
-  private DynamoDbClient setupDynamoDbClient() {
+  private DynamoDbItemEncryptor setupItemEncryptorClient() {
     // Configure attribute actions for encryption
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("partition_key", CryptoAction.SIGN_ONLY);
@@ -125,8 +129,7 @@ public final class ESDKBenchmark {
     attributeActionsOnEncrypt.put(":attribute3", CryptoAction.DO_NOTHING);
 
     // Configure table encryption
-    final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-    final DynamoDbTableEncryptionConfig tableConfig = DynamoDbTableEncryptionConfig
+    final DynamoDbItemEncryptorConfig tableConfig = DynamoDbItemEncryptorConfig
       .builder()
       .logicalTableName(tableName)
       .partitionKeyName("partition_key")
@@ -136,136 +139,50 @@ public final class ESDKBenchmark {
       .allowedUnsignedAttributePrefix(":")
       .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384)
       .build();
-    tableConfigs.put(tableName, tableConfig);
 
-    // Create encryption interceptor
-    final DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor
+    final DynamoDbItemEncryptor itemEncryptor = DynamoDbItemEncryptor
       .builder()
-      .config(
-        DynamoDbTablesEncryptionConfig
-          .builder()
-          .tableEncryptionConfigs(tableConfigs)
-          .build()
-      )
+      .DynamoDbItemEncryptorConfig(tableConfig)
       .build();
-
-    // Create DynamoDB client with local endpoint
-    return DynamoDbClient
-      .builder()
-      .endpointOverride(URI.create("http://localhost:8000"))
-      .overrideConfiguration(
-        ClientOverrideConfiguration
-          .builder()
-          .addExecutionInterceptor(encryptionInterceptor)
-          .build()
-      )
-      .build();
-  }
-
-  private void createTableIfNotExists() {
-    try {
-      // Check if table exists
-      ddbClient.describeTable(DescribeTableRequest.builder()
-        .tableName(tableName)
-        .build());
-      System.out.println("Table " + tableName + " already exists");
-    } catch (ResourceNotFoundException e) {
-      // Table doesn't exist, create it
-      System.out.println("Creating table " + tableName + "...");
-      ddbClient.createTable(CreateTableRequest.builder()
-        .tableName(tableName)
-        .keySchema(
-          KeySchemaElement.builder()
-            .attributeName("partition_key")
-            .keyType(KeyType.HASH)
-            .build(),
-          KeySchemaElement.builder()
-            .attributeName("sort_key")
-            .keyType(KeyType.RANGE)
-            .build()
-        )
-        .attributeDefinitions(
-          AttributeDefinition.builder()
-            .attributeName("partition_key")
-            .attributeType(ScalarAttributeType.S)
-            .build(),
-          AttributeDefinition.builder()
-            .attributeName("sort_key")
-            .attributeType(ScalarAttributeType.N)
-            .build()
-        )
-        .billingMode(BillingMode.PAY_PER_REQUEST)
-        .build());
-      System.out.println("Table " + tableName + " created successfully");
-    }
+    
+    return itemEncryptor;
   }
 
   /**
    * Run a single batch put-get cycle and measure performance
    */
-  public BatchPutGetResult runBatchPutGetCycle(final byte[] data) {
+  public Result runBatchPutGetCycle(final byte[] data) {
     // Create 25 items with same data, different sort_key
-    final List<WriteRequest> writeRequests = new ArrayList<>();
-    final List<Map<String, AttributeValue>> keys = new ArrayList<>();
-
-    for (int i = 0; i < 25; i++) {
-      final Map<String, AttributeValue> item = new HashMap<>();
+    final Map<String, AttributeValue> item = new HashMap<>();
       item.put("partition_key", AttributeValue.builder().s("benchmark-test").build());
-      item.put("sort_key", AttributeValue.builder().n(String.valueOf(i)).build());
+      item.put("sort_key", AttributeValue.builder().n(String.valueOf(0)).build());
       item.put("attribute1", AttributeValue.builder()
         .m(Map.of("data", AttributeValue.builder().b(SdkBytes.fromByteArray(data)).build()))
         .build());
       item.put("attribute2", AttributeValue.builder().s("sign me!").build());
       item.put(":attribute3", AttributeValue.builder().s("ignore me!").build());
 
-      writeRequests.add(WriteRequest.builder()
-        .putRequest(PutRequest.builder().item(item).build())
-        .build());
-
-      // Prepare key for batch get
-      final Map<String, AttributeValue> key = new HashMap<>();
-      key.put("partition_key", AttributeValue.builder().s("benchmark-test").build());
-      key.put("sort_key", AttributeValue.builder().n(String.valueOf(i)).build());
-      keys.add(key);
-    }
-
     // Measure batch write
-    final long batchWriteStart = System.nanoTime();
-    final BatchWriteItemResponse writeResponse = ddbClient.batchWriteItem(
-      BatchWriteItemRequest.builder()
-        .requestItems(Map.of(tableName, writeRequests))
-        .build()
-    );
-    final long batchWriteTime = System.nanoTime() - batchWriteStart;
+    final long encryptStart = System.nanoTime();
+    final Map<String, AttributeValue> encryptedItem = itemEncryptor
+      .EncryptItem(
+        EncryptItemInput.builder().plaintextItem(item).build()
+      )
+      .encryptedItem();
+    final long encryptTime = System.nanoTime() - encryptStart;
 
     // Measure batch get
-    final long batchGetStart = System.nanoTime();
-    final BatchGetItemResponse getResponse = ddbClient.batchGetItem(
-      BatchGetItemRequest.builder()
-        .requestItems(Map.of(tableName, KeysAndAttributes.builder()
-          .keys(keys)
-          .consistentRead(true)
-          .build()))
-        .build()
-    );
-    final long batchGetTime = System.nanoTime() - batchGetStart;
+    final long decryptStart = System.nanoTime();
+    final Map<String, AttributeValue> decryptedItem = itemEncryptor
+      .DecryptItem(
+        DecryptItemInput.builder().encryptedItem(encryptedItem).build()
+      )
+      .plaintextItem();
+    final long decryptTime = System.nanoTime() - decryptStart;
 
-    // Verify 25 items retrieved
-    final List<Map<String, AttributeValue>> returnedItems = getResponse.responses().get(tableName);
-    if (returnedItems.size() != 25) {
-      throw new RuntimeException("Expected 25 items, got " + returnedItems.size());
-    }
-
-    // Verify data integrity for first item
-    final Map<String, AttributeValue> firstItem = returnedItems.get(0);
-    final AttributeValue attr1 = firstItem.get("attribute1");
-    if (attr1 == null || attr1.m() == null || attr1.m().get("data") == null) {
-      throw new RuntimeException("Data verification failed");
-    }
-
-    return new BatchPutGetResult(
-      batchWriteTime / 1_000_000.0, // Convert to milliseconds
-      batchGetTime / 1_000_000.0
+    return new Result(
+      encryptTime / 1_000_000.0, // Convert to milliseconds
+      decryptTime / 1_000_000.0
     );
   }
 
@@ -335,7 +252,7 @@ public final class ESDKBenchmark {
     return allResults;
   }
 
-  public record BatchPutGetResult(
+  public record Result(
     double putLatencyMs,
     double getLatencyMs
   ) {}
