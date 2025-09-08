@@ -38,7 +38,7 @@ public final class Program {
     // Default options
     final CommandLineOptions options = new CommandLineOptions();
     options.configPath = "../config/test-scenarios.yaml";
-    options.outputPath = "../../results/raw-data/java_results.json";
+    options.outputPath = "../results/raw-data/java_results.json";
     options.quickTest = false;
 
     // Simple argument parsing
