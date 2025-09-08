@@ -151,7 +151,7 @@ public final class ESDKBenchmark {
   /**
    * Run a single batch put-get cycle and measure performance
    */
-  public Result runBatchPutGetCycle(final byte[] data) {
+  public Result runItemEncryptorCycle(final byte[] data) {
     // Create 25 items with same data, different sort_key
     final Map<String, AttributeValue> item = new HashMap<>();
       item.put("partition_key", AttributeValue.builder().s("benchmark-test").build());
@@ -187,7 +187,7 @@ public final class ESDKBenchmark {
   }
 
   public List<TestResult> runAllBenchmarks() {
-    System.out.println("Starting comprehensive DB-ESDK benchmark suite");
+    System.out.println("Starting comprehensive ESDK benchmark suite");
     final List<TestResult> allResults = new ArrayList<>();
 
     // Get test parameters from config
@@ -212,45 +212,112 @@ public final class ESDKBenchmark {
 
     System.out.println("Running " + totalTests + " total tests");
 
-    try (ProgressBar pb = new ProgressBar("DB-ESDK Benchmark", totalTests)) {
-      // Run throughput tests
-      for (final Integer dataSize : dataSizes) {
-        final TestResult result = Tests.runThroughputTest(
-          this,
-          dataSize,
-          config.iterations.measurement
-        );
-        allResults.add(result);
-        pb.step();
-      }
-
-      // Run memory tests
-      for (final Integer dataSize : dataSizes) {
-        final TestResult result = Tests.runMemoryTest(this, dataSize);
-        allResults.add(result);
-        pb.step();
-      }
-
-      // Run concurrency tests
-      for (final Integer dataSize : dataSizes) {
-        for (final Integer concurrency : config.concurrencyLevels) {
-          if (concurrency > 1) {
-            final TestResult result = Tests.runConcurrentTest(
-              this,
-              dataSize,
-              concurrency,
-              config.iterations.measurement
-            );
+    try (
+      final ProgressBar pb = new ProgressBar("Running benchmarks", totalTests)
+    ) {
+      // Throughput tests
+      for (final int dataSize : dataSizes) {
+        try {
+          final TestResult result = Tests.runThroughputTest(
+            this,
+            dataSize,
+            config.iterations.measurement
+          );
+          if (result != null) {
             allResults.add(result);
+            System.out.println(
+              "Throughput test completed: " +
+              String.format("%.2f", result.opsPerSecond) +
+              " ops/sec"
+            );
+            System.out.flush();
+            System.out.println(
+              "Throughput test completed - Ops/sec: " +
+              String.format("%.2f", result.opsPerSecond) +
+              ", MB/sec: " +
+              String.format("%.2f", result.bytesPerSecond / (1024 * 1024))
+            );
+          }
+        } catch (final Exception e) {
+          System.err.println(
+            "Throughput test failed for data size " +
+            dataSize +
+            " bytes: " +
+            e.getMessage()
+          );
+        }
+        System.out.flush();
+        pb.step();
+        System.out.flush();
+      }
+
+      // Memory tests
+      for (final int dataSize : dataSizes) {
+        try {
+          final TestResult result = Tests.runMemoryTest(this, dataSize);
+          allResults.add(result);
+          System.out.println(
+            "Memory test completed: " +
+            String.format("%.2f", result.peakMemoryMb) +
+            " MB peak"
+          );
+          System.out.flush();
+        } catch (final Exception e) {
+          System.err.println(
+            "Memory test failed for data size " +
+            dataSize +
+            " bytes: " +
+            e.getMessage()
+          );
+        }
+        System.out.flush();
+        pb.step();
+        System.out.flush();
+      }
+
+      // Concurrent tests
+      for (final int dataSize : dataSizes) {
+        for (final int concurrency : config.concurrencyLevels) {
+          if (concurrency > 1) { // Skip single-threaded for concurrent tests
+            try {
+              final TestResult result = Tests.runConcurrentTest(
+                this,
+                dataSize,
+                concurrency,
+                5
+              );
+              allResults.add(result);
+              System.out.println(
+                "Concurrent test completed: " +
+                String.format("%.2f", result.opsPerSecond) +
+                " ops/sec @ " +
+                concurrency +
+                " threads"
+              );
+            } catch (final Exception e) {
+              System.err.println(
+                "Concurrent test failed for data size " +
+                dataSize +
+                " bytes with " +
+                concurrency +
+                " threads: " +
+                e.getMessage()
+              );
+            }
+            System.out.flush();
             pb.step();
+            System.out.flush();
           }
         }
       }
     }
 
-    System.out.println("Benchmark suite completed successfully");
+    System.out.println(
+      "Benchmark suite completed. Total results: " + allResults.size()
+    );
     return allResults;
   }
+
 
   public record Result(
     double putLatencyMs,

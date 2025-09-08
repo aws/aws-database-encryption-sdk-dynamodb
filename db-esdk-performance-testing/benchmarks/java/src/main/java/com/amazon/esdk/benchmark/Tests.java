@@ -93,7 +93,7 @@ public final class Tests {
     for (int i = 0; i < iterations; i++) {
       try {
         final long iterationStart = System.nanoTime();
-        final var result = benchmark.runBatchPutGetCycle(data);
+        final var result = benchmark.runItemEncryptorCycle(data);
         final double totalMs =
           (System.nanoTime() - iterationStart) / 1_000_000.0;
 
@@ -257,7 +257,7 @@ public final class Tests {
 
     // Run the actual operation
     try {
-      benchmark.runBatchPutGetCycle(data);
+      benchmark.runItemEncryptorCycle(data);
     } catch (final Exception e) {
       System.out.println(
         "Memory test iteration " + iteration + " failed: " + e.getMessage()
@@ -397,7 +397,7 @@ public final class Tests {
           for (int j = 0; j < iterationsPerThread; j++) {
             try {
               final long threadStartTime = System.nanoTime();
-              benchmark.runBatchPutGetCycle(data);
+              benchmark.runItemEncryptorCycle(data);
               final double elapsed =
                 (System.nanoTime() - threadStartTime) / 1_000_000.0;
               allTimes.add(elapsed);
