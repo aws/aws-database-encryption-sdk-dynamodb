@@ -39,11 +39,11 @@ iterations:
 
 # Concurrency levels to test
 concurrency_levels:
-  - 1
-  - 2
-  - 4
-  - 8
-  - 16
+  # - 1
+  # - 2
+  # - 4
+  # - 8
+  # - 16
 
 # DynamoDB table name
 table_name: "dbesdk-performance-testing"
