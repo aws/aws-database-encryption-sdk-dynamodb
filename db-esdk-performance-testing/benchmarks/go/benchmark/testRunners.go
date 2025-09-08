@@ -119,17 +119,17 @@ func (b *DBESDKBenchmark) runMemoryTest(dataSize int) (*BenchmarkResult, error) 
 		var continuousSamples []MemorySample
 		var samplingMutex sync.Mutex
 
+		// Get baseline
+		metrics.Read(samples)
+		beforeHeap := samples[0].Value.Uint64()
+		beforeAllocs := samples[1].Value.Uint64()
+
 		go func() {
 			sampledData := b.sampleMemoryContinuously(beforeHeap, beforeAllocs, stopSampling)
 			samplingMutex.Lock()
 			continuousSamples = sampledData
 			samplingMutex.Unlock()
 		}()
-
-		// Get baseline
-		metrics.Read(samples)
-		beforeHeap := samples[0].Value.Uint64()
-		beforeAllocs := samples[1].Value.Uint64()
 
 		// Run operation
 		operationStart := time.Now()
