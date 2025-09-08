@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// create dynamodb table
-	CreateTable(bench.DbesdkClient, bench.Config.TableName)
+	// CreateTable(bench.DbesdkClient, bench.Config.TableName)
 
 	// Adjust config for quick test
 	if *quick {

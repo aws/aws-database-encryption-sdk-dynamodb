@@ -118,10 +118,10 @@ func (b *DBESDKBenchmark) setupDBESDK(useItemEncryptor bool) error {
 		return err
 	}
 
-	err = b.SetupDDB(partitionKey, sortKeyName, allowedUnsignedAttributePrefix, algorithmSuiteID, attributeActions)
-	if err != nil {
-		return err
-	}
+	// err = b.SetupDDB(partitionKey, sortKeyName, allowedUnsignedAttributePrefix, algorithmSuiteID, attributeActions)
+	// if err != nil {
+	// 	return err
+	// }
 
 	log.Println("ESDK client initialized successfully")
 	return nil
