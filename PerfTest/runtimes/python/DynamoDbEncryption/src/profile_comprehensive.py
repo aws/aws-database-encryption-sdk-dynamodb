@@ -37,11 +37,11 @@ except ImportError:
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.test_constants import TEST_DATA_CATEGORIES
-from src.providers.v3_providers import V3AESProvider, V3KMSProvider, V3HierarchyProvider
-from src.providers.v4_providers import V4AESKeyring, V4KMSKeyring, V4HierarchyKeyring
-from src.test_bases.item_test_base import V3ItemTestBase, V4ItemTestBase
-from src.test_bases.client_test_base import V3ClientTestBase, V4ClientTestBase
+from .test_constants import TEST_DATA_CATEGORIES
+from .providers.v3_providers import V3AESProvider, V3KMSProvider, V3HierarchyProvider
+from .providers.v4_providers import V4AESKeyring, V4KMSKeyring, V4HierarchyKeyring
+from .test_bases.item_test_base import V3ItemTestBase, V4ItemTestBase
+from .test_bases.client_test_base import V3ClientTestBase, V4ClientTestBase
 
 
 class ProfilingConfiguration:
