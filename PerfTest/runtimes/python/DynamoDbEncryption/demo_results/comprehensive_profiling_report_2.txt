@@ -1,0 +1,180 @@
+COMPREHENSIVE PROFILING REPORT
+====================================================================================================
+
+V3 vs V4 PERFORMANCE COMPARISON
+====================================================================================================
+
+ITEM-AES-SINGLE-ENCRYPT:
+  V3 Time: 1.437ms  |  V4 Time: 159.872ms  |  V4 SLOWER by 11021.5% (111.2x slower)
+  V3 Throughput: 695.7 ops/sec
+  V4 Throughput: 6.3 ops/sec
+
+ITEM-AES-SINGLE-DECRYPT:
+  V3 Time: 0.595ms  |  V4 Time: 257.381ms  |  V4 SLOWER by 43146.2% (432.5x slower)
+  V3 Throughput: 1680.2 ops/sec
+  V4 Throughput: 3.9 ops/sec
+
+CLIENT-AES-SINGLE-ENCRYPT:
+  V3 Time: 160.133ms  |  V4 Time: 283.073ms  |  V4 SLOWER by 76.8% (1.8x slower)
+  V3 Throughput: 6.2 ops/sec
+  V4 Throughput: 3.5 ops/sec
+
+CLIENT-AES-SINGLE-DECRYPT:
+  V3 Time: 36.216ms  |  V4 Time: 297.047ms  |  V4 SLOWER by 720.2% (8.2x slower)
+  V3 Throughput: 27.6 ops/sec
+  V4 Throughput: 3.4 ops/sec
+
+V3 vs V4 SUMMARY
+--------------------------------------------------
+Total Comparisons: 4
+V4 Faster: 0 configurations (0.0%)
+V3 Faster: 4 configurations (100.0%)
+
+PERFORMANCE BY TEST BASE
+----------------------------------------------------------------------------------------------------
+
+ITEM Test Base:
+  Average time per operation: 104.821ms
+  Number of configurations: 4
+
+CLIENT Test Base:
+  Average time per operation: 194.117ms
+  Number of configurations: 4
+
+PERFORMANCE BY PROVIDER
+----------------------------------------------------------------------------------------------------
+
+AES Provider:
+  Average encrypt time: 151.129ms
+  Average decrypt time: 147.810ms
+
+KMS Provider:
+
+HIERARCHY Provider:
+
+PERFORMANCE BY DATA TYPE
+----------------------------------------------------------------------------------------------------
+
+SINGLE Data Type:
+  Average data size: 204898 bytes
+  Average processing time: 149.469ms
+
+NESTED Data Type:
+
+FLAT Data Type:
+
+DETAILED RESULTS
+====================================================================================================
+
+v3_item_aes_single_encrypt
+--------------------------
+Configuration: {'version': 'v3', 'test_base': 'item', 'provider': 'aes', 'data_type': 'single', 'operation': 'encrypt'}
+Time per operation: 1.437ms
+Throughput: 695.7 ops/sec
+Data size: 204898 bytes
+Size increase: 1.00x
+Top 5 Functions:
+  1. <built-in method ciphers.create_encryption_ctx> - 0.006s
+  2. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.ciphers.CipherContext' objects> - 0.005s
+  3. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.002s
+  4. _string_to_sign - 0.001s
+  5. _build_hmac_signer - 0.000s
+
+v3_item_aes_single_decrypt
+--------------------------
+Configuration: {'version': 'v3', 'test_base': 'item', 'provider': 'aes', 'data_type': 'single', 'operation': 'decrypt'}
+Time per operation: 0.595ms
+Throughput: 1680.2 ops/sec
+Data size: 204898 bytes
+Size increase: 3.52x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.002s
+  2. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.ciphers.CipherContext' objects> - 0.002s
+  3. decrypt - 0.001s
+  4. decrypt_dynamodb_item - 0.000s
+  5. _unwrap_core - 0.000s
+
+v3_client_aes_single_encrypt
+----------------------------
+Configuration: {'version': 'v3', 'test_base': 'client', 'provider': 'aes', 'data_type': 'single', 'operation': 'encrypt'}
+Time per operation: 160.133ms
+Throughput: 6.2 ops/sec
+Data size: 204898 bytes
+Size increase: 1.00x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.ciphers.CipherContext' objects> - 0.006s
+  2. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.002s
+  3. <built-in method ciphers.create_encryption_ctx> - 0.001s
+  4. _string_to_sign - 0.001s
+  5. <method '_wrap_socket' of '_ssl._SSLContext' objects> - 0.001s
+
+v3_client_aes_single_decrypt
+----------------------------
+Configuration: {'version': 'v3', 'test_base': 'client', 'provider': 'aes', 'data_type': 'single', 'operation': 'decrypt'}
+Time per operation: 36.216ms
+Throughput: 27.6 ops/sec
+Data size: 204898 bytes
+Size increase: 1.00x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.002s
+  2. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.ciphers.CipherContext' objects> - 0.002s
+  3. <built-in method ciphers.create_decryption_ctx> - 0.001s
+  4. decrypt - 0.001s
+  5. _string_to_sign - 0.001s
+
+v4_item_aes_single_encrypt
+--------------------------
+Configuration: {'version': 'v4', 'test_base': 'item', 'provider': 'aes', 'data_type': 'single', 'operation': 'encrypt'}
+Time per operation: 159.872ms
+Throughput: 6.3 ops/sec
+Data size: 204898 bytes
+Size increase: 1.00x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.003s
+  2. AESEncryptExtern - 0.002s
+  3. <method 'encrypt' of 'cryptography.hazmat.bindings._rust.openssl.aead.AESGCM' objects> - 0.002s
+  4. EncryptPathStructure - 0.002s
+  5. EncryptItem - 0.002s
+
+v4_item_aes_single_decrypt
+--------------------------
+Configuration: {'version': 'v4', 'test_base': 'item', 'provider': 'aes', 'data_type': 'single', 'operation': 'decrypt'}
+Time per operation: 257.381ms
+Throughput: 3.9 ops/sec
+Data size: 204898 bytes
+Size increase: 3.52x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.003s
+  2. AESDecryptExtern - 0.002s
+  3. AESDecrypt - 0.002s
+  4. DecryptPathStructure - 0.002s
+  5. DecryptItem - 0.002s
+
+v4_client_aes_single_encrypt
+----------------------------
+Configuration: {'version': 'v4', 'test_base': 'client', 'provider': 'aes', 'data_type': 'single', 'operation': 'encrypt'}
+Time per operation: 283.073ms
+Throughput: 3.5 ops/sec
+Data size: 204898 bytes
+Size increase: 1.00x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.003s
+  2. EncryptPathStructure - 0.002s
+  3. EncryptItem - 0.001s
+  4. <method 'encrypt' of 'cryptography.hazmat.bindings._rust.openssl.aead.AESGCM' objects> - 0.001s
+  5. AESEncrypt - 0.001s
+
+v4_client_aes_single_decrypt
+----------------------------
+Configuration: {'version': 'v4', 'test_base': 'client', 'provider': 'aes', 'data_type': 'single', 'operation': 'decrypt'}
+Time per operation: 297.047ms
+Throughput: 3.4 ops/sec
+Data size: 204898 bytes
+Size increase: 1.00x
+Top 5 Functions:
+  1. <method 'update' of 'cryptography.hazmat.bindings._rust.openssl.hashes.Hash' objects> - 0.003s
+  2. AESDecryptExtern - 0.002s
+  3. DecryptPathStructure - 0.001s
+  4. <method 'decrypt' of 'cryptography.hazmat.bindings._rust.openssl.aead.AESGCM' objects> - 0.001s
+  5. DecryptItem - 0.001s
+
