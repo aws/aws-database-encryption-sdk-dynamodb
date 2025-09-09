@@ -15,6 +15,7 @@ data_sizes:
   large:
     - 10485760 # 10MB
     - 52428800 # 50MB
+    - 100000000 
     - 104857600 # 100MB
 
 # Quick test configuration (reduced test set for faster execution)
