@@ -1,0 +1,69 @@
+Large Dafny Sequence Benchmark Results
+==================================================
+
+Correctness Testing:
+--------------------
+Testing large_str_1k: 1000 chars
+  Baseline: 1000 chars output
+  ✅ Current (baseline): PASS
+  ✅ V1: struct.pack: PASS
+  ✅ V7: pure struct: PASS
+Testing large_int_1k: 1000 chars
+  Baseline: 1000 chars output
+  ✅ Current (baseline): PASS
+  ✅ V1: struct.pack: PASS
+  ✅ V7: pure struct: PASS
+Testing xlarge_str_5k: 5000 chars
+  Baseline: 5000 chars output
+  ✅ Current (baseline): PASS
+  ✅ V1: struct.pack: PASS
+  ✅ V7: pure struct: PASS
+Testing xlarge_int_5k: 5000 chars
+  Baseline: 5000 chars output
+  ✅ Current (baseline): PASS
+  ✅ V1: struct.pack: PASS
+  ✅ V7: pure struct: PASS
+Testing huge_str_10k: 10000 chars
+  Baseline: 10000 chars output
+  ✅ Current (baseline): PASS
+  ✅ V1: struct.pack: PASS
+  ✅ V7: pure struct: PASS
+
+Performance Testing:
+--------------------
+
+large_str_1k (1000 characters):
+  Original (very slow) 0.000089s  1.00x  +0.0%
+  Current (baseline)   0.000121s  0.74x  -35.7%
+  V1: struct.pack      0.000051s  1.75x  +42.8%
+  V7: pure struct      0.000049s  1.83x  +45.5%
+
+large_int_1k (1000 characters):
+  Original (very slow) 0.000075s  1.00x  +0.0%
+  Current (baseline)   0.000128s  0.58x  -71.6%
+  V1: struct.pack      0.000051s  1.46x  +31.5%
+  V7: pure struct      0.000047s  1.59x  +37.0%
+
+xlarge_str_5k (5000 characters):
+  Original (very slow) 0.000457s  1.00x  +0.0%
+  Current (baseline)   0.000649s  0.70x  -42.1%
+  V1: struct.pack      0.000242s  1.88x  +46.9%
+  V7: pure struct      0.000228s  2.01x  +50.2%
+
+xlarge_int_5k (5000 characters):
+  Original (very slow) 0.000365s  1.00x  +0.0%
+  Current (baseline)   0.000645s  0.57x  -76.8%
+  V1: struct.pack      0.000248s  1.47x  +32.0%
+  V7: pure struct      0.000235s  1.55x  +35.5%
+
+huge_str_10k (10000 characters):
+  Original (very slow) 0.001160s  1.00x  +0.0%
+  Current (baseline)   0.001394s  0.83x  -20.2%
+  V1: struct.pack      0.000476s  2.44x  +59.0%
+  V7: pure struct      0.000453s  2.56x  +60.9%
+
+Summary:
+----------
+The optimized implementations using struct.pack show significant
+performance improvements over the current byte-manipulation approach,
+especially for larger datasets where the overhead becomes more apparent.

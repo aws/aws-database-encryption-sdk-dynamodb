@@ -1,0 +1,34 @@
+Key areas to analyze in the new_implementation:
+
+1. LINE: length = len(dafny_ascii_string)
+   - Function call overhead for len()
+
+2. LINE: buffer = bytearray(length * 2)
+   - Memory allocation cost
+   - Should be O(1) but depends on size
+
+3. LINE: for i, char in enumerate(dafny_ascii_string):
+   - Loop setup overhead
+   - Iterator creation cost
+
+4. LINE: value = ord(char) if isinstance(char, str) else char
+   - Type checking overhead (isinstance)
+   - Conditional execution
+   - ord() function call when needed
+
+5. LINE: buffer[i*2] = (value >> 8) & 0xFF
+   - Bit shift and mask operations
+   - Array indexing and assignment
+
+6. LINE: buffer[i*2 + 1] = value & 0xFF
+   - Mask operation
+   - Array indexing and assignment
+
+7. LINE: return buffer.decode('utf-16be', errors='strict')
+   - String decoding operation
+   - Should be O(n) but relatively fast
+
+Expected hotspots:
+- The for loop body (lines 4-6) - executed most frequently
+- isinstance() calls - potentially expensive type checking
+- Buffer assignments - memory write operations

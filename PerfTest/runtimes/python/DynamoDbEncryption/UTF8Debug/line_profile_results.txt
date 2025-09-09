@@ -1,0 +1,33 @@
+Line Profiling Results for new_implementation()
+============================================================
+
+Dataset Summary:
+  mixed_data: 500 characters
+
+Timer unit: 1e-09 s
+
+Total time: 0.292088 s
+File: /Users/darchow/workspace/aws-database-encryption-sdk-dynamodb/PerfTest/runtimes/python/DynamoDbEncryption/UTF8Debug/test_string_conversion.py
+Function: new_implementation at line 20
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    20                                           def new_implementation(dafny_ascii_string):
+    21                                               """Truly efficient implementation using pre-allocated bytearray"""
+    22       500     126000.0    252.0      0.0      try:
+    23                                                   # Pre-allocate bytearray with known size
+    24       500     442000.0    884.0      0.2          length = len(dafny_ascii_string)
+    25       500     218000.0    436.0      0.1          byte_buffer = bytearray(length * 2)  # 2 bytes per character
+    26                                           
+    27                                                   # Direct buffer manipulation
+    28    250500   72283000.0    288.6     24.7          for i, c in enumerate(dafny_ascii_string):
+    29    250000   71000000.0    284.0     24.3              value = c if isinstance(c, int) else ord(c)
+    30                                                       # Place bytes directly in buffer
+    31    250000   73827000.0    295.3     25.3              byte_buffer[i*2] = (value >> 8) & 0xFF    # high byte
+    32    250000   71991000.0    288.0     24.6              byte_buffer[i*2 + 1] = value & 0xFF       # low byte
+    33                                           
+    34       500    2201000.0   4402.0      0.8          return bytes(byte_buffer).decode("utf-16-be", errors='strict')
+    35                                                   
+    36                                               except (TypeError, ValueError) as e:
+    37                                                   raise UnicodeError(f"Invalid UTF-16 sequence: {str(e)}")
+
