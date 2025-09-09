@@ -121,6 +121,12 @@ jobs:
         run: |
           make test_rust
 
+      - name: Test ${{ matrix.library }} Rust Fips
+        shell: bash
+        working-directory: ./${{ matrix.library }}/runtimes/rust/
+        run: |
+          cargo test --release --features fips -- --nocapture
+
       - name: Test ${{ matrix.library }} Rust Debug
         if: ${{ matrix.library != 'TestVectors' }}
         shell: bash
@@ -134,3 +140,4 @@ jobs:
         shell: bash
         run: |
           cargo run --release --example main
+          cargo test --release --example main

@@ -23,7 +23,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOver
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.SimpleClass;
-import software.amazon.cryptography.examples.migration.awsdbe.TestUtils;
+import software.amazon.cryptography.examples.migration.TestUtils;
 import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -55,7 +55,8 @@ public class TestEncryptExistingTable {
 
   public static void EncryptExistingTable(
     String kmsKeyId,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKey
   ) {
     // 1. Continue to configure your Keyring, Table Schema,
     //    and allowedUnsignedAttributes as you did in Step 1.
@@ -139,7 +140,7 @@ public class TestEncryptExistingTable {
     Map<String, AttributeValue> expressionAttributesValues = new HashMap<>();
     expressionAttributesValues.put(
       ":plaintexttest",
-      AttributeValue.builder().s("PlaintextMigrationExample").build()
+      AttributeValue.builder().s(partitionKey).build()
     );
 
     ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest
@@ -182,21 +183,39 @@ public class TestEncryptExistingTable {
   @Test
   public void TestEncryptExistingTable() {
     // Given: All the previous migration steps have been run.
-    MigrationExampleStep0.MigrationStep0(TestUtils.TEST_DDB_TABLE_NAME, 0);
+    MigrationExampleStep0.MigrationStep0(
+      TestUtils.TEST_DDB_TABLE_NAME,
+      0,
+      TestUtils.PARTITION_KEY
+    );
     MigrationExampleStep1.MigrationStep1(
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_DDB_TABLE_NAME,
-      1
+      1,
+      TestUtils.PARTITION_KEY
     );
     MigrationExampleStep2.MigrationStep2(
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_DDB_TABLE_NAME,
-      2
+      2,
+      TestUtils.PARTITION_KEY
     );
     // When: Execute migration, Then: Success (i.e. encrypts 2 plaintext values)
     EncryptExistingTable(
       TestUtils.TEST_KMS_KEY_ID,
-      TestUtils.TEST_DDB_TABLE_NAME
+      TestUtils.TEST_DDB_TABLE_NAME,
+      TestUtils.PARTITION_KEY
     );
+
+    List<String> sortkeys = Arrays.asList("0", "1", "2");
+    for (String sortkey : sortkeys) {
+      TestUtils.cleanUpDDBItem(
+        TestUtils.TEST_DDB_TABLE_NAME,
+        "partition_key",
+        "sort_key",
+        TestUtils.PARTITION_KEY,
+        sortkey
+      );
+    }
   }
 }

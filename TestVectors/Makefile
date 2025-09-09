@@ -109,6 +109,66 @@ _remove_wrapped_client_rust:
 	$(MAKE) _sed_file SED_FILE_PATH="runtimes/rust/src/deps/aws_cryptography_materialProviders.rs" \
 SED_BEFORE_STRING=' \#\[cfg(feature = "wrapped-client")\]' SED_AFTER_STRING='\/\/ Removed cfg(feature = "wrapped-client")'
 
+# Go
+GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb/testvectors"
+
+GO_DEPENDENCY_MODULE_NAMES := \
+	--dependency-library-name=aws.cryptography.primitives=github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives \
+	--dependency-library-name=com.amazonaws.kms=github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms \
+	--dependency-library-name=com.amazonaws.dynamodb=github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb \
+	--dependency-library-name=aws.cryptography.materialProviders=github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl \
+	--dependency-library-name=aws.cryptography.keyStore=github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl \
+	--dependency-library-name=sdk.com.amazonaws.dynamodb=github.com/aws/aws-sdk-go-v2/service/dynamodb \
+	--dependency-library-name=sdk.com.amazonaws.kms=github.com/aws/aws-sdk-go-v2/service/kms \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk
+	
+TRANSLATION_RECORD_GO := \
+	DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
+    submodules/MaterialProviders/StandardLibrary/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
+    submodules/MaterialProviders/ComAmazonawsKms/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
+    submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
+    submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
+	submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
+	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr
+
+# Constants for languages that drop extern names (Python, Go)
+
+INDEX_FILE_PATH=dafny/DDBEncryption/src/LibraryIndex.dfy
+INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.wrapped\"} WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
+INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
+
+ITEMENCRYPTOR_INDEX_FILE_PATH=dafny/WrappedDynamoDbItemEncryptor/src/Index.dfy
+ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.wrapped\" } WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {"
+ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedItemEncryptor refines WrappedAbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService {"
+
+_sed_types_file_remove_extern:
+	echo "no types file"
+
+_sed_types_file_add_extern:
+	echo "no types file"
+
+_sed_index_file_add_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(INDEX_FILE_PATH) SED_BEFORE_STRING=$(INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(INDEX_FILE_WITH_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING)
+
+_sed_index_file_remove_extern:
+	$(MAKE) _sed_file SED_FILE_PATH=$(INDEX_FILE_PATH) SED_BEFORE_STRING=$(INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(INDEX_FILE_WITHOUT_EXTERN_STRING)
+	$(MAKE) _sed_file SED_FILE_PATH=$(ITEMENCRYPTOR_INDEX_FILE_PATH) SED_BEFORE_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITH_EXTERN_STRING) SED_AFTER_STRING=$(ITEMENCRYPTOR_INDEX_FILE_WITHOUT_EXTERN_STRING)
+
+_polymorph_go: purge_polymorph_code
+
+# Smithy-dafny generated shim needs a long term fix. 
+# TODO: Remove this commands once smithy-dafny is fixed https://sim.amazon.com/issues/CrypTool-5445
+# This commands does not work on windows
+# https://taskei.amazon.dev/tasks/CrypTool-5283
+purge_polymorph_code:
+	find .. -name "shim.go" | xargs sed -i $(SED_PARAMETER) 's/(_static \*CompanionStruct_Default___)//g'
+	rm -rf runtimes/go/*/*smithygenerated* \
+		runtimes/go/*/Wrapped*Service
+
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_PRIMITIVES=runtimes/rust/src/deps/aws_cryptography_primitives.rs
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_KEYSTORE=runtimes/rust/src/deps/aws_cryptography_keyStore.rs
 REMOVE_WRAPPED_CLIENT_AFTER_POLYMORPH_RUST_DYNAMODB=runtimes/rust/src/deps/aws_cryptography_dbEncryptionSdk_dynamoDb_transforms.rs
