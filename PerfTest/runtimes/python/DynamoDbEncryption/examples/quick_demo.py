@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick demo of the comprehensive profiling suite.
+Quick demo of the comprehensive profiling suite for AES Keyring/Provider with both clients.
 
 This script runs a minimal profiling example to verify the suite is working
 and demonstrate basic usage with fast execution.
