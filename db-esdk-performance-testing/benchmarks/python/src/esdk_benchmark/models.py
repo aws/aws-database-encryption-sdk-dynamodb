@@ -1,66 +1,48 @@
 # Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-Data models for the DB-ESDK Performance Benchmark Suite.
-
-This module defines the data structures used throughout the benchmark suite,
-including configuration, test results, and reporting models.
-"""
-
 import json
 import platform
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union
-from statistics import median, mean
+from typing import Dict, List, Optional
+from statistics import mean
 
 import psutil
 import yaml
-from pydantic import BaseModel
 
 
 @dataclass
 class DataSizes:
-    """Configuration for data sizes to test."""
-
-    small: Optional[List[int]] = None
-    medium: Optional[List[int]] = None
-    large: Optional[List[int]] = None
+    small: Optional[List[int]] = None  # Small data sizes (e.g., 1KB-10KB)
+    medium: Optional[List[int]] = None  # Medium data sizes (e.g., 100KB-1MB)
+    large: Optional[List[int]] = None  # Large data sizes (e.g., 10MB+)
 
 
 @dataclass
 class Iterations:
-    """Configuration for test iterations."""
-
-    warmup: int = 5
-    measurement: int = 10
+    warmup: int = 5  # Warmup iterations to stabilize performance
+    measurement: int = 10  # Measurement iterations for averaging
 
 
 @dataclass
 class QuickConfig:
-    """Configuration for quick tests."""
-
     data_sizes: DataSizes = field(default_factory=DataSizes)
     iterations: Iterations = field(default_factory=Iterations)
-    concurrency_levels: List[int] = field(default_factory=lambda: [1, 2])
-    test_types: List[str] = field(
-        default_factory=lambda: ["throughput", "memory", "concurrency"]
-    )
+    concurrency_levels: List[int] = field(default_factory=lambda: [1, 2])  # Reduced concurrency for quick tests
+    test_types: List[str] = field(default_factory=lambda: ["throughput", "memory", "concurrency"])
 
 
 @dataclass
 class Config:
-    """Main configuration for benchmark tests."""
-
     data_sizes: DataSizes = field(default_factory=DataSizes)
     iterations: Iterations = field(default_factory=Iterations)
-    concurrency_levels: List[int] = field(default_factory=lambda: [1, 2, 4, 8])
-    table_name: str = "dbesdk-performance-testing"
-    keyring: str = "raw-aes"
-    quick_config: Optional[QuickConfig] = None
+    concurrency_levels: List[int] = field(default_factory=lambda: [1, 2, 4, 8])  # Thread counts for concurrent testing
+    table_name: str = "DynamoDbEncryptionInterceptorTestTable"  # DynamoDB table name for testing
+    keyring: str = "raw-aes"  # Keyring type (raw-aes for testing)
+    quick_config: Optional[QuickConfig] = None  # Optional quick test configuration
 
     @classmethod
     def load_config(cls, config_path: str) -> "Config":
@@ -121,7 +103,7 @@ class Config:
         )
 
     def adjust_for_quick_test(self):
-        """Adjust configuration for quick testing."""
+        """Apply quick test configuration to reduce test time."""
         if self.quick_config:
             self.data_sizes = self.quick_config.data_sizes
             self.iterations = self.quick_config.iterations
@@ -130,47 +112,35 @@ class Config:
 
 @dataclass
 class BenchmarkMetadata:
-    """Metadata about the benchmark environment."""
-
     language: str = "python"
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
-    python_version: str = field(
-        default_factory=lambda: f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    )
-    platform: str = field(default_factory=platform.platform)
-    cpu_count: int = field(default_factory=lambda: psutil.cpu_count(logical=True))
-    total_memory_gb: float = field(
-        default_factory=lambda: psutil.virtual_memory().total / (1024**3)
-    )
-    total_tests: int = 0
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")  # ISO timestamp for results
+    python_version: str = field(default_factory=lambda: f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+    platform: str = field(default_factory=platform.platform)  # OS platform info
+    cpu_count: int = field(default_factory=lambda: psutil.cpu_count(logical=True))  # Logical CPU count
+    total_memory_gb: float = field(default_factory=lambda: psutil.virtual_memory().total / (1024**3))  # Total system memory in GB
+    total_tests: int = 0  # Number of tests executed
 
 
 @dataclass
 class TestResult:
-    """Single test result with all metrics."""
-
     test_name: str
     language: str = "python"
-    data_size: int = 0
-    concurrency: int = 1
-    put_latency_ms: float = 0.0
-    get_latency_ms: float = 0.0
-    end_to_end_latency_ms: float = 0.0
-    ops_per_second: float = 0.0
-    bytes_per_second: float = 0.0
-    peak_memory_mb: float = 0.0
-    memory_efficiency_ratio: float = 0.0
-    p50_latency: float = 0.0
-    p95_latency: float = 0.0
-    p99_latency: float = 0.0
+    data_size: int = 0  # Size of test data in bytes
+    concurrency: int = 1  # Number of concurrent threads
+    put_latency_ms: float = 0.0  # Encryption latency in milliseconds
+    get_latency_ms: float = 0.0  # Decryption latency in milliseconds
+    end_to_end_latency_ms: float = 0.0  # Total operation latency
+    ops_per_second: float = 0.0  # Operations per second throughput
+    bytes_per_second: float = 0.0  # Bytes per second throughput
+    peak_memory_mb: float = 0.0  # Peak memory usage in MB
+    memory_efficiency_ratio: float = 0.0  # Data size to memory usage ratio
+    p50_latency: float = 0.0  # 50th percentile latency
+    p95_latency: float = 0.0  # 95th percentile latency
+    p99_latency: float = 0.0  # 99th percentile latency
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
-    python_version: str = field(
-        default_factory=lambda: f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    )
+    python_version: str = field(default_factory=lambda: f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
     cpu_count: int = field(default_factory=lambda: psutil.cpu_count(logical=True))
-    total_memory_gb: float = field(
-        default_factory=lambda: psutil.virtual_memory().total / (1024**3)
-    )
+    total_memory_gb: float = field(default_factory=lambda: psutil.virtual_memory().total / (1024**3))
 
     @classmethod
     def create_throughput_result(
@@ -182,25 +152,24 @@ class TestResult:
         cpu_count: int,
         total_memory_mb: float,
     ) -> "TestResult":
-        """Create a throughput test result."""
         if not total_latencies:
             raise ValueError("No latency data provided for throughput result")
-
-        # Calculate percentiles
+        
+        # Calculate latency percentiles for performance analysis
         sorted_latencies = sorted(total_latencies)
         p50 = sorted_latencies[int(len(sorted_latencies) * 0.5)]
         p95 = sorted_latencies[int(len(sorted_latencies) * 0.95)]
         p99 = sorted_latencies[int(len(sorted_latencies) * 0.99)]
-
-        # Calculate averages
+        
+        # Calculate average latencies
         avg_encrypt = mean(encrypt_latencies) if encrypt_latencies else 0.0
         avg_decrypt = mean(decrypt_latencies) if decrypt_latencies else 0.0
         avg_total = mean(total_latencies)
-
-        # Calculate throughput (operations per second)
-        ops_per_second = 1000.0 / avg_total if avg_total > 0 else 0.0
+        
+        # Calculate throughput metrics
+        ops_per_second = 1000.0 / avg_total if avg_total > 0 else 0.0  # Convert ms to ops/sec
         bytes_per_second = ops_per_second * data_size
-
+        
         return cls(
             test_name="throughput",
             data_size=data_size,
@@ -225,11 +194,9 @@ class TestResult:
         cpu_count: int,
         total_memory_mb: float,
     ) -> "TestResult":
-        """Create a memory test result."""
-        memory_efficiency = (
-            data_size / (1024 * 1024) / peak_memory_mb if peak_memory_mb > 0 else 0.0
-        )
-
+        # Calculate memory efficiency as data size to memory usage ratio
+        memory_efficiency = (data_size / (1024 * 1024) / peak_memory_mb if peak_memory_mb > 0 else 0.0)
+        
         return cls(
             test_name="memory",
             data_size=data_size,
@@ -249,21 +216,20 @@ class TestResult:
         cpu_count: int,
         total_memory_mb: float,
     ) -> "TestResult":
-        """Create a concurrent test result."""
         if not all_times:
             raise ValueError("No timing data provided for concurrent result")
-
-        # Calculate metrics
+        
+        # Calculate concurrent performance metrics
         avg_latency = mean(all_times)
         sorted_times = sorted(all_times)
         p50 = sorted_times[int(len(sorted_times) * 0.5)]
         p95 = sorted_times[int(len(sorted_times) * 0.95)]
         p99 = sorted_times[int(len(sorted_times) * 0.99)]
-
-        # Calculate throughput
+        
+        # Calculate concurrent throughput
         ops_per_second = 1000.0 / avg_latency if avg_latency > 0 else 0.0
         bytes_per_second = ops_per_second * data_size
-
+        
         return cls(
             test_name="concurrency",
             data_size=data_size,
@@ -279,7 +245,6 @@ class TestResult:
         )
 
     def to_dict(self) -> Dict:
-        """Convert to dictionary for JSON serialization."""
         return {
             "test_name": self.test_name,
             "language": self.language,
@@ -303,22 +268,15 @@ class TestResult:
 
 
 class Report:
-    """Report generation and output management."""
-
     @staticmethod
-    def save_results(
-        results: List[TestResult],
-        output_path: str,
-        cpu_count: int,
-        total_memory_mb: float,
-    ):
-        """Save benchmark results to JSON file."""
+    def save_results(results: List[TestResult], output_path: str, cpu_count: int, total_memory_mb: float):
+        """Save benchmark results to JSON file with metadata."""
         metadata = BenchmarkMetadata(
             cpu_count=cpu_count,
             total_memory_gb=total_memory_mb / 1024.0,
             total_tests=len(results),
         )
-
+        
         report_data = {
             "metadata": {
                 "language": metadata.language,
@@ -331,13 +289,11 @@ class Report:
             },
             "results": [result.to_dict() for result in results],
         }
-
-        # Ensure output directory exists
+        
         output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-
-        # Write results
+        output_file.parent.mkdir(parents=True, exist_ok=True)  # Create output directory if needed
+        
         with open(output_file, "w") as f:
             json.dump(report_data, f, indent=2)
-
+        
         print(f"Results saved to: {output_path}")

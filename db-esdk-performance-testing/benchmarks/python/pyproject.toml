@@ -11,30 +11,30 @@ readme = "README.md"
 packages = [{include = "esdk_benchmark", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.11.0"
-aws-dbesdk-dynamodb = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false, extras = ["legacy-ddbec"]}
-boto3 = ">=1.26.0"
-PyYAML = "^6.0"
-pydantic = "^2.0.0"
-tqdm = "^4.66.0"
-psutil = "^5.9.0"
-numpy = "^1.24.0"
+python = "^3.11.0"  # Python 3.11+ required for performance features
+aws-dbesdk-dynamodb = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false, extras = ["legacy-ddbec"]}  # DB-ESDK library
+boto3 = ">=1.26.0"  # AWS SDK for Python
+PyYAML = "^6.0"  # YAML configuration parsing
+pydantic = "^2.0.0"  # Data validation
+tqdm = "^4.66.0"  # Progress bars
+psutil = "^5.9.0"  # System information
+numpy = "^1.24.0"  # Numerical operations
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-pytest-cov = "^4.1.0"
-black = "^23.0.0"
-flake8 = "^6.0.0"
-mypy = "^1.5.0"
-memory-profiler = "^0.60.0"
-tox = "^4.0.0"
+pytest = "^7.4.0"  # Testing framework
+pytest-cov = "^4.1.0"  # Coverage reporting
+black = "^23.0.0"  # Code formatting
+flake8 = "^6.0.0"  # Linting
+mypy = "^1.5.0"  # Type checking
+memory-profiler = "^0.60.0"  # Memory profiling
+tox = "^4.0.0"  # Testing automation
 
 [tool.poetry.scripts]
-esdk-benchmark = "esdk_benchmark.program:main"
+esdk-benchmark = "esdk_benchmark.program:main"  # Main benchmark entry point
 
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 88  # Standard line length
+target-version = ['py311']  # Python 3.11 target
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -52,7 +52,7 @@ exclude = '''
 '''
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.11"  # Python version for type checking
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -68,33 +68,33 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
-    "aws_cryptographic_material_providers.*",
-    "aws_dbesdk_dynamodb.*",
-    "tqdm",
-    "psutil",
+    "aws_cryptographic_material_providers.*",  # AWS crypto libraries
+    "aws_dbesdk_dynamodb.*",  # DB-ESDK library
+    "tqdm",  # Progress bar library
+    "psutil",  # System utilities
 ]
-ignore_missing_imports = true
+ignore_missing_imports = true  # Ignore missing type stubs
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q --strict-markers --strict-config"
-testpaths = ["tests"]
-pythonpath = ["src"]
+addopts = "-ra -q --strict-markers --strict-config"  # Test options
+testpaths = ["tests"]  # Test directory
+pythonpath = ["src"]  # Source path
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
 
 [tool.coverage.run]
-source = ["src"]
+source = ["src"]  # Source directory for coverage
 omit = [
-    "*/tests/*",
+    "*/tests/*",  # Exclude test files
     "*/test_*",
 ]
 
 [tool.coverage.report]
 exclude_lines = [
-    "pragma: no cover",
+    "pragma: no cover",  # Explicit coverage exclusion
     "def __repr__",
     "if self.debug:",
     "if settings.DEBUG",
@@ -107,10 +107,10 @@ exclude_lines = [
 ]
 
 [tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "W503"]
-max-complexity = 10
+max-line-length = 88  # Match Black formatting
+extend-ignore = ["E203", "W503"]  # Ignore Black-incompatible rules
+max-complexity = 10  # Maximum cyclomatic complexity
 per-file-ignores = [
-    "__init__.py:F401",
-    "tests/*:S101,D103",
+    "__init__.py:F401",  # Allow unused imports in __init__.py
+    "tests/*:S101,D103",  # Allow assert and missing docstrings in tests
 ]
