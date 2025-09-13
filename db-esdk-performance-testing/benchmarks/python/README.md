@@ -31,12 +31,17 @@ pip install poetry
 
 ### Install Dependencies
 
-```bash
-# Install all dependencies including dev dependencies
-poetry install
+### Compile DB-ESDK Python 
 
-# Install only production dependencies
-poetry install --no-dev
+```bash
+cd DynamoDbEncryption
+make setup_python && make transpile_python
+cd ../db-esdk-performance-testing/benchmarks/python/
+```
+### Install Benchmark framework
+```bash
+poetry lock
+poetry install
 ```
 
 ## Running Benchmarks
