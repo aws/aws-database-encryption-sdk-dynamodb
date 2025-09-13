@@ -1,0 +1,116 @@
+[build-system]
+requires = ["poetry-core<2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "esdk-benchmark-python"
+version = "0.1.0"
+description = "Performance tests DB-ESDK Python"
+authors = ["AWS Crypto Tools <aws-crypto-tools@amazon.com>"]
+readme = "README.md"
+packages = [{include = "esdk_benchmark", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11.0"
+aws-dbesdk-dynamodb = { path = "../../../DynamoDbEncryption/runtimes/python", develop = false, extras = ["legacy-ddbec"]}
+boto3 = ">=1.26.0"
+PyYAML = "^6.0"
+pydantic = "^2.0.0"
+tqdm = "^4.66.0"
+psutil = "^5.9.0"
+numpy = "^1.24.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+black = "^23.0.0"
+flake8 = "^6.0.0"
+mypy = "^1.5.0"
+memory-profiler = "^0.60.0"
+tox = "^4.0.0"
+
+[tool.poetry.scripts]
+esdk-benchmark = "esdk_benchmark.program:main"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "aws_cryptographic_material_providers.*",
+    "aws_dbesdk_dynamodb.*",
+    "tqdm",
+    "psutil",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+max-complexity = 10
+per-file-ignores = [
+    "__init__.py:F401",
+    "tests/*:S101,D103",
+]
