@@ -26,6 +26,7 @@ module SearchConfigToInfo {
   import opened StandardLibrary.MemoryMath
   import MaterialProviders
   import SortedSets
+  import Random
 
   import I = SearchableEncryptionInfo
   import V = DdbVirtualFields
@@ -41,10 +42,12 @@ module SearchConfigToInfo {
     requires ValidSearchConfig(outer.search)
     requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
+    modifies if outer.search.Some? && outer.search.value.versions[0].bucketSelector.Some? then outer.search.value.versions[0].bucketSelector.value.Modifies else {}
     ensures outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
+              && fresh(output.value.value.versions[0].bucketSelector)
     //= specification/searchable-encryption/search-config.md#initialization
     //= type=implication
     //# Initialization MUST fail if the [version number](#version-number) is not `1`.
@@ -141,7 +144,7 @@ module SearchConfigToInfo {
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
   {
-    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
     // It is not-good that the MPL is initialized here;
     // The MPL has a config object that could hold customer intent that affects behavior.
     // Today, it does not. But tomorrow?
@@ -241,10 +244,13 @@ module SearchConfigToInfo {
     requires ValidBeaconVersion(config)
     requires ValidSharedCache(config.keySource)
     modifies config.keyStore.Modifies
+    modifies if config.bucketSelector.Some? then config.bucketSelector.value.Modifies else {}
     ensures ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
+              && fresh(output.value.bucketSelector)
+              && fresh (output.value.bucketSelector.Modifies)
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
@@ -263,7 +269,51 @@ module SearchConfigToInfo {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
-    output := ConvertVersionWithSource(outer, config, source);
+    var version :- ConvertVersionWithSource(outer, config, source);
+    return Success(version);
+  }
+
+  class DefaultBucketSelector extends IBucketSelector
+  {
+    predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    { History in Modifies }
+
+    constructor ()
+      ensures ValidState() && fresh(History) && fresh(Modifies)
+    {
+      History := new IBucketSelectorCallHistory();
+      Modifies := { History };
+    }
+
+    predicate GetBucketNumberEnsuresPublicly (
+      input: GetBucketNumberInput ,
+      output: Result<GetBucketNumberOutput, Error> )
+      : (outcome: bool)
+    {
+      true
+    }
+
+    //= specification/searchable-encryption/search-config.md#bucket-selector
+    //# The default implementation of the Bucket Selector MUST return a random number within the acceptable range, i.e.
+    method GetBucketNumber'(input: GetBucketNumberInput)
+      returns (output: Result<GetBucketNumberOutput, Error> )
+      requires ValidState()
+      modifies Modifies - {History}
+      decreases Modifies - {History}
+      ensures ValidState()
+      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+    {
+      if input.numberOfBuckets == 1 {
+        return Success(GetBucketNumberOutput(bucketNumber := 0));
+      } else {
+        var randR := Random.GenerateBytes(1);
+        var rand : seq<uint8> :- randR.MapFailure(e => DynamoDbEncryptionException(message := "Failed to get random byte"));
+        var bucket := (rand[0] % (input.numberOfBuckets as uint8)) as BucketNumber;
+        return Success(GetBucketNumberOutput(bucketNumber := bucket));
+      }
+    }
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
@@ -279,9 +329,38 @@ module SearchConfigToInfo {
     ensures output.Success? ==>
               && output.value.ValidState()
               && output.value.keySource == source
+              && fresh(output.value.bucketSelector)
+              && fresh(output.value.bucketSelector.Modifies)
   {
+    var maxBuckets : BucketCount := config.maximumNumberOfBuckets.UnwrapOr(1);
+    :- Need(0 <= maxBuckets as nat < MAX_BUCKET_COUNT, E("Invalid maximumNumberOfBuckets specified, " + Base10Int2String(maxBuckets as int) + ", must be 0 < maximumNumberOfBuckets <= 255."));
+    // Zero is invalid, but in Java we can't distinguish None from Some(0)
+    if maxBuckets == 0 {
+      maxBuckets := 1;
+    }
+
+    var defaultBucketsOpt : Option<BucketCount> := config.defaultNumberOfBuckets;
+    var defaultBuckets;
+
+    //= specification/searchable-encryption/search-config.md#default-buckets
+    //# If not set, Default Buckets MUST default to [Max Buckets](#max-buckets).
+    if defaultBucketsOpt.None? || defaultBucketsOpt.value == 0 {
+      defaultBuckets := maxBuckets;
+
+      //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+      //# Initialization MUST fail if [default number of buckets](#default-buckets) is greater than or equal to [maximum number of buckets](#max-buckets).
+
+      // if maximumNumberOfBuckets is not set, then maxBuckets == 1, and so this is also covered
+      //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+      //# Initialization MUST fail if [default number of buckets](#default-buckets) is supplied but [maximum number of buckets](#max-buckets) is not.
+    } else if maxBuckets <= defaultBucketsOpt.value {
+      return(Failure(E("Invalid defaultNumberOfBuckets specified, " + Base10Int2String(defaultBucketsOpt.value as int) + ", must be 0 < defaultNumberOfBuckets < maximumNumberOfBuckets.")));
+    } else {
+      defaultBuckets := defaultBucketsOpt.value;
+    }
+
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
-    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields);
+    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields, maxBuckets, defaultBuckets);
 
     var signed := if config.signedParts.Some? then config.signedParts.value else [];
 
@@ -315,13 +394,25 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
-    return I.MakeBeaconVersion(
-        config.version as I.VersionNumber,
-        source,
-        beacons,
-        virtualFields,
-        outer.attributeActionsOnEncrypt
-      );
+    var bucketSelector;
+    if outer.search.Some? && outer.search.value.versions[0].bucketSelector.Some? {
+      bucketSelector := outer.search.value.versions[0].bucketSelector.value;
+      assume {:axiom} bucketSelector.ValidState();
+    } else {
+      bucketSelector := new DefaultBucketSelector();
+    }
+
+    var ret :- I.MakeBeaconVersion(
+      config.version as I.VersionNumber,
+      source,
+      beacons,
+      virtualFields,
+      outer.attributeActionsOnEncrypt,
+      bucketSelector,
+      maxBuckets
+    );
+    assume {:axiom} fresh(ret.bucketSelector);
+    return Success(ret);
   }
 
   // convert configured VirtualFieldList to internal VirtualFieldMap
@@ -518,12 +609,31 @@ module SearchConfigToInfo {
       Failure(E("Beacon " + name + " is shared to " + share + " which is not defined."))
   }
 
+  function method GetBucketCount(outer : DynamoDbTableEncryptionConfig, inner : Option<BucketCount>, name : string, maxBuckets : BucketCount, defaultBuckets : BucketCount) :
+    Result<BucketCount,Error>
+  {
+    if outer.search.None? || |outer.search.value.versions| == 0 then
+      Success(1)
+    else
+    if BucketCountNone(inner) then
+      Success(defaultBuckets)
+    else if inner.value < maxBuckets then
+      Success(inner.value)
+    else
+      //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
+      //# Initialization MUST fail if [number of buckets](#beacon-constraint) is specified, and is greater than or equal to
+      //# the maximum number of buckets specified in the [beacon version](search-config.md#beacon-version-initialization).
+      Failure(E("Constrained numberOfBuckets for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the maximumNumberOfBuckets " + Base10Int2String(maxBuckets as int)))
+  }
+
   // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
     beacons : seq<StandardBeacon>,
     outer : DynamoDbTableEncryptionConfig,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
+    maxBuckets : BucketCount,
+    defaultBuckets : BucketCount,
     converted : I.BeaconMap := map[])
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
@@ -580,10 +690,10 @@ module SearchConfigToInfo {
         //# A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
         case sharedSet(t) => share := Some(t.other); isAsSet := true;
       }
-
     }
+    var bucketCount :- GetBucketCount(outer, beacons[0].numberOfBuckets, beacons[0].name, maxBuckets, defaultBuckets);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
-                                          isPartOnly, isAsSet, share);
+                                          isPartOnly, isAsSet, share, bucketCount);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
@@ -601,7 +711,7 @@ module SearchConfigToInfo {
                        + ", but virtual field " + badField.value + " is already defined on that single location."));
     }
 
-    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
+    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, maxBuckets, defaultBuckets, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 
   // optional location, defaults to name

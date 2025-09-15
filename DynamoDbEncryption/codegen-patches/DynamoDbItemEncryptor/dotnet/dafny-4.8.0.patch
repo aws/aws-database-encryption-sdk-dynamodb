@@ -1,5 +1,5 @@
 diff --git b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
-index da904fc..c5b0bed 100644
+index b4a90d1b..b5d5046a 100644
 --- b/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
 +++ a/DynamoDbEncryption/runtimes/net/Generated/DynamoDbItemEncryptor/TypeConversion.cs
 @@ -7,10 +7,6 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor
@@ -10,6 +10,6 @@ index da904fc..c5b0bed 100644
 -
 -    private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
 -
-     public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.DecryptItemInput FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S16_DecryptItemInput(software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types._IDecryptItemInput value)
+     public static System.Collections.Generic.Dictionary<string, AWS.Cryptography.DbEncryptionSDK.StructuredEncryption.CryptoAction> FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S16_AttributeActions(Dafny.IMap<Dafny.ISequence<char>, software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types._ICryptoAction> value)
      {
-       software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemInput)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.DecryptItemInput converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.ItemEncryptor.DecryptItemInput(); converted.EncryptedItem = (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N13_itemEncryptor__S16_DecryptItemInput__M13_encryptedItem(concrete._encryptedItem); return converted;
+       return value.ItemEnumerable.ToDictionary(pair => FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S16_AttributeActions__M3_key(pair.Car), pair => FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S16_AttributeActions__M5_value(pair.Cdr));

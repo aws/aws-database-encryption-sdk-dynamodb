@@ -43,6 +43,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbOperations refines AbstractAwsCrypt
         )
       );
   }
+
   predicate GetEncryptedDataKeyDescriptionEnsuresPublicly(input: GetEncryptedDataKeyDescriptionInput , output: Result<GetEncryptedDataKeyDescriptionOutput, Error>)
   {true}
 
