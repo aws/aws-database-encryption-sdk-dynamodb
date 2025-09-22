@@ -48,7 +48,9 @@ This repository is a top level repository which houses all source code in order 
 different runtimes.
 
 This library is written in Dafny, a formally verifiable programming language that can be compiled into
-different runtimes. This library is currently **ONLY** supported in Java and .NET
+different runtimes. This library is currently **ONLY** supported in Java, .NET and Rust.
+
+<!-- TODO: Add Go to supported languages https://sim.amazon.com/issues/CrypTool-5444 -->
 
 ### AWS Integration
 
@@ -68,6 +70,7 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
 - .NET
 - Dafny
 - Rust
+<!-- TODO: Add Go to supported languages https://sim.amazon.com/issues/CrypTool-5444 -->
 - Python
 
 # Contributing

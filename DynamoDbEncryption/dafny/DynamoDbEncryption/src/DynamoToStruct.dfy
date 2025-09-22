@@ -40,7 +40,7 @@ module DynamoToStruct {
   }
   by method {
     var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(item.Keys);
-    var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>();
+    var m := new DafnyLibraries.MutableMap<AttributeName, StructuredDataTerminal>((k: AttributeName, v: StructuredDataTerminal) => true, false);
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     for i : uint64 := 0 to |attrNames| as uint64 {
       var k := attrNames[i];
@@ -76,7 +76,7 @@ module DynamoToStruct {
   }
   by method {
     var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(orig.Keys);
-    var m := new DafnyLibraries.MutableMap<AttributeName, AttributeValue>();
+    var m := new DafnyLibraries.MutableMap<AttributeName, AttributeValue>((k: AttributeName, v: AttributeValue) => true, false);
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     for i : uint64 := 0 to |attrNames| as uint64 {
       var k := attrNames[i];
@@ -125,7 +125,7 @@ module DynamoToStruct {
   }
   by method {
     var attrNames : seq<AttributeName> := SortedSets.ComputeSetToSequence(orig.Keys);
-    var m := new DafnyLibraries.MutableMap<AttributeName, AttributeValue>();
+    var m := new DafnyLibraries.MutableMap<AttributeName, AttributeValue>((k: AttributeName, v: AttributeValue) => true, false);
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     for i : uint64 := 0 to |attrNames| as uint64 {
       var k := attrNames[i];
@@ -652,12 +652,12 @@ module DynamoToStruct {
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
     //# Entries in a serialized Map MUST be ordered by key value,
     //# ordered in ascending [UTF-16 binary order](./string-ordering.md#utf-16-binary-order).
-    var attrNames := SortedSets.ComputeSetToOrderedSequence2(m.Keys, CharLess);
+    var attrNames : seq<AttributeName> := SortedSets.ComputeSetToOrderedSequence2(m.Keys, CharLess);
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     var len := |attrNames| as uint64;
     var output :- U32ToBigEndian64(len);
     for i : uint64 := 0 to len {
-      var k := attrNames[i];
+      var k : AttributeName := attrNames[i];
       var val := AttrToBytes(m[k], true, depth+1);
       if val.Failure? {
         var result := Failure(val.error);

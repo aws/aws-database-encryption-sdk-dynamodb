@@ -44,3 +44,32 @@ pub const TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN: &str =
 // Our tests require access to DDB Table with this name configured as a branch keystore
 pub const TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME: &str = "KeyStoreDdbTable";
 pub const TEST_COMPLEX_DDB_TABLE_NAME: &str = "ComplexBeaconTestTable";
+
+// Helper method to clean up test items
+pub async fn cleanup_items(
+    table_name: &str,
+    partition_key_value: &str,
+    sort_key_value: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
+    let ddb = aws_sdk_dynamodb::Client::new(&sdk_config);
+    
+    let key = std::collections::HashMap::from([
+        (
+            "partition_key".to_string(),
+            aws_sdk_dynamodb::types::AttributeValue::S(partition_key_value.to_string()),
+        ),
+        (
+            "sort_key".to_string(),
+            aws_sdk_dynamodb::types::AttributeValue::N(sort_key_value.to_string()),
+        ),
+    ]);
+
+    ddb.delete_item()
+        .table_name(table_name)
+        .set_key(Some(key))
+        .send()
+        .await?;
+
+    Ok(())
+}

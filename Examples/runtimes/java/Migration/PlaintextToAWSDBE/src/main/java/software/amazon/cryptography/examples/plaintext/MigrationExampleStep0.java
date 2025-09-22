@@ -28,7 +28,11 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 */
 public class MigrationExampleStep0 {
 
-  public static void MigrationStep0(String ddbTableName, int sortReadValue) {
+  public static void MigrationStep0(
+    String ddbTableName,
+    int sortReadValue,
+    String partitionKey
+  ) {
     // 1. Create a Table Schema over your annotated class.
     //    See SimpleClass.java in this directory for a sample annotated class
     //    for a plaintext item.
@@ -56,7 +60,7 @@ public class MigrationExampleStep0 {
     // 3. Put an example item into our DynamoDb table.
     //    This item will be stored in plaintext.
     SimpleClass itemToPut = new SimpleClass();
-    itemToPut.setPartitionKey("PlaintextMigrationExample");
+    itemToPut.setPartitionKey(partitionKey);
     itemToPut.setSortKey(0);
     itemToPut.setAttribute1("this will be encrypted and signed");
     itemToPut.setAttribute3("this will never be encrypted nor signed");
@@ -76,13 +80,13 @@ public class MigrationExampleStep0 {
     //    client-side encrypted items, you will need to configure encrypted reads on
     //    your enhanced client (this is configured from Step 1 onwards).
     SimpleClass itemToGet = new SimpleClass();
-    itemToGet.setPartitionKey("PlaintextMigrationExample");
+    itemToGet.setPartitionKey(partitionKey);
     itemToGet.setSortKey(sortReadValue);
 
     SimpleClass returnedItem = table.getItem(itemToGet);
 
     // Demonstrate we get the expected item back
-    assert returnedItem.getPartitionKey().equals("PlaintextMigrationExample");
+    assert returnedItem.getPartitionKey().equals(partitionKey);
     assert returnedItem
       .getAttribute1()
       .equals("this will be encrypted and signed");
@@ -97,6 +101,7 @@ public class MigrationExampleStep0 {
     final String ddbTableName = args[0];
     // You can manipulate this value to demonstrate reading records written in other steps
     final int sortReadValue = Integer.parseInt(args[1]);
-    MigrationStep0(ddbTableName, sortReadValue);
+    final String partitionKey = args[2];
+    MigrationStep0(ddbTableName, sortReadValue, partitionKey);
   }
 }

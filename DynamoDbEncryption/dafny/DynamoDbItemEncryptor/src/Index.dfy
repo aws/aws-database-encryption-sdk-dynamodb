@@ -4,9 +4,8 @@
 include "AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.dfy"
 include "Util.dfy"
 
-module
-  {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny" }
-  DynamoDbItemEncryptor refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService
+module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny" } DynamoDbItemEncryptor
+  refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService
 {
   import opened DynamoDbItemEncryptorUtil
   import StructuredEncryption

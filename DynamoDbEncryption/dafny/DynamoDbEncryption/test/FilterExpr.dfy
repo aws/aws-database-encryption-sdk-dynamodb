@@ -18,7 +18,8 @@ module TestDynamoDBFilterExpr {
 
   method expect_contains(haystack : AttributeValue, needle : AttributeValue, negate : bool)
   {
-    if does_contain(haystack, needle) != negate {
+    var val := does_contain(haystack, needle);
+    if val != negate {
       if negate {
         print haystack, " should not have contained ", needle, "but it did\n";
       }
@@ -26,7 +27,7 @@ module TestDynamoDBFilterExpr {
         print haystack, " should have contained ", needle, "but it didn't\n";
       }
     }
-    expect does_contain(haystack, needle) == negate;
+    expect val == negate;
   }
 
   method {:test} UnicodeLessTest() {
@@ -62,7 +63,8 @@ module TestDynamoDBFilterExpr {
     expect_equal(ParseExpr(" A_B  AnD  B_C "), [MakeAttr("A_B"), And, MakeAttr("B_C")]);
 
     var input := [Not, MakeAttr("A"), In, Open, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or];
-    expect IsIN(input[1..]);
+    expect IsIN(input, 1);
+    expect IsIN(input[1..], 0);
     expect_equal(ConvertToPrefix(input),  [Not, In, Open, MakeAttr("A"), Comma, MakeAttr("B"), Comma, MakeAttr("C"), Close, Or]);
 
     input := [And, Or, Not, And, Or, Not, And, Or, Not];
@@ -707,6 +709,9 @@ module TestDynamoDBFilterExpr {
     var newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val1 and :val5"), None, Some(values));
     expect newItems.Success?;
     newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val3 and :val6"), None, Some(values));
+    if newItems.Failure? {
+      print "\n", newItems, "\n\n";
+    }
     expect newItems.Success?;
     newItems := FilterResults(bv, [SimpleItem], None, Some("NameTitle between :val2 and :val3"), None, Some(values));
     expect newItems.Success?;

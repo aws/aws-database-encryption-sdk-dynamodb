@@ -40,6 +40,13 @@ Within `runtimes/java`:
 - `src/` contains all hand written Dotnet code, including externs, and also all Smithy to Rust generated code.
 - `src/implementation_from_dafny.cs` contains all Dafny to .NET transpiled code.
 
+#### Go
+
+`runtimes/go` contains the Go related code and build instructions for this project.
+
+- `ImplementationFromDafny-go/` contains all the implementation code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code
+- `TestsFromDafny-go` contains all the test code which is Smithy to Go generated code, Dafny to Go transpiled code and hand written Go code.
+
 ### Development
 
 Common Makefile targets are:
@@ -83,6 +90,8 @@ Common Makefile targets are:
 - `make test_net_mac_intel` builds and tests the transpiled code in .NET in an Intel-MacOS environment.
 - `make transpile_rust` transpiles all of the Dafny code into runtimes/rust/src/implementation_from_dafny.
 - `make polymorph_rust` transpiles the smithy files into untimes/rust/src/\*.rs
+- `make transpile_go` transpiles all of the Dafny code into runtimes/go/\*.go
+- `make polymorph_go` transpiles the smithy files into runtimes/go/\*.go
 
 ### Development Requirements
 
