@@ -22,6 +22,7 @@ from .errors import (
     DynamoDbEncryption,
     DynamoDbItemEncryptorException,
     OpaqueError,
+    OpaqueWithTextError,
     ServiceError,
     StructuredEncryption,
 )
@@ -66,7 +67,7 @@ def _deserialize_error(error: Error) -> ServiceError:
     if error.is_Opaque:
         return OpaqueError(obj=error.obj)
     elif error.is_OpaqueWithText:
-        return OpaqueErrorWithText(obj=error.obj, obj_message=error.objMessage)
+        return OpaqueWithTextError(obj=error.obj, obj_message=_dafny.string_of(error.objMessage))
     elif error.is_CollectionOfErrors:
         return CollectionOfErrors(
             message=_dafny.string_of(error.message),
@@ -93,6 +94,11 @@ def _deserialize_error(error: Error) -> ServiceError:
             aws_cryptography_materialproviders_deserialize_error(error.AwsCryptographyMaterialProviders)
         )
     elif error.is_ComAmazonawsDynamodb:
-        return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
+        if hasattr(error.ComAmazonawsDynamodb, "objMessage"):
+            return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.objMessage))
+        elif hasattr(error.ComAmazonawsDynamodb, "Message"):
+            return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.Message))
+        else:
+            return ComAmazonawsDynamodb(message=_dafny.string_of(error.ComAmazonawsDynamodb.message))
     else:
         return OpaqueError(obj=error)
