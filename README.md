@@ -71,10 +71,11 @@ You need an Amazon Web Services (AWS) account to use the DB-ESDK for DynamoDB as
 - Dafny
 - Rust
 <!-- TODO: Add Go to supported languages https://sim.amazon.com/issues/CrypTool-5444 -->
+- Python
 
 # Contributing
 
-See [CONTRIBUTING](CONTRIBUTING.md) for more information. For detailed information about code organization and development see [DynamoDbEncryption README](./DynamoDbEncryption/README.md)
+See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 # License
 

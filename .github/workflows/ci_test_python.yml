@@ -1,0 +1,132 @@
+# This workflow runs only Dafny-transpiled Python tests.
+name: test python
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  testPython:
+    strategy:
+      fail-fast: false
+      matrix:
+        library: [DynamoDbEncryption]
+        python-version: ["3.11", "3.12", "3.13"]
+        os: [
+            macos-13,
+            ubuntu-22.04,
+            # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
+            # Windows is tested with non-Dafny-transpiled Python tests.
+            # windows-latest
+          ]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup Python ${{ matrix.python-version }} for running tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade tox
+          pip install poetry
+
+      - name: Setup Dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
+        with:
+          dafny-version: ${{ inputs.dafny }}
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Regenerate code using smithy-dafny if necessary
+        if: ${{ inputs.regenerate-code }}
+        uses: ./.github/actions/polymorph_codegen
+        with:
+          dafny: ${{ env.DAFNY_VERSION }}
+          library: ${{ matrix.library }}
+          diff-generated-code: false
+          update-and-regenerate-mpl: true
+
+      - name: Download Dependencies
+        working-directory: ./${{ matrix.library }}
+        run: make setup_python
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Net-Tests
+
+      - name: Compile ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_python CORES=$CORES
+
+      - name: Test ${{ matrix.library }} Dafny-transpiled Python tests
+        # Dafny-transpiled Python tests use a PYTHONPATH hack that doesn't work on Windows.
+        # Windows is tested with non-Dafny-transpiled Python tests.
+        if: ${{ matrix.os != 'windows-latest' }}
+        working-directory: ./${{ matrix.library }}/runtimes/python
+        shell: bash
+        run: |
+          tox -e dafnytests
+
+      - name: Test ${{ matrix.library }} Python unit tests
+        working-directory: ./${{ matrix.library }}/runtimes/python
+        shell: bash
+        run: |
+          tox -e unit
+
+      - name: Test ${{ matrix.library }} Python integration tests
+        working-directory: ./${{ matrix.library }}/runtimes/python
+        shell: bash
+        run: |
+          tox -e integ
+          tox -e legacyinteg
+
+      - name: Test ${{ matrix.library }} Python coverage
+        working-directory: ./${{ matrix.library }}/runtimes/python
+        shell: bash
+        run: |
+          tox -e encrypted-interface-coverage
+          tox -e client-to-resource-conversions-coverage
+          tox -e resource-to-client-conversions-coverage
