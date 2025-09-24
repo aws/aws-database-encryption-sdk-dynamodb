@@ -59,6 +59,12 @@ jobs:
           git submodule update --init --recursive
           git rev-parse HEAD
 
+      # Without this the if-dafny-at-least command includes "Downloading ..." output
+      - name: Arbitrary makefile target to force downloading Gradle
+        shell: bash
+        run: |
+          make -C submodules/MaterialProviders/StandardLibrary setup_net
+
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v4
         with:
