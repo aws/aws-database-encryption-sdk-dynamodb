@@ -21,7 +21,10 @@ data_sizes:
 quick_config:
   data_sizes:
     small:
-      - 102400 # 100KB - within DynamoDB's 400KB limit
+      - 204904  # 200KB
+      - 400000  # 400KB
+      - 1000000  # 1MB
+      - 10000000  # 10MB
   iterations:
     warmup: 3 # Reduced warmup iterations
     measurement: 3 # Reduced measurement iterations
