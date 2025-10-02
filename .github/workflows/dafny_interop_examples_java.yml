@@ -27,7 +27,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        java-version: [8, 11, 16, 17]
+        java-version: [8, 11, 17]
         os: [macos-14]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -60,7 +60,7 @@ jobs:
           git rev-parse HEAD
 
       - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
