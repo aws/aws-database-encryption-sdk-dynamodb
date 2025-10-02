@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
 
-    <Version>3.7.0</Version>
+    <Version>3.7.1</Version>
 
     <AssemblyName>AWS.Cryptography.DbEncryptionSDK.DynamoDb</AssemblyName>
     <PackageId>AWS.Cryptography.DbEncryptionSDK.DynamoDb</PackageId>
@@ -57,10 +57,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.303.14"/>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.304.16"/>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="[3.7.*, 4.0)" />
     <PackageReference Include="DafnyRuntime" Version="$(DafnyVersion)" />
-    <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
+    <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="[1.7.6]" />
     <!--
               System.Collections.Immutable can be removed once dafny.msbuild is updated with
               https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
