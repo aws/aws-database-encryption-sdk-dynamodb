@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         library: [DynamoDbEncryption, TestVectors]
-        os: [ubuntu-22.04, macos-13]
+        os: [ubuntu-22.04, macos-14]
         go-version: ["1.23", "1.24", "1.25"]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -37,7 +37,7 @@ jobs:
       contents: read
     steps:
       - name: Setup Docker
-        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        if: matrix.os == 'macos-14' && matrix.library == 'TestVectors'
         uses: douglascamata/setup-docker-macos-action@v1-alpha
 
       - name: Setup DynamoDB Local

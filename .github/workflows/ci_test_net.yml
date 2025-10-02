@@ -25,7 +25,7 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         dotnet-version: ["6.0.x"]
-        os: [macos-13, ubuntu-22.04, windows-latest]
+        os: [macos-14, ubuntu-22.04, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write

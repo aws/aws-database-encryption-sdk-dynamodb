@@ -28,7 +28,7 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
-            macos-13,
+            macos-14,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -36,7 +36,7 @@ jobs:
       contents: read
     steps:
       - name: Setup Docker
-        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
+        if: matrix.os == 'macos-14' && matrix.library == 'TestVectors'
         uses: douglascamata/setup-docker-macos-action@v1.0.0
 
       - name: Setup DynamoDB Local

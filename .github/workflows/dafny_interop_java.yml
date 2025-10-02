@@ -28,7 +28,7 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         java-version: [8, 11, 16, 17]
-        os: [macos-13]
+        os: [macos-14]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write

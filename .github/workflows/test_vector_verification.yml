@@ -29,7 +29,7 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        os: [macos-13]
+        os: [macos-14]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -62,7 +62,7 @@ jobs:
           sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
       # dafny-reportgenerator requires next6
-      # but only 7.0 is installed on macos-13-large
+      # but only 7.0 is installed on macos-14-large
       - name: Setup .NET Core SDK '6.0.x'
         uses: actions/setup-dotnet@v4
         with:
