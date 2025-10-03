@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.7.1]
+
+Ensure that this library cannot be used with AWS-SDK-NET V4
+
 ## [3.7.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.6.2...v3.7.0) (2024-09-17)
 
 ### Features
