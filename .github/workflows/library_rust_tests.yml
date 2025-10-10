@@ -42,7 +42,7 @@ jobs:
 
       - name: Download DynamoDB Local
         run: |
-          wget https://dynamodb-local.s3.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz
+          wget https://dynamodb-local.s3.amazonaws.com/dynamodb_local_latest.tar.gz
           tar -xf dynamodb_local_latest.tar.gz
 
       - name: Start DynamoDB Local
