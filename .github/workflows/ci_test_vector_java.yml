@@ -39,10 +39,6 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Setup Docker
-        if: matrix.os == 'macos-14' && matrix.library == 'TestVectors'
-        uses: douglascamata/setup-docker-macos-action@v1.0.0
-
       - name: Setup DynamoDB Local
         uses: rrainn/dynamodb-action@v4.0.0
         with:
