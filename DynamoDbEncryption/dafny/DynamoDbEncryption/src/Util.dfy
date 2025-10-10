@@ -83,36 +83,36 @@ module DynamoDbEncryptionUtil {
 
   const MAX_BUCKET_COUNT : nat := 255
 
-  type BucketBytes = x: seq<uint8> | Valid_BucketBytes(x) witness []
-  newtype OptBucketCount  = x: int | 0 <= x <= MAX_BUCKET_COUNT
+  type PartitionBytes = x: seq<uint8> | Valid_PartitionBytes(x) witness []
+  newtype OptPartitionCount  = x: int | 0 <= x <= MAX_BUCKET_COUNT
 
-  function method BucketBytesToNumber(x : BucketBytes) : BucketNumber
+  function method PartitionBytesToNumber(x : PartitionBytes) : PartitionNumber
   {
     if |x| == 0 then
       0
     else
-      x[0] as BucketNumber
+      x[0] as PartitionNumber
   }
 
-  function method BucketNumberToBytes(x : BucketNumber) : BucketBytes
+  function method PartitionNumberToBytes(x : PartitionNumber) : PartitionBytes
   {
-    //= specification/searchable-encryption/beacons.md#bucket-beacon-encoding
+    //= specification/searchable-encryption/beacons.md#partition-beacon-encoding
     //# If this number is zero, then the input sequence of bytes MUST be returned unchanged.
     if x == 0 then
       []
-    //= specification/searchable-encryption/beacons.md#bucket-beacon-encoding
-    //# Otherwise, a single byte with a value equal to this calculated bucket number, MUST be appended to the input sequence of bytes.
+    //= specification/searchable-encryption/beacons.md#partition-beacon-encoding
+    //# Otherwise, a single byte with a value equal to this calculated partition number, MUST be appended to the input sequence of bytes.
     else
       [x as uint8]
   }
 
   // Java is broken, None becomes Some(0)
-  predicate method BucketCountNone(x : Option<BucketCount>)
+  predicate method PartitionCountNone(x : Option<PartitionCount>)
   {
     x.None? || x.value == 0
   }
 
-  predicate method Valid_BucketBytes(x : seq<uint8>)
+  predicate method Valid_PartitionBytes(x : seq<uint8>)
   {
     && |x| <= 1
     && (|x| == 1 ==> (0 < x[0] < (MAX_BUCKET_COUNT as uint8)))
@@ -156,7 +156,7 @@ module DynamoDbEncryptionUtil {
     (a / gcd(a, b)) * b
   }
 
-  function method bmin(a : BucketCount, b : BucketCount) : (output : BucketCount)
+  function method bmin(a : PartitionCount, b : PartitionCount) : (output : PartitionCount)
     ensures output <= a
     ensures output <= b
   {
@@ -166,9 +166,9 @@ module DynamoDbEncryptionUtil {
       b
   }
 
-  function method lcmBucket(a : BucketCount, b : BucketCount, max : BucketCount) : BucketCount
+  function method lcmPartition(a : PartitionCount, b : PartitionCount, max : PartitionCount) : PartitionCount
     requires 0 < a && 0 < b
-    ensures 0 < lcmBucket(a, b, max) <= max
+    ensures 0 < lcmPartition(a, b, max) <= max
   {
     if a == 1 || b == max || a == b then
       bmin(b, max)
@@ -177,25 +177,25 @@ module DynamoDbEncryptionUtil {
     else
       var result := lcm(a as nat, b as nat);
       if result < max as nat then
-        result as BucketCount
+        result as PartitionCount
       else
         max
   }
 
-  method lcmSeq(values : seq<BucketCount>, max : BucketCount) returns (output : BucketCount)
+  method lcmSeq(values : seq<PartitionCount>, max : PartitionCount) returns (output : PartitionCount)
     // requires forall i <- values :: i <= max
     ensures output <= max
   {
-    var result : BucketCount := 1;
+    var result : PartitionCount := 1;
     SequenceIsSafeBecauseItIsInMemory(values);
     for i : uint64 := 0 to |values| as uint64
       invariant result <= max
     {
-      var buckets := values[i];
-      if buckets == 1 || buckets == result {
+      var partitions := values[i];
+      if partitions == 1 || partitions == result {
         continue;
       }
-      result := lcmBucket(result, buckets, max);
+      result := lcmPartition(result, partitions, max);
     }
     return result;
   }

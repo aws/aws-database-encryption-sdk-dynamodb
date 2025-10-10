@@ -49,44 +49,44 @@ service DynamoDbEncryption {
     errors: [ DynamoDbEncryptionException ]
 }
 
-resource BucketSelector {
-  operations: [GetBucketNumber]
+resource PartitionSelector {
+  operations: [GetPartitionNumber]
 }
 
-@reference(resource: BucketSelector)
-structure BucketSelectorReference {}
+@reference(resource: PartitionSelector)
+structure PartitionSelectorReference {}
 
-operation GetBucketNumber {
-  input: GetBucketNumberInput,
-  output: GetBucketNumberOutput,
+operation GetPartitionNumber {
+  input: GetPartitionNumberInput,
+  output: GetPartitionNumberOutput,
 }
 
-//= specification/searchable-encryption/search-config.md#bucket-selector
+//= specification/searchable-encryption/search-config.md#partition-selector
 //= type=implication
-//# GetBucketNumber MUST take as input
+//# GetPartitionNumber MUST take as input
 //#
 //# - A DynamoDB Item (i.e an AttributeMap)
-//# - The [number of buckets](#max-buckets) defined in the associated [beacon version](#beacon-version-initialization).
+//# - The [number of partitions](#max-partitions) defined in the associated [beacon version](#beacon-version-initialization).
 //# - The logical table name for this defined in the associated [table config](../dynamodb-encryption-client/ddb-table-encryption-config.md#structure).
 
-structure GetBucketNumberInput {
+structure GetPartitionNumberInput {
   @required
   item: AttributeMap,
   @required
-  numberOfBuckets : BucketCount,
+  numberOfPartitions : PartitionCount,
   @required
   logicalTableName: String,
 }
 
-//= specification/searchable-encryption/search-config.md#bucket-selector
+//= specification/searchable-encryption/search-config.md#partition-selector
 //= type=implication
-//# GetBucketNumber MUST return
+//# GetPartitionNumber MUST return
 //#
-//# - The number of the bucket to use for this item
+//# - The number of the partition to use for this item
 
-structure GetBucketNumberOutput {
+structure GetPartitionNumberOutput {
   @required
-  bucketNumber: BucketNumber
+  partitionNumber: PartitionNumber
 }
 
 @javadoc("Returns encrypted data key description.")
@@ -327,10 +327,10 @@ integer BeaconBitLength
 integer VersionNumber
 
 @range(min: 1, max: 255)
-integer BucketCount
+integer PartitionCount
 
 @range(min: 0, max: 254)
-integer BucketNumber
+integer PartitionNumber
 
 @length(min: 1, max: 1)
 string Char
@@ -715,8 +715,8 @@ structure StandardBeacon {
   loc : TerminalLocation,
   @javadoc("Optional augmented behavior.")
   style : BeaconStyle,
-  @javadoc("The number of separate buckets across which this particular beacon should be divided. Ths must be no greater than the global numberOfBuckets, and can never be changed once an item containing this beacon has been written.")
-  numberOfBuckets : BucketCount
+  @javadoc("The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.")
+  numberOfPartitions : PartitionCount
 }
 
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization
@@ -845,14 +845,14 @@ structure BeaconVersion {
   @javadoc("The list of Signed Parts that may be included in any compound beacon.")
   signedParts : SignedPartsList,
 
-  @javadoc("The number of separate buckets across which beacons should be divided.")
-  maximumNumberOfBuckets : BucketCount,
+  @javadoc("The number of separate partitions across which beacons should be divided.")
+  maximumNumberOfPartitions : PartitionCount,
 
-  @javadoc("The number of buckets for any beacon that doesn't specify a numberOfBuckets")
-  defaultNumberOfBuckets : BucketCount,
+  @javadoc("The number of partitions for any beacon that doesn't specify a numberOfPartitions")
+  defaultNumberOfPartitions : PartitionCount,
 
-  @javadoc("How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.")
-  bucketSelector: BucketSelectorReference,
+  @javadoc("How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.")
+  partitionSelector: PartitionSelectorReference,
 }
 
 //= specification/searchable-encryption/search-config.md#initialization

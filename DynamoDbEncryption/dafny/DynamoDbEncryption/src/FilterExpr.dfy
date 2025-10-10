@@ -541,7 +541,7 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     keys : MaybeKeyMap,
     newValues: DDB.ExpressionAttributeValueMap,
-    bucket : BucketNumber,
+    partition : PartitionNumber,
     acc : seq<Token> := []
   )
     : Result<ParsedContext, Error>
@@ -560,27 +560,27 @@ module DynamoDBFilterExpr {
         if OpNeedsBeacon(expr, pos) then
           var newName := b.beacons[oldName].getBeaconName();
           if isIndirectName then
-            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, bucket, acc + [expr[pos]])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, partition, acc + [expr[pos]])
           else
-            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [Attr(newName, TermLocMap(newName))])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [Attr(newName, TermLocMap(newName))])
         else
-          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [expr[pos]])
+          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [expr[pos]])
       else
-        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [expr[pos]])
     else if expr[pos].Value? then
       var name := expr[pos].s;
       :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
       var oldValue := oldValues[name];
       var eb :- BeaconForValue(b, expr, pos, names, oldValues);
-      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains, bucket);
+      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains, partition);
       //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
       //# If a single value in ExpressionAttributeValues is used in more than one context,
       //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
       //# are both beacons, this operation MUST fail.
       :- Need(name !in newValues || newValues[name] == newValue, E(name + " used in two different contexts, which is not allowed."));
-      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], bucket, acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], partition, acc + [expr[pos]])
     else
-      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, bucket, acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [expr[pos]])
   }
 
   // Convert the tokens back into an expression
@@ -1530,7 +1530,7 @@ module DynamoDBFilterExpr {
     ItemList : DDB.ItemList,
     names : Option<DDB.ExpressionAttributeNameMap>,
     values : DDB.ExpressionAttributeValueMap,
-    bucket : BucketNumber
+    partition : PartitionNumber
   )
     returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
@@ -1539,7 +1539,7 @@ module DynamoDBFilterExpr {
   {
     var acc : DDB.ItemList := [];
     for i := 0 to |ItemList| {
-      var newAttrs :- b.GeneratePlainBeacons(ItemList[i], bucket);
+      var newAttrs :- b.GeneratePlainBeacons(ItemList[i], partition);
       var doesMatch :- EvalExpr(parsed, ItemList[i] + newAttrs, names, values);
       if doesMatch {
         acc := acc + [ItemList[i]];
@@ -1564,24 +1564,24 @@ module DynamoDBFilterExpr {
     if |ItemList| == 0 || (KeyExpression.None? && FilterExpression.None?) {
       return Success(ItemList);
     } else {
-      // We don't actually need bucket_bytes if we're just filtering
-      var bucket : BucketNumber := 0;
+      // We don't actually need partition_bytes if we're just filtering
+      var partition : PartitionNumber := 0;
       var afterKeys;
       if KeyExpression.Some? {
         var parsed := ParseExpr(KeyExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], bucket);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], partition);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
-        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values, bucket);
+        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values, partition);
       } else {
         afterKeys := ItemList;
       }
       if FilterExpression.Some? {
         var parsed := ParseExpr(FilterExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], bucket);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], partition);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
-        output := FilterItems(b, expr2, afterKeys, expr.names, expr.values, bucket);
+        output := FilterItems(b, expr2, afterKeys, expr.names, expr.values, partition);
       } else {
         return Success(afterKeys);
       }
@@ -1708,24 +1708,24 @@ module DynamoDBFilterExpr {
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
-    returns (ret : Result<BucketCount, Error>)
-    ensures ret.Success? ==> ret.value <= bv.numBuckets
+    returns (ret : Result<PartitionCount, Error>)
+    ensures ret.Success? ==> ret.value <= bv.numPartitions
   {
     if keyExpr.None? || values.None? {
       return Success(1);
     }
     var parsed := ParseExpr(keyExpr.value);
     var values :- GetValues(bv, parsed, values.value, names);
-    var result : BucketCount := 1;
+    var result : PartitionCount := 1;
     SequenceIsSafeBecauseItIsInMemory(values);
     for i : uint64 := 0 to |values| as uint64
-      invariant result <= bv.numBuckets
+      invariant result <= bv.numPartitions
     {
-      var buckets := values[i].0.getNumQueries(bv.numBuckets, values[0].1);
-      if buckets == 1 || buckets == result {
+      var partitions := values[i].0.getNumQueries(bv.numPartitions, values[0].1);
+      if partitions == 1 || partitions == result {
         continue;
       }
-      result := lcmBucket(result, buckets, bv.numBuckets);
+      result := lcmPartition(result, partitions, bv.numPartitions);
     }
     return Success(result);
   }
@@ -1827,7 +1827,7 @@ module DynamoDBFilterExpr {
     return Failure(E("Could not find new name"));
   }
 
-  // Combine old_context and new_context, assuming that both came from Beaconize called with different bucket numbers
+  // Combine old_context and new_context, assuming that both came from Beaconize called with different partition numbers
   // this updates values and filterExpr, e.g
   // old_context : filterExpr = "(X = :x)" values = {":x" := "aaa"}
   // new_context : filterExpr = "X = :x" values = {":x" := "bbb"}
@@ -1870,36 +1870,36 @@ module DynamoDBFilterExpr {
     return Success((result_filter, result_values));
   }
 
-  // Call Beaconize, possibly multiple times if fewer queries than buckets
+  // Call Beaconize, possibly multiple times if fewer queries than partitions
   method DoBeaconize(
     b : SI.BeaconVersion,
     context : ExprContext,
     keyId : MaybeKeyId,
-    bucket : BucketNumber,
-    queries : BucketCount
+    partition : PartitionNumber,
+    queries : PartitionCount
   )
     returns (output : Result<ExprContext, Error>)
     requires b.ValidState()
-    requires bucket < b.numBuckets
-    requires bucket < queries <= b.numBuckets
+    requires partition < b.numPartitions
+    requires partition < queries <= b.numPartitions
     ensures b.ValidState()
     modifies b.Modifies()
   {
-    if queries == b.numBuckets || (b.numBuckets - bucket) <= queries || context.filterExpr.None? || context.values.None? {
-      output := Beaconize(b, context, keyId, bucket);
+    if queries == b.numPartitions || (b.numPartitions - partition) <= queries || context.filterExpr.None? || context.values.None? {
+      output := Beaconize(b, context, keyId, partition);
     } else {
-      var curr_bucket : BucketNumber := bucket;
+      var curr_partition : PartitionNumber := partition;
       var exprs : seq<string> := [];
       var values : DDB.ExpressionAttributeValueMap := map[];
       var keyExpr : Option<DDB.KeyExpression> := None;
       var names : Option<DDB.ExpressionAttributeNameMap> := None;
 
-      while curr_bucket < b.numBuckets
+      while curr_partition < b.numPartitions
         invariant b.ValidState()
-        invariant curr_bucket == bucket || 0 < |exprs|
+        invariant curr_partition == partition || 0 < |exprs|
       {
-        var localOut :- Beaconize(b, context, keyId, curr_bucket);
-        if curr_bucket == bucket {
+        var localOut :- Beaconize(b, context, keyId, curr_partition);
+        if curr_partition == partition {
           exprs := [localOut.filterExpr.UnwrapOr("")];
           values := localOut.values.UnwrapOr(map[]);
           keyExpr := localOut.keyExpr;
@@ -1912,10 +1912,10 @@ module DynamoDBFilterExpr {
           }
           values := value;
         }
-        if (b.numBuckets - curr_bucket) <= queries {
+        if (b.numPartitions - curr_partition) <= queries {
           break;
         } else {
-          curr_bucket := curr_bucket + queries;
+          curr_partition := curr_partition + queries;
         }
       }
       var result_filter : string;
@@ -1940,7 +1940,7 @@ module DynamoDBFilterExpr {
     b : SI.BeaconVersion,
     context : ExprContext,
     keyId : MaybeKeyId,
-    bucket : BucketNumber,
+    partition : PartitionNumber,
     naked : bool := false
   )
     returns (output : Result<ExprContext, Error>)
@@ -1967,14 +1967,14 @@ module DynamoDBFilterExpr {
 
       if context.keyExpr.Some? {
         var parsed := ParseExpr(context.keyExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, bucket);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, partition);
         newKeyExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
       if context.filterExpr.Some? {
         var parsed := ParseExpr(context.filterExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, bucket);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, partition);
         newFilterExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;

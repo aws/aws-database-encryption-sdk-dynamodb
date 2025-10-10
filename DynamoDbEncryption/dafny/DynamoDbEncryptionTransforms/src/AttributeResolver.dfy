@@ -32,10 +32,10 @@ module AttributeResolver {
         );
     } else {
       var tableConfig := config.tableEncryptionConfigs[input.TableName];
-      assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().bucketSelector.Modifies else {});
-      var bucket :- GetRandomBucket(tableConfig, input.Item);
+      assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().partitionSelector.Modifies else {});
+      var partition :- GetRandomPartition(tableConfig, input.Item);
       var vf :- GetVirtualFields(tableConfig.search.value, input.Item, input.Version);
-      var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version, bucket);
+      var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version, partition);
       return Success(
           ResolveAttributesOutput(
             VirtualFields := vf,

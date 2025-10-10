@@ -58,15 +58,15 @@ module PutItemTransform {
                                      input.sdkInput.ConditionExpression,
                                      input.sdkInput.ExpressionAttributeNames,
                                      input.sdkInput.ExpressionAttributeValues);
-    assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().bucketSelector.Modifies else {});
-    var bucket :- GetRandomBucket(tableConfig, input.sdkInput.Item);
-    var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item, bucket);
+    assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().partitionSelector.Modifies else {});
+    var partition :- GetRandomPartition(tableConfig, input.sdkInput.Item);
+    var item :- AddSignedBeacons(tableConfig, input.sdkInput.Item, partition);
     var encryptRes := tableConfig.itemEncryptor.EncryptItem(
       EncTypes.EncryptItemInput(plaintextItem:=item)
     );
     var encrypted :- MapError(encryptRes);
     var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, Util.MaybeFromOptionKeyId(keyId), bucket);
+    var beacons :- GetEncryptedBeacons(tableConfig, input.sdkInput.Item, Util.MaybeFromOptionKeyId(keyId), partition);
     return Success(PutItemInputTransformOutput(transformedInput := input.sdkInput.(Item := encrypted.encryptedItem + beacons)));
   }
 

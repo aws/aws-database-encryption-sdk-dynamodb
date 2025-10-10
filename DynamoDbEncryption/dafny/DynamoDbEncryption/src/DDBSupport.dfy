@@ -33,7 +33,7 @@ module DynamoDBSupport {
   import NN = DynamoDbNormalizeNumber
 
   method GetNumberOfQueries(search : SearchableEncryptionInfo.BeaconVersion, query : DDB.QueryInput)
-    returns (output : Result<BucketCount, Error>)
+    returns (output : Result<PartitionCount, Error>)
   {
     var numberOfQueries :- Filter.GetNumQueries(
       search,
@@ -155,14 +155,14 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : BucketNumber)
+  method GetEncryptedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, keyId : MaybeKeyId, partition : PartitionNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
     if search.None? {
       return Success(map[]);
     } else {
-      output := search.value.GenerateEncryptedBeacons(item, keyId, bucket);
+      output := search.value.GenerateEncryptedBeacons(item, keyId, partition);
     }
   }
 
@@ -170,7 +170,7 @@ module DynamoDBSupport {
 
   // AddBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, bucket : BucketNumber)
+  method AddSignedBeacons(search : Option<ValidSearchInfo>, item : DDB.AttributeMap, partition : PartitionNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
 
@@ -186,7 +186,7 @@ module DynamoDBSupport {
     if search.None? {
       return Success(item);
     } else {
-      var newAttrs :- search.value.GenerateSignedBeacons(item, bucket);
+      var newAttrs :- search.value.GenerateSignedBeacons(item, partition);
 
       //= specification/dynamodb-encryption-client/ddb-support.md#addsignedbeacons
       //# If the attribute NAME already exists,
@@ -235,7 +235,7 @@ module DynamoDBSupport {
   {
     Success(DoRemoveBeacons(item))
   }
-  const BucketName : string := ":aws_dbe_bucket"
+  const PartitionName : string := ":aws_dbe_partition"
 
   function method GetNumber(val : DDB.AttributeValue, name : string) : Result<uint32, Error>
   {
@@ -247,58 +247,58 @@ module DynamoDBSupport {
       Failure(E("Value of " + name + " is not numeric (i.e. 'N')"))
   }
 
-  // Unlike Query, Scan must not specify BucketName
-  function method TestBucketForScan(names : Option<DDB.ExpressionAttributeValueMap>)
+  // Unlike Query, Scan must not specify PartitionName
+  function method TestPartitionForScan(names : Option<DDB.ExpressionAttributeValueMap>)
     : Result<bool, Error>
   {
     if names.None? then
       Success(true)
-    else if BucketName in names.value then
-      Failure(E("A value for " + BucketName + " must not be specified for Scan operations."))
+    else if PartitionName in names.value then
+      Failure(E("A value for " + PartitionName + " must not be specified for Scan operations."))
     else
       Success(true)
   }
 
-  // If names[":aws_dbe_bucket"] holds S(N)' return (Some(names - {":aws_dbe_bucket"}), Some(N))
+  // If names[":aws_dbe_partition"] holds S(N)' return (Some(names - {":aws_dbe_partition"}), Some(N))
   // else return (None, None)
-  function method ExtractBucketNumber(names : Option<DDB.ExpressionAttributeValueMap>)
+  function method ExtractPartitionNumber(names : Option<DDB.ExpressionAttributeValueMap>)
     : Result<(Option<DDB.ExpressionAttributeValueMap>, Option<uint32>), Error>
   {
     if names.None? then
       Success((None, None))
-    else if BucketName in names.value then
-      var val :- GetNumber(names.value[BucketName], BucketName);
+    else if PartitionName in names.value then
+      var val :- GetNumber(names.value[PartitionName], PartitionName);
       if |names.value| == 1 then
         Success((None, Some(val)))
       else
-        Success((Some(names.value - {BucketName}), Some(val)))
+        Success((Some(names.value - {PartitionName}), Some(val)))
     else
       Success((None, None))
   }
 
-  // Extract aws_dbe_bucket = NN from filterExpr and return bucket
-  method ExtractBucket(search : SearchableEncryptionInfo.BeaconVersion, keyExpr : Option<string>, filterExpr : Option<string>, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>, actions : AttributeActions)
-    returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, BucketNumber), Error>)
-    ensures output.Success? ==> output.value.1 < search.numBuckets
+  // Extract aws_dbe_partition = NN from filterExpr and return partition
+  method ExtractPartition(search : SearchableEncryptionInfo.BeaconVersion, keyExpr : Option<string>, filterExpr : Option<string>, names : Option<DDB.ExpressionAttributeNameMap>, values : Option<DDB.ExpressionAttributeValueMap>, actions : AttributeActions)
+    returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, PartitionNumber), Error>)
+    ensures output.Success? ==> output.value.1 < search.numPartitions
   {
-    if search.numBuckets <= 1 {
-      :- Need(values.None? || BucketName !in values.value, E("If no buckets are configured, do not specify " + BucketName));
+    if search.numPartitions <= 1 {
+      :- Need(values.None? || PartitionName !in values.value, E("If no partitions are configured, do not specify " + PartitionName));
       return Success((values, 0));
     }
 
-    var foo :- ExtractBucketNumber(values);
-    var (values2, bucket) := foo;
-    if bucket.Some? {
-      :- Need(bucket.value < search.numBuckets as uint32, E(BucketName + " specified in FilterExpression was " + String.Base10Int2String(bucket.value as int) + " must be less than the number of buckets: " + String.Base10Int2String(search.numBuckets as int)));
-      var nBucket := (bucket.value as nat) as BucketNumber;
-      return Success((values2, nBucket));
+    var foo :- ExtractPartitionNumber(values);
+    var (values2, partition) := foo;
+    if partition.Some? {
+      :- Need(partition.value < search.numPartitions as uint32, E(PartitionName + " specified in FilterExpression was " + String.Base10Int2String(partition.value as int) + " must be less than the number of partitions: " + String.Base10Int2String(search.numPartitions as int)));
+      var nPartition := (partition.value as nat) as PartitionNumber;
+      return Success((values2, nPartition));
     }
 
-    // No bucket specified is OK if no encrypted fields are searched
+    // No partition specified is OK if no encrypted fields are searched
     var filterHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(filterExpr), actions, names);
     var keyHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(keyExpr), actions, names);
     if keyHasEncField.Some? || filterHasEncField.Some? {
-      return Failure(E("When numberOfBuckets is greater than one, XXXValues must contain " + BucketName));
+      return Failure(E("When numberOfPartitions is greater than one, XXXValues must contain " + PartitionName));
     } else {
       return Success((values, 0));
     }
@@ -319,14 +319,14 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var foo :- ExtractBucket(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
-      var (newValues, bucket) := foo;
+      var foo :- ExtractPartition(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
+      var (newValues, partition) := foo;
       var numQueries :- Filter.GetNumQueries(search.value.curr(), req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      if numQueries <= bucket {
-        return Failure(E("Bucket number was " + String.Base10Int2String(bucket as int) + " but should have been less than number of queries : " + String.Base10Int2String(numQueries as int)));
+      if numQueries <= partition {
+        return Failure(E("Partition number was " + String.Base10Int2String(partition as int) + " but should have been less than number of queries : " + String.Base10Int2String(numQueries as int)));
       }
       var oldContext := Filter.ExprContext(req.KeyConditionExpression, req.FilterExpression, newValues, req.ExpressionAttributeNames);
-      var newContext :- Filter.DoBeaconize(search.value.curr(), oldContext, keyId, bucket, numQueries);
+      var newContext :- Filter.DoBeaconize(search.value.curr(), oldContext, keyId, partition, numQueries);
       return Success(req.(
                      KeyConditionExpression := newContext.keyExpr,
                      FilterExpression := newContext.filterExpr,
@@ -396,7 +396,7 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var _ :- TestBucketForScan(req.ExpressionAttributeValues);
+      var _ :- TestPartitionForScan(req.ExpressionAttributeValues);
       var context := Filter.ExprContext(None, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       var newContext :- Filter.DoBeaconize(search.value.curr(), context, keyId, 0, 1);
       return Success(req.(
@@ -469,7 +469,7 @@ module DynamoDBSupport {
     fields : seq<string>,
     bv : SearchableEncryptionInfo.BeaconVersion,
     item : DDB.AttributeMap,
-    bucket : BucketNumber,
+    partition : PartitionNumber,
     results : map<string, string> := map[])
     : (output : Result<map<string, string>, Error>)
     requires forall x <- fields :: x in bv.beacons
@@ -482,20 +482,20 @@ module DynamoDBSupport {
     else
       var beacon := bv.beacons[fields[0 as uint32]];
       if beacon.Compound? then
-        var optValue :- beacon.cmp.getNaked(item, bv.virtualFields, bucket);
+        var optValue :- beacon.cmp.getNaked(item, bv.virtualFields, partition);
         if optValue.Some? then
-          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results[fields[0] := optValue.value])
+          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, partition, results[fields[0] := optValue.value])
         else
-          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results)
+          GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, partition, results)
       else
-        GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, bucket, results)
+        GetCompoundBeaconsLoop(fields[1 as uint32..], bv, item, partition, results)
   }
 
-  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap, bucket : BucketNumber)
+  method GetCompoundBeacons(beaconVersion : SearchableEncryptionInfo.BeaconVersion, item : DDB.AttributeMap, partition : PartitionNumber)
     returns (output : Result<map<string, string>, Error>)
   {
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beaconVersion.beacons.Keys, CharLess);
-    output := GetCompoundBeaconsLoop(beaconNames, beaconVersion, item, bucket);
+    output := GetCompoundBeaconsLoop(beaconNames, beaconVersion, item, partition);
   }
 
 }

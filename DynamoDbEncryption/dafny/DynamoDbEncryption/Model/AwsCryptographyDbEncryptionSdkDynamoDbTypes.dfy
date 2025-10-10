@@ -47,29 +47,29 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly virtualFields: Option<VirtualFieldList> := Option.None ,
     nameonly encryptedParts: Option<EncryptedPartsList> := Option.None ,
     nameonly signedParts: Option<SignedPartsList> := Option.None ,
-    nameonly maximumNumberOfBuckets: Option<BucketCount> := Option.None ,
-    nameonly defaultNumberOfBuckets: Option<BucketCount> := Option.None ,
-    nameonly bucketSelector: Option<IBucketSelector> := Option.None
+    nameonly maximumNumberOfPartitions: Option<PartitionCount> := Option.None ,
+    nameonly defaultNumberOfPartitions: Option<PartitionCount> := Option.None ,
+    nameonly partitionSelector: Option<IPartitionSelector> := Option.None
   )
   type BeaconVersionList = x: seq<BeaconVersion> | IsValid_BeaconVersionList(x) witness *
   predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
     ( 1 <= |x| <= 1 )
   }
-  type BucketCount = x: int32 | IsValid_BucketCount(x) witness *
-  predicate method IsValid_BucketCount(x: int32) {
+  type PartitionCount = x: int32 | IsValid_PartitionCount(x) witness *
+  predicate method IsValid_PartitionCount(x: int32) {
     ( 1 <= x <= 255 )
   }
-  type BucketNumber = x: int32 | IsValid_BucketNumber(x) witness *
-  predicate method IsValid_BucketNumber(x: int32) {
+  type PartitionNumber = x: int32 | IsValid_PartitionNumber(x) witness *
+  predicate method IsValid_PartitionNumber(x: int32) {
     ( 0 <= x <= 254 )
   }
-  class IBucketSelectorCallHistory {
+  class IPartitionSelectorCallHistory {
     ghost constructor() {
-      GetBucketNumber := [];
+      GetPartitionNumber := [];
     }
-    ghost var GetBucketNumber: seq<DafnyCallEvent<GetBucketNumberInput, Result<GetBucketNumberOutput, Error>>>
+    ghost var GetPartitionNumber: seq<DafnyCallEvent<GetPartitionNumberInput, Result<GetPartitionNumberOutput, Error>>>
   }
-  trait {:termination false} IBucketSelector
+  trait {:termination false} IPartitionSelector
   {
     // Helper to define any additional modifies/reads clauses.
     // If your operations need to mutate state,
@@ -95,28 +95,28 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     // You MUST also ensure ValidState in your constructor.
     predicate ValidState()
       ensures ValidState() ==> History in Modifies
-    ghost const History: IBucketSelectorCallHistory
-    predicate GetBucketNumberEnsuresPublicly(input: GetBucketNumberInput , output: Result<GetBucketNumberOutput, Error>)
+    ghost const History: IPartitionSelectorCallHistory
+    predicate GetPartitionNumberEnsuresPublicly(input: GetPartitionNumberInput , output: Result<GetPartitionNumberOutput, Error>)
     // The public method to be called by library consumers
-    method GetBucketNumber ( input: GetBucketNumberInput )
-      returns (output: Result<GetBucketNumberOutput, Error>)
+    method GetPartitionNumber ( input: GetPartitionNumberInput )
+      returns (output: Result<GetPartitionNumberOutput, Error>)
       requires
         && ValidState()
       modifies Modifies - {History} ,
-               History`GetBucketNumber
+               History`GetPartitionNumber
       // Dafny will skip type parameters when generating a default decreases clause.
       decreases Modifies - {History}
       ensures
         && ValidState()
-      ensures GetBucketNumberEnsuresPublicly(input, output)
-      ensures History.GetBucketNumber == old(History.GetBucketNumber) + [DafnyCallEvent(input, output)]
+      ensures GetPartitionNumberEnsuresPublicly(input, output)
+      ensures History.GetPartitionNumber == old(History.GetPartitionNumber) + [DafnyCallEvent(input, output)]
     {
-      output := GetBucketNumber' (input);
-      History.GetBucketNumber := History.GetBucketNumber + [DafnyCallEvent(input, output)];
+      output := GetPartitionNumber' (input);
+      History.GetPartitionNumber := History.GetPartitionNumber + [DafnyCallEvent(input, output)];
     }
     // The method to implement in the concrete class.
-    method GetBucketNumber' ( input: GetBucketNumberInput )
-      returns (output: Result<GetBucketNumberOutput, Error>)
+    method GetPartitionNumber' ( input: GetPartitionNumberInput )
+      returns (output: Result<GetPartitionNumberOutput, Error>)
       requires
         && ValidState()
       modifies Modifies - {History}
@@ -124,7 +124,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
       decreases Modifies - {History}
       ensures
         && ValidState()
-      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures GetPartitionNumberEnsuresPublicly(input, output)
       ensures unchanged(History)
 
   }
@@ -348,13 +348,13 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype GetBranchKeyIdFromDdbKeyOutput = | GetBranchKeyIdFromDdbKeyOutput (
     nameonly branchKeyId: string
   )
-  datatype GetBucketNumberInput = | GetBucketNumberInput (
+  datatype GetPartitionNumberInput = | GetPartitionNumberInput (
     nameonly item: ComAmazonawsDynamodbTypes.AttributeMap ,
-    nameonly numberOfBuckets: BucketCount ,
+    nameonly numberOfPartitions: PartitionCount ,
     nameonly logicalTableName: string
   )
-  datatype GetBucketNumberOutput = | GetBucketNumberOutput (
-    nameonly bucketNumber: BucketNumber
+  datatype GetPartitionNumberOutput = | GetPartitionNumberOutput (
+    nameonly partitionNumber: PartitionNumber
   )
   datatype GetEncryptedDataKeyDescriptionInput = | GetEncryptedDataKeyDescriptionInput (
     nameonly input: GetEncryptedDataKeyDescriptionUnion
@@ -482,7 +482,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly length: BeaconBitLength ,
     nameonly loc: Option<TerminalLocation> := Option.None ,
     nameonly style: Option<BeaconStyle> := Option.None ,
-    nameonly numberOfBuckets: Option<BucketCount> := Option.None
+    nameonly numberOfPartitions: Option<PartitionCount> := Option.None
   )
   type StandardBeaconList = x: seq<StandardBeacon> | IsValid_StandardBeaconList(x) witness *
   predicate method IsValid_StandardBeaconList(x: seq<StandardBeacon>) {

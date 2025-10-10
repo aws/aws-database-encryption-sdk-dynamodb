@@ -132,10 +132,10 @@ module CompoundBeacon {
       && OrderedParts(parts, numSigned)
     }
 
-    method getNumQueries(globalMax : BucketCount, value : string) returns (output : BucketCount)
+    method getNumQueries(globalMax : PartitionCount, value : string) returns (output : PartitionCount)
       ensures output <= globalMax
     {
-      var counts := GetBucketCountsFromValue(DDB.AttributeValue.S(value));
+      var counts := GetPartitionCountsFromValue(DDB.AttributeValue.S(value));
       if counts.Failure? {
         return 1;
       } else {
@@ -306,11 +306,11 @@ module CompoundBeacon {
     }
 
     // calculate value for a single piece of a compound beacon query string
-    function method FindAndCalcPart(value : string, keys : MaybeKeyMap, bucket : BucketNumber) : Result<string, Error>
+    function method FindAndCalcPart(value : string, keys : MaybeKeyMap, partition : PartitionNumber) : Result<string, Error>
       requires !keys.DontUseKeys?
     {
       var part :- partFromPrefix(parts, value);
-      PartValueCalc(value[|part.prefix|..], keys, part, bucket)
+      PartValueCalc(value[|part.prefix|..], keys, part, partition)
     }
 
     // predicate : is the value simply the prefix, with no value
@@ -321,7 +321,7 @@ module CompoundBeacon {
     }
 
     // for the given attribute value, return the beacon value
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, bucket : BucketNumber) : Result<DDB.AttributeValue, Error>
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, partition : PartitionNumber) : Result<DDB.AttributeValue, Error>
       requires !keys.DontUseKeys?
     {
       if !value.S? then
@@ -330,7 +330,7 @@ module CompoundBeacon {
         var parts := Split(value.S, split);
         var partsUsed :- Sequence.MapWithResult(s => getPartFromPrefix(s), parts);
         var _ :- ValidatePartOrder(partsUsed, value.S);
-        var beaconParts :- Sequence.MapWithResult(s => FindAndCalcPart(s, keys, bucket), parts);
+        var beaconParts :- Sequence.MapWithResult(s => FindAndCalcPart(s, keys, partition), parts);
         var lastIsPrefix :- justPrefix(Seq.Last(parts));
         if !forEquality && lastIsPrefix then
           var result := Join(beaconParts[..|parts|-1] + [Seq.Last(parts)], [split]);
@@ -340,18 +340,18 @@ module CompoundBeacon {
           Success(DDB.AttributeValue.S(result))
     }
 
-    function method GetBucketCountsFromParts(inParts : seq<BeaconPart>) : seq<BucketCount>
+    function method GetPartitionCountsFromParts(inParts : seq<BeaconPart>) : seq<PartitionCount>
     {
       if |inParts| == 0 then
         []
       else if inParts[0].Encrypted? then
-        [inParts[0].beacon.numberOfBuckets] + GetBucketCountsFromParts(inParts[1..])
+        [inParts[0].beacon.numberOfPartitions] + GetPartitionCountsFromParts(inParts[1..])
       else
-        GetBucketCountsFromParts(inParts[1..])
+        GetPartitionCountsFromParts(inParts[1..])
     }
 
     // for the given attribute value, return the beacon value
-    function method GetBucketCountsFromValue(value : DDB.AttributeValue) : Result<seq<BucketCount>, Error>
+    function method GetPartitionCountsFromValue(value : DDB.AttributeValue) : Result<seq<PartitionCount>, Error>
     {
       if !value.S? then
         Failure(E("CompoundBeacon " + base.name + " can only be queried as a string, not as " + AttrTypeToStr(value)))
@@ -359,7 +359,7 @@ module CompoundBeacon {
         var parts := Split(value.S, split);
         var partsUsed :- Sequence.MapWithResult(s => getPartFromPrefix(s), parts);
         var _ :- ValidatePartOrder(partsUsed, value.S);
-        Success(GetBucketCountsFromParts(partsUsed))
+        Success(GetPartitionCountsFromParts(partsUsed))
     }
 
     // return the beacon value for this constructor, if possible
@@ -368,7 +368,7 @@ module CompoundBeacon {
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
       keys : MaybeKeyMap,
-      bucket : BucketNumber,
+      partition : PartitionNumber,
       acc : string := "")
       : (ret : Result<Option<string>, Error>)
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
@@ -391,15 +391,15 @@ module CompoundBeacon {
             if keys.DontUseKeys? then
               Success(part.prefix + strValue.value)
             else
-              PartValueCalc(strValue.value, keys, part, bucket);
+              PartValueCalc(strValue.value, keys, part, partition);
           if |acc| == 0 then
-            TryConstructor(consFields[1..], item, vf, keys, bucket, val)
+            TryConstructor(consFields[1..], item, vf, keys, partition, val)
           else
-            TryConstructor(consFields[1..], item, vf, keys, bucket, acc + [split] + val)
+            TryConstructor(consFields[1..], item, vf, keys, partition, acc + [split] + val)
         else if consFields[0].required then
           Success(None)
         else
-          TryConstructor(consFields[1..], item, vf, keys, bucket, acc)
+          TryConstructor(consFields[1..], item, vf, keys, partition, acc)
     }
 
     // attempt each constructor in turn, until one succeeds
@@ -408,7 +408,7 @@ module CompoundBeacon {
       item : DDB.AttributeMap,
       vf : VirtualFieldMap,
       keys : MaybeKeyMap,
-      bucket : BucketNumber
+      partition : PartitionNumber
     )
       : (ret : Result<Option<string>, Error>)
       ensures ret.Success? && ret.value.Some? ==> |ret.value.value| > 0
@@ -418,17 +418,17 @@ module CompoundBeacon {
         //# * If no constructor succeeds, this operation MUST return no value.
         Success(None)
       else
-        var x :- TryConstructor(construct[0].parts, item, vf, keys, bucket);
+        var x :- TryConstructor(construct[0].parts, item, vf, keys, partition);
         if x.Some? then
           Success(x)
         else
-          TryConstructors(construct[1..], item, vf, keys, bucket)
+          TryConstructors(construct[1..], item, vf, keys, partition)
     }
 
     //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
     //= type=implication
     //# * This operation MUST take a record as input, and produce an optional string.
-    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : BucketNumber) : (res : Result<Option<string>, Error>)
+    function method {:opaque} hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, partition : PartitionNumber) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                 //= type=implication
@@ -437,17 +437,17 @@ module CompoundBeacon {
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                    //= type=implication
                    //# * This operation MUST iterate through all constructors, in order, using the first that succeeds.
-                && TryConstructors(construct, item, vf, keys, bucket).Success?
+                && TryConstructors(construct, item, vf, keys, partition).Success?
     {
-      TryConstructors(construct, item, vf, keys, bucket)
+      TryConstructors(construct, item, vf, keys, partition)
     }
 
     // return the unhashed beacon value, necessary for final client-side filtering
-    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap, bucket : BucketNumber) : (res : Result<Option<string>, Error>)
+    function method {:opaque} getNaked(item : DDB.AttributeMap, vf : VirtualFieldMap, partition : PartitionNumber) : (res : Result<Option<string>, Error>)
       ensures res.Success? && res.value.Some? ==>
                 && |res.value.value| > 0
     {
-      TryConstructors(construct, item, vf, DontUseKeys, bucket)
+      TryConstructors(construct, item, vf, DontUseKeys, partition)
     }
 
     function method {:opaque} findPart(val : string)
@@ -478,7 +478,7 @@ module CompoundBeacon {
     //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
     //= type=implication
     //# * getPart MUST take a string as input and produce a string.
-    function method {:opaque} getPart(val : string, keys : HmacKeyMap, bucket : BucketNumber)
+    function method {:opaque} getPart(val : string, keys : HmacKeyMap, partition : PartitionNumber)
       : (ret : Result<string, Error>)
       //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
       //= type=implication
@@ -492,14 +492,14 @@ module CompoundBeacon {
                 //= type=implication
                 //# * The string MUST be split on the `split character` into pieces.
                 && var pieces := Split(val, split);
-                && calcParts(pieces, keys, bucket).Success?
-                && ret.value == calcParts(pieces, keys, bucket).value
+                && calcParts(pieces, keys, partition).Success?
+                && ret.value == calcParts(pieces, keys, partition).value
     {
       var pieces := Split(val, split);
-      calcParts(pieces, keys, bucket)
+      calcParts(pieces, keys, partition)
     }
 
-    function method calcPart(piece : string, keys : HmacKeyMap, bucket : BucketNumber)
+    function method calcPart(piece : string, keys : HmacKeyMap, partition : PartitionNumber)
       : (ret : Result<string, Error>)
 
       ensures ret.Success? ==>
@@ -511,16 +511,16 @@ module CompoundBeacon {
                 //# * The [Part Value](#part-value-calculation) MUST be calculated for each piece,
                 //# using the prefix and length from the discovered part.
                 && var thePart := findPart(piece).value;
-                && PartValueCalc(piece, Keys(keys), thePart, bucket).Success?
-                && ret.value == PartValueCalc(piece, Keys(keys), thePart, bucket).value
+                && PartValueCalc(piece, Keys(keys), thePart, partition).Success?
+                && ret.value == PartValueCalc(piece, Keys(keys), thePart, partition).value
 
       ensures findPart(piece).Failure? ==> ret.Failure?
     {
       var thePart :- findPart(piece);
-      PartValueCalc(piece, Keys(keys), thePart, bucket)
+      PartValueCalc(piece, Keys(keys), thePart, partition)
     }
 
-    function method calcParts(pieces : seq<string>, keys : HmacKeyMap, bucket : BucketNumber, acc : string := [])
+    function method calcParts(pieces : seq<string>, keys : HmacKeyMap, partition : PartitionNumber, acc : string := [])
       : (ret : Result<string, Error>)
       requires |pieces| > 0 || |acc| > 0
       ensures ret.Success? ==> |ret.value| > 0
@@ -530,11 +530,11 @@ module CompoundBeacon {
       else
         //= specification/searchable-encryption/beacons.md#getpart-for-a-compound-beacon
         //# * The value returned MUST be these part values, joined with the `split character`.
-        var theBeacon :- calcPart(pieces[0], keys, bucket);
+        var theBeacon :- calcPart(pieces[0], keys, partition);
         if |acc| == 0 then
-          calcParts(pieces[1..], keys, bucket, theBeacon)
+          calcParts(pieces[1..], keys, partition, theBeacon)
         else
-          calcParts(pieces[1..], keys, bucket, acc + [split] + theBeacon)
+          calcParts(pieces[1..], keys, partition, acc + [split] + theBeacon)
     }
 
     // true if neither string is a prefix of the other
@@ -604,7 +604,7 @@ module CompoundBeacon {
     //# Part Value Calculation MUST take some [key materials](./search-config.md#get-beacon-key-materials),
     //# a string (the value for which the beacon is being calculated)
     //# and a [Part](#part) as input, and return a string as output.
-    function method {:opaque} PartValueCalc(data : string, keys : MaybeKeyMap, part : BeaconPart, bucket : BucketNumber)
+    function method {:opaque} PartValueCalc(data : string, keys : MaybeKeyMap, part : BeaconPart, partition : PartitionNumber)
       : (ret : Result<string, Error>)
       requires !keys.DontUseKeys?
 
@@ -628,8 +628,8 @@ module CompoundBeacon {
       ensures part.Encrypted? && ret.Success? ==>
                 && 0 < |ret.value|
                 && keys.Keys?
-                && part.beacon.hashStr(data, keys.value, bucket).Success?
-                && ret.value == part.prefix + part.beacon.hashStr(data, keys.value, bucket).value
+                && part.beacon.hashStr(data, keys.value, partition).Success?
+                && ret.value == part.prefix + part.beacon.hashStr(data, keys.value, partition).value
                    //= specification/searchable-encryption/beacons.md#value-for-a-compound-beacon
                    //= type=implication
                    //# * This operation MUST fail if any plaintext value used in the construction contains the split character.
@@ -639,7 +639,7 @@ module CompoundBeacon {
       match part {
         case Encrypted(p, b) =>
           :- Need(keys.Keys?, E("Need KeyId for beacon " + b.base.name + " but no KeyId found in query."));
-          var hash :- b.hashStr(data, keys.value, bucket);
+          var hash :- b.hashStr(data, keys.value, partition);
           Success(part.prefix + hash)
         case Signed =>
           Success(part.prefix + data)

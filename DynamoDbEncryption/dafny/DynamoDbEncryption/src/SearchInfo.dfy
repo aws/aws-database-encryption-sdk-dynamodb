@@ -518,25 +518,25 @@ module SearchableEncryptionInfo {
       versions[currWrite].IsVirtualField(field)
     }
 
-    method GeneratePlainBeacons(item : DDB.AttributeMap, bucket : BucketNumber) returns (output : Result<DDB.AttributeMap, Error>)
+    method GeneratePlainBeacons(item : DDB.AttributeMap, partition : PartitionNumber) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
     {
-      output := versions[currWrite].GeneratePlainBeacons(item, bucket);
+      output := versions[currWrite].GeneratePlainBeacons(item, partition);
     }
 
-    method GenerateSignedBeacons(item : DDB.AttributeMap, bucket : BucketNumber) returns (output : Result<DDB.AttributeMap, Error>)
+    method GenerateSignedBeacons(item : DDB.AttributeMap, partition : PartitionNumber) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
-      output := versions[currWrite].GenerateSignedBeacons(item, bucket);
+      output := versions[currWrite].GenerateSignedBeacons(item, partition);
     }
-    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : BucketNumber) returns (output : Result<DDB.AttributeMap, Error>)
+    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, partition : PartitionNumber) returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
       modifies Modifies()
     {
-      output := versions[currWrite].GenerateEncryptedBeacons(item, keyId, bucket);
+      output := versions[currWrite].GenerateEncryptedBeacons(item, keyId, partition);
     }
   }
 
@@ -544,11 +544,11 @@ module SearchableEncryptionInfo {
     | Standard(std : BaseBeacon.ValidStandardBeacon)
     | Compound(cmp : CompoundBeacon.ValidCompoundBeacon)
   {
-    method getNumQueries(globalMax : BucketCount, value : string) returns (output : BucketCount)
+    method getNumQueries(globalMax : PartitionCount, value : string) returns (output : PartitionCount)
       ensures 0 <= output <= globalMax
     {
       if Standard? {
-        return bmin(std.numberOfBuckets, globalMax);
+        return bmin(std.numberOfPartitions, globalMax);
       } else {
         output := cmp.getNumQueries(globalMax, value);
         return;
@@ -561,7 +561,7 @@ module SearchableEncryptionInfo {
       else
         cmp.isEncrypted()
     }
-    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : BucketNumber)
+    function method hash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, partition : PartitionNumber)
       : (ret : Result<Option<DDB.AttributeValue>, Error>)
       requires !keys.DontUseKeys?
 
@@ -574,33 +574,33 @@ module SearchableEncryptionInfo {
       if Standard? then
         :- Need(keys.Keys?, E("Need key for beacon " + std.keyName() + " but no keyId found in query."));
         if std.keyName() in keys.value then
-          std.getHash(item, vf, keys.value[std.keyName()], bucket)
+          std.getHash(item, vf, keys.value[std.keyName()], partition)
         else
           Failure(E("Internal error. Beacon " + std.keyName() + " has no key!"))
       else
-        var strHash :- cmp.hash(item, vf, keys, bucket);
+        var strHash :- cmp.hash(item, vf, keys, partition);
         if strHash.None? then
           Success(None)
         else
           Success(Some(DDB.AttributeValue.S(strHash.value)))
     }
-    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap, bucket : BucketNumber) : Result<Option<DDB.AttributeValue>, Error>
+    function method naked(item : DDB.AttributeMap, vf : VirtualFieldMap, partition : PartitionNumber) : Result<Option<DDB.AttributeValue>, Error>
     {
       if Standard? then
         std.getNaked(item, vf)
       else
-        var str :- cmp.getNaked(item, vf, bucket);
+        var str :- cmp.getNaked(item, vf, partition);
         if str.None? then
           Success(None)
         else
           Success(Some(DS(str.value)))
     }
-    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, bucket : BucketNumber) : Result<Option<DDB.AttributeValue>, Error>
+    function method attrHash(item : DDB.AttributeMap, vf : VirtualFieldMap, keys : MaybeKeyMap, partition : PartitionNumber) : Result<Option<DDB.AttributeValue>, Error>
     {
       if keys.DontUseKeys? then
-        naked(item, vf, bucket)
+        naked(item, vf, partition)
       else
-        hash(item, vf, keys, bucket)
+        hash(item, vf, keys, partition)
     }
     function method getName() : string
     {
@@ -624,7 +624,7 @@ module SearchableEncryptionInfo {
         cmp.GetFields(virtualFields)
     }
 
-    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, forContains : bool, bucket : BucketNumber)
+    function method GetBeaconValue(value : DDB.AttributeValue, keys : MaybeKeyMap, forEquality : bool, forContains : bool, partition : PartitionNumber)
       : Result<DDB.AttributeValue, Error>
     {
       if keys.DontUseKeys? then
@@ -633,11 +633,11 @@ module SearchableEncryptionInfo {
         :- Need(!keys.ShouldHaveKeys?, E("Need KeyId because of beacon " + std.keyName() + " but no KeyId found in query"));
         var keys := keys.value;
         if std.keyName() in keys then
-          std.GetBeaconValue(value, keys[std.keyName()], forContains, bucket)
+          std.GetBeaconValue(value, keys[std.keyName()], forContains, partition)
         else
           Failure(E("Internal error. Beacon " + std.keyName() + " has no key."))
       else
-        cmp.GetBeaconValue(value, keys, forEquality, bucket)
+        cmp.GetBeaconValue(value, keys, forEquality, partition)
     }
 
     predicate ValidState()
@@ -732,20 +732,20 @@ module SearchableEncryptionInfo {
     beacons : BeaconMap,
     virtualFields : VirtualFieldMap,
     actions : AttributeActions,
-    bucketSelector: IBucketSelector,
-    maxBuckets : BucketCount
+    partitionSelector: IPartitionSelector,
+    maxPartitions : PartitionCount
   )
     : (ret : Result<ValidBeaconVersion, Error>)
     requires version == 1
     requires keySource.ValidState()
-    requires bucketSelector.ValidState()
+    requires partitionSelector.ValidState()
   {
     // We happen to order these values, but this ordering MUST NOT be relied upon.
     var beaconNames := SortedSets.ComputeSetToOrderedSequence2(beacons.Keys, CharLess);
     var stdKeys := Seq.Filter((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
     FilterPreservesHasNoDuplicates((k : string) => k in beacons && beacons[k].Standard?, beaconNames);
     var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
-    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames, stdKeys, encrypted, bucketSelector, maxBuckets);
+    var bv := BeaconVersion.BeaconVersion(version, keySource, virtualFields, beacons, beaconNames, stdKeys, encrypted, partitionSelector, maxPartitions);
     assert bv.ValidState();
     Success(bv)
   }
@@ -761,13 +761,13 @@ module SearchableEncryptionInfo {
     beaconNames : seq<string>,
     stdNames : seq<string>,
     encryptedFields : set<string>,
-    bucketSelector: IBucketSelector,
-    numBuckets : BucketCount
+    partitionSelector: IPartitionSelector,
+    numPartitions : PartitionCount
   ) {
 
     function Modifies() : set<object>
     {
-      keySource.Modifies() + bucketSelector.Modifies
+      keySource.Modifies() + partitionSelector.Modifies
     }
 
     predicate ValidState()
@@ -779,8 +779,8 @@ module SearchableEncryptionInfo {
       && |beaconNames| == |beacons|
       && (forall k <- stdNames :: k in beacons)
       && Seq.HasNoDuplicates(stdNames)
-      && 0 < numBuckets
-      && bucketSelector.ValidState()
+      && 0 < numPartitions
+      && partitionSelector.ValidState()
     }
 
     predicate method IsBeacon(field : string)
@@ -817,15 +817,15 @@ module SearchableEncryptionInfo {
     }
 
     // Get all beacons with plaintext values
-    method GeneratePlainBeacons(item : DDB.AttributeMap, bucket : BucketNumber)
+    method GeneratePlainBeacons(item : DDB.AttributeMap, partition : PartitionNumber)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
     {
-      output := GenerateBeacons2(beaconNames, item, DontUseKeys, AnyBeacon, bucket);
+      output := GenerateBeacons2(beaconNames, item, DontUseKeys, AnyBeacon, partition);
     }
 
     // Get all beacons on fields that are signed, but not encrypted
-    method GenerateSignedBeacons(item : DDB.AttributeMap, bucket : BucketNumber)
+    method GenerateSignedBeacons(item : DDB.AttributeMap, partition : PartitionNumber)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
@@ -844,11 +844,11 @@ module SearchableEncryptionInfo {
       //= specification/dynamodb-encryption-client/ddb-support.md#addsignedbeacons
       //# The value of this attribute MUST be a string,
       //# and must have the value defined in [beacons](../searchable-encryption/beacons.md#beacon-value).
-      output := GenerateBeacons2(beaconNames, item, DontUseKeys, SignedBeacon, bucket);
+      output := GenerateBeacons2(beaconNames, item, DontUseKeys, SignedBeacon, partition);
     }
 
     // Get all beacons on encrypted fields
-    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, bucket : BucketNumber)
+    method GenerateEncryptedBeacons(item : DDB.AttributeMap, keyId : MaybeKeyId, partition : PartitionNumber)
       returns (output : Result<DDB.AttributeMap, Error>)
       requires ValidState()
       ensures ValidState()
@@ -882,13 +882,13 @@ module SearchableEncryptionInfo {
       //# The result of GetEncryptedBeacons MUST NOT contain any keys
       //# in the [Encrypt Item Output](./encrypt-item.md#output) AttributeMap.
 
-      output := GenerateBeacons2(beaconNames, item, hmacKeys, EncryptedBeacon, bucket);
+      output := GenerateBeacons2(beaconNames, item, hmacKeys, EncryptedBeacon, partition);
     }
 
-    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : MaybeKeyMap, bucket : BucketNumber) : Result<Option<DDB.AttributeValue>, Error>
+    function method GenerateBeacon(name : string, item : DDB.AttributeMap, keys : MaybeKeyMap, partition : PartitionNumber) : Result<Option<DDB.AttributeValue>, Error>
       requires name in beacons
     {
-      beacons[name].attrHash(item, virtualFields, keys, bucket)
+      beacons[name].attrHash(item, virtualFields, keys, partition)
     }
 
     function method GenerateBeacons2(
@@ -896,7 +896,7 @@ module SearchableEncryptionInfo {
       item : DDB.AttributeMap,
       keys : MaybeKeyMap,
       bType : BeaconType,
-      bucket : BucketNumber,
+      partition : PartitionNumber,
       acc : DDB.AttributeMap := map[]
     )
       : Result<DDB.AttributeMap, Error>
@@ -907,13 +907,13 @@ module SearchableEncryptionInfo {
       //= specification/searchable-encryption/beacons.md#partonly-initialization
       //# The Standard Beacon MUST NOT be stored in the item for a PartOnly beacon.
       else if IsBeaconOfType(beacons[names[0]], bType) && !IsPartOnly(beacons[names[0]]) then
-        var value :- GenerateBeacon(names[0], item, keys, bucket);
+        var value :- GenerateBeacon(names[0], item, keys, partition);
         if value.Some? then
-          GenerateBeacons2(names[1..], item, keys, bType, bucket, acc[beacons[names[0]].getBeaconName() := value.value])
+          GenerateBeacons2(names[1..], item, keys, bType, partition, acc[beacons[names[0]].getBeaconName() := value.value])
         else
-          GenerateBeacons2(names[1..], item, keys, bType, bucket, acc)
+          GenerateBeacons2(names[1..], item, keys, bType, partition, acc)
       else
-        GenerateBeacons2(names[1..], item, keys, bType, bucket, acc)
+        GenerateBeacons2(names[1..], item, keys, bType, partition, acc)
     }
   }
 }

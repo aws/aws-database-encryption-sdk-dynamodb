@@ -31,30 +31,30 @@ module DdbMiddlewareConfig {
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
   }
 
-  method GetRandomBucket(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<DDBE.BucketNumber, Error>)
-    modifies if config.search.Some? then config.search.value.curr().bucketSelector.Modifies else {}
-    requires if config.search.Some? then config.search.value.curr().bucketSelector.ValidState() else true
-    ensures if config.search.Some? then config.search.value.curr().bucketSelector.ValidState() else true
+  method GetRandomPartition(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<DDBE.PartitionNumber, Error>)
+    modifies if config.search.Some? then config.search.value.curr().partitionSelector.Modifies else {}
+    requires if config.search.Some? then config.search.value.curr().partitionSelector.ValidState() else true
+    ensures if config.search.Some? then config.search.value.curr().partitionSelector.ValidState() else true
   {
     if config.search.None? {
       return Success(0);
     }
-    var numBuckets := config.search.value.versions[0].numBuckets;
-    if numBuckets <= 1 {
+    var numPartitions := config.search.value.versions[0].numPartitions;
+    if numPartitions <= 1 {
       return Success(0);
     }
 
-    var outR := config.search.value.curr().bucketSelector.GetBucketNumber(DDBE.GetBucketNumberInput(
-                                                                            item := item, numberOfBuckets := numBuckets, logicalTableName := config.logicalTableName));
+    var outR := config.search.value.curr().partitionSelector.GetPartitionNumber(DDBE.GetPartitionNumberInput(
+                                                                            item := item, numberOfPartitions := numPartitions, logicalTableName := config.logicalTableName));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
-    if out.bucketNumber == 0 {
+    if out.partitionNumber == 0 {
       return Success(0);
-    } else if numBuckets as DDBE.BucketCount <= out.bucketNumber {
-      return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been no more than " + String.Base10Int2String(numBuckets as int)));
-    } else if out.bucketNumber < 0 {
-      return Failure(E("Bucket Selector returned " + String.Base10Int2String(out.bucketNumber as int) + " which should have been positive."));
+    } else if numPartitions as DDBE.PartitionCount <= out.partitionNumber {
+      return Failure(E("Partition Selector returned " + String.Base10Int2String(out.partitionNumber as int) + " which should have been no more than " + String.Base10Int2String(numPartitions as int)));
+    } else if out.partitionNumber < 0 {
+      return Failure(E("Partition Selector returned " + String.Base10Int2String(out.partitionNumber as int) + " which should have been positive."));
     } else {
-      return Success(out.bucketNumber);
+      return Success(out.partitionNumber);
     }
   }
 

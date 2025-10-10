@@ -31,22 +31,22 @@ module TestBaseBeacon {
 
     var bytes :- expect bb.getHmac([1,2,3], key := [1,2]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
-    var str :- expect b.hash([1,2,3], key := [1,2], bucket := 0);
+    var str :- expect b.hash([1,2,3], key := [1,2], partition := 0);
     expect str == "7e";
 
     bytes :- expect bb.getHmac([1,2,3,1], key := [1,2]);
     expect bytes == [42, 100, 242, 20, 188, 0, 33, 0x1d];
-    str :- expect b.hash([1,2,3], key := [1,2], bucket := 1);
+    str :- expect b.hash([1,2,3], key := [1,2], partition := 1);
     expect str == "1d";
 
     bytes :- expect bb.getHmac([1,2,3,2], key := [1,2]);
     expect bytes == [53, 151, 144, 34, 49, 19, 169, 0xef];
-    str :- expect b.hash([1,2,3], key := [1,2], bucket := 2);
+    str :- expect b.hash([1,2,3], key := [1,2], partition := 2);
     expect str == "ef";
 
     bytes :- expect bb.getHmac([], key := [1,2]);
     expect bytes[7] == 0x80;
-    str :- expect b.hash([], key := [1,2], bucket := 0);
+    str :- expect b.hash([], key := [1,2], partition := 0);
     expect str == "80";
     bytes :- expect bb.getHmac(x123, key := [1,2]);
     expect bytes[7] == 0x61;
@@ -377,7 +377,7 @@ module TestBaseBeacon {
                     ];
   }
 
-  method GetBeaconValue(name : string, key : Bytes, value : string, length : BeaconLength, bucket : Bytes := []) returns (output : string)
+  method GetBeaconValue(name : string, key : Bytes, value : string, length : BeaconLength, partition : Bytes := []) returns (output : string)
   {
     var info :- expect UTF8.Encode("AWS_DBE_SCAN_BEACON" + name);
     var client :- expect Primitives.AtomicPrimitives();
@@ -391,7 +391,7 @@ module TestBaseBeacon {
                                   ));
 
     var data :- expect UTF8.Encode(value);
-    data := data + bucket;
+    data := data + partition;
     var input := Prim.HMacInput (
       digestAlgorithm := Prim.SHA_384,
       key := key,

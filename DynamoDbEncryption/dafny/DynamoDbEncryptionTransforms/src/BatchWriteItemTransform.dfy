@@ -54,14 +54,14 @@ module BatchWriteItemTransform {
             //# The Item MUST be [writable](ddb-support.md#writable).
             var _ :- IsWriteable(tableConfig, req.PutRequest.value.Item);
 
-            assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().bucketSelector.Modifies else {});
-            var bucket :- GetRandomBucket(tableConfig, req.PutRequest.value.Item);
-            var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item, bucket);
+            assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().partitionSelector.Modifies else {});
+            var partition :- GetRandomPartition(tableConfig, req.PutRequest.value.Item);
+            var item :- AddSignedBeacons(tableConfig, req.PutRequest.value.Item, partition);
 
             var encryptRes := tableConfig.itemEncryptor.EncryptItem(EncTypes.EncryptItemInput(plaintextItem:=item));
             var encrypted :- MapError(encryptRes);
             var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-            var beaconAttrs :- GetEncryptedBeacons(tableConfig, req.PutRequest.value.Item, Util.MaybeFromOptionKeyId(keyId), bucket);
+            var beaconAttrs :- GetEncryptedBeacons(tableConfig, req.PutRequest.value.Item, Util.MaybeFromOptionKeyId(keyId), partition);
 
             //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-batchwriteitem
             //# The PutRequest request's `Item` field MUST be replaced
