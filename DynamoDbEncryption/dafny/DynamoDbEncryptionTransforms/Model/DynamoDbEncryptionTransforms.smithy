@@ -14,7 +14,7 @@ use aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor#DynamoDbItemEncrypto
 use aws.cryptography.dbEncryptionSdk.dynamoDb#VersionNumber
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
-use aws.cryptography.dbEncryptionSdk.dynamoDb#BucketCount
+use aws.cryptography.dbEncryptionSdk.dynamoDb#PartitionCount
 
 use aws.polymorph#localService
 use aws.polymorph#javadoc
@@ -76,7 +76,7 @@ map StringMap {
   value : String
 }
 
-@javadoc("Return the necessary number of query operations for this query, based on bucket usage.")
+@javadoc("Return the necessary number of query operations for this query, based on partition usage.")
 operation GetNumberOfQueries {
     input: GetNumberOfQueriesInput,
     output: GetNumberOfQueriesOutput,
@@ -95,7 +95,7 @@ structure GetNumberOfQueriesInput {
 //# This operation MUST return the number of queries necessary.
 structure GetNumberOfQueriesOutput {
     @required
-    numberOfQueries: BucketCount
+    numberOfQueries: PartitionCount
 }
 
 

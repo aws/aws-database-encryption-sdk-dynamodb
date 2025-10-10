@@ -55,79 +55,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   predicate method IsValid_BeaconVersionList(x: seq<BeaconVersion>) {
     ( 1 <= |x| <= 1 )
   }
-  type PartitionCount = x: int32 | IsValid_PartitionCount(x) witness *
-  predicate method IsValid_PartitionCount(x: int32) {
-    ( 1 <= x <= 255 )
-  }
-  type PartitionNumber = x: int32 | IsValid_PartitionNumber(x) witness *
-  predicate method IsValid_PartitionNumber(x: int32) {
-    ( 0 <= x <= 254 )
-  }
-  class IPartitionSelectorCallHistory {
-    ghost constructor() {
-      GetPartitionNumber := [];
-    }
-    ghost var GetPartitionNumber: seq<DafnyCallEvent<GetPartitionNumberInput, Result<GetPartitionNumberOutput, Error>>>
-  }
-  trait {:termination false} IPartitionSelector
-  {
-    // Helper to define any additional modifies/reads clauses.
-    // If your operations need to mutate state,
-    // add it in your constructor function:
-    // Modifies := {your, fields, here, History};
-    // If you do not need to mutate anything:
-    // Modifies := {History};
-
-    ghost const Modifies: set<object>
-    // For an unassigned field defined in a trait,
-    // Dafny can only assign a value in the constructor.
-    // This means that for Dafny to reason about this value,
-    // it needs some way to know (an invariant),
-    // about the state of the object.
-    // This builds on the Valid/Repr paradigm
-    // To make this kind requires safe to add
-    // to methods called from unverified code,
-    // the predicate MUST NOT take any arguments.
-    // This means that the correctness of this requires
-    // MUST only be evaluated by the class itself.
-    // If you require any additional mutation,
-    // then you MUST ensure everything you need in ValidState.
-    // You MUST also ensure ValidState in your constructor.
-    predicate ValidState()
-      ensures ValidState() ==> History in Modifies
-    ghost const History: IPartitionSelectorCallHistory
-    predicate GetPartitionNumberEnsuresPublicly(input: GetPartitionNumberInput , output: Result<GetPartitionNumberOutput, Error>)
-    // The public method to be called by library consumers
-    method GetPartitionNumber ( input: GetPartitionNumberInput )
-      returns (output: Result<GetPartitionNumberOutput, Error>)
-      requires
-        && ValidState()
-      modifies Modifies - {History} ,
-               History`GetPartitionNumber
-      // Dafny will skip type parameters when generating a default decreases clause.
-      decreases Modifies - {History}
-      ensures
-        && ValidState()
-      ensures GetPartitionNumberEnsuresPublicly(input, output)
-      ensures History.GetPartitionNumber == old(History.GetPartitionNumber) + [DafnyCallEvent(input, output)]
-    {
-      output := GetPartitionNumber' (input);
-      History.GetPartitionNumber := History.GetPartitionNumber + [DafnyCallEvent(input, output)];
-    }
-    // The method to implement in the concrete class.
-    method GetPartitionNumber' ( input: GetPartitionNumberInput )
-      returns (output: Result<GetPartitionNumberOutput, Error>)
-      requires
-        && ValidState()
-      modifies Modifies - {History}
-      // Dafny will skip type parameters when generating a default decreases clause.
-      decreases Modifies - {History}
-      ensures
-        && ValidState()
-      ensures GetPartitionNumberEnsuresPublicly(input, output)
-      ensures unchanged(History)
-
-  }
   type Char = x: string | IsValid_Char(x) witness *
   predicate method IsValid_Char(x: string) {
     ( 1 <= |x| <= 1 )
@@ -348,14 +275,6 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype GetBranchKeyIdFromDdbKeyOutput = | GetBranchKeyIdFromDdbKeyOutput (
     nameonly branchKeyId: string
   )
-  datatype GetPartitionNumberInput = | GetPartitionNumberInput (
-    nameonly item: ComAmazonawsDynamodbTypes.AttributeMap ,
-    nameonly numberOfPartitions: PartitionCount ,
-    nameonly logicalTableName: string
-  )
-  datatype GetPartitionNumberOutput = | GetPartitionNumberOutput (
-    nameonly partitionNumber: PartitionNumber
-  )
   datatype GetEncryptedDataKeyDescriptionInput = | GetEncryptedDataKeyDescriptionInput (
     nameonly input: GetEncryptedDataKeyDescriptionUnion
   )
@@ -365,6 +284,14 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
   datatype GetEncryptedDataKeyDescriptionUnion =
     | header(header: seq<uint8>)
     | item(item: ComAmazonawsDynamodbTypes.AttributeMap)
+  datatype GetPartitionNumberInput = | GetPartitionNumberInput (
+    nameonly item: ComAmazonawsDynamodbTypes.AttributeMap ,
+    nameonly numberOfPartitions: PartitionCount ,
+    nameonly logicalTableName: string
+  )
+  datatype GetPartitionNumberOutput = | GetPartitionNumberOutput (
+    nameonly partitionNumber: PartitionNumber
+  )
   datatype GetPrefix = | GetPrefix (
     nameonly length: int32
   )
@@ -441,6 +368,79 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.internald
     nameonly cache: Option<AwsCryptographyMaterialProvidersTypes.CacheType> := Option.None ,
     nameonly partitionId: Option<string> := Option.None
   )
+  type PartitionCount = x: int32 | IsValid_PartitionCount(x) witness *
+  predicate method IsValid_PartitionCount(x: int32) {
+    ( 1 <= x <= 255 )
+  }
+  type PartitionNumber = x: int32 | IsValid_PartitionNumber(x) witness *
+  predicate method IsValid_PartitionNumber(x: int32) {
+    ( 0 <= x <= 254 )
+  }
+  class IPartitionSelectorCallHistory {
+    ghost constructor() {
+      GetPartitionNumber := [];
+    }
+    ghost var GetPartitionNumber: seq<DafnyCallEvent<GetPartitionNumberInput, Result<GetPartitionNumberOutput, Error>>>
+  }
+  trait {:termination false} IPartitionSelector
+  {
+    // Helper to define any additional modifies/reads clauses.
+    // If your operations need to mutate state,
+    // add it in your constructor function:
+    // Modifies := {your, fields, here, History};
+    // If you do not need to mutate anything:
+    // Modifies := {History};
+
+    ghost const Modifies: set<object>
+    // For an unassigned field defined in a trait,
+    // Dafny can only assign a value in the constructor.
+    // This means that for Dafny to reason about this value,
+    // it needs some way to know (an invariant),
+    // about the state of the object.
+    // This builds on the Valid/Repr paradigm
+    // To make this kind requires safe to add
+    // to methods called from unverified code,
+    // the predicate MUST NOT take any arguments.
+    // This means that the correctness of this requires
+    // MUST only be evaluated by the class itself.
+    // If you require any additional mutation,
+    // then you MUST ensure everything you need in ValidState.
+    // You MUST also ensure ValidState in your constructor.
+    predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    ghost const History: IPartitionSelectorCallHistory
+    predicate GetPartitionNumberEnsuresPublicly(input: GetPartitionNumberInput , output: Result<GetPartitionNumberOutput, Error>)
+    // The public method to be called by library consumers
+    method GetPartitionNumber ( input: GetPartitionNumberInput )
+      returns (output: Result<GetPartitionNumberOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History} ,
+               History`GetPartitionNumber
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetPartitionNumberEnsuresPublicly(input, output)
+      ensures History.GetPartitionNumber == old(History.GetPartitionNumber) + [DafnyCallEvent(input, output)]
+    {
+      output := GetPartitionNumber' (input);
+      History.GetPartitionNumber := History.GetPartitionNumber + [DafnyCallEvent(input, output)];
+    }
+    // The method to implement in the concrete class.
+    method GetPartitionNumber' ( input: GetPartitionNumberInput )
+      returns (output: Result<GetPartitionNumberOutput, Error>)
+      requires
+        && ValidState()
+      modifies Modifies - {History}
+      // Dafny will skip type parameters when generating a default decreases clause.
+      decreases Modifies - {History}
+      ensures
+        && ValidState()
+      ensures GetPartitionNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+
+  }
   datatype PartOnly = | PartOnly (
 
                       )

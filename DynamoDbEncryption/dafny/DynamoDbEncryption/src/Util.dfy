@@ -81,10 +81,10 @@ module DynamoDbEncryptionUtil {
     }
   }
 
-  const MAX_BUCKET_COUNT : nat := 255
+  const MAX_PARTITION_COUNT : nat := 255
 
   type PartitionBytes = x: seq<uint8> | Valid_PartitionBytes(x) witness []
-  newtype OptPartitionCount  = x: int | 0 <= x <= MAX_BUCKET_COUNT
+  newtype OptPartitionCount  = x: int | 0 <= x <= MAX_PARTITION_COUNT
 
   function method PartitionBytesToNumber(x : PartitionBytes) : PartitionNumber
   {
@@ -115,7 +115,7 @@ module DynamoDbEncryptionUtil {
   predicate method Valid_PartitionBytes(x : seq<uint8>)
   {
     && |x| <= 1
-    && (|x| == 1 ==> (0 < x[0] < (MAX_BUCKET_COUNT as uint8)))
+    && (|x| == 1 ==> (0 < x[0] < (MAX_PARTITION_COUNT as uint8)))
   }
 
   function printFromFunction<T>(x: T): () {

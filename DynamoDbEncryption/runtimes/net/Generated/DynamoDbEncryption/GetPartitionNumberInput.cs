@@ -5,10 +5,10 @@ using System;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
 {
-  public class GetBucketNumberInput
+  public class GetPartitionNumberInput
   {
     private System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> _item;
-    private int? _numberOfBuckets;
+    private int? _numberOfPartitions;
     private string _logicalTableName;
     public System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> Item
     {
@@ -19,14 +19,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._item != null;
     }
-    public int NumberOfBuckets
+    public int NumberOfPartitions
     {
-      get { return this._numberOfBuckets.GetValueOrDefault(); }
-      set { this._numberOfBuckets = value; }
+      get { return this._numberOfPartitions.GetValueOrDefault(); }
+      set { this._numberOfPartitions = value; }
     }
-    public bool IsSetNumberOfBuckets()
+    public bool IsSetNumberOfPartitions()
     {
-      return this._numberOfBuckets.HasValue;
+      return this._numberOfPartitions.HasValue;
     }
     public string LogicalTableName
     {
@@ -40,7 +40,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     public void Validate()
     {
       if (!IsSetItem()) throw new System.ArgumentException("Missing value for required property 'Item'");
-      if (!IsSetNumberOfBuckets()) throw new System.ArgumentException("Missing value for required property 'NumberOfBuckets'");
+      if (!IsSetNumberOfPartitions()) throw new System.ArgumentException("Missing value for required property 'NumberOfPartitions'");
       if (!IsSetLogicalTableName()) throw new System.ArgumentException("Missing value for required property 'LogicalTableName'");
 
     }

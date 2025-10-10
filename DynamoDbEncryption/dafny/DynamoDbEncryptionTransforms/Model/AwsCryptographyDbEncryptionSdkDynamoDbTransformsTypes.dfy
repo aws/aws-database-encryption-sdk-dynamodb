@@ -625,7 +625,7 @@ module {:extern "software.amazon.cryptography.dbencryptionsdk.dynamodb.transform
     nameonly input: ComAmazonawsDynamodbTypes.QueryInput
   )
   datatype GetNumberOfQueriesOutput = | GetNumberOfQueriesOutput (
-    nameonly numberOfQueries: AwsCryptographyDbEncryptionSdkDynamoDbTypes.BucketCount
+    nameonly numberOfQueries: AwsCryptographyDbEncryptionSdkDynamoDbTypes.PartitionCount
   )
   datatype PutItemInputTransformInput = | PutItemInputTransformInput (
     nameonly sdkInput: ComAmazonawsDynamodbTypes.PutItemInput
@@ -796,8 +796,8 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                               tmp5.search.Some? ==>
                                 var tmps6 := set t6 | t6 in tmp5.search.value.versions;
                                 forall tmp6 :: tmp6 in tmps6 ==>
-                                                 tmp6.bucketSelector.Some? ==>
-                                                   tmp6.bucketSelector.value.ValidState()
+                                                 tmp6.partitionSelector.Some? ==>
+                                                   tmp6.partitionSelector.value.ValidState()
     requires var tmps7 := set t7 | t7 in config.tableEncryptionConfigs.Values;
              forall tmp7 :: tmp7 in tmps7 ==>
                               tmp7.search.Some? ==>
@@ -836,8 +836,8 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
     modifies set tmps16 <- set t16 <- config.tableEncryptionConfigs.Values | true
                                                                              && t16.search.Some?
                              , t17 <- t16.search.value.versions | true
-                                                                  && t17.bucketSelector.Some?
-                             :: t17.bucketSelector.value,
+                                                                  && t17.partitionSelector.Some?
+                             :: t17.partitionSelector.value,
                obj <- tmps16.Modifies | obj in tmps16.Modifies :: obj
     modifies set tmps18 <- set t18 <- config.tableEncryptionConfigs.Values | true
                                                                              && t18.search.Some?
@@ -878,8 +878,8 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                        ) - ( set tmps27 <- set t27 <- config.tableEncryptionConfigs.Values | true
                                                                                              && t27.search.Some?
                                              , t28 <- t27.search.value.versions | true
-                                                                                  && t28.bucketSelector.Some?
-                                             :: t28.bucketSelector.value,
+                                                                                  && t28.partitionSelector.Some?
+                                             :: t28.partitionSelector.value,
                                obj <- tmps27.Modifies | obj in tmps27.Modifies :: obj
                        ) - ( set tmps29 <- set t29 <- config.tableEncryptionConfigs.Values | true
                                                                                              && t29.search.Some?
@@ -923,8 +923,8 @@ abstract module AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService
                               tmp38.search.Some? ==>
                                 var tmps39 := set t39 | t39 in tmp38.search.value.versions;
                                 forall tmp39 :: tmp39 in tmps39 ==>
-                                                  tmp39.bucketSelector.Some? ==>
-                                                    tmp39.bucketSelector.value.ValidState()
+                                                  tmp39.partitionSelector.Some? ==>
+                                                    tmp39.partitionSelector.value.ValidState()
     ensures var tmps40 := set t40 | t40 in config.tableEncryptionConfigs.Values;
             forall tmp40 :: tmp40 in tmps40 ==>
                               tmp40.search.Some? ==>

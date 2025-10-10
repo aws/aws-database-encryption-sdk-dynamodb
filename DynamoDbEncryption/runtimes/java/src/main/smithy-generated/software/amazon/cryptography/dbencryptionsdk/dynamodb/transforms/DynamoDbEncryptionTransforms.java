@@ -312,7 +312,7 @@ public class DynamoDbEncryptionTransforms {
   }
 
   /**
-   * Return the necessary number of query operations for this query, based on bucket usage.
+   * Return the necessary number of query operations for this query, based on partition usage.
    *
    */
   public GetNumberOfQueriesOutput GetNumberOfQueries(

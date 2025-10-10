@@ -5,8 +5,8 @@ using System;
 using AWS.Cryptography.DbEncryptionSDK.DynamoDb;
 namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
 {
-  public interface IBucketSelector
+  public interface IPartitionSelector
   {
-    AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetBucketNumberOutput GetBucketNumber(AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetBucketNumberInput input);
+    AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetPartitionNumberOutput GetPartitionNumber(AWS.Cryptography.DbEncryptionSDK.DynamoDb.GetPartitionNumberInput input);
   }
 }

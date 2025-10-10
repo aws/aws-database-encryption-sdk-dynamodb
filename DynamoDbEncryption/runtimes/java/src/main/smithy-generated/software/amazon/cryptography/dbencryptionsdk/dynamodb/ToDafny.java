@@ -34,11 +34,11 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.Error_DynamoDbEncryptionException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBranchKeyIdFromDdbKeyOutput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetBucketNumberOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetEncryptedDataKeyDescriptionUnion;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetPartitionNumberInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetPartitionNumberOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetPrefix;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetSegment;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetSegments;
@@ -182,36 +182,36 @@ public class ToDafny {
         : Option.create_None(
           DafnySequence._typeDescriptor(SignedPart._typeDescriptor())
         );
-    Option<Integer> maximumNumberOfBuckets;
-    maximumNumberOfBuckets =
-      Objects.nonNull(nativeValue.maximumNumberOfBuckets())
+    Option<Integer> maximumNumberOfPartitions;
+    maximumNumberOfPartitions =
+      Objects.nonNull(nativeValue.maximumNumberOfPartitions())
         ? Option.create_Some(
           TypeDescriptor.INT,
-          (nativeValue.maximumNumberOfBuckets())
+          (nativeValue.maximumNumberOfPartitions())
         )
         : Option.create_None(TypeDescriptor.INT);
-    Option<Integer> defaultNumberOfBuckets;
-    defaultNumberOfBuckets =
-      Objects.nonNull(nativeValue.defaultNumberOfBuckets())
+    Option<Integer> defaultNumberOfPartitions;
+    defaultNumberOfPartitions =
+      Objects.nonNull(nativeValue.defaultNumberOfPartitions())
         ? Option.create_Some(
           TypeDescriptor.INT,
-          (nativeValue.defaultNumberOfBuckets())
+          (nativeValue.defaultNumberOfPartitions())
         )
         : Option.create_None(TypeDescriptor.INT);
     Option<
-      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector
-    > bucketSelector;
-    bucketSelector =
-      Objects.nonNull(nativeValue.bucketSelector())
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IPartitionSelector
+    > partitionSelector;
+    partitionSelector =
+      Objects.nonNull(nativeValue.partitionSelector())
         ? Option.create_Some(
           TypeDescriptor.reference(
-            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector.class
+            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IPartitionSelector.class
           ),
-          ToDafny.BucketSelector(nativeValue.bucketSelector())
+          ToDafny.PartitionSelector(nativeValue.partitionSelector())
         )
         : Option.create_None(
           TypeDescriptor.reference(
-            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector.class
+            software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IPartitionSelector.class
           )
         );
     return new BeaconVersion(
@@ -223,9 +223,9 @@ public class ToDafny {
       virtualFields,
       encryptedParts,
       signedParts,
-      maximumNumberOfBuckets,
-      defaultNumberOfBuckets,
-      bucketSelector
+      maximumNumberOfPartitions,
+      defaultNumberOfPartitions,
+      partitionSelector
     );
   }
 
@@ -571,35 +571,6 @@ public class ToDafny {
     return new GetBranchKeyIdFromDdbKeyOutput(branchKeyId);
   }
 
-  public static GetBucketNumberInput GetBucketNumberInput(
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumberInput nativeValue
-  ) {
-    DafnyMap<
-      ? extends DafnySequence<? extends Character>,
-      ? extends AttributeValue
-    > item;
-    item =
-      software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeMap(
-        nativeValue.item()
-      );
-    Integer numberOfBuckets;
-    numberOfBuckets = (nativeValue.numberOfBuckets());
-    DafnySequence<? extends Character> logicalTableName;
-    logicalTableName =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        nativeValue.logicalTableName()
-      );
-    return new GetBucketNumberInput(item, numberOfBuckets, logicalTableName);
-  }
-
-  public static GetBucketNumberOutput GetBucketNumberOutput(
-    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBucketNumberOutput nativeValue
-  ) {
-    Integer bucketNumber;
-    bucketNumber = (nativeValue.bucketNumber());
-    return new GetBucketNumberOutput(bucketNumber);
-  }
-
   public static GetEncryptedDataKeyDescriptionInput GetEncryptedDataKeyDescriptionInput(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput nativeValue
   ) {
@@ -621,6 +592,39 @@ public class ToDafny {
     return new GetEncryptedDataKeyDescriptionOutput(
       encryptedDataKeyDescriptionOutput
     );
+  }
+
+  public static GetPartitionNumberInput GetPartitionNumberInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPartitionNumberInput nativeValue
+  ) {
+    DafnyMap<
+      ? extends DafnySequence<? extends Character>,
+      ? extends AttributeValue
+    > item;
+    item =
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToDafny.AttributeMap(
+        nativeValue.item()
+      );
+    Integer numberOfPartitions;
+    numberOfPartitions = (nativeValue.numberOfPartitions());
+    DafnySequence<? extends Character> logicalTableName;
+    logicalTableName =
+      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+        nativeValue.logicalTableName()
+      );
+    return new GetPartitionNumberInput(
+      item,
+      numberOfPartitions,
+      logicalTableName
+    );
+  }
+
+  public static GetPartitionNumberOutput GetPartitionNumberOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPartitionNumberOutput nativeValue
+  ) {
+    Integer partitionNumber;
+    partitionNumber = (nativeValue.partitionNumber());
+    return new GetPartitionNumberOutput(partitionNumber);
   }
 
   public static GetPrefix GetPrefix(
@@ -891,15 +895,15 @@ public class ToDafny {
           ToDafny.BeaconStyle(nativeValue.style())
         )
         : Option.create_None(BeaconStyle._typeDescriptor());
-    Option<Integer> numberOfBuckets;
-    numberOfBuckets =
-      Objects.nonNull(nativeValue.numberOfBuckets())
+    Option<Integer> numberOfPartitions;
+    numberOfPartitions =
+      Objects.nonNull(nativeValue.numberOfPartitions())
         ? Option.create_Some(
           TypeDescriptor.INT,
-          (nativeValue.numberOfBuckets())
+          (nativeValue.numberOfPartitions())
         )
         : Option.create_None(TypeDescriptor.INT);
-    return new StandardBeacon(name, length, loc, style, numberOfBuckets);
+    return new StandardBeacon(name, length, loc, style, numberOfPartitions);
   }
 
   public static Upper Upper(
@@ -1287,12 +1291,6 @@ public class ToDafny {
     );
   }
 
-  public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IBucketSelector BucketSelector(
-    IBucketSelector nativeValue
-  ) {
-    return BucketSelector.wrap(nativeValue).impl();
-  }
-
   public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IDynamoDbKeyBranchKeyIdSupplier DynamoDbKeyBranchKeyIdSupplier(
     IDynamoDbKeyBranchKeyIdSupplier nativeValue
   ) {
@@ -1303,6 +1301,12 @@ public class ToDafny {
     ILegacyDynamoDbEncryptor nativeValue
   ) {
     return LegacyDynamoDbEncryptor.wrap(nativeValue).impl();
+  }
+
+  public static software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IPartitionSelector PartitionSelector(
+    IPartitionSelector nativeValue
+  ) {
+    return PartitionSelector.wrap(nativeValue).impl();
   }
 
   public static IDynamoDbEncryptionClient DynamoDbEncryption(

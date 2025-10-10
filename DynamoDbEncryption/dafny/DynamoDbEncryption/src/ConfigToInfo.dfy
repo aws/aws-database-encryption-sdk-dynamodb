@@ -333,7 +333,7 @@ module SearchConfigToInfo {
               && fresh(output.value.partitionSelector.Modifies)
   {
     var maxPartitions : PartitionCount := config.maximumNumberOfPartitions.UnwrapOr(1);
-    :- Need(0 <= maxPartitions as nat < MAX_BUCKET_COUNT, E("Invalid maximumNumberOfPartitions specified, " + Base10Int2String(maxPartitions as int) + ", must be 0 < maximumNumberOfPartitions <= 255."));
+    :- Need(0 <= maxPartitions as nat < MAX_PARTITION_COUNT, E("Invalid maximumNumberOfPartitions specified, " + Base10Int2String(maxPartitions as int) + ", must be 0 < maximumNumberOfPartitions <= 255."));
     // Zero is invalid, but in Java we can't distinguish None from Some(0)
     if maxPartitions == 0 {
       maxPartitions := 1;

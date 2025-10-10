@@ -367,14 +367,6 @@ func (input SharedSet) Validate() error {
 	return nil
 }
 
-type BucketSelectorReference struct {
-}
-
-func (input BucketSelectorReference) Validate() error {
-
-	return nil
-}
-
 type ConstructorPart struct {
 	Name string
 
@@ -526,6 +518,14 @@ func (input KeyStoreReference) Validate() error {
 	return nil
 }
 
+type PartitionSelectorReference struct {
+}
+
+func (input PartitionSelectorReference) Validate() error {
+
+	return nil
+}
+
 type StandardBeacon struct {
 	Length int32
 
@@ -533,7 +533,7 @@ type StandardBeacon struct {
 
 	Loc *string
 
-	NumberOfBuckets *int32
+	NumberOfPartitions *int32
 
 	Style BeaconStyle
 }
@@ -550,12 +550,12 @@ func (input StandardBeacon) Validate() error {
 			return fmt.Errorf("TerminalLocation has a minimum length of 1 but has the length of %d.", len(*input.Loc))
 		}
 	}
-	if input.NumberOfBuckets != nil {
-		if *input.NumberOfBuckets < 1 {
-			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.NumberOfBuckets)
+	if input.NumberOfPartitions != nil {
+		if *input.NumberOfPartitions < 1 {
+			return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", *input.NumberOfPartitions)
 		}
-		if *input.NumberOfBuckets > 255 {
-			return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", *input.NumberOfBuckets)
+		if *input.NumberOfPartitions > 255 {
+			return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", *input.NumberOfPartitions)
 		}
 	}
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() != nil {
@@ -797,15 +797,15 @@ type BeaconVersion struct {
 
 	Version int32
 
-	BucketSelector IBucketSelector
-
 	CompoundBeacons []CompoundBeacon
 
-	DefaultNumberOfBuckets *int32
+	DefaultNumberOfPartitions *int32
 
 	EncryptedParts []EncryptedPart
 
-	MaximumNumberOfBuckets *int32
+	MaximumNumberOfPartitions *int32
+
+	PartitionSelector IPartitionSelector
 
 	SignedParts []SignedPart
 
@@ -837,12 +837,12 @@ func (input BeaconVersion) Validate() error {
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate()
 	}
-	if input.DefaultNumberOfBuckets != nil {
-		if *input.DefaultNumberOfBuckets < 1 {
-			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.DefaultNumberOfBuckets)
+	if input.DefaultNumberOfPartitions != nil {
+		if *input.DefaultNumberOfPartitions < 1 {
+			return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", *input.DefaultNumberOfPartitions)
 		}
-		if *input.DefaultNumberOfBuckets > 255 {
-			return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", *input.DefaultNumberOfBuckets)
+		if *input.DefaultNumberOfPartitions > 255 {
+			return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", *input.DefaultNumberOfPartitions)
 		}
 	}
 	if len(input.EncryptedParts) < 1 {
@@ -851,12 +851,12 @@ func (input BeaconVersion) Validate() error {
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate()
 	}
-	if input.MaximumNumberOfBuckets != nil {
-		if *input.MaximumNumberOfBuckets < 1 {
-			return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", *input.MaximumNumberOfBuckets)
+	if input.MaximumNumberOfPartitions != nil {
+		if *input.MaximumNumberOfPartitions < 1 {
+			return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", *input.MaximumNumberOfPartitions)
 		}
-		if *input.MaximumNumberOfBuckets > 255 {
-			return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", *input.MaximumNumberOfBuckets)
+		if *input.MaximumNumberOfPartitions > 255 {
+			return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", *input.MaximumNumberOfPartitions)
 		}
 	}
 	if len(input.SignedParts) < 1 {
@@ -936,21 +936,6 @@ func (input BeaconVersion) Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersi
 		if item.Validate() != nil {
 			return item.Validate()
 		}
-	}
-
-	return nil
-}
-
-type GetBucketNumberOutput struct {
-	BucketNumber int32
-}
-
-func (input GetBucketNumberOutput) Validate() error {
-	if input.BucketNumber < 0 {
-		return fmt.Errorf("BucketNumber has a minimum of 0 but has the value of %d.", input.BucketNumber)
-	}
-	if input.BucketNumber > 254 {
-		return fmt.Errorf("BucketNumber has a maximum of 254 but has the value of %d.", input.BucketNumber)
 	}
 
 	return nil
@@ -1176,6 +1161,21 @@ func (input DynamoDbTablesEncryptionConfig) Aws_cryptography_dbEncryptionSdk_dyn
 	return nil
 }
 
+type GetPartitionNumberOutput struct {
+	PartitionNumber int32
+}
+
+func (input GetPartitionNumberOutput) Validate() error {
+	if input.PartitionNumber < 0 {
+		return fmt.Errorf("PartitionNumber has a minimum of 0 but has the value of %d.", input.PartitionNumber)
+	}
+	if input.PartitionNumber > 254 {
+		return fmt.Errorf("PartitionNumber has a maximum of 254 but has the value of %d.", input.PartitionNumber)
+	}
+
+	return nil
+}
+
 type GetBranchKeyIdFromDdbKeyInput struct {
 	DdbKey map[string]dynamodbtypes.AttributeValue
 }
@@ -1303,32 +1303,32 @@ func (input GetBranchKeyIdFromDdbKeyInput) Aws_cryptography_dbEncryptionSdk_dyna
 	return nil
 }
 
-type GetBucketNumberInput struct {
+type GetPartitionNumberInput struct {
 	Item map[string]dynamodbtypes.AttributeValue
 
 	LogicalTableName string
 
-	NumberOfBuckets int32
+	NumberOfPartitions int32
 }
 
-func (input GetBucketNumberInput) Validate() error {
+func (input GetPartitionNumberInput) Validate() error {
 	if input.Item == nil {
 		return fmt.Errorf("input.Item is required but has a nil value.")
 	}
-	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_Validate() != nil {
-		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_Validate()
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_Validate()
 	}
-	if input.NumberOfBuckets < 1 {
-		return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", input.NumberOfBuckets)
+	if input.NumberOfPartitions < 1 {
+		return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", input.NumberOfPartitions)
 	}
-	if input.NumberOfBuckets > 255 {
-		return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", input.NumberOfBuckets)
+	if input.NumberOfPartitions > 255 {
+		return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", input.NumberOfPartitions)
 	}
 
 	return nil
 }
 
-func (input GetBucketNumberInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -1350,7 +1350,7 @@ func (input GetBucketNumberInput) Com_amazonaws_dynamodb_AttributeMap_value_Vali
 
 	return nil
 }
-func (input GetBucketNumberInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -1375,7 +1375,7 @@ func (input GetBucketNumberInput) Com_amazonaws_dynamodb_MapAttributeValue_value
 
 	return nil
 }
-func (input GetBucketNumberInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
 	for key, value := range Value {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -1390,7 +1390,7 @@ func (input GetBucketNumberInput) Com_amazonaws_dynamodb_AttributeValue_M_Valida
 
 	return nil
 }
-func (input GetBucketNumberInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
 	if Value == nil {
 		return nil
 	}
@@ -1415,7 +1415,7 @@ func (input GetBucketNumberInput) Com_amazonaws_dynamodb_ListAttributeValue_memb
 
 	return nil
 }
-func (input GetBucketNumberInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
 	for _, item := range Value {
 		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
 			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
@@ -1424,7 +1424,7 @@ func (input GetBucketNumberInput) Com_amazonaws_dynamodb_AttributeValue_L_Valida
 
 	return nil
 }
-func (input GetBucketNumberInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBucketNumberInput_item_Validate() error {
+func (input GetPartitionNumberInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_Validate() error {
 	for key, value := range input.Item {
 		if len(key) < 0 {
 			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
@@ -1575,13 +1575,13 @@ type DynamoDbEncryptionBaseException interface {
 	interfaceBindingMethod()
 }
 
-type IBucketSelector interface {
-	GetBucketNumber(GetBucketNumberInput) (*GetBucketNumberOutput, error)
-}
-
 type IDynamoDbKeyBranchKeyIdSupplier interface {
 	GetBranchKeyIdFromDdbKey(GetBranchKeyIdFromDdbKeyInput) (*GetBranchKeyIdFromDdbKeyOutput, error)
 }
 
 type ILegacyDynamoDbEncryptor interface {
+}
+
+type IPartitionSelector interface {
+	GetPartitionNumber(GetPartitionNumberInput) (*GetPartitionNumberOutput, error)
 }

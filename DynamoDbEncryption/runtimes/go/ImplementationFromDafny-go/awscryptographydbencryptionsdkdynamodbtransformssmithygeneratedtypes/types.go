@@ -15,10 +15,10 @@ type GetNumberOfQueriesOutput struct {
 
 func (input GetNumberOfQueriesOutput) Validate() error {
 	if input.NumberOfQueries < 1 {
-		return fmt.Errorf("BucketCount has a minimum of 1 but has the value of %d.", input.NumberOfQueries)
+		return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", input.NumberOfQueries)
 	}
 	if input.NumberOfQueries > 255 {
-		return fmt.Errorf("BucketCount has a maximum of 255 but has the value of %d.", input.NumberOfQueries)
+		return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", input.NumberOfQueries)
 	}
 
 	return nil

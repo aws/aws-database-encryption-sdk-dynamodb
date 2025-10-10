@@ -7,17 +7,17 @@ import java.util.Map;
 import java.util.Objects;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-public class GetBucketNumberInput {
+public class GetPartitionNumberInput {
 
   private final Map<String, AttributeValue> item;
 
-  private final int numberOfBuckets;
+  private final int numberOfPartitions;
 
   private final String logicalTableName;
 
-  protected GetBucketNumberInput(BuilderImpl builder) {
+  protected GetPartitionNumberInput(BuilderImpl builder) {
     this.item = builder.item();
-    this.numberOfBuckets = builder.numberOfBuckets();
+    this.numberOfPartitions = builder.numberOfPartitions();
     this.logicalTableName = builder.logicalTableName();
   }
 
@@ -25,8 +25,8 @@ public class GetBucketNumberInput {
     return this.item;
   }
 
-  public int numberOfBuckets() {
-    return this.numberOfBuckets;
+  public int numberOfPartitions() {
+    return this.numberOfPartitions;
   }
 
   public String logicalTableName() {
@@ -46,33 +46,33 @@ public class GetBucketNumberInput {
 
     Map<String, AttributeValue> item();
 
-    Builder numberOfBuckets(int numberOfBuckets);
+    Builder numberOfPartitions(int numberOfPartitions);
 
-    int numberOfBuckets();
+    int numberOfPartitions();
 
     Builder logicalTableName(String logicalTableName);
 
     String logicalTableName();
 
-    GetBucketNumberInput build();
+    GetPartitionNumberInput build();
   }
 
   static class BuilderImpl implements Builder {
 
     protected Map<String, AttributeValue> item;
 
-    protected int numberOfBuckets;
+    protected int numberOfPartitions;
 
-    private boolean _numberOfBucketsSet = false;
+    private boolean _numberOfPartitionsSet = false;
 
     protected String logicalTableName;
 
     protected BuilderImpl() {}
 
-    protected BuilderImpl(GetBucketNumberInput model) {
+    protected BuilderImpl(GetPartitionNumberInput model) {
       this.item = model.item();
-      this.numberOfBuckets = model.numberOfBuckets();
-      this._numberOfBucketsSet = true;
+      this.numberOfPartitions = model.numberOfPartitions();
+      this._numberOfPartitionsSet = true;
       this.logicalTableName = model.logicalTableName();
     }
 
@@ -85,14 +85,14 @@ public class GetBucketNumberInput {
       return this.item;
     }
 
-    public Builder numberOfBuckets(int numberOfBuckets) {
-      this.numberOfBuckets = numberOfBuckets;
-      this._numberOfBucketsSet = true;
+    public Builder numberOfPartitions(int numberOfPartitions) {
+      this.numberOfPartitions = numberOfPartitions;
+      this._numberOfPartitionsSet = true;
       return this;
     }
 
-    public int numberOfBuckets() {
-      return this.numberOfBuckets;
+    public int numberOfPartitions() {
+      return this.numberOfPartitions;
     }
 
     public Builder logicalTableName(String logicalTableName) {
@@ -104,25 +104,25 @@ public class GetBucketNumberInput {
       return this.logicalTableName;
     }
 
-    public GetBucketNumberInput build() {
+    public GetPartitionNumberInput build() {
       if (Objects.isNull(this.item())) {
         throw new IllegalArgumentException(
           "Missing value for required field `item`"
         );
       }
-      if (!this._numberOfBucketsSet) {
+      if (!this._numberOfPartitionsSet) {
         throw new IllegalArgumentException(
-          "Missing value for required field `numberOfBuckets`"
+          "Missing value for required field `numberOfPartitions`"
         );
       }
-      if (this._numberOfBucketsSet && this.numberOfBuckets() < 1) {
+      if (this._numberOfPartitionsSet && this.numberOfPartitions() < 1) {
         throw new IllegalArgumentException(
-          "`numberOfBuckets` must be greater than or equal to 1"
+          "`numberOfPartitions` must be greater than or equal to 1"
         );
       }
-      if (this._numberOfBucketsSet && this.numberOfBuckets() > 255) {
+      if (this._numberOfPartitionsSet && this.numberOfPartitions() > 255) {
         throw new IllegalArgumentException(
-          "`numberOfBuckets` must be less than or equal to 255."
+          "`numberOfPartitions` must be less than or equal to 255."
         );
       }
       if (Objects.isNull(this.logicalTableName())) {
@@ -130,7 +130,7 @@ public class GetBucketNumberInput {
           "Missing value for required field `logicalTableName`"
         );
       }
-      return new GetBucketNumberInput(this);
+      return new GetPartitionNumberInput(this);
     }
   }
 }

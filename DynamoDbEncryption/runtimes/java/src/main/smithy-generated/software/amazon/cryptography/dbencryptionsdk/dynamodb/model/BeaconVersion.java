@@ -5,8 +5,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.List;
 import java.util.Objects;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.BucketSelector;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.IBucketSelector;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.IPartitionSelector;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.PartitionSelector;
 import software.amazon.cryptography.keystore.KeyStore;
 
 /**
@@ -55,19 +55,19 @@ public class BeaconVersion {
   private final List<SignedPart> signedParts;
 
   /**
-   * The number of separate buckets across which beacons should be divided.
+   * The number of separate partitions across which beacons should be divided.
    */
-  private final int maximumNumberOfBuckets;
+  private final int maximumNumberOfPartitions;
 
   /**
-   * The number of buckets for any beacon that doesn't specify a numberOfBuckets
+   * The number of partitions for any beacon that doesn't specify a numberOfPartitions
    */
-  private final int defaultNumberOfBuckets;
+  private final int defaultNumberOfPartitions;
 
   /**
-   * How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+   * How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
    */
-  private final IBucketSelector bucketSelector;
+  private final IPartitionSelector partitionSelector;
 
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
@@ -78,9 +78,9 @@ public class BeaconVersion {
     this.virtualFields = builder.virtualFields();
     this.encryptedParts = builder.encryptedParts();
     this.signedParts = builder.signedParts();
-    this.maximumNumberOfBuckets = builder.maximumNumberOfBuckets();
-    this.defaultNumberOfBuckets = builder.defaultNumberOfBuckets();
-    this.bucketSelector = builder.bucketSelector();
+    this.maximumNumberOfPartitions = builder.maximumNumberOfPartitions();
+    this.defaultNumberOfPartitions = builder.defaultNumberOfPartitions();
+    this.partitionSelector = builder.partitionSelector();
   }
 
   /**
@@ -140,24 +140,24 @@ public class BeaconVersion {
   }
 
   /**
-   * @return The number of separate buckets across which beacons should be divided.
+   * @return The number of separate partitions across which beacons should be divided.
    */
-  public int maximumNumberOfBuckets() {
-    return this.maximumNumberOfBuckets;
+  public int maximumNumberOfPartitions() {
+    return this.maximumNumberOfPartitions;
   }
 
   /**
-   * @return The number of buckets for any beacon that doesn't specify a numberOfBuckets
+   * @return The number of partitions for any beacon that doesn't specify a numberOfPartitions
    */
-  public int defaultNumberOfBuckets() {
-    return this.defaultNumberOfBuckets;
+  public int defaultNumberOfPartitions() {
+    return this.defaultNumberOfPartitions;
   }
 
   /**
-   * @return How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+   * @return How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
    */
-  public IBucketSelector bucketSelector() {
-    return this.bucketSelector;
+  public IPartitionSelector partitionSelector() {
+    return this.partitionSelector;
   }
 
   public Builder toBuilder() {
@@ -250,34 +250,34 @@ public class BeaconVersion {
     List<SignedPart> signedParts();
 
     /**
-     * @param maximumNumberOfBuckets The number of separate buckets across which beacons should be divided.
+     * @param maximumNumberOfPartitions The number of separate partitions across which beacons should be divided.
      */
-    Builder maximumNumberOfBuckets(int maximumNumberOfBuckets);
+    Builder maximumNumberOfPartitions(int maximumNumberOfPartitions);
 
     /**
-     * @return The number of separate buckets across which beacons should be divided.
+     * @return The number of separate partitions across which beacons should be divided.
      */
-    int maximumNumberOfBuckets();
+    int maximumNumberOfPartitions();
 
     /**
-     * @param defaultNumberOfBuckets The number of buckets for any beacon that doesn't specify a numberOfBuckets
+     * @param defaultNumberOfPartitions The number of partitions for any beacon that doesn't specify a numberOfPartitions
      */
-    Builder defaultNumberOfBuckets(int defaultNumberOfBuckets);
+    Builder defaultNumberOfPartitions(int defaultNumberOfPartitions);
 
     /**
-     * @return The number of buckets for any beacon that doesn't specify a numberOfBuckets
+     * @return The number of partitions for any beacon that doesn't specify a numberOfPartitions
      */
-    int defaultNumberOfBuckets();
+    int defaultNumberOfPartitions();
 
     /**
-     * @param bucketSelector How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+     * @param partitionSelector How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
      */
-    Builder bucketSelector(IBucketSelector bucketSelector);
+    Builder partitionSelector(IPartitionSelector partitionSelector);
 
     /**
-     * @return How to choose the bucket for an item. Default behavior is a random between 0 and maximumNumberOfBuckets.
+     * @return How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
      */
-    IBucketSelector bucketSelector();
+    IPartitionSelector partitionSelector();
 
     BeaconVersion build();
   }
@@ -302,15 +302,15 @@ public class BeaconVersion {
 
     protected List<SignedPart> signedParts;
 
-    protected int maximumNumberOfBuckets;
+    protected int maximumNumberOfPartitions;
 
-    private boolean _maximumNumberOfBucketsSet = false;
+    private boolean _maximumNumberOfPartitionsSet = false;
 
-    protected int defaultNumberOfBuckets;
+    protected int defaultNumberOfPartitions;
 
-    private boolean _defaultNumberOfBucketsSet = false;
+    private boolean _defaultNumberOfPartitionsSet = false;
 
-    protected IBucketSelector bucketSelector;
+    protected IPartitionSelector partitionSelector;
 
     protected BuilderImpl() {}
 
@@ -324,11 +324,11 @@ public class BeaconVersion {
       this.virtualFields = model.virtualFields();
       this.encryptedParts = model.encryptedParts();
       this.signedParts = model.signedParts();
-      this.maximumNumberOfBuckets = model.maximumNumberOfBuckets();
-      this._maximumNumberOfBucketsSet = true;
-      this.defaultNumberOfBuckets = model.defaultNumberOfBuckets();
-      this._defaultNumberOfBucketsSet = true;
-      this.bucketSelector = model.bucketSelector();
+      this.maximumNumberOfPartitions = model.maximumNumberOfPartitions();
+      this._maximumNumberOfPartitionsSet = true;
+      this.defaultNumberOfPartitions = model.defaultNumberOfPartitions();
+      this._defaultNumberOfPartitionsSet = true;
+      this.partitionSelector = model.partitionSelector();
     }
 
     public Builder version(int version) {
@@ -404,33 +404,33 @@ public class BeaconVersion {
       return this.signedParts;
     }
 
-    public Builder maximumNumberOfBuckets(int maximumNumberOfBuckets) {
-      this.maximumNumberOfBuckets = maximumNumberOfBuckets;
-      this._maximumNumberOfBucketsSet = true;
+    public Builder maximumNumberOfPartitions(int maximumNumberOfPartitions) {
+      this.maximumNumberOfPartitions = maximumNumberOfPartitions;
+      this._maximumNumberOfPartitionsSet = true;
       return this;
     }
 
-    public int maximumNumberOfBuckets() {
-      return this.maximumNumberOfBuckets;
+    public int maximumNumberOfPartitions() {
+      return this.maximumNumberOfPartitions;
     }
 
-    public Builder defaultNumberOfBuckets(int defaultNumberOfBuckets) {
-      this.defaultNumberOfBuckets = defaultNumberOfBuckets;
-      this._defaultNumberOfBucketsSet = true;
+    public Builder defaultNumberOfPartitions(int defaultNumberOfPartitions) {
+      this.defaultNumberOfPartitions = defaultNumberOfPartitions;
+      this._defaultNumberOfPartitionsSet = true;
       return this;
     }
 
-    public int defaultNumberOfBuckets() {
-      return this.defaultNumberOfBuckets;
+    public int defaultNumberOfPartitions() {
+      return this.defaultNumberOfPartitions;
     }
 
-    public Builder bucketSelector(IBucketSelector bucketSelector) {
-      this.bucketSelector = BucketSelector.wrap(bucketSelector);
+    public Builder partitionSelector(IPartitionSelector partitionSelector) {
+      this.partitionSelector = PartitionSelector.wrap(partitionSelector);
       return this;
     }
 
-    public IBucketSelector bucketSelector() {
-      return this.bucketSelector;
+    public IPartitionSelector partitionSelector() {
+      return this.partitionSelector;
     }
 
     public BeaconVersion build() {
@@ -498,31 +498,35 @@ public class BeaconVersion {
         );
       }
       if (
-        this._maximumNumberOfBucketsSet && this.maximumNumberOfBuckets() < 1
+        this._maximumNumberOfPartitionsSet &&
+        this.maximumNumberOfPartitions() < 1
       ) {
         throw new IllegalArgumentException(
-          "`maximumNumberOfBuckets` must be greater than or equal to 1"
+          "`maximumNumberOfPartitions` must be greater than or equal to 1"
         );
       }
       if (
-        this._maximumNumberOfBucketsSet && this.maximumNumberOfBuckets() > 255
+        this._maximumNumberOfPartitionsSet &&
+        this.maximumNumberOfPartitions() > 255
       ) {
         throw new IllegalArgumentException(
-          "`maximumNumberOfBuckets` must be less than or equal to 255."
+          "`maximumNumberOfPartitions` must be less than or equal to 255."
         );
       }
       if (
-        this._defaultNumberOfBucketsSet && this.defaultNumberOfBuckets() < 1
+        this._defaultNumberOfPartitionsSet &&
+        this.defaultNumberOfPartitions() < 1
       ) {
         throw new IllegalArgumentException(
-          "`defaultNumberOfBuckets` must be greater than or equal to 1"
+          "`defaultNumberOfPartitions` must be greater than or equal to 1"
         );
       }
       if (
-        this._defaultNumberOfBucketsSet && this.defaultNumberOfBuckets() > 255
+        this._defaultNumberOfPartitionsSet &&
+        this.defaultNumberOfPartitions() > 255
       ) {
         throw new IllegalArgumentException(
-          "`defaultNumberOfBuckets` must be less than or equal to 255."
+          "`defaultNumberOfPartitions` must be less than or equal to 255."
         );
       }
       return new BeaconVersion(this);

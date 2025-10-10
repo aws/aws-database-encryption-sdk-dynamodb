@@ -31,16 +31,16 @@ public class StandardBeacon {
   private final BeaconStyle style;
 
   /**
-   * The number of separate buckets across which this particular beacon should be divided. Ths must be no greater than the global numberOfBuckets, and can never be changed once an item containing this beacon has been written.
+   * The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
    */
-  private final int numberOfBuckets;
+  private final int numberOfPartitions;
 
   protected StandardBeacon(BuilderImpl builder) {
     this.name = builder.name();
     this.length = builder.length();
     this.loc = builder.loc();
     this.style = builder.style();
-    this.numberOfBuckets = builder.numberOfBuckets();
+    this.numberOfPartitions = builder.numberOfPartitions();
   }
 
   /**
@@ -72,10 +72,10 @@ public class StandardBeacon {
   }
 
   /**
-   * @return The number of separate buckets across which this particular beacon should be divided. Ths must be no greater than the global numberOfBuckets, and can never be changed once an item containing this beacon has been written.
+   * @return The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
    */
-  public int numberOfBuckets() {
-    return this.numberOfBuckets;
+  public int numberOfPartitions() {
+    return this.numberOfPartitions;
   }
 
   public Builder toBuilder() {
@@ -128,14 +128,14 @@ public class StandardBeacon {
     BeaconStyle style();
 
     /**
-     * @param numberOfBuckets The number of separate buckets across which this particular beacon should be divided. Ths must be no greater than the global numberOfBuckets, and can never be changed once an item containing this beacon has been written.
+     * @param numberOfPartitions The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
      */
-    Builder numberOfBuckets(int numberOfBuckets);
+    Builder numberOfPartitions(int numberOfPartitions);
 
     /**
-     * @return The number of separate buckets across which this particular beacon should be divided. Ths must be no greater than the global numberOfBuckets, and can never be changed once an item containing this beacon has been written.
+     * @return The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
      */
-    int numberOfBuckets();
+    int numberOfPartitions();
 
     StandardBeacon build();
   }
@@ -152,9 +152,9 @@ public class StandardBeacon {
 
     protected BeaconStyle style;
 
-    protected int numberOfBuckets;
+    protected int numberOfPartitions;
 
-    private boolean _numberOfBucketsSet = false;
+    private boolean _numberOfPartitionsSet = false;
 
     protected BuilderImpl() {}
 
@@ -164,8 +164,8 @@ public class StandardBeacon {
       this._lengthSet = true;
       this.loc = model.loc();
       this.style = model.style();
-      this.numberOfBuckets = model.numberOfBuckets();
-      this._numberOfBucketsSet = true;
+      this.numberOfPartitions = model.numberOfPartitions();
+      this._numberOfPartitionsSet = true;
     }
 
     public Builder name(String name) {
@@ -205,14 +205,14 @@ public class StandardBeacon {
       return this.style;
     }
 
-    public Builder numberOfBuckets(int numberOfBuckets) {
-      this.numberOfBuckets = numberOfBuckets;
-      this._numberOfBucketsSet = true;
+    public Builder numberOfPartitions(int numberOfPartitions) {
+      this.numberOfPartitions = numberOfPartitions;
+      this._numberOfPartitionsSet = true;
       return this;
     }
 
-    public int numberOfBuckets() {
-      return this.numberOfBuckets;
+    public int numberOfPartitions() {
+      return this.numberOfPartitions;
     }
 
     public StandardBeacon build() {
@@ -241,14 +241,14 @@ public class StandardBeacon {
           "The size of `loc` must be greater than or equal to 1"
         );
       }
-      if (this._numberOfBucketsSet && this.numberOfBuckets() < 1) {
+      if (this._numberOfPartitionsSet && this.numberOfPartitions() < 1) {
         throw new IllegalArgumentException(
-          "`numberOfBuckets` must be greater than or equal to 1"
+          "`numberOfPartitions` must be greater than or equal to 1"
         );
       }
-      if (this._numberOfBucketsSet && this.numberOfBuckets() > 255) {
+      if (this._numberOfPartitionsSet && this.numberOfPartitions() > 255) {
         throw new IllegalArgumentException(
-          "`numberOfBuckets` must be less than or equal to 255."
+          "`numberOfPartitions` must be less than or equal to 255."
         );
       }
       return new StandardBeacon(this);

@@ -15,9 +15,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> _virtualFields;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> _encryptedParts;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> _signedParts;
-    private int? _maximumNumberOfBuckets;
-    private int? _defaultNumberOfBuckets;
-    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.IBucketSelector _bucketSelector;
+    private int? _maximumNumberOfPartitions;
+    private int? _defaultNumberOfPartitions;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.IPartitionSelector _partitionSelector;
     public int Version
     {
       get { return this._version.GetValueOrDefault(); }
@@ -90,32 +90,32 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._signedParts != null;
     }
-    public int MaximumNumberOfBuckets
+    public int MaximumNumberOfPartitions
     {
-      get { return this._maximumNumberOfBuckets.GetValueOrDefault(); }
-      set { this._maximumNumberOfBuckets = value; }
+      get { return this._maximumNumberOfPartitions.GetValueOrDefault(); }
+      set { this._maximumNumberOfPartitions = value; }
     }
-    public bool IsSetMaximumNumberOfBuckets()
+    public bool IsSetMaximumNumberOfPartitions()
     {
-      return this._maximumNumberOfBuckets.HasValue;
+      return this._maximumNumberOfPartitions.HasValue;
     }
-    public int DefaultNumberOfBuckets
+    public int DefaultNumberOfPartitions
     {
-      get { return this._defaultNumberOfBuckets.GetValueOrDefault(); }
-      set { this._defaultNumberOfBuckets = value; }
+      get { return this._defaultNumberOfPartitions.GetValueOrDefault(); }
+      set { this._defaultNumberOfPartitions = value; }
     }
-    public bool IsSetDefaultNumberOfBuckets()
+    public bool IsSetDefaultNumberOfPartitions()
     {
-      return this._defaultNumberOfBuckets.HasValue;
+      return this._defaultNumberOfPartitions.HasValue;
     }
-    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.IBucketSelector BucketSelector
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.IPartitionSelector PartitionSelector
     {
-      get { return this._bucketSelector; }
-      set { this._bucketSelector = value; }
+      get { return this._partitionSelector; }
+      set { this._partitionSelector = value; }
     }
-    public bool IsSetBucketSelector()
+    public bool IsSetPartitionSelector()
     {
-      return this._bucketSelector != null;
+      return this._partitionSelector != null;
     }
     public void Validate()
     {
@@ -155,30 +155,30 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
               String.Format("Member SignedParts of structure BeaconVersion has List type SignedPartsList which has a minimum length of 1 but was given a value with length {0}.", SignedParts.Count));
         }
       }
-      if (IsSetMaximumNumberOfBuckets())
+      if (IsSetMaximumNumberOfPartitions())
       {
-        if (MaximumNumberOfBuckets < 1)
+        if (MaximumNumberOfPartitions < 1)
         {
           throw new System.ArgumentException(
-              String.Format("Member MaximumNumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", MaximumNumberOfBuckets));
+              String.Format("Member MaximumNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a minimum of 1 but was given the value {0}.", MaximumNumberOfPartitions));
         }
-        if (MaximumNumberOfBuckets > 255)
+        if (MaximumNumberOfPartitions > 255)
         {
           throw new System.ArgumentException(
-              String.Format("Member MaximumNumberOfBuckets of structure BeaconVersion has type BucketCount which has a maximum of 255 but was given the value {0}.", MaximumNumberOfBuckets));
+              String.Format("Member MaximumNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a maximum of 255 but was given the value {0}.", MaximumNumberOfPartitions));
         }
       }
-      if (IsSetDefaultNumberOfBuckets())
+      if (IsSetDefaultNumberOfPartitions())
       {
-        if (DefaultNumberOfBuckets < 1)
+        if (DefaultNumberOfPartitions < 1)
         {
           throw new System.ArgumentException(
-              String.Format("Member DefaultNumberOfBuckets of structure BeaconVersion has type BucketCount which has a minimum of 1 but was given the value {0}.", DefaultNumberOfBuckets));
+              String.Format("Member DefaultNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a minimum of 1 but was given the value {0}.", DefaultNumberOfPartitions));
         }
-        if (DefaultNumberOfBuckets > 255)
+        if (DefaultNumberOfPartitions > 255)
         {
           throw new System.ArgumentException(
-              String.Format("Member DefaultNumberOfBuckets of structure BeaconVersion has type BucketCount which has a maximum of 255 but was given the value {0}.", DefaultNumberOfBuckets));
+              String.Format("Member DefaultNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a maximum of 255 but was given the value {0}.", DefaultNumberOfPartitions));
         }
       }
     }
