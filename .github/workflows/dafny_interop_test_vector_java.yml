@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         library: [TestVectors]
-        java-version: [8, 11, 17]
+        java-version: [8, 11, 17, 19]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
@@ -67,6 +67,12 @@ jobs:
           git checkout ${{inputs.mpl-commit}}
           git submodule update --init --recursive
           git rev-parse HEAD
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v5
+        with:
+          distribution: "corretto"
+          java-version: 8
 
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v5

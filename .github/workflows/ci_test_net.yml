@@ -42,9 +42,16 @@ jobs:
           submodules: recursive
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Setup .NET OpenSSL on Mac
+        if: matrix.os == 'macos-14' && matrix.language == 'net'
+        run: |
+          brew install openssl@3
+          echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
+          echo "DOTNET_CRYPTO_ENGINE_ADAPTER=System.Security.Cryptography.Algorithms.Managed" >> $GITHUB_ENV
 
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
@@ -106,11 +113,7 @@ jobs:
         run: |
           dotnet restore runtimes/net/tests
           dotnet build runtimes/net/tests
-          if [ "$RUNNER_OS" == "macOS" ]; then
-            make test_net_mac_intel
-          else
-            make test_net FRAMEWORK=net6.0
-          fi
+          make test_net FRAMEWORK=net6.0
 
       - name: Test Build and Pack ${{ matrix.library}}
         shell: bash
