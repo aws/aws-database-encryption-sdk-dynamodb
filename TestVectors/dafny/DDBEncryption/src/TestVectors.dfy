@@ -50,7 +50,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
   const PerfIterations : uint32 := 1000
 
-  class TestBucketSelector extends Types.IBucketSelector
+  class TestPartitionSelector extends Types.IPartitionSelector
   {
     ghost predicate ValidState()
       ensures ValidState() ==> History in Modifies
@@ -59,33 +59,33 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     constructor ()
       ensures ValidState() && fresh(History) && fresh(Modifies)
     {
-      History := new Types.IBucketSelectorCallHistory();
+      History := new Types.IPartitionSelectorCallHistory();
       Modifies := { History };
     }
 
-    ghost predicate GetBucketNumberEnsuresPublicly (
-      input: Types.GetBucketNumberInput ,
-      output: Result<Types.GetBucketNumberOutput, Types.Error> )
+    ghost predicate GetPartitionNumberEnsuresPublicly (
+      input: Types.GetPartitionNumberInput ,
+      output: Result<Types.GetPartitionNumberOutput, Types.Error> )
       : (outcome: bool)
     {
       true
     }
 
-    method GetBucketNumber'(input: Types.GetBucketNumberInput)
-      returns (output: Result<Types.GetBucketNumberOutput, Types.Error> )
+    method GetPartitionNumber'(input: Types.GetPartitionNumberInput)
+      returns (output: Result<Types.GetPartitionNumberOutput, Types.Error> )
       requires ValidState()
       modifies Modifies - {History}
       decreases Modifies - {History}
       ensures ValidState()
-      ensures GetBucketNumberEnsuresPublicly(input, output)
+      ensures GetPartitionNumberEnsuresPublicly(input, output)
       ensures unchanged(History)
     {
-      expect "PreferredBucket" in input.item;
-      expect input.item["PreferredBucket"].N?;
-      var bucket :- expect StrToInt(input.item["PreferredBucket"].N);
-      expect 0 <= bucket < INT32_MAX_LIMIT;
-      expect Types.IsValid_BucketNumber(bucket as int32);
-      return Success(Types.GetBucketNumberOutput(bucketNumber := bucket as Types.BucketNumber));
+      expect "PreferredPartition" in input.item;
+      expect input.item["PreferredPartition"].N?;
+      var partition :- expect StrToInt(input.item["PreferredPartition"].N);
+      expect 0 <= partition < INT32_MAX_LIMIT;
+      expect Types.IsValid_PartitionNumber(partition as int32);
+      return Success(Types.GetPartitionNumberOutput(partitionNumber := partition as Types.PartitionNumber));
     }
   }
 
@@ -153,7 +153,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
       Validate();
       StringOrdering();
-      BucketTests();
+      PartitionTests();
       LargeTests();
       PerfQueryTests();
       BasicIoTest();
@@ -168,7 +168,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       DeleteTable(client);
     }
 
-    function MakeBucketRecord(x : nat) : DDB.AttributeMap
+    function MakePartitionRecord(x : nat) : DDB.AttributeMap
     {
       var num := String.Base10Int2String(x);
       var num2 := String.Base10Int2String(x%5);
@@ -182,11 +182,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         AttrNames[4] := AttrValues[4],
         AttrNames[5] := AttrValues[5],
         AttrNames[6] := AttrValues[6],
-        "PreferredBucket" := DDB.AttributeValue.N(num2)
+        "PreferredPartition" := DDB.AttributeValue.N(num2)
       ]
     }
 
-    method DoBucketQuery(client : DDB.IDynamoDBClient, bucket : Types.BucketNumber, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.BucketCount)
+    method DoPartitionQuery(client : DDB.IDynamoDBClient, partition : Types.PartitionNumber, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.PartitionCount)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
@@ -200,9 +200,9 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         invariant client.ValidState()
         invariant client.Modifies !! {counts}
       {
-        var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket as int));
+        var partitionNumber := DDB.AttributeValue.N(String.Base10Int2String(partition as int));
         var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
-        values := values[":aws_dbe_bucket" := bucketNumber];
+        values := values[":aws_dbe_partition" := partitionNumber];
         var q := query.(ExclusiveStartKey := lastKey, ExpressionAttributeValues := Some(values));
         var result :- expect client.Query(q);
         if result.Items.Some? {
@@ -219,10 +219,10 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
             expect 0 <= pkNum < 100;
             counts[pkNum] := counts[pkNum] + 1;
             if custom {
-              expect "PreferredBucket" in item;
-              expect item["PreferredBucket"].N?;
-              var stored_bucket : int :- expect StrToInt(item["PreferredBucket"].N);
-              expect bucket as int == stored_bucket % numQueries as int;
+              expect "PreferredPartition" in item;
+              expect item["PreferredPartition"].N?;
+              var stored_partition : int :- expect StrToInt(item["PreferredPartition"].N);
+              expect partition as int == stored_partition % numQueries as int;
             }
           }
         }
@@ -233,12 +233,12 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         }
       }
       if numReturned == 0 {
-        print "Query ", queryName, " for bucket ", bucket, " returned no values", "\n";
+        print "Query ", queryName, " for partition ", partition, " returned no values", "\n";
         expect false;
       }
     }
 
-    method DoBucketScan(client : DDB.IDynamoDBClient, query : DDB.ScanInput, counts : array<int>, queryName : string)
+    method DoPartitionScan(client : DDB.IDynamoDBClient, query : DDB.ScanInput, counts : array<int>, queryName : string)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
@@ -275,7 +275,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     }
 
 
-    method TestBucketQueryFailure(client : DDB.IDynamoDBClient, bucket : Types.BucketCount, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.BucketCount)
+    method TestPartitionQueryFailure(client : DDB.IDynamoDBClient, partition : Types.PartitionCount, query : DDB.QueryInput, counts : array<int>, queryName : string, custom : bool, numQueries : Types.PartitionCount)
       requires counts.Length == 100
       requires client.ValidState()
       requires client.Modifies !! {counts}
@@ -284,15 +284,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies client.Modifies
       modifies counts
     {
-      var bucketNumber := DDB.AttributeValue.N(String.Base10Int2String(bucket as int));
+      var partitionNumber := DDB.AttributeValue.N(String.Base10Int2String(partition as int));
       var values : DDB.ExpressionAttributeValueMap := query.ExpressionAttributeValues.UnwrapOr(map[]);
-      values := values[":aws_dbe_bucket" := bucketNumber];
+      values := values[":aws_dbe_partition" := partitionNumber];
       var q := query.(ExpressionAttributeValues := Some(values));
       var result := client.Query(q);
       expect result.Failure?;
     }
 
-    method TestBucketQueries(client : DDB.IDynamoDBClient, numQueries : Types.BucketCount, q : DDB.QueryInput, trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, queryName : string, custom : bool := false)
+    method TestPartitionQueries(client : DDB.IDynamoDBClient, numQueries : Types.PartitionCount, q : DDB.QueryInput, trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, queryName : string, custom : bool := false)
       requires 0 < numQueries <= 5
       requires client.ValidState()
       requires trans.ValidState()
@@ -309,34 +309,34 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       expect res.numberOfQueries == numQueries;
 
       var counts: array<int> := new int[100](i => 0);
-      for i : Types.BucketNumber := 0 to numQueries
+      for i : Types.PartitionNumber := 0 to numQueries
         invariant client.ValidState()
         invariant trans.ValidState()
       {
-        DoBucketQuery(client, i, q, counts, queryName, custom, numQueries);
+        DoPartitionQuery(client, i, q, counts, queryName, custom, numQueries);
       }
 
-      for i : Types.BucketNumber := numQueries to 5
+      for i : Types.PartitionNumber := numQueries to 5
         invariant client.ValidState()
         invariant trans.ValidState()
       {
-        TestBucketQueryFailure(client, i, q, counts, queryName, custom, numQueries);
+        TestPartitionQueryFailure(client, i, q, counts, queryName, custom, numQueries);
       }
 
       var wasBad : bool := false;
       for i := 0 to 100 {
         if counts[i] == 0 {
-          print "Bucket Query ", queryName, " did not find record ", i, "\n";
+          print "Partition Query ", queryName, " did not find record ", i, "\n";
           wasBad := true;
         } else if counts[i] != 1 {
-          print "Bucket Query ", queryName, " returned record ", i, " ", counts[i], " times\n";
+          print "Partition Query ", queryName, " returned record ", i, " ", counts[i], " times\n";
           wasBad := true;
         }
       }
       expect !wasBad;
     }
 
-    method TestBucketScan(client : DDB.IDynamoDBClient, q : DDB.ScanInput)
+    method TestPartitionScan(client : DDB.IDynamoDBClient, q : DDB.ScanInput)
       requires client.ValidState()
       requires q.FilterExpression.Some?
       ensures client.ValidState()
@@ -344,15 +344,15 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
     {
       var queryName : string := q.FilterExpression.value;
       var counts: array<int> := new int[100](i => 0);
-      DoBucketScan(client, q, counts, queryName);
+      DoPartitionScan(client, q, counts, queryName);
 
       var wasBad : bool := false;
       for i := 0 to 100 {
         if counts[i] == 0 {
-          print "Bucket Scan ", queryName, " did not find record ", i, "\n";
+          print "Partition Scan ", queryName, " did not find record ", i, "\n";
           wasBad := true;
         } else if counts[i] != 1 {
-          print "Bucket Scab ", queryName, " returned record ", i, " ", counts[i], " times\n";
+          print "Partition Scab ", queryName, " returned record ", i, " ", counts[i], " times\n";
           wasBad := true;
         }
       }
@@ -395,7 +395,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         DDB.AttributeValue.S("GGGG")
       ]
 
-    function GetBucketScan1(attr : nat) : (out : DDB.ScanInput)
+    function GetPartitionScan1(attr : nat) : (out : DDB.ScanInput)
       requires 0 <= attr < 6
       ensures out.FilterExpression.Some?
     {
@@ -406,7 +406,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    function GetBucketScan2(attr1 : nat, attr2 : nat) : (out : DDB.ScanInput)
+    function GetPartitionScan2(attr1 : nat, attr2 : nat) : (out : DDB.ScanInput)
       requires 0 <= attr1 < 6
       requires 0 <= attr2 < 6
       ensures out.FilterExpression.Some?
@@ -424,7 +424,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    function GetBucketScan3(attr1 : nat, attr2 : nat, attr3 : nat) : (out : DDB.ScanInput)
+    function GetPartitionScan3(attr1 : nat, attr2 : nat, attr3 : nat) : (out : DDB.ScanInput)
       requires 0 <= attr1 < 6
       requires 0 <= attr2 < 6
       requires 0 <= attr3 < 6
@@ -445,7 +445,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    function GetBucketScan4(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat) : (out : DDB.ScanInput)
+    function GetPartitionScan4(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat) : (out : DDB.ScanInput)
       requires 0 <= attr1 < 6
       requires 0 <= attr2 < 6
       requires 0 <= attr3 < 6
@@ -469,7 +469,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    function GetBucketScan5(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat) : (out : DDB.ScanInput)
+    function GetPartitionScan5(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat) : (out : DDB.ScanInput)
       requires 0 <= attr1 < 6
       requires 0 <= attr2 < 6
       requires 0 <= attr3 < 6
@@ -496,7 +496,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    function GetBucketScan6(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat, attr6 : nat) : (out : DDB.ScanInput)
+    function GetPartitionScan6(attr1 : nat, attr2 : nat, attr3 : nat, attr4 : nat, attr5 : nat, attr6 : nat) : (out : DDB.ScanInput)
       requires 0 <= attr1 < 6
       requires 0 <= attr2 < 6
       requires 0 <= attr3 < 6
@@ -564,7 +564,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    function GetBucketQuery1() : DDB.QueryInput
+    function GetPartitionQuery1() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -574,7 +574,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA")])
       )
     }
-    function GetBucketQuery15() : DDB.QueryInput
+    function GetPartitionQuery15() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -584,7 +584,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
       )
     }
-    function GetBucketQuery15F() : DDB.QueryInput
+    function GetPartitionQuery15F() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -594,7 +594,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
       )
     }
-    function GetBucketQuery25F() : DDB.QueryInput
+    function GetPartitionQuery25F() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -604,7 +604,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB"), ":attr5" := DDB.AttributeValue.S("EEEE")])
       )
     }
-    function GetBucketQuery35F() : DDB.QueryInput
+    function GetPartitionQuery35F() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -614,7 +614,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr3" := DDB.AttributeValue.S("CCCC"), ":attr5" := DDB.AttributeValue.S("EEEE")])
       )
     }
-    function GetBucketQuery45F() : DDB.QueryInput
+    function GetPartitionQuery45F() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -624,7 +624,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr4" := DDB.AttributeValue.S("DDDD"), ":attr5" := DDB.AttributeValue.S("EEEE")])
       )
     }
-    function GetBucketQuery23() : DDB.QueryInput
+    function GetPartitionQuery23() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -634,7 +634,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB"), ":attr3" := DDB.AttributeValue.S("CCCC")])
       )
     }
-    function GetBucketQuery51() : DDB.QueryInput
+    function GetPartitionQuery51() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -644,7 +644,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
       )
     }
-    function GetBucketQuery2() : DDB.QueryInput
+    function GetPartitionQuery2() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -654,7 +654,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr2" := DDB.AttributeValue.S("BBBB")])
       )
     }
-    function GetBucketQuery3() : DDB.QueryInput
+    function GetPartitionQuery3() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -664,7 +664,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr3" := DDB.AttributeValue.S("CCCC")])
       )
     }
-    function GetBucketQuery4() : DDB.QueryInput
+    function GetPartitionQuery4() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -674,7 +674,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         ExpressionAttributeValues := Some(map[":attr4" := DDB.AttributeValue.S("DDDD")])
       )
     }
-    function GetBucketQuery5() : DDB.QueryInput
+    function GetPartitionQuery5() : DDB.QueryInput
     {
       DDB.QueryInput(
         TableName := TableName,
@@ -685,13 +685,13 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       )
     }
 
-    method BucketTests()
+    method PartitionTests()
     {
-      print "BucketTests\n";
-      BucketTest4();
-      BucketTest3();
-      BucketTest1();
-      BucketTest2();
+      print "PartitionTests\n";
+      PartitionTest4();
+      PartitionTest3();
+      PartitionTest1();
+      PartitionTest2();
     }
 
     method TestScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput, expected : string)
@@ -717,79 +717,79 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       return trans;
     }
 
-    method {:isolate_assertions} BucketTest3()
+    method {:isolate_assertions} PartitionTest3()
     {
-      expect "bucket_encrypt" in largeEncryptionConfigs;
-      var config := largeEncryptionConfigs["bucket_encrypt"];
+      expect "partition_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["partition_encrypt"];
       var trans := MakeTrans(config);
-      TestScanTrans(trans, GetBucketScan1(5), "Attr6 = :attr6");
-      TestScanTrans(trans, GetBucketScan1(1), "(aws_dbe_b_Attr2 = :attr2) OR (aws_dbe_b_Attr2 = :attr2AA)");
-      TestScanTrans(trans, GetBucketScan2(5, 1), "(Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2) OR (Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2AA)");
-      TestScanTrans(trans, GetBucketScan2(2, 3), "(aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
-      TestScanTrans(trans, GetBucketScan3(1, 2, 3), "(aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
+      TestScanTrans(trans, GetPartitionScan1(5), "Attr6 = :attr6");
+      TestScanTrans(trans, GetPartitionScan1(1), "(aws_dbe_b_Attr2 = :attr2) OR (aws_dbe_b_Attr2 = :attr2AA)");
+      TestScanTrans(trans, GetPartitionScan2(5, 1), "(Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2) OR (Attr6 = :attr6 AND aws_dbe_b_Attr2 = :attr2AA)");
+      TestScanTrans(trans, GetPartitionScan2(2, 3), "(aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
+      TestScanTrans(trans, GetPartitionScan3(1, 2, 3), "(aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB) OR (aws_dbe_b_Attr2 = :attr2AA AND aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4AC) OR (aws_dbe_b_Attr2 = :attr2 AND aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4)");
     }
 
     // Fill table with 100 records. Different RecNum, same data otherwise
-    // Make a variety of bucketed queries. Ensure that
+    // Make a variety of partitioned queries. Ensure that
     // 1) Every item is returned exactly once
-    // 2) Every bucket holds at least one item
-    method BucketTest1()
+    // 2) Every partition holds at least one item
+    method PartitionTest1()
     {
-      print "BucketTest1\n";
-      expect "bucket_encrypt" in largeEncryptionConfigs;
-      var config := largeEncryptionConfigs["bucket_encrypt"];
+      print "PartitionTest1\n";
+      expect "partition_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["partition_encrypt"];
       var wClient, rClient := SetupTestTable(config, config);
       var trans := MakeTrans(config);
 
       for i : nat := 0 to 100 {
         var putInput := DDB.PutItemInput(
           TableName := TableName,
-          Item := MakeBucketRecord(i)
+          Item := MakePartitionRecord(i)
         );
         var _ :-  expect wClient.PutItem(putInput);
       }
       var q1 := DDB.QueryInput(
         TableName := TableName
       );
-      TestBucketQueries(rClient, 5, GetBucketQuery5(), trans, "bucket query 5");
-      TestBucketQueries(rClient, 4, GetBucketQuery4(), trans, "bucket query 4");
-      TestBucketQueries(rClient, 3, GetBucketQuery3(), trans, "bucket query 3");
-      TestBucketQueries(rClient, 2, GetBucketQuery2(), trans, "bucket query 2");
-      TestBucketQueries(rClient, 1, GetBucketQuery1(), trans, "bucket query 1");
+      TestPartitionQueries(rClient, 5, GetPartitionQuery5(), trans, "partition query 5");
+      TestPartitionQueries(rClient, 4, GetPartitionQuery4(), trans, "partition query 4");
+      TestPartitionQueries(rClient, 3, GetPartitionQuery3(), trans, "partition query 3");
+      TestPartitionQueries(rClient, 2, GetPartitionQuery2(), trans, "partition query 2");
+      TestPartitionQueries(rClient, 1, GetPartitionQuery1(), trans, "partition query 1");
 
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), trans, "bucket query 15");
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51");
-      TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23");
+      TestPartitionQueries(rClient, 5, GetPartitionQuery15(), trans, "partition query 15");
+      TestPartitionQueries(rClient, 5, GetPartitionQuery51(), trans, "partition query 51");
+      TestPartitionQueries(rClient, 5, GetPartitionQuery23(), trans, "partition query 23");
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15F");
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25F");
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35F");
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45F");
+      TestPartitionQueries(rClient, 1, GetPartitionQuery15F(), trans, "partition query 15F");
+      TestPartitionQueries(rClient, 2, GetPartitionQuery25F(), trans, "partition query 25F");
+      TestPartitionQueries(rClient, 3, GetPartitionQuery35F(), trans, "partition query 35F");
+      TestPartitionQueries(rClient, 4, GetPartitionQuery45F(), trans, "partition query 45F");
 
       var scanCount4 := 0;
       var scanCount5 := 0;
-      TestBucketScan(rClient, GetBucketScan6(0,1,2,3,4,5));
-      TestBucketScan(rClient, GetBucketScan6(5,4,3,2,1,0));
+      TestPartitionScan(rClient, GetPartitionScan6(0,1,2,3,4,5));
+      TestPartitionScan(rClient, GetPartitionScan6(5,4,3,2,1,0));
       for i := 0 to 6 {
-        TestBucketScan(rClient, GetBucketScan1(i));
+        TestPartitionScan(rClient, GetPartitionScan1(i));
         for j := 0 to 6 {
           if i != j {
-            TestBucketScan(rClient, GetBucketScan2(i, j));
+            TestPartitionScan(rClient, GetPartitionScan2(i, j));
             for k := 0 to 6 {
               if i != k && j != k {
-                TestBucketScan(rClient, GetBucketScan3(i, j, k));
+                TestPartitionScan(rClient, GetPartitionScan3(i, j, k));
               }
               for l := 0 to 6 {
                 if i != l && j != l && k != l {
                   scanCount4 := scanCount4 + 1;
                   if scanCount4 % 10 == 0 {
-                    TestBucketScan(rClient, GetBucketScan4(i, j, k, l));
+                    TestPartitionScan(rClient, GetPartitionScan4(i, j, k, l));
                   }
                   for m := 0 to 6 {
                     if i != m && j != m && k != m && l != m {
                       scanCount5 := scanCount5 + 1;
                       if scanCount5 % 100 == 0 {
-                        TestBucketScan(rClient, GetBucketScan5(i, j, k, l, m));
+                        TestPartitionScan(rClient, GetPartitionScan5(i, j, k, l, m));
                       }
                     }
                   }
@@ -801,37 +801,37 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       }
     }
 
-    // Similar to BucketTest1, but with complex config
-    method BucketTest4()
+    // Similar to PartitionTest1, but with complex config
+    method PartitionTest4()
     {
-      print "BucketTest4\n";
-      expect "complex_bucket_encrypt" in largeEncryptionConfigs;
-      var config := largeEncryptionConfigs["complex_bucket_encrypt"];
+      print "PartitionTest4\n";
+      expect "complex_partition_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["complex_partition_encrypt"];
       var wClient, rClient := SetupTestTable(config, config);
       var trans := MakeTrans(config);
 
       for i : nat := 0 to 100 {
         var putInput := DDB.PutItemInput(
           TableName := TableName,
-          Item := MakeBucketRecord(i)
+          Item := MakePartitionRecord(i)
         );
         var _ :-  expect wClient.PutItem(putInput);
       }
-      TestBucketQueries(rClient, 2, GetCompQuery2671(), trans, "comp query 2671");
-      TestBucketScan(rClient, GetCompScan2671());
-      TestBucketQueries(rClient, 4, GetCompQuery1472(), trans, "comp query 1472");
-      TestBucketScan(rClient, GetCompScan1472());
+      TestPartitionQueries(rClient, 2, GetCompQuery2671(), trans, "comp query 2671");
+      TestPartitionScan(rClient, GetCompScan2671());
+      TestPartitionQueries(rClient, 4, GetCompQuery1472(), trans, "comp query 1472");
+      TestPartitionScan(rClient, GetCompScan1472());
     }
 
-    // As BucketTest1, but with custom bucket selector
-    method BucketTest2()
+    // As PartitionTest1, but with custom partition selector
+    method PartitionTest2()
     {
-      print "BucketTest2\n";
-      expect "bucket_encrypt" in largeEncryptionConfigs;
-      var config := largeEncryptionConfigs["bucket_encrypt"];
-      var testSelector := new TestBucketSelector();
+      print "PartitionTest2\n";
+      expect "partition_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["partition_encrypt"];
+      var testSelector := new TestPartitionSelector();
       expect config.config.search.Some?;
-      var version := config.config.search.value.versions[0].(bucketSelector := Some(testSelector));
+      var version := config.config.search.value.versions[0].(partitionSelector := Some(testSelector));
       var nSearch := config.config.search.value.(versions := [version]);
       var nConfig := config.config.(search := Some(nSearch));
       config := config.(config := nConfig);
@@ -841,29 +841,29 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       for i : nat := 0 to 100 {
         var putInput := DDB.PutItemInput(
           TableName := TableName,
-          Item := MakeBucketRecord(i)
+          Item := MakePartitionRecord(i)
         );
         var _ :-  expect wClient.PutItem(putInput);
       }
       var q1 := DDB.QueryInput(
         TableName := TableName
       );
-      TestBucketQueries(rClient, 5, GetBucketQuery5(), trans, "bucket query 5a", true);
-      TestBucketQueries(rClient, 4, GetBucketQuery4(), trans, "bucket query 4a", true);
-      TestBucketQueries(rClient, 3, GetBucketQuery3(), trans, "bucket query 3a", true);
-      TestBucketQueries(rClient, 2, GetBucketQuery2(), trans, "bucket query 2a", true);
-      TestBucketQueries(rClient, 1, GetBucketQuery1(), trans, "bucket query 1a", true);
+      TestPartitionQueries(rClient, 5, GetPartitionQuery5(), trans, "partition query 5a", true);
+      TestPartitionQueries(rClient, 4, GetPartitionQuery4(), trans, "partition query 4a", true);
+      TestPartitionQueries(rClient, 3, GetPartitionQuery3(), trans, "partition query 3a", true);
+      TestPartitionQueries(rClient, 2, GetPartitionQuery2(), trans, "partition query 2a", true);
+      TestPartitionQueries(rClient, 1, GetPartitionQuery1(), trans, "partition query 1a", true);
 
-      TestBucketQueries(rClient, 5, GetBucketQuery15(), trans, "bucket query 15a", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery51(), trans, "bucket query 51a", true);
-      TestBucketQueries(rClient, 5, GetBucketQuery23(), trans, "bucket query 23a", true);
+      TestPartitionQueries(rClient, 5, GetPartitionQuery15(), trans, "partition query 15a", true);
+      TestPartitionQueries(rClient, 5, GetPartitionQuery51(), trans, "partition query 51a", true);
+      TestPartitionQueries(rClient, 5, GetPartitionQuery23(), trans, "partition query 23a", true);
 
-      TestBucketQueries(rClient, 1, GetBucketQuery15F(), trans, "bucket query 15Fa", true);
-      TestBucketQueries(rClient, 2, GetBucketQuery25F(), trans, "bucket query 25Fa", true);
-      TestBucketQueries(rClient, 3, GetBucketQuery35F(), trans, "bucket query 35Fa", true);
-      TestBucketQueries(rClient, 4, GetBucketQuery45F(), trans, "bucket query 45Fa", true);
+      TestPartitionQueries(rClient, 1, GetPartitionQuery15F(), trans, "partition query 15Fa", true);
+      TestPartitionQueries(rClient, 2, GetPartitionQuery25F(), trans, "partition query 25Fa", true);
+      TestPartitionQueries(rClient, 3, GetPartitionQuery35F(), trans, "partition query 35Fa", true);
+      TestPartitionQueries(rClient, 4, GetPartitionQuery45F(), trans, "partition query 45Fa", true);
 
-      // we don't test scan here, because scan doesn't use ":aws_dbe_bucket"
+      // we don't test scan here, because scan doesn't use ":aws_dbe_partition"
     }
 
     function NewOrderRecord(i : nat, str : string) : Record
