@@ -45,7 +45,7 @@ module DdbMiddlewareConfig {
     }
 
     var outR := config.search.value.curr().partitionSelector.GetPartitionNumber(DDBE.GetPartitionNumberInput(
-                                                                            item := item, numberOfPartitions := numPartitions, logicalTableName := config.logicalTableName));
+                                                                                  item := item, numberOfPartitions := numPartitions, logicalTableName := config.logicalTableName));
     var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
     if out.partitionNumber == 0 {
       return Success(0);

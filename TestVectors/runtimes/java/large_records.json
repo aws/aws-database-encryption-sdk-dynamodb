@@ -15,7 +15,7 @@
     ["ATTR_INDEX51", "aws_dbe_b_Attr5", "aws_dbe_b_Attr1"]
   ],
   "largeEncryptionConfigs": {
-    "bucket_encrypt": {
+    "partition_encrypt": {
       "partitionKeyName": "RecNum",
       "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
@@ -27,32 +27,32 @@
         "Attr6": "SIGN_ONLY",
         "Attr7": "SIGN_ONLY",
         "Attr8": "SIGN_ONLY",
-        "PreferredBucket": "SIGN_ONLY"
+        "PreferredPartition": "SIGN_ONLY"
       },
       "search": {
         "versions": [
           {
-            "maximumNumberOfBuckets": 5,
+            "maximumNumberOfPartitions": 5,
             "standardBeacons": [
               {
                 "Name": "Attr1",
                 "Length": 32,
-                "numberOfBuckets": 1
+                "numberOfPartitions": 1
               },
               {
                 "Name": "Attr2",
                 "Length": 32,
-                "numberOfBuckets": 2
+                "numberOfPartitions": 2
               },
               {
                 "Name": "Attr3",
                 "Length": 32,
-                "numberOfBuckets": 3
+                "numberOfPartitions": 3
               },
               {
                 "Name": "Attr4",
                 "Length": 32,
-                "numberOfBuckets": 4
+                "numberOfPartitions": 4
               },
               {
                 "Name": "Attr5",
@@ -63,7 +63,7 @@
         ]
       }
     },
-    "complex_bucket_encrypt": {
+    "complex_partition_encrypt": {
       "partitionKeyName": "RecNum",
       "attributeActionsOnEncrypt": {
         "RecNum": "SIGN_ONLY",
@@ -75,12 +75,12 @@
         "Attr6": "SIGN_ONLY",
         "Attr7": "SIGN_ONLY",
         "Attr8": "SIGN_ONLY",
-        "PreferredBucket": "SIGN_ONLY"
+        "PreferredPartition": "SIGN_ONLY"
       },
       "search": {
         "versions": [
           {
-            "maximumNumberOfBuckets": 5,
+            "maximumNumberOfPartitions": 5,
             "compoundBeacons": [
               {
                 "Name": "Comp2671",
@@ -167,22 +167,22 @@
               {
                 "Name": "Attr1",
                 "Length": 32,
-                "numberOfBuckets": 1
+                "numberOfPartitions": 1
               },
               {
                 "Name": "Attr2",
                 "Length": 32,
-                "numberOfBuckets": 2
+                "numberOfPartitions": 2
               },
               {
                 "Name": "Attr3",
                 "Length": 32,
-                "numberOfBuckets": 3
+                "numberOfPartitions": 3
               },
               {
                 "Name": "Attr4",
                 "Length": 32,
-                "numberOfBuckets": 4
+                "numberOfPartitions": 4
               },
               {
                 "Name": "Attr5",
