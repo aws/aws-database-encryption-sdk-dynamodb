@@ -78,9 +78,9 @@ and [Encrypt Item Output](./encrypt-item.md#output).
 To obtain [Beacon Key Materials] GetEncryptedBeacons
 MUST call [Get beacon key after encrypt](../searchable-encryption/search-config.md#get-beacon-key-after-encrypt).
 
-A [bucket number](search-config.md#bucketnumber) MUST be generated
-by calling the [bucket selector](search-config.md#bucket-selector).
-This [bucket number](search-config.md#bucketnumber) is to be used for all [standard beacons](./searchable-encryption/beacons.md#standard-beacon) in the item.
+A [partition number](search-config.md#partitionnumber) MUST be generated
+by calling the [partition selector](search-config.md#partition-selector).
+This [partition number](search-config.md#partitionnumber) is to be used for all [standard beacons](./searchable-encryption/beacons.md#standard-beacon) in the item.
 
 GetEncryptedBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
 that only have [signed parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
@@ -158,16 +158,16 @@ from [Get beacon key for query](../searchable-encryption/search-config.md#get-be
 If the [QueryObject does not have encrypted values](#queryobject-has-encrypted-values)
 then QueryInputForBeacons MUST NOT attempt to obtain [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials).
 
-When querying, a [bucket number](search-config.md#bucketnumber) MUST be determined by examining
-the `:aws_dbe_bucket` value in the `ExpressionAttributeValues`.
+When querying, a [partition number](search-config.md#partitionnumber) MUST be determined by examining
+the `:aws_dbe_partition` value in the `ExpressionAttributeValues`.
 
-If this value is absent, a bucket number of `0` MUST be used.
+If this value is absent, a partition number of `0` MUST be used.
 
 If this value is not of type `N` or fails to hold an integer value
-greater than or equal to zero and less than the [max buckets](search-config.md#max-buckets),
+greater than or equal to zero and less than the [max partitions](search-config.md#max-partitions),
 an error MUST be returned.
 
-If this value is valid, then this value is used and the `:aws_dbe_bucket` field MUST
+If this value is valid, then this value is used and the `:aws_dbe_partition` field MUST
 be removed from the `ExpressionAttributeValues`.
 
 For any operand in the KeyConditionExpression or FilterExpression which is a beacon name,
@@ -190,7 +190,7 @@ MUST be obtained from the [Beacon Key Materials](../searchable-encryption/search
 [HMAC Keys map](../searchable-encryption/search-config.md#hmac-keys) using the beacon name
 as the key.
 
-If [Bucket Beacons](../changes/2025-08-25-bucket-beacons/background.md) are being used,
+If [Partition Beacons](../changes/2025-08-25-partition-beacons/background.md) are being used,
 then the [FilterExpression](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.FilterExpression.html) must be augmented as described in [Filter Expressions for Query](#filter-expressions-for-query).
 
 For example if the query is
@@ -214,23 +214,23 @@ this beacon came from that text.
 ### Filter Expressions for Query
 
 if [GetNumberOfQueries](./ddb-get-number-of-queries.md) returns a number less than the configured
-[maximum number of buckets](../searchable-encryption/search-config.md#max-buckets)
-then the FilterExpression MUST be augmented to match against buckets greater than
+[maximum number of partitions](../searchable-encryption/search-config.md#max-partitions)
+then the FilterExpression MUST be augmented to match against partitions greater than
 the limit returned from GetNumberOfQueries.
 
-For each bucket number that would map to the current bucket,
-calculate the Filter Expression as for that bucket.
+For each partition number that would map to the current partition,
+calculate the Filter Expression as for that partition.
 The FilterExpression sent to DynamoDB MUST be the `OR` combination of all of these expressions.
 
-The text of the FilterExpression is unlikely to change between buckets.
+The text of the FilterExpression is unlikely to change between partitions.
 What will change is the values in the ExpressionAttributeValues,
-which will be different if they involve standard beacons calculated with different buckets.
+which will be different if they involve standard beacons calculated with different partitions.
 This implies that additional unique values will need to be added to ExpressionAttributeValues.
 
-As an example, if a table is configured with five buckets,
-and GetNumberOfQueries returns two, and `foo[n]` represents the expression as calculated for bucket `n`,
-then when `:aws_dbe_bucket = 0` the filter expression must be `(foo[0]) OR (foo[2]) OR (foo[4])`
-ands when `:aws_dbe_bucket = 1` the filter expression must be `(foo[1]) OR (foo[3])`.
+As an example, if a table is configured with five partitions,
+and GetNumberOfQueries returns two, and `foo[n]` represents the expression as calculated for partition `n`,
+then when `:aws_dbe_partition = 0` the filter expression must be `(foo[0]) OR (foo[2]) OR (foo[4])`
+ands when `:aws_dbe_partition = 1` the filter expression must be `(foo[1]) OR (foo[3])`.
 
 The resulting FilterExpression might look something like this:
 

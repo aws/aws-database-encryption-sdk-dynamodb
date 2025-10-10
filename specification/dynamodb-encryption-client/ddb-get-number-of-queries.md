@@ -5,14 +5,14 @@
 
 ## Overview
 
-When using [Bucket Beacons](../changes/2025-08-25-bucket-beacons/background.md),
+When using [Partition Beacons](../changes/2025-08-25-partition-beacons/background.md),
 more than one [query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html)
 can be necessary to retrieve all of the desired results,
 leading to code something like this:
 
 ```text
     for i = 0 to transformClient.GetNumberOfQueries(query)
-       query.ExpressionAttributeValues.Add(":aws_dbe_bucket", N(i.to_string())
+       query.ExpressionAttributeValues.Add(":aws_dbe_partition", N(i.to_string())
        dynamoClient.query(query)
 ```
 
@@ -30,10 +30,10 @@ Based on the [standard beacons](../searchable-encryption/beacons.md#standard-bea
 used in the [KeyConditionExpression](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html) of the query, calculate the required number of queries.
 
 This value is the minimum of the calculated value,
-and the [maximum number of buckets](../searchable-encryption/search-config.md#max-buckets)
+and the [maximum number of partitions](../searchable-encryption/search-config.md#max-partitions)
 configured for the table.
 
-The calculated value is the least common multiple of the number of buckets for each of the beacons involved.
+The calculated value is the least common multiple of the number of partitions for each of the beacons involved.
 
 This is not needed for a [scan](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Scan.html)
-operation. Only one Scan is needed, regardless of bucket settings.
+operation. Only one Scan is needed, regardless of partition settings.
