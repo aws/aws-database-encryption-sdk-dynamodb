@@ -369,12 +369,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       modifies client.Modifies
     {
       DeleteTable(client);
-      // var _ :-  expect client.CreateTable(schemaOnEncrypt);
-      var xxx :=  client.CreateTable(schemaOnEncrypt);
-      if xxx.Failure? {
-        print "***\n", xxx, "\n***\n";
-        expect false;
-      }
+      var _ :-  expect client.CreateTable(schemaOnEncrypt);
       for i := 0 to |records| {
         var input := DDB.PutItemInput(
           TableName := TableName,
