@@ -62,13 +62,6 @@ jobs:
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
 
-      - name: Wait for DynamoDB Local
-        run: |
-          echo "Waiting for DynamoDB Local to start..."
-          until curl -s http://localhost:8000; do
-            sleep 1
-          done
-
       - name: Setup Rust Toolchain for GitHub CI
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
