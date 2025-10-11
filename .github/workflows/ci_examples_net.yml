@@ -46,7 +46,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup .NET OpenSSL on Mac
-        if: matrix.os == 'macos-14' && matrix.language == 'net'
+        if: matrix.os == 'macos-14'
         run: |
           brew install openssl@3
           echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
