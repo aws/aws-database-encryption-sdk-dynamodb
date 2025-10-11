@@ -28,7 +28,7 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
-            macos-14,
+            macos-15-intel,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -42,27 +42,16 @@ jobs:
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-DotNet-Tests
 
-      - name: Install Java
-        uses: actions/setup-java@v5
+      - name: Setup Docker
+        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.1
+
+      - name: Setup DynamoDB Local
+        if: matrix.library == 'TestVectors'
+        uses: rrainn/dynamodb-action@v4.0.0
         with:
-          distribution: "corretto"
-          java-version: "11" # DynamoDB Local requires Java
-
-      - name: Download DynamoDB Local
-        run: |
-          wget https://dynamodb-local.s3.amazonaws.com/dynamodb_local_latest.tar.gz
-          tar -xf dynamodb_local_latest.tar.gz
-
-      - name: Start DynamoDB Local
-        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb &
-        # The & runs the Java process in the background.
-
-      - name: Wait for DynamoDB Local
-        run: |
-          echo "Waiting for DynamoDB Local to start..."
-          until curl -s http://localhost:8000; do
-            sleep 1
-          done
+          port: 8000
+          cors: "*"
 
       - uses: actions/checkout@v3
         with:

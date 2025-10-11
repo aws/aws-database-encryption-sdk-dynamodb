@@ -48,7 +48,7 @@ jobs:
           submodules: recursive
 
       - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
