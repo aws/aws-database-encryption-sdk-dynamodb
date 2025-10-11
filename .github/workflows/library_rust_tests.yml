@@ -49,13 +49,6 @@ jobs:
         run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb &
         # The & runs the Java process in the background.
 
-      - name: Wait for DynamoDB Local
-        run: |
-          echo "Waiting for DynamoDB Local to start..."
-          until curl -s http://localhost:8000; do
-            sleep 1
-          done
-
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
@@ -72,6 +65,13 @@ jobs:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Rust-Tests
+
+      - name: Wait for DynamoDB Local
+        run: |
+          echo "Waiting for DynamoDB Local to start..."
+          until curl -s http://localhost:8000; do
+            sleep 1
+          done
 
       - name: Setup Rust Toolchain for GitHub CI
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -127,20 +127,12 @@ jobs:
           cp runtimes/java/*.json runtimes/rust/
 
       - name: Test ${{ matrix.library }} Rust
-	env:
-          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
-          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
-          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
           make test_rust
 
       - name: Test ${{ matrix.library }} Rust Fips
-	env:
-          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
-          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
-          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         shell: bash
         working-directory: ./${{ matrix.library }}/runtimes/rust/
         run: |
@@ -148,10 +140,6 @@ jobs:
 
       - name: Test ${{ matrix.library }} Rust Debug
         if: ${{ matrix.library != 'TestVectors' }}
-	env:
-          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
-          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
-          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
@@ -159,10 +147,6 @@ jobs:
 
       - name: Test Examples for Rust in ${{ matrix.library }}
         if: ${{ matrix.library == 'DynamoDbEncryption' }}
-	env:
-          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
-          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
-          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         working-directory: ./${{ matrix.library }}/runtimes/rust/
         shell: bash
         run: |
