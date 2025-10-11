@@ -119,7 +119,7 @@ jobs:
         working-directory: ./TestVectors
         run: |
           # Spin up ddb local
-          docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
+          docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -noAuth -inMemory -cors *
           # Run transpile by itself so we don't locally build the MPL.
           make transpile_implementation_java
           make transpile_test_java

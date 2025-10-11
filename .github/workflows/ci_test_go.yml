@@ -48,7 +48,7 @@ jobs:
           tar -xf dynamodb_local_latest.tar.gz
 
       - name: Start DynamoDB Local
-        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb &
+        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb -noAuth &
         # The & runs the Java process in the background.
 
       - name: Wait for DynamoDB Local

@@ -60,7 +60,7 @@ jobs:
       - name: Start DynamoDB Local
         run: |
           java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar \
-            -inMemory -sharedDb -port 8000 > dynamodb-local.log 2>&1 &
+            -inMemory -sharedDb -port 8000 -noAuth > dynamodb-local.log 2>&1 &
           echo $! > dynamodb-local.pid
 
       - name: Wait for DynamoDB Local
