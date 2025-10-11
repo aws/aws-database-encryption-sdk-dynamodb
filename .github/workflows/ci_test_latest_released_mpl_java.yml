@@ -47,14 +47,8 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Java 8
-        uses: actions/setup-java@v5
-        with:
-          distribution: "corretto"
-          java-version: 8
-
       - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
@@ -119,7 +113,7 @@ jobs:
         working-directory: ./TestVectors
         run: |
           # Spin up ddb local
-          docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -noAuth -inMemory -cors *
+          docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -port 8000 -inMemory -cors *
           # Run transpile by itself so we don't locally build the MPL.
           make transpile_implementation_java
           make transpile_test_java

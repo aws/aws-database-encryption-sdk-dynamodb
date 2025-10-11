@@ -34,6 +34,13 @@ jobs:
     env:
       RUST_MIN_STACK: 838860800
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Rust-Tests
+
       - name: Install Java
         uses: actions/setup-java@v5
         with:
@@ -46,7 +53,7 @@ jobs:
           tar -xf dynamodb_local_latest.tar.gz
 
       - name: Start DynamoDB Local
-        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb -noAuth &
+        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb &
         # The & runs the Java process in the background.
 
       - name: Support longpaths on Git checkout
@@ -58,13 +65,6 @@ jobs:
         run: |
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
-          role-session-name: DDBEC-Dafny-Rust-Tests
 
       - name: Wait for DynamoDB Local
         run: |

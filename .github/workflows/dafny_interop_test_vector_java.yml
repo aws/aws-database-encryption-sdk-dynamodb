@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         library: [TestVectors]
-        java-version: [8, 11, 17, 19]
+        java-version: [8, 11, 16, 17]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
@@ -37,48 +37,18 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v4.0.0
+        with:
+          port: 8000
+          cors: "*"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Java-Tests
-
-      - name: Install Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: "corretto"
-          java-version: "11" # DynamoDB Local requires Java
-
-      - name: Download DynamoDB Local
-        run: |
-          wget https://dynamodb-local.s3.amazonaws.com/dynamodb_local_latest.tar.gz
-          tar -xf dynamodb_local_latest.tar.gz
-
-      - name: Start DynamoDB Local
-        run: |
-          java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar \
-            -inMemory -sharedDb -port 8000 > dynamodb-local.log 2>&1 &
-          echo $! > dynamodb-local.pid
-
-      - name: Wait for DynamoDB Local
-        run: |
-          echo "Waiting for DynamoDB Local to start..."
-          for i in {1..30}; do
-            if curl -s -f http://localhost:8000 > /dev/null 2>&1; then
-              echo "DynamoDB Local is ready"
-              break
-            fi
-            echo "Attempt $i: DynamoDB Local not ready yet..."
-            sleep 2
-          done
-          # Verify it's actually working with dummy credentials
-          curl -X POST http://localhost:8000 \
-            -H "Content-Type: application/x-amz-json-1.0" \
-            -H "X-Amz-Target: DynamoDB_20120810.ListTables" \
-            -H "Authorization: AWS4-HMAC-SHA256 Credential=dummy/20230101/us-east-1/dynamodb/aws4_request, SignedHeaders=host;x-amz-date, Signature=dummy" \
-            -H "X-Amz-Date: 20230101T000000Z" \
-            -d '{}' || (cat dynamodb-local.log && exit 1)
 
       - uses: actions/checkout@v3
         with:
@@ -98,14 +68,8 @@ jobs:
           git submodule update --init --recursive
           git rev-parse HEAD
 
-      - name: Setup Java 8
-        uses: actions/setup-java@v5
-        with:
-          distribution: "corretto"
-          java-version: 8
-
       - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
