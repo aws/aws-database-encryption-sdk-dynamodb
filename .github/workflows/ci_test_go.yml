@@ -36,16 +36,27 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Setup Docker
-        if: matrix.os == 'macos-14' && matrix.library == 'TestVectors'
-        uses: douglascamata/setup-docker-macos-action@v1-alpha
-
-      - name: Setup DynamoDB Local
-        if: matrix.library == 'TestVectors'
-        uses: rrainn/dynamodb-action@v4.0.0
+      - name: Install Java
+        uses: actions/setup-java@v5
         with:
-          port: 8000
-          cors: "*"
+          distribution: "corretto"
+          java-version: "11" # DynamoDB Local requires Java
+
+      - name: Download DynamoDB Local
+        run: |
+          wget https://dynamodb-local.s3.amazonaws.com/dynamodb_local_latest.tar.gz
+          tar -xf dynamodb_local_latest.tar.gz
+
+      - name: Start DynamoDB Local
+        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb &
+        # The & runs the Java process in the background.
+
+      - name: Wait for DynamoDB Local
+        run: |
+          echo "Waiting for DynamoDB Local to start..."
+          until curl -s http://localhost:8000; do
+            sleep 1
+          done
 
       - name: Support longpaths
         run: |

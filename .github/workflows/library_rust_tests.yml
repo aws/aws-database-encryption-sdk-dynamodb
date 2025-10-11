@@ -37,8 +37,8 @@ jobs:
       - name: Install Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'corretto'
-          java-version: '11' # DynamoDB Local requires Java
+          distribution: "corretto"
+          java-version: "11" # DynamoDB Local requires Java
 
       - name: Download DynamoDB Local
         run: |
@@ -46,7 +46,7 @@ jobs:
           tar -xf dynamodb_local_latest.tar.gz
 
       - name: Start DynamoDB Local
-        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb &
+        run: java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -sharedDb &
         # The & runs the Java process in the background.
 
       - name: Wait for DynamoDB Local
@@ -127,12 +127,20 @@ jobs:
           cp runtimes/java/*.json runtimes/rust/
 
       - name: Test ${{ matrix.library }} Rust
+	env:
+          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
+          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
+          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
           make test_rust
 
       - name: Test ${{ matrix.library }} Rust Fips
+	env:
+          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
+          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
+          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         shell: bash
         working-directory: ./${{ matrix.library }}/runtimes/rust/
         run: |
@@ -140,6 +148,10 @@ jobs:
 
       - name: Test ${{ matrix.library }} Rust Debug
         if: ${{ matrix.library != 'TestVectors' }}
+	env:
+          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
+          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
+          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
@@ -147,6 +159,10 @@ jobs:
 
       - name: Test Examples for Rust in ${{ matrix.library }}
         if: ${{ matrix.library == 'DynamoDbEncryption' }}
+	env:
+          AWS_ACCESS_KEY_ID: 'DUMMY_KEY_ID'
+          AWS_SECRET_ACCESS_KEY: 'DUMMY_SECRET_KEY'
+          AWS_ENDPOINT_URL_DYNAMODB: 'http://localhost:8000' # This is key for the Rust SDK
         working-directory: ./${{ matrix.library }}/runtimes/rust/
         shell: bash
         run: |
