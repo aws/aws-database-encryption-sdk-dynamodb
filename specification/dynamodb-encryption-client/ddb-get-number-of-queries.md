@@ -5,7 +5,7 @@
 
 ## Overview
 
-When using [Partition Beacons](../changes/2025-08-25-partition-beacons/background.md),
+When using [Beacon Partitions](../changes/2025-08-25-partition-beacons/background.md),
 more than one [query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html)
 can be necessary to retrieve all of the desired results,
 leading to code something like this:

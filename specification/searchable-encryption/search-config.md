@@ -6,7 +6,7 @@
 ## Version
 
 - 1.2.0
-  - Add partition beacons
+  - Add beacon partitions
 - 1.1.0
   - [Update Cache Entry Identifier Formulas to shared cache across multiple Beacon Key Sources](../../changes/2024-09-13_cache-across-hierarchical-keyrings/change.md)
   - New optional parameter `Partition ID` used to distinguish Cryptographic Material Providers (i.e: Beacon Key Sources) writing to a cache
@@ -530,10 +530,10 @@ Now, two [beacon versions](#beacon-version-initialization) (BV1 and BV2) are cre
 
 Notice that both K1 and K2 are clients for the same physical Key Store (K).
 
-## Partition Beacons
+## Beacon Partitions
 
-`Partition Beacons` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
-to add anonymity when your data distribution is uneven. See [partition beacon background](../changes/2025-08-25-partition-beacons/background.md).
+`Beacon Partitions` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
+to add anonymity when your data distribution is uneven. See [beacon partition background](../changes/2025-08-25-partition-beacons/background.md).
 
 ### PartitionCount
 

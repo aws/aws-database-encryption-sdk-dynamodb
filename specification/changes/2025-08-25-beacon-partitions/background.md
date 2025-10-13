@@ -1,9 +1,9 @@
 [//]: # "Copyright Amazon.com Inc. or its affiliates. All Rights Reserved."
 [//]: # "SPDX-License-Identifier: CC-BY-SA-4.0"
 
-# Partition Beacons
+# Beacon Partitions
 
-`Partition Beacons` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
+`Beacon Partitions` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
 to add anonymity when your data distribution is uneven
 
 Probably read [changes](./change.md) first, as it gives a brief overview of the interface.
@@ -23,7 +23,7 @@ In this case, some hashes will have many many occurrences, and some will have on
 
 An external observer can look at census data and make an educated guess that the hashes with many occurrences are probably "Jones" or "Smith". Pretty soon, you've leaked real information.
 
-## Introducing Partition Beacons
+## Introducing Beacon Partitions
 
 One strategy to combat this is to further divide each item's beacons into separate `partitions`,
 so that the same value in different records might produce different hashes.
@@ -60,12 +60,12 @@ with four of the queries returning nothing.
 
 ### Performance Advantages
 
-On the other hand, partition beacons can provide performance enhancements as well.
+On the other hand, beacon partitions can provide performance enhancements as well.
 
 Sometimes a common value can share the same hash as a rare one.
 In this case, a search for the rare one pays the penalty of retrieving and discarding all the
 matches for the common one.
-Partition beacon reduces the maximum number occurrences of a single hash, reducing this penalty.
+Beacon partitions reduce the maximum number occurrences of a single hash, reducing this penalty.
 
 Increasing the number of partitions can allow you to increase the length of a standard beacon,
 further decreasing the number of results that must be retrieved and discarded.

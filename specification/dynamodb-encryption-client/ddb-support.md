@@ -190,7 +190,7 @@ MUST be obtained from the [Beacon Key Materials](../searchable-encryption/search
 [HMAC Keys map](../searchable-encryption/search-config.md#hmac-keys) using the beacon name
 as the key.
 
-If [Partition Beacons](../changes/2025-08-25-partition-beacons/background.md) are being used,
+If [Beacon Partitions](../changes/2025-08-25-partition-beacons/background.md) are being used,
 then the [FilterExpression](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.FilterExpression.html) must be augmented as described in [Filter Expressions for Query](#filter-expressions-for-query).
 
 For example if the query is

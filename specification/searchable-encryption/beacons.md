@@ -10,7 +10,7 @@
 ### Changelog
 
 - 1.1.0
-  - add partition beacons
+  - add beacon partitions
 
 ## Conventions used in this document
 
@@ -491,15 +491,15 @@ Both standard and compound beacons define two operations
 
 - This operation MUST convert the attribute value of the associated field to
   a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
-- The serialized form MUST be augmented as per [partition beacon encoding](#partition-beacon-encoding).
+- The serialized form MUST be augmented as per [beacon partition encoding](#partition-beacon-encoding).
 - This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
 - The returned
   [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)
   MUST be type "S" String.
 
-#### Partition Beacon Encoding
+#### Beacon Partition Encoding
 
-Partition Beacon Encoding converts a sequence of bytes into a possibly different sequence of bytes.
+Beacon Partition Encoding converts a sequence of bytes into a possibly different sequence of bytes.
 
 To calculate the [partition number](search-config.md#partitionnumber) for this beacon by calculating `X % N`
 where `X` is the partition specified and `N` is the [number of partitions](#beacon-constraint) specified for the beacon.
