@@ -96,11 +96,11 @@ module DynamoDbEncryptionUtil {
 
   function method PartitionNumberToBytes(x : PartitionNumber) : PartitionBytes
   {
-    //= specification/searchable-encryption/beacons.md#partition-beacon-encoding
+    //= specification/searchable-encryption/beacons.md#beacon-partition-encoding
     //# If this number is zero, then the input sequence of bytes MUST be returned unchanged.
     if x == 0 then
       []
-    //= specification/searchable-encryption/beacons.md#partition-beacon-encoding
+    //= specification/searchable-encryption/beacons.md#beacon-partition-encoding
     //# Otherwise, a single byte with a value equal to this calculated partition number, MUST be appended to the input sequence of bytes.
     else
       [x as uint8]

@@ -413,7 +413,7 @@ These parts may come from these locally defined parts lists, or from the
 A beacon may be constrained to fewer partitions than is specified in the [beacon version](search-config.md#beacon-version-initialization).
 
 If an item is being written or queried as partition `X`, but the [standard beacon](#standard-beacon-initialization) is constrained to only `N` partitions,
-then the partition used to [encode](#partition-beacon-encoding) the beacon MUST be `X % N`, where `%` is the modulo or remainder operation.
+then the partition used to [encode](#beacon-partition-encoding) the beacon MUST be `X % N`, where `%` is the modulo or remainder operation.
 
 Examples:
 
@@ -491,7 +491,7 @@ Both standard and compound beacons define two operations
 
 - This operation MUST convert the attribute value of the associated field to
   a sequence of bytes, as per [attribute serialization](../dynamodb-encryption-client/ddb-attribute-serialization.md).
-- The serialized form MUST be augmented as per [beacon partition encoding](#partition-beacon-encoding).
+- The serialized form MUST be augmented as per [beacon partition encoding](#beacon-partition-encoding).
 - This operation MUST return the [basicHash](#basichash) of the resulting bytes and the configured [beacon length](#beacon-length).
 - The returned
   [AttributeValue](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html)

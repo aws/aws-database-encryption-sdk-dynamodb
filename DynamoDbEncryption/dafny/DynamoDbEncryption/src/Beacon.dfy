@@ -149,7 +149,7 @@ module BaseBeacon {
 
     //= specification/searchable-encryption/beacons.md#beacon-constraint
     //# If an item is being written or queried as partition `X`, but the [standard beacon](#standard-beacon-initialization) is constrained to only `N` partitions,
-    //# then the partition used to [encode](#partition-beacon-encoding) the beacon MUST be `X % N`, where `%` is the modulo or remainder operation.
+    //# then the partition used to [encode](#beacon-partition-encoding) the beacon MUST be `X % N`, where `%` is the modulo or remainder operation.
     function method constrained_partition(partition : PartitionNumber) : PartitionBytes
     {
       if numberOfPartitions == 0 || partition == 0 then
@@ -169,7 +169,7 @@ module BaseBeacon {
                 && |ret.value| == (((length as uint8) + 3) / 4) as nat
     {
       //= specification/searchable-encryption/beacons.md#value-for-a-non-set-standard-beacon
-      //# - The serialized form MUST be augmented as per [partition beacon encoding](#partition-beacon-encoding).
+      //# - The serialized form MUST be augmented as per [beacon partition encoding](#beacon-partition-encoding).
       base.hash(val, key, length, constrained_partition(partition))
     }
 
