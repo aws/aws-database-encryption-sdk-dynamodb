@@ -18,7 +18,7 @@ jobs:
 
   go-release:
     needs: get-dafny-version
-    runs-on: macos-13
+    runs-on: macos-14
     permissions:
       contents: write
       pull-requests: write
@@ -31,14 +31,14 @@ jobs:
 
       # KMS and MPL tests need to use credentials which can call KMS
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: GoRelease-DBESDK-Tests
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
