@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.7.1]
+
+Pin DynamoDb and aws sdk version < 4.x
+
 ## [3.7.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.6.2...v3.7.0) (2024-09-17)
 
 ### Features

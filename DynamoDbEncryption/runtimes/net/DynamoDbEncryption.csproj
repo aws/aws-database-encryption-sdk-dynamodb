@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
 
-    <Version>3.7.0</Version>
+    <Version>3.7.1</Version>
 
     <AssemblyName>AWS.Cryptography.DbEncryptionSDK.DynamoDb</AssemblyName>
     <PackageId>AWS.Cryptography.DbEncryptionSDK.DynamoDb</PackageId>
@@ -57,8 +57,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.402.2"/>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.400.38"/>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="[3.7.*, 4.0)" />
     <PackageReference Include="DafnyRuntime" Version="$(DafnyVersion)" />
     <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
     <!--
