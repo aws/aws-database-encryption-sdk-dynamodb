@@ -62,7 +62,7 @@ jobs:
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.7.0
         with:
-          dafny-version: nightly-2024-12-03-4954170
+          dafny-version: 4.10.0
 
       - name: Update MPL submodule if using MPL HEAD
         if: ${{ inputs.mpl-head == true }}
