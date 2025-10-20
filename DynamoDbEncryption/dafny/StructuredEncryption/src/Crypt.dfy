@@ -19,7 +19,7 @@ module StructuredEncryptionCrypt {
 
   import CMP = AwsCryptographyMaterialProvidersTypes
   import Prim = AwsCryptographyPrimitivesTypes
-  import Aws.Cryptography.Primitives
+  import Primitives = AtomicPrimitives
   import UTF8
   import Header = StructuredEncryptionHeader
   import HKDF
