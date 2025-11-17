@@ -1,0 +1,38 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+  jobs:
+    post_create_environment:
+      # Install poetry
+      # https://python-poetry.org/docs/#installing-manually
+      - pip install poetry
+      # Get Dafny.
+      # readthedocs executes each command in a new shell process, so exported variables aren't persisted between commands.
+      # Any command that relies on exported variables needs to be executed in one command.
+      - export dafnyVersion=$(grep '^dafnyVersion=' project.properties | cut -d '=' -f 2) && curl https://github.com/dafny-lang/dafny/releases/download/v$dafnyVersion/dafny-$dafnyVersion-x64-ubuntu-20.04.zip  -L -o dafny.zip
+      - unzip -qq dafny.zip && rm dafny.zip
+      - export PATH="$PWD/dafny:$PATH" && make transpile_python -C DynamoDbEncryption
+    post_install:
+      # Install project with 'docs' dependency group
+      # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
+      # VIRTUAL_ENV needs to be set manually for now.
+      # See https://github.com/readthedocs/readthedocs.org/pull/11152/
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --directory DynamoDbEncryption/runtimes/python --with docs
+
+# Build documentation in the doc/ directory with Sphinx
+sphinx:
+  configuration: DynamoDbEncryption/runtimes/python/docs/conf.py
+
+# Need all submodules to transpile
+submodules:
+  include: all
+  recursive: true
