@@ -50,6 +50,7 @@ pub(crate) use crate::implementation_from_dafny::ECDH;
 pub(crate) use crate::implementation_from_dafny::HMAC;
 pub(crate) use crate::implementation_from_dafny::UTF8;
 pub(crate) use crate::implementation_from_dafny::UUID;
+pub(crate) use crate::deps::com_amazonaws_kms::client::Client as KmsClient;
 
 pub mod aes_gcm;
 pub mod aes_kdf_ctr;
