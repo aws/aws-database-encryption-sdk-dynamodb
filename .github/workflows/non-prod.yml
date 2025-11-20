@@ -1,6 +1,8 @@
 # This workflow runs for every pull request
-name: PR CI
+name: Non Prod Daily CI
 
+permissions:
+  contents: read
 on:
   schedule:
     - cron: "00 18 * * 1-5"
