@@ -4,6 +4,21 @@
 name: Dafny Interoperability Test
 
 on:
+  workflow_call:
+    inputs:
+      mpl-dafny:
+        description: "The Dafny version to compile the MPL with (4.2.0, nightly-latest, etc..)"
+        required: true
+        type: string
+      mpl-commit:
+        description: "The MPL branch/commit to use"
+        required: false
+        default: "main"
+        type: string
+      dbesdk-dafny:
+        description: "The Dafny version to compile the DBESDK with (4.2.0, nightly-latest, etc..)"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       mpl-dafny:
@@ -63,6 +78,12 @@ jobs:
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-net-examples:
     uses: ./.github/workflows/dafny_interop_examples_net.yml
+    with:
+      mpl-dafny: ${{inputs.mpl-dafny}}
+      mpl-commit: ${{inputs.mpl-commit}}
+      dbesdk-dafny: ${{inputs.dbesdk-dafny}}
+  dafny-interop-go:
+    uses: ./.github/workflows/dafny_interop_go_tests.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
