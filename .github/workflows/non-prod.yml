@@ -2,10 +2,12 @@
 name: Non Prod Daily CI
 
 permissions:
+  id-token: write
   contents: read
 on:
   schedule:
     - cron: "00 18 * * 1-5"
+  workflow_dispatch:
 
 jobs:
   getVersion:
