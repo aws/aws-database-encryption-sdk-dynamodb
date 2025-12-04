@@ -2,6 +2,7 @@
 name: Non Prod Daily CI
 
 permissions:
+  id-token: write
   contents: read
 on:
   schedule:
