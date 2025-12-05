@@ -47,6 +47,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Remove the -SNAPSHOT from the MPL version
+        shell: bash
+        run: |
+          perl -i -pe 's/-SNAPSHOT//g' project.properties
+
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v5
         with:
