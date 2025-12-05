@@ -51,12 +51,12 @@ jobs:
         shell: bash
         run: |
           curl 'https://search.maven.org/solrsearch/select?q=a:aws-cryptographic-material-providers&rows=1' > xxx
-	  jq '.response.docs[0].latestVersion' < zzz | tr -d '"' > vvv
-	  fgrep -v mplDependencyJavaVersion < project.properties > project.properties2
-	  echo "mplDependencyJavaVersion=`cat vvv`" >> project.properties2
-	  mv project.properties2 project.properties
-	  rm -f xxx vvv project.properties2
-	  cat project.properties
+          jq '.response.docs[0].latestVersion' < zzz | tr -d '"' > vvv
+          fgrep -v mplDependencyJavaVersion < project.properties > project.properties2
+          echo "mplDependencyJavaVersion=`cat vvv`" >> project.properties2
+          mv project.properties2 project.properties
+          rm -f xxx vvv project.properties2
+          cat project.properties
 
       - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v5
