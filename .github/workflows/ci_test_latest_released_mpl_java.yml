@@ -50,12 +50,12 @@ jobs:
       - name: Remove the -SNAPSHOT from the MPL version
         shell: bash
         run: |
-          curl 'https://search.maven.org/solrsearch/select?q=a:aws-cryptographic-material-providers&rows=1' > xxx
-          jq '.response.docs[0].latestVersion' < zzz | tr -d '"' > vvv
-          fgrep -v mplDependencyJavaVersion < project.properties > project.properties2
-          echo "mplDependencyJavaVersion=`cat vvv`" >> project.properties2
-          mv project.properties2 project.properties
-          rm -f xxx vvv project.properties2
+          curl 'https://search.maven.org/solrsearch/select?q=a:aws-cryptographic-material-providers&rows=1' > /tmp/xxx
+          jq '.response.docs[0].latestVersion' < zzz | tr -d '"' > /tmp/vvv
+          fgrep -v mplDependencyJavaVersion < project.properties > /tmp/project.properties
+          echo "mplDependencyJavaVersion=`cat vvv`" >> /tmp/project.properties
+          cat /tmp/project.properties
+          mv /tmp/project.properties project.properties
           cat project.properties
 
       - name: Setup Java ${{ matrix.java-version }}
