@@ -27,7 +27,7 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         dotnet-version: ["6.0.x"]
-        os: [macos-13]
+        os: [macos-14]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -36,14 +36,21 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_NOLOGO: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Setup .NET OpenSSL on Mac
+        if: matrix.os == 'macos-14'
+        run: |
+          brew install openssl@3
+          echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
+          echo "DOTNET_CRYPTO_ENGINE_ADAPTER=System.Security.Cryptography.Algorithms.Managed" >> $GITHUB_ENV
 
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
@@ -76,7 +83,7 @@ jobs:
         run: make setup_net
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
