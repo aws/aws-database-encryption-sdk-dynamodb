@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '.github/workflows/non-prod.yml'
-      - '.github/workflows/ci_test_go.yml'
+      - ".github/workflows/non-prod.yml"
+      - ".github/workflows/ci_test_go.yml"
 
 jobs:
   getVersion:
