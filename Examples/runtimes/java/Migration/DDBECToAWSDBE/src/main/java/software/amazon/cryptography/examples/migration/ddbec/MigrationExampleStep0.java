@@ -1,16 +1,13 @@
 package software.amazon.cryptography.examples.migration.ddbec;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.AttributeEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.TableNameOverride;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.kms.KmsClient;
 
 /*
   Migration Step 0: This is an example demonstrating use with the DynamoDb Encryption Client,
@@ -23,7 +20,7 @@ import com.amazonaws.services.kms.AWSKMSClientBuilder;
   This table must be configured with the following
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (S)
+    - Sort key is named "sort_key" with type (N)
 */
 public class MigrationExampleStep0 {
 
@@ -32,35 +29,30 @@ public class MigrationExampleStep0 {
     String ddbTableName,
     int sortReadValue
   ) {
-    // 1. Create the MaterialProvider that protects your data keys. For this example,
-    //    we create a DirectKmsMaterialProvider which protects data keys using a single kmsKey.
-    final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
+    // 1. Create the DirectKmsMaterialsProvider that protects your data keys.
+    final KmsClient kmsClient = KmsClient.create();
+    final DirectKmsMaterialsProvider materialProvider = new DirectKmsMaterialsProvider(
       kmsClient,
       kmsKeyId
     );
 
     // 2. Create the DynamoDBEncryptor using the Material Provider created above
-    final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(cmp);
+    final DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(materialProvider);
 
-    // 3. Create a DynamoDbMapper with a AttributeEncryptor configured with the above encryptor.
-    //    You MUST configure this mapper with a save behavior of PUT or CLOBBER;
-    //    omitting this can result in data-corruption.
-    AmazonDynamoDB ddbClient = AmazonDynamoDBClientBuilder.defaultClient();
-    DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig
-      .builder()
-      .withSaveBehavior(SaveBehavior.PUT)
-      .withTableNameOverride(
-        TableNameOverride.withTableNameReplacement(ddbTableName)
-      )
+    // 3. Create a DynamoDbEnhancedClient with the encryptor configured as an extension
+    final DynamoDbClient ddbClient = DynamoDbClient.create();
+    final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
+      .dynamoDbClient(ddbClient)
+      .extensions(encryptor)
       .build();
-    DynamoDBMapper mapper = new DynamoDBMapper(
-      ddbClient,
-      mapperConfig,
-      new AttributeEncryptor(encryptor)
+
+    // 4. Create a DynamoDbTable with the table schema
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
+      ddbTableName,
+      TableSchema.fromBean(SimpleClass.class)
     );
 
-    // 4. Put an example item into our DynamoDb table.
+    // 5. Put an example item into our DynamoDb table.
     //    This item will be encrypted client-side before it is sent to DynamoDb.
     SimpleClass item = new SimpleClass();
     item.setPartitionKey("MigrationExample");
@@ -69,15 +61,16 @@ public class MigrationExampleStep0 {
     item.setAttribute2("sign me!");
     item.setAttribute3("ignore me!");
 
-    mapper.save(item);
+    table.putItem(item);
 
-    // 5. Get this item back from DynamoDb.
+    // 6. Get this item back from DynamoDb.
     //    The item will be decrypted client-side, and the original item returned.
-    SimpleClass decryptedItem = mapper.load(
-      SimpleClass.class,
-      "MigrationExample",
-      sortReadValue
-    );
+    Key key = Key.builder()
+      .partitionValue("MigrationExample")
+      .sortValue(sortReadValue)
+      .build();
+    
+    SimpleClass decryptedItem = table.getItem(key);
 
     // Demonstrate we get the expected item back
     assert decryptedItem.getPartitionKey().equals("MigrationExample");
