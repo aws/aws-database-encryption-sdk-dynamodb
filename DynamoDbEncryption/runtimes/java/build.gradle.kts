@@ -33,6 +33,7 @@ java {
         srcDir("src/main/dafny-generated")
         srcDir("src/main/smithy-generated")
         srcDir("src/main/sdkv1")
+        srcDir("src/main/sdkv2")
     }
     sourceSets["test"].java {
         srcDir("src/test")
@@ -82,6 +83,7 @@ dependencies {
     implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
+    implementation("io.netty:netty-common:4.1.100.Final")
 
     implementation(platform("software.amazon.awssdk:bom:2.30.18"))
     implementation("software.amazon.awssdk:dynamodb")
