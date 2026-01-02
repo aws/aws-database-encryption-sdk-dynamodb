@@ -3,10 +3,12 @@ package software.amazon.cryptography.examples.migration.awsdbe;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.migration.ddbec.MigrationExampleStep0;
 
+import java.security.GeneralSecurityException;
+
 public class TestMigrationExampleStep2 {
 
   @Test
-  public void TestMigrationStep2() {
+  public void TestMigrationStep2() throws GeneralSecurityException {
     // Successfully executes step 2
     MigrationExampleStep2.MigrationStep2(
       TestUtils.TEST_KMS_KEY_ID,

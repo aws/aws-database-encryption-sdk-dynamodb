@@ -8,10 +8,12 @@ import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleSt
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep3;
 
+import java.security.GeneralSecurityException;
+
 public class TestMigrationExampleStep0 {
 
   @Test
-  public void TestMigrationStep0() {
+  public void TestMigrationStep0() throws GeneralSecurityException {
     // Successfully executes Step 0
     MigrationExampleStep0.MigrationStep0(
       TestUtils.TEST_KMS_KEY_ID,
