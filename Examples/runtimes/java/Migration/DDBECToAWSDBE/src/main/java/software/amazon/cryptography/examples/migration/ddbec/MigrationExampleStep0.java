@@ -1,16 +1,20 @@
 package software.amazon.cryptography.examples.migration.ddbec;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.AttributeEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.TableNameOverride;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.kms.KmsClient;
+
+import java.security.GeneralSecurityException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 /*
   Migration Step 0: This is an example demonstrating use with the DynamoDb Encryption Client,
@@ -23,7 +27,7 @@ import com.amazonaws.services.kms.AWSKMSClientBuilder;
   This table must be configured with the following
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (S)
+    - Sort key is named "sort_key" with type (N)
 */
 public class MigrationExampleStep0 {
 
@@ -31,60 +35,77 @@ public class MigrationExampleStep0 {
     String kmsKeyId,
     String ddbTableName,
     int sortReadValue
-  ) {
-    // 1. Create the MaterialProvider that protects your data keys. For this example,
-    //    we create a DirectKmsMaterialProvider which protects data keys using a single kmsKey.
-    final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
+  ) throws GeneralSecurityException {
+    // 1. Create the DirectKmsMaterialsProvider that protects your data keys.
+    final KmsClient kmsClient = KmsClient.create();
+    final DirectKmsMaterialsProvider materialProvider = new DirectKmsMaterialsProvider(
       kmsClient,
       kmsKeyId
     );
 
     // 2. Create the DynamoDBEncryptor using the Material Provider created above
-    final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(cmp);
+    final DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(materialProvider);
+    final DynamoDbClient ddbClient = DynamoDbClient.create();
 
-    // 3. Create a DynamoDbMapper with a AttributeEncryptor configured with the above encryptor.
-    //    You MUST configure this mapper with a save behavior of PUT or CLOBBER;
-    //    omitting this can result in data-corruption.
-    AmazonDynamoDB ddbClient = AmazonDynamoDBClientBuilder.defaultClient();
-    DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig
-      .builder()
-      .withSaveBehavior(SaveBehavior.PUT)
-      .withTableNameOverride(
-        TableNameOverride.withTableNameReplacement(ddbTableName)
-      )
+    // 3. Create encryption context
+    final EncryptionContext context = EncryptionContext.builder()
+      .tableName(ddbTableName)
+      .hashKeyName("partition_key")
+      .rangeKeyName("sort_key")
       .build();
-    DynamoDBMapper mapper = new DynamoDBMapper(
-      ddbClient,
-      mapperConfig,
-      new AttributeEncryptor(encryptor)
-    );
 
     // 4. Put an example item into our DynamoDb table.
     //    This item will be encrypted client-side before it is sent to DynamoDb.
-    SimpleClass item = new SimpleClass();
-    item.setPartitionKey("MigrationExample");
-    item.setSortKey(0);
-    item.setAttribute1("encrypt and sign me!");
-    item.setAttribute2("sign me!");
-    item.setAttribute3("ignore me!");
+    final Map<String, AttributeValue> item = new HashMap<>();
+    item.put("partition_key", AttributeValue.builder().s("MigrationExample").build());
+    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("attribute1", AttributeValue.builder().s("encrypt and sign me!").build());
+    item.put("attribute2", AttributeValue.builder().s("sign me!").build());
+    item.put("attribute3", AttributeValue.builder().s("ignore me!").build());
 
-    mapper.save(item);
+    // Encrypt manually using encryptRecord with attribute flags
+    final Map<String, Set<EncryptionFlags>> attributeFlags = new HashMap<>();
+    // Keys are never encrypted, only signed
+    attributeFlags.put("partition_key", java.util.EnumSet.of(EncryptionFlags.SIGN));
+    attributeFlags.put("sort_key", java.util.EnumSet.of(EncryptionFlags.SIGN));
+    // attribute1 - encrypt and sign
+    attributeFlags.put("attribute1", java.util.EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN));
+    // attribute2 - sign only
+    attributeFlags.put("attribute2", java.util.EnumSet.of(EncryptionFlags.SIGN));
+    // attribute3 - ignore (no flags)
+
+    final Map<String, AttributeValue> encrypted = encryptor.encryptRecord(item, attributeFlags, context);
+
+    // Send to DynamoDB
+    ddbClient.putItem(PutItemRequest.builder()
+      .tableName(ddbTableName)
+      .item(encrypted)
+      .build());
 
     // 5. Get this item back from DynamoDb.
     //    The item will be decrypted client-side, and the original item returned.
-    SimpleClass decryptedItem = mapper.load(
-      SimpleClass.class,
-      "MigrationExample",
-      sortReadValue
+    final Map<String, AttributeValue> key = new HashMap<>();
+    key.put("partition_key", AttributeValue.builder().s("MigrationExample").build());
+    key.put("sort_key", AttributeValue.builder().n(String.valueOf(sortReadValue)).build());
+
+    final GetItemResponse response = ddbClient.getItem(GetItemRequest.builder()
+      .tableName(ddbTableName)
+      .key(key)
+      .build());
+
+    // Decrypt manually using decryptRecord with same attribute flags
+    // attribute3 - ignore (no flags)
+
+    final Map<String, AttributeValue> decrypted = encryptor.decryptRecord(
+      response.item(), attributeFlags, context
     );
 
     // Demonstrate we get the expected item back
-    assert decryptedItem.getPartitionKey().equals("MigrationExample");
-    assert decryptedItem.getAttribute1().equals("encrypt and sign me!");
+    assert decrypted.get("partition_key").s().equals("MigrationExample");
+    assert decrypted.get("attribute1").s().equals("encrypt and sign me!");
   }
 
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws GeneralSecurityException {
     if (args.length < 2) {
       throw new IllegalArgumentException(
         "To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args."
