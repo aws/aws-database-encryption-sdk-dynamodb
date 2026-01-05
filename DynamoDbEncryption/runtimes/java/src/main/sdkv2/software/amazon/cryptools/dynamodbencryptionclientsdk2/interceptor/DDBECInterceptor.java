@@ -71,7 +71,7 @@ import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.provide
  *     .build();
  * </pre>
  */
-public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
+public class DDBECInterceptor implements ExecutionInterceptor {
 
     private final String tableName;
     private final String partitionKeyName;
@@ -86,7 +86,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
 
     private static final String DDB_SERVICE_NAME = "DynamoDb";
 
-    private DynamoDbEncryptionInterceptor(Builder builder) {
+    private DDBECInterceptor(Builder builder) {
         this.tableName = builder.tableName;
         this.partitionKeyName = builder.partitionKeyName;
         this.sortKeyName = builder.sortKeyName;
@@ -339,7 +339,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
             return this;
         }
 
-        public DynamoDbEncryptionInterceptor build() {
+        public DDBECInterceptor build() {
             if (tableName == null || tableName.isEmpty()) {
                 throw new IllegalArgumentException("tableName is required");
             }
@@ -353,7 +353,7 @@ public class DynamoDbEncryptionInterceptor implements ExecutionInterceptor {
                 throw new IllegalArgumentException("attributeFlags is required");
             }
             
-            return new DynamoDbEncryptionInterceptor(this);
+            return new DDBECInterceptor(this);
         }
     }
 }
