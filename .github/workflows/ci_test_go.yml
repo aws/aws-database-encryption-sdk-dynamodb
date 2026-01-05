@@ -135,5 +135,6 @@ jobs:
         if: matrix.library == 'DynamoDbEncryption'
         working-directory: ./Examples/runtimes/go
         run: |
+          go mod tidy
           go run main.go
           go test ./...
