@@ -1,5 +1,6 @@
 package software.amazon.cryptography.examples.migration.ddbec;
 
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
@@ -10,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.interceptor.DDBECInterceptor;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
@@ -45,7 +47,6 @@ public class MigrationExampleStep0 {
 
     // 2. Create the DynamoDBEncryptor using the Material Provider created above
     final DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(materialProvider);
-    final DynamoDbClient ddbClient = DynamoDbClient.create();
 
     // 3. Create encryption context
     final EncryptionContext context = EncryptionContext.builder()
@@ -74,12 +75,25 @@ public class MigrationExampleStep0 {
     attributeFlags.put("attribute2", java.util.EnumSet.of(EncryptionFlags.SIGN));
     // attribute3 - ignore (no flags)
 
-    final Map<String, AttributeValue> encrypted = encryptor.encryptRecord(item, attributeFlags, context);
+    // Create interceptor
+    DDBECInterceptor interceptor = DDBECInterceptor.builder()
+            .tableName(ddbTableName)
+            .partitionKeyName("partition_key")
+            .sortKeyName("sort_key")
+            .materialProvider(materialProvider)
+            .attributeFlags(attributeFlags)
+            .build();
+
+    final DynamoDbClient ddbClient = DynamoDbClient.builder()
+            .overrideConfiguration(ClientOverrideConfiguration.builder()
+            .addExecutionInterceptor(interceptor)
+            .build())
+            .build();
 
     // Send to DynamoDB
     ddbClient.putItem(PutItemRequest.builder()
       .tableName(ddbTableName)
-      .item(encrypted)
+      .item(item)
       .build());
 
     // 5. Get this item back from DynamoDb.
@@ -93,16 +107,10 @@ public class MigrationExampleStep0 {
       .key(key)
       .build());
 
-    // Decrypt manually using decryptRecord with same attribute flags
-    // attribute3 - ignore (no flags)
-
-    final Map<String, AttributeValue> decrypted = encryptor.decryptRecord(
-      response.item(), attributeFlags, context
-    );
 
     // Demonstrate we get the expected item back
-    assert decrypted.get("partition_key").s().equals("MigrationExample");
-    assert decrypted.get("attribute1").s().equals("encrypt and sign me!");
+    assert response.item().get("partition_key").s().equals("MigrationExample");
+    assert response.item().get("attribute1").s().equals("encrypt and sign me!");
   }
 
   public static void main(final String[] args) throws GeneralSecurityException {
