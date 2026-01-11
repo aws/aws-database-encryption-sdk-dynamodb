@@ -5,15 +5,17 @@ include "../Model/AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.dfy"
 module DdbMiddlewareConfig {
   import opened Wrappers
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
+  import opened StandardLibrary.UInt
   import DynamoDbItemEncryptor
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
   import DDBE = AwsCryptographyDbEncryptionSdkDynamoDbTypes
   import SearchableEncryptionInfo
   import DDB = ComAmazonawsDynamodbTypes
   import HexStrings
+  import StandardLibrary.String
 
   datatype TableConfig = TableConfig(
-    physicalTableName: ComAmazonawsDynamodbTypes.TableName,
+    physicalTableName: DDB.TableName,
     logicalTableName: string,
     partitionKeyName: string,
     sortKeyName: Option<string>,
@@ -27,6 +29,33 @@ module DdbMiddlewareConfig {
   {
     || tableName !in config.tableEncryptionConfigs
     || config.tableEncryptionConfigs[tableName].plaintextOverride == AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+  }
+
+  method GetRandomPartition(config : TableConfig, item : DDB.AttributeMap) returns (output : Result<DDBE.PartitionNumber, Error>)
+    modifies if config.search.Some? then config.search.value.curr().partitionSelector.Modifies else {}
+    requires if config.search.Some? then config.search.value.curr().partitionSelector.ValidState() else true
+    ensures if config.search.Some? then config.search.value.curr().partitionSelector.ValidState() else true
+  {
+    if config.search.None? {
+      return Success(0);
+    }
+    var numPartitions := config.search.value.versions[0].numPartitions;
+    if numPartitions <= 1 {
+      return Success(0);
+    }
+
+    var outR := config.search.value.curr().partitionSelector.GetPartitionNumber(DDBE.GetPartitionNumberInput(
+                                                                                  item := item, numberOfPartitions := numPartitions, logicalTableName := config.logicalTableName));
+    var out :- outR.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+    if out.partitionNumber == 0 {
+      return Success(0);
+    } else if numPartitions as DDBE.PartitionCount <= out.partitionNumber {
+      return Failure(E("Partition Selector returned " + String.Base10Int2String(out.partitionNumber as int) + " which should have been no more than " + String.Base10Int2String(numPartitions as int)));
+    } else if out.partitionNumber < 0 {
+      return Failure(E("Partition Selector returned " + String.Base10Int2String(out.partitionNumber as int) + " which should have been positive."));
+    } else {
+      return Success(out.partitionNumber);
+    }
   }
 
   predicate ValidTableConfig?(config: TableConfig) {
