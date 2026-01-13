@@ -48,6 +48,7 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
+          ref: benchmark
           submodules: recursive
       
       - name: Create temporary global.json
@@ -77,7 +78,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go-version }}
-          
+
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.8.0
         with:
