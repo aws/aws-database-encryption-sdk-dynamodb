@@ -106,30 +106,14 @@ jobs:
         working-directory: ./db-esdk-performance-testing/benchmarks/results/raw-data/
         run: |
           LOG_FILE="go_results.json"
-          UPLOAD_FILE="go_filtered_logs.json"
+          UPLOAD_FILE="cloudwatch_logs.json"
           TIMESTAMP=$(date +%s%3N)
-          jq -Rs --arg ts "$TIMESTAMP" '
-            [
-              split("\n") | .[] |
-              select(startswith("TestEncrypts")) |
-              split(" ") | map(select(. != "")) as $parts |
-              {
-                timestamp: ($ts | tonumber),
-                message: ({
-                  testName: $parts[0],
-                  os: $parts[1],
-                  language: $parts[2],
-                  clockTime: ($parts[3] | tonumber),
-                  cpuTime: ($parts[4] | tonumber)
-                } | tostring)
-              }
-            ]
-          ' $LOG_FILE > $UPLOAD_FILE
+          jq -c --arg ts "$(date +%s)000" '.results[] as $result | .metadata as $meta | {timestamp: ($ts | tonumber), message: ({metadata: $meta, result: $result} | tostring)}' $LOG_FILE > $UPLOAD_FILE
 
       - name: Upload logs to CloudWatch
         working-directory: ./db-esdk-performance-testing/benchmarks/results/raw-data/
         run: |
-          LOG_FILE="go_filtered_logs.json"
+          LOG_FILE="cloudwatch_logs.json"
           LOG_GROUP="aws-dbesdk-performance-benchmarks"
           LOG_STREAM="go/quick_benchmarks/${{ github.workflow }}/${{ github.run_id }}"
 
