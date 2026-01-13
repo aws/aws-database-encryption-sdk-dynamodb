@@ -28,6 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         library: [DynamoDbEncryption]
+        benchmark-dir: [db-esdk-performance-testing/benchmarks]
         os: [ubuntu-22.04, macos-15-intel]
         go-version: ["1.23", "1.24", "1.25"]
     runs-on: ${{ matrix.os }}
@@ -84,7 +85,6 @@ jobs:
         with:
           dafny-version: ${{ inputs.dafny }}
 
-      - uses: actions/checkout@v5
       - name: Init Submodules
         shell: bash
         run: |
@@ -104,12 +104,12 @@ jobs:
       
       - name: Run Performance Benchmarks - Quick Mode
         shell: bash
-        working-directory: ./db-esdk-performance-testing/benchmarks/go
+        working-directory: ./${{matrix.benchmark-dir}}/go
         run: |
             go run . --config ../../config/test-scenarios.yaml --quick
 
       - name: Parse and Format Logs
-        working-directory: ./db-esdk-performance-testing/benchmarks/results/raw-data/
+        working-directory: ./${{matrix.benchmark-dir}}/results/raw-data/
         run: |
           LOG_FILE="go_results.json"
           UPLOAD_FILE="cloudwatch_logs.json"
@@ -117,7 +117,7 @@ jobs:
           jq -c --arg ts "$(date +%s)000" '.results[] as $result | .metadata as $meta | {timestamp: ($ts | tonumber), message: ({metadata: $meta, result: $result} | tostring)}' $LOG_FILE > $UPLOAD_FILE
 
       - name: Upload logs to CloudWatch
-        working-directory: ./db-esdk-performance-testing/benchmarks/results/raw-data/
+        working-directory: ./${{matrix.benchmark-dir}}/results/raw-data/
         run: |
           LOG_FILE="cloudwatch_logs.json"
           LOG_GROUP="aws-dbesdk-performance-benchmarks"
