@@ -77,6 +77,11 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go-version }}
+          
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.8.0
+        with:
+          dafny-version: ${{ inputs.dafny }}
 
       - uses: actions/checkout@v5
       - name: Init Submodules
