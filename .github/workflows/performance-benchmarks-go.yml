@@ -51,6 +51,11 @@ jobs:
         with:
           ref: benchmark
           submodules: recursive
+      - name: Init Submodules
+        shell: bash
+        run: |
+          git submodule update --init --recursive submodules/smithy-dafny
+          git submodule update --init --recursive submodules/MaterialProviders
       
       - name: Create temporary global.json
         run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
@@ -85,15 +90,14 @@ jobs:
         with:
           dafny-version: ${{ inputs.dafny }}
 
-      - uses: actions/checkout@v5
-      - name: Init Submodules
-        shell: bash
-        run: |
-          git submodule update --init --recursive submodules/smithy-dafny
-          git submodule update --init --recursive submodules/MaterialProviders
-
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./
+        run: |
+            ls
 
       - name: Build ${{ matrix.library }} implementation
         shell: bash
@@ -102,13 +106,7 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_go CORES=$CORES
-      
-      - name: Build ${{ matrix.library }} implementation
-        shell: bash
-        working-directory: ./
-        run: |
-            ls
-            
+
       - name: Run Performance Benchmarks - Quick Mode
         shell: bash
         working-directory: ./${{matrix.benchmark-dir}}/go
