@@ -86,8 +86,6 @@ jobs:
           dafny-version: ${{ inputs.dafny }}
 
       - uses: actions/checkout@v5
-        with:
-          ref: benchmark
       - name: Init Submodules
         shell: bash
         run: |
