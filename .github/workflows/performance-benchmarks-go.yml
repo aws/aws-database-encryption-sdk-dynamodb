@@ -1,0 +1,144 @@
+# This workflow performs benchmark testing in Go.
+name: Performance Benchmarks Go
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+jobs:
+  testGo:
+    strategy:
+      fail-fast: false
+      matrix:
+        library: [DynamoDbEncryption]
+        os: [ubuntu-22.04, macos-15-intel]
+        go-version: ["1.23", "1.24", "1.25"]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Performance-Benchmarks-Go
+
+      - name: Support longpaths
+        run: |
+          git config --global core.longpaths true
+
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      
+      - name: Create temporary global.json
+        run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
+
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v5
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Update project.properties if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        run: |
+          sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
+
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - uses: actions/checkout@v5
+      - name: Init Submodules
+        shell: bash
+        run: |
+          git submodule update --init --recursive submodules/smithy-dafny
+          git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_go CORES=$CORES
+      
+      - name: Run Performance Benchmarks - Quick Mode
+        shell: bash
+        working-directory: ./db-esdk-performance-testing/benchmarks/go
+        run: |
+            go run . --config ../../config/test-scenarios.yaml --quick
+
+      - name: Parse and Format Logs
+        working-directory: ./db-esdk-performance-testing/benchmarks/results/raw-data/
+        run: |
+          LOG_FILE="go_results.json"
+          UPLOAD_FILE="go_filtered_logs.json"
+          TIMESTAMP=$(date +%s%3N)
+          jq -Rs --arg ts "$TIMESTAMP" '
+            [
+              split("\n") | .[] |
+              select(startswith("TestEncrypts")) |
+              split(" ") | map(select(. != "")) as $parts |
+              {
+                timestamp: ($ts | tonumber),
+                message: ({
+                  testName: $parts[0],
+                  os: $parts[1],
+                  language: $parts[2],
+                  clockTime: ($parts[3] | tonumber),
+                  cpuTime: ($parts[4] | tonumber)
+                } | tostring)
+              }
+            ]
+          ' $LOG_FILE > $UPLOAD_FILE
+
+      - name: Upload logs to CloudWatch
+        working-directory: ./db-esdk-performance-testing/benchmarks/results/raw-data/
+        run: |
+          LOG_FILE="go_filtered_logs.json"
+          LOG_GROUP="aws-dbesdk-performance-benchmarks"
+          LOG_STREAM="go/quick_benchmarks/${{ github.workflow }}/${{ github.run_id }}"
+
+          # Create log stream (ignore if exists)
+          aws logs create-log-stream \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" 2>/dev/null || true
+
+          aws logs put-log-events \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" \
+            --log-events file://$LOG_FILE
