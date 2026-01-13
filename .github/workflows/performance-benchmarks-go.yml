@@ -103,6 +103,12 @@ jobs:
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_go CORES=$CORES
       
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./
+        run: |
+            ls
+            
       - name: Run Performance Benchmarks - Quick Mode
         shell: bash
         working-directory: ./${{matrix.benchmark-dir}}/go
