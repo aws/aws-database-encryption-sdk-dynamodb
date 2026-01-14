@@ -108,5 +108,5 @@ jobs:
         shell: bash
         working-directory: ./${{matrix.benchmark-dir}}/benchmarks/go
         run: |
-            go run . --config ../../config/test-scenarios.yaml --quick
+            go run . --config ../config/test-scenarios.yaml --quick
 
