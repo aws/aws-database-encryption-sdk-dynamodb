@@ -1,0 +1,112 @@
+# This workflow runs every day 09:00 UTC (1AM PST)
+name: Performance Benchmarks
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-benchmark.yml"
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: false
+        default: "4.9.0"
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+jobs:
+  testGo:
+    strategy:
+      fail-fast: false
+      matrix:
+        library: [DynamoDbEncryption]
+        benchmark-dir: [db-esdk-performance-testing]
+        os: [ubuntu-22.04, macos-15-intel]
+        go-version: ["1.23", "1.24", "1.25"]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Performance-Benchmarks-Go
+
+      - name: Support longpaths
+        run: |
+          git config --global core.longpaths true
+
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Init Submodules
+        shell: bash
+        run: |
+          git submodule update --init --recursive submodules/smithy-dafny
+          git submodule update --init --recursive submodules/MaterialProviders
+      
+      - name: Create temporary global.json
+        run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
+
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v5
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Update project.properties if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        run: |
+          sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
+
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1.8.0
+        with:
+          dafny-version: ${{ inputs.dafny }}
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Build ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_go CORES=$CORES
+
+      - name: Run Performance Benchmarks - Quick Mode
+        shell: bash
+        working-directory: ./${{matrix.benchmark-dir}}/go
+        run: |
+            go run . --config ../../config/test-scenarios.yaml --quick
+
