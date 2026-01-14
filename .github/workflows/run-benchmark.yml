@@ -106,7 +106,7 @@ jobs:
 
       - name: Run Performance Benchmarks - Quick Mode
         shell: bash
-        working-directory: ./${{matrix.benchmark-dir}}/go
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/go
         run: |
             go run . --config ../../config/test-scenarios.yaml --quick
 
