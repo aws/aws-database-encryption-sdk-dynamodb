@@ -243,24 +243,6 @@ public final class Hkdf {
     return result;
   }
 
-  /**
-   * Derives a pseudorandom key of <code>length</code> bytes and stores the result in <code>output
-   * </code>.
-   *
-   * @param info optional context and application specific information (can be a zero-length array).
-   * @param length the length of the output key in bytes
-   * @param output the buffer where the pseudorandom key will be stored
-   * @throws ShortBufferException if the given output buffer is too small to hold the result
-   * @throws IllegalStateException if this object has not been initialized
-   */
-  public void deriveKey(
-    final byte[] info,
-    final int length,
-    final byte[] output
-  ) throws ShortBufferException, IllegalStateException {
-
-  }
-
   private Mac createMac() {
     try {
       Mac mac = Mac.getInstance(algorithm, provider);
