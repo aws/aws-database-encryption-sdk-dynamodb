@@ -210,14 +210,14 @@ public final class Hkdf {
     assertInitialized();
     if (length < 0) {
       throw new IllegalArgumentException(
-              "Length must be a non-negative value."
+        "Length must be a non-negative value."
       );
     }
     Mac mac = createMac();
 
     if (length > 255 * mac.getMacLength()) {
       throw new IllegalArgumentException(
-              "Requested keys may not be longer than 255 times the underlying HMAC length."
+        "Requested keys may not be longer than 255 times the underlying HMAC length."
       );
     }
 
