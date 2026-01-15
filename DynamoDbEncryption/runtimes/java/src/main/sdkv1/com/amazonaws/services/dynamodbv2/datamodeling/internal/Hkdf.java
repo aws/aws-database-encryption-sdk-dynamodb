@@ -208,11 +208,6 @@ public final class Hkdf {
     throws IllegalStateException {
     byte[] result = new byte[length];
     assertInitialized();
-    if (length < 0) {
-      throw new IllegalArgumentException(
-        "Length must be a non-negative value."
-      );
-    }
     Mac mac = createMac();
 
     if (length > 255 * mac.getMacLength()) {
