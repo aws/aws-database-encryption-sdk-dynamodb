@@ -10,8 +10,6 @@ data_sizes:
   medium:
     - 102400 # 100KB
     - 512000 # 500KB
-    - 1048576 # 1MB
-    - 10000000
   large:
     - 10485760 # 10MB
     - 52428800 # 50MB
@@ -41,11 +39,11 @@ iterations:
 
 # Concurrency levels to test
 concurrency_levels:
-  # - 1
-  # - 2
-  # - 4
-  # - 8
-  # - 16
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
 
 # DynamoDB table name
 table_name: "dbesdk-performance-testing"

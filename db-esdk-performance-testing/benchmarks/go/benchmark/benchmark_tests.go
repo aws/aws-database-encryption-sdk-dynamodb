@@ -16,7 +16,7 @@ import (
 
 // === Helper Functions ===
 
-// runItemEncryptorCycle performs a item encryptor encrypt and decrypt cycle with 25 items and measures performance
+// runItemEncryptorCycle performs a single encrypt-decrypt cycle and measures performance
 func (b *DBESDKBenchmark) runItemEncryptorCycle(data []byte) (float64, float64, error) {
 	item := map[string]types.AttributeValue{
 		"partition_key": &types.AttributeValueMemberS{Value: "benchmark-test"},

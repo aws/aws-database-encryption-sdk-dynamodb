@@ -2,9 +2,6 @@
 name: Performance Benchmarks
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-benchmark.yml"
   workflow_call:
     inputs:
       dafny:
@@ -33,7 +30,7 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         benchmark-dir: [db-esdk-performance-testing]
-        os: [ubuntu-22.04, macos-15-intel]
+        os: [macos-latest, ubuntu-latest]
         go-version: ["1.23", "1.24", "1.25"]
     runs-on: ${{ matrix.os }}
     permissions:
