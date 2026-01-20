@@ -106,3 +106,4 @@ jobs:
           # Run migration examples
           gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
           gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+          gradle -p runtimes/java/Migration/DDBECToAWSDBEv2 test
