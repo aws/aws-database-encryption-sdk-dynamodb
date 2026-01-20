@@ -28,7 +28,7 @@ import software.amazon.awssdk.core.interceptor.ExecutionAttributes;
 import software.amazon.awssdk.core.interceptor.ExecutionInterceptor;
 import software.amazon.awssdk.core.interceptor.SdkExecutionAttribute;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions.DynamoDbEncryptionException;
@@ -76,7 +76,7 @@ public class DDBECInterceptor implements ExecutionInterceptor {
     private final String tableName;
     private final String partitionKeyName;
     private final String sortKeyName;
-    private final DynamoDbEncryptor encryptor;
+    private final DynamoDBEncryptor encryptor;
     private final Map<String, Set<EncryptionFlags>> attributeFlags;
 
     // Operations supported by SDK v1 DynamoDBMapper
@@ -90,7 +90,7 @@ public class DDBECInterceptor implements ExecutionInterceptor {
         this.tableName = builder.tableName;
         this.partitionKeyName = builder.partitionKeyName;
         this.sortKeyName = builder.sortKeyName;
-        this.encryptor = DynamoDbEncryptor.getInstance(builder.materialProvider);
+        this.encryptor = DynamoDBEncryptor.getInstance(builder.materialProvider);
         this.attributeFlags = builder.attributeFlags;
     }
 
@@ -132,7 +132,7 @@ public class DDBECInterceptor implements ExecutionInterceptor {
                 case "BatchWriteItem":
                     return handleBatchWriteItemRequest((BatchWriteItemRequest) originalRequest);
                 default:
-                    throw new DynamoDbEncryptionException("TODO");
+                    return originalRequest;
             }
         } catch (Exception e) {
             throw new DynamoDbEncryptionException("Failed to encrypt request", e);
@@ -155,7 +155,7 @@ public class DDBECInterceptor implements ExecutionInterceptor {
                 case "BatchGetItem":
                     return handleBatchGetItemResponse((BatchGetItemResponse) originalResponse);
                 default:
-                    throw new DynamoDbEncryptionException("TODO");
+                    return originalResponse;
             }
         } catch (Exception e) {
             throw new DynamoDbEncryptionException("Failed to decrypt response", e);

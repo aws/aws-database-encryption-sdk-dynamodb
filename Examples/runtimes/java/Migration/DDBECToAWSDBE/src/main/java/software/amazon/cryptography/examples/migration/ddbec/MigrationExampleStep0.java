@@ -1,10 +1,8 @@
 package software.amazon.cryptography.examples.migration.ddbec;
 
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -13,7 +11,6 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.interceptor.DDBECInterceptor;
 
-import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
@@ -37,23 +34,13 @@ public class MigrationExampleStep0 {
     String kmsKeyId,
     String ddbTableName,
     int sortReadValue
-  ) throws GeneralSecurityException {
+  ) {
     // 1. Create the DirectKmsMaterialsProvider that protects your data keys.
     final KmsClient kmsClient = KmsClient.create();
     final DirectKmsMaterialsProvider materialProvider = new DirectKmsMaterialsProvider(
       kmsClient,
       kmsKeyId
     );
-
-    // 2. Create the DynamoDBEncryptor using the Material Provider created above
-    final DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(materialProvider);
-
-    // 3. Create encryption context
-    final EncryptionContext context = EncryptionContext.builder()
-      .tableName(ddbTableName)
-      .hashKeyName("partition_key")
-      .rangeKeyName("sort_key")
-      .build();
 
     // 4. Put an example item into our DynamoDb table.
     //    This item will be encrypted client-side before it is sent to DynamoDb.
@@ -113,7 +100,7 @@ public class MigrationExampleStep0 {
     assert response.item().get("attribute1").s().equals("encrypt and sign me!");
   }
 
-  public static void main(final String[] args) throws GeneralSecurityException {
+  public static void main(final String[] args) {
     if (args.length < 2) {
       throw new IllegalArgumentException(
         "To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args."
