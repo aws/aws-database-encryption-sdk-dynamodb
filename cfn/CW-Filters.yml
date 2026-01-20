@@ -1,11 +1,11 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'CloudWatch Metric Filters for Language DBESDK Performance Benchmarks'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudWatch Metric Filters for Language DBESDK Performance Benchmarks"
 
 Parameters:
   LogGroupName:
     Type: String
-    Default: 'aws-dbesdk-performance-benchmarks'
-    Description: 'CloudWatch Log Group name for performance benchmarks'
+    Default: "aws-dbesdk-performance-benchmarks"
+    Description: "CloudWatch Log Group name for performance benchmarks"
 
 Resources:
   # Filter 1: Memory Efficiency Ratio - Java
@@ -17,10 +17,10 @@ Resources:
       MetricTransformations:
         - MetricName: MemoryEfficiencyRatio
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.memory_efficiency_ratio'
+          MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
 
   # Filter 1: Memory Efficiency Ratio - Net
   NetMemoryEfficiencyRatioFilter:
@@ -31,10 +31,10 @@ Resources:
       MetricTransformations:
         - MetricName: MemoryEfficiencyRatio
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.memory_efficiency_ratio'
+          MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
 
   # Filter 1: Memory Efficiency Ratio - Python
   PythonMemoryEfficiencyRatioFilter:
@@ -45,10 +45,10 @@ Resources:
       MetricTransformations:
         - MetricName: MemoryEfficiencyRatio
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.memory_efficiency_ratio'
+          MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
 
   # Filter 1: Memory Efficiency Ratio - Go
   GoMemoryEfficiencyRatioFilter:
@@ -59,10 +59,10 @@ Resources:
       MetricTransformations:
         - MetricName: MemoryEfficiencyRatio
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.memory_efficiency_ratio'
+          MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
 
   # Filter 1: Memory Efficiency Ratio - Rust
   RustMemoryEfficiencyRatioFilter:
@@ -73,10 +73,10 @@ Resources:
       MetricTransformations:
         - MetricName: MemoryEfficiencyRatio
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.memory_efficiency_ratio'
+          MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
 
   # Filter 2: Memory Usage 50MB - Java
   JavaMemoryUsage50MBFilter:
@@ -87,11 +87,11 @@ Resources:
       MetricTransformations:
         - MetricName: PeakMemoryMB
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.peak_memory_mb'
+          MetricValue: "$.result.peak_memory_mb"
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
 
   # Filter 2: Memory Usage 50MB - Net
   NetMemoryUsage50MBFilter:
@@ -102,11 +102,11 @@ Resources:
       MetricTransformations:
         - MetricName: PeakMemoryMB
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.peak_memory_mb'
+          MetricValue: "$.result.peak_memory_mb"
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
 
   # Filter 2: Memory Usage 50MB - Python
   PythonMemoryUsage50MBFilter:
@@ -117,11 +117,11 @@ Resources:
       MetricTransformations:
         - MetricName: PeakMemoryMB
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.peak_memory_mb'
+          MetricValue: "$.result.peak_memory_mb"
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
 
   # Filter 2: Memory Usage 50MB - Go
   GoMemoryUsage50MBFilter:
@@ -132,11 +132,11 @@ Resources:
       MetricTransformations:
         - MetricName: PeakMemoryMB
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.peak_memory_mb'
+          MetricValue: "$.result.peak_memory_mb"
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
 
   # Filter 2: Memory Usage 50MB - Rust
   RustMemoryUsage50MBFilter:
@@ -147,11 +147,11 @@ Resources:
       MetricTransformations:
         - MetricName: PeakMemoryMB
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.peak_memory_mb'
+          MetricValue: "$.result.peak_memory_mb"
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
 
   # Filter 3: DataSize 52MB P50 Latency - Java
   JavaDataSize52MBP50LatencyFilter:
@@ -162,13 +162,13 @@ Resources:
       MetricTransformations:
         - MetricName: P50Latency
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 3: DataSize 52MB P50 Latency - Net
   NetDataSize52MBP50LatencyFilter:
@@ -179,13 +179,13 @@ Resources:
       MetricTransformations:
         - MetricName: P50Latency
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 3: DataSize 52MB P50 Latency - Python
   PythonDataSize52MBP50LatencyFilter:
@@ -196,13 +196,13 @@ Resources:
       MetricTransformations:
         - MetricName: P50Latency
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 3: DataSize 52MB P50 Latency - Go
   GoDataSize52MBP50LatencyFilter:
@@ -213,13 +213,13 @@ Resources:
       MetricTransformations:
         - MetricName: P50Latency
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 3: DataSize 52MB P50 Latency - Rust
   RustDataSize52MBP50LatencyFilter:
@@ -230,13 +230,13 @@ Resources:
       MetricTransformations:
         - MetricName: P50Latency
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 4: DataSize 52MB P95 Latency - Java
   JavaDataSize52MBP95LatencyFilter:
@@ -247,13 +247,13 @@ Resources:
       MetricTransformations:
         - MetricName: P95Latency
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 4: DataSize 52MB P95 Latency - Net
   NetDataSize52MBP95LatencyFilter:
@@ -264,13 +264,13 @@ Resources:
       MetricTransformations:
         - MetricName: P95Latency
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 4: DataSize 52MB P95 Latency - Python
   PythonDataSize52MBP95LatencyFilter:
@@ -281,13 +281,13 @@ Resources:
       MetricTransformations:
         - MetricName: P95Latency
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 4: DataSize 52MB P95 Latency - Go
   GoDataSize52MBP95LatencyFilter:
@@ -298,13 +298,13 @@ Resources:
       MetricTransformations:
         - MetricName: P95Latency
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 4: DataSize 52MB P95 Latency - Rust
   RustDataSize52MBP95LatencyFilter:
@@ -315,13 +315,13 @@ Resources:
       MetricTransformations:
         - MetricName: P95Latency
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 5: DataSize 52MB P99 Latency - Java
   JavaDataSize52MBP99LatencyFilter:
@@ -332,13 +332,13 @@ Resources:
       MetricTransformations:
         - MetricName: P99Latency
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 5: DataSize 52MB P99 Latency - Net
   NetDataSize52MBP99LatencyFilter:
@@ -349,13 +349,13 @@ Resources:
       MetricTransformations:
         - MetricName: P99Latency
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 5: DataSize 52MB P99 Latency - Python
   PythonDataSize52MBP99LatencyFilter:
@@ -366,13 +366,13 @@ Resources:
       MetricTransformations:
         - MetricName: P99Latency
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 5: DataSize 52MB P99 Latency - Go
   GoDataSize52MBP99LatencyFilter:
@@ -383,13 +383,13 @@ Resources:
       MetricTransformations:
         - MetricName: P99Latency
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 5: DataSize 52MB P99 Latency - Rust
   RustDataSize52MBP99LatencyFilter:
@@ -400,13 +400,13 @@ Resources:
       MetricTransformations:
         - MetricName: P99Latency
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
             - Key: TestType
-              Value: 'Throughput'
+              Value: "Throughput"
 
   # Filter 6: Concurrency P50 - Java
   JavaConcurrencyP50Filter:
@@ -417,13 +417,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP50Latency
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 6: Concurrency P50 - Net
   NetConcurrencyP50Filter:
@@ -434,13 +434,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP50Latency
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 6: Concurrency P50 - Python
   PythonConcurrencyP50Filter:
@@ -451,13 +451,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP50Latency
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 6: Concurrency P50 - Go
   GoConcurrencyP50Filter:
@@ -468,13 +468,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP50Latency
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 6: Concurrency P50 - Rust
   RustConcurrencyP50Filter:
@@ -485,13 +485,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP50Latency
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p50_latency'
+          MetricValue: "$.result.p50_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 7: Concurrency P95 - Java
   JavaConcurrencyP95Filter:
@@ -502,13 +502,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP95Latency
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 7: Concurrency P95 - Net
   NetConcurrencyP95Filter:
@@ -519,13 +519,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP95Latency
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 7: Concurrency P95 - Python
   PythonConcurrencyP95Filter:
@@ -536,13 +536,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP95Latency
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 7: Concurrency P95 - Go
   GoConcurrencyP95Filter:
@@ -553,13 +553,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP95Latency
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 7: Concurrency P95 - Rust
   RustConcurrencyP95Filter:
@@ -570,13 +570,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP95Latency
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p95_latency'
+          MetricValue: "$.result.p95_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 8: Concurrency P99 - Java
   JavaConcurrencyP99Filter:
@@ -587,13 +587,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP99Latency
           MetricNamespace: JavaDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'java'
+              Value: "java"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 8: Concurrency P99 - Net
   NetConcurrencyP99Filter:
@@ -604,13 +604,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP99Latency
           MetricNamespace: NetDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'net'
+              Value: "net"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 8: Concurrency P99 - Python
   PythonConcurrencyP99Filter:
@@ -621,13 +621,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP99Latency
           MetricNamespace: PythonDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'python'
+              Value: "python"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 8: Concurrency P99 - Go
   GoConcurrencyP99Filter:
@@ -638,13 +638,13 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP99Latency
           MetricNamespace: GoDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'go'
+              Value: "go"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
   # Filter 8: Concurrency P99 - Rust
   RustConcurrencyP99Filter:
@@ -655,25 +655,25 @@ Resources:
       MetricTransformations:
         - MetricName: ConcurrencyP99Latency
           MetricNamespace: RustDBESDKPerformanceBenchmarks
-          MetricValue: '$.result.p99_latency'
+          MetricValue: "$.result.p99_latency"
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: 'rust'
+              Value: "rust"
             - Key: TestType
-              Value: 'Concurrent'
+              Value: "Concurrent"
 
 Outputs:
   LogGroupName:
-    Description: 'CloudWatch Log Group Name'
+    Description: "CloudWatch Log Group Name"
     Value: !Ref LogGroupName
     Export:
-      Name: !Sub '${AWS::StackName}-LogGroupName'
-  
+      Name: !Sub "${AWS::StackName}-LogGroupName"
+
   TotalFiltersCreated:
-    Description: 'Total number of metric filters created'
-    Value: '40'
-  
+    Description: "Total number of metric filters created"
+    Value: "40"
+
   MetricNamespaces:
-    Description: 'CloudWatch Metrics Namespaces by Language'
-    Value: 'JavaDBESDKPerformanceBenchmarks, NetDBESDKPerformanceBenchmarks, PythonDBESDKPerformanceBenchmarks, GoDBESDKPerformanceBenchmarks, RustDBESDKPerformanceBenchmarks'
+    Description: "CloudWatch Metrics Namespaces by Language"
+    Value: "JavaDBESDKPerformanceBenchmarks, NetDBESDKPerformanceBenchmarks, PythonDBESDKPerformanceBenchmarks, GoDBESDKPerformanceBenchmarks, RustDBESDKPerformanceBenchmarks"
