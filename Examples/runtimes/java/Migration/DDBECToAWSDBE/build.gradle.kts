@@ -75,8 +75,8 @@ dependencies {
     implementation("software.amazon.awssdk:kms")
 
     // To support legacy configuration
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
-    implementation("com.amazonaws:aws-java-sdk-kms")
+//    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
+//    implementation("com.amazonaws:aws-java-sdk-kms")
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")

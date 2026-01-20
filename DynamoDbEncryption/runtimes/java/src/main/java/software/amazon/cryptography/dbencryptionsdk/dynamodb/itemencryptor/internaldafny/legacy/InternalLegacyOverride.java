@@ -34,17 +34,17 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.interna
 
 public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
-  private DynamoDBEncryptor encryptor;
-  private Map<String, Set<EncryptionFlags>> actions;
-  private EncryptionContext encryptionContext;
+  private Object encryptor;  // Can be SDK V1 or V2 DynamoDBEncryptor
+  private Object actions;  // Can be SDK V1 or V2 EncryptionFlags map
+  private Object encryptionContext;  // Can be SDK V1 or V2 EncryptionContext
   private LegacyPolicy _policy;
   private DafnySequence<Character> materialDescriptionFieldName;
   private DafnySequence<Character> signatureFieldName;
 
   private InternalLegacyOverride(
-    DynamoDBEncryptor encryptor,
-    Map<String, Set<EncryptionFlags>> actions,
-    EncryptionContext encryptionContext,
+    Object encryptor,  // Can be SDK V1 or V2 DynamoDBEncryptor
+    Object actions,  // Can be SDK V1 or V2 EncryptionFlags map
+    Object encryptionContext,  // Can be SDK V1 or V2 EncryptionContext
     LegacyPolicy policy
   ) {
     this.encryptor = encryptor;
@@ -53,14 +53,28 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     this._policy = policy;
     // It is possible that these values
     // have been customized by the customer.
-    this.materialDescriptionFieldName =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        encryptor.getMaterialDescriptionFieldName()
-      );
-    this.signatureFieldName =
-      software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        encryptor.getSignatureFieldName()
-      );
+    if (encryptor instanceof DynamoDBEncryptor) {
+      DynamoDBEncryptor v1Encryptor = (DynamoDBEncryptor) encryptor;
+      this.materialDescriptionFieldName =
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+          v1Encryptor.getMaterialDescriptionFieldName()
+        );
+      this.signatureFieldName =
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+          v1Encryptor.getSignatureFieldName()
+        );
+    } else if (encryptor instanceof software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) {
+      software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor v2Encryptor =
+        (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) encryptor;
+      this.materialDescriptionFieldName =
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+          v2Encryptor.getMaterialDescriptionFieldName()
+        );
+      this.signatureFieldName =
+        software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
+          v2Encryptor.getSignatureFieldName()
+        );
+    }
   }
 
   public static TypeDescriptor<InternalLegacyOverride> _typeDescriptor() {
@@ -109,19 +123,45 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           .EncryptItemInput(input)
           .plaintextItem();
 
-      final Map<
-        String,
-        com.amazonaws.services.dynamodbv2.model.AttributeValue
-      > encryptedItem = encryptor.encryptRecord(
-        V2MapToV1Map(plaintextItem),
-        actions,
-        encryptionContext
-      );
+      Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> encryptedItem;
+      
+      if (encryptor instanceof DynamoDBEncryptor) {
+        // SDK V1 path: V2 -> V1 -> encrypt -> V1 -> V2
+        DynamoDBEncryptor v1Encryptor = (DynamoDBEncryptor) encryptor;
+        @SuppressWarnings("unchecked")
+        Map<String, Set<EncryptionFlags>> v1Actions = (Map<String, Set<EncryptionFlags>>) actions;
+        EncryptionContext v1Context = (EncryptionContext) encryptionContext;
+        
+        final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> v1EncryptedItem =
+          v1Encryptor.encryptRecord(
+            V2MapToV1Map(plaintextItem),
+            v1Actions,
+            v1Context
+          );
+        encryptedItem = V1MapToV2Map(v1EncryptedItem);
+      } else if (encryptor instanceof software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) {
+        // SDK V2 path: V2 -> encrypt -> V2 (no conversion needed)
+        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor v2Encryptor =
+          (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) encryptor;
+        @SuppressWarnings("unchecked")
+        Map<String, Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags>> v2Actions =
+          (Map<String, Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags>>) actions;
+        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext v2Context =
+          (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext) encryptionContext;
+        
+        encryptedItem = v2Encryptor.encryptRecord(
+          plaintextItem,
+          v2Actions,
+          v2Context
+        );
+      } else {
+        throw new IllegalStateException("Unsupported encryptor type");
+      }
 
       final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput nativeOutput =
         software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput
           .builder()
-          .encryptedItem(V1MapToV2Map(encryptedItem))
+          .encryptedItem(encryptedItem)
           .build();
       final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.EncryptItemOutput dafnyOutput =
         software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToDafny.EncryptItemOutput(
@@ -162,19 +202,45 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           .DecryptItemInput(input)
           .encryptedItem();
 
-      final Map<
-        String,
-        com.amazonaws.services.dynamodbv2.model.AttributeValue
-      > plaintextItem = encryptor.decryptRecord(
-        V2MapToV1Map(encryptedItem),
-        actions,
-        encryptionContext
-      );
+      Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> plaintextItem;
+      
+      if (encryptor instanceof DynamoDBEncryptor) {
+        // SDK V1 path: V2 -> V1 -> decrypt -> V1 -> V2
+        DynamoDBEncryptor v1Encryptor = (DynamoDBEncryptor) encryptor;
+        @SuppressWarnings("unchecked")
+        Map<String, Set<EncryptionFlags>> v1Actions = (Map<String, Set<EncryptionFlags>>) actions;
+        EncryptionContext v1Context = (EncryptionContext) encryptionContext;
+        
+        final Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> v1PlaintextItem =
+          v1Encryptor.decryptRecord(
+            V2MapToV1Map(encryptedItem),
+            v1Actions,
+            v1Context
+          );
+        plaintextItem = V1MapToV2Map(v1PlaintextItem);
+      } else if (encryptor instanceof software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) {
+        // SDK V2 path: V2 -> decrypt -> V2 (no conversion needed)
+        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor v2Encryptor =
+          (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) encryptor;
+        @SuppressWarnings("unchecked")
+        Map<String, Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags>> v2Actions =
+          (Map<String, Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags>>) actions;
+        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext v2Context =
+          (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext) encryptionContext;
+        
+        plaintextItem = v2Encryptor.decryptRecord(
+          encryptedItem,
+          v2Actions,
+          v2Context
+        );
+      } else {
+        throw new IllegalStateException("Unsupported encryptor type");
+      }
 
       final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput nativeOutput =
         software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput
           .builder()
-          .plaintextItem(V1MapToV2Map(plaintextItem))
+          .plaintextItem(plaintextItem)
           .build();
       final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.DecryptItemOutput dafnyOutput =
         software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToDafny.DecryptItemOutput(
@@ -224,17 +290,57 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
 
+    // Convert actions and context to appropriate SDK version
+    Object finalActions;
+    Object finalContext;
+    
+    if (maybeEncryptor instanceof DynamoDBEncryptor) {
+      // SDK V1: use as-is
+      finalActions = maybeActions.value();
+      finalContext = maybeEncryptionContext.value();
+    } else if (maybeEncryptor instanceof software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) {
+      // SDK V2: convert from V1 to V2
+      finalActions = convertActionsV1ToV2(maybeActions.value());
+      finalContext = convertEncryptionContextV1ToV2(maybeEncryptionContext.value());
+    } else {
+      return CreateBuildFailure(createError("Unsupported encryptor type"));
+    }
+
     final InternalLegacyOverride internalLegacyOverride =
       new InternalLegacyOverride(
-        (DynamoDBEncryptor) maybeEncryptor,
-        maybeActions.value(),
-        maybeEncryptionContext.value(),
+        maybeEncryptor,
+        finalActions,
+        finalContext,
         legacyOverride.dtor_policy()
       );
 
     return CreateBuildSuccess(
       CreateInternalLegacyOverrideSome(internalLegacyOverride)
     );
+  }
+
+  // Convert SDK V1 EncryptionFlags to SDK V2
+  private static Map<String, Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags>>
+    convertActionsV1ToV2(Map<String, Set<EncryptionFlags>> v1Actions) {
+    Map<String, Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags>> v2Actions = new HashMap<>();
+    for (Map.Entry<String, Set<EncryptionFlags>> entry : v1Actions.entrySet()) {
+      Set<software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags> v2Flags = new HashSet<>();
+      for (EncryptionFlags v1Flag : entry.getValue()) {
+        v2Flags.add(software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags.valueOf(v1Flag.name()));
+      }
+      v2Actions.put(entry.getKey(), v2Flags);
+    }
+    return v2Actions;
+  }
+
+  // Convert SDK V1 EncryptionContext to SDK V2
+  private static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
+    convertEncryptionContextV1ToV2(EncryptionContext v1Context) {
+    return software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.builder()
+      .tableName(v1Context.getTableName())
+      .hashKeyName(v1Context.getHashKeyName())
+      .rangeKeyName(v1Context.getRangeKeyName())
+      .build();
   }
 
   //  Everything below this point is an implementation detail
@@ -250,7 +356,8 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   public static boolean isDynamoDBEncryptor(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor maybe
   ) {
-    return maybe instanceof DynamoDBEncryptor;
+    return maybe instanceof DynamoDBEncryptor ||
+           maybe instanceof software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
   }
 
   public static String ToNativeString(DafnySequence<? extends Character> s) {

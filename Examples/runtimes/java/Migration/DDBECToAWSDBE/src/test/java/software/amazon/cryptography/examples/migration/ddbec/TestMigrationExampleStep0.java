@@ -2,7 +2,6 @@ package software.amazon.cryptography.examples.migration.ddbec;
 
 import static org.testng.Assert.assertThrows;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMappingException;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep2;

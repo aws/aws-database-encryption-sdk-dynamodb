@@ -111,7 +111,7 @@ public class MigrationExampleStep1 {
             kmsKeyId
     );
 //    final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-//    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
+//    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(ps aux | grep kiro-cli
 //      kmsClient,
 //      kmsKeyId
 //    );

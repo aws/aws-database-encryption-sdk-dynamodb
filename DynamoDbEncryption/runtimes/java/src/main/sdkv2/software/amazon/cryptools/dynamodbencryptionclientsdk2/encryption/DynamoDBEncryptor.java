@@ -455,7 +455,7 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
      *
      * @return the name of the DynamoDB field used to store the signature
      */
-    String getSignatureFieldName() {
+    public String getSignatureFieldName() {
         return signatureFieldName;
     }
 
@@ -464,7 +464,7 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
      *
      * @param signatureFieldName
      */
-    void setSignatureFieldName(final String signatureFieldName) {
+    public void setSignatureFieldName(final String signatureFieldName) {
         this.signatureFieldName = signatureFieldName;
     }
 

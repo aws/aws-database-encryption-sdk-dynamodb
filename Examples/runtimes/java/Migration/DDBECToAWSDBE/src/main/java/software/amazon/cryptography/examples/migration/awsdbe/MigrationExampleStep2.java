@@ -1,9 +1,16 @@
 package software.amazon.cryptography.examples.migration.awsdbe;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+// V1
+//import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
+//import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
+//import com.amazonaws.services.kms.AWSKMS;
+//import com.amazonaws.services.kms.AWSKMSClientBuilder;
+
+// v2
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +33,7 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
 
 /*
   Migration Step 2: This is an example demonstrating how to update your configuration
@@ -76,11 +84,19 @@ public class MigrationExampleStep2 {
     legacyActions.put("attribute2", CryptoAction.SIGN_ONLY);
     legacyActions.put("attribute3", CryptoAction.DO_NOTHING);
 
-    final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kmsClient,
-      kmsKeyId
+    // V2
+    final KmsClient kmsClient = KmsClient.create();
+    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(
+            kmsClient,
+            kmsKeyId
     );
+
+    // v1
+//    final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
+//    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
+//      kmsClient,
+//      kmsKeyId
+//    );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
     // 2. When configuring our legacy behavior, use `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
