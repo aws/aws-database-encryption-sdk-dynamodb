@@ -10,11 +10,11 @@ data_sizes:
   medium:
     - 102400 # 100KB
     - 512000 # 500KB
+    - 1048576 # 1MB
   large:
     - 10485760 # 10MB
     - 52428800 # 50MB
-    - 104857600
-    - 100000000 # 100MB
+    - 104857600 # 100MB
 
 # Quick test configuration (reduced test set for faster execution)
 quick_config:
