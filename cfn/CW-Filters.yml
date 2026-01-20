@@ -20,7 +20,7 @@ Resources:
           MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: "java"
+              Value: "$.result.language"
 
   # Filter 1: Memory Efficiency Ratio - Net
   NetMemoryEfficiencyRatioFilter:
@@ -34,7 +34,7 @@ Resources:
           MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: "net"
+              Value: "$.result.language"
 
   # Filter 1: Memory Efficiency Ratio - Python
   PythonMemoryEfficiencyRatioFilter:
@@ -48,7 +48,7 @@ Resources:
           MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: "python"
+              Value: "$.result.language"
 
   # Filter 1: Memory Efficiency Ratio - Go
   GoMemoryEfficiencyRatioFilter:
@@ -62,7 +62,7 @@ Resources:
           MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: "go"
+              Value: "$.result.language"
 
   # Filter 1: Memory Efficiency Ratio - Rust
   RustMemoryEfficiencyRatioFilter:
@@ -76,7 +76,7 @@ Resources:
           MetricValue: "$.result.memory_efficiency_ratio"
           Dimensions:
             - Key: Language
-              Value: "rust"
+              Value: "$.result.language"
 
   # Filter 2: Memory Usage 50MB - Java
   JavaMemoryUsage50MBFilter:
@@ -91,7 +91,7 @@ Resources:
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: "java"
+              Value: "$.result.language"
 
   # Filter 2: Memory Usage 50MB - Net
   NetMemoryUsage50MBFilter:
@@ -106,7 +106,7 @@ Resources:
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: "net"
+              Value: "$.result.language"
 
   # Filter 2: Memory Usage 50MB - Python
   PythonMemoryUsage50MBFilter:
@@ -121,7 +121,7 @@ Resources:
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: "python"
+              Value: "$.result.language"
 
   # Filter 2: Memory Usage 50MB - Go
   GoMemoryUsage50MBFilter:
@@ -136,7 +136,7 @@ Resources:
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: "go"
+              Value: "$.result.language"
 
   # Filter 2: Memory Usage 50MB - Rust
   RustMemoryUsage50MBFilter:
@@ -151,7 +151,7 @@ Resources:
           Unit: Megabytes
           Dimensions:
             - Key: Language
-              Value: "rust"
+              Value: "$.result.language"
 
   # Filter 3: DataSize 52MB P50 Latency - Java
   JavaDataSize52MBP50LatencyFilter:
@@ -166,9 +166,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "java"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 3: DataSize 52MB P50 Latency - Net
   NetDataSize52MBP50LatencyFilter:
@@ -183,9 +181,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "net"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 3: DataSize 52MB P50 Latency - Python
   PythonDataSize52MBP50LatencyFilter:
@@ -200,9 +196,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "python"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 3: DataSize 52MB P50 Latency - Go
   GoDataSize52MBP50LatencyFilter:
@@ -217,9 +211,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "go"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 3: DataSize 52MB P50 Latency - Rust
   RustDataSize52MBP50LatencyFilter:
@@ -234,9 +226,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "rust"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 4: DataSize 52MB P95 Latency - Java
   JavaDataSize52MBP95LatencyFilter:
@@ -251,9 +241,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "java"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 4: DataSize 52MB P95 Latency - Net
   NetDataSize52MBP95LatencyFilter:
@@ -268,9 +256,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "net"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 4: DataSize 52MB P95 Latency - Python
   PythonDataSize52MBP95LatencyFilter:
@@ -285,9 +271,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "python"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 4: DataSize 52MB P95 Latency - Go
   GoDataSize52MBP95LatencyFilter:
@@ -302,9 +286,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "go"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 4: DataSize 52MB P95 Latency - Rust
   RustDataSize52MBP95LatencyFilter:
@@ -319,9 +301,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "rust"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 5: DataSize 52MB P99 Latency - Java
   JavaDataSize52MBP99LatencyFilter:
@@ -336,9 +316,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "java"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 5: DataSize 52MB P99 Latency - Net
   NetDataSize52MBP99LatencyFilter:
@@ -353,9 +331,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "net"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 5: DataSize 52MB P99 Latency - Python
   PythonDataSize52MBP99LatencyFilter:
@@ -370,9 +346,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "python"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 5: DataSize 52MB P99 Latency - Go
   GoDataSize52MBP99LatencyFilter:
@@ -387,9 +361,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "go"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 5: DataSize 52MB P99 Latency - Rust
   RustDataSize52MBP99LatencyFilter:
@@ -404,9 +376,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "rust"
-            - Key: TestType
-              Value: "Throughput"
+              Value: "$.result.language"
 
   # Filter 6: Concurrency P50 - Java
   JavaConcurrencyP50Filter:
@@ -421,9 +391,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "java"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 6: Concurrency P50 - Net
   NetConcurrencyP50Filter:
@@ -438,9 +406,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "net"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 6: Concurrency P50 - Python
   PythonConcurrencyP50Filter:
@@ -455,9 +421,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "python"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 6: Concurrency P50 - Go
   GoConcurrencyP50Filter:
@@ -472,9 +436,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "go"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 6: Concurrency P50 - Rust
   RustConcurrencyP50Filter:
@@ -489,9 +451,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "rust"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 7: Concurrency P95 - Java
   JavaConcurrencyP95Filter:
@@ -506,9 +466,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "java"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 7: Concurrency P95 - Net
   NetConcurrencyP95Filter:
@@ -523,9 +481,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "net"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 7: Concurrency P95 - Python
   PythonConcurrencyP95Filter:
@@ -540,9 +496,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "python"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 7: Concurrency P95 - Go
   GoConcurrencyP95Filter:
@@ -557,9 +511,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "go"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 7: Concurrency P95 - Rust
   RustConcurrencyP95Filter:
@@ -574,9 +526,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "rust"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 8: Concurrency P99 - Java
   JavaConcurrencyP99Filter:
@@ -591,9 +541,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "java"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 8: Concurrency P99 - Net
   NetConcurrencyP99Filter:
@@ -608,9 +556,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "net"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 8: Concurrency P99 - Python
   PythonConcurrencyP99Filter:
@@ -625,9 +571,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "python"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 8: Concurrency P99 - Go
   GoConcurrencyP99Filter:
@@ -642,9 +586,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "go"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
   # Filter 8: Concurrency P99 - Rust
   RustConcurrencyP99Filter:
@@ -659,9 +601,7 @@ Resources:
           Unit: Milliseconds
           Dimensions:
             - Key: Language
-              Value: "rust"
-            - Key: TestType
-              Value: "Concurrent"
+              Value: "$.result.language"
 
 Outputs:
   LogGroupName:
