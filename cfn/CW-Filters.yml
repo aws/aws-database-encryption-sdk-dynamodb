@@ -1,0 +1,679 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudWatch Metric Filters for Language DBESDK Performance Benchmarks'
+
+Parameters:
+  LogGroupName:
+    Type: String
+    Default: 'aws-dbesdk-performance-benchmarks'
+    Description: 'CloudWatch Log Group name for performance benchmarks'
+
+Resources:
+  # Filter 1: Memory Efficiency Ratio - Java
+  JavaMemoryEfficiencyRatioFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: MemoryEfficiencyRatio
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.memory_efficiency_ratio'
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+
+  # Filter 1: Memory Efficiency Ratio - Net
+  NetMemoryEfficiencyRatioFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "net" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: MemoryEfficiencyRatio
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.memory_efficiency_ratio'
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+
+  # Filter 1: Memory Efficiency Ratio - Python
+  PythonMemoryEfficiencyRatioFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "python" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: MemoryEfficiencyRatio
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.memory_efficiency_ratio'
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+
+  # Filter 1: Memory Efficiency Ratio - Go
+  GoMemoryEfficiencyRatioFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "go" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: MemoryEfficiencyRatio
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.memory_efficiency_ratio'
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+
+  # Filter 1: Memory Efficiency Ratio - Rust
+  RustMemoryEfficiencyRatioFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "rust" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: MemoryEfficiencyRatio
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.memory_efficiency_ratio'
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+
+  # Filter 2: Memory Usage 50MB - Java
+  JavaMemoryUsage50MBFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: PeakMemoryMB
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.peak_memory_mb'
+          Unit: Megabytes
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+
+  # Filter 2: Memory Usage 50MB - Net
+  NetMemoryUsage50MBFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "net" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: PeakMemoryMB
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.peak_memory_mb'
+          Unit: Megabytes
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+
+  # Filter 2: Memory Usage 50MB - Python
+  PythonMemoryUsage50MBFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "python" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: PeakMemoryMB
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.peak_memory_mb'
+          Unit: Megabytes
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+
+  # Filter 2: Memory Usage 50MB - Go
+  GoMemoryUsage50MBFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "go" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: PeakMemoryMB
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.peak_memory_mb'
+          Unit: Megabytes
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+
+  # Filter 2: Memory Usage 50MB - Rust
+  RustMemoryUsage50MBFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "rust" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: PeakMemoryMB
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.peak_memory_mb'
+          Unit: Megabytes
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+
+  # Filter 3: DataSize 52MB P50 Latency - Java
+  JavaDataSize52MBP50LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "java" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P50Latency
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 3: DataSize 52MB P50 Latency - Net
+  NetDataSize52MBP50LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "net" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P50Latency
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 3: DataSize 52MB P50 Latency - Python
+  PythonDataSize52MBP50LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "python" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P50Latency
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 3: DataSize 52MB P50 Latency - Go
+  GoDataSize52MBP50LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "go" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P50Latency
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 3: DataSize 52MB P50 Latency - Rust
+  RustDataSize52MBP50LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "rust" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P50Latency
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 4: DataSize 52MB P95 Latency - Java
+  JavaDataSize52MBP95LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "java" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P95Latency
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 4: DataSize 52MB P95 Latency - Net
+  NetDataSize52MBP95LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "net" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P95Latency
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 4: DataSize 52MB P95 Latency - Python
+  PythonDataSize52MBP95LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "python" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P95Latency
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 4: DataSize 52MB P95 Latency - Go
+  GoDataSize52MBP95LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "go" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P95Latency
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 4: DataSize 52MB P95 Latency - Rust
+  RustDataSize52MBP95LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "rust" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P95Latency
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 5: DataSize 52MB P99 Latency - Java
+  JavaDataSize52MBP99LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "java" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P99Latency
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 5: DataSize 52MB P99 Latency - Net
+  NetDataSize52MBP99LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "net" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P99Latency
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 5: DataSize 52MB P99 Latency - Python
+  PythonDataSize52MBP99LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "python" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P99Latency
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 5: DataSize 52MB P99 Latency - Go
+  GoDataSize52MBP99LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "go" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P99Latency
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 5: DataSize 52MB P99 Latency - Rust
+  RustDataSize52MBP99LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "rust" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P99Latency
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+            - Key: TestType
+              Value: 'Throughput'
+
+  # Filter 6: Concurrency P50 - Java
+  JavaConcurrencyP50Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP50Latency
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 6: Concurrency P50 - Net
+  NetConcurrencyP50Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "net" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP50Latency
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 6: Concurrency P50 - Python
+  PythonConcurrencyP50Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "python" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP50Latency
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 6: Concurrency P50 - Go
+  GoConcurrencyP50Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "go" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP50Latency
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 6: Concurrency P50 - Rust
+  RustConcurrencyP50Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "rust" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP50Latency
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p50_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 7: Concurrency P95 - Java
+  JavaConcurrencyP95Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP95Latency
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 7: Concurrency P95 - Net
+  NetConcurrencyP95Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "net" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP95Latency
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 7: Concurrency P95 - Python
+  PythonConcurrencyP95Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "python" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP95Latency
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 7: Concurrency P95 - Go
+  GoConcurrencyP95Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "go" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP95Latency
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 7: Concurrency P95 - Rust
+  RustConcurrencyP95Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "rust" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP95Latency
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p95_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 8: Concurrency P99 - Java
+  JavaConcurrencyP99Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP99Latency
+          MetricNamespace: JavaDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'java'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 8: Concurrency P99 - Net
+  NetConcurrencyP99Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "net" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP99Latency
+          MetricNamespace: NetDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'net'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 8: Concurrency P99 - Python
+  PythonConcurrencyP99Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "python" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP99Latency
+          MetricNamespace: PythonDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'python'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 8: Concurrency P99 - Go
+  GoConcurrencyP99Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "go" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP99Latency
+          MetricNamespace: GoDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'go'
+            - Key: TestType
+              Value: 'Concurrent'
+
+  # Filter 8: Concurrency P99 - Rust
+  RustConcurrencyP99Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "rust" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP99Latency
+          MetricNamespace: RustDBESDKPerformanceBenchmarks
+          MetricValue: '$.result.p99_latency'
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: 'rust'
+            - Key: TestType
+              Value: 'Concurrent'
+
+Outputs:
+  LogGroupName:
+    Description: 'CloudWatch Log Group Name'
+    Value: !Ref LogGroupName
+    Export:
+      Name: !Sub '${AWS::StackName}-LogGroupName'
+  
+  TotalFiltersCreated:
+    Description: 'Total number of metric filters created'
+    Value: '40'
+  
+  MetricNamespaces:
+    Description: 'CloudWatch Metrics Namespaces by Language'
+    Value: 'JavaDBESDKPerformanceBenchmarks, NetDBESDKPerformanceBenchmarks, PythonDBESDKPerformanceBenchmarks, GoDBESDKPerformanceBenchmarks, RustDBESDKPerformanceBenchmarks'

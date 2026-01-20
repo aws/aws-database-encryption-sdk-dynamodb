@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// Print summary
-	fmt.Printf("\n=== ESDK Go Benchmark Summary ===\n")
+	fmt.Printf("\n=== DBESDK Go Benchmark Summary ===\n")
 	fmt.Printf("Total tests completed: %d\n", len(bench.Results))
 	fmt.Printf("Results saved to: %s\n", *outputPath)
 
