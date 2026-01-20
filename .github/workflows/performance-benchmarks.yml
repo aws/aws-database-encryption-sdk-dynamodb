@@ -22,16 +22,10 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   notify:
-    needs:
-      [
-        getVersion,
-        performance-benchmarks-go,
-      ]
+    needs: [getVersion, performance-benchmarks-go]
     if: ${{ failure() }}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
     with:
       message: "Performance Benchmarks failed on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CI }}
-
-

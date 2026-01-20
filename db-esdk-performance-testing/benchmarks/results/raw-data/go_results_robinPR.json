@@ -331,7 +331,7 @@
     {
       "test_name": "memory",
       "language": "go",
-      "dataSize":52428800,
+      "dataSize": 52428800,
       "concurrency": 1,
       "put_latency_ms": 0,
       "get_latency_ms": 0,
