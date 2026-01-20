@@ -107,3 +107,28 @@ jobs:
         run: |
             go run . --config ../config/test-scenarios.yaml --quick
 
+      - name: Parse and Format Logs
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/results/raw-data/
+        run: |
+          LOG_FILE="go_results.json"
+          UPLOAD_FILE="cloudwatch_logs.json"
+          TIMESTAMP=$(date +%s%3N)
+          jq -c --arg ts "$(date +%s)000" '[.results[] as $result | .metadata as $meta | {timestamp: ($ts | tonumber), message: ({metadata: $meta, result: $result} | tostring)}]' $LOG_FILE > $UPLOAD_FILE
+
+      - name: Upload logs to CloudWatch
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/results/raw-data/
+        run: |
+          LOG_FILE="cloudwatch_logs.json"
+          LOG_GROUP="aws-dbesdk-performance-benchmarks"
+          LOG_STREAM="go/${{matrix.go-version}}/quick_benchmarks/${{ github.workflow }}"
+
+          # Create log stream (ignore if exists)
+          aws logs create-log-stream \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" 2>/dev/null || true
+
+          aws logs put-log-events \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" \
+            --log-events file://$LOG_FILE
+
