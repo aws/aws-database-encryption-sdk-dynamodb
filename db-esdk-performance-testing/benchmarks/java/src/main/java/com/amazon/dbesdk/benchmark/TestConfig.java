@@ -285,8 +285,8 @@ public class TestConfig {
     // Replace data sizes with quick config
     if (quickConfig.getDataSizes() != null) {
       this.dataSizes.setSmall(quickConfig.getDataSizes().getSmall());
-      this.dataSizes.setMedium(List.of()); // Empty list
-      this.dataSizes.setLarge(List.of()); // Empty list
+      this.dataSizes.setMedium(java.util.Collections.emptyList()); // Empty list
+      this.dataSizes.setLarge(java.util.Collections.emptyList()); // Empty list
     }
 
     // Replace concurrency levels

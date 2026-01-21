@@ -27,6 +27,9 @@ var dafnyRuntimeJavaVersion = props.getProperty("dafnyRuntimeJavaVersion")
 var smithyDafnyJavaConversionVersion = props.getProperty("smithyDafnyJavaConversionVersion")
 
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+}
 
 application {
     mainClass.set("com.amazon.dbesdk.benchmark.Program")

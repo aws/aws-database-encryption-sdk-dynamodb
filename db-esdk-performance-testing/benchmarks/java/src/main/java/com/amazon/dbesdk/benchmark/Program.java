@@ -187,7 +187,7 @@ public class Program {
     List<BenchmarkResult> testResults = results
       .stream()
       .filter(r -> testType.equals(r.getTestName()))
-      .toList();
+      .collect(java.util.stream.Collectors.toList());
 
     if (testResults.isEmpty()) {
       return;

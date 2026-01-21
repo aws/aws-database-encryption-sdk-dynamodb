@@ -267,8 +267,8 @@ public class DBESDKBenchmark {
    * Gets the total allocated bytes for the current thread.
    */
   private static long getTotalAllocatedBytes() {
-    final var threadBean = ManagementFactory.getThreadMXBean();
-    final var sunThreadBean = (com.sun.management.ThreadMXBean) threadBean;
+    final Object threadBean = ManagementFactory.getThreadMXBean();
+    final com.sun.management.ThreadMXBean sunThreadBean = (com.sun.management.ThreadMXBean) threadBean;
 
     if (!sunThreadBean.isThreadAllocatedMemoryEnabled()) {
       sunThreadBean.setThreadAllocatedMemoryEnabled(true);
@@ -731,14 +731,36 @@ public class DBESDKBenchmark {
     }
   }
 
-  // Helper records for enhanced memory testing
-  private record IterationResult(
-    double peakMemory,
-    double totalAllocs,
-    double avgMemory
-  ) {}
+  // Helper classes for enhanced memory testing
+  private static class IterationResult {
+    final double peakMemory;
+    final double totalAllocs;
+    final double avgMemory;
 
-  private record MemoryResults(double peakMemoryMb, double avgMemoryMb) {}
+    IterationResult(double peakMemory, double totalAllocs, double avgMemory) {
+      this.peakMemory = peakMemory;
+      this.totalAllocs = totalAllocs;
+      this.avgMemory = avgMemory;
+    }
+  }
 
-  private record EnhancedMemorySample(double heapMB, double allocsMB) {}
+  private static class MemoryResults {
+    final double peakMemoryMb;
+    final double avgMemoryMb;
+
+    MemoryResults(double peakMemoryMb, double avgMemoryMb) {
+      this.peakMemoryMb = peakMemoryMb;
+      this.avgMemoryMb = avgMemoryMb;
+    }
+  }
+
+  private static class EnhancedMemorySample {
+    final double heapMB;
+    final double allocsMB;
+
+    EnhancedMemorySample(double heapMB, double allocsMB) {
+      this.heapMB = heapMB;
+      this.allocsMB = allocsMB;
+    }
+  }
 }
