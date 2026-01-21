@@ -24,11 +24,11 @@ jobs:
     strategy:
       matrix:
         library: [TestVectors]
-        dotnet-version: ["6.0.x"]
+        dotnet-version: ["8.0.x"]
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
-            macos-15-intel,
+            macos-latest,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -43,7 +43,7 @@ jobs:
           role-session-name: DDBEC-Dafny-DotNet-Tests
 
       - name: Setup Docker
-        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        if: matrix.os == 'macos-latest' && matrix.library == 'TestVectors'
         uses: douglascamata/setup-docker-macos-action@v1.0.2
 
       - name: Setup DynamoDB Local
@@ -89,7 +89,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup .NET OpenSSL on Mac
-        if: matrix.os == 'macos-15-intel'
+        if: matrix.os == 'macos-latest'
         run: |
           brew install openssl@3
           echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
@@ -102,9 +102,9 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           make transpile_net
 
-      - name: Test TestVectors on .NET 6.0
+      - name: Test TestVectors on .NET 8.0
         working-directory: ./${{matrix.library}}/runtimes/net
         run: |
           cp ../java/*.json .
           dotnet run
-          dotnet run --framework net6.0
+          dotnet run --framework net8.0

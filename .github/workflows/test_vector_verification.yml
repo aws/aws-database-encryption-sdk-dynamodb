@@ -29,7 +29,7 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -61,12 +61,12 @@ jobs:
         run: |
           sed "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{inputs.mpl-version}}/g" project.properties > project.properties2; mv project.properties2 project.properties
 
-      # dafny-reportgenerator requires next6
-      # but only 7.0 is installed on macos-14-large
-      - name: Setup .NET Core SDK '6.0.x'
+      # dafny-reportgenerator requires .NET 6+
+      # Ensure .NET 8.0.x is available
+      - name: Setup .NET Core SDK '8.0.x'
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: "8.0.x"
 
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies

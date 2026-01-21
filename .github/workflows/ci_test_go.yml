@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         library: [DynamoDbEncryption, TestVectors]
-        os: [ubuntu-22.04, macos-15-intel]
+        os: [ubuntu-22.04, macos-latest]
         go-version: ["1.23", "1.24", "1.25"]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -44,7 +44,7 @@ jobs:
           role-session-name: DDBEC-Dafny-Java-Tests
 
       - name: Setup Docker
-        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        if: matrix.os == 'macos-latest' && matrix.library == 'TestVectors'
         uses: douglascamata/setup-docker-macos-action@v1.0.2
 
       - name: Setup DynamoDB Local
@@ -68,7 +68,7 @@ jobs:
           dafny-version: ${{ inputs.dafny }}
 
       - name: Create temporary global.json
-        run: echo '{"sdk":{"rollForward":"latestFeature","version":"6.0.0"}}' > ./global.json
+        run: echo '{"sdk":{"rollForward":"latestFeature","version":"8.0.0"}}' > ./global.json
 
       - name: Setup Java 17 for codegen
         uses: actions/setup-java@v5
