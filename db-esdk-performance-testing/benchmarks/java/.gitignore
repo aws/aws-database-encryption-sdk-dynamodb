@@ -1,1 +1,15 @@
-.gradle/
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# Ignore bin
+bin
+
+# JetBrains
+.idea/*
+*.iml
+
+# Mac OS X
+.DS_Store
