@@ -1,60 +1,97 @@
 import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
+import java.net.URI
+import javax.annotation.Nullable
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+tasks.wrapper {
+    gradleVersion = "7.6"
+}
 
 plugins {
-    java
+    `java`
+    `java-library`
+    `maven-publish`
     application
 }
 
-// Load properties from the main project
 var props = Properties().apply {
     load(FileInputStream(File(rootProject.rootDir, "../../../project.properties")))
 }
 
-group = "com.amazon.dbesdk.benchmark"
-version = "1.0.0"
-description = "DB-ESDK Performance Benchmark for Java"
-
 var mplVersion = props.getProperty("mplDependencyJavaVersion")
-var dafnyRuntimeJavaVersion = props.getProperty("dafnyRuntimeJavaVersion") 
+var ddbecVersion = props.getProperty("projectJavaVersion")
+var dafnyRuntimeJavaVersion = props.getProperty("dafnyRuntimeJavaVersion")
 var smithyDafnyJavaConversionVersion = props.getProperty("smithyDafnyJavaConversionVersion")
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
-}
+
 
 application {
     mainClass.set("com.amazon.dbesdk.benchmark.Program")
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
+var caUrl: URI? = null
+@Nullable
+val caUrlStr: String? = System.getenv("CODEARTIFACT_REPO_URL")
+if (!caUrlStr.isNullOrBlank()) {
+    caUrl = URI.create(caUrlStr)
 }
 
+var caPassword: String? = null
+@Nullable
+val caPasswordString: String? = System.getenv("CODEARTIFACT_TOKEN")
+if (!caPasswordString.isNullOrBlank()) {
+    caPassword = caPasswordString
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        name = "DynamoDB Local Release Repository - US West (Oregon) Region"
+        url  = URI.create("https://s3-us-west-2.amazonaws.com/dynamodb-local/release")
+    }
+    mavenLocal()
+    mavenCentral()
+    if (caUrl != null && caPassword != null) {
+        maven {
+            name = "CodeArtifact"
+            url = caUrl!!
+            credentials {
+                username = "aws"
+                password = caPassword!!
+            }
+        }
+    }
+}
+
+// Configuration to hold SQLLite information.
+// DynamoDB-Local needs to have access to native sqllite4java.
+val dynamodb by configurations.creating
+
 dependencies {
-    // Core DB-ESDK and cryptography dependencies
+    implementation("org.dafny:DafnyRuntime:${dafnyRuntimeJavaVersion}")
+    implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${props.getProperty("projectJavaVersion")}")
-    
-    // AWS SDK v2 dependencies
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
+    implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:${mplVersion}")
+
     implementation(platform("software.amazon.awssdk:bom:2.30.18"))
     implementation("software.amazon.awssdk:dynamodb")
-    
-    // Configuration and JSON processing
-    implementation("org.yaml:snakeyaml:2.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
-    
-    // Command line parsing
-    implementation("commons-cli:commons-cli:1.9.0")
-    
-    // Progress bar for visual feedback (optional)
-    implementation("me.tongfei:progressbar:0.10.1")
-    
-    // Testing dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    implementation("software.amazon.awssdk:dynamodb-enhanced")
+    implementation("software.amazon.awssdk:core:2.30.18")
+    implementation("software.amazon.awssdk:kms")
+    testImplementation("com.amazonaws:DynamoDBLocal:2.+")
+    // This is where we gather the SQLLite files to copy over
+    dynamodb("com.amazonaws:DynamoDBLocal:2.+")
+    // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
+    // This checks the dependencies and adds a native library
+    // to support this architecture.
+    if (org.apache.tools.ant.taskdefs.condition.Os.isArch("aarch64")) {
+        testImplementation("io.github.ganadist.sqlite4java:libsqlite4java-osx-aarch64:1.0.392")
+        dynamodb("io.github.ganadist.sqlite4java:libsqlite4java-osx-aarch64:1.0.392")
+    }
 }
 
 tasks.test {
@@ -80,10 +117,6 @@ tasks.register<Jar>("fatJar") {
     }
 }
 
-// Run task configuration for easier command line usage
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
-    if (project.hasProperty("args")) {
-        args = (project.property("args") as String).split(" ")
-    }
 }
