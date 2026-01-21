@@ -9,6 +9,7 @@ import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
 import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class KeyringSetup {
         CreateRawAesKeyringInput keyringInput = CreateRawAesKeyringInput.builder()
                 .keyName("test-aes-256-key")
                 .keyNamespace("DB-ESDK-performance-test")
-                .wrappingKey(key)
+                .wrappingKey(ByteBuffer.wrap(key))
                 .wrappingAlg(AesWrappingAlg.ALG_AES256_GCM_IV12_TAG16)
                 .build();
 

@@ -75,13 +75,22 @@ dependencies {
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
     implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:${ddbecVersion}")
-    implementation("software.amazon.cryptography:TestAwsCryptographicMaterialProviders:${mplVersion}")
 
     implementation(platform("software.amazon.awssdk:bom:2.30.18"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:core:2.30.18")
     implementation("software.amazon.awssdk:kms")
+    
+    // Apache Commons CLI for command line parsing
+    implementation("commons-cli:commons-cli:1.5.0")
+    
+    // SnakeYAML for YAML configuration parsing
+    implementation("org.yaml:snakeyaml:2.0")
+    
+    // Jackson for JSON output
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    
     testImplementation("com.amazonaws:DynamoDBLocal:2.+")
     // This is where we gather the SQLLite files to copy over
     dynamodb("com.amazonaws:DynamoDBLocal:2.+")

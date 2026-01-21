@@ -228,90 +228,193 @@ public class DBESDKBenchmark {
     }
 
     /**
-     * Runs a single memory test with continuous monitoring.
+     * Gets the total allocated bytes for the current thread.
+     */
+    private static long getTotalAllocatedBytes() {
+        final var threadBean = ManagementFactory.getThreadMXBean();
+        final var sunThreadBean = (com.sun.management.ThreadMXBean) threadBean;
+
+        if (!sunThreadBean.isThreadAllocatedMemoryEnabled()) {
+            sunThreadBean.setThreadAllocatedMemoryEnabled(true);
+        }
+
+        return sunThreadBean.getCurrentThreadAllocatedBytes();
+    }
+
+    /**
+     * Runs a single memory test with enhanced continuous monitoring.
      */
     private BenchmarkResult runMemoryTest(int dataSize) throws Exception {
         System.out.printf("Running memory test - Size: %d bytes (%d iterations, continuous sampling)%n", 
                          dataSize, MEMORY_TEST_ITERATIONS);
+        System.out.flush();
 
         byte[] data = Utils.generateTestData(dataSize);
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        MemoryResults memoryResults = sampleMemoryDuringOperations(data);
 
-        double peakMemoryMb = 0.0;
-        List<Double> avgMemoryValues = new ArrayList<>();
-
-        // Run iterations
-        for (int i = 0; i < MEMORY_TEST_ITERATIONS; i++) {
-            Utils.forceGcAndWait();
-            
-            long beforeHeap = memoryMXBean.getHeapMemoryUsage().getUsed();
-            List<Utils.MemorySample> samples = new ArrayList<>();
-            
-            // Start memory sampling in background
-            CompletableFuture<Void> samplingTask = CompletableFuture.runAsync(() -> {
-                long samplingStart = System.currentTimeMillis();
-                while (!Thread.currentThread().isInterrupted()) {
-                    long currentHeap = memoryMXBean.getHeapMemoryUsage().getUsed();
-                    double heapDelta = Math.max(0, currentHeap - beforeHeap) / (1024.0 * 1024.0);
-                    samples.add(new Utils.MemorySample(System.currentTimeMillis(), heapDelta, 0));
-                    
-                    try {
-                        Thread.sleep(SAMPLING_INTERVAL_MS);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                }
-            });
-
-            // Run operation
-            try {
-                runItemEncryptorCycle(data);
-            } catch (Exception e) {
-                System.out.printf("Iteration %d failed: %s%n", i + 1, e.getMessage());
-                continue;
-            }
-
-            // Stop sampling
-            samplingTask.cancel(true);
-            Thread.sleep(FINAL_SAMPLE_WAIT_MS);
-
-            // Analyze samples
-            if (!samples.isEmpty()) {
-                double iterPeakHeap = samples.stream()
-                        .mapToDouble(Utils.MemorySample::getHeapMb)
-                        .max().orElse(0.0);
-                double iterAvgHeap = samples.stream()
-                        .mapToDouble(Utils.MemorySample::getHeapMb)
-                        .average().orElse(0.0);
-
-                peakMemoryMb = Math.max(peakMemoryMb, iterPeakHeap);
-                avgMemoryValues.add(iterAvgHeap);
-
-                System.out.printf("=== Iteration %d === Peak Heap: %.2f MB, Avg Heap: %.2f MB (%d samples)%n",
-                                 i + 1, iterPeakHeap, iterAvgHeap, samples.size());
-            }
+        if (memoryResults == null) {
+            throw new RuntimeException(
+                "Memory test failed: Unable to collect memory samples for data size " +
+                dataSize + " bytes"
+            );
         }
-
-        if (avgMemoryValues.isEmpty()) {
-            throw new Exception("All memory test iterations failed");
-        }
-
-        double overallAvgHeap = Utils.average(avgMemoryValues);
-        double memoryEfficiency = overallAvgHeap > 0 ? dataSize / (overallAvgHeap * 1024 * 1024) : 0.0;
-
-        System.out.printf("\nMemory Summary:%n");
-        System.out.printf("- Absolute Peak Heap: %.2f MB (across all runs)%n", peakMemoryMb);
-        System.out.printf("- Average Heap: %.2f MB (across all runs)%n", overallAvgHeap);
 
         BenchmarkResult result = new BenchmarkResult("memory", "java", dataSize, 1);
-        result.setPeakMemoryMb(peakMemoryMb);
-        result.setMemoryEfficiencyRatio(memoryEfficiency);
+        result.setPeakMemoryMb(memoryResults.peakMemoryMb);
+        result.setMemoryEfficiencyRatio(memoryResults.peakMemoryMb > 0 ? 
+            dataSize / (memoryResults.peakMemoryMb * 1024 * 1024) : 0.0);
         result.setTimestamp(Utils.getCurrentTimestamp());
         result.setJavaVersion(Utils.getJavaVersion());
         result.setCpuCount(cpuCount);
         result.setTotalMemoryGb(totalMemoryGb);
 
         return result;
+    }
+
+    /**
+     * Samples memory usage during multiple test iterations.
+     */
+    private MemoryResults sampleMemoryDuringOperations(byte[] data) {
+        double peakMemoryDelta = 0.0;
+        double peakAllocations = 0.0;
+        List<Double> avgMemoryValues = new ArrayList<>();
+
+        for (int i = 0; i < MEMORY_TEST_ITERATIONS; i++) {
+            IterationResult iterationResult = runSingleMemoryIteration(data, i + 1);
+            
+            if (iterationResult.peakMemory > peakMemoryDelta) {
+                peakMemoryDelta = iterationResult.peakMemory;
+            }
+            if (iterationResult.totalAllocs > peakAllocations) {
+                peakAllocations = iterationResult.totalAllocs;
+            }
+            avgMemoryValues.add(iterationResult.avgMemory);
+        }
+
+        double overallAvgMemory = avgMemoryValues.isEmpty() ? 0.0 :
+            avgMemoryValues.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+        System.out.println("\nMemory Summary:");
+        System.out.printf("- Absolute Peak Heap: %.2f MB (across all runs)%n", peakMemoryDelta);
+        System.out.printf("- Average Heap: %.2f MB (across all runs)%n", overallAvgMemory);
+        System.out.printf("- Total Allocations: %.2f MB (max across all runs)%n", peakAllocations);
+        System.out.flush();
+
+        return new MemoryResults(peakMemoryDelta, overallAvgMemory);
+    }
+
+    /**
+     * Runs a single memory iteration with enhanced sampling.
+     */
+    private IterationResult runSingleMemoryIteration(byte[] data, int iteration) {
+        // Force GC and settle (matching ESDK approach)
+        System.gc();
+        System.gc();
+        try {
+            Thread.sleep(GC_SETTLE_TIME_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Memory test interrupted during GC settle phase", e);
+        }
+
+        long baselineMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long baselineAllocations = getTotalAllocatedBytes();
+        List<EnhancedMemorySample> memorySamples = new ArrayList<>();
+
+        long operationStart = System.nanoTime();
+
+        // Start background sampling
+        Thread samplingTask = new Thread(() -> {
+            try {
+                while (System.nanoTime() - operationStart < 100_000_000) { // 100ms max
+                    long currentMemory = Runtime.getRuntime().totalMemory() - 
+                                       Runtime.getRuntime().freeMemory();
+                    long currentAllocations = getTotalAllocatedBytes();
+                    double heapDelta = (currentMemory - baselineMemory) / (1024.0 * 1024.0);
+                    double cumulativeAllocs = (currentAllocations - baselineAllocations) / (1024.0 * 1024.0);
+
+                    if (heapDelta > 0 || cumulativeAllocs > 0) {
+                        synchronized (memorySamples) {
+                            memorySamples.add(new EnhancedMemorySample(
+                                Math.max(0, heapDelta), 
+                                Math.max(0, cumulativeAllocs)
+                            ));
+                        }
+                    }
+                    Thread.sleep(SAMPLING_INTERVAL_MS);
+                }
+            } catch (InterruptedException e) {
+                // Expected when operation completes
+            }
+        });
+
+        samplingTask.start();
+
+        // Run the actual operation
+        try {
+            runItemEncryptorCycle(data);
+        } catch (Exception e) {
+            System.out.printf("Memory test iteration %d failed: %s%n", iteration, e.getMessage());
+            return new IterationResult(0.0, 0.0, 0.0);
+        }
+
+        double operationDurationMs = (System.nanoTime() - operationStart) / 1_000_000.0;
+
+        // Wait for sampling to complete
+        try {
+            Thread.sleep(FINAL_SAMPLE_WAIT_MS);
+            samplingTask.join(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return calculateIterationMetrics(
+            baselineMemory,
+            baselineAllocations, 
+            memorySamples,
+            iteration,
+            operationDurationMs
+        );
+    }
+
+    /**
+     * Calculates comprehensive metrics for a single iteration.
+     */
+    private IterationResult calculateIterationMetrics(
+        long baselineMemory,
+        long baselineAllocations,
+        List<EnhancedMemorySample> memorySamples,
+        int iteration,
+        double operationDurationMs
+    ) {
+        long finalMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long finalAllocations = getTotalAllocatedBytes();
+        double finalHeapDelta = (finalMemory - baselineMemory) / (1024.0 * 1024.0);
+        double finalCumulativeAllocs = (finalAllocations - baselineAllocations) / (1024.0 * 1024.0);
+
+        double iterPeakMemory;
+        double iterTotalAllocs;
+        double iterAvgMemory;
+
+        synchronized (memorySamples) {
+            if (memorySamples.isEmpty()) {
+                iterPeakMemory = Math.max(0, finalHeapDelta);
+                iterTotalAllocs = Math.max(0, finalCumulativeAllocs);
+                iterAvgMemory = Math.max(0, finalHeapDelta);
+            } else {
+                iterPeakMemory = memorySamples.stream().mapToDouble(s -> s.heapMB).max().orElse(0.0);
+                iterTotalAllocs = Math.max(0, finalCumulativeAllocs);
+                iterAvgMemory = memorySamples.stream().mapToDouble(s -> s.heapMB).average().orElse(0.0);
+            }
+        }
+
+        System.out.printf("=== Iteration %d === Peak Heap: %.2f MB, Total Allocs: %.2f MB, " +
+                         "Avg Heap: %.2f MB (%.0fms, %d samples)%n",
+                         iteration, iterPeakMemory, iterTotalAllocs, iterAvgMemory,
+                         operationDurationMs, memorySamples.size());
+        System.out.flush();
+
+        return new IterationResult(iterPeakMemory, iterTotalAllocs, iterAvgMemory);
     }
 
     /**
@@ -485,4 +588,11 @@ public class DBESDKBenchmark {
             this.getLatencyMs = getLatencyMs;
         }
     }
+
+    // Helper records for enhanced memory testing
+    private record IterationResult(double peakMemory, double totalAllocs, double avgMemory) {}
+    
+    private record MemoryResults(double peakMemoryMb, double avgMemoryMb) {}
+    
+    private record EnhancedMemorySample(double heapMB, double allocsMB) {}
 }
