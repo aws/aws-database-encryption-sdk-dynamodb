@@ -16,7 +16,7 @@ jobs:
       # to add more allowlisted approvers just modify this env variable
       maintainers: seebees, texastony, ShubhamChaturvedi7, lucasmcdonald3, josecorella, imabhichow, rishav-karanjit, antonf-amzn, kessplas, ajewellamz, RitvikKapila
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

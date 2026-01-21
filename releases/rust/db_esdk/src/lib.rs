@@ -86,6 +86,12 @@ pub mod operation;
 /// Types for the transform client. Rarely useful.
 pub mod types;
 
+#[cfg(feature = "fips")]
+use aws_lc_fips_sys as aws_lc_sys_impl;
+
+#[cfg(not(feature = "fips"))]
+use aws_lc_sys as aws_lc_sys_impl;
+
 pub use client::Client;
 pub use types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
 
@@ -108,6 +114,7 @@ mod standard_library_externs;
 pub(crate) use crate::deps::aws_cryptography_primitives;
 
 pub(crate) mod implementation_from_dafny;
+pub(crate) use crate::deps::com_amazonaws_kms::client::Client as KmsClient;
 pub(crate) use crate::implementation_from_dafny::_Wrappers_Compile;
 pub(crate) use crate::implementation_from_dafny::software;
 pub(crate) use crate::implementation_from_dafny::AesKdfCtr;
