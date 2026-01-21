@@ -18,7 +18,7 @@ jobs:
 
   go-release:
     needs: get-dafny-version
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     permissions:
       contents: write
       pull-requests: write

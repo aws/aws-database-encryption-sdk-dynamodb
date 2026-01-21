@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         java-version: [8, 11, 17, 19]
-        os: [macos-latest]
+        os: [macos-15-intel]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write

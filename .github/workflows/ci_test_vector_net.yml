@@ -28,7 +28,7 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
-            macos-latest,
+            macos-15-intel,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -43,7 +43,7 @@ jobs:
           role-session-name: DDBEC-Dafny-DotNet-Tests
 
       - name: Setup Docker
-        if: matrix.os == 'macos-latest' && matrix.library == 'TestVectors'
+        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
         uses: douglascamata/setup-docker-macos-action@v1.0.2
 
       - name: Setup DynamoDB Local
@@ -89,7 +89,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup .NET OpenSSL on Mac
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-15-intel'
         run: |
           brew install openssl@3
           echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
