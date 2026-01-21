@@ -24,7 +24,7 @@ on:
         default: false
         type: boolean
 jobs:
-  testGo:
+  testJava:
     strategy:
       fail-fast: false
       matrix:
