@@ -6,7 +6,7 @@ on:
 
 jobs:
   semantic-release:
-    runs-on: macos-15-intel
+    runs-on: macos-latest
     permissions:
       id-token: write
       contents: read

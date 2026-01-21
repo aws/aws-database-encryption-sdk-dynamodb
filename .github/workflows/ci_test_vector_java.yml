@@ -32,7 +32,7 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
-            macos-15-intel,
+            macos-latest,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
@@ -47,7 +47,7 @@ jobs:
           role-session-name: DDBEC-Dafny-Java-Tests
 
       - name: Setup Docker
-        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        if: matrix.os == 'macos-latest' && matrix.library == 'TestVectors'
         uses: douglascamata/setup-docker-macos-action@v1.0.2
 
       - name: Setup DynamoDB Local

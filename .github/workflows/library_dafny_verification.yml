@@ -39,7 +39,7 @@ jobs:
             DynamoDbItemEncryptor,
             StructuredEncryption,
           ]
-        os: [macos-15-intel]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
