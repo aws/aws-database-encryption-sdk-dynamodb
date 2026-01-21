@@ -268,7 +268,8 @@ public class DBESDKBenchmark {
    */
   private static long getTotalAllocatedBytes() {
     final Object threadBean = ManagementFactory.getThreadMXBean();
-    final com.sun.management.ThreadMXBean sunThreadBean = (com.sun.management.ThreadMXBean) threadBean;
+    final com.sun.management.ThreadMXBean sunThreadBean =
+      (com.sun.management.ThreadMXBean) threadBean;
 
     if (!sunThreadBean.isThreadAllocatedMemoryEnabled()) {
       sunThreadBean.setThreadAllocatedMemoryEnabled(true);
@@ -733,6 +734,7 @@ public class DBESDKBenchmark {
 
   // Helper classes for enhanced memory testing
   private static class IterationResult {
+
     final double peakMemory;
     final double totalAllocs;
     final double avgMemory;
@@ -745,6 +747,7 @@ public class DBESDKBenchmark {
   }
 
   private static class MemoryResults {
+
     final double peakMemoryMb;
     final double avgMemoryMb;
 
@@ -755,6 +758,7 @@ public class DBESDKBenchmark {
   }
 
   private static class EnhancedMemorySample {
+
     final double heapMB;
     final double allocsMB;
 
