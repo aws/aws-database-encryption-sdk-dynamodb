@@ -45,13 +45,13 @@ Quick mode runs a subset of tests with reduced iterations:
 ```yaml
 # Data sizes to test (in bytes)
 data_sizes:
-  small: [1024, 5120, 10240]          # 1KB, 5KB, 10KB
-  medium: [102400, 512000, 1048576]   # 100KB, 500KB, 1MB
-  large: [10485760, 52428800, 104857600]  # 10MB, 50MB, 100MB
+  small: [1024, 5120, 10240] # 1KB, 5KB, 10KB
+  medium: [102400, 512000, 1048576] # 100KB, 500KB, 1MB
+  large: [10485760, 52428800, 104857600] # 10MB, 50MB, 100MB
 
 # Test iterations
 iterations:
-  warmup: 5      # Warmup iterations (not counted)
+  warmup: 5 # Warmup iterations (not counted)
   measurement: 10 # Measurement iterations
 
 # Concurrency levels to test
@@ -66,7 +66,7 @@ keyring: "raw-aes"
 # Quick test configuration
 quick_config:
   data_sizes:
-    small: [102400]  # 100KB only for quick mode
+    small: [102400] # 100KB only for quick mode
   iterations:
     warmup: 3
     measurement: 3
@@ -157,7 +157,7 @@ The benchmark tests encryption of DynamoDB items with this structure:
 ```java
 {
   "partition_key": "benchmark-test",     // SIGN_ONLY
-  "sort_key": "0",                       // SIGN_ONLY  
+  "sort_key": "0",                       // SIGN_ONLY
   "attribute1": {                        // ENCRYPT_AND_SIGN
     "data": <test_data_bytes>
   },
@@ -169,7 +169,7 @@ The benchmark tests encryption of DynamoDB items with this structure:
 ## Dependencies
 
 - **AWS Database Encryption SDK for DynamoDB**: Core encryption functionality
-- **AWS Cryptographic Material Providers Library**: Keyring management  
+- **AWS Cryptographic Material Providers Library**: Keyring management
 - **AWS SDK for Java v2**: DynamoDB types and utilities
 - **SnakeYAML**: Configuration file parsing
 - **Jackson**: JSON output formatting
@@ -187,7 +187,7 @@ The benchmark tests encryption of DynamoDB items with this structure:
 The Java implementation provides identical functionality to the Go version:
 
 - **Same test types**: throughput, memory, concurrency
-- **Same data sizes**: 1KB to 100MB range  
+- **Same data sizes**: 1KB to 100MB range
 - **Same configuration format**: YAML with quick mode support
 - **Same output format**: JSON with matching field names and structure
 - **Same keyring setup**: Raw AES-256 keyring with random key generation
@@ -216,3 +216,4 @@ The Java implementation provides identical functionality to the Go version:
 # Build standalone JAR and run
 ./gradlew fatJar
 java -Xmx4g -jar build/libs/db-esdk-benchmark-java-1.0.0-all.jar --quick
+```
