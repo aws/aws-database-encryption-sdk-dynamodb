@@ -1,0 +1,93 @@
+{
+  "metadata": {
+    "language": "rust",
+    "timestamp": "2026-01-22 21:23:51",
+    "rust_version": "unknown",
+    "cpu_count": 14,
+    "total_memory_gb": 48.0,
+    "total_tests": 3
+  },
+  "results": [
+    {
+      "test_name": "throughput",
+      "language": "rust",
+      "data_size": 102400,
+      "concurrency": 1,
+      "encrypt_latency_ms": 2.0424586666666666,
+      "decrypt_latency_ms": 1.1346386666666666,
+      "end_to_end_latency_ms": 3.1774306666666665,
+      "ops_per_second": 313.69134089559503,
+      "bytes_per_second": 32121993.307708934,
+      "peak_memory_mb": 0.0,
+      "memory_efficiency_ratio": 0.0,
+      "p50_latency": 3.1489589999999996,
+      "p95_latency": 3.2460456000000004,
+      "p99_latency": 3.2546755200000006,
+      "timestamp": "2026-01-22 21:23:51",
+      "rust_version": "unknown",
+      "cpu_count": 14,
+      "total_memory_gb": 48.0,
+      "alloc": {
+        "count_k": 45,
+        "total_m": 8,
+        "max_bytes_m": 0,
+        "net_count": 8,
+        "net_total": 0
+      }
+    },
+    {
+      "test_name": "memory",
+      "language": "rust",
+      "data_size": 102400,
+      "concurrency": 1,
+      "encrypt_latency_ms": 0.0,
+      "decrypt_latency_ms": 0.0,
+      "end_to_end_latency_ms": 0.0,
+      "ops_per_second": 0.0,
+      "bytes_per_second": 0.0,
+      "peak_memory_mb": 0.4375,
+      "memory_efficiency_ratio": 0.22321428571428573,
+      "p50_latency": 0.0,
+      "p95_latency": 0.0,
+      "p99_latency": 0.0,
+      "timestamp": "2026-01-22 21:23:51",
+      "rust_version": "unknown",
+      "cpu_count": 14,
+      "total_memory_gb": 48.0,
+      "alloc": {
+        "count_k": 75,
+        "total_m": 14,
+        "max_bytes_m": 0,
+        "net_count": 6,
+        "net_total": 0
+      }
+    },
+    {
+      "test_name": "concurrent",
+      "language": "rust",
+      "data_size": 102400,
+      "concurrency": 2,
+      "encrypt_latency_ms": 0.0,
+      "decrypt_latency_ms": 0.0,
+      "end_to_end_latency_ms": 3.4039084,
+      "ops_per_second": 575.1588876427113,
+      "bytes_per_second": 58896270.09461364,
+      "peak_memory_mb": 0.0,
+      "memory_efficiency_ratio": 0.0,
+      "p50_latency": 3.3777085,
+      "p95_latency": 3.7358293500000004,
+      "p99_latency": 3.7699994700000006,
+      "timestamp": "2026-01-22 21:23:51",
+      "rust_version": "unknown",
+      "cpu_count": 14,
+      "total_memory_gb": 48.0,
+      "alloc": {
+        "count_k": 150,
+        "total_m": 29,
+        "max_bytes_m": 1,
+        "net_count": 5,
+        "net_total": 0
+      }
+    }
+  ]
+}
