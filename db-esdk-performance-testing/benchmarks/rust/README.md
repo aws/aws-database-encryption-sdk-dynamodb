@@ -12,7 +12,6 @@ This directory contains comprehensive performance benchmarks for the AWS Databas
 ## Prerequisites
 
 - Rust 1.70+ (recommended: latest stable)
-- Local DynamoDB instance running on `localhost:8000` (optional for basic item encryptor testing)
 - Access to the AWS Database Encryption SDK for DynamoDB Rust runtime
 
 ## Quick Start
