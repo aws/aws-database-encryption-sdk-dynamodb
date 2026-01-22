@@ -1,6 +1,6 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy;
 
-/**
+/*
  * This file does *NOT* import a lot of things.
  * This is because it is dealing with converting
  * between different versions of the same name.
@@ -34,9 +34,9 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.interna
 public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
   private final LegacyEncryptorAdapter _adapter;
-  private LegacyPolicy _policy;
-  private DafnySequence<Character> materialDescriptionFieldNameDafnyType;
-  private DafnySequence<Character> signatureFieldNameDafnyType;
+  private final LegacyPolicy _policy;
+  private final DafnySequence<Character> materialDescriptionFieldNameDafnyType;
+  private final DafnySequence<Character> signatureFieldNameDafnyType;
 
   private InternalLegacyOverride(
     LegacyEncryptorAdapter adapter,
