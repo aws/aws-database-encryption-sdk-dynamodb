@@ -20,7 +20,10 @@ public class Program {
 
     try {
       // Initialize benchmark
-      DBESDKBenchmark benchmark = new DBESDKBenchmark(options.getConfigPath());
+      DBESDKBenchmark benchmark = new DBESDKBenchmark(
+        options.getConfigPath(),
+        options.isLegacyOverride()
+      );
 
       // Adjust config for quick test if requested
       if (options.isQuickTest()) {
@@ -91,6 +94,16 @@ public class Program {
     );
 
     options.addOption(
+      Option
+        .builder("l")
+        .longOpt("legacy-override")
+        .desc(
+          "Use legacy DynamoDB Encryption Client (v2.x) for encryption/decryption"
+        )
+        .build()
+    );
+
+    options.addOption(
       Option.builder("h").longOpt("help").desc("Show this help message").build()
     );
 
@@ -112,8 +125,21 @@ public class Program {
         "../results/raw-data/java_results.json"
       );
       boolean quickTest = cmd.hasOption("q");
+      boolean legacyOverride = cmd.hasOption("l");
 
-      return new CommandLineOptions(configPath, outputPath, quickTest);
+      if (
+        legacyOverride &&
+        outputPath.equals("../results/raw-data/java_results.json")
+      ) {
+        outputPath = "../results/raw-data/java_ddbec_results.json";
+      }
+
+      return new CommandLineOptions(
+        configPath,
+        outputPath,
+        quickTest,
+        legacyOverride
+      );
     } catch (ParseException e) {
       System.err.println("Error parsing command line: " + e.getMessage());
       printUsage(options);
@@ -138,6 +164,9 @@ public class Program {
     System.out.println(
       "  java -jar db-esdk-benchmark.jar -c /path/to/config.yaml -o /path/to/results.json"
     );
+    System.out.println();
+    System.out.println("  # Run legacy override benchmark");
+    System.out.println("  java -jar db-esdk-benchmark.jar --legacy-override");
     System.out.println();
     System.out.println("  # Using Gradle");
     System.out.println("  ./gradlew run --args=\"--quick\"");
@@ -261,15 +290,18 @@ public class Program {
     private final String configPath;
     private final String outputPath;
     private final boolean quickTest;
+    private final boolean legacyOverride;
 
     public CommandLineOptions(
       String configPath,
       String outputPath,
-      boolean quickTest
+      boolean quickTest,
+      boolean legacyOverride
     ) {
       this.configPath = configPath;
       this.outputPath = outputPath;
       this.quickTest = quickTest;
+      this.legacyOverride = legacyOverride;
     }
 
     public String getConfigPath() {
@@ -282,6 +314,10 @@ public class Program {
 
     public boolean isQuickTest() {
       return quickTest;
+    }
+
+    public boolean isLegacyOverride() {
+      return legacyOverride;
     }
   }
 }

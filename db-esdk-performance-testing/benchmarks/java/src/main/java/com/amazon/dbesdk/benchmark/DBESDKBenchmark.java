@@ -3,6 +3,8 @@
 
 package com.amazon.dbesdk.benchmark;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.SymmetricStaticProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.crypto.spec.SecretKeySpec;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
@@ -24,6 +27,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyOverride;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
@@ -44,6 +49,7 @@ public class DBESDKBenchmark {
   private final List<BenchmarkResult> results;
   private final int cpuCount;
   private final double totalMemoryGb;
+  private final boolean useLegacyOverride;
 
   /**
    * Creates a new benchmark instance.
@@ -52,10 +58,23 @@ public class DBESDKBenchmark {
    * @throws Exception if initialization fails
    */
   public DBESDKBenchmark(String configPath) throws Exception {
+    this(configPath, false);
+  }
+
+  /**
+   * Creates a new benchmark instance with legacy override option.
+   *
+   * @param configPath Path to the YAML configuration file
+   * @param useLegacyOverride Whether to use legacy override for encryption/decryption
+   * @throws Exception if initialization fails
+   */
+  public DBESDKBenchmark(String configPath, boolean useLegacyOverride)
+    throws Exception {
     this.config = TestConfig.loadConfig(configPath);
     this.results = new ArrayList<>();
     this.cpuCount = Utils.getCpuCount();
     this.totalMemoryGb = Utils.getTotalMemoryGb();
+    this.useLegacyOverride = useLegacyOverride;
 
     // Initialize keyring
     this.keyring = KeyringSetup.createKeyring(config.getKeyring());
@@ -64,9 +83,10 @@ public class DBESDKBenchmark {
     this.itemEncryptor = setupItemEncryptor();
 
     System.out.printf(
-      "Initialized DB-ESDK Benchmark - CPU cores: %d, Memory: %.1f GB%n",
+      "Initialized DB-ESDK Benchmark - CPU cores: %d, Memory: %.1f GB, Legacy override: %s%n",
       cpuCount,
-      totalMemoryGb
+      totalMemoryGb,
+      useLegacyOverride
     );
   }
 
@@ -86,7 +106,7 @@ public class DBESDKBenchmark {
     DBEAlgorithmSuiteId algorithmSuiteId =
       DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384;
 
-    DynamoDbItemEncryptorConfig itemEncryptorConfig =
+    DynamoDbItemEncryptorConfig.Builder configBuilder =
       DynamoDbItemEncryptorConfig
         .builder()
         .logicalTableName(config.getTableName())
@@ -95,13 +115,64 @@ public class DBESDKBenchmark {
         .attributeActionsOnEncrypt(attributeActions)
         .keyring(keyring)
         .allowedUnsignedAttributePrefix(allowedUnsignedAttributePrefix)
-        .algorithmSuiteId(algorithmSuiteId)
-        .build();
+        .algorithmSuiteId(algorithmSuiteId);
+
+    // Add legacy override if requested
+    if (useLegacyOverride) {
+      LegacyOverride legacyOverride = createLegacyOverride();
+      configBuilder.legacyOverride(legacyOverride);
+    }
 
     return DynamoDbItemEncryptor
       .builder()
-      .DynamoDbItemEncryptorConfig(itemEncryptorConfig)
+      .DynamoDbItemEncryptorConfig(configBuilder.build())
       .build();
+  }
+
+  /**
+   * Creates a legacy override configuration for benchmarking legacy encryption clients.
+   */
+  private LegacyOverride createLegacyOverride() throws Exception {
+    // Create legacy encryptor using SymmetricStaticProvider
+    DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
+
+    // Define legacy attribute actions (matching current benchmark structure)
+    Map<String, CryptoAction> legacyActions = new HashMap<>();
+    legacyActions.put("partition_key", CryptoAction.SIGN_ONLY);
+    legacyActions.put("sort_key", CryptoAction.SIGN_ONLY);
+    legacyActions.put("attribute1", CryptoAction.ENCRYPT_AND_SIGN);
+    legacyActions.put("attribute2", CryptoAction.SIGN_ONLY);
+    legacyActions.put(":attribute3", CryptoAction.DO_NOTHING);
+
+    return LegacyOverride
+      .builder()
+      .policy(LegacyPolicy.FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT)
+      .encryptor(legacyEncryptor)
+      .attributeActionsOnEncrypt(legacyActions)
+      .build();
+  }
+
+  /**
+   * Creates a legacy DynamoDB encryptor using SymmetricStaticProvider.
+   */
+  private DynamoDBEncryptor createLegacyEncryptor() throws Exception {
+    // Generate a 256-bit AES key for symmetric encryption
+    byte[] aesKey = new byte[32]; // 256 bits
+    new java.security.SecureRandom().nextBytes(aesKey);
+
+    // Create AES key spec
+    SecretKeySpec encryptionKey = new SecretKeySpec(aesKey, "AES");
+
+    // Generate MAC key (can be same as encryption key for testing)
+    SecretKeySpec macKey = new SecretKeySpec(aesKey, "HmacSHA256");
+
+    // Create symmetric static provider
+    SymmetricStaticProvider provider = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey
+    );
+
+    return DynamoDBEncryptor.getInstance(provider);
   }
 
   /**
@@ -220,7 +291,7 @@ public class DBESDKBenchmark {
 
     BenchmarkResult result = new BenchmarkResult(
       "throughput",
-      "java",
+      useLegacyOverride ? "java-ddbec-native" : "java",
       dataSize,
       1
     );
@@ -300,7 +371,12 @@ public class DBESDKBenchmark {
       );
     }
 
-    BenchmarkResult result = new BenchmarkResult("memory", "java", dataSize, 1);
+    BenchmarkResult result = new BenchmarkResult(
+      "memory",
+      useLegacyOverride ? "java-ddbec-native" : "java",
+      dataSize,
+      1
+    );
     result.setPeakMemoryMb(memoryResults.peakMemoryMb);
     result.setMemoryEfficiencyRatio(
       memoryResults.peakMemoryMb > 0
@@ -602,7 +678,7 @@ public class DBESDKBenchmark {
 
     BenchmarkResult result = new BenchmarkResult(
       "concurrent",
-      "java",
+      useLegacyOverride ? "java-ddbec-native" : "java",
       dataSize,
       concurrency
     );
