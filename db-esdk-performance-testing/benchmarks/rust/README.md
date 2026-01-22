@@ -5,7 +5,7 @@ This directory contains comprehensive performance benchmarks for the AWS Databas
 ## Features
 
 - **Throughput Benchmarks**: Measure encryption/decryption operations per second
-- **Memory Benchmarks**: Track peak memory usage and efficiency ratios  
+- **Memory Benchmarks**: Track peak memory usage and efficiency ratios
 - **Concurrency Benchmarks**: Test performance under different thread counts
 - **Raw AES Keyring**: Local 256-bit AES keys (no KMS dependency)
 
