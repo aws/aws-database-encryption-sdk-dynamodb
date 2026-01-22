@@ -105,7 +105,7 @@ jobs:
 
       - name: Run Performance Benchmarks - Quick Mode
         shell: bash
-        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/go
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/rust
         run: |
           cargo run --release -- --quick
 
