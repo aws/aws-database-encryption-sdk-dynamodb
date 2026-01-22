@@ -105,19 +105,24 @@ jobs:
         working-directory: ./${{matrix.benchmark-dir}}/benchmarks/java
         run: |
           ./gradlew run --args="--config ../config/test-scenarios.yaml --quick"
+          ./gradlew run --args="--config ../config/test-scenarios.yaml --quick --legacy-override"
 
       - name: Parse and Format Logs
         working-directory: ./${{matrix.benchmark-dir}}/benchmarks/results/raw-data/
         run: |
           LOG_FILE="java_results.json"
+          DDBEC_LOG_FILE="java_ddbec_results.json"
           UPLOAD_FILE="cloudwatch_logs.json"
+          DDBEC_UPLOAD_FILE="cloudwatch_ddbec_log.json"
           TIMESTAMP=$(date +%s%3N)
           jq -c --arg ts "$(date +%s)000" '[.results[] as $result | .metadata as $meta | {timestamp: ($ts | tonumber), message: ({metadata: $meta, result: $result} | tostring)}]' $LOG_FILE > $UPLOAD_FILE
+          jq -c --arg ts "$(date +%s)000" '[.results[] as $result | .metadata as $meta | {timestamp: ($ts | tonumber), message: ({metadata: $meta, result: $result} | tostring)}]' $DDBEC_LOG_FILE > $DDBEC_UPLOAD_FILE
 
       - name: Upload logs to CloudWatch
         working-directory: ./${{matrix.benchmark-dir}}/benchmarks/results/raw-data/
         run: |
           LOG_FILE="cloudwatch_logs.json"
+          DDBEC_LOG_FILE="cloudwatch_ddbec_log.json"
           LOG_GROUP="aws-dbesdk-performance-benchmarks"
           LOG_STREAM="java/${{matrix.java-version}}/quick_benchmarks/${{ github.workflow }}"
 
@@ -130,3 +135,8 @@ jobs:
             --log-group-name "$LOG_GROUP" \
             --log-stream-name "$LOG_STREAM" \
             --log-events file://$LOG_FILE
+          
+          aws logs put-log-events \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" \
+            --log-events file://$DDBEC_LOG_FILE
