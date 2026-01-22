@@ -135,7 +135,7 @@ jobs:
             --log-group-name "$LOG_GROUP" \
             --log-stream-name "$LOG_STREAM" \
             --log-events file://$LOG_FILE
-          
+
           aws logs put-log-events \
             --log-group-name "$LOG_GROUP" \
             --log-stream-name "$LOG_STREAM" \
