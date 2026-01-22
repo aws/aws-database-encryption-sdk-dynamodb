@@ -593,3 +593,24 @@ func (client *Client) ResolveAttributes(ctx context.Context, params awscryptogra
 	return &native_response, nil
 
 }
+
+func (client *Client) GetNumberOfQueries(ctx context.Context, params awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetNumberOfQueriesInput) (*awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.GetNumberOfQueriesOutput, error) {
+	err := params.Validate()
+	if err != nil {
+		opaqueErr := awscryptographydbencryptionsdkdynamodbtransformssmithygeneratedtypes.OpaqueError{
+			ErrObject: err,
+		}
+		return nil, opaqueErr
+	}
+
+	var dafny_request AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.GetNumberOfQueriesInput = GetNumberOfQueriesInput_ToDafny(params)
+	var dafny_response = client.DafnyClient.GetNumberOfQueries(dafny_request)
+
+	if dafny_response.Is_Failure() {
+		err := dafny_response.Dtor_error().(AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.Error)
+		return nil, Error_FromDafny(err)
+	}
+	var native_response = GetNumberOfQueriesOutput_FromDafny(dafny_response.Dtor_value().(AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.GetNumberOfQueriesOutput))
+	return &native_response, nil
+
+}
