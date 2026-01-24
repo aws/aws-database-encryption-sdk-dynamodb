@@ -34,11 +34,9 @@ pub fn verify_returned_item(
 
     if let Some(AttributeValue::N(sk)) = item.get("sort_key") {
         if sk != sort_key_value {
-            return Err(format!(
-                "sort_key mismatch: expected {}, got {}",
-                sort_key_value, sk
-            )
-            .into());
+            return Err(
+                format!("sort_key mismatch: expected {}, got {}", sort_key_value, sk).into(),
+            );
         }
     } else {
         return Err("sort_key not found or not a number".into());
