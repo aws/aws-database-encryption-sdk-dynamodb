@@ -1,0 +1,72 @@
+{
+  "metadata": {
+    "total_memory_gb": 10.6669921875,
+    "java_version": "1.8.0_482",
+    "language": "java",
+    "total_tests": 3,
+    "timestamp": "2026-01-21 16:22:52",
+    "cpu_count": 14
+  },
+  "results": [
+    {
+      "test_name": "throughput",
+      "language": "java",
+      "data_size": 102400,
+      "concurrency": 1,
+      "put_latency_ms": 6.358222333333334,
+      "get_latency_ms": 7.6883333333333335,
+      "end_to_end_latency_ms": 14.125333333333332,
+      "ops_per_second": 70.78219182342052,
+      "bytes_per_second": 7248096.442718262,
+      "peak_memory_mb": 0.0,
+      "memory_efficiency_ratio": 0.0,
+      "p50_latency": 12.222625,
+      "p95_latency": 18.055712200000002,
+      "p99_latency": 18.57420884,
+      "timestamp": "2026-01-21 16:22:51",
+      "java_version": "1.8.0_482",
+      "cpu_count": 14,
+      "total_memory_gb": 10.6669921875
+    },
+    {
+      "test_name": "memory",
+      "language": "java",
+      "data_size": 102400,
+      "concurrency": 1,
+      "put_latency_ms": 0.0,
+      "get_latency_ms": 0.0,
+      "end_to_end_latency_ms": 0.0,
+      "ops_per_second": 0.0,
+      "bytes_per_second": 0.0,
+      "peak_memory_mb": 7.44854736328125,
+      "memory_efficiency_ratio": 0.013110777878840024,
+      "p50_latency": 0.0,
+      "p95_latency": 0.0,
+      "p99_latency": 0.0,
+      "timestamp": "2026-01-21 16:22:52",
+      "java_version": "1.8.0_482",
+      "cpu_count": 14,
+      "total_memory_gb": 10.6669921875
+    },
+    {
+      "test_name": "concurrent",
+      "language": "java",
+      "data_size": 102400,
+      "concurrency": 2,
+      "put_latency_ms": 0.0,
+      "get_latency_ms": 0.0,
+      "end_to_end_latency_ms": 12.0850042,
+      "ops_per_second": 159.58125877696924,
+      "bytes_per_second": 1.634112089876165e7,
+      "peak_memory_mb": 0.0,
+      "memory_efficiency_ratio": 0.0,
+      "p50_latency": 11.326729,
+      "p95_latency": 15.798329050000001,
+      "p99_latency": 15.81029941,
+      "timestamp": "2026-01-21 16:22:52",
+      "java_version": "1.8.0_482",
+      "cpu_count": 14,
+      "total_memory_gb": 10.6669921875
+    }
+  ]
+}
