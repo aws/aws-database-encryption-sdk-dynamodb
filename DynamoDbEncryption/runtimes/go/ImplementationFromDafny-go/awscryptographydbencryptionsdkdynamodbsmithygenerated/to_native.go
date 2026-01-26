@@ -524,12 +524,7 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUni
 		if input == nil {
 			return nil
 		}
-		a := input.(dafny.Sequence).ToArray().(dafny.GoNativeArray)
-		b := make([]byte, 0, a.Length())
-		for i := uint32(0); i < a.Length(); i++ {
-			b = append(b, a.Select(i).(byte))
-		}
-		return b
+		return dafny.ToByteArray(input.(dafny.Sequence))
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetEncryptedDataKeyDescriptionUnion_item_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {

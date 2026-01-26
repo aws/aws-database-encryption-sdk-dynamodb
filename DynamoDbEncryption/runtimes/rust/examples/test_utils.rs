@@ -53,7 +53,7 @@ pub async fn cleanup_items(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let sdk_config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let ddb = aws_sdk_dynamodb::Client::new(&sdk_config);
-    
+
     let key = std::collections::HashMap::from([
         (
             "partition_key".to_string(),
