@@ -114,6 +114,7 @@ mod standard_library_externs;
 pub(crate) use crate::deps::aws_cryptography_primitives;
 
 pub(crate) mod implementation_from_dafny;
+pub(crate) use crate::deps::com_amazonaws_dynamodb::client::Client as DdbClient;
 pub(crate) use crate::deps::com_amazonaws_kms::client::Client as KmsClient;
 pub(crate) use crate::implementation_from_dafny::_Wrappers_Compile;
 pub(crate) use crate::implementation_from_dafny::software;
@@ -143,6 +144,7 @@ pub(crate) mod ddb;
 pub(crate) mod digest;
 pub(crate) mod ecdh;
 pub(crate) mod ecdsa;
+pub(crate) mod escape;
 pub(crate) mod hmac;
 pub(crate) mod kms;
 pub(crate) mod local_cmc;
