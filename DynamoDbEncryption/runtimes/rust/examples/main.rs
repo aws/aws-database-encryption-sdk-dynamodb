@@ -11,10 +11,10 @@ pub mod create_keystore_key;
 pub mod get_encrypted_data_key_description;
 pub mod itemencryptor;
 pub mod keyring;
+pub mod migration;
 pub mod multi_get_put_example;
 pub mod searchableencryption;
 pub mod test_utils;
-pub mod migration;
 
 use std::convert::From;
 
