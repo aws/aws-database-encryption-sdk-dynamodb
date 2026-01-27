@@ -57,17 +57,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.402.2"/>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.400.38"/>
     <PackageReference Include="DafnyRuntime" Version="$(DafnyVersion)" />
+    <!-- See https://learn.microsoft.com/en-us/nuget/concepts/package-versioning?tabs=semver20sort#version-ranges   -->
+    <PackageReference Include="AWSSDK.Core" Version="[3.7.*, 4.0)" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="[3.7.*, 4.0)" />
     <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
     <!--
-              System.Collections.Immutable can be removed once dafny.msbuild is updated with
-              https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
-            -->
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.0"/>
+      System.Collections.Immutable can be removed once dafny.msbuild is updated with
+      https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
+    -->
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
     <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
-    <PackageReference Include="System.ValueTuple" Version="4.5.0"/>
+    <PackageReference Include="System.ValueTuple" Version="4.6.1" />
 
     <Compile Include="Extern/**/*.cs"/>
     <Compile Include="Generated/**/*.cs"/>
