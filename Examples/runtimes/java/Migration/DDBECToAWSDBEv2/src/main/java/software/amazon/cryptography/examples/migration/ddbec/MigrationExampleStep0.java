@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.interceptor.DDBECInterceptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.interceptor.DDBECInterceptorConfig;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -42,16 +43,7 @@ public class MigrationExampleStep0 {
       kmsKeyId
     );
 
-    // 4. Put an example item into our DynamoDb table.
-    //    This item will be encrypted client-side before it is sent to DynamoDb.
-    final Map<String, AttributeValue> item = new HashMap<>();
-    item.put("partition_key", AttributeValue.builder().s("MigrationExample").build());
-    item.put("sort_key", AttributeValue.builder().n("0").build());
-    item.put("attribute1", AttributeValue.builder().s("encrypt and sign me!").build());
-    item.put("attribute2", AttributeValue.builder().s("sign me!").build());
-    item.put("attribute3", AttributeValue.builder().s("ignore me!").build());
-
-    // Encrypt manually using encryptRecord with attribute flags
+    // 2. Configure attribute flags for encryption
     final Map<String, Set<EncryptionFlags>> attributeFlags = new HashMap<>();
     // Keys are never encrypted, only signed
     attributeFlags.put("partition_key", java.util.EnumSet.of(EncryptionFlags.SIGN));
@@ -62,8 +54,8 @@ public class MigrationExampleStep0 {
     attributeFlags.put("attribute2", java.util.EnumSet.of(EncryptionFlags.SIGN));
     // attribute3 - ignore (no flags)
 
-    // Create interceptor
-    DDBECInterceptor interceptor = DDBECInterceptor.builder()
+    // 3. Create interceptor configuration
+    final DDBECInterceptorConfig config = DDBECInterceptorConfig.builder()
             .tableName(ddbTableName)
             .partitionKeyName("partition_key")
             .sortKeyName("sort_key")
@@ -71,11 +63,26 @@ public class MigrationExampleStep0 {
             .attributeFlags(attributeFlags)
             .build();
 
+    // 4. Create interceptor with config
+    final DDBECInterceptor interceptor = DDBECInterceptor.builder()
+            .config(config)
+            .build();
+
+    // 5. Create DynamoDB client with interceptor
     final DynamoDbClient ddbClient = DynamoDbClient.builder()
             .overrideConfiguration(ClientOverrideConfiguration.builder()
             .addExecutionInterceptor(interceptor)
             .build())
             .build();
+
+    // 6. Put an example item into our DynamoDb table.
+    //    This item will be encrypted client-side before it is sent to DynamoDb.
+    final Map<String, AttributeValue> item = new HashMap<>();
+    item.put("partition_key", AttributeValue.builder().s("MigrationExample").build());
+    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("attribute1", AttributeValue.builder().s("encrypt and sign me!").build());
+    item.put("attribute2", AttributeValue.builder().s("sign me!").build());
+    item.put("attribute3", AttributeValue.builder().s("ignore me!").build());
 
     // Send to DynamoDB
     ddbClient.putItem(PutItemRequest.builder()
@@ -83,7 +90,7 @@ public class MigrationExampleStep0 {
       .item(item)
       .build());
 
-    // 5. Get this item back from DynamoDb.
+    // 7. Get this item back from DynamoDb.
     //    The item will be decrypted client-side, and the original item returned.
     final Map<String, AttributeValue> key = new HashMap<>();
     key.put("partition_key", AttributeValue.builder().s("MigrationExample").build());

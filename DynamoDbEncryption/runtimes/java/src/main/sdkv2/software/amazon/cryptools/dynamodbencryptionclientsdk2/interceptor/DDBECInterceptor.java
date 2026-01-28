@@ -54,13 +54,18 @@ import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.provide
  * attributeFlags.put("attribute2", EnumSet.of(EncryptionFlags.SIGN));
  * attributeFlags.put("attribute3", EnumSet.noneOf(EncryptionFlags.class));
  * 
- * // Create interceptor
- * DynamoDbEncryptionInterceptor interceptor = DynamoDbEncryptionInterceptor.builder()
+ * // Create config
+ * DDBECInterceptorConfig config = DDBECInterceptorConfig.builder()
  *     .tableName("MyTable")
  *     .partitionKeyName("partition_key")
  *     .sortKeyName("sort_key")
  *     .materialProvider(materialProvider)
  *     .attributeFlags(attributeFlags)
+ *     .build();
+ * 
+ * // Create interceptor
+ * DDBECInterceptor interceptor = DDBECInterceptor.builder()
+ *     .config(config)
  *     .build();
  * 
  * // Add to DynamoDB client
@@ -87,11 +92,12 @@ public class DDBECInterceptor implements ExecutionInterceptor {
     private static final String DDB_SERVICE_NAME = "DynamoDb";
 
     private DDBECInterceptor(Builder builder) {
-        this.tableName = builder.tableName;
-        this.partitionKeyName = builder.partitionKeyName;
-        this.sortKeyName = builder.sortKeyName;
-        this.encryptor = DynamoDBEncryptor.getInstance(builder.materialProvider);
-        this.attributeFlags = builder.attributeFlags;
+        DDBECInterceptorConfig config = builder.config;
+        this.tableName = config.tableName();
+        this.partitionKeyName = config.partitionKeyName();
+        this.sortKeyName = config.sortKeyName();
+        this.encryptor = DynamoDBEncryptor.getInstance(config.materialProvider());
+        this.attributeFlags = config.attributeFlags();
     }
 
     public static Builder builder() {
@@ -308,49 +314,16 @@ public class DDBECInterceptor implements ExecutionInterceptor {
     }
 
     public static class Builder {
-        private String tableName;
-        private String partitionKeyName;
-        private String sortKeyName;
-        private EncryptionMaterialsProvider materialProvider;
-        private Map<String, Set<EncryptionFlags>> attributeFlags;
+        private DDBECInterceptorConfig config;
 
-        public Builder tableName(String tableName) {
-            this.tableName = tableName;
-            return this;
-        }
-
-        public Builder partitionKeyName(String partitionKeyName) {
-            this.partitionKeyName = partitionKeyName;
-            return this;
-        }
-
-        public Builder sortKeyName(String sortKeyName) {
-            this.sortKeyName = sortKeyName;
-            return this;
-        }
-
-        public Builder materialProvider(EncryptionMaterialsProvider materialProvider) {
-            this.materialProvider = materialProvider;
-            return this;
-        }
-
-        public Builder attributeFlags(Map<String, Set<EncryptionFlags>> attributeFlags) {
-            this.attributeFlags = attributeFlags;
+        public Builder config(DDBECInterceptorConfig config) {
+            this.config = config;
             return this;
         }
 
         public DDBECInterceptor build() {
-            if (tableName == null || tableName.isEmpty()) {
-                throw new IllegalArgumentException("tableName is required");
-            }
-            if (partitionKeyName == null || partitionKeyName.isEmpty()) {
-                throw new IllegalArgumentException("partitionKeyName is required");
-            }
-            if (materialProvider == null) {
-                throw new IllegalArgumentException("materialProvider is required");
-            }
-            if (attributeFlags == null || attributeFlags.isEmpty()) {
-                throw new IllegalArgumentException("attributeFlags is required");
+            if (config == null) {
+                throw new IllegalArgumentException("config is required");
             }
             
             return new DDBECInterceptor(this);
