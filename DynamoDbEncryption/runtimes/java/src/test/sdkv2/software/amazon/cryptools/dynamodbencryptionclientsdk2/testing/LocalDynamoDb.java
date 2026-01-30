@@ -73,7 +73,7 @@ public class LocalDynamoDb {
                              // The region is meaningless for local DynamoDb but required for client builder validation
                       .region(Region.US_EAST_1)
                       .credentialsProvider(StaticCredentialsProvider.create(
-                          AwsBasicCredentials.create("dummy-key", "dummy-secret")))
+                          AwsBasicCredentials.create("dummykey", "dummysecret")))
                       .build();
     }
 
