@@ -107,4 +107,3 @@ jobs:
         run: |
           cp ../java/*.json .
           dotnet run
-          dotnet run --framework net6.0
