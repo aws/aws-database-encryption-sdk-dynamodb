@@ -40,20 +40,20 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   private final DafnySequence<Character> signatureFieldNameDafnyType;
 
   private InternalLegacyOverride(
-    LegacyEncryptorAdapter adapter,
+    LegacyEncryptorAdapter encryptorAdapter,
     LegacyPolicy policy
   ) {
-    this._encryptorAdapter = adapter;
+    this._encryptorAdapter = encryptorAdapter;
     this._policy = policy;
     // It is possible that these values
     // have been customized by the customer.
     this.materialDescriptionFieldNameDafnyType =
       software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        adapter.getMaterialDescriptionFieldName()
+        encryptorAdapter.getMaterialDescriptionFieldName()
       );
     this.signatureFieldNameDafnyType =
       software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
-        adapter.getSignatureFieldName()
+        encryptorAdapter.getSignatureFieldName()
       );
   }
 
@@ -210,9 +210,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       return CreateBuildFailure(maybeEncryptionContext.error());
     }
 
-    final LegacyEncryptorAdapter adapter;
+    final LegacyEncryptorAdapter encryptorAdapter;
     if (maybeEncryptor instanceof DynamoDBEncryptor) {
-      adapter =
+      encryptorAdapter =
         new V1EncryptorAdapter(
           (DynamoDBEncryptor) maybeEncryptor,
           maybeActions.value(),
@@ -222,7 +222,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       maybeEncryptor instanceof
       software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor
     ) {
-      adapter =
+      encryptorAdapter =
         new V2EncryptorAdapter(
           (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) maybeEncryptor,
           convertActionsV1ToV2(maybeActions.value()),
@@ -233,7 +233,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     }
 
     final InternalLegacyOverride internalLegacyOverride =
-      new InternalLegacyOverride(adapter, legacyOverride.dtor_policy());
+      new InternalLegacyOverride(encryptorAdapter, legacyOverride.dtor_policy());
 
     return CreateBuildSuccess(
       CreateInternalLegacyOverrideSome(internalLegacyOverride)
