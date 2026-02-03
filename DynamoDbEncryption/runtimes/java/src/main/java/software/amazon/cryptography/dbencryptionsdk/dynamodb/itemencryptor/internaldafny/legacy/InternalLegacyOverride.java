@@ -34,7 +34,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.interna
 
 public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
-  private final LegacyEncryptorAdapter _adapter;
+  private final LegacyEncryptorAdapter _encryptorAdapter;
   private final LegacyPolicy _policy;
   private final DafnySequence<Character> materialDescriptionFieldNameDafnyType;
   private final DafnySequence<Character> signatureFieldNameDafnyType;
@@ -43,7 +43,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     LegacyEncryptorAdapter adapter,
     LegacyPolicy policy
   ) {
-    this._adapter = adapter;
+    this._encryptorAdapter = adapter;
     this._policy = policy;
     // It is possible that these values
     // have been customized by the customer.
@@ -103,7 +103,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           .EncryptItemInput(input)
           .plaintextItem();
 
-        Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> encryptedItem = _adapter.encryptRecord(plaintextItem);
+        Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> encryptedItem = _encryptorAdapter.encryptRecord(plaintextItem);
 
       final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput nativeOutput =
         software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.EncryptItemOutput
@@ -149,7 +149,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           .DecryptItemInput(input)
           .encryptedItem();
 
-      Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> plaintextItem = _adapter.decryptRecord(encryptedItem);
+      Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> plaintextItem = _encryptorAdapter.decryptRecord(encryptedItem);
 
       final software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput nativeOutput =
         software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.model.DecryptItemOutput
