@@ -28,7 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions.DynamoDbEncryptionException;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
@@ -56,8 +56,8 @@ public class MetaStoreTests {
             2, 4, 6, 8, 10, 12, 14 }, "HmacSHA256");
     private static final EncryptionMaterialsProvider BASE_PROVIDER = new SymmetricStaticProvider(AES_KEY, HMAC_KEY);
     private static final EncryptionMaterialsProvider TARGET_BASE_PROVIDER = new SymmetricStaticProvider(TARGET_AES_KEY, TARGET_HMAC_KEY);
-    private static final DynamoDbEncryptor ENCRYPTOR = DynamoDbEncryptor.getInstance(BASE_PROVIDER);
-    private static final DynamoDbEncryptor TARGET_ENCRYPTOR = DynamoDbEncryptor.getInstance(TARGET_BASE_PROVIDER);
+    private static final DynamoDBEncryptor ENCRYPTOR = DynamoDBEncryptor.getInstance(BASE_PROVIDER);
+    private static final DynamoDBEncryptor TARGET_ENCRYPTOR = DynamoDBEncryptor.getInstance(TARGET_BASE_PROVIDER);
 
     private final LocalDynamoDb localDynamoDb = new LocalDynamoDb();
     private final LocalDynamoDb targetLocalDynamoDb = new LocalDynamoDb();
