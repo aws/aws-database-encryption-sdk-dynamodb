@@ -103,7 +103,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           .EncryptItemInput(input)
           .plaintextItem();
 
-      Map<
+      final Map<
         String,
         software.amazon.awssdk.services.dynamodb.model.AttributeValue
       > encryptedItem = _encryptorAdapter.encryptRecord(plaintextItem);
