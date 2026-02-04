@@ -428,10 +428,10 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       case SS:
         return attribute.withSS(value.ss());
       case UNKNOWN_TO_SDK_VERSION:
-        throw new IllegalArgumentException("omfg");
+        throw new IllegalArgumentException(("Unsupported AttributeValue type: UNKNOWN_TO_SDK_VERSION. This may indicate a newer DynamoDB attribute type that is not supported by this SDK version.");
     }
 
-    throw new IllegalArgumentException("omfg");
+    throw new IllegalArgumentException("Unexpected AttributeValue type: " + value.type() + ". Unable to convert from SDK v2 to SDK v1 format.");
   }
 
   public static Map<
