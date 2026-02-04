@@ -34,39 +34,34 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
   This table must be configured with the following
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (S)
+    - Sort key is named "sort_key" with type (N)
  */
 public class MigrationExampleStep3 {
 
   public static void MigrationStep3(
-    String kmsKeyId,
-    String ddbTableName,
-    int sortReadValue
+    final String kmsKeyId,
+    final String ddbTableName,
+    final int sortReadValue
   ) {
     // 1. Continue to configure your Keyring, Table Schema,
-    // and allowedUnsignedAttributes as you did in Step 1.
-    // However, now you can remove the configuration for the old DynamoDBEncryptor
-    // and the legacy attribute actions.
+    //    and allowedUnsignedAttributes as you did in Step 1.
+    //    However, now you can remove the configuration for the old DynamoDBEncryptor
+    //    and the legacy attribute actions.
     final MaterialProviders matProv = MaterialProviders
       .builder()
       .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
       .build();
     final CreateAwsKmsMrkMultiKeyringInput keyringInput =
       CreateAwsKmsMrkMultiKeyringInput.builder().generator(kmsKeyId).build();
-    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(
-      keyringInput
-    );
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
 
-    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(
-      SimpleClass.class
-    );
+    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
 
     final List<String> allowedUnsignedAttributes = Arrays.asList("attribute3");
 
     // 2. Create the DynamoDb Encryption Interceptor with the above configuration.
     //    Do not configure any legacy behavior.
-    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
-      new HashMap<>();
+    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
     tableConfigs.put(
       ddbTableName,
       DynamoDbEnhancedTableEncryptionConfig
@@ -102,10 +97,7 @@ public class MigrationExampleStep3 {
       .builder()
       .dynamoDbClient(ddb)
       .build();
-    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
-      ddbTableName,
-      schemaOnEncrypt
-    );
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
 
     // 5. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be encrypted in the latest format, using the
@@ -132,10 +124,9 @@ public class MigrationExampleStep3 {
       .sortValue(sortReadValue)
       .build();
 
-    final SimpleClass decryptedItem =
-      table.getItem((GetItemEnhancedRequest.Builder requestBuilder) ->
-        requestBuilder.key(key)
-      );
+    final SimpleClass decryptedItem = table.getItem(
+      (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key)
+    );
 
     // Demonstrate we get the expected item back
     assert decryptedItem.getPartitionKey().equals("MigrationExample");
