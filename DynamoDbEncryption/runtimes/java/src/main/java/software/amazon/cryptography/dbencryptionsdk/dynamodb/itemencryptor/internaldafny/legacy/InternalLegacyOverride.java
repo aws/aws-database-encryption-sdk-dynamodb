@@ -229,7 +229,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           convertEncryptionContextV1ToV2(maybeEncryptionContext.value())
         );
     } else {
-      return CreateBuildFailure(createError("Unsupported encryptor type"));
+      return CreateBuildFailure(createError("Unsupported encryptor type: " + maybeEncryptor.getClass().getName()));
     }
 
     final InternalLegacyOverride internalLegacyOverride =
@@ -298,6 +298,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       .tableName(v1Context.getTableName())
       .hashKeyName(v1Context.getHashKeyName())
       .rangeKeyName(v1Context.getRangeKeyName())
+      .attributeValues(V1MapToV2Map(v1Context.getAttributeValues()))
+      .developerContext(v1Context.getDeveloperContext())
+      .materialDescription(v1Context.getMaterialDescription())
       .build();
   }
 
