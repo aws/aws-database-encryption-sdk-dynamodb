@@ -291,23 +291,17 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
   // Convert SDK V1 EncryptionContext to SDK V2
   private static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
-    final EncryptionContext v1Context
+    EncryptionContext v1Context
   ) {
-
-    final software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.Builder builder = software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
-            .builder()
-            .tableName(v1Context.getTableName())
-            .hashKeyName(v1Context.getHashKeyName())
-            .rangeKeyName(v1Context.getRangeKeyName())
-            .developerContext(v1Context.getDeveloperContext());
-
-    if (v1Context.getMaterialDescription() != null) {
-      builder.materialDescription(v1Context.getMaterialDescription());
-    }
-    if (v1Context.getAttributeValues() != null) {
-      builder.attributeValues(V1MapToV2Map(v1Context.getAttributeValues()));
-    }
-    return builder.build();
+    return software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
+      .builder()
+      .tableName(v1Context.getTableName())
+      .hashKeyName(v1Context.getHashKeyName())
+      .rangeKeyName(v1Context.getRangeKeyName())
+      .attributeValues(V1MapToV2Map(v1Context.getAttributeValues()))
+      .developerContext(v1Context.getDeveloperContext())
+      .materialDescription(v1Context.getMaterialDescription())
+      .build();
   }
 
   public static String ToNativeString(DafnySequence<? extends Character> s) {
@@ -449,9 +443,6 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       software.amazon.awssdk.services.dynamodb.model.AttributeValue
     > input
   ) {
-    if (input == null) {
-      return null;
-    }
     return input
       .entrySet()
       .stream()
