@@ -105,9 +105,10 @@ public class MigrationExampleStep1 {
     );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
-    // 6. Configure legacy behavior with FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT.
-    //    This policy continues to read and write items using the old format,
-    //    but can read new format items as soon as they appear.
+    // 6. Configure our legacy behavior, inputting the DynamoDBEncryptor and attribute actions
+    //    created above. For Legacy Policy, use `FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
+    //    With this policy, you will continue to read and write items using the old format,
+    //    but will be able to start reading new items in the new format as soon as they appear.
     final LegacyOverride legacyOverride = LegacyOverride
       .builder()
       .encryptor(oldEncryptor)
@@ -115,7 +116,7 @@ public class MigrationExampleStep1 {
       .attributeActionsOnEncrypt(legacyActions)
       .build();
 
-    // 7. Create the DynamoDb Encryption Interceptor.
+    // 7. Create the DynamoDb Encryption Interceptor with the above configuration.
     final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
       new HashMap<>();
     tableConfigs.put(
@@ -137,7 +138,7 @@ public class MigrationExampleStep1 {
           .build()
       );
 
-    // 8. Create DynamoDB client with the encryption interceptor.
+    // 8. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient
       .builder()
       .overrideConfiguration(
@@ -206,6 +207,7 @@ public class MigrationExampleStep1 {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
+    // You can manipulate this value to demonstrate reading records written in other steps
     final int sortReadValue = Integer.parseInt(args[2]);
     MigrationStep1(kmsKeyId, ddbTableName, sortReadValue);
   }

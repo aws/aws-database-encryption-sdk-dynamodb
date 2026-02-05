@@ -96,7 +96,7 @@ public class MigrationExampleStep0 {
       encryptionContext
     );
 
-    // Verify attribute1 is encrypted (original attribute name no longer exists)
+    // Verify attribute1 is encrypted
     assert encryptedItem.get("attribute1").b() != null;
     // Verify attribute2 and attribute3 are not encrypted (sign-only and do-nothing)
     assert encryptedItem.get("attribute2").s().equals("sign me!");
