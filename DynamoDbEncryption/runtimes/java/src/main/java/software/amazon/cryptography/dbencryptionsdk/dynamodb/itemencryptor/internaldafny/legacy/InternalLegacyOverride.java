@@ -293,15 +293,21 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   private static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
     EncryptionContext v1Context
   ) {
-    return software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
+    final Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> v2AttributeValues = V1MapToV2Map(v1Context.getAttributeValues());
+    final software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.Builder builder = software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
       .builder()
       .tableName(v1Context.getTableName())
       .hashKeyName(v1Context.getHashKeyName())
       .rangeKeyName(v1Context.getRangeKeyName())
-      .attributeValues(V1MapToV2Map(v1Context.getAttributeValues()))
-      .developerContext(v1Context.getDeveloperContext())
-      .materialDescription(v1Context.getMaterialDescription())
-      .build();
+      .developerContext(v1Context.getDeveloperContext());
+
+    if (v1Context.getMaterialDescription() != null) {
+      builder.materialDescription(v1Context.getMaterialDescription());
+    }
+    if (v2AttributeValues != null) {
+      builder.attributeValues(v2AttributeValues);
+    }
+    return builder.build();
   }
 
   public static String ToNativeString(DafnySequence<? extends Character> s) {
