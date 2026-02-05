@@ -510,9 +510,6 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   > V1MapToV2Map(
     Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> input
   ) {
-    if (input == null) {
-      return null;
-    }
     return input
       .entrySet()
       .stream()
