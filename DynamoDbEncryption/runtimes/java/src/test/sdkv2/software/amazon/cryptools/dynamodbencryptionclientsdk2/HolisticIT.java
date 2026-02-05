@@ -28,7 +28,7 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.AsymmetricStaticProvider;
@@ -362,7 +362,7 @@ public class HolisticIT {
               null);
       metastore =
           new MetaStore(
-              client, scenario.metastore.tableName, DynamoDbEncryptor.getInstance(metaProvider));
+              client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
     }
 
     // Create the mapper with the provider under test
@@ -409,7 +409,7 @@ public class HolisticIT {
               null);
       metastore =
           new MetaStore(
-              client, scenario.metastore.tableName, DynamoDbEncryptor.getInstance(metaProvider));
+              client, scenario.metastore.tableName, DynamoDBEncryptor.getInstance(metaProvider));
     }
 
     // Encrypt data with the provider under test, only ensure that no exception is thrown
@@ -610,7 +610,7 @@ public class HolisticIT {
   }
 
   public void generateStandardData(EncryptionMaterialsProvider prov) {
-    DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(prov);
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
     Map<String, AttributeValue> encryptedRecord;
     Map<String, Set<EncryptionFlags>> actions;
     EncryptionContext encryptionContext =
@@ -690,7 +690,7 @@ public class HolisticIT {
 
   private void assertVersionCompatibility(EncryptionMaterialsProvider provider, String tableName)
       throws GeneralSecurityException {
-    DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(provider);
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(provider);
     Map<String, AttributeValue> response;
     Map<String, AttributeValue> decryptedRecord;
     EncryptionContext encryptionContext =
@@ -805,7 +805,7 @@ public class HolisticIT {
 
   private void assertVersionCompatibility_2(EncryptionMaterialsProvider provider, String tableName)
       throws GeneralSecurityException {
-    DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(provider);
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(provider);
     Map<String, AttributeValue> response;
     Map<String, AttributeValue> decryptedRecord;
     EncryptionContext encryptionContext =

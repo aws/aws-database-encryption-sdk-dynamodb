@@ -8,7 +8,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
@@ -40,7 +40,7 @@ public class CachingMostRecentProviderTests {
             new SecretKeySpec(new byte[] {0, 1, 2, 3, 4, 5, 6, 7}, "HmacSHA256");
     private static final EncryptionMaterialsProvider BASE_PROVIDER =
             new SymmetricStaticProvider(AES_KEY, HMAC_KEY);
-    private static final DynamoDbEncryptor ENCRYPTOR = DynamoDbEncryptor.getInstance(BASE_PROVIDER);
+    private static final DynamoDBEncryptor ENCRYPTOR = DynamoDBEncryptor.getInstance(BASE_PROVIDER);
 
     private DynamoDbClient client;
     private Map<String, Integer> methodCalls;
