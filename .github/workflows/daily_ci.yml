@@ -4,7 +4,7 @@ name: Daily CI
 permissions:
   contents: read
   id-token: write
-  
+
 on:
   schedule:
     - cron: "00 16 * * 1-5"
