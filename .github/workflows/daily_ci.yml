@@ -95,7 +95,7 @@ jobs:
         daily-ci-net-test-vectors,
         daily-ci-net-examples,
       ]
-    if: ${{ failure() }}
+    if: ${{ failure() && github.event_name == 'schedule' }}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
     with:
       message: "Daily CI failed on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
