@@ -64,7 +64,9 @@ public class MigrationExampleStep1 {
       .build();
     final CreateAwsKmsMrkMultiKeyringInput keyringInput =
       CreateAwsKmsMrkMultiKeyringInput.builder().generator(kmsKeyId).build();
-    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(
+      keyringInput
+    );
 
     // 2. Create a Table Schema over your annotated class.
     //    See SimpleClass.java in this directory for the update to use the new DynamoDb Enhanced Client annotations.
@@ -74,7 +76,9 @@ public class MigrationExampleStep1 {
     //    use the `DynamoDbEncryptionSignOnly` annotation.
     //    If you want a particular attribute to be neither signed nor encrypted (DO_NOTHING),
     //    use the `DynamoDbEncryptionDoNothing` annotation.
-    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
+    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(
+      SimpleClass.class
+    );
 
     // 3. Configure which attributes we expect to be excluded in the signature
     //    when reading items. This value represents all unsigned attributes
@@ -95,7 +99,10 @@ public class MigrationExampleStep1 {
 
     // 5. Configure the same DynamoDBEncryptor that we did in Step 0.
     final KmsClient kmsClient = KmsClient.create();
-    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(kmsClient, kmsKeyId);
+    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(
+      kmsClient,
+      kmsKeyId
+    );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
     // 6. Configure legacy behavior with FORCE_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT.
@@ -109,7 +116,8 @@ public class MigrationExampleStep1 {
       .build();
 
     // 7. Create the DynamoDb Encryption Interceptor.
-    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
+      new HashMap<>();
     tableConfigs.put(
       ddbTableName,
       DynamoDbEnhancedTableEncryptionConfig
@@ -123,7 +131,8 @@ public class MigrationExampleStep1 {
     );
     final DynamoDbEncryptionInterceptor interceptor =
       DynamoDbEnhancedClientEncryption.CreateDynamoDbEncryptionInterceptor(
-        CreateDynamoDbEncryptionInterceptorInput.builder()
+        CreateDynamoDbEncryptionInterceptorInput
+          .builder()
           .tableEncryptionConfigs(tableConfigs)
           .build()
       );
@@ -132,7 +141,8 @@ public class MigrationExampleStep1 {
     final DynamoDbClient ddb = DynamoDbClient
       .builder()
       .overrideConfiguration(
-        ClientOverrideConfiguration.builder()
+        ClientOverrideConfiguration
+          .builder()
           .addExecutionInterceptor(interceptor)
           .build()
       )
@@ -144,7 +154,10 @@ public class MigrationExampleStep1 {
       .builder()
       .dynamoDbClient(ddb)
       .build();
-    final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
+      ddbTableName,
+      schemaOnEncrypt
+    );
 
     // 10. Put an item into your table using the DynamoDb Enhanced Client.
     //     This item will be encrypted in the legacy format, using the
@@ -167,14 +180,16 @@ public class MigrationExampleStep1 {
     //     If this is an item written in the new format (e.g. any item written
     //     during Step 2 or after), then we will attempt to decrypt the item using
     //     the non-legacy behavior.
-    final Key key = Key.builder()
+    final Key key = Key
+      .builder()
       .partitionValue("MigrationExample")
       .sortValue(sortReadValue)
       .build();
 
-    final SimpleClass decryptedItem = table.getItem(
-      (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key)
-    );
+    final SimpleClass decryptedItem =
+      table.getItem((GetItemEnhancedRequest.Builder requestBuilder) ->
+        requestBuilder.key(key)
+      );
 
     // Demonstrate we get the expected item back
     assert decryptedItem.getPartitionKey().equals("MigrationExample");

@@ -53,15 +53,20 @@ public class MigrationExampleStep3 {
       .build();
     final CreateAwsKmsMrkMultiKeyringInput keyringInput =
       CreateAwsKmsMrkMultiKeyringInput.builder().generator(kmsKeyId).build();
-    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(
+      keyringInput
+    );
 
-    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
+    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(
+      SimpleClass.class
+    );
 
     final List<String> allowedUnsignedAttributes = Arrays.asList("attribute3");
 
     // 2. Create the DynamoDb Encryption Interceptor with the above configuration.
     //    Do not configure any legacy behavior.
-    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
+      new HashMap<>();
     tableConfigs.put(
       ddbTableName,
       DynamoDbEnhancedTableEncryptionConfig
@@ -97,7 +102,10 @@ public class MigrationExampleStep3 {
       .builder()
       .dynamoDbClient(ddb)
       .build();
-    final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
+      ddbTableName,
+      schemaOnEncrypt
+    );
 
     // 5. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be encrypted in the latest format, using the
@@ -124,9 +132,10 @@ public class MigrationExampleStep3 {
       .sortValue(sortReadValue)
       .build();
 
-    final SimpleClass decryptedItem = table.getItem(
-      (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key)
-    );
+    final SimpleClass decryptedItem =
+      table.getItem((GetItemEnhancedRequest.Builder requestBuilder) ->
+        requestBuilder.key(key)
+      );
 
     // Demonstrate we get the expected item back
     assert decryptedItem.getPartitionKey().equals("MigrationExample");

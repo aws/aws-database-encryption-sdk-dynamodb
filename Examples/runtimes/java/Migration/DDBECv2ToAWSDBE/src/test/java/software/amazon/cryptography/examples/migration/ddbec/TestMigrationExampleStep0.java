@@ -59,7 +59,7 @@ public class TestMigrationExampleStep0 {
     );
     // When: Execute Step 0 with sortReadValue=3, Then: throws exception (i.e. cannot read values in new format)
     assertThrows(
-            DynamoDbEncryptionException.class,
+      DynamoDbEncryptionException.class,
       () -> {
         MigrationExampleStep0.MigrationStep0(
           TestUtils.TEST_KMS_KEY_ID,

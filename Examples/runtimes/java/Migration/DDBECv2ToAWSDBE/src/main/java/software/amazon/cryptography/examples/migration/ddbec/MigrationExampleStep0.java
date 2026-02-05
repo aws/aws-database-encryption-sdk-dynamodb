@@ -56,7 +56,10 @@ public class MigrationExampleStep0 {
     attributeFlags.put("partition_key", EnumSet.of(EncryptionFlags.SIGN));
     attributeFlags.put("sort_key", EnumSet.of(EncryptionFlags.SIGN));
     // attribute1 - encrypt and sign
-    attributeFlags.put("attribute1", EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN));
+    attributeFlags.put(
+      "attribute1",
+      EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN)
+    );
     // attribute2 - sign only
     attributeFlags.put("attribute2", EnumSet.of(EncryptionFlags.SIGN));
     // attribute3 - no flags (do nothing)
@@ -66,14 +69,21 @@ public class MigrationExampleStep0 {
 
     // 5. Create the item to encrypt
     final Map<String, AttributeValue> item = new HashMap<>();
-    item.put("partition_key", AttributeValue.builder().s("MigrationExample").build());
+    item.put(
+      "partition_key",
+      AttributeValue.builder().s("MigrationExample").build()
+    );
     item.put("sort_key", AttributeValue.builder().n("0").build());
-    item.put("attribute1", AttributeValue.builder().s("encrypt and sign me!").build());
+    item.put(
+      "attribute1",
+      AttributeValue.builder().s("encrypt and sign me!").build()
+    );
     item.put("attribute2", AttributeValue.builder().s("sign me!").build());
     item.put("attribute3", AttributeValue.builder().s("ignore me!").build());
 
     // 6. Create the EncryptionContext for this operation
-    final EncryptionContext encryptionContext = EncryptionContext.builder()
+    final EncryptionContext encryptionContext = EncryptionContext
+      .builder()
       .tableName(ddbTableName)
       .hashKeyName("partition_key")
       .rangeKeyName("sort_key")
@@ -93,20 +103,28 @@ public class MigrationExampleStep0 {
     assert encryptedItem.get("attribute3").s().equals("ignore me!");
 
     // 8. Put the encrypted item into DynamoDB
-    ddbClient.putItem(PutItemRequest.builder()
-      .tableName(ddbTableName)
-      .item(encryptedItem)
-      .build());
+    ddbClient.putItem(
+      PutItemRequest
+        .builder()
+        .tableName(ddbTableName)
+        .item(encryptedItem)
+        .build()
+    );
 
     // 9. Get the encrypted item back from DynamoDB
     final Map<String, AttributeValue> key = new HashMap<>();
-    key.put("partition_key", AttributeValue.builder().s("MigrationExample").build());
-    key.put("sort_key", AttributeValue.builder().n(String.valueOf(sortReadValue)).build());
+    key.put(
+      "partition_key",
+      AttributeValue.builder().s("MigrationExample").build()
+    );
+    key.put(
+      "sort_key",
+      AttributeValue.builder().n(String.valueOf(sortReadValue)).build()
+    );
 
-    final GetItemResponse response = ddbClient.getItem(GetItemRequest.builder()
-      .tableName(ddbTableName)
-      .key(key)
-      .build());
+    final GetItemResponse response = ddbClient.getItem(
+      GetItemRequest.builder().tableName(ddbTableName).key(key).build()
+    );
 
     // 10. Decrypt the item using decryptRecord
     final Map<String, AttributeValue> decryptedItem = encryptor.decryptRecord(

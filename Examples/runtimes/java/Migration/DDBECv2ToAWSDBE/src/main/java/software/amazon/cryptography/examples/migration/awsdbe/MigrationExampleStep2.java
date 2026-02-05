@@ -58,9 +58,13 @@ public class MigrationExampleStep2 {
       .build();
     final CreateAwsKmsMrkMultiKeyringInput keyringInput =
       CreateAwsKmsMrkMultiKeyringInput.builder().generator(kmsKeyId).build();
-    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(keyringInput);
+    final IKeyring kmsKeyring = matProv.CreateAwsKmsMrkMultiKeyring(
+      keyringInput
+    );
 
-    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(SimpleClass.class);
+    final TableSchema<SimpleClass> schemaOnEncrypt = TableSchema.fromBean(
+      SimpleClass.class
+    );
 
     final List<String> allowedUnsignedAttributes = Arrays.asList("attribute3");
 
@@ -73,7 +77,10 @@ public class MigrationExampleStep2 {
 
     // Configure the DynamoDBEncryptor using DDBEC SDK V2.
     final KmsClient kmsClient = KmsClient.create();
-    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(kmsClient, kmsKeyId);
+    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(
+      kmsClient,
+      kmsKeyId
+    );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
     // 2. When configuring our legacy behavior, use `FORBID_LEGACY_ENCRYPT_ALLOW_LEGACY_DECRYPT`.
@@ -87,7 +94,8 @@ public class MigrationExampleStep2 {
       .build();
 
     // 3. Create the DynamoDb Encryption Interceptor with the above configuration.
-    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs = new HashMap<>();
+    final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
+      new HashMap<>();
     tableConfigs.put(
       ddbTableName,
       DynamoDbEnhancedTableEncryptionConfig
@@ -124,7 +132,10 @@ public class MigrationExampleStep2 {
       .builder()
       .dynamoDbClient(ddb)
       .build();
-    final DynamoDbTable<SimpleClass> table = enhancedClient.table(ddbTableName, schemaOnEncrypt);
+    final DynamoDbTable<SimpleClass> table = enhancedClient.table(
+      ddbTableName,
+      schemaOnEncrypt
+    );
 
     // 6. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be encrypted in the latest format, using the
@@ -152,9 +163,10 @@ public class MigrationExampleStep2 {
       .sortValue(sortReadValue)
       .build();
 
-    final SimpleClass decryptedItem = table.getItem(
-      (GetItemEnhancedRequest.Builder requestBuilder) -> requestBuilder.key(key)
-    );
+    final SimpleClass decryptedItem =
+      table.getItem((GetItemEnhancedRequest.Builder requestBuilder) ->
+        requestBuilder.key(key)
+      );
 
     // Demonstrate we get the expected item back
     assert decryptedItem.getPartitionKey().equals("MigrationExample");
