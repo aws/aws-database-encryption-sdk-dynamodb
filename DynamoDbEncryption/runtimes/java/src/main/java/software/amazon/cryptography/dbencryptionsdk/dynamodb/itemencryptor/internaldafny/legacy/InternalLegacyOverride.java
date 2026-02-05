@@ -291,21 +291,21 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
   // Convert SDK V1 EncryptionContext to SDK V2
   private static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
-    EncryptionContext v1Context
+    final EncryptionContext v1Context
   ) {
-    final Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> v2AttributeValues = V1MapToV2Map(v1Context.getAttributeValues());
+
     final software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.Builder builder = software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
-      .builder()
-      .tableName(v1Context.getTableName())
-      .hashKeyName(v1Context.getHashKeyName())
-      .rangeKeyName(v1Context.getRangeKeyName())
-      .developerContext(v1Context.getDeveloperContext());
+            .builder()
+            .tableName(v1Context.getTableName())
+            .hashKeyName(v1Context.getHashKeyName())
+            .rangeKeyName(v1Context.getRangeKeyName())
+            .developerContext(v1Context.getDeveloperContext());
 
     if (v1Context.getMaterialDescription() != null) {
       builder.materialDescription(v1Context.getMaterialDescription());
     }
-    if (v2AttributeValues != null) {
-      builder.attributeValues(v2AttributeValues);
+    if (v1Context.getAttributeValues() != null) {
+      builder.attributeValues(V1MapToV2Map(v1Context.getAttributeValues()));
     }
     return builder.build();
   }
@@ -449,6 +449,9 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       software.amazon.awssdk.services.dynamodb.model.AttributeValue
     > input
   ) {
+    if (input == null) {
+      return null;
+    }
     return input
       .entrySet()
       .stream()
