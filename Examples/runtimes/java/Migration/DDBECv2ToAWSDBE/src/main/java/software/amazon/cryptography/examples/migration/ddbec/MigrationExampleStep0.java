@@ -36,6 +36,7 @@ public class MigrationExampleStep0 {
   public static void MigrationStep0(
     final String kmsKeyId,
     final String ddbTableName,
+    final String partitionKeyValue,
     final int sortReadValue
   ) throws GeneralSecurityException {
     // 1. Create the DirectKmsMaterialsProvider that protects your data keys.
@@ -71,7 +72,7 @@ public class MigrationExampleStep0 {
     final Map<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("MigrationExample").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
     item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
@@ -115,7 +116,7 @@ public class MigrationExampleStep0 {
     final Map<String, AttributeValue> key = new HashMap<>();
     key.put(
       "partition_key",
-      AttributeValue.builder().s("MigrationExample").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
     key.put(
       "sort_key",
@@ -134,22 +135,23 @@ public class MigrationExampleStep0 {
     );
 
     // Demonstrate we get the expected item back
-    assert decryptedItem.get("partition_key").s().equals("MigrationExample");
+    assert decryptedItem.get("partition_key").s().equals(partitionKeyValue);
     assert decryptedItem.get("attribute1").s().equals("encrypt and sign me!");
     assert decryptedItem.get("attribute2").s().equals("sign me!");
     assert decryptedItem.get("attribute3").s().equals("ignore me!");
   }
 
   public static void main(final String[] args) throws GeneralSecurityException {
-    if (args.length < 3) {
+    if (args.length < 4) {
       throw new IllegalArgumentException(
-        "To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args."
+        "To run this example, include the kmsKeyId, ddbTableName, partitionKeyValue and sortReadValue as args."
       );
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
+    final String partitionKeyValue = args[2];
     // You can manipulate this value to demonstrate reading records written in other steps
-    final int sortReadValue = Integer.parseInt(args[2]);
-    MigrationStep0(kmsKeyId, ddbTableName, sortReadValue);
+    final int sortReadValue = Integer.parseInt(args[3]);
+    MigrationStep0(kmsKeyId, ddbTableName, partitionKeyValue, sortReadValue);
   }
 }

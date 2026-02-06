@@ -48,6 +48,7 @@ public class MigrationExampleStep2 {
   public static void MigrationStep2(
     final String kmsKeyId,
     final String ddbTableName,
+    final String partitionKeyValue,
     final int sortReadValue
   ) {
     // 1. Continue to configure your Keyring, Table Schema, legacy attribute actions,
@@ -142,7 +143,7 @@ public class MigrationExampleStep2 {
     //    configuration from your modelled class to decide
     //    which attribute to encrypt and/or sign.
     final SimpleClass item = new SimpleClass();
-    item.setPartitionKey("MigrationExample");
+    item.setPartitionKey(partitionKeyValue);
     item.setSortKey(2);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");
@@ -159,7 +160,7 @@ public class MigrationExampleStep2 {
     //    the non-legacy behavior.
     final Key key = Key
       .builder()
-      .partitionValue("MigrationExample")
+      .partitionValue(partitionKeyValue)
       .sortValue(sortReadValue)
       .build();
 
@@ -169,7 +170,7 @@ public class MigrationExampleStep2 {
       );
 
     // Demonstrate we get the expected item back
-    assert decryptedItem.getPartitionKey().equals("MigrationExample");
+    assert decryptedItem.getPartitionKey().equals(partitionKeyValue);
     assert decryptedItem.getAttribute1().equals("encrypt and sign me!");
   }
 
@@ -181,8 +182,9 @@ public class MigrationExampleStep2 {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
+    final String partitionKeyValue = args[2];
     // You can manipulate this value to demonstrate reading records written in other steps
-    final int sortReadValue = Integer.parseInt(args[2]);
-    MigrationStep2(kmsKeyId, ddbTableName, sortReadValue);
+    final int sortReadValue = Integer.parseInt(args[3]);
+    MigrationStep2(kmsKeyId, ddbTableName, partitionKeyValue, sortReadValue);
   }
 }
