@@ -34,19 +34,20 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
   This table must be configured with the following
   primary key configuration:
     - Partition key is named "partition_key" with type (S)
-    - Sort key is named "sort_key" with type (S)
+    - Sort key is named "sort_key" with type (N)
  */
 public class MigrationExampleStep3 {
 
   public static void MigrationStep3(
-    String kmsKeyId,
-    String ddbTableName,
-    int sortReadValue
+    final String kmsKeyId,
+    final String ddbTableName,
+    final String partitionKeyValue,
+    final int sortReadValue
   ) {
     // 1. Continue to configure your Keyring, Table Schema,
-    // and allowedUnsignedAttributes as you did in Step 1.
-    // However, now you can remove the configuration for the old DynamoDBEncryptor
-    // and the legacy attribute actions.
+    //    and allowedUnsignedAttributes as you did in Step 1.
+    //    However, now you can remove the configuration for the old DynamoDBEncryptor
+    //    and the legacy attribute actions.
     final MaterialProviders matProv = MaterialProviders
       .builder()
       .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
@@ -112,7 +113,7 @@ public class MigrationExampleStep3 {
     //    configuration from your modelled class to decide
     //    which attribute to encrypt and/or sign.
     final SimpleClass item = new SimpleClass();
-    item.setPartitionKey("MigrationExample");
+    item.setPartitionKey(partitionKeyValue);
     item.setSortKey(3);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");
@@ -128,7 +129,7 @@ public class MigrationExampleStep3 {
     //    the non-legacy behavior.
     final Key key = Key
       .builder()
-      .partitionValue("MigrationExample")
+      .partitionValue(partitionKeyValue)
       .sortValue(sortReadValue)
       .build();
 
@@ -138,20 +139,21 @@ public class MigrationExampleStep3 {
       );
 
     // Demonstrate we get the expected item back
-    assert decryptedItem.getPartitionKey().equals("MigrationExample");
+    assert decryptedItem.getPartitionKey().equals(partitionKeyValue);
     assert decryptedItem.getAttribute1().equals("encrypt and sign me!");
   }
 
   public static void main(final String[] args) {
-    if (args.length < 3) {
+    if (args.length < 4) {
       throw new IllegalArgumentException(
-        "To run this example, include the kmsKeyId, ddbTableName, and sortReadValue as args."
+              "To run this example, include the kmsKeyId, ddbTableName, partitionKeyValue and sortReadValue as args."
       );
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
+    final String partitionKeyValue = args[2];
     // You can manipulate this value to demonstrate reading records written in other steps
-    final int sortReadValue = Integer.parseInt(args[2]);
-    MigrationStep3(kmsKeyId, ddbTableName, sortReadValue);
+    final int sortReadValue = Integer.parseInt(args[3]);
+    MigrationStep3(kmsKeyId, ddbTableName, partitionKeyValue, sortReadValue);
   }
 }
