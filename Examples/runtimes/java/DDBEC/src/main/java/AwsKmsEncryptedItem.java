@@ -18,7 +18,7 @@ import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.Encrypt
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
 
-/** Example showing use of AWS KMS with DDBEC SDK v2. */
+/** Example showing use of AWS KMS CMP with record encryption functions directly. */
 public class AwsKmsEncryptedItem {
   private static final String STRING_FIELD_NAME = "example";
   private static final String BINARY_FIELD_NAME = "and some binary";
@@ -27,6 +27,7 @@ public class AwsKmsEncryptedItem {
 
   public static void encryptRecord(
       final DynamoDbClient ddbClient,
+      final KmsClient kmsClient,
       final String tableName,
       final String cmkArn,
       final String partitionKeyName,
@@ -45,8 +46,7 @@ public class AwsKmsEncryptedItem {
         AttributeValue.builder().b(SdkBytes.fromByteArray(new byte[] {0x00, 0x01, 0x02})).build());
     record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
-    // Create KMS client and DirectKmsMaterialsProvider
-    final KmsClient kmsClient = KmsClient.create();
+    // Create DirectKmsMaterialsProvider
     final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(kmsClient, cmkArn);
 
     // Create DynamoDBEncryptor
@@ -126,7 +126,7 @@ public class AwsKmsEncryptedItem {
     final String partitionKeyValue = args[4];
     final String sortKeyValue = args[5];
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
-      encryptRecord(ddbClient, tableName, cmkArn, partitionKeyName, sortKeyName, partitionKeyValue, sortKeyValue);
+      encryptRecord(ddbClient, KmsClient.create(), tableName, cmkArn, partitionKeyName, sortKeyName, partitionKeyValue, sortKeyValue);
     }
   }
 }

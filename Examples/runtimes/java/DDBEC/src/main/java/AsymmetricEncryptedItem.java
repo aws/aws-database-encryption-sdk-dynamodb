@@ -20,7 +20,8 @@ import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.Encrypt
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.AsymmetricStaticProvider;
 
 /**
- * Example showing use of RSA keys for encryption and signing with DDBEC SDK v2.
+ * Example showing use of RSA keys for encryption and signing. For ease of the example, we create
+ * new random ones every time.
  */
 public class AsymmetricEncryptedItem {
   private static final String STRING_FIELD_NAME = "example";

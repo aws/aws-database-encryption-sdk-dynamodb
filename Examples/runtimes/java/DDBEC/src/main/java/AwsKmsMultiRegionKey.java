@@ -32,20 +32,20 @@ public class AwsKmsMultiRegionKey {
     final String cmkArn1 = args[1];
     final String cmkArn2 = args[2];
 
-    encryptRecord(tableName, cmkArn1, cmkArn2);
+    try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
+      encryptRecord(ddbClient, tableName, cmkArn1, cmkArn2);
+    }
   }
 
   public static void encryptRecord(
-      final String tableName, final String cmkArnEncrypt, final String cmkArnDecrypt)
+          final DynamoDbClient ddbClient,
+          final String tableName, final String cmkArnEncrypt, final String cmkArnDecrypt)
       throws GeneralSecurityException {
 
     // Extract regions from ARNs
     final String encryptRegion = cmkArnEncrypt.split(":")[3];
     final String decryptRegion = cmkArnDecrypt.split(":")[3];
 
-    // Use us-west-2 for DynamoDB since that's where the table exists
-    final DynamoDbClient ddbClient =
-        DynamoDbClient.builder().build();
     final KmsClient kmsEncrypt = KmsClient.builder().region(Region.of(encryptRegion)).build();
     final KmsClient kmsDecrypt = KmsClient.builder().region(Region.of(decryptRegion)).build();
 

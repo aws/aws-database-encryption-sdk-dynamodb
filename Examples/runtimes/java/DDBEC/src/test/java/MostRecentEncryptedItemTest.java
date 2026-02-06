@@ -4,6 +4,7 @@
 import java.util.UUID;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.kms.KmsClient;
 
 public class MostRecentEncryptedItemTest {
 
@@ -18,6 +19,7 @@ public class MostRecentEncryptedItemTest {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       MostRecentEncryptedItem.encryptRecord(
           ddbClient,
+              KmsClient.create(),
           TestUtils.TEST_DDB_TABLE_NAME,
           KEY_TABLE_NAME,
           TestUtils.TEST_KMS_KEY_ID,

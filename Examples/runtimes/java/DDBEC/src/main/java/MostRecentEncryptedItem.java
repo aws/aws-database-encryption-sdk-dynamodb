@@ -32,6 +32,7 @@ public class MostRecentEncryptedItem {
 
   public static void encryptRecord(
       final DynamoDbClient ddbClient,
+      final KmsClient kmsClient,
       final String tableName,
       final String keyTableName,
       final String cmkArn,
@@ -53,7 +54,6 @@ public class MostRecentEncryptedItem {
     record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
     // Provider Configuration to protect the data keys
-    final KmsClient kmsClient = KmsClient.create();
     final DirectKmsMaterialsProvider kmsProv = new DirectKmsMaterialsProvider(kmsClient, cmkArn);
     final DynamoDBEncryptor keyEncryptor = DynamoDBEncryptor.getInstance(kmsProv);
 
@@ -142,6 +142,7 @@ public class MostRecentEncryptedItem {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       encryptRecord(
           ddbClient,
+              KmsClient.create(),
           tableName,
           keyTableName,
           cmkArn,

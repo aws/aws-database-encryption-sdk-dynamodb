@@ -3,6 +3,7 @@
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 public class AwsKmsMultiRegionKeyTest {
 
@@ -17,8 +18,10 @@ public class AwsKmsMultiRegionKeyTest {
     // Encrypt with us-east-1 MRK, decrypt with eu-west-1 replica MRK
     // This demonstrates MRK capability without needing a Global Table
     final String tableName = TestUtils.TEST_DDB_TABLE_NAME;
+    try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
+      AwsKmsMultiRegionKey.encryptRecord(ddbClient, tableName, MRK_US_EAST_1, MRK_EU_WEST_1);
+    }
 
-    AwsKmsMultiRegionKey.encryptRecord(tableName, MRK_US_EAST_1, MRK_EU_WEST_1);
   }
 
   @AfterMethod

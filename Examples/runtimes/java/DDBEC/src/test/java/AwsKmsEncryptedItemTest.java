@@ -4,6 +4,7 @@
 import java.util.UUID;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.kms.KmsClient;
 
 public class AwsKmsEncryptedItemTest {
 
@@ -15,6 +16,7 @@ public class AwsKmsEncryptedItemTest {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AwsKmsEncryptedItem.encryptRecord(
           ddbClient,
+              KmsClient.create(),
           TestUtils.TEST_DDB_TABLE_NAME,
           TestUtils.TEST_KMS_KEY_ID,
           "partition_key",
