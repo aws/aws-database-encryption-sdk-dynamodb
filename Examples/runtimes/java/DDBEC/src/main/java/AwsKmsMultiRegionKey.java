@@ -27,6 +27,11 @@ import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.provide
  */
 public class AwsKmsMultiRegionKey {
 
+  private static final String STRING_FIELD_NAME = "example";
+  private static final String BINARY_FIELD_NAME = "and some binary";
+  private static final String NUMBER_FIELD_NAME = "some numbers";
+  private static final String IGNORED_FIELD_NAME = "leave me";
+
   public static void main(String[] args) throws GeneralSecurityException {
     final String tableName = args[0];
     final String cmkArn1 = args[1];
@@ -62,16 +67,16 @@ public class AwsKmsMultiRegionKey {
     final Map<String, AttributeValue> record = new HashMap<>();
     record.put(partitionKeyName, AttributeValue.builder().s("is this").build());
     record.put(sortKeyName, AttributeValue.builder().n("42").build());
-    record.put("example", AttributeValue.builder().s("data").build());
-    record.put("some numbers", AttributeValue.builder().n("99").build());
+    record.put(STRING_FIELD_NAME, AttributeValue.builder().s("data").build());
+    record.put(NUMBER_FIELD_NAME, AttributeValue.builder().n("99").build());
     record.put(
-      "and some binary",
+      BINARY_FIELD_NAME,
       AttributeValue
         .builder()
         .b(SdkBytes.fromByteArray(new byte[] { 0x00, 0x01, 0x02 }))
         .build()
     );
-    record.put("leave me", AttributeValue.builder().s("alone").build());
+    record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
     // Set up encryptor with first region's KMS key
     final DirectKmsMaterialsProvider cmpEncrypt =
@@ -99,7 +104,7 @@ public class AwsKmsMultiRegionKey {
         case "sort_key":
           actions.put(attributeName, signOnly);
           break;
-        case "leave me":
+        case IGNORED_FIELD_NAME:
           break;
         default:
           actions.put(attributeName, encryptAndSign);
@@ -145,17 +150,17 @@ public class AwsKmsMultiRegionKey {
 
     // Verify decryption
     assert record
-      .get("example")
+      .get(STRING_FIELD_NAME)
       .s()
-      .equals(decrypted_record.get("example").s());
+      .equals(decrypted_record.get(STRING_FIELD_NAME).s());
     assert record
-      .get("some numbers")
+      .get(NUMBER_FIELD_NAME)
       .n()
-      .equals(decrypted_record.get("some numbers").n());
+      .equals(decrypted_record.get(NUMBER_FIELD_NAME).n());
     assert record
-      .get("and some binary")
+      .get(BINARY_FIELD_NAME)
       .b()
-      .equals(decrypted_record.get("and some binary").b());
+      .equals(decrypted_record.get(BINARY_FIELD_NAME).b());
 
     ddbClient.close();
     kmsEncrypt.close();
