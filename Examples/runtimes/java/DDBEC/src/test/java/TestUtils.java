@@ -10,10 +10,11 @@ public class TestUtils {
 
   // These are public KMS Keys that MUST only be used for testing, and MUST NOT be used for any production data
   public static final String TEST_KMS_KEY_ID =
-      "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
+    "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f";
 
   // Our tests require access to DDB Table with this name
-  public static final String TEST_DDB_TABLE_NAME = "DynamoDbEncryptionInterceptorTestTable";
+  public static final String TEST_DDB_TABLE_NAME =
+    "DynamoDbEncryptionInterceptorTestTable";
 
   /**
    * Deletes an item from a DynamoDB table.
@@ -25,19 +26,29 @@ public class TestUtils {
    * @param sortKeyValue The value of the sort key (can be null if table doesn't have a sort key)
    */
   public static void cleanUpDDBItem(
-      final String tableName,
-      final String partitionKeyName,
-      final String sortKeyName,
-      final String partitionKeyValue,
-      final String sortKeyValue) {
+    final String tableName,
+    final String partitionKeyName,
+    final String sortKeyName,
+    final String partitionKeyValue,
+    final String sortKeyValue
+  ) {
     final DynamoDbClient ddb = DynamoDbClient.builder().build();
     final HashMap<String, AttributeValue> keyToDelete = new HashMap<>();
-    keyToDelete.put(partitionKeyName, AttributeValue.builder().s(partitionKeyValue).build());
+    keyToDelete.put(
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
+    );
     if (sortKeyValue != null) {
-      keyToDelete.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
+      keyToDelete.put(
+        sortKeyName,
+        AttributeValue.builder().n(sortKeyValue).build()
+      );
     }
-    final DeleteItemRequest deleteRequest =
-        DeleteItemRequest.builder().tableName(tableName).key(keyToDelete).build();
+    final DeleteItemRequest deleteRequest = DeleteItemRequest
+      .builder()
+      .tableName(tableName)
+      .key(keyToDelete)
+      .build();
     ddb.deleteItem(deleteRequest);
   }
 }

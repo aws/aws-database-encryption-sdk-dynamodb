@@ -12,6 +12,9 @@ import javax.crypto.spec.SecretKeySpec;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
@@ -29,7 +32,18 @@ public class SymmetricEncryptedItem {
   private static final String IGNORED_FIELD_NAME = "leave me";
 
   public static void main(String[] args) throws GeneralSecurityException {
+    if (args.length < 5) {
+      throw new IllegalArgumentException(
+        "To run this example, include tableName, partitionKeyName, sortKeyName, " +
+        "partitionKeyValue, sortKeyValue as args"
+      );
+    }
     final String tableName = args[0];
+    final String partitionKeyName = args[1];
+    final String sortKeyName = args[2];
+    final String partitionKeyValue = args[3];
+    final String sortKeyValue = args[4];
+
     // Both AES and HMAC keys are just random bytes.
     // You should never use the same keys for encryption and signing/integrity.
     final SecureRandom secureRandom = new SecureRandom();
@@ -40,34 +54,56 @@ public class SymmetricEncryptedItem {
     final SecretKey wrappingKey = new SecretKeySpec(rawAes, "AES");
     final SecretKey signingKey = new SecretKeySpec(rawHmac, "HmacSHA256");
 
-    final DynamoDbClient ddbClient = DynamoDbClient.create();
-    encryptRecord(ddbClient, tableName, wrappingKey, signingKey);
-    ddbClient.close();
+    try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
+      encryptRecord(
+        ddbClient,
+        tableName,
+        partitionKeyName,
+        sortKeyName,
+        partitionKeyValue,
+        sortKeyValue,
+        wrappingKey,
+        signingKey
+      );
+    }
   }
 
   public static void encryptRecord(
-      DynamoDbClient ddbClient, String tableName, SecretKey wrappingKey, SecretKey signingKey)
-      throws GeneralSecurityException {
+    final DynamoDbClient ddbClient,
+    final String tableName,
+    final String partitionKeyName,
+    final String sortKeyName,
+    final String partitionKeyValue,
+    final String sortKeyValue,
+    final SecretKey wrappingKey,
+    final SecretKey signingKey
+  ) throws GeneralSecurityException {
     // Sample record to be encrypted
-    final String partitionKeyName = "partition_attribute";
-    final String sortKeyName = "sort_attribute";
     final Map<String, AttributeValue> record = new HashMap<>();
-    record.put(partitionKeyName, AttributeValue.builder().s("is this").build());
-    record.put(sortKeyName, AttributeValue.builder().n("55").build());
+    record.put(
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
+    );
+    record.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
     record.put(STRING_FIELD_NAME, AttributeValue.builder().s("data").build());
     record.put(NUMBER_FIELD_NAME, AttributeValue.builder().n("99").build());
     record.put(
-        BINARY_FIELD_NAME,
-        AttributeValue.builder().b(SdkBytes.fromByteArray(new byte[] {0x00, 0x01, 0x02})).build());
-    record.put(
-        IGNORED_FIELD_NAME,
-        AttributeValue.builder().s("alone").build()); // We want to ignore this attribute
+      BINARY_FIELD_NAME,
+      AttributeValue
+        .builder()
+        .b(SdkBytes.fromByteArray(new byte[] { 0x00, 0x01, 0x02 }))
+        .build()
+    );
+    record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build()); // We want to ignore this attribute
 
     // Set up our configuration and clients. All of this is thread-safe and can be reused across
     // calls.
     // Provider Configuration
-    final WrappedMaterialsProvider cmp =
-        new WrappedMaterialsProvider(wrappingKey, wrappingKey, signingKey);
+    final WrappedMaterialsProvider cmp = new WrappedMaterialsProvider(
+      wrappingKey,
+      wrappingKey,
+      signingKey
+    );
     //  While the wrappedMaterialsProvider is better as it uses a unique encryption key per record,
     // many existing systems use the SymmetricStaticProvider which always uses the same encryption
     // key.
@@ -77,22 +113,24 @@ public class SymmetricEncryptedItem {
     final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(cmp);
 
     // Information about the context of our data (normally just Table information)
-    final EncryptionContext encryptionContext =
-        EncryptionContext.builder()
-            .tableName(tableName)
-            .hashKeyName(partitionKeyName)
-            .rangeKeyName(sortKeyName)
-            .build();
+    final EncryptionContext encryptionContext = EncryptionContext
+      .builder()
+      .tableName(tableName)
+      .hashKeyName(partitionKeyName)
+      .rangeKeyName(sortKeyName)
+      .build();
 
     // Describe what actions need to be taken for each attribute
     final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
-    final EnumSet<EncryptionFlags> encryptAndSign =
-        EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN);
+    final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+      EncryptionFlags.ENCRYPT,
+      EncryptionFlags.SIGN
+    );
     final Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
     for (final String attributeName : record.keySet()) {
       switch (attributeName) {
-        case partitionKeyName: // fall through
-        case sortKeyName:
+        case "partition_key":
+        case "sort_key":
           // Partition and sort keys must not be encrypted but should be signed
           actions.put(attributeName, signOnly);
           break;
@@ -109,32 +147,57 @@ public class SymmetricEncryptedItem {
 
     // Encrypt the plaintext record directly
     final Map<String, AttributeValue> encrypted_record =
-        encryptor.encryptRecord(record, actions, encryptionContext);
+      encryptor.encryptRecord(record, actions, encryptionContext);
 
     // Encrypted record fields change as expected
-    assert encrypted_record.get(STRING_FIELD_NAME).b()
-        != null; // the encrypted string is stored as bytes
-    assert encrypted_record.get(NUMBER_FIELD_NAME).b()
-        != null; // the encrypted number is stored as bytes
+    assert encrypted_record.get(STRING_FIELD_NAME).b() != null; // the encrypted string is stored as bytes
+    assert encrypted_record.get(NUMBER_FIELD_NAME).b() != null; // the encrypted number is stored as bytes
     assert !record
-        .get(BINARY_FIELD_NAME)
-        .b()
-        .equals(encrypted_record.get(BINARY_FIELD_NAME).b()); // the encrypted bytes have updated
+      .get(BINARY_FIELD_NAME)
+      .b()
+      .equals(encrypted_record.get(BINARY_FIELD_NAME).b()); // the encrypted bytes have updated
     assert record
-        .get(IGNORED_FIELD_NAME)
-        .s()
-        .equals(encrypted_record.get(IGNORED_FIELD_NAME).s()); // ignored field is left as is
+      .get(IGNORED_FIELD_NAME)
+      .s()
+      .equals(encrypted_record.get(IGNORED_FIELD_NAME).s()); // ignored field is left as is
 
-    // We could now put the encrypted item to DynamoDB just as we would any other item.
-    // We're skipping it to to keep the example simpler.
+    // For demo, the encrypted item is put to DynamoDB. You can skip this as needed for your use case.
+    ddbClient.putItem(
+      PutItemRequest
+        .builder()
+        .tableName(tableName)
+        .item(encrypted_record)
+        .build()
+    );
 
-    // Decryption is identical. We'll pretend that we retrieved the record from DynamoDB.
+    // Get the item back from DynamoDB
+    final Map<String, AttributeValue> keyToGet = new HashMap<>();
+    keyToGet.put(
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
+    );
+    keyToGet.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
+
+    final GetItemResponse getResponse = ddbClient.getItem(
+      GetItemRequest.builder().tableName(tableName).key(keyToGet).build()
+    );
+
+    // Decrypt the record retrieved from DynamoDB
     final Map<String, AttributeValue> decrypted_record =
-        encryptor.decryptRecord(encrypted_record, actions, encryptionContext);
+      encryptor.decryptRecord(getResponse.item(), actions, encryptionContext);
 
     // The decrypted fields match the original fields before encryption
-    assert record.get(STRING_FIELD_NAME).s().equals(decrypted_record.get(STRING_FIELD_NAME).s());
-    assert record.get(NUMBER_FIELD_NAME).n().equals(decrypted_record.get(NUMBER_FIELD_NAME).n());
-    assert record.get(BINARY_FIELD_NAME).b().equals(decrypted_record.get(BINARY_FIELD_NAME).b());
+    assert record
+      .get(STRING_FIELD_NAME)
+      .s()
+      .equals(decrypted_record.get(STRING_FIELD_NAME).s());
+    assert record
+      .get(NUMBER_FIELD_NAME)
+      .n()
+      .equals(decrypted_record.get(NUMBER_FIELD_NAME).n());
+    assert record
+      .get(BINARY_FIELD_NAME)
+      .b()
+      .equals(decrypted_record.get(BINARY_FIELD_NAME).b());
   }
 }

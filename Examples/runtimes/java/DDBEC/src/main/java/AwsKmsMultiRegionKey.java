@@ -38,16 +38,23 @@ public class AwsKmsMultiRegionKey {
   }
 
   public static void encryptRecord(
-          final DynamoDbClient ddbClient,
-          final String tableName, final String cmkArnEncrypt, final String cmkArnDecrypt)
-      throws GeneralSecurityException {
-
+    final DynamoDbClient ddbClient,
+    final String tableName,
+    final String cmkArnEncrypt,
+    final String cmkArnDecrypt
+  ) throws GeneralSecurityException {
     // Extract regions from ARNs
     final String encryptRegion = cmkArnEncrypt.split(":")[3];
     final String decryptRegion = cmkArnDecrypt.split(":")[3];
 
-    final KmsClient kmsEncrypt = KmsClient.builder().region(Region.of(encryptRegion)).build();
-    final KmsClient kmsDecrypt = KmsClient.builder().region(Region.of(decryptRegion)).build();
+    final KmsClient kmsEncrypt = KmsClient
+      .builder()
+      .region(Region.of(encryptRegion))
+      .build();
+    final KmsClient kmsDecrypt = KmsClient
+      .builder()
+      .region(Region.of(decryptRegion))
+      .build();
 
     // Sample record to be encrypted
     final String partitionKeyName = "partition_key";
@@ -58,25 +65,33 @@ public class AwsKmsMultiRegionKey {
     record.put("example", AttributeValue.builder().s("data").build());
     record.put("some numbers", AttributeValue.builder().n("99").build());
     record.put(
-        "and some binary",
-        AttributeValue.builder().b(SdkBytes.fromByteArray(new byte[] {0x00, 0x01, 0x02})).build());
+      "and some binary",
+      AttributeValue
+        .builder()
+        .b(SdkBytes.fromByteArray(new byte[] { 0x00, 0x01, 0x02 }))
+        .build()
+    );
     record.put("leave me", AttributeValue.builder().s("alone").build());
 
     // Set up encryptor with first region's KMS key
     final DirectKmsMaterialsProvider cmpEncrypt =
-        new DirectKmsMaterialsProvider(kmsEncrypt, cmkArnEncrypt);
-    final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(cmpEncrypt);
+      new DirectKmsMaterialsProvider(kmsEncrypt, cmkArnEncrypt);
+    final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+      cmpEncrypt
+    );
 
-    final EncryptionContext encryptionContext =
-        EncryptionContext.builder()
-            .tableName(tableName)
-            .hashKeyName(partitionKeyName)
-            .rangeKeyName(sortKeyName)
-            .build();
+    final EncryptionContext encryptionContext = EncryptionContext
+      .builder()
+      .tableName(tableName)
+      .hashKeyName(partitionKeyName)
+      .rangeKeyName(sortKeyName)
+      .build();
 
     final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
-    final EnumSet<EncryptionFlags> encryptAndSign =
-        EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN);
+    final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+      EncryptionFlags.ENCRYPT,
+      EncryptionFlags.SIGN
+    );
     final Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
     for (final String attributeName : record.keySet()) {
       switch (attributeName) {
@@ -94,33 +109,53 @@ public class AwsKmsMultiRegionKey {
 
     // Encrypt and save to table
     final Map<String, AttributeValue> encrypted_record =
-        encryptor.encryptRecord(record, actions, encryptionContext);
+      encryptor.encryptRecord(record, actions, encryptionContext);
     ddbClient.putItem(
-        PutItemRequest.builder().tableName(tableName).item(encrypted_record).build());
+      PutItemRequest
+        .builder()
+        .tableName(tableName)
+        .item(encrypted_record)
+        .build()
+    );
 
     // Set up decryptor using the replica key from second region
     final DirectKmsMaterialsProvider cmpDecrypt =
-        new DirectKmsMaterialsProvider(kmsDecrypt, cmkArnDecrypt);
-    final DynamoDBEncryptor decryptor = DynamoDBEncryptor.getInstance(cmpDecrypt);
+      new DirectKmsMaterialsProvider(kmsDecrypt, cmkArnDecrypt);
+    final DynamoDBEncryptor decryptor = DynamoDBEncryptor.getInstance(
+      cmpDecrypt
+    );
 
     // Retrieve from same table
     final Map<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put(partitionKeyName, AttributeValue.builder().s("is this").build());
+    keyToGet.put(
+      partitionKeyName,
+      AttributeValue.builder().s("is this").build()
+    );
     keyToGet.put(sortKeyName, AttributeValue.builder().n("42").build());
 
-    final Map<String, AttributeValue> encryptedItem =
-        ddbClient
-            .getItem(GetItemRequest.builder().tableName(tableName).key(keyToGet).build())
-            .item();
+    final Map<String, AttributeValue> encryptedItem = ddbClient
+      .getItem(
+        GetItemRequest.builder().tableName(tableName).key(keyToGet).build()
+      )
+      .item();
 
     // Decrypt using replica key - demonstrates multi-region key capability
     final Map<String, AttributeValue> decrypted_record =
-        decryptor.decryptRecord(encryptedItem, actions, encryptionContext);
+      decryptor.decryptRecord(encryptedItem, actions, encryptionContext);
 
     // Verify decryption
-    assert record.get("example").s().equals(decrypted_record.get("example").s());
-    assert record.get("some numbers").n().equals(decrypted_record.get("some numbers").n());
-    assert record.get("and some binary").b().equals(decrypted_record.get("and some binary").b());
+    assert record
+      .get("example")
+      .s()
+      .equals(decrypted_record.get("example").s());
+    assert record
+      .get("some numbers")
+      .n()
+      .equals(decrypted_record.get("some numbers").n());
+    assert record
+      .get("and some binary")
+      .b()
+      .equals(decrypted_record.get("and some binary").b());
 
     ddbClient.close();
     kmsEncrypt.close();

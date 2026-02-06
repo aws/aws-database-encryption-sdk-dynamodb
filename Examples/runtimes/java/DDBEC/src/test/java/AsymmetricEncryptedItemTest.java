@@ -14,12 +14,13 @@ public class AsymmetricEncryptedItemTest {
 
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AsymmetricEncryptedItem.encryptRecord(
-          ddbClient,
-          TestUtils.TEST_DDB_TABLE_NAME,
-          "partition_key",
-          "sort_key",
-          partitionKeyValue,
-          sortKeyValue);
+        ddbClient,
+        TestUtils.TEST_DDB_TABLE_NAME,
+        "partition_key",
+        "sort_key",
+        partitionKeyValue,
+        sortKeyValue
+      );
     }
   }
 }

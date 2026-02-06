@@ -8,7 +8,8 @@ import software.amazon.awssdk.services.kms.KmsClient;
 
 public class MostRecentEncryptedItemTest {
 
-  private static final String KEY_TABLE_NAME = "v2MostRecentKeyProviderPerfTestKeys";
+  private static final String KEY_TABLE_NAME =
+    "v2MostRecentKeyProviderPerfTestKeys";
   private static final String MATERIAL_NAME = "testMaterial";
 
   @Test
@@ -18,16 +19,17 @@ public class MostRecentEncryptedItemTest {
 
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       MostRecentEncryptedItem.encryptRecord(
-          ddbClient,
-              KmsClient.create(),
-          TestUtils.TEST_DDB_TABLE_NAME,
-          KEY_TABLE_NAME,
-          TestUtils.TEST_KMS_KEY_ID,
-          MATERIAL_NAME,
-          "partition_key",
-          "sort_key",
-          partitionKeyValue,
-          sortKeyValue);
+        ddbClient,
+        KmsClient.create(),
+        TestUtils.TEST_DDB_TABLE_NAME,
+        KEY_TABLE_NAME,
+        TestUtils.TEST_KMS_KEY_ID,
+        MATERIAL_NAME,
+        "partition_key",
+        "sort_key",
+        partitionKeyValue,
+        sortKeyValue
+      );
     }
   }
 }
