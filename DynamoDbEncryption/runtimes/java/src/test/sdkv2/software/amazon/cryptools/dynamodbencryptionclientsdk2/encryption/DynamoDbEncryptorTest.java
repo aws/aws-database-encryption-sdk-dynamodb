@@ -64,7 +64,7 @@ public class DynamoDbEncryptorTest {
     private static SecretKey macKey;
     
     private InstrumentedEncryptionMaterialsProvider prov;
-    private DynamoDbEncryptor encryptor;
+    private DynamoDBEncryptor encryptor;
     private Map<String, AttributeValue> attribs;
     private EncryptionContext context;
     private static final String OVERRIDDEN_TABLE_NAME = "TheBestTableName";
@@ -85,7 +85,7 @@ public class DynamoDbEncryptorTest {
         prov = new InstrumentedEncryptionMaterialsProvider(
                     new SymmetricStaticProvider(encryptionKey, macKey,
                         Collections.emptyMap()));
-        encryptor = DynamoDbEncryptor.getInstance(prov, "enryptor-");
+        encryptor = DynamoDBEncryptor.getInstance(prov, "enryptor-");
 
         attribs = new HashMap<>();
         attribs.put("intValue", AttributeValue.builder().n("123").build());
@@ -255,7 +255,7 @@ public class DynamoDbEncryptorTest {
         prov =
                 new InstrumentedEncryptionMaterialsProvider(
                         new SymmetricStaticProvider(null, macKey, Collections.emptyMap()));
-        encryptor = DynamoDbEncryptor.getInstance(prov, "encryptor-");
+        encryptor = DynamoDBEncryptor.getInstance(prov, "encryptor-");
         Map<String, AttributeValue> encryptedAttributes =
                 encryptor.encryptAllFieldsExcept(attribs, context, attribs.keySet().toArray(new String[0]));
         assertThat(encryptedAttributes, AttrMatcher.invert(attribs));
@@ -299,7 +299,7 @@ public class DynamoDbEncryptorTest {
         rsaGen.initialize(2048, Utils.getRng());
         KeyPair sigPair = rsaGen.generateKeyPair();
         encryptor =
-                DynamoDbEncryptor.getInstance(
+                DynamoDBEncryptor.getInstance(
                         new SymmetricStaticProvider(
                                 encryptionKey, sigPair, Collections.<String, String>emptyMap()),
                         "encryptor-");
@@ -327,7 +327,7 @@ public class DynamoDbEncryptorTest {
         rsaGen.initialize(2048, Utils.getRng());
         KeyPair sigPair = rsaGen.generateKeyPair();
         encryptor =
-                DynamoDbEncryptor.getInstance(
+                DynamoDBEncryptor.getInstance(
                         new SymmetricStaticProvider(
                                 encryptionKey, sigPair, Collections.<String, String>emptyMap()),
                         "encryptor-");
@@ -347,7 +347,7 @@ public class DynamoDbEncryptorTest {
      */
     @Test
     public void testNullEncryptionContextOperator() throws GeneralSecurityException {
-        DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(prov);
+        DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
         encryptor.setEncryptionContextOverrideOperator(null);
         encryptor.encryptAllFieldsExcept(attribs, context, Collections.emptyList());
     }
@@ -359,7 +359,7 @@ public class DynamoDbEncryptorTest {
     public void testTableNameOverriddenEncryptionContextOperator() throws GeneralSecurityException {
         // Ensure that the table name is different from what we override the table to.
         assertThat(context.getTableName(), not(equalTo(OVERRIDDEN_TABLE_NAME)));
-        DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(prov);
+        DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
         encryptor.setEncryptionContextOverrideOperator(
                 overrideEncryptionContextTableName(context.getTableName(), OVERRIDDEN_TABLE_NAME));
         Map<String, AttributeValue> encryptedItems =
@@ -378,8 +378,8 @@ public class DynamoDbEncryptorTest {
             throws GeneralSecurityException {
         // Ensure that the table name is different from what we override the table to.
         assertThat(context.getTableName(), not(equalTo(OVERRIDDEN_TABLE_NAME)));
-        DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(prov);
-        DynamoDbEncryptor encryptorWithoutOverride = DynamoDbEncryptor.getInstance(prov);
+        DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
+        DynamoDBEncryptor encryptorWithoutOverride = DynamoDBEncryptor.getInstance(prov);
         encryptor.setEncryptionContextOverrideOperator(
                 overrideEncryptionContextTableName(context.getTableName(), OVERRIDDEN_TABLE_NAME));
         Map<String, AttributeValue> encryptedItems =
@@ -402,8 +402,8 @@ public class DynamoDbEncryptorTest {
             throws GeneralSecurityException {
         // Ensure that the table name is different from what we override the table to.
         assertThat(context.getTableName(), not(equalTo(OVERRIDDEN_TABLE_NAME)));
-        DynamoDbEncryptor encryptor = DynamoDbEncryptor.getInstance(prov);
-        DynamoDbEncryptor encryptorWithoutOverride = DynamoDbEncryptor.getInstance(prov);
+        DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
+        DynamoDBEncryptor encryptorWithoutOverride = DynamoDBEncryptor.getInstance(prov);
         encryptor.setEncryptionContextOverrideOperator(
                 overrideEncryptionContextTableName(context.getTableName(), OVERRIDDEN_TABLE_NAME));
         Map<String, AttributeValue> encryptedItems =
@@ -418,7 +418,7 @@ public class DynamoDbEncryptorTest {
     @Test
     public void EcdsaSignedOnly() throws GeneralSecurityException {
 
-        encryptor = DynamoDbEncryptor.getInstance(getMaterialProviderwithECDSA());
+        encryptor = DynamoDBEncryptor.getInstance(getMaterialProviderwithECDSA());
 
         Map<String, AttributeValue> encryptedAttributes =
                 encryptor.encryptAllFieldsExcept(attribs, context, attribs.keySet().toArray(new String[0]));
@@ -440,7 +440,7 @@ public class DynamoDbEncryptorTest {
     @Test(expectedExceptions = SignatureException.class)
     public void EcdsaSignedOnlyBadSignature() throws GeneralSecurityException {
 
-        encryptor = DynamoDbEncryptor.getInstance(getMaterialProviderwithECDSA());
+        encryptor = DynamoDBEncryptor.getInstance(getMaterialProviderwithECDSA());
 
         Map<String, AttributeValue> encryptedAttributes =
                 encryptor.encryptAllFieldsExcept(attribs, context, attribs.keySet().toArray(new String[0]));
@@ -500,7 +500,7 @@ public class DynamoDbEncryptorTest {
     private void assertToByteArray(
             final String msg, final byte[] expected, final ByteBuffer testValue)
             throws ReflectiveOperationException {
-        Method m = DynamoDbEncryptor.class.getDeclaredMethod("toByteArray", ByteBuffer.class);
+        Method m = DynamoDBEncryptor.class.getDeclaredMethod("toByteArray", ByteBuffer.class);
         m.setAccessible(true);
 
         int oldPosition = testValue.position();
@@ -537,7 +537,7 @@ public class DynamoDbEncryptorTest {
             g.initialize(ecSpec, Utils.getRng());
             KeyPair keypair = g.generateKeyPair();
             Map<String, String> description = new HashMap<>();
-            description.put(DynamoDbEncryptor.DEFAULT_SIGNING_ALGORITHM_HEADER, "SHA384withECDSA");
+            description.put(DynamoDBEncryptor.DEFAULT_SIGNING_ALGORITHM_HEADER, "SHA384withECDSA");
             return new SymmetricStaticProvider(null, keypair, description);
     }
 

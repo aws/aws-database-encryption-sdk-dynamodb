@@ -83,7 +83,7 @@ public final class EncryptionContext {
     /**
      * This object has no meaning (and will not be set or examined) by any core libraries.
      * It exists to allow custom object mappers and data access layers to pass
-     * data to {@link EncryptionMaterialsProvider}s through the {@link DynamoDbEncryptor}.
+     * data to {@link EncryptionMaterialsProvider}s through the {@link DynamoDBEncryptor}.
      */
     public Object getDeveloperContext() {
         return developerContext;

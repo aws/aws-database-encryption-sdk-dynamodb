@@ -29,7 +29,7 @@ public class EncryptionContextOperators {
     }
 
     /**
-     * An operator for overriding EncryptionContext's table name for a specific DynamoDbEncryptor. If any table names or
+     * An operator for overriding EncryptionContext's table name for a specific DynamoDBEncryptor. If any table names or
      * the encryption context itself is null, then it returns the original EncryptionContext.
      *
      * @param originalTableName the name of the table that should be overridden in the Encryption Context
