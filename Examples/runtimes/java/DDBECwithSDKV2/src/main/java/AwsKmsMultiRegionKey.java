@@ -33,12 +33,32 @@ public class AwsKmsMultiRegionKey {
   private static final String IGNORED_FIELD_NAME = "leave me";
 
   public static void main(String[] args) throws GeneralSecurityException {
+    if (args.length < 5) {
+      throw new IllegalArgumentException(
+        "To run this example, include tableName, cmkArn1, cmkArn2, " +
+        "partitionKeyName, sortKeyName, partitionKeyValue, sortKeyValue as args"
+      );
+    }
+
     final String tableName = args[0];
     final String cmkArn1 = args[1];
     final String cmkArn2 = args[2];
+    final String partitionKeyName = args[3];
+    final String sortKeyName = args[4];
+    final String partitionKeyValue = args[3];
+    final String sortKeyValue = args[4];
 
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
-      encryptRecord(ddbClient, tableName, cmkArn1, cmkArn2);
+      encryptRecord(
+        ddbClient,
+        tableName,
+        cmkArn1,
+        cmkArn2,
+        partitionKeyName,
+        sortKeyName,
+        partitionKeyValue,
+        sortKeyValue
+      );
     }
   }
 
@@ -46,7 +66,11 @@ public class AwsKmsMultiRegionKey {
     final DynamoDbClient ddbClient,
     final String tableName,
     final String cmkArnEncrypt,
-    final String cmkArnDecrypt
+    final String cmkArnDecrypt,
+    final String partitionKeyName,
+    final String sortKeyName,
+    final String partitionKeyValue,
+    final String sortKeyValue
   ) throws GeneralSecurityException {
     // Extract regions from ARNs
     final String encryptRegion = cmkArnEncrypt.split(":")[3];
@@ -62,11 +86,12 @@ public class AwsKmsMultiRegionKey {
       .build();
 
     // Sample record to be encrypted
-    final String partitionKeyName = "partition_key";
-    final String sortKeyName = "sort_key";
     final Map<String, AttributeValue> record = new HashMap<>();
-    record.put(partitionKeyName, AttributeValue.builder().s("is this").build());
-    record.put(sortKeyName, AttributeValue.builder().n("42").build());
+    record.put(
+      partitionKeyName,
+      AttributeValue.builder().s(partitionKeyValue).build()
+    );
+    record.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
     record.put(STRING_FIELD_NAME, AttributeValue.builder().s("data").build());
     record.put(NUMBER_FIELD_NAME, AttributeValue.builder().n("99").build());
     record.put(
@@ -134,9 +159,9 @@ public class AwsKmsMultiRegionKey {
     final Map<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       partitionKeyName,
-      AttributeValue.builder().s("is this").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put(sortKeyName, AttributeValue.builder().n("42").build());
+    keyToGet.put(sortKeyName, AttributeValue.builder().n(sortKeyValue).build());
 
     final Map<String, AttributeValue> encryptedItem = ddbClient
       .getItem(
