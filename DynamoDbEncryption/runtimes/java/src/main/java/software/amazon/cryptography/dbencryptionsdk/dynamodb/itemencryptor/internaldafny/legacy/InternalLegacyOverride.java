@@ -16,7 +16,6 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
 import StandardLibraryInternal.InternalResult;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
 import dafny.DafnyMap;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.ToNative;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.internaldafny.types.CryptoAction;
 
@@ -36,8 +34,8 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
 
   private final LegacyEncryptorAdapter _encryptorAdapter;
   private final LegacyPolicy _policy;
-  private final DafnySequence<Character> materialDescriptionFieldNameDafnyType;
-  private final DafnySequence<Character> signatureFieldNameDafnyType;
+  private final DafnySequence<Character> materialDescriptionFieldNameDafny;
+  private final DafnySequence<Character> signatureFieldNameDafny;
 
   private InternalLegacyOverride(
     LegacyEncryptorAdapter encryptorAdapter,
@@ -47,11 +45,11 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     this._policy = policy;
     // It is possible that these values
     // have been customized by the customer.
-    this.materialDescriptionFieldNameDafnyType =
+    this.materialDescriptionFieldNameDafny =
       software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
         encryptorAdapter.getMaterialDescriptionFieldName()
       );
-    this.signatureFieldNameDafnyType =
+    this.signatureFieldNameDafny =
       software.amazon.smithy.dafny.conversion.ToDafny.Simple.CharacterSequence(
         encryptorAdapter.getSignatureFieldName()
       );
@@ -72,8 +70,8 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     //# attributes for the material description and the signature.
     return (
       input.is_DecryptItemInput() &&
-      input._encryptedItem.contains(materialDescriptionFieldNameDafnyType) &&
-      input._encryptedItem.contains(signatureFieldNameDafnyType)
+      input._encryptedItem.contains(materialDescriptionFieldNameDafny) &&
+      input._encryptedItem.contains(signatureFieldNameDafny)
     );
   }
 
@@ -211,10 +209,10 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     }
 
     final LegacyEncryptorAdapter encryptorAdapter;
-    if (maybeEncryptor instanceof DynamoDBEncryptor) {
+    if (maybeEncryptor instanceof com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor) {
       encryptorAdapter =
         new V1EncryptorAdapter(
-          (DynamoDBEncryptor) maybeEncryptor,
+          (com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor) maybeEncryptor,
           maybeActions.value(),
           maybeEncryptionContext.value()
         );
@@ -229,11 +227,18 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           convertEncryptionContextV1ToV2(maybeEncryptionContext.value())
         );
     } else {
-      return CreateBuildFailure(createError("Unsupported encryptor type: " + maybeEncryptor.getClass().getName()));
+      return CreateBuildFailure(
+        createError(
+          "Unsupported encryptor type: " + maybeEncryptor.getClass().getName()
+        )
+      );
     }
 
     final InternalLegacyOverride internalLegacyOverride =
-      new InternalLegacyOverride(encryptorAdapter, legacyOverride.dtor_policy());
+      new InternalLegacyOverride(
+        encryptorAdapter,
+        legacyOverride.dtor_policy()
+      );
 
     return CreateBuildSuccess(
       CreateInternalLegacyOverrideSome(internalLegacyOverride)
@@ -254,7 +259,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor maybe
   ) {
     return (
-      maybe instanceof DynamoDBEncryptor ||
+      maybe instanceof com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor ||
       maybe instanceof
         software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor
     );
@@ -293,13 +298,13 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   private static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
     final EncryptionContext v1Context
   ) {
-
-    final software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.Builder builder = software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
-            .builder()
-            .tableName(v1Context.getTableName())
-            .hashKeyName(v1Context.getHashKeyName())
-            .rangeKeyName(v1Context.getRangeKeyName())
-            .developerContext(v1Context.getDeveloperContext());
+    final software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.Builder builder =
+      software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
+        .builder()
+        .tableName(v1Context.getTableName())
+        .hashKeyName(v1Context.getHashKeyName())
+        .rangeKeyName(v1Context.getRangeKeyName())
+        .developerContext(v1Context.getDeveloperContext());
 
     if (v1Context.getMaterialDescription() != null) {
       builder.materialDescription(v1Context.getMaterialDescription());
@@ -434,10 +439,16 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       case SS:
         return attribute.withSS(value.ss());
       case UNKNOWN_TO_SDK_VERSION:
-        throw new IllegalArgumentException("Unsupported AttributeValue type: UNKNOWN_TO_SDK_VERSION. This may indicate a newer DynamoDB attribute type that is not supported by this SDK version.");
+        throw new IllegalArgumentException(
+          "Unsupported AttributeValue type: UNKNOWN_TO_SDK_VERSION. This may indicate a newer DynamoDB attribute type that is not supported by this SDK version."
+        );
     }
 
-    throw new IllegalArgumentException("Unexpected AttributeValue type: " + value.type() + ". Unable to convert from SDK v2 to SDK v1 format.");
+    throw new IllegalArgumentException(
+      "Unexpected AttributeValue type: " +
+      value.type() +
+      ". Unable to convert from SDK v2 to SDK v1 format."
+    );
   }
 
   public static Map<
