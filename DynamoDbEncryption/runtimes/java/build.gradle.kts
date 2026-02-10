@@ -11,6 +11,7 @@ plugins {
     `java-library`
     `maven-publish`
     `signing`
+    jacoco
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
@@ -226,6 +227,29 @@ tasks.test {
             }
         }
     })
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+    
+    // Only measure coverage for SDK V2 code
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                include("**/software/amazon/cryptools/dynamodbencryptionclientsdk2/**")
+            }
+        })
+    )
 }
 
 tasks.register<JavaExec>("runTests") {
