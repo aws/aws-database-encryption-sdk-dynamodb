@@ -40,5 +40,5 @@ phases:
       - dotnet add runtimes/net/DbEsdkTestVectors.csproj package AWS.Cryptography.DbEncryptionSDK.DynamoDb --version $VERSION
       - make transpile_net
       - cd runtimes/net
-      - cp ../java/decrypt_java_*.json ../java/decrypt_dotnet_*.json .
+      - cp ../java/*.json .
       - dotnet run --framework net6.0
