@@ -1,12 +1,12 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
+use aws_db_esdk::dynamodb::types::PlaintextOverride;
 use aws_db_esdk::material_providers::client;
 use aws_db_esdk::material_providers::types::material_providers_config::MaterialProvidersConfig;
-use aws_db_esdk::CryptoAction;
-use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
 use aws_db_esdk::types::dynamo_db_tables_encryption_config::DynamoDbTablesEncryptionConfig;
-use aws_db_esdk::dynamodb::types::PlaintextOverride;
+use aws_db_esdk::CryptoAction;
 use std::collections::HashMap;
 
 pub async fn create_table_configs(

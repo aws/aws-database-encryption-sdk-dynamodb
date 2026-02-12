@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.9.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.0...v3.9.1) (2026-02-06)
+
+This release is available in the following languages:
+
+- .NET
+
+### Fixes
+
+- **java:** drop hkdf offset method ([#2011](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2011)) ([b8f29f9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/b8f29f914d2c593de83304a186869aec12f020e3))
+
+### Maintenance
+
+- **java:** fix GetEncryptedDataKeyDescription java Example ([#1973](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1973)) ([ba8fcb7](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ba8fcb7f9aca01ce20cfcd3bc4f2fc0087b5fc9d))
+- move go out of pull/push/daily into its own ([#2005](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2005)) ([1b961b5](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/1b961b585e1b2491424b078add248bf7f319f2a3))
+- **net:** Add plaintext to encrypted table migration example ([#1976](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1976)) ([814acbf](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/814acbf2ad5d4e0826617b6764b32b16574332ab))
+- remove test against latest mpl version ([#2008](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2008)) ([728158e](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/728158e1b0ef83ae41d475bca56419f05928015b))
+- **net**: pin to mpl version 1.11.2
+- **rust:** add plaintext to encrypted table migration examples ([#1977](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1977)) ([5286619](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/52866190608fcec6bff17adcc01bfd6f04367464))
+- **rust:** fips feature ([#1980](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1980)) ([516fd3d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/516fd3d1e63e2e96b3c8f6feb6f1e85411ab810d))
+- **rust:** improved blocking ([#2030](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2030)) ([162c86c](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/162c86c9117bd3048949fa77ab878eee4b6197ff))
+
 ## [3.9.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.8.1...v3.9.0) (2025-06-25)
 
 This release is available in the following languages:
@@ -190,7 +211,7 @@ This release is available in the following languages:
 ### Features
 
 - **DynamoDbEncryption:** Add GetEncryptedDataKeyDescription operation ([#856](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/856)) ([8f8471a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/8f8471a479d9e7526dd8aaa6f34c906d2a0e2dbb))
-- Bump MPL to 1.4 ([#1067](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1067)) ([51bbab5](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/51bbab5589a5db611a3b7564a1c9703fb0de1a23)). This provides three new KMSConfiguration options when constructing a KeyStore (see https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-hierarchical-keyring.html). To KmsKeyArn are added KmsMRKeyArn, Discovery and MrDiscovery.
+- Bump MPL to 1.4 ([#1067](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1067)) ([51bbab5](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/51bbab5589a5db611a3b7564a1c9703fb0de1a23)). This provides three new KMSConfiguration options when constructing a KeyStore (see <https://docs.aws.amazon.com/encryption-sdk/latest/developer-guide/use-hierarchical-keyring.html>). To KmsKeyArn are added KmsMRKeyArn, Discovery and MrDiscovery.
 
 ### Maintenance
 
@@ -288,7 +309,7 @@ DB-ESDK for DynamoDB supports SIGN_ONLY and ENCRYPT_AND_SIGN attribute actions. 
 
 This update addresses the issue by ensuring that any Set values are canonicalized in the same order while written to DynamoDB as when read back from DynamoDB.
 
-See: https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/tree/v3.1.1/DecryptWithPermute for additional details for additional details
+See: <https://github.com/aws/aws-database-encryption-sdk-dynamodb-java/tree/v3.1.1/DecryptWithPermute> for additional details for additional details
 
 ## 3.1.0 2023-09-07
 

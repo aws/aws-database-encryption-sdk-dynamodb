@@ -1,6 +1,10 @@
 # This workflow runs for every pull request
 name: PR CI
 
+permissions:
+  contents: read
+  id-token: write
+
 on:
   pull_request:
 

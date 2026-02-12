@@ -1,0 +1,135 @@
+# This workflow runs every day 16:00 UTC (8PM PST)
+name: Performance Benchmarks
+
+on:
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: false
+        default: "4.9.0"
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      mpl-version:
+        description: "MPL version to use"
+        required: false
+        type: string
+      mpl-head:
+        description: "Running on MPL HEAD"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  testRust:
+    strategy:
+      fail-fast: false
+      matrix:
+        library: [DynamoDbEncryption]
+        benchmark-dir: [db-esdk-performance-testing]
+        # removed windows-latest because somehow it can't build aws-lc in CI
+        os: [ubuntu-22.04, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      RUST_MIN_STACK: 838860800
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-Rust-Tests
+
+      - name: Setup Docker
+        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.2
+
+      - name: Support longpaths on Git checkout
+        run: |
+          git config --global core.longpaths true
+      - uses: actions/checkout@v5
+      - name: Init Submodules
+        shell: bash
+        run: |
+          git submodule update --init --recursive submodules/smithy-dafny
+          git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Setup Rust Toolchain for GitHub CI
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt
+
+      - name: Setup Dafny
+        uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
+        with:
+          dafny-version: 4.10.0
+
+      - name: Update MPL submodule if using MPL HEAD
+        if: ${{ inputs.mpl-head == true }}
+        working-directory: submodules/MaterialProviders
+        run: |
+          git checkout main
+          git pull
+          git submodule update --init --recursive
+          git rev-parse HEAD
+
+      - name: Setup Java 17 for codegen
+        uses: actions/setup-java@v5
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Install Smithy-Dafny codegen dependencies
+        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+
+      - name: Run make polymorph_rust
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make polymorph_rust
+
+      - name: Compile ${{ matrix.library }} implementation
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
+
+      - name: Run Performance Benchmarks - Quick Mode
+        shell: bash
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/rust
+        run: |
+          cargo run --release -- --quick
+
+      - name: Parse and Format Logs
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/results/raw-data/
+        run: |
+          LOG_FILE="rust_results.json"
+          UPLOAD_FILE="cloudwatch_logs.json"
+          TIMESTAMP=$(date +%s%3N)
+          jq -c --arg ts "$(date +%s)000" '[.results[] as $result | .metadata as $meta | {timestamp: ($ts | tonumber), message: ({metadata: $meta, result: $result} | tostring)}]' $LOG_FILE > $UPLOAD_FILE
+
+      - name: Upload logs to CloudWatch
+        working-directory: ./${{matrix.benchmark-dir}}/benchmarks/results/raw-data/
+        run: |
+          LOG_FILE="cloudwatch_logs.json"
+          LOG_GROUP="aws-dbesdk-performance-benchmarks"
+          LOG_STREAM="rust/quick_benchmarks/${{ github.workflow }}"
+
+          # Create log stream (ignore if exists)
+          aws logs create-log-stream \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" 2>/dev/null || true
+
+          aws logs put-log-events \
+            --log-group-name "$LOG_GROUP" \
+            --log-stream-name "$LOG_STREAM" \
+            --log-events file://$LOG_FILE

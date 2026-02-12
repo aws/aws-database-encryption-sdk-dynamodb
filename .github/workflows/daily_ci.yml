@@ -1,9 +1,15 @@
 # This workflow runs every weekday at 16:00 UTC (9AM PDT)
 name: Daily CI
 
+permissions:
+  contents: read
+  id-token: write
+
 on:
   schedule:
     - cron: "00 16 * * 1-5"
+  pull_request:
+    paths: .github/workflows/daily_ci.yml
 
 jobs:
   getVersion:
