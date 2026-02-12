@@ -38,7 +38,7 @@ phases:
       - cd ../TestVectors
       # Spin up ddb local
       - docker run -p 8000:8000 amazon/dynamodb-local --port 8000 -inMemory -cors *
-      
+
       - sed -i.backup  "/\<ProjectReference Include=\"..\/..\/..\/DynamoDbEncryption\/runtimes\/net\/DynamoDbEncryption.csproj\" \/>/d" runtimes/net/DbEsdkTestVectors.csproj
       - dotnet add runtimes/net/DbEsdkTestVectors.csproj package AWS.Cryptography.DbEncryptionSDK.DynamoDb --version $VERSION
       - make transpile_net
