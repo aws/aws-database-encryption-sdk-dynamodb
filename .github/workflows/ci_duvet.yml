@@ -13,7 +13,7 @@ jobs:
   duvet:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install duvet
         shell: bash
