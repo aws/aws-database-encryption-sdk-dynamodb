@@ -244,12 +244,12 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       } catch (Exception e) {
         if (attempt == maxAttempts) {
           fail(
-            "Expected AmazonServiceException but got "
-              + e.getClass().getSimpleName()
-              + " after "
-              + maxAttempts
-              + " attempts: "
-              + e.getMessage()
+            "Expected AmazonServiceException but got " +
+            e.getClass().getSimpleName() +
+            " after " +
+            maxAttempts +
+            " attempts: " +
+            e.getMessage()
           );
         }
         // Otherwise retry
