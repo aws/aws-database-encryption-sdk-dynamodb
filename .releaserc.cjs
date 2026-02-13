@@ -60,7 +60,7 @@ const Runtimes = {
  * @type {import('semantic-release').GlobalConfig}
  */
 module.exports = {
-  branches: ["test-semantic-release"],
+  branches: ["main"],
   repositoryUrl: "git@github.com:aws/aws-database-encryption-sdk-dynamodb.git",
   plugins: [
     // Check the commits since the last release
