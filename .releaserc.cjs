@@ -15,7 +15,7 @@
   `npx semantic-release --branches main`
 */
 
-const fs = require('fs');
+const fs = require("fs");
 
 /**
  * Function to parse a simple properties file
@@ -23,13 +23,13 @@ const fs = require('fs');
  * @returns {Object} Parsed properties as key-value pairs
  */
 function parsePropertiesFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, "utf8");
   const properties = {};
 
-  content.split('\n').forEach(line => {
-    if (line && !line.startsWith('#') && line.includes('=')) {
-      const [key, ...valueParts] = line.split('=');
-      properties[key.trim()] = valueParts.join('=').trim();
+  content.split("\n").forEach((line) => {
+    if (line && !line.startsWith("#") && line.includes("=")) {
+      const [key, ...valueParts] = line.split("=");
+      properties[key.trim()] = valueParts.join("=").trim();
     }
   });
 
@@ -37,7 +37,7 @@ function parsePropertiesFile(filePath) {
 }
 
 // Read your project.properties file
-const props = parsePropertiesFile('./project.properties');
+const props = parsePropertiesFile("./project.properties");
 
 // This project has several runtimes
 // each one has files that need to be updated.
@@ -148,7 +148,7 @@ module.exports = {
           },
           {
             files: Object.keys(Runtimes.net),
-            from: "<ProjectReference Include=\"../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj\"/>",
+            from: '<ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>',
             to: `<PackageReference Include="AWS.Cryptography.MaterialProviders" Version="[${props.mplDependencyNetVersion}]" />`,
             results: Object.keys(Runtimes.net).map(CheckResults),
             countMatches: true,
