@@ -57,9 +57,11 @@ public class TestBeaconStylesSearchableEncryptionExample {
         .build()
     );
 
-    ddb.waiter().waitUntilTableExists(
-      DescribeTableRequest.builder().tableName(tableName).build()
-    );
+    ddb
+      .waiter()
+      .waitUntilTableExists(
+        DescribeTableRequest.builder().tableName(tableName).build()
+      );
 
     return tableName;
   }
@@ -71,7 +73,10 @@ public class TestBeaconStylesSearchableEncryptionExample {
       );
     } catch (Exception e) {
       System.err.println(
-        "Warning: failed to delete test table " + tableName + ": " + e.getMessage()
+        "Warning: failed to delete test table " +
+        tableName +
+        ": " +
+        e.getMessage()
       );
     }
   }

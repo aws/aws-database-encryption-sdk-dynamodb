@@ -185,9 +185,11 @@ public class TestComplexSearchableEncryptionExample {
     );
 
     // Wait for the table to become active
-    ddb.waiter().waitUntilTableExists(
-      DescribeTableRequest.builder().tableName(tableName).build()
-    );
+    ddb
+      .waiter()
+      .waitUntilTableExists(
+        DescribeTableRequest.builder().tableName(tableName).build()
+      );
 
     return tableName;
   }
@@ -199,7 +201,10 @@ public class TestComplexSearchableEncryptionExample {
       );
     } catch (Exception e) {
       System.err.println(
-        "Warning: failed to delete test table " + tableName + ": " + e.getMessage()
+        "Warning: failed to delete test table " +
+        tableName +
+        ": " +
+        e.getMessage()
       );
     }
   }
