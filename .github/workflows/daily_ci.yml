@@ -1,9 +1,15 @@
 # This workflow runs every weekday at 16:00 UTC (9AM PDT)
 name: Daily CI
 
+permissions:
+  contents: read
+  id-token: write
+
 on:
   schedule:
     - cron: "00 16 * * 1-5"
+  pull_request:
+    paths: .github/workflows/daily_ci.yml
 
 jobs:
   getVersion:
@@ -61,11 +67,6 @@ jobs:
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-  daily-ci-go:
-    needs: getVersion
-    uses: ./.github/workflows/ci_test_go.yml
-    with:
-      dafny: ${{needs.getVersion.outputs.version}}
   daily-ci-net-test-vectors:
     needs: getVersion
     uses: ./.github/workflows/ci_test_vector_net.yml
@@ -76,3 +77,26 @@ jobs:
     uses: ./.github/workflows/ci_examples_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+  notify:
+    needs:
+      [
+        getVersion,
+        getVerifyVersion,
+        daily-ci-format,
+        daily-ci-codegen,
+        daily-ci-verification,
+        daily-ci-test-vector-verification,
+        daily-ci-java,
+        daily-ci-java-test-vectors,
+        daily-ci-java-examples,
+        daily-ci-net,
+        daily-ci-rust,
+        daily-ci-net-test-vectors,
+        daily-ci-net-examples,
+      ]
+    if: ${{ failure() }}
+    uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
+    with:
+      message: "Daily CI failed on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CI }}

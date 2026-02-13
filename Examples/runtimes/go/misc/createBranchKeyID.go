@@ -5,11 +5,10 @@ package misc
 
 import (
 	"context"
-	"fmt"
 
 	keystore "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographykeystoresmithygenerated"
 	keystoretypes "github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographykeystoresmithygeneratedtypes"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/examples/utils"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/examples/utils"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
@@ -35,7 +34,7 @@ import (
 func CreateBranchKeyIDExample(
 	keyStoreTableName,
 	logicalKeyStoreName,
-	kmsKeyArn string) {
+	kmsKeyArn string) string {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	utils.HandleError(err)
 	ddbClient := dynamodb.NewFromConfig(cfg)
@@ -60,5 +59,5 @@ func CreateBranchKeyIDExample(
 	branchKey, err := keyStore.CreateKey(context.Background(), keystoretypes.CreateKeyInput{})
 	utils.HandleError(err)
 
-	fmt.Println("Branch Key ID " + branchKey.BranchKeyIdentifier + " created in Create Branch Key ID Example.")
+	return branchKey.BranchKeyIdentifier
 }

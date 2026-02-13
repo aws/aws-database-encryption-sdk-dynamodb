@@ -25,8 +25,10 @@ echo
 echo
 sleep 2
 
+VERSION=$1
+
 # Update the version in Cargo.toml
-perl -pe "s/^version = .*$/version = \"$1\"/" < Cargo.toml > new_Cargo.toml
+perl -pe "s/^version = .*$/version = \"$VERSION\"/" < Cargo.toml > new_Cargo.toml
 mv new_Cargo.toml Cargo.toml
 
 set -v
@@ -78,3 +80,13 @@ cargo run --example main
 
 # Remove Cargo.lock and .pem files after testing the examples
 rm -f Cargo.lock *.pem
+
+set +v
+
+echo
+echo Next Steps:
+echo cd $(realpath ${PWD}/../../../releases/rust/db_esdk)
+echo Make a PR
+echo Get it merged
+echo cargo publish
+echo

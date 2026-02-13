@@ -3,18 +3,85 @@
 
 package utils
 
-import "crypto/rand"
+import (
+	"context"
+	"crypto/rand"
+	"errors"
+	"os"
+	"strings"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/smithy-go"
+)
 
 const (
-	kmsKeyID                = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
-	ddbTableName            = "DynamoDbEncryptionInterceptorTestTableCS"
-	keyNamespace            = "my-key-namespace"
-	keyName                 = "my-key-name"
-	aesKeyBytes             = 32 // 256 bits = 32 bytes
-	testKeystoreName        = "KeyStoreDdbTable"
-	testLogicalKeystoreName = "KeyStoreDdbTable"
-	testKeystoreKmsKeyId    = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	kmsKeyID                       = "arn:aws:kms:us-west-2:658956600833:key/b3537ef1-d8dc-4780-9f5a-55776cbb2f7f"
+	ddbTableName                   = "DynamoDbEncryptionInterceptorTestTableCS"
+	keyNamespace                   = "my-key-namespace"
+	keyName                        = "my-key-name"
+	aesKeyBytes                    = 32 // 256 bits = 32 bytes
+	testKeystoreName               = "KeyStoreDdbTable"
+	testLogicalKeystoreName        = "KeyStoreDdbTable"
+	testKeystoreKmsKeyId           = "arn:aws:kms:us-west-2:370957321024:key/9d989aa2-2f9c-438c-a745-cc57d3ad0126"
+	defaultRsaPublicKeyFilename    = "KmsRsaKeyringPublicKey.pem"
+	testKmsRsaKeyID                = "arn:aws:kms:us-west-2:658956600833:key/8b432da4-dde4-4bc3-a794-c7d68cbab5a6"
+	defaultKMSKeyAccountID         = "658956600833"
+	defaultKmsKeyRegion            = "us-west-2"
+	alternateRegionKmsKeyRegion    = "eu-west-1"
+	exampleRsaPrivateKeyFilename   = "RawRsaKeyringExamplePrivateKey.pem"
+	exampleRsaPublicKeyFilename    = "RawRsaKeyringExamplePublicKey.pem"
+	unitInspectionTestDdbTableName = "UnitInspectionTestTableCS"
+	simpleBeaconTestDdbTableName   = "SimpleBeaconTestTable"
+	testComplexDdbTableName        = "ComplexBeaconTestTable"
+	testMrkReplicaKeyIdUsEast1     = "arn:aws:kms:us-east-1:658956600833:key/mrk-80bd8ecdcd4342aebd84b7dc9da498a7"
 )
+
+func AlternateRegionKmsKeyRegionAsAList() []string {
+	return []string{alternateRegionKmsKeyRegion}
+}
+
+func TestMrkReplicaKeyIdUsEast1() string {
+	return testMrkReplicaKeyIdUsEast1
+}
+
+func UnitInspectionTestDdbTableName() string {
+	return unitInspectionTestDdbTableName
+}
+
+func SimpleBeaconTestDdbTableName() string {
+	return simpleBeaconTestDdbTableName
+}
+
+func TestComplexDdbTableName() string {
+	return testComplexDdbTableName
+}
+
+func ExampleRsaPublicKeyFilename() string {
+	return exampleRsaPublicKeyFilename
+}
+
+func ExampleRsaPrivateKeyFilename() string {
+	return exampleRsaPrivateKeyFilename
+}
+
+func DefaultKMSKeyAccountID() []string {
+	return []string{defaultKMSKeyAccountID}
+}
+
+func DefaultKmsKeyRegion() []string {
+	return []string{defaultKmsKeyRegion}
+}
+
+func TestKmsRsaKeyID() string {
+	return testKmsRsaKeyID
+}
+
+func DefaultRsaPublicKeyFilename() string {
+	return defaultRsaPublicKeyFilename
+}
 
 func TestKeystoreName() string {
 	return testKeystoreName
@@ -66,6 +133,33 @@ func HandleError(err error) {
 	}
 }
 
+func AssertServiceError(err error, service string, operation string, errorMessage string) {
+	if err == nil {
+		panic("Expected error but got no error")
+	}
+	var oe *smithy.OperationError
+	if errors.As(err, &oe) {
+		if oe.Service() != service {
+			panic("Expected service to be: " + service + " but got: " + oe.Service())
+		}
+		if oe.Operation() != operation {
+			panic("Expected Operation to be: " + operation + " but got: " + oe.Operation())
+		}
+		if !strings.Contains(oe.Unwrap().Error(), errorMessage) {
+			panic("Expected message to contain: " + errorMessage + " but got: " + oe.Unwrap().Error())
+		}
+	}
+}
+
+func AssertErrorMessage(err error, expectedMessage string) {
+	if err == nil {
+		panic("Expected error but got no error")
+	}
+	if !strings.Contains(err.Error(), expectedMessage) {
+		panic("Expected error containing: `" + expectedMessage + "` but got:" + err.Error())
+	}
+}
+
 func GenerateAes256KeyBytes() []byte {
 	key := make([]byte, aesKeyBytes)
 	// crypto/rand is used here for demonstration.
@@ -73,4 +167,38 @@ func GenerateAes256KeyBytes() []byte {
 	_, err := rand.Read(key)
 	HandleError(err)
 	return key
+}
+
+func FileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
+}
+
+func DeleteItem(
+	tableName string,
+	partitionKeyName string,
+	partitionKeyValue string,
+	sortKeyName string,
+	sortKeyValue string,
+) {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	HandleError(err)
+
+	// Create DynamoDB client
+	client := dynamodb.NewFromConfig(cfg)
+	// Build the key attributes map with both partition and sort keys
+	key := map[string]types.AttributeValue{
+		partitionKeyName: &types.AttributeValueMemberS{Value: partitionKeyValue},
+		sortKeyName:      &types.AttributeValueMemberN{Value: sortKeyValue},
+	}
+
+	// Create the DeleteItem input
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(tableName),
+		Key:       key,
+	}
+
+	// Execute the DeleteItem operation
+	_, err = client.DeleteItem(context.TODO(), input)
+	HandleError(err)
 }

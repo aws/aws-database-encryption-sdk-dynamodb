@@ -7,6 +7,8 @@
 #![allow(unused)]
 #![allow(clippy::result_large_err)]
 
+use crate::escape::escape_to_async;
+
 use aws_sdk_dynamodb::{
     config::{
         interceptors::{BeforeSerializationInterceptorContextMut, FinalizerInterceptorContextMut},
@@ -24,16 +26,7 @@ macro_rules! modify_request {
             .store_put(OriginalRequest(Input::erase($request.clone())));
 
         // transform the request
-        let result = tokio::task::block_in_place(|| {
-            tokio::runtime::Handle::current().block_on(async {
-                $self
-                    .client
-                    .$transform()
-                    .sdk_input($request.clone())
-                    .send()
-                    .await
-            })
-        });
+        let result = escape_to_async($self.client.$transform().sdk_input($request.clone()).send());
         match result {
             Ok(x) => *$request = x.transformed_input.unwrap(),
             Err(x) => {
@@ -56,17 +49,14 @@ macro_rules! modify_response {
             .expect("we know this type corresponds to the output type");
 
         // transform the response
-        let result = tokio::task::block_in_place(|| {
-            tokio::runtime::Handle::current().block_on(async {
-                $self
-                    .client
-                    .$transform()
-                    .original_input(original.clone())
-                    .sdk_output($response.clone())
-                    .send()
-                    .await
-            })
-        });
+        let result = escape_to_async(
+            $self
+                .client
+                .$transform()
+                .original_input(original.clone())
+                .sdk_output($response.clone())
+                .send(),
+        );
         match result {
             Ok(x) => *$response = x.transformed_output.unwrap(),
             Err(x) => {

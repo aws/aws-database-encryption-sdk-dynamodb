@@ -28,18 +28,26 @@ jobs:
         os: [
             # Run on ubuntu image that comes pre-configured with docker
             ubuntu-22.04,
-            macos-13,
+            macos-15-intel,
           ]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DDBEC-Dafny-DotNet-Tests
+
       - name: Setup Docker
-        if: matrix.os == 'macos-13' && matrix.library == 'TestVectors'
-        uses: douglascamata/setup-docker-macos-action@v1.0.0
+        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        uses: douglascamata/setup-docker-macos-action@v1.0.2
 
       - name: Setup DynamoDB Local
+        if: matrix.library == 'TestVectors'
         run: |
           for i in 1 2 3; do
             docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local \
@@ -50,14 +58,7 @@ jobs:
           done
           docker ps | grep dynamodb
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
-          role-session-name: DDBEC-Dafny-DotNet-Tests
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -88,9 +89,16 @@ jobs:
           update-and-regenerate-mpl: true
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Setup .NET OpenSSL on Mac
+        if: matrix.os == 'macos-15-intel'
+        run: |
+          brew install openssl@3
+          echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
+          echo "DOTNET_CRYPTO_ENGINE_ADAPTER=System.Security.Cryptography.Algorithms.Managed" >> $GITHUB_ENV
 
       - name: Build TestVectors implementation
         shell: bash
@@ -104,4 +112,3 @@ jobs:
         run: |
           cp ../java/*.json .
           dotnet run
-          dotnet run --framework net6.0

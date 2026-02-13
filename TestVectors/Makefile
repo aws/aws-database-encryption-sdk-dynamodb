@@ -120,49 +120,10 @@ GO_DEPENDENCY_MODULE_NAMES := \
 	--dependency-library-name=aws.cryptography.keyStore=github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl \
 	--dependency-library-name=sdk.com.amazonaws.dynamodb=github.com/aws/aws-sdk-go-v2/service/dynamodb \
 	--dependency-library-name=sdk.com.amazonaws.kms=github.com/aws/aws-sdk-go-v2/service/kms \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=github.com/aws/aws-database-encryption-sdk-dynamodb
-	
-TRANSLATION_RECORD_GO := \
-	DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
-    submodules/MaterialProviders/StandardLibrary/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
-    submodules/MaterialProviders/ComAmazonawsKms/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
-    submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
-    submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
-	submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
-	submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr
-
-# Constants for languages that drop extern names (Python, Go)
-
-INDEX_FILE_PATH=dafny/DDBEncryption/src/LibraryIndex.dfy
-INDEX_FILE_WITH_EXTERN_STRING="module {:extern \"software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.wrapped\"} WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
-INDEX_FILE_WITHOUT_EXTERN_STRING="module WrappedDynamoDbEncryption refines WrappedAbstractAwsCryptographyDynamoDbEncryptionService"
-
-_sed_types_file_remove_extern:
-	echo "no types file"
-
-_sed_types_file_add_extern:
-	echo "no types file"
-
-_polymorph_go: purge_polymorph_code
-
-# Go
-GO_MODULE_NAME="github.com/aws/aws-database-encryption-sdk-dynamodb/testvectors"
-
-GO_DEPENDENCY_MODULE_NAMES := \
-	--dependency-library-name=aws.cryptography.primitives=github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives \
-	--dependency-library-name=com.amazonaws.kms=github.com/aws/aws-cryptographic-material-providers-library/releases/go/kms \
-	--dependency-library-name=com.amazonaws.dynamodb=github.com/aws/aws-cryptographic-material-providers-library/releases/go/dynamodb \
-	--dependency-library-name=aws.cryptography.materialProviders=github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl \
-	--dependency-library-name=aws.cryptography.keyStore=github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl \
-	--dependency-library-name=sdk.com.amazonaws.dynamodb=github.com/aws/aws-sdk-go-v2/service/dynamodb \
-	--dependency-library-name=sdk.com.amazonaws.kms=github.com/aws/aws-sdk-go-v2/service/kms \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=github.com/aws/aws-database-encryption-sdk-dynamodb \
-	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=github.com/aws/aws-database-encryption-sdk-dynamodb
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.structuredEncryption=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk \
+	--dependency-library-name=aws.cryptography.dbEncryptionSdk.dynamoDb.transforms=github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk
 	
 TRANSLATION_RECORD_GO := \
 	DynamoDbEncryption/runtimes/go/ImplementationFromDafny-go/ImplementationFromDafny-go.dtr \
