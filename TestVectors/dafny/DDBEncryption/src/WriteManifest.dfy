@@ -127,6 +127,34 @@ module {:options "-functionSyntax:4"} WriteManifest {
         },
         ""allowedUnsignedAttributes"" : [""Stuff"", ""Junk""]
       }"
+  // Configuration with a new encrypted attribute not present in basic config
+  const ExpandedBasicConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""ENCRYPT_AND_SIGN"",
+          ""NewThing"": ""ENCRYPT_AND_SIGN""
+        }
+      }"
+  // Configuration with a new sign-only attribute not present in basic config
+  const ExpandedSignConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""ENCRYPT_AND_SIGN"",
+          ""NewThing"": ""SIGN_ONLY""
+        }
+      }"
+  // Configuration with a new DO_NOTHING attribute not present in basic config
+  const ExpandedDoNothingConfig := @"{
+        ""attributeActionsOnEncrypt"": {
+          ""RecNum"": ""SIGN_ONLY"",
+          ""Stuff"": ""ENCRYPT_AND_SIGN"",
+          ""Junk"": ""ENCRYPT_AND_SIGN"",
+          ""NewThing"": ""DO_NOTHING""
+        },
+        ""allowedUnsignedAttributes"": [""NewThing""]
+      }"
 
   method TextToJson(x: string) returns (output : JSON)
   {
@@ -396,8 +424,16 @@ module {:options "-functionSyntax:4"} WriteManifest {
     var test12 := MakeTest("12", "positive-encrypt", "Basic encrypt V2 switching1", LongerV2Config1, BasicRecord, Some(LongerV2Config2));
     var test13 := MakeTest("13", "positive-encrypt", "Basic encrypt V2 switching2", LongerV2Config2, BasicRecord, Some(LongerV2Config1));
     var test14 := MakeTest("14", "positive-encrypt", "Special characters in attribute names", SpecialConfig, SpecialRecord);
+
+    var test15 := MakeTest("15", "positive-encrypt", "Add new ENCRYPT_AND_SIGN attribute", BasicConfig, BasicRecord, Some(ExpandedBasicConfig));
+    var test16 := MakeTest("16", "positive-encrypt", "Add new SIGN_ONLY attribute", BasicConfig, BasicRecord, Some(ExpandedSignConfig));
+    var test17 := MakeTest("17", "positive-encrypt", "Add new DO_NOTHING attribute", BasicConfig, BasicRecord, Some(ExpandedDoNothingConfig));
+    var test18 := MakeTest("18", "positive-encrypt", "Remove ENCRYPT_AND_SIGN attribute, encrypt with expanded, decrypt with basic", ExpandedBasicConfig, BasicRecord, Some(BasicConfig));
+    var test19 := MakeTest("19", "positive-encrypt", "Remove SIGN_ONLY attribute, encrypt with expanded, decrypt with basic", ExpandedSignConfig, BasicRecord, Some(BasicConfig));
+    var test20 := MakeTest("20", "positive-encrypt", "Remove DO_NOTHING attribute, encrypt with expanded, decrypt with basic", ExpandedDoNothingConfig, BasicRecord, Some(BasicConfig));
+
     var configTests := MakeConfigTests();
-    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14] + configTests;
+    var tests : seq<(string, JSON)> := [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15, test16, test17, test18, test19, test20] + configTests;
     var final := Object(result + [("tests", Object(tests))]);
 
     var jsonBytes :- expect API.Serialize(final);

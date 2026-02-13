@@ -1,6 +1,10 @@
 # This workflow runs for every push to main
 name: Push CI
 
+permissions:
+  contents: read
+  id-token: write
+
 on:
   push:
     branches:
@@ -54,11 +58,6 @@ jobs:
   pr-ci-rust:
     needs: getVersion
     uses: ./.github/workflows/library_rust_tests.yml
-    with:
-      dafny: ${{needs.getVersion.outputs.version}}
-  pr-ci-go:
-    needs: getVersion
-    uses: ./.github/workflows/ci_test_go.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   pr-ci-net-test-vectors:

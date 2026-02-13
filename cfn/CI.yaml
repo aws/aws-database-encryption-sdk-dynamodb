@@ -59,9 +59,6 @@ Resources:
           KeyType: "HASH"
         - AttributeName: "sort_key"
           KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
       TableName: !Ref TableName
 
   # These tables were manually created but not used in CI
@@ -88,7 +85,26 @@ Resources:
           AttributeType: "S"
         - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
           AttributeType: "S"
+        - AttributeName: "aws_dbe_b_address"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_birthday"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_buildingAndFloor"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_email"
+          AttributeType: "S"
+        - AttributeName: "aws_dbe_b_stateAndHasTestResult"
+          AttributeType: "S"
       GlobalSecondaryIndexes:
+        - IndexName: "stateAndHasTestResult-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_stateAndHasTestResult"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
         - IndexName: "state-zip-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_state"
@@ -113,6 +129,37 @@ Resources:
           KeySchema:
             - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
               KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "buildingAndFloor-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_buildingAndFloor"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "email-birthday-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_email"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_birthday"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+        - IndexName: "address-birthday-index"
+          KeySchema:
+            - AttributeName: "aws_dbe_b_address"
+              KeyType: "HASH"
+            - AttributeName: "aws_dbe_b_birthday"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
@@ -256,6 +303,7 @@ Resources:
               - dynamodb:Scan
               - dynamodb:Query
               - dynamodb:UpdateItem
+              - dynamodb:DescribeTable
             Resource:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}/index/*"
@@ -271,6 +319,8 @@ Resources:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestJavaTableName}/index/*"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}"
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SearchTestDotnetTableName}/index/*"
+              - "arn:aws:dynamodb:us-west-2:370957321024:table/v2MostRecentKeyProviderPerfTestKeys"
+              - "arn:aws:dynamodb:us-west-2:370957321024:table/v2MostRecentKeyProviderPerfTestKeys/index/*"
 
   KMSUsage:
     Type: "AWS::IAM::ManagedPolicy"
@@ -323,11 +373,27 @@ Resources:
               - !Sub "arn:aws:kms:eu-west-1:658956600833:key/*"
               - !Sub "arn:aws:kms:eu-west-1:658956600833:alias/*"
 
+  PerformanceBenchmarksCloudWatchUsage:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "Allow CloudWatch Logs operations for performance benchmarks"
+      ManagedPolicyName: !Sub "DBESDK-Performance-Benchmarks-CloudWatch-${AWS::Region}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescribeLogStreams
+            Resource: !Sub "arn:aws:logs:*:*:log-group:aws-dbesdk-performance-benchmarks:*"
+
   GitHubCIRole:
     Type: "AWS::IAM::Role"
     Properties:
       RoleName: !Sub "GitHub-CI-${ProjectName}-Role-${AWS::Region}"
-      Description: "Access DDB, KMS, & CA Resources for CI from GitHub"
+      Description: "Access DDB, KMS, and CA Resources for CI from GitHub"
       ManagedPolicyArns:
         - Fn::ImportValue: "Polymorph-CA-GitHubCAReadPolicyArn"
         - "arn:aws:iam::370957321024:policy/ESDK-Dafny-DDB-ReadWriteDelete-us-west-2"
@@ -335,6 +401,7 @@ Resources:
         - "arn:aws:iam::370957321024:policy/Github-ECDH-KMS"
         - !Ref KMSUsage
         - !Ref DDBUsage
+        - !Ref PerformanceBenchmarksCloudWatchUsage
       AssumeRolePolicyDocument: !Sub |
         {
           "Version": "2012-10-17",   
@@ -350,7 +417,8 @@ Resources:
                 "StringLike": {
                   "token.actions.githubusercontent.com:sub": [
                     "repo:aws/aws-database-encryption-sdk-dynamodb:*",
-                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*"
+                    "repo:aws/private-aws-database-encryption-sdk-dynamodb-java-staging:*",
+                    "repo:aws/aws-cryptographic-material-providers-library:*"
                   ]
                 }
               }

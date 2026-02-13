@@ -104,6 +104,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       var _ :- expect DecryptManifest.Decrypt("decrypt_java_33a.json", keyVectors);
       var _ :- expect DecryptManifest.Decrypt("decrypt_rust_38.json", keyVectors);
       var _ :- expect DecryptManifest.Decrypt("decrypt_go_38.json", keyVectors);
+      var _ :- expect DecryptManifest.Decrypt("decrypt_java_39.json", keyVectors);
       var _ :- expect WriteManifest.Write("encrypt.json");
       var _ :- expect EncryptManifest.Encrypt("encrypt.json", "decrypt.json", "java", "3.3", keyVectors);
       var _ :- expect DecryptManifest.Decrypt("decrypt.json", keyVectors);

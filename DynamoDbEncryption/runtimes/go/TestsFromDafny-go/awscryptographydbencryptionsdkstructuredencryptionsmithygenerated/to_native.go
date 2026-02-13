@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/mpl/awscryptographymaterialproviderssmithygeneratedtypes"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/primitives/awscryptographyprimitivessmithygenerated"
 	"github.com/aws/aws-cryptographic-material-providers-library/releases/go/smithy-dafny-standard-library/UTF8"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes"
-	"github.com/aws/aws-database-encryption-sdk-dynamodb/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes"
+	"github.com/aws/aws-database-encryption-sdk-dynamodb/releases/go/dynamodb-esdk/awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes"
 	"github.com/dafny-lang/DafnyRuntimeGo/v4/dafny"
 )
 
@@ -237,12 +237,7 @@ func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTermina
 		if input == nil {
 			return nil
 		}
-		a := input.(dafny.Sequence).ToArray().(dafny.GoNativeArray)
-		b := make([]byte, 0, a.Length())
-		for i := uint32(0); i < a.Length(); i++ {
-			b = append(b, a.Select(i).(byte))
-		}
-		return b
+		return dafny.ToByteArray(input.(dafny.Sequence))
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTerminal_typeId_FromDafny(input interface{}) []byte {
@@ -250,12 +245,7 @@ func Aws_cryptography_dbEncryptionSdk_structuredEncryption_StructuredDataTermina
 		if input == nil {
 			return nil
 		}
-		a := input.(dafny.Sequence).ToArray().(dafny.GoNativeArray)
-		b := make([]byte, 0, a.Length())
-		for i := uint32(0); i < a.Length(); i++ {
-			b = append(b, a.Select(i).(byte))
-		}
-		return b
+		return dafny.ToByteArray(input.(dafny.Sequence))
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_structuredEncryption_AuthItem_action_FromDafny(input interface{}) awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.AuthenticateAction {
@@ -778,12 +768,7 @@ func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsInp
 		if input == nil {
 			return nil
 		}
-		a := input.(dafny.Sequence).ToArray().(dafny.GoNativeArray)
-		b := make([]byte, 0, a.Length())
-		for i := uint32(0); i < a.Length(); i++ {
-			b = append(b, a.Select(i).(byte))
-		}
-		return b
+		return dafny.ToByteArray(input.(dafny.Sequence))
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_structuredEncryption_ResolveAuthActionsOutput_cryptoActions_FromDafny(input interface{}) []awscryptographydbencryptionsdkstructuredencryptionsmithygeneratedtypes.CryptoItem {
