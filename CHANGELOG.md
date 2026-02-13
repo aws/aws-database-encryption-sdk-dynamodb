@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.9.2](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.1...v3.9.2) (2026-02-13)
+
+### Maintenance
+
+* **.net:** add ddb local to .net release ([#2075](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2075)) ([db55bdf](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/db55bdfdcf7f74a7f2f9cc1e778448c3f9827e31))
+* **.net:** comment out testvectors from release ([#2076](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2076)) ([fdaa9e3](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/fdaa9e3b9c838d7b1db7435dae585e8297038a2d))
+* **.net:** fix release commands to include all json tv files ([#2072](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2072)) ([10f809d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/10f809d1e78e96c7403e4dffc1140fc94c4e73a1))
+* **.net:** pin mpl to latest ([#2065](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2065)) ([f6b64a6](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/f6b64a67f6e8e9db79cffcb166a1f18de525674b))
+* **.net:** reference submoduled mpl ([db1424d](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/db1424dcd5e1cdadebb40ebd37ca714e46f85831))
+
 ## [3.9.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.0...v3.9.1) (2026-02-06)
 
 This release is available in the following languages:
