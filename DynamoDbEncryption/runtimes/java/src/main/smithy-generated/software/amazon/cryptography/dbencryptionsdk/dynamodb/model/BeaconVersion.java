@@ -5,6 +5,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.model;
 
 import java.util.List;
 import java.util.Objects;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.IPartitionSelector;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.PartitionSelector;
 import software.amazon.cryptography.keystore.KeyStore;
 
 /**
@@ -38,7 +40,7 @@ public class BeaconVersion {
   private final List<CompoundBeacon> compoundBeacons;
 
   /**
-   * The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+   * The Virtual Fields to be calculated, supporting other searchable encryption configurations.
    */
   private final List<VirtualField> virtualFields;
 
@@ -52,6 +54,21 @@ public class BeaconVersion {
    */
   private final List<SignedPart> signedParts;
 
+  /**
+   * The number of separate partitions across which beacons should be divided.
+   */
+  private final int maximumNumberOfPartitions;
+
+  /**
+   * The number of partitions for any beacon that doesn't specify a numberOfPartitions
+   */
+  private final int defaultNumberOfPartitions;
+
+  /**
+   * How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+   */
+  private final IPartitionSelector partitionSelector;
+
   protected BeaconVersion(BuilderImpl builder) {
     this.version = builder.version();
     this.keyStore = builder.keyStore();
@@ -61,6 +78,9 @@ public class BeaconVersion {
     this.virtualFields = builder.virtualFields();
     this.encryptedParts = builder.encryptedParts();
     this.signedParts = builder.signedParts();
+    this.maximumNumberOfPartitions = builder.maximumNumberOfPartitions();
+    this.defaultNumberOfPartitions = builder.defaultNumberOfPartitions();
+    this.partitionSelector = builder.partitionSelector();
   }
 
   /**
@@ -99,7 +119,7 @@ public class BeaconVersion {
   }
 
   /**
-   * @return The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+   * @return The Virtual Fields to be calculated, supporting other searchable encryption configurations.
    */
   public List<VirtualField> virtualFields() {
     return this.virtualFields;
@@ -117,6 +137,27 @@ public class BeaconVersion {
    */
   public List<SignedPart> signedParts() {
     return this.signedParts;
+  }
+
+  /**
+   * @return The number of separate partitions across which beacons should be divided.
+   */
+  public int maximumNumberOfPartitions() {
+    return this.maximumNumberOfPartitions;
+  }
+
+  /**
+   * @return The number of partitions for any beacon that doesn't specify a numberOfPartitions
+   */
+  public int defaultNumberOfPartitions() {
+    return this.defaultNumberOfPartitions;
+  }
+
+  /**
+   * @return How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+   */
+  public IPartitionSelector partitionSelector() {
+    return this.partitionSelector;
   }
 
   public Builder toBuilder() {
@@ -179,12 +220,12 @@ public class BeaconVersion {
     List<CompoundBeacon> compoundBeacons();
 
     /**
-     * @param virtualFields The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+     * @param virtualFields The Virtual Fields to be calculated, supporting other searchable encryption configurations.
      */
     Builder virtualFields(List<VirtualField> virtualFields);
 
     /**
-     * @return The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+     * @return The Virtual Fields to be calculated, supporting other searchable encryption configurations.
      */
     List<VirtualField> virtualFields();
 
@@ -207,6 +248,36 @@ public class BeaconVersion {
      * @return The list of Signed Parts that may be included in any compound beacon.
      */
     List<SignedPart> signedParts();
+
+    /**
+     * @param maximumNumberOfPartitions The number of separate partitions across which beacons should be divided.
+     */
+    Builder maximumNumberOfPartitions(int maximumNumberOfPartitions);
+
+    /**
+     * @return The number of separate partitions across which beacons should be divided.
+     */
+    int maximumNumberOfPartitions();
+
+    /**
+     * @param defaultNumberOfPartitions The number of partitions for any beacon that doesn't specify a numberOfPartitions
+     */
+    Builder defaultNumberOfPartitions(int defaultNumberOfPartitions);
+
+    /**
+     * @return The number of partitions for any beacon that doesn't specify a numberOfPartitions
+     */
+    int defaultNumberOfPartitions();
+
+    /**
+     * @param partitionSelector How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+     */
+    Builder partitionSelector(IPartitionSelector partitionSelector);
+
+    /**
+     * @return How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+     */
+    IPartitionSelector partitionSelector();
 
     BeaconVersion build();
   }
@@ -231,6 +302,16 @@ public class BeaconVersion {
 
     protected List<SignedPart> signedParts;
 
+    protected int maximumNumberOfPartitions;
+
+    private boolean _maximumNumberOfPartitionsSet = false;
+
+    protected int defaultNumberOfPartitions;
+
+    private boolean _defaultNumberOfPartitionsSet = false;
+
+    protected IPartitionSelector partitionSelector;
+
     protected BuilderImpl() {}
 
     protected BuilderImpl(BeaconVersion model) {
@@ -243,6 +324,11 @@ public class BeaconVersion {
       this.virtualFields = model.virtualFields();
       this.encryptedParts = model.encryptedParts();
       this.signedParts = model.signedParts();
+      this.maximumNumberOfPartitions = model.maximumNumberOfPartitions();
+      this._maximumNumberOfPartitionsSet = true;
+      this.defaultNumberOfPartitions = model.defaultNumberOfPartitions();
+      this._defaultNumberOfPartitionsSet = true;
+      this.partitionSelector = model.partitionSelector();
     }
 
     public Builder version(int version) {
@@ -318,6 +404,35 @@ public class BeaconVersion {
       return this.signedParts;
     }
 
+    public Builder maximumNumberOfPartitions(int maximumNumberOfPartitions) {
+      this.maximumNumberOfPartitions = maximumNumberOfPartitions;
+      this._maximumNumberOfPartitionsSet = true;
+      return this;
+    }
+
+    public int maximumNumberOfPartitions() {
+      return this.maximumNumberOfPartitions;
+    }
+
+    public Builder defaultNumberOfPartitions(int defaultNumberOfPartitions) {
+      this.defaultNumberOfPartitions = defaultNumberOfPartitions;
+      this._defaultNumberOfPartitionsSet = true;
+      return this;
+    }
+
+    public int defaultNumberOfPartitions() {
+      return this.defaultNumberOfPartitions;
+    }
+
+    public Builder partitionSelector(IPartitionSelector partitionSelector) {
+      this.partitionSelector = PartitionSelector.wrap(partitionSelector);
+      return this;
+    }
+
+    public IPartitionSelector partitionSelector() {
+      return this.partitionSelector;
+    }
+
     public BeaconVersion build() {
       if (!this._versionSet) {
         throw new IllegalArgumentException(
@@ -380,6 +495,38 @@ public class BeaconVersion {
       ) {
         throw new IllegalArgumentException(
           "The size of `signedParts` must be greater than or equal to 1"
+        );
+      }
+      if (
+        this._maximumNumberOfPartitionsSet &&
+        this.maximumNumberOfPartitions() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "`maximumNumberOfPartitions` must be greater than or equal to 1"
+        );
+      }
+      if (
+        this._maximumNumberOfPartitionsSet &&
+        this.maximumNumberOfPartitions() > 255
+      ) {
+        throw new IllegalArgumentException(
+          "`maximumNumberOfPartitions` must be less than or equal to 255."
+        );
+      }
+      if (
+        this._defaultNumberOfPartitionsSet &&
+        this.defaultNumberOfPartitions() < 1
+      ) {
+        throw new IllegalArgumentException(
+          "`defaultNumberOfPartitions` must be greater than or equal to 1"
+        );
+      }
+      if (
+        this._defaultNumberOfPartitionsSet &&
+        this.defaultNumberOfPartitions() > 255
+      ) {
+        throw new IllegalArgumentException(
+          "`defaultNumberOfPartitions` must be less than or equal to 255."
         );
       }
       return new BeaconVersion(this);

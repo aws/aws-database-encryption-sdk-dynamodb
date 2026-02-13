@@ -27,14 +27,26 @@ module TestBaseBeacon {
     var primitives :- expect Primitives.AtomicPrimitives();
 
     var bb := BeaconBase(client := primitives, name := "foo", beaconName := "aws_dbe_b_foo");
-    var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None);
+    var b := StandardBeacon(bb, 8, TermLocMap("foo"), false, false, None, 5);
+
     var bytes :- expect bb.getHmac([1,2,3], key := [1,2]);
     expect bytes == [0x27, 0x93, 0x93, 0x8b, 0x26, 0xe9, 0x52, 0x7e];
-    var str :- expect b.hash([1,2,3], key := [1,2]);
+    var str :- expect b.hash([1,2,3], key := [1,2], partition := 0);
     expect str == "7e";
+
+    bytes :- expect bb.getHmac([1,2,3,1], key := [1,2]);
+    expect bytes == [42, 100, 242, 20, 188, 0, 33, 0x1d];
+    str :- expect b.hash([1,2,3], key := [1,2], partition := 1);
+    expect str == "1d";
+
+    bytes :- expect bb.getHmac([1,2,3,2], key := [1,2]);
+    expect bytes == [53, 151, 144, 34, 49, 19, 169, 0xef];
+    str :- expect b.hash([1,2,3], key := [1,2], partition := 2);
+    expect str == "ef";
+
     bytes :- expect bb.getHmac([], key := [1,2]);
     expect bytes[7] == 0x80;
-    str :- expect b.hash([], key := [1,2]);
+    str :- expect b.hash([], key := [1,2], partition := 0);
     expect str == "80";
     bytes :- expect bb.getHmac(x123, key := [1,2]);
     expect bytes[7] == 0x61;
@@ -65,9 +77,9 @@ module TestBaseBeacon {
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     var badItem := SimpleItem["Name" := DDB.AttributeValue.S("A.B")];
-    var badAttrs := bv.GenerateEncryptedBeacons(badItem, DontUseKeyId);
+    var badAttrs := bv.GenerateEncryptedBeacons(badItem, DontUseKeyId, 0);
     expect badAttrs.Failure?;
     expect_equal(badAttrs.error, E("Part Name for beacon Mixed has value 'A.B' which contains the split character .'."));
   }
@@ -98,14 +110,14 @@ module TestBaseBeacon {
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     assert "std2" in SimpleItem;
     assert SimpleItem["std2"] == Std2String;
     assert Std2String == DDB.AttributeValue.N("1.23");
     expect "aws_dbe_b_std2" in goodAttrs;
     expect goodAttrs["aws_dbe_b_std2"] == DDB.AttributeValue.S(std2_beacon);
     var newItem := SimpleItem["std2" := DDB.AttributeValue.N("000001.23000000")];
-    var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var newAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect "aws_dbe_b_std2" in newAttrs;
     expect goodAttrs["aws_dbe_b_std2"] == newAttrs["aws_dbe_b_std2"];
   }
@@ -132,18 +144,18 @@ module TestBaseBeacon {
     var badVersion := GetLotsaBeaconsSingleWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionId));
     var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
     var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
-    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect badAttrs.Failure?;
 
     // This is expected to pass because we pass a valid KeyStore
     var version := GetLotsaBeaconsSingleWithSharedCache(cache := sharedCache, partitionId := Some(partitionId));
     var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
 
     // This is expected to pass now because the cache already has cached material for this Branch Key ID.
     // This is a hack to test that the correct material is cached.
-    var badAttrsNowCached :- expect badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var badAttrsNowCached :- expect badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
   }
 
   method {:test} TestSharedCacheBeaconsSingleKeyStoreWithDifferentPartitionId()
@@ -168,7 +180,7 @@ module TestBaseBeacon {
     var badVersion := GetLotsaBeaconsSingleWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionIdBadVersion));
     var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
     var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
-    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect badAttrs.Failure?;
 
     // This is expected to pass because we pass a valid KeyStore
@@ -176,10 +188,10 @@ module TestBaseBeacon {
     var version := GetLotsaBeaconsSingleWithSharedCache(cache := sharedCache, partitionId := Some(partitionIdGoodVersion));
     var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
 
     // This is still expected to fail because the partitionId for the cached material is different.
-    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect badAttrsNowCached.Failure?;
   }
 
@@ -204,18 +216,18 @@ module TestBaseBeacon {
     var badVersion := GetLotsaBeaconsSingleWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := None);
     var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
     var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
-    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect badAttrs.Failure?;
 
     // This is expected to pass because we pass a valid KeyStore
     var version := GetLotsaBeaconsSingleWithSharedCache(cache := sharedCache, partitionId := None);
     var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
 
     // This is still expected to fail because the partitionId for the cached material is different.
     // If the user does NOT specify the partitionId, it is set to a random UUID
-    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect badAttrsNowCached.Failure?;
   }
 
@@ -237,22 +249,22 @@ module TestBaseBeacon {
     // }
     assume{:axiom} false;
 
-    // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
+    // // This call is expected to fail because we are providing a Bad KeyStore which does NOT exist
     var badVersion := GetLotsaBeaconsMultiWithSharedCacheWithBadKeyStore(cache := sharedCache, partitionId := Some(partitionId));
     var badSrc :- expect C.MakeKeySource(FullTableConfig, badVersion.keyStore, badVersion.keySource, primitives);
     var badBv :- expect C.ConvertVersionWithSource(FullTableConfig, badVersion, badSrc);
-    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
     expect badAttrs.Failure?;
 
     // This is expected to pass because we pass a valid KeyStore
     var version := GetLotsaBeaconsMultiWithSharedCache(cache := sharedCache, partitionId := Some(partitionId));
     var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
 
     // This is expected to pass now because the cache already has cached material for this Branch Key ID.
     // This is a hack to test that the correct material is cached.
-    var badAttrsNowCached :- expect badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var badAttrsNowCached :- expect badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
   }
 
 
@@ -281,7 +293,7 @@ module TestBaseBeacon {
     // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
     // Providing a valid branch_key_id is important in this method because unlike other tests in Beacon.dfy,
     // this is used in a test which actually fetches data from DynamoDb without using a Literal KeySource.
-    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
     expect badAttrs.Failure?;
 
     // This is expected to pass because we pass a valid KeyStore
@@ -289,10 +301,10 @@ module TestBaseBeacon {
     var version := GetLotsaBeaconsMultiWithSharedCache(cache := sharedCache, partitionId := Some(partitionIdGoodVersion));
     var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
 
     // This is still expected to fail because the partitionId for the cached material is different.
-    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
     expect badAttrsNowCached.Failure?;
   }
 
@@ -320,18 +332,18 @@ module TestBaseBeacon {
     // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
     // Providing a valid branch_key_id is important in this method because unlike other tests in Beacon.dfy,
     // this is used in a test which actually fetches data from DynamoDb without using a Literal KeySource.
-    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var badAttrs := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
     expect badAttrs.Failure?;
 
     // This is expected to pass because we pass a valid KeyStore
     var version := GetLotsaBeaconsMultiWithSharedCache(cache := sharedCache, partitionId := None);
     var src :- expect C.MakeKeySource(FullTableConfig, version.keyStore, version.keySource, primitives);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
 
     // This is still expected to fail because the partitionId for the cached material is different.
     // If the user does NOT specify the partitionId, it is set to a random UUID
-    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"));
+    var badAttrsNowCached := badBv.GenerateEncryptedBeacons(SimpleItem, KeyId("040a32a8-3737-4f16-a3ba-bd4449556d73"), 0);
     expect badAttrsNowCached.Failure?;
   }
 
@@ -340,9 +352,9 @@ module TestBaseBeacon {
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var attrs :- expect bv.GenerateSignedBeacons(SimpleItem);
+    var attrs :- expect bv.GenerateSignedBeacons(SimpleItem, 0);
     expect attrs == map["JustSigned" := DDB.AttributeValue.S("Y_1984.M_May")];
-    attrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId);
+    attrs :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
     expect attrs == map[
                       "aws_dbe_b_Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
                       "aws_dbe_b_Name" := DDB.AttributeValue.S(Name_beacon),
@@ -365,7 +377,7 @@ module TestBaseBeacon {
                     ];
   }
 
-  method GetBeaconValue(name : string, key : Bytes, value : string, length : BeaconLength) returns (output : string)
+  method GetBeaconValue(name : string, key : Bytes, value : string, length : BeaconLength, partition : Bytes := []) returns (output : string)
   {
     var info :- expect UTF8.Encode("AWS_DBE_SCAN_BEACON" + name);
     var client :- expect Primitives.AtomicPrimitives();
@@ -379,6 +391,7 @@ module TestBaseBeacon {
                                   ));
 
     var data :- expect UTF8.Encode(value);
+    data := data + partition;
     var input := Prim.HMacInput (
       digestAlgorithm := Prim.SHA_384,
       key := key,
@@ -402,30 +415,30 @@ module TestBaseBeacon {
     var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
 
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName.Y_1984")]));
-    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName")]));
-    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("Y_1984")]));
-    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("T_foo")]));
-    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("M_bar")]));
-    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("T_foo.M_bar")]));
-    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
 
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("N_MyName.N_MyName")]));
-    var badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    var badContext := Beaconize(beaconVersion, context, DontUseKeyId, 0);
     expect badContext.Failure?;
     expect badContext.error == E("Compound Beacon value 'N_MyName.N_MyName' cannot be constructed from any available constructor for Mixed value parsed as N_N_ available constructors are N_Y_, T_[M_].");
 
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("Y_1984.N_MyName")]));
-    badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    badContext := Beaconize(beaconVersion, context, DontUseKeyId, 0);
     expect badContext.Failure?;
     expect badContext.error == E("Compound Beacon value 'Y_1984.N_MyName' cannot be constructed from any available constructor for Mixed value parsed as Y_N_ available constructors are N_Y_, T_[M_].");
 
     context := context.(values := Some(map[":mixed" := DDB.AttributeValue.S("M_bar.T_foo")]));
-    badContext := Beaconize(beaconVersion, context, DontUseKeyId);
+    badContext := Beaconize(beaconVersion, context, DontUseKeyId, 0);
     expect badContext.Failure?;
     expect badContext.error == E("Compound Beacon value 'M_bar.T_foo' cannot be constructed from any available constructor for Mixed value parsed as M_T_ available constructors are N_Y_, T_[M_].");
   }
@@ -455,7 +468,7 @@ module TestBaseBeacon {
     var version := GetLotsaBeacons();
     var src := GetLiteralSource([1,2,3,4,5], version);
     var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
-    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     expect newContext.values == Some(map[
                                        ":Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
                                        ":Name" := DDB.AttributeValue.S(Name_beacon),
@@ -651,13 +664,13 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], newVersion);
     var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
 
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId, 0);
     expect goodAttrs == map[
                           "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
                           "aws_dbe_b_partOnly" := DDB.AttributeValue.S("405a51"),
                           "aws_dbe_b_compoundPart" := DDB.AttributeValue.S("S_405a51")
                         ];
-    var goodQuery := Beaconize(bv, context, DontUseKeyId);
+    var goodQuery := Beaconize(bv, context, DontUseKeyId, 0);
     expect goodQuery.Success?;
 
 
@@ -670,7 +683,7 @@ module TestBaseBeacon {
     compoundBeacons := Some(version.compoundBeacons.value + [compoundPart])
     );
     bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
-    goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId, 0);
 
     //= specification/searchable-encryption/beacons.md#partonly-initialization
     //= type=test
@@ -683,7 +696,7 @@ module TestBaseBeacon {
     //= specification/searchable-encryption/beacons.md#partonly-initialization
     //= type=test
     //# A query MUST fail if it tries to search on a PartOnly beacon directly.
-    var badQuery := Beaconize(bv, context, DontUseKeyId);
+    var badQuery := Beaconize(bv, context, DontUseKeyId, 0);
     expect badQuery.Failure?;
     expect badQuery.error == E("Field partOnly is encrypted, and has a PartOnly beacon, and so can only be used as part of a compound beacon.");
   }
@@ -706,7 +719,7 @@ module TestBaseBeacon {
     var src := GetLiteralSource([1,2,3,4,5], newVersion);
     var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
 
-    var goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    var goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId, 0);
     expect goodAttrs == map[
                           "aws_dbe_b_std2" := DDB.AttributeValue.S("51e1da"),
                           "aws_dbe_b_partOnly" := DDB.AttributeValue.S("928d9b")
@@ -721,7 +734,7 @@ module TestBaseBeacon {
     standardBeacons := version.standardBeacons + [partBeacon]
     );
     bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
-    goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    goodAttrs :- expect bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId, 0);
 
     //= specification/searchable-encryption/beacons.md#shared-initialization
     //= type=test
@@ -738,7 +751,7 @@ module TestBaseBeacon {
       Some(map[":pVal" := DDB.AttributeValue.S("foo"), ":sVal" := DDB.AttributeValue.S("foo")]),
       None
     );
-    var goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+    var goodQuery :- expect Beaconize(bv, context, DontUseKeyId, 0);
     expect goodQuery.values == Some(map[":pVal" := DDB.AttributeValue.S("4379a7"), ":sVal" := DDB.AttributeValue.S("4379a7")]);
   }
 
@@ -765,7 +778,7 @@ module TestBaseBeacon {
     var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
 
     // also check matching beacon value in query
-    var goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+    var goodQuery :- expect Beaconize(bv, context, DontUseKeyId, 0);
     expect goodQuery.values == Some(map[":setVal" := DDB.AttributeValue.SS(["43c4d8", "2f3278", "f1972e"])]);
 
     context := ExprContext (
@@ -774,7 +787,7 @@ module TestBaseBeacon {
       Some(map[":setVal" := DDB.AttributeValue.S("abc")]),
       None
     );
-    goodQuery :- expect Beaconize(bv, context, DontUseKeyId);
+    goodQuery :- expect Beaconize(bv, context, DontUseKeyId, 0);
 
     context := ExprContext (
       None,
@@ -782,7 +795,7 @@ module TestBaseBeacon {
       Some(map[":setVal" := DDB.AttributeValue.L([])]),
       None
     );
-    var badQuery := Beaconize(bv, context, DontUseKeyId);
+    var badQuery := Beaconize(bv, context, DontUseKeyId, 0);
     expect badQuery.Failure?;
     expect badQuery.error == E("Beacon setAttr has style AsSet, but attribute has type L.");
   }
@@ -809,7 +822,7 @@ module TestBaseBeacon {
     var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
     expect "partOnly" in bv.beacons;
     expect bv.beacons["partOnly"].Standard?;
-    var goodAttrs := bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    var goodAttrs := bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId, 0);
     if goodAttrs.Failure? {
       print "\n", goodAttrs.error, "\n";
     }
@@ -828,7 +841,7 @@ module TestBaseBeacon {
     //# * Writing an item MUST fail if the item contains this beacon's attribute,
     //# and that attribute is not of type Set.
     var BadItem := MyItem["partOnly" := DDB.AttributeValue.S("abc")];
-    var badAttrs := bv.GenerateEncryptedBeacons(BadItem, DontUseKeyId);
+    var badAttrs := bv.GenerateEncryptedBeacons(BadItem, DontUseKeyId, 0);
     expect badAttrs.Failure?;
     expect badAttrs.error == E("Beacon partOnly has style AsSet, but attribute has type S.");
   }
@@ -855,7 +868,7 @@ module TestBaseBeacon {
     var bv :- expect C.ConvertVersionWithSource(newConfig, newVersion, src);
     expect "partOnly" in bv.beacons;
     expect bv.beacons["partOnly"].Standard?;
-    var goodAttrs := bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId);
+    var goodAttrs := bv.GenerateEncryptedBeacons(MyItem, DontUseKeyId, 0);
     if goodAttrs.Failure? {
       print "\n", goodAttrs.error, "\n";
     }
