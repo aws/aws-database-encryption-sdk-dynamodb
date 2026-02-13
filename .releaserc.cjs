@@ -26,8 +26,7 @@ function parsePropertiesFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const properties = {};
 
-  content.split('').forEach(line => {
-    line = line.trim();
+  content.split('\n').forEach(line => {
     if (line && !line.startsWith('#') && line.includes('=')) {
       const [key, ...valueParts] = line.split('=');
       properties[key.trim()] = valueParts.join('=').trim();
