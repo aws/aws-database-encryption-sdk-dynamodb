@@ -225,23 +225,35 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
     int INVALID_LIMIT = 0;
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
       .withLimit(INVALID_LIMIT);
-    try {
-      // Using 2 segments to reduce the chance of a RejectedExecutionException occurring when too
-      // many threads are spun up
-      // An alternative would be to maintain a higher segment count, but re-test when a
-      // RejectedExecutionException occurs
-      PaginatedParallelScanList<SimpleClass> parallelScanList =
-        util.parallelScan(SimpleClass.class, scanExpression, 2);
-      fail("Test succeeded when it should have failed");
-    } catch (AmazonServiceException ase) {
-      assertNotNull(ase.getErrorCode());
-      assertNotNull(ase.getErrorType());
-      assertNotNull(ase.getMessage());
-    } catch (Exception e) {
-      // parallelScan may throw RejectedExecutionException or other
-      // threading-related exceptions before the service error surfaces.
-      // This is acceptable — the test validates that an invalid limit
-      // does not silently succeed.
+
+    // parallelScan spins up multiple threads, and sometimes a
+    // RejectedExecutionException wins the race against the expected
+    // AmazonServiceException. Retry a few times to give the service
+    // error a chance to surface.
+    int maxAttempts = 5;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        PaginatedParallelScanList<SimpleClass> parallelScanList =
+          util.parallelScan(SimpleClass.class, scanExpression, 2);
+        fail("Test succeeded when it should have failed");
+      } catch (AmazonServiceException ase) {
+        assertNotNull(ase.getErrorCode());
+        assertNotNull(ase.getErrorType());
+        assertNotNull(ase.getMessage());
+        return; // Got the expected exception, test passes
+      } catch (Exception e) {
+        if (attempt == maxAttempts) {
+          fail(
+            "Expected AmazonServiceException but got "
+              + e.getClass().getSimpleName()
+              + " after "
+              + maxAttempts
+              + " attempts: "
+              + e.getMessage()
+          );
+        }
+        // Otherwise retry
+      }
     }
   }
 
