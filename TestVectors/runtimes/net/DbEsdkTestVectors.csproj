@@ -13,9 +13,8 @@
 
   <ItemGroup>
     <PackageReference Include="AWS.Cryptography.DbEncryptionSDK.DynamoDb" Version="3.9.1" />
-    <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="1.11.2" />
-    <!-- <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" />
-    <ProjectReference Include="../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/net/TestVectors.csproj" /> -->
+    <!-- <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" /> -->
+    <ProjectReference Include="../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/net/TestVectors.csproj" />
     <Compile Include="*.cs"/>
     <Compile Include="Extern/**/*.cs"/>
     <Compile Include="../../../DynamoDbEncryption/runtimes/net/Extern/**/*.cs"/>
