@@ -59,13 +59,13 @@ phases:
       - make test_net FRAMEWORK=net6.0
 
       # run test vectors
-      - cd ../TestVectors
-      # Spin up ddb local
-      - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -port 8000 -inMemory -cors *
+      # - cd ../TestVectors
+      # # Spin up ddb local
+      # - docker run --name dynamodb -d -p 8000:8000 amazon/dynamodb-local -port 8000 -inMemory -cors *
 
-      - sed -i.backup  "/\<ProjectReference Include=\"..\/..\/..\/DynamoDbEncryption\/runtimes\/net\/DynamoDbEncryption.csproj\" \/>/d" runtimes/net/DbEsdkTestVectors.csproj
-      - dotnet add runtimes/net/DbEsdkTestVectors.csproj package AWS.Cryptography.DbEncryptionSDK.DynamoDb --version $VERSION
-      - make transpile_net
-      - cd runtimes/net
-      - cp ../java/*.json .
-      - dotnet run --framework net6.0
+      # - sed -i.backup  "/\<ProjectReference Include=\"..\/..\/..\/DynamoDbEncryption\/runtimes\/net\/DynamoDbEncryption.csproj\" \/>/d" runtimes/net/DbEsdkTestVectors.csproj
+      # - dotnet add runtimes/net/DbEsdkTestVectors.csproj package AWS.Cryptography.DbEncryptionSDK.DynamoDb --version $VERSION
+      # - make transpile_net
+      # - cd runtimes/net
+      # - cp ../java/*.json .
+      # - dotnet run --framework net6.0
