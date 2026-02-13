@@ -15,6 +15,32 @@
   `npx semantic-release --branches main`
 */
 
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Function to parse a simple properties file
+ * @param {string} filePath - Path to the properties file
+ * @returns {Object} Parsed properties as key-value pairs
+ */
+function parsePropertiesFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const properties = {};
+
+  content.split('').forEach(line => {
+    line = line.trim();
+    if (line && !line.startsWith('#') && line.includes('=')) {
+      const [key, ...valueParts] = line.split('=');
+      properties[key.trim()] = valueParts.join('=').trim();
+    }
+  });
+
+  return properties;
+}
+
+// Read your project.properties file
+const props = parsePropertiesFile('./project.properties');
+
 // This project has several runtimes
 // each one has files that need to be updated.
 // We model all the files and the runtimes here in this structure
@@ -119,6 +145,13 @@ module.exports = {
             files: Object.keys(Runtimes.net),
             from: "<Version>.*</Version>",
             to: "<Version>${nextRelease.version}</Version>",
+            results: Object.keys(Runtimes.net).map(CheckResults),
+            countMatches: true,
+          },
+          {
+            files: Object.keys(Runtimes.net),
+            from: "<ProjectReference Include=\"../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj\"/>",
+            to: "<PackageReference Include=\"AWS.Cryptography.MaterialProviders\" Version=\"[${props.mplDependencyNetVersion}]\" />",
             results: Object.keys(Runtimes.net).map(CheckResults),
             countMatches: true,
           },
