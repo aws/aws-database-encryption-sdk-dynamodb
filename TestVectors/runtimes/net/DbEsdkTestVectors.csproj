@@ -12,8 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWS.Cryptography.DbEncryptionSDK.DynamoDb" Version="3.9.1" />
-    <!-- <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" /> -->
+    <ProjectReference Include="../../../DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj" />
     <ProjectReference Include="../../../submodules/MaterialProviders/TestVectorsAwsCryptographicMaterialProviders/runtimes/net/TestVectors.csproj" />
     <Compile Include="*.cs"/>
     <Compile Include="Extern/**/*.cs"/>
