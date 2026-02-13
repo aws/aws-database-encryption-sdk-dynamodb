@@ -16,7 +16,6 @@
 */
 
 const fs = require('fs');
-const path = require('path');
 
 /**
  * Function to parse a simple properties file
@@ -151,7 +150,7 @@ module.exports = {
           {
             files: Object.keys(Runtimes.net),
             from: "<ProjectReference Include=\"../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj\"/>",
-            to: "<PackageReference Include=\"AWS.Cryptography.MaterialProviders\" Version=\"[${props.mplDependencyNetVersion}]\" />",
+            to: `<PackageReference Include="AWS.Cryptography.MaterialProviders" Version="[${props.mplDependencyNetVersion}]" />`,
             results: Object.keys(Runtimes.net).map(CheckResults),
             countMatches: true,
           },
