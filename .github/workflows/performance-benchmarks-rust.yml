@@ -49,7 +49,7 @@ jobs:
 
       - name: Setup Docker
         if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
-        uses: douglascamata/setup-docker-macos-action@v1.0.2
+        uses: douglascamata/setup-docker-macos-action@v1.1.0
 
       - name: Support longpaths on Git checkout
         run: |
