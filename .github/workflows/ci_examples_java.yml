@@ -41,7 +41,7 @@ jobs:
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Java-Tests
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
