@@ -229,6 +229,41 @@ tasks.test {
     })
 }
 
+// Unit tests only (exclude integration tests)
+val unitTest = tasks.register<Test>("unitTest") {
+    useTestNG()
+    dependsOn("CopyDynamoDb")
+    systemProperty("java.library.path", "build/libs")
+    testLogging.showStandardStreams = true
+
+    include("**/software/amazon/cryptools/dynamodbencryptionclientsdk2/**/*Test.class")
+    exclude("**/HolisticIT.class")
+
+    testLogging {
+        lifecycle {
+            events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+    }
+}
+
+// Integration tests only
+val integrationTest = tasks.register<Test>("integrationTest") {
+    useTestNG()
+    dependsOn("CopyDynamoDb")
+    systemProperty("java.library.path", "build/libs")
+    testLogging.showStandardStreams = true
+
+    include("**/software/amazon/cryptools/dynamodbencryptionclientsdk2/**/HolisticIT.class")
+
+    testLogging {
+        lifecycle {
+            events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+    }
+}
+
 jacoco {
     toolVersion = "0.8.12"
 }
@@ -243,6 +278,54 @@ tasks.jacocoTestReport {
     }
     
     // Only measure coverage for SDK V2 code
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                include("**/software/amazon/cryptools/dynamodbencryptionclientsdk2/**")
+            }
+        })
+    )
+}
+
+// Unit test coverage report
+val jacocoUnitTestReport = tasks.register<JacocoReport>("jacocoUnitTestReport") {
+    dependsOn(unitTest)
+
+    executionData(unitTest.get())
+    sourceSets(sourceSets["main"])
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+        xml.outputLocation.set(file("${layout.buildDirectory.get()}/reports/jacoco/unitTest/jacocoUnitTestReport.xml"))
+        html.outputLocation.set(file("${layout.buildDirectory.get()}/reports/jacoco/unitTest/html"))
+    }
+
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                include("**/software/amazon/cryptools/dynamodbencryptionclientsdk2/**")
+            }
+        })
+    )
+}
+
+// Integration test coverage report
+val jacocoIntegrationTestReport = tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    dependsOn(integrationTest)
+
+    executionData(integrationTest.get())
+    sourceSets(sourceSets["main"])
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+        xml.outputLocation.set(file("${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml"))
+        html.outputLocation.set(file("${layout.buildDirectory.get()}/reports/jacoco/integrationTest/html"))
+    }
+
     classDirectories.setFrom(
         files(classDirectories.files.map {
             fileTree(it) {
