@@ -94,7 +94,7 @@ dependencies {
     //    For the DDB-EC v1
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation("org.testng:testng:7.5")
+    testImplementation("org.testng:testng:7.11.0")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
     testImplementation("com.amazonaws:DynamoDBLocal:1.+")
     // This is where we gather the SQLLite files to copy over
