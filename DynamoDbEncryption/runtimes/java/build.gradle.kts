@@ -96,9 +96,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
-    testImplementation("com.amazonaws:DynamoDBLocal:1.+")
+    testImplementation("com.amazonaws:DynamoDBLocal:2.+")
     // This is where we gather the SQLLite files to copy over
-    dynamodb("com.amazonaws:DynamoDBLocal:1.+")
+    dynamodb("com.amazonaws:DynamoDBLocal:2.+")
     // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
     // This checks the dependencies and adds a native library
     // to support this architecture.
