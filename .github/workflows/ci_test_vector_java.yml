@@ -57,7 +57,7 @@ jobs:
           port: 8000
           cors: "*"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
