@@ -5,6 +5,8 @@
 
 ## Version
 
+- 1.2.0
+  - Add beacon partitions
 - 1.1.0
   - [Update Cache Entry Identifier Formulas to shared cache across multiple Beacon Key Sources](../../changes/2024-09-13_cache-across-hierarchical-keyrings/change.md)
   - New optional parameter `Partition ID` used to distinguish Cryptographic Material Providers (i.e: Beacon Key Sources) writing to a cache
@@ -13,6 +15,13 @@
   - Initial record
 
 ### Changelog
+
+## Definitions
+
+### Conventions used in this document
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
+in this document are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
 ## Overview
 
@@ -46,7 +55,7 @@ or begins with the [unauthenticated attribute prefix](../dynamodb-encryption-cli
 
 On initialization of a Beacon Version, the caller MUST provide:
 
-- A [version number](#version number)
+- A [version number](#version-number)
 - A [Beacon Key Source](#beacon-key-source)
 - A [Keystore](#keystore)
 - A list of [standard beacons](beacons.md#standard-beacon-initialization)
@@ -57,8 +66,11 @@ On initialization of the Beacon Version, the caller MAY provide:
 - A list of [virtual fields](virtual.md#virtual-field-initialization)
 - A list of [signed parts](beacons.md#signed-part-initialization)
 - A list of [encrypted parts](beacons.md#encrypted-part-initialization)
+- A [maximum number of partitions](#max-partitions)
+- A [default number of partitions](#default-partitions)
+- A [partition selector](#partition-selector)
 
-Initialization MUST fail if the [version number](#version number) is not `1`.
+Initialization MUST fail if the [version number](#version-number) is not `1`.
 
 Initialization MUST fail if at least one [standard beacon](beacons.md#standard-beacon)
 is not provided.
@@ -94,6 +106,10 @@ Initialization MUST fail if the name of a
 [compound beacons](beacons.md#compound-beacon)
 matches the name of a
 [standard beacons](beacons.md#standard-beacon)
+
+Initialization MUST fail if [default number of partitions](#default-partitions) is supplied but [maximum number of partitions](#max-partitions) is not.
+
+Initialization MUST fail if [default number of partitions](#default-partitions) is greater than or equal to [maximum number of partitions](#max-partitions).
 
 A [terminal location](virtual.md#terminal-location) is considered `signed` if
 the field that contains it is [SIGN_ONLY](../structured-encryption/structures.md#sign_only)
@@ -405,7 +421,7 @@ while providing a Shared Cache to the [Beacon Key Source](#beacon-key-source).
 
 The resource suffixes for the Searchable Encryption is as follows:
 
-```
+```text
 logicalKeyStoreName + NULL_BYTE + UTF8Encode(branchKeyId)
 ```
 
@@ -441,7 +457,7 @@ All the above fields must be separated by a single NULL_BYTE `0x00`.
 
 As a formula:
 
-```
+```text
 resource-id = [0x02]
 scope-id = [0x03]
 logical-key-store-name = UTF8Encode(beaconVersion.keystore.LogicalKeyStoreName)
@@ -513,3 +529,51 @@ Now, two [beacon versions](#beacon-version-initialization) (BV1 and BV2) are cre
   and BV2 (which uses Key Store client K2) will NOT be able to share cache entries.
 
 Notice that both K1 and K2 are clients for the same physical Key Store (K).
+
+## Beacon Partitions
+
+`Beacon Partitions` refers to a way to add a little bit more randomness to your [beacons](../../searchable-encryption/beacons.md),
+to add anonymity when your data distribution is uneven. See [beacon partition background](../changes/2025-08-25-partition-beacons/background.md).
+
+### PartitionCount
+
+A PartitionCount is an integer between 1 and 255 inclusive.
+It refers to the total number of partitions in play.
+
+### PartitionNumber
+
+A PartitionNumber is an integer between 0 and 254 inclusive.
+It refers to a specific partition, typically the partition to which a DynamoDB item has been assigned.
+
+A PartitionNumber only has meaning in the context of a PartitionCount, where the PartitionNumber must be less than the PartitionCount.
+
+### Max Partitions
+
+The Max Partitions setting in a [beacon version](#beacon-version-initialization) configures the total number of partitions being used in a table.
+
+If not set, Max Partitions MUST default to `1`, which is synonymous with "no partitions are being used".
+
+### Default Partitions
+
+The Default Partitions setting a [beacon version](#beacon-version-initialization) configures the number of partitions used by all
+[standard beacons](beacons.md#standard-beacon-initialization) that do not directly specify a number of partitions.
+
+If not set, Default Partitions MUST default to [Max Partitions](#max-partitions).
+
+### Partition Selector
+
+A Partition Selector is an object that implements GetPartitionNumber.
+
+GetPartitionNumber MUST take as input
+
+- A DynamoDB Item (i.e an AttributeMap)
+- The [number of partitions](#max-partitions) defined in the associated [beacon version](#beacon-version-initialization).
+- The logical table name for this defined in the associated [table config](../dynamodb-encryption-client/ddb-table-encryption-config.md#structure).
+
+GetPartitionNumber MUST return
+
+- The number of the partition to use for this item
+
+It is an error for the Partition Selector to return a number greater than or equal to the input [number of partitions](#max-partitions).
+
+The default implementation of the Partition Selector MUST return a random number within the acceptable range, i.e. 0..[number of partitions](#max-partitions).

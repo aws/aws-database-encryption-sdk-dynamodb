@@ -89,14 +89,16 @@ module TransactWriteItemsTransform {
                                          item.Put.value.ExpressionAttributeNames,
                                          item.Put.value.ExpressionAttributeValues);
 
-        var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item);
+        assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().partitionSelector.Modifies else {});
+        var partition :- GetRandomPartition(tableConfig, item.Put.value.Item);
+        var beaconItem :- AddSignedBeacons(tableConfig, item.Put.value.Item, partition);
 
         var encryptRes := tableConfig.itemEncryptor.EncryptItem(
           EncTypes.EncryptItemInput(plaintextItem:=beaconItem)
         );
         var encrypted :- MapError(encryptRes);
         var keyId :- GetKeyIdFromHeader(tableConfig, encrypted);
-        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, Util.MaybeFromOptionKeyId(keyId));
+        var beaconAttrs :- GetEncryptedBeacons(tableConfig, item.Put.value.Item, Util.MaybeFromOptionKeyId(keyId), partition);
 
         //= specification/dynamodb-encryption-client/ddb-sdk-integration.md#encrypt-before-transactwriteitems
         //# - The PutItem request's `Item` field MUST be replaced

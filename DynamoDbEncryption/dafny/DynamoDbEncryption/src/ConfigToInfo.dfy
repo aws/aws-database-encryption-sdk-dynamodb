@@ -26,6 +26,7 @@ module SearchConfigToInfo {
   import opened StandardLibrary.MemoryMath
   import MaterialProviders
   import SortedSets
+  import Random
 
   import I = SearchableEncryptionInfo
   import V = DdbVirtualFields
@@ -41,10 +42,12 @@ module SearchConfigToInfo {
     requires ValidSearchConfig(outer.search)
     requires outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     modifies if outer.search.Some? then outer.search.value.versions[0].keyStore.Modifies else {}
+    modifies if outer.search.Some? && outer.search.value.versions[0].partitionSelector.Some? then outer.search.value.versions[0].partitionSelector.value.Modifies else {}
     ensures outer.search.Some? ==> ValidSharedCache(outer.search.value.versions[0].keySource)
     ensures output.Success? && output.value.Some? ==>
               && output.value.value.ValidState()
               && fresh(output.value.value.versions[0].keySource.client)
+              && fresh(output.value.value.versions[0].partitionSelector)
     //= specification/searchable-encryption/search-config.md#initialization
     //= type=implication
     //# Initialization MUST fail if the [version number](#version-number) is not `1`.
@@ -141,7 +144,7 @@ module SearchConfigToInfo {
       && outer.attributeActionsOnEncrypt[config.multi.keyFieldName] == SE.ENCRYPT_AND_SIGN
       ==> output.Failure?
   {
-    // TODO-FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
+    // FutureCleanUp : https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1510
     // It is not-good that the MPL is initialized here;
     // The MPL has a config object that could hold customer intent that affects behavior.
     // Today, it does not. But tomorrow?
@@ -241,10 +244,13 @@ module SearchConfigToInfo {
     requires ValidBeaconVersion(config)
     requires ValidSharedCache(config.keySource)
     modifies config.keyStore.Modifies
+    modifies if config.partitionSelector.Some? then config.partitionSelector.value.Modifies else {}
     ensures ValidSharedCache(config.keySource)
     ensures output.Success? ==>
               && output.value.ValidState()
               && fresh(output.value.keySource.client)
+              && fresh(output.value.partitionSelector)
+              && fresh (output.value.partitionSelector.Modifies)
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //= type=implication
@@ -263,7 +269,51 @@ module SearchConfigToInfo {
     var maybePrimitives := Primitives.AtomicPrimitives();
     var primitives :- maybePrimitives.MapFailure(e => AwsCryptographyPrimitives(e));
     var source :- MakeKeySource(outer, config.keyStore, config.keySource, primitives);
-    output := ConvertVersionWithSource(outer, config, source);
+    var version :- ConvertVersionWithSource(outer, config, source);
+    return Success(version);
+  }
+
+  class DefaultPartitionSelector extends IPartitionSelector
+  {
+    predicate ValidState()
+      ensures ValidState() ==> History in Modifies
+    { History in Modifies }
+
+    constructor ()
+      ensures ValidState() && fresh(History) && fresh(Modifies)
+    {
+      History := new IPartitionSelectorCallHistory();
+      Modifies := { History };
+    }
+
+    predicate GetPartitionNumberEnsuresPublicly (
+      input: GetPartitionNumberInput ,
+      output: Result<GetPartitionNumberOutput, Error> )
+      : (outcome: bool)
+    {
+      true
+    }
+
+    //= specification/searchable-encryption/search-config.md#partition-selector
+    //# The default implementation of the Partition Selector MUST return a random number within the acceptable range, i.e.
+    method GetPartitionNumber'(input: GetPartitionNumberInput)
+      returns (output: Result<GetPartitionNumberOutput, Error> )
+      requires ValidState()
+      modifies Modifies - {History}
+      decreases Modifies - {History}
+      ensures ValidState()
+      ensures GetPartitionNumberEnsuresPublicly(input, output)
+      ensures unchanged(History)
+    {
+      if input.numberOfPartitions == 1 {
+        return Success(GetPartitionNumberOutput(partitionNumber := 0));
+      } else {
+        var randR := Random.GenerateBytes(1);
+        var rand : seq<uint8> :- randR.MapFailure(e => DynamoDbEncryptionException(message := "Failed to get random byte"));
+        var partition := (rand[0] % (input.numberOfPartitions as uint8)) as PartitionNumber;
+        return Success(GetPartitionNumberOutput(partitionNumber := partition));
+      }
+    }
   }
 
   // convert configured BeaconVersion to internal BeaconVersion
@@ -279,9 +329,38 @@ module SearchConfigToInfo {
     ensures output.Success? ==>
               && output.value.ValidState()
               && output.value.keySource == source
+              && fresh(output.value.partitionSelector)
+              && fresh(output.value.partitionSelector.Modifies)
   {
+    var maxPartitions : PartitionCount := config.maximumNumberOfPartitions.UnwrapOr(1);
+    :- Need(0 <= maxPartitions as nat < MAX_PARTITION_COUNT, E("Invalid maximumNumberOfPartitions specified, " + Base10Int2String(maxPartitions as int) + ", must be 0 < maximumNumberOfPartitions <= 255."));
+    // Zero is invalid, but in Java we can't distinguish None from Some(0)
+    if maxPartitions == 0 {
+      maxPartitions := 1;
+    }
+
+    var defaultPartitionsOpt : Option<PartitionCount> := config.defaultNumberOfPartitions;
+    var defaultPartitions;
+
+    //= specification/searchable-encryption/search-config.md#default-partitions
+    //# If not set, Default Partitions MUST default to [Max Partitions](#max-partitions).
+    if defaultPartitionsOpt.None? || defaultPartitionsOpt.value == 0 {
+      defaultPartitions := maxPartitions;
+
+      //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+      //# Initialization MUST fail if [default number of partitions](#default-partitions) is greater than or equal to [maximum number of partitions](#max-partitions).
+
+      // if maximumNumberOfPartitions is not set, then maxPartitions == 1, and so this is also covered
+      //= specification/searchable-encryption/search-config.md#beacon-version-initialization
+      //# Initialization MUST fail if [default number of partitions](#default-partitions) is supplied but [maximum number of partitions](#max-partitions) is not.
+    } else if maxPartitions <= defaultPartitionsOpt.value {
+      return(Failure(E("Invalid defaultNumberOfPartitions specified, " + Base10Int2String(defaultPartitionsOpt.value as int) + ", must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions.")));
+    } else {
+      defaultPartitions := defaultPartitionsOpt.value;
+    }
+
     var virtualFields :- ConvertVirtualFields(outer, config.virtualFields);
-    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields);
+    var std :- AddStandardBeacons(config.standardBeacons, outer, source.client, virtualFields, maxPartitions, defaultPartitions);
 
     var signed := if config.signedParts.Some? then config.signedParts.value else [];
 
@@ -315,13 +394,25 @@ module SearchConfigToInfo {
         return Failure(E("A beacon key field name of " + name + " was configured, but there's also a virtual field of that name."));
       }
     }
-    return I.MakeBeaconVersion(
-        config.version as I.VersionNumber,
-        source,
-        beacons,
-        virtualFields,
-        outer.attributeActionsOnEncrypt
-      );
+    var partitionSelector;
+    if outer.search.Some? && outer.search.value.versions[0].partitionSelector.Some? {
+      partitionSelector := outer.search.value.versions[0].partitionSelector.value;
+      assume {:axiom} partitionSelector.ValidState();
+    } else {
+      partitionSelector := new DefaultPartitionSelector();
+    }
+
+    var ret :- I.MakeBeaconVersion(
+      config.version as I.VersionNumber,
+      source,
+      beacons,
+      virtualFields,
+      outer.attributeActionsOnEncrypt,
+      partitionSelector,
+      maxPartitions
+    );
+    assume {:axiom} fresh(ret.partitionSelector);
+    return Success(ret);
   }
 
   // convert configured VirtualFieldList to internal VirtualFieldMap
@@ -518,12 +609,31 @@ module SearchConfigToInfo {
       Failure(E("Beacon " + name + " is shared to " + share + " which is not defined."))
   }
 
+  function method GetPartitionCount(outer : DynamoDbTableEncryptionConfig, inner : Option<PartitionCount>, name : string, maxPartitions : PartitionCount, defaultPartitions : PartitionCount) :
+    Result<PartitionCount,Error>
+  {
+    if outer.search.None? || |outer.search.value.versions| == 0 then
+      Success(1)
+    else
+    if PartitionCountNone(inner) then
+      Success(defaultPartitions)
+    else if inner.value < maxPartitions then
+      Success(inner.value)
+    else
+      //= specification/searchable-encryption/beacons.md#standard-beacon-initialization
+      //# Initialization MUST fail if [number of partitions](#beacon-constraint) is specified, and is greater than or equal to
+      //# the maximum number of partitions specified in the [beacon version](search-config.md#beacon-version-initialization).
+      Failure(E("Constrained numberOfPartitions for  " + name + " is " + Base10Int2String(inner.value as int) + " but it must be less than the maximumNumberOfPartitions " + Base10Int2String(maxPartitions as int)))
+  }
+
   // convert configured StandardBeacons to internal Beacons
   method {:tailrecursion} AddStandardBeacons(
     beacons : seq<StandardBeacon>,
     outer : DynamoDbTableEncryptionConfig,
     client: Primitives.AtomicPrimitivesClient,
     virtualFields : V.VirtualFieldMap,
+    maxPartitions : PartitionCount,
+    defaultPartitions : PartitionCount,
     converted : I.BeaconMap := map[])
     returns (output : Result<I.BeaconMap, Error>)
     modifies client.Modifies
@@ -580,10 +690,10 @@ module SearchConfigToInfo {
         //# A SharedSet Beacon MUST behave both as [Shared](#shared-initialization) and [AsSet](#asset-initialization).
         case sharedSet(t) => share := Some(t.other); isAsSet := true;
       }
-
     }
+    var partitionCount :- GetPartitionCount(outer, beacons[0].numberOfPartitions, beacons[0].name, maxPartitions, defaultPartitions);
     var newBeacon :- B.MakeStandardBeacon(client, beacons[0].name, beacons[0].length as B.BeaconLength, locString,
-                                          isPartOnly, isAsSet, share);
+                                          isPartOnly, isAsSet, share, partitionCount);
 
     //= specification/searchable-encryption/search-config.md#beacon-version-initialization
     //# Initialization MUST fail if the [terminal location](virtual.md#terminal-location)
@@ -601,7 +711,7 @@ module SearchConfigToInfo {
                        + ", but virtual field " + badField.value + " is already defined on that single location."));
     }
 
-    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, converted[beacons[0].name := I.Standard(newBeacon)]);
+    output := AddStandardBeacons(beacons[1..], outer, client, virtualFields, maxPartitions, defaultPartitions, converted[beacons[0].name := I.Standard(newBeacon)]);
   }
 
   // optional location, defaults to name

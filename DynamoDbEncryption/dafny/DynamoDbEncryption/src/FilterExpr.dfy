@@ -13,7 +13,8 @@
 • e.g. transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
 
   datatype ExprContext = ExprContext (
-    expr : Option<DDB.ConditionExpression>,
+    keyExpr : Option<DDB.KeyExpression>,
+    filterExpr : Option<DDB.ConditionExpression>,
     values: Option<DDB.ExpressionAttributeValueMap>,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
@@ -43,6 +44,7 @@ module DynamoDBFilterExpr {
   import SE = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import Norm = DynamoDbNormalizeNumber
   import StandardLibrary.Sequence
+  import SortedSets
 
   // extract all the attributes from a filter expression
   // except for those which do not need the attribute's value
@@ -539,6 +541,7 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>,
     keys : MaybeKeyMap,
     newValues: DDB.ExpressionAttributeValueMap,
+    partition : PartitionNumber,
     acc : seq<Token> := []
   )
     : Result<ParsedContext, Error>
@@ -557,27 +560,27 @@ module DynamoDBFilterExpr {
         if OpNeedsBeacon(expr, pos) then
           var newName := b.beacons[oldName].getBeaconName();
           if isIndirectName then
-            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, acc + [expr[pos]])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, Some(names.value[expr[pos].s := newName]), keys, newValues, partition, acc + [expr[pos]])
           else
-            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [Attr(newName, TermLocMap(newName))])
+            BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [Attr(newName, TermLocMap(newName))])
         else
-          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
+          BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [expr[pos]])
       else
-        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
+        BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [expr[pos]])
     else if expr[pos].Value? then
       var name := expr[pos].s;
       :- Need(name in oldValues, E(name + " not found in ExpressionAttributeValueMap"));
       var oldValue := oldValues[name];
       var eb :- BeaconForValue(b, expr, pos, names, oldValues);
-      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains);
+      var newValue :- if eb.beacon.None? then Success(oldValue) else eb.beacon.value.GetBeaconValue(oldValue, keys, eb.forEquality, eb.forContains, partition);
       //= specification/dynamodb-encryption-client/ddb-support.md#queryinputforbeacons
       //# If a single value in ExpressionAttributeValues is used in more than one context,
       //# for example an expression of `this = :foo OR that = :foo` where `this` and `that`
       //# are both beacons, this operation MUST fail.
       :- Need(name !in newValues || newValues[name] == newValue, E(name + " used in two different contexts, which is not allowed."));
-      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues[name := newValue], partition, acc + [expr[pos]])
     else
-      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, acc + [expr[pos]])
+      BeaconizeParsedExpr(b, expr, pos+1, oldValues, names, keys, newValues, partition, acc + [expr[pos]])
   }
 
   // Convert the tokens back into an expression
@@ -674,6 +677,15 @@ module DynamoDBFilterExpr {
   {
     var tup := FindIndexToken(s, pos);
     if 0 < tup.0 then [tup.1] + ParseExpr(s, Add(pos, tup.0)) else []
+  }
+
+  function method {:tailrecursion} ParseExprOpt(s: Option<string>) : (res: seq<Token>)
+    ensures s.None? || s.value == [] ==> res == []
+  {
+    if s.None? then
+      []
+    else
+      ParseExpr(s.value)
   }
 
   // convert ch to lower case
@@ -1517,7 +1529,8 @@ module DynamoDBFilterExpr {
     parsed : seq<Token>,
     ItemList : DDB.ItemList,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    values : DDB.ExpressionAttributeValueMap
+    values : DDB.ExpressionAttributeValueMap,
+    partition : PartitionNumber
   )
     returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
@@ -1526,7 +1539,7 @@ module DynamoDBFilterExpr {
   {
     var acc : DDB.ItemList := [];
     for i := 0 to |ItemList| {
-      var newAttrs :- b.GeneratePlainBeacons(ItemList[i]);
+      var newAttrs :- b.GeneratePlainBeacons(ItemList[i], partition);
       var doesMatch :- EvalExpr(parsed, ItemList[i] + newAttrs, names, values);
       if doesMatch {
         acc := acc + [ItemList[i]];
@@ -1542,8 +1555,8 @@ module DynamoDBFilterExpr {
     KeyExpression : Option<DDB.KeyExpression>,
     FilterExpression : Option<DDB.ConditionExpression>,
     names : Option<DDB.ExpressionAttributeNameMap>,
-    values: Option<DDB.ExpressionAttributeValueMap>)
-    returns (output : Result<DDB.ItemList, Error>)
+    values: Option<DDB.ExpressionAttributeValueMap>
+  ) returns (output : Result<DDB.ItemList, Error>)
     requires b.ValidState()
     ensures b.ValidState()
     modifies b.Modifies()
@@ -1551,22 +1564,24 @@ module DynamoDBFilterExpr {
     if |ItemList| == 0 || (KeyExpression.None? && FilterExpression.None?) {
       return Success(ItemList);
     } else {
+      // We don't actually need partition_bytes if we're just filtering
+      var partition : PartitionNumber := 0;
       var afterKeys;
       if KeyExpression.Some? {
         var parsed := ParseExpr(KeyExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], partition);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
-        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values);
+        afterKeys :- FilterItems(b, expr2, ItemList, expr.names, expr.values, partition);
       } else {
         afterKeys := ItemList;
       }
       if FilterExpression.Some? {
         var parsed := ParseExpr(FilterExpression.value);
-        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[]);
+        var expr :- BeaconizeParsedExpr(b, parsed, 0, values.UnwrapOr(map[]), names, DontUseKeys, map[], partition);
         var expr1 := ConvertToPrefix(expr.expr);
         var expr2 := ConvertToRpn(expr1);
-        output := FilterItems(b, expr2, afterKeys, expr.names, expr.values);
+        output := FilterItems(b, expr2, afterKeys, expr.names, expr.values, partition);
       } else {
         return Success(afterKeys);
       }
@@ -1644,6 +1659,31 @@ module DynamoDBFilterExpr {
       GetBeaconKeyIds2(pos+1, bv, expr, values, names, soFar)
   }
 
+  method {:tailrecursion} GetValues(
+    bv : SI.BeaconVersion,
+    expr : seq<Token>,
+    values: DDB.ExpressionAttributeValueMap,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (ret : Result<seq<(SI.Beacon, string)>, Error>)
+  {
+    var result : seq<(SI.Beacon, string)> := [];
+    SequenceIsSafeBecauseItIsInMemory(expr);
+    for pos : uint64 := 0 to |expr| as uint64 {
+      if expr[pos].Value? {
+        :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
+        var oldValue := values[expr[pos].s];
+        if oldValue.S? {
+          var attr := AttrForValue(expr, pos as nat);
+          if attr.Some? && attr.value.s in bv.beacons {
+            result := result + [(bv.beacons[attr.value.s], oldValue.S)];
+          }
+        }
+      }
+    }
+    return Success(result);
+  }
+
   // Search through the query expression to find any Multi-Tenant KeyIds
   function method GetBeaconKeyIds(
     bv : SI.BeaconVersion,
@@ -1660,6 +1700,34 @@ module DynamoDBFilterExpr {
     else
       var parsed := ParseExpr(expr.value);
       GetBeaconKeyIds2(0, bv, parsed, values, names, soFar)
+  }
+
+  method GetNumQueries(
+    bv : SI.BeaconVersion,
+    keyExpr : Option<DDB.ConditionExpression>,
+    values: Option<DDB.ExpressionAttributeValueMap>,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (ret : Result<PartitionCount, Error>)
+    ensures ret.Success? ==> ret.value <= bv.numPartitions
+  {
+    if keyExpr.None? || values.None? {
+      return Success(1);
+    }
+    var parsed := ParseExpr(keyExpr.value);
+    var values :- GetValues(bv, parsed, values.value, names);
+    var result : PartitionCount := 1;
+    SequenceIsSafeBecauseItIsInMemory(values);
+    for i : uint64 := 0 to |values| as uint64
+      invariant result <= bv.numPartitions
+    {
+      var partitions := values[i].0.getNumQueries(bv.numPartitions, values[0].1);
+      if partitions == 1 || partitions == result {
+        continue;
+      }
+      result := lcmPartition(result, partitions, bv.numPartitions);
+    }
+    return Success(result);
   }
 
   // Search through the query expressions to find the Multi-Tenant KeyId
@@ -1732,12 +1800,147 @@ module DynamoDBFilterExpr {
     names : Option<DDB.ExpressionAttributeNameMap>
   )
 
+  // transform index into character
+  function method AsChar(x : uint32) : (output : char)
+    requires x < 26
+    ensures 'A' <= output <= 'Z'
+  {
+    'A' + x as char
+  }
+
+  // try different prefixes on `prev` until something is found that is not in `values`
+  method MakeNewName(prev : string, values : DDB.ExpressionAttributeValueMap, value : DDB.AttributeValue) returns (output : Result<string, Error>)
+    requires 0 < |prev|
+    ensures output.Success? ==>
+              && 0 < |output.value|
+              && prev < output.value
+  {
+    var ch : char := 'A';
+    for i : uint32 := 0 to 26 {
+      for j : uint32 := 0 to 26 {
+        var new_str := prev + [AsChar(i), AsChar(j)];
+        if new_str !in values || values[new_str] == value {
+          return Success(new_str);
+        }
+      }
+    }
+    return Failure(E("Could not find new name"));
+  }
+
+  // Combine old_context and new_context, assuming that both came from Beaconize called with different partition numbers
+  // this updates values and filterExpr, e.g
+  // old_context : filterExpr = "(X = :x)" values = {":x" := "aaa"}
+  // new_context : filterExpr = "X = :x" values = {":x" := "bbb"}
+  // output : filterExpr = "(X = :x) OR (X = :xAA)" values = {":x" := "aaa", "xAA" := "bbb"}
+  method AddContext(old_values : DDB.ExpressionAttributeValueMap, new_filter : string, new_values : DDB.ExpressionAttributeValueMap)
+    returns (output : Result<(string, DDB.ExpressionAttributeValueMap), Error>)
+  {
+    var new_value_keys := SortedSets.ComputeSetToSequence(new_values.Keys);
+    SequenceIsSafeBecauseItIsInMemory(new_value_keys);
+    var allUnchanged := true;
+    for i : uint64 := 0 to |new_value_keys| as uint64
+    {
+      if new_value_keys[i] !in old_values {
+        allUnchanged := false;
+        break;
+      }
+      if new_values[new_value_keys[i]] != old_values[new_value_keys[i]] {
+        allUnchanged := false;
+        break;
+      }
+    }
+    if allUnchanged {
+      return Success((new_filter, old_values));
+    }
+
+    var result_values := old_values;
+    var result_filter := new_filter;
+    for i : uint64 := 0 to |new_value_keys| as uint64
+    {
+      var key := new_value_keys[i];
+      if key in old_values && new_values[key] != old_values[key] {
+        if 0 == |key| {
+          return Failure(E("Unexpected zero length key in ExpressionAttributeValueMap"));
+        }
+        var new_key :- MakeNewName(key, result_values, new_values[key]);
+        result_values := result_values[new_key := new_values[key]];
+        result_filter := String.SearchAndReplaceAllWhole(result_filter, key, new_key, String.AlphaNumericUnder);
+      }
+    }
+    return Success((result_filter, result_values));
+  }
+
+  // Call Beaconize, possibly multiple times if fewer queries than partitions
+  method DoBeaconize(
+    b : SI.BeaconVersion,
+    context : ExprContext,
+    keyId : MaybeKeyId,
+    partition : PartitionNumber,
+    queries : PartitionCount
+  )
+    returns (output : Result<ExprContext, Error>)
+    requires b.ValidState()
+    requires partition < b.numPartitions
+    requires partition < queries <= b.numPartitions
+    ensures b.ValidState()
+    modifies b.Modifies()
+  {
+    if queries == b.numPartitions || (b.numPartitions - partition) <= queries || context.filterExpr.None? || context.values.None? {
+      output := Beaconize(b, context, keyId, partition);
+    } else {
+      var curr_partition : PartitionNumber := partition;
+      var exprs : seq<string> := [];
+      var values : DDB.ExpressionAttributeValueMap := map[];
+      var keyExpr : Option<DDB.KeyExpression> := None;
+      var names : Option<DDB.ExpressionAttributeNameMap> := None;
+
+      while curr_partition < b.numPartitions
+        invariant b.ValidState()
+        invariant curr_partition == partition || 0 < |exprs|
+      {
+        var localOut :- Beaconize(b, context, keyId, curr_partition);
+        if curr_partition == partition {
+          exprs := [localOut.filterExpr.UnwrapOr("")];
+          values := localOut.values.UnwrapOr(map[]);
+          keyExpr := localOut.keyExpr;
+          names := localOut.names;
+        } else {
+          var tmpOutput :- AddContext(values, localOut.filterExpr.UnwrapOr(""), localOut.values.UnwrapOr(map[]));
+          var (expr, value) := tmpOutput;
+          if expr !in exprs {
+            exprs := exprs + [expr];
+          }
+          values := value;
+        }
+        if (b.numPartitions - curr_partition) <= queries {
+          break;
+        } else {
+          curr_partition := curr_partition + queries;
+        }
+      }
+      var result_filter : string;
+      SequenceIsSafeBecauseItIsInMemory(exprs);
+      var exprs_size : uint64 := |exprs| as uint64;
+      assert 0 < exprs_size;
+      if exprs_size == 1 {
+        result_filter := exprs[0];
+      } else {
+        result_filter := "(" + exprs[0] + ")";
+        for i := 1 to exprs_size {
+          result_filter := result_filter + " OR (" + exprs[i] + ")";
+        }
+      }
+      return Success(ExprContext(keyExpr, Some(result_filter), Some(values), names));
+    }
+  }
+
   // transform plain expression "A = B" into beacon expression "aws_dbe_b_A = beacon(B)"
   // if naked == true, it becomes "aws_dbe_b_A = B"
   method Beaconize(
     b : SI.BeaconVersion,
     context : ExprContext,
     keyId : MaybeKeyId,
+    partition : PartitionNumber,
     naked : bool := false
   )
     returns (output : Result<ExprContext, Error>)
@@ -1764,14 +1967,14 @@ module DynamoDBFilterExpr {
 
       if context.keyExpr.Some? {
         var parsed := ParseExpr(context.keyExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, partition);
         newKeyExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
       }
       if context.filterExpr.Some? {
         var parsed := ParseExpr(context.filterExpr.value);
-        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues);
+        var newContext :- BeaconizeParsedExpr(b, parsed, 0, values, newNames, keys, newValues, partition);
         newFilterExpr := Some(ParsedExprToString(newContext.expr));
         newValues := newContext.values;
         newNames := newContext.names;
@@ -1790,20 +1993,34 @@ module DynamoDBFilterExpr {
   }
 
   // return an error if any encrypted field exists in the query
-  method TestParsedExpr(
+  method UsesEncryptedField(
     expr : seq<Token>,
-    encrypted : set<string>,
+    actions : AttributeActions,
     names : Option<DDB.ExpressionAttributeNameMap>
   )
-    returns (output : Outcome<Error>)
+    returns (output : Option<string>)
   {
     for i := 0 to |expr| {
       if expr[i].Attr? {
         var name := GetAttrName(expr[i], names);
-        if name in encrypted {
-          return Fail(E("Query is using encrypted field : " + name + "."));
+        if name in actions && actions[name] == SE.ENCRYPT_AND_SIGN {
+          return Some(name);
         }
       }
+    }
+    return None;
+  }
+
+  method TestParsedExpr(
+    expr : seq<Token>,
+    actions : AttributeActions,
+    names : Option<DDB.ExpressionAttributeNameMap>
+  )
+    returns (output : Outcome<Error>)
+  {
+    var hasEncField := UsesEncryptedField(expr, actions, names);
+    if hasEncField.Some? {
+      return Fail(E("Query is using encrypted field : " + hasEncField.value + "."));
     }
     return Pass;
   }
@@ -1817,14 +2034,12 @@ module DynamoDBFilterExpr {
   )
     returns (output : Result<bool, Error>)
   {
-    var encrypted := set k <- actions | actions[k] == SE.ENCRYPT_AND_SIGN :: k;
     if keyExpr.Some? {
-      :- TestParsedExpr(ParseExpr(keyExpr.value), encrypted, names);
+      :- TestParsedExpr(ParseExpr(keyExpr.value), actions, names);
     }
     if filterExpr.Some? {
-      :- TestParsedExpr(ParseExpr(filterExpr.value), encrypted, names);
+      :- TestParsedExpr(ParseExpr(filterExpr.value), actions, names);
     }
     return Success(true);
   }
-
 }

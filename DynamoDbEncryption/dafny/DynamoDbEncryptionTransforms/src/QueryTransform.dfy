@@ -44,7 +44,6 @@ module QueryTransform {
       :- Need(NoMap(input.sdkInput.QueryFilter), E("Legacy parameter 'QueryFilter' not supported in Query with Encryption"));
       :- Need(input.sdkInput.ConditionalOperator.None?, E("Legacy parameter 'ConditionalOperator' not supported in Query with Encryption"));
       var tableConfig := config.tableEncryptionConfigs[input.sdkInput.TableName];
-
       var finalResult :- QueryInputForBeacons(tableConfig, input.sdkInput);
       return Success(QueryInputTransformOutput(transformedInput := finalResult));
     }

@@ -38,6 +38,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyI
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetEncryptedDataKeyDescriptionUnion;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPartitionNumberInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPartitionNumberOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetPrefix;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSegment;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetSegments;
@@ -200,6 +202,23 @@ public class ToNative {
     if (dafnyValue.dtor_signedParts().is_Some()) {
       nativeBuilder.signedParts(
         ToNative.SignedPartsList(dafnyValue.dtor_signedParts().dtor_value())
+      );
+    }
+    if (dafnyValue.dtor_maximumNumberOfPartitions().is_Some()) {
+      nativeBuilder.maximumNumberOfPartitions(
+        (dafnyValue.dtor_maximumNumberOfPartitions().dtor_value())
+      );
+    }
+    if (dafnyValue.dtor_defaultNumberOfPartitions().is_Some()) {
+      nativeBuilder.defaultNumberOfPartitions(
+        (dafnyValue.dtor_defaultNumberOfPartitions().dtor_value())
+      );
+    }
+    if (dafnyValue.dtor_partitionSelector().is_Some()) {
+      nativeBuilder.partitionSelector(
+        ToNative.PartitionSelector(
+          dafnyValue.dtor_partitionSelector().dtor_value()
+        )
       );
     }
     return nativeBuilder.build();
@@ -486,6 +505,34 @@ public class ToNative {
     return nativeBuilder.build();
   }
 
+  public static GetPartitionNumberInput GetPartitionNumberInput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetPartitionNumberInput dafnyValue
+  ) {
+    GetPartitionNumberInput.Builder nativeBuilder =
+      GetPartitionNumberInput.builder();
+    nativeBuilder.item(
+      software.amazon.cryptography.services.dynamodb.internaldafny.ToNative.AttributeMap(
+        dafnyValue.dtor_item()
+      )
+    );
+    nativeBuilder.numberOfPartitions((dafnyValue.dtor_numberOfPartitions()));
+    nativeBuilder.logicalTableName(
+      software.amazon.smithy.dafny.conversion.ToNative.Simple.String(
+        dafnyValue.dtor_logicalTableName()
+      )
+    );
+    return nativeBuilder.build();
+  }
+
+  public static GetPartitionNumberOutput GetPartitionNumberOutput(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetPartitionNumberOutput dafnyValue
+  ) {
+    GetPartitionNumberOutput.Builder nativeBuilder =
+      GetPartitionNumberOutput.builder();
+    nativeBuilder.partitionNumber((dafnyValue.dtor_partitionNumber()));
+    return nativeBuilder.build();
+  }
+
   public static GetPrefix GetPrefix(
     software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.GetPrefix dafnyValue
   ) {
@@ -718,6 +765,11 @@ public class ToNative {
     if (dafnyValue.dtor_style().is_Some()) {
       nativeBuilder.style(
         ToNative.BeaconStyle(dafnyValue.dtor_style().dtor_value())
+      );
+    }
+    if (dafnyValue.dtor_numberOfPartitions().is_Some()) {
+      nativeBuilder.numberOfPartitions(
+        (dafnyValue.dtor_numberOfPartitions().dtor_value())
       );
     }
     return nativeBuilder.build();
@@ -1051,6 +1103,12 @@ public class ToNative {
       return ((LegacyDynamoDbEncryptor.NativeWrapper) dafnyValue)._impl;
     }
     return LegacyDynamoDbEncryptor.wrap(dafnyValue);
+  }
+
+  public static IPartitionSelector PartitionSelector(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.IPartitionSelector dafnyValue
+  ) {
+    return PartitionSelector.wrap(dafnyValue);
   }
 
   public static DynamoDbEncryption DynamoDbEncryption(

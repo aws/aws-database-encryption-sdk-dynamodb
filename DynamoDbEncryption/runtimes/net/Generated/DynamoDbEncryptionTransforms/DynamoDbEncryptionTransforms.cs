@@ -215,5 +215,12 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
       return TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_ResolveAttributesOutput(result.dtor_value);
     }
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesOutput GetNumberOfQueries(AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms.GetNumberOfQueriesInput input)
+    {
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IGetNumberOfQueriesInput internalInput = TypeConversion.ToDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S23_GetNumberOfQueriesInput(input);
+      Wrappers_Compile._IResult<software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IGetNumberOfQueriesOutput, software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types._IError> result = _impl.GetNumberOfQueries(internalInput);
+      if (result.is_Failure) throw TypeConversion.FromDafny_CommonError(result.dtor_error);
+      return TypeConversion.FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__N10_transforms__S24_GetNumberOfQueriesOutput(result.dtor_value);
+    }
   }
 }

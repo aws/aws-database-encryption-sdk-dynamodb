@@ -11,6 +11,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private int? _length;
     private string _loc;
     private AWS.Cryptography.DbEncryptionSDK.DynamoDb.BeaconStyle _style;
+    private int? _numberOfPartitions;
     public string Name
     {
       get { return this._name; }
@@ -47,6 +48,15 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._style != null;
     }
+    public int NumberOfPartitions
+    {
+      get { return this._numberOfPartitions.GetValueOrDefault(); }
+      set { this._numberOfPartitions = value; }
+    }
+    public bool IsSetNumberOfPartitions()
+    {
+      return this._numberOfPartitions.HasValue;
+    }
     public void Validate()
     {
       if (!IsSetName()) throw new System.ArgumentException("Missing value for required property 'Name'");
@@ -57,6 +67,19 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
         {
           throw new System.ArgumentException(
               String.Format("Member Loc of structure StandardBeacon has type TerminalLocation which has a minimum length of 1 but was given the value '{0}' which has length {1}.", Loc, Loc.Length));
+        }
+      }
+      if (IsSetNumberOfPartitions())
+      {
+        if (NumberOfPartitions < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member NumberOfPartitions of structure StandardBeacon has type PartitionCount which has a minimum of 1 but was given the value {0}.", NumberOfPartitions));
+        }
+        if (NumberOfPartitions > 255)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member NumberOfPartitions of structure StandardBeacon has type PartitionCount which has a maximum of 255 but was given the value {0}.", NumberOfPartitions));
         }
       }
     }

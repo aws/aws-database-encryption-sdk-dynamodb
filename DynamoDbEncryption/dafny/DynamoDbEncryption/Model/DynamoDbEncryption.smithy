@@ -49,6 +49,46 @@ service DynamoDbEncryption {
     errors: [ DynamoDbEncryptionException ]
 }
 
+resource PartitionSelector {
+  operations: [GetPartitionNumber]
+}
+
+@reference(resource: PartitionSelector)
+structure PartitionSelectorReference {}
+
+operation GetPartitionNumber {
+  input: GetPartitionNumberInput,
+  output: GetPartitionNumberOutput,
+}
+
+//= specification/searchable-encryption/search-config.md#partition-selector
+//= type=implication
+//# GetPartitionNumber MUST take as input
+//#
+//# - A DynamoDB Item (i.e an AttributeMap)
+//# - The [number of partitions](#max-partitions) defined in the associated [beacon version](#beacon-version-initialization).
+//# - The logical table name for this defined in the associated [table config](../dynamodb-encryption-client/ddb-table-encryption-config.md#structure).
+
+structure GetPartitionNumberInput {
+  @required
+  item: AttributeMap,
+  @required
+  numberOfPartitions : PartitionCount,
+  @required
+  logicalTableName: String,
+}
+
+//= specification/searchable-encryption/search-config.md#partition-selector
+//= type=implication
+//# GetPartitionNumber MUST return
+//#
+//# - The number of the partition to use for this item
+
+structure GetPartitionNumberOutput {
+  @required
+  partitionNumber: PartitionNumber
+}
+
 @javadoc("Returns encrypted data key description.")
 operation GetEncryptedDataKeyDescription {
     input: GetEncryptedDataKeyDescriptionInput,
@@ -206,7 +246,7 @@ structure DynamoDbTableEncryptionConfig {
     @javadoc("A configuration that override encryption and/or decryption to instead perform legacy encryption and/or decryption. Used as part of migration from version 2.x to version 3.x.")
     legacyOverride: LegacyOverride,
     @javadoc("A configuration that override encryption and/or decryption to instead passthrough and write and/or read plaintext. Used to update plaintext tables to fully use client-side encryption.")
-    plaintextOverride: PlaintextOverride
+    plaintextOverride: PlaintextOverride,
 }
 
 map AttributeActions {
@@ -247,7 +287,7 @@ structure LegacyDynamoDbEncryptorReference {}
 @javadoc("A configuration for overriding encryption and/or decryption to instead perform legacy encryption and decryption.")
 structure LegacyOverride {
     @required
-    @javadoc("A policy which configurates whether legacy behavior overrides encryption and/or decryption.")
+    @javadoc("A policy which configures whether legacy behavior overrides encryption and/or decryption.")
     policy: LegacyPolicy,
     @required
     @javadoc("A configuration for the legacy DynamoDB Encryption Client's Encryptor.")
@@ -285,6 +325,12 @@ integer BeaconBitLength
 
 @range(min: 1)
 integer VersionNumber
+
+@range(min: 1, max: 255)
+integer PartitionCount
+
+@range(min: 0, max: 254)
+integer PartitionNumber
 
 @length(min: 1, max: 1)
 string Char
@@ -476,7 +522,7 @@ structure GetSegment {
   @javadoc("The characters to split on.")
   split : Char,
   @required
-  @javadoc("The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.")
+  @javadoc("The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.")
   index : Integer
 }
 
@@ -636,7 +682,7 @@ structure Constructor {
 //# - A name -- a string
 //# - A required flag -- a boolean
 
-@javadoc("A part of a Compound Becaon Construction.")
+@javadoc("A part of a Compound Beacon Construction.")
 structure ConstructorPart {
   @required
   @javadoc("The name of the Encrypted Part or Signed Part for which this constructor part gets a value.")
@@ -669,6 +715,8 @@ structure StandardBeacon {
   loc : TerminalLocation,
   @javadoc("Optional augmented behavior.")
   style : BeaconStyle,
+  @javadoc("The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.")
+  numberOfPartitions : PartitionCount
 }
 
 //= specification/searchable-encryption/beacons.md#compound-beacon-initialization
@@ -789,13 +837,22 @@ structure BeaconVersion {
 
   @javadoc("The Compound Beacons to be written with items.")
   compoundBeacons : CompoundBeaconList,
-  @javadoc("The Virtual Fields to be calculated, supporting other searchable enryption configurations.")
+  @javadoc("The Virtual Fields to be calculated, supporting other searchable encryption configurations.")
   virtualFields : VirtualFieldList,
 
   @javadoc("The list of Encrypted Parts that may be included in any compound beacon.")
   encryptedParts : EncryptedPartsList,
   @javadoc("The list of Signed Parts that may be included in any compound beacon.")
   signedParts : SignedPartsList,
+
+  @javadoc("The number of separate partitions across which beacons should be divided.")
+  maximumNumberOfPartitions : PartitionCount,
+
+  @javadoc("The number of partitions for any beacon that doesn't specify a numberOfPartitions")
+  defaultNumberOfPartitions : PartitionCount,
+
+  @javadoc("How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.")
+  partitionSelector: PartitionSelectorReference,
 }
 
 //= specification/searchable-encryption/search-config.md#initialization

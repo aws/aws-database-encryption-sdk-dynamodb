@@ -33,6 +33,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
   import CreateInterceptedDDBClient
   import DynamoDbItemEncryptor
   import CreateWrappedItemEncryptor
+  import SearchConfigToInfo
   import Operations = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations
 
 
@@ -499,6 +500,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var compoundBeacons : seq<Types.CompoundBeacon> := [];
     var virtualFields : seq<Types.VirtualField> := [];
     var keySource : Option<Types.BeaconKeySource> := None;
+    var maximumNumberOfPartitions: Option<Types.PartitionCount> := None;
+    var defaultNumberOfPartitions: Option<Types.PartitionCount> := None;
 
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
@@ -507,6 +510,20 @@ module {:options "-functionSyntax:4"} JsonConfig {
         case "standardBeacons" => standardBeacons :- GetStandardBeacons(obj.1);
         case "compoundBeacons" => compoundBeacons :- GetCompoundBeacons(obj.1);
         case "virtualFields" => virtualFields :- GetVirtualFields(obj.1);
+        case "maximumNumberOfPartitions" =>
+          :- Need(obj.1.Number?, "maximumNumberOfPartitions must be of type Number.");
+          var num :- DecimalToNat(obj.1.num);
+          expect 0 < num < INT32_MAX_LIMIT;
+          var num2 := num as int32;
+          expect Types.IsValid_PartitionCount(num2);
+          maximumNumberOfPartitions := Some(num as Types.PartitionCount);
+        case "defaultNumberOfPartitions" =>
+          :- Need(obj.1.Number?, "defaultNumberOfPartitions must be of type Number.");
+          var num :- DecimalToNat(obj.1.num);
+          expect 0 < num < INT32_MAX_LIMIT;
+          var num2 := num as int32;
+          expect Types.IsValid_PartitionCount(num2);
+          defaultNumberOfPartitions := Some(num as Types.PartitionCount);
         case _ => return Failure("Unexpected part of a beacon version : '" + obj.0 + "'");
       }
     }
@@ -529,7 +546,9 @@ module {:options "-functionSyntax:4"} JsonConfig {
                      compoundBeacons := OptSeq(compoundBeacons),
                      virtualFields := OptSeq(virtualFields),
                      encryptedParts := None,
-                     signedParts := None
+                     signedParts := None,
+                     maximumNumberOfPartitions := maximumNumberOfPartitions,
+                     defaultNumberOfPartitions := defaultNumberOfPartitions
                    )
       );
   }
@@ -571,7 +590,9 @@ module {:options "-functionSyntax:4"} JsonConfig {
 
     var src := SI.KeySource(client, store, SI.SingleLoc("foo"), cache, 100 as uint32, partitionIdBytes, logicalKeyStoreNameBytes);
 
-    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[]);
+    var sel := new SearchConfigToInfo.DefaultPartitionSelector();
+    var maxPartitions = 1;
+    var bv :- expect SI.MakeBeaconVersion(1, src, map[], map[], map[], sel, maxPartitions);
     return Success(bv);
   }
 
@@ -628,7 +649,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var results := prev;
     for i := 0 to |gsi| {
       for j := 0 to |gsi[i].KeySchema| {
-        if forall k <- prev :: k.AttributeName != gsi[i].KeySchema[j].AttributeName {
+        if forall k <- results :: k.AttributeName != gsi[i].KeySchema[j].AttributeName {
           results := results +  [DDB.AttributeDefinition(AttributeName := gsi[i].KeySchema[j].AttributeName, AttributeType := DDB.ScalarAttributeType.S)];
         }
       }
@@ -965,7 +986,7 @@ module {:options "-functionSyntax:4"} JsonConfig {
         case "Signed" => Signed :- GetSignedParts(obj.1);
         case "Encrypted" => Encrypted :- GetEncryptedParts(obj.1);
         case "Constructors" => constructors :- GetConstructors(obj.1);
-        case _ => return Failure("Unexpected part of a standard beacon : '" + data.obj[i].0 + "'");
+        case _ => return Failure("Unexpected part of a compound beacon : '" + data.obj[i].0 + "'");
       }
     }
     :- Need(0 < |name|, "Each Compound Beacon needs a name.");
@@ -1096,6 +1117,8 @@ module {:options "-functionSyntax:4"} JsonConfig {
     var name : string := "";
     var length : int := -1;
     var loc : Option<Types.TerminalLocation> := None;
+    var numberOfPartitions: Option<Types.PartitionCount> := None;
+
     for i := 0 to |data.obj| {
       var obj := data.obj[i];
       match obj.0 {
@@ -1107,14 +1130,21 @@ module {:options "-functionSyntax:4"} JsonConfig {
           length :- DecimalToNat(obj.1.num);
         case "Loc" =>
           :- Need(obj.1.String?, "Standard Beacon Location must be a string");
-          :- Need(0 < |obj.1.str|, "Standard Beacon Location must nt be an empty string.");
+          :- Need(0 < |obj.1.str|, "Standard Beacon Location must not be an empty string.");
           loc := Some(obj.1.str);
+        case "numberOfPartitions" =>
+          :- Need(obj.1.Number?, "numberOfPartitions must be of type Number.");
+          var num :- DecimalToNat(obj.1.num);
+          expect 0 < num < INT32_MAX_LIMIT;
+          var num2 := num as int32;
+          expect Types.IsValid_PartitionCount(num2);
+          numberOfPartitions := Some(num as Types.PartitionCount);
         case _ => return Failure("Unexpected part of a standard beacon : '" + data.obj[i].0 + "'");
       }
     }
     :- Need(0 < |name|, "Each Standard Beacon needs a name.");
     :- Need(0 < length < 100 && Types.IsValid_BeaconBitLength(length as int32), "Each Standard Beacon needs a length between 1 and 63.");
-    return Success(Types.StandardBeacon(name := name, length := length as Types.BeaconBitLength, loc := loc, style := None));
+    return Success(Types.StandardBeacon(name := name, length := length as Types.BeaconBitLength, loc := loc, style := None, numberOfPartitions := numberOfPartitions));
   }
 
   method GetGSIs(data : JSON) returns (output : Result<seq<DDB.GlobalSecondaryIndex> , string>)
@@ -1152,10 +1182,15 @@ module {:options "-functionSyntax:4"} JsonConfig {
                      IndexName := data.arr[0].str,
                      KeySchema := schema,
                      Projection := DDB.Projection(
-                       ProjectionType := None,
+                       ProjectionType := Some(DDB.ProjectionType.ALL),
                        NonKeyAttributes := None
                      ),
-                     ProvisionedThroughput := None
+                     ProvisionedThroughput := Some(
+                       DDB.ProvisionedThroughput (
+                         ReadCapacityUnits:= 5,
+                         WriteCapacityUnits:= 5
+                       )
+                     )
                    ));
   }
 
