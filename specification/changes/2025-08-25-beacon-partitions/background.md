@@ -96,7 +96,7 @@ The only situation in which you might consider adding a constraint to a beacon i
 
 - You're going to use that beacon in an index (GSI)
 - The queries you make against that index are expected to return a very small number of results
-- Your security people have agreed that reducing the number of partitions for this beacon is acceptable.
+- Your security stakeholders have agreed that reducing the number of partitions for this beacon is acceptable.
 
 ### Behind the scenes
 
