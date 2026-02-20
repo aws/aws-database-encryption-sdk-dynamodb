@@ -352,7 +352,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
           print "Partition Scan ", queryName, " did not find record ", i, "\n";
           wasBad := true;
         } else if counts[i] != 1 {
-          print "Partition Scab ", queryName, " returned record ", i, " ", counts[i], " times\n";
+          print "Partition Scan ", queryName, " returned record ", i, " ", counts[i], " times\n";
           wasBad := true;
         }
       }
