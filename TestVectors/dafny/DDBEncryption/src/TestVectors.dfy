@@ -170,11 +170,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
 
     function MakePartitionRecord(x : nat) : DDB.AttributeMap
     {
-      var num := String.Base10Int2String(x);
-      var num2 := String.Base10Int2String(x%5);
+      var recordNumber := String.Base10Int2String(x);
+      var partitionNumber := String.Base10Int2String(x%5);
 
       map[
-        HashName := DDB.AttributeValue.N(num),
+        HashName := DDB.AttributeValue.N(recordNumber),
         AttrNames[0] := AttrValues[0],
         AttrNames[1] := AttrValues[1],
         AttrNames[2] := AttrValues[2],
@@ -182,7 +182,7 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         AttrNames[4] := AttrValues[4],
         AttrNames[5] := AttrValues[5],
         AttrNames[6] := AttrValues[6],
-        "PreferredPartition" := DDB.AttributeValue.N(num2)
+        "PreferredPartition" := DDB.AttributeValue.N(partitionNumber)
       ]
     }
 
