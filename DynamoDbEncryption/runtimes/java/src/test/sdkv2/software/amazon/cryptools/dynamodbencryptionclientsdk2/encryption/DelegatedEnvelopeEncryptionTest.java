@@ -55,7 +55,7 @@ public class DelegatedEnvelopeEncryptionTest {
     private static DelegatedKey macKey;
     
     private EncryptionMaterialsProvider prov;
-    private DynamoDbEncryptor encryptor;
+    private DynamoDBEncryptor encryptor;
     private Map<String, AttributeValue> attribs;
     private EncryptionContext context;
     
@@ -73,7 +73,7 @@ public class DelegatedEnvelopeEncryptionTest {
         prov =
                 new WrappedMaterialsProvider(
                         encryptionKey, encryptionKey, macKey, Collections.<String, String>emptyMap());
-        encryptor = DynamoDbEncryptor.getInstance(prov, "encryptor-");
+        encryptor = DynamoDBEncryptor.getInstance(prov, "encryptor-");
 
         attribs = new HashMap<String, AttributeValue>();
         attribs.put("intValue", AttributeValue.builder().n("123").build());
@@ -174,7 +174,7 @@ public class DelegatedEnvelopeEncryptionTest {
     @Test
     public void signedOnlyNullCryptoKey() throws GeneralSecurityException {
         prov = new SymmetricStaticProvider(null, macKey, Collections.<String, String>emptyMap());
-        encryptor = DynamoDbEncryptor.getInstance(prov, "encryptor-");
+        encryptor = DynamoDBEncryptor.getInstance(prov, "encryptor-");
         Map<String, AttributeValue> encryptedAttributes =
                 encryptor.encryptAllFieldsExcept(attribs, context, attribs.keySet().toArray(new String[0]));
         assertThat(encryptedAttributes, AttrMatcher.invert(attribs));
@@ -218,7 +218,7 @@ public class DelegatedEnvelopeEncryptionTest {
         rsaGen.initialize(2048, Utils.getRng());
         KeyPair sigPair = rsaGen.generateKeyPair();
         encryptor =
-                DynamoDbEncryptor.getInstance(
+                DynamoDBEncryptor.getInstance(
                         new SymmetricStaticProvider(
                                 encryptionKey, sigPair, Collections.<String, String>emptyMap()),
                         "encryptor-");
@@ -246,7 +246,7 @@ public class DelegatedEnvelopeEncryptionTest {
         rsaGen.initialize(2048, Utils.getRng());
         KeyPair sigPair = rsaGen.generateKeyPair();
         encryptor =
-                DynamoDbEncryptor.getInstance(
+                DynamoDBEncryptor.getInstance(
                         new SymmetricStaticProvider(
                                 encryptionKey, sigPair, Collections.<String, String>emptyMap()),
                         "encryptor-");

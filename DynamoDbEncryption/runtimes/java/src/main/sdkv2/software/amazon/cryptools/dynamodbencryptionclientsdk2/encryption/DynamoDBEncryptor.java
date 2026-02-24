@@ -34,6 +34,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions.DynamoDbEncryptionException;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
@@ -48,7 +49,7 @@ import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
  *
  * @author Greg Rubin
  */
-public class DynamoDbEncryptor {
+public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     private static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
     private static final String DEFAULT_METADATA_FIELD = "*amzn-ddb-map-desc*";
     private static final String DEFAULT_SIGNATURE_FIELD = "*amzn-ddb-map-sig*";
@@ -79,19 +80,19 @@ public class DynamoDbEncryptor {
 
     private Function<EncryptionContext, EncryptionContext> encryptionContextOverrideOperator;
 
-    protected DynamoDbEncryptor(EncryptionMaterialsProvider provider, String descriptionBase) {
+    protected DynamoDBEncryptor(EncryptionMaterialsProvider provider, String descriptionBase) {
         this.encryptionMaterialsProvider = provider;
         this.descriptionBase = descriptionBase;
         symmetricEncryptionModeHeader = this.descriptionBase + "sym-mode";
         signingAlgorithmHeader = this.descriptionBase + "signingAlg";
     }
 
-    public static DynamoDbEncryptor getInstance(
+    public static DynamoDBEncryptor getInstance(
             EncryptionMaterialsProvider provider, String descriptionbase) {
-        return new DynamoDbEncryptor(provider, descriptionbase);
+        return new DynamoDBEncryptor(provider, descriptionbase);
     }
 
-    public static DynamoDbEncryptor getInstance(EncryptionMaterialsProvider provider) {
+    public static DynamoDBEncryptor getInstance(EncryptionMaterialsProvider provider) {
         return getInstance(provider, DEFAULT_DESCRIPTION_BASE);
     }
 
@@ -454,7 +455,7 @@ public class DynamoDbEncryptor {
      *
      * @return the name of the DynamoDB field used to store the signature
      */
-    String getSignatureFieldName() {
+    public String getSignatureFieldName() {
         return signatureFieldName;
     }
 
@@ -474,7 +475,7 @@ public class DynamoDbEncryptor {
      * @return the name of the DynamoDB field used to store metadata used by the
      *         DynamoDBEncryptedMapper
      */
-    String getMaterialDescriptionFieldName() {
+    public String getMaterialDescriptionFieldName() {
         return materialDescriptionFieldName;
     }
 

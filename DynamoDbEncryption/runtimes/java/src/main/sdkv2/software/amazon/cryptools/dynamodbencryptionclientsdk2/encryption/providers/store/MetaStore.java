@@ -44,7 +44,7 @@ import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDbEncryptor;
+import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
 import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.WrappedMaterialsProvider;
@@ -95,7 +95,7 @@ public class MetaStore extends ProviderStore {
 //    private final DynamoDbEncryptionConfiguration encryptionConfiguration;
     private final String tableName;
     private final DynamoDbClient ddb;
-    private final DynamoDbEncryptor encryptor;
+    private final DynamoDBEncryptor encryptor;
     private final EncryptionContext ddbCtx;
     private final ExtraDataSupplier extraDataSupplier;
 
@@ -129,7 +129,7 @@ public class MetaStore extends ProviderStore {
      * @param encryptor used to perform crypto operations on the record attributes.
      */
     public MetaStore(final DynamoDbClient ddb, final String tableName,
-            final DynamoDbEncryptor encryptor) {
+            final DynamoDBEncryptor encryptor) {
         this(ddb, tableName, encryptor, EMPTY_EXTRA_DATA_SUPPLIER);
     }
 
@@ -142,7 +142,7 @@ public class MetaStore extends ProviderStore {
      * @param extraDataSupplier provides extra data that should be stored along with the material.
      */
     public MetaStore(final DynamoDbClient ddb, final String tableName,
-                     final DynamoDbEncryptor encryptor, final ExtraDataSupplier extraDataSupplier) {
+                     final DynamoDBEncryptor encryptor, final ExtraDataSupplier extraDataSupplier) {
         this.ddb = checkNotNull(ddb, "ddb must not be null");
         this.tableName = checkNotNull(tableName, "tableName must not be null");
         this.encryptor = checkNotNull(encryptor, "encryptor must not be null");
@@ -389,7 +389,7 @@ public class MetaStore extends ProviderStore {
     }
 
     /**
-     * Decrypts attributes in the ciphertext item using {@link DynamoDbEncryptor}. except the
+     * Decrypts attributes in the ciphertext item using {@link DynamoDBEncryptor}. except the
      * attribute names specified in doNotEncrypt.
      *
      * @param ciphertext the ciphertext to be decrypted.
@@ -405,7 +405,7 @@ public class MetaStore extends ProviderStore {
     }
 
     /**
-     * Encrypts attributes in the plaintext item using {@link DynamoDbEncryptor}. except the attribute
+     * Encrypts attributes in the plaintext item using {@link DynamoDBEncryptor}. except the attribute
      * names specified in doNotEncrypt.
      *
      * @throws SdkClientException when failed to encrypt material item.
