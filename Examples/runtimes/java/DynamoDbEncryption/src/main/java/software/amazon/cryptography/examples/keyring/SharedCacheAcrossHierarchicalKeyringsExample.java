@@ -100,7 +100,9 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     String keyStoreTableName,
     String logicalKeyStoreName,
     String partitionId,
-    String kmsKeyId
+    String kmsKeyId,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // 1. Create the CryptographicMaterialsCache (CMC) to share across multiple Hierarchical Keyrings
     //    using the Material Providers Library
@@ -202,7 +204,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     );
 
     // 6. Encrypt Decrypt roundtrip with ddbClient1
-    PutGetItems(ddbTableName, ddbClient1);
+    PutGetItems(ddbTableName, ddbClient1, partitionKeyValue, sortKeyValue);
 
     // Through the above encrypt and decrypt roundtrip, the cache will be populated and
     // the cache entries can be used by another Hierarchical Keyring with the
@@ -270,7 +272,7 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     );
 
     // 10. Encrypt Decrypt roundtrip with ddbClient2
-    PutGetItems(ddbTableName, ddbClient2);
+    PutGetItems(ddbTableName, ddbClient2, partitionKeyValue, sortKeyValue);
   }
 
   public static DynamoDbClient GetDdbClient(
@@ -350,7 +352,9 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
 
   public static void PutGetItems(
     String ddbTableName,
-    DynamoDbClient ddbClient
+    DynamoDbClient ddbClient,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Put an item into our table using the given ddb client.
     // Before the item gets sent to DynamoDb, it will be encrypted
@@ -359,8 +363,8 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // BranchKeyIdSupplier as per your use-case. See the HierarchicalKeyringsExample.java for more
     // information.
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("partition_key", AttributeValue.builder().s("id").build());
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("partition_key", AttributeValue.builder().s(partitionKeyValue).build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -384,8 +388,8 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // BranchKeyIdSupplier as per your use-case. See the HierarchicalKeyringsExample.java for more
     // information.
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put("partition_key", AttributeValue.builder().s("id").build());
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("partition_key", AttributeValue.builder().s(partitionKeyValue).build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -423,7 +427,9 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
       keyStoreTableName,
       logicalKeyStoreName,
       partitionId,
-      kmsKeyId
+      kmsKeyId,
+      "id",
+      "0"
     );
   }
 }

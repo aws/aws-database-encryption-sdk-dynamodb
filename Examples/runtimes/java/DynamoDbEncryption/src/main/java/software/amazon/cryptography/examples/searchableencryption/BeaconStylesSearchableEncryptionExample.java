@@ -77,7 +77,8 @@ public class BeaconStylesSearchableEncryptionExample {
     String ddbTableName,
     String branchKeyId,
     String branchKeyWrappingKmsKeyArn,
-    String branchKeyDdbTableName
+    String branchKeyDdbTableName,
+    String workId
   ) {
     // 1. Create Beacons.
     List<StandardBeacon> standardBeaconList = new ArrayList<>();
@@ -276,7 +277,7 @@ public class BeaconStylesSearchableEncryptionExample {
 
     // 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
     final HashMap<String, AttributeValue> item1 = new HashMap<>();
-    item1.put("work_id", AttributeValue.builder().s("1").build());
+    item1.put("work_id", AttributeValue.builder().s(workId + "-1").build());
     item1.put(
       "inspection_date",
       AttributeValue.builder().s("2023-06-13").build()
@@ -297,7 +298,7 @@ public class BeaconStylesSearchableEncryptionExample {
 
     // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
     final HashMap<String, AttributeValue> item2 = new HashMap<>();
-    item2.put("work_id", AttributeValue.builder().s("2").build());
+    item2.put("work_id", AttributeValue.builder().s(workId + "-2").build());
     item2.put(
       "inspection_date",
       AttributeValue.builder().s("2023-06-13").build()
@@ -460,7 +461,7 @@ public class BeaconStylesSearchableEncryptionExample {
     // 17. Test the compound beacon 'work_unit' :
     expressionAttributeValues.put(
       ":value",
-      AttributeValue.builder().s("I-1.T-small").build()
+      AttributeValue.builder().s("I-" + workId + "-1.T-small").build()
     );
 
     scanRequest =
@@ -495,7 +496,8 @@ public class BeaconStylesSearchableEncryptionExample {
       ddbTableName,
       branchKeyId,
       branchKeyWrappingKmsKeyId,
-      branchKeyDdbTableName
+      branchKeyDdbTableName,
+      "beacon-styles-test"
     );
   }
 }

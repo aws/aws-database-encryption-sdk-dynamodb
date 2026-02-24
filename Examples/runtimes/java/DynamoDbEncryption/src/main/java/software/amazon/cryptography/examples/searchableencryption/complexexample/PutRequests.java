@@ -28,20 +28,22 @@ public class PutRequests {
 
   public static void putAllItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
-    putAllMeetingItemsToTable(ddbTableName, ddb);
-    putAllEmployeeItemsToTable(ddbTableName, ddb);
-    putAllProjectItemsToTable(ddbTableName, ddb);
-    putAllReservationItemsToTable(ddbTableName, ddb);
-    putAllTicketItemsToTable(ddbTableName, ddb);
-    putAllTimecardItemsToTable(ddbTableName, ddb);
+    putAllMeetingItemsToTable(ddbTableName, ddb, partitionKeyPrefix);
+    putAllEmployeeItemsToTable(ddbTableName, ddb, partitionKeyPrefix);
+    putAllProjectItemsToTable(ddbTableName, ddb, partitionKeyPrefix);
+    putAllReservationItemsToTable(ddbTableName, ddb, partitionKeyPrefix);
+    putAllTicketItemsToTable(ddbTableName, ddb, partitionKeyPrefix);
+    putAllTimecardItemsToTable(ddbTableName, ddb, partitionKeyPrefix);
   }
 
   // emeeting.json
   public static void putAllMeetingItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
     final List<AttributeValue> meeting1AttendeeList = new ArrayList<>();
     meeting1AttendeeList.add(
@@ -58,7 +60,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
     meeting1.put(
       "partition_key",
-      AttributeValue.builder().s("meeting1").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "meeting1").build()
     );
     meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     meeting1.put(
@@ -99,7 +101,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting2 = new HashMap<>();
     meeting2.put(
       "partition_key",
-      AttributeValue.builder().s("meeting2").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "meeting2").build()
     );
     meeting2.put("EmployeeID", AttributeValue.builder().s("emp_002").build());
     meeting2.put(
@@ -140,7 +142,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting3 = new HashMap<>();
     meeting3.put(
       "partition_key",
-      AttributeValue.builder().s("meeting3").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "meeting3").build()
     );
     meeting3.put("EmployeeID", AttributeValue.builder().s("emp_003").build());
     meeting3.put(
@@ -181,7 +183,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting4 = new HashMap<>();
     meeting4.put(
       "partition_key",
-      AttributeValue.builder().s("meeting4").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "meeting4").build()
     );
     meeting4.put("EmployeeID", AttributeValue.builder().s("emp_004").build());
     meeting4.put(
@@ -222,7 +224,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting5 = new HashMap<>();
     meeting5.put(
       "partition_key",
-      AttributeValue.builder().s("meeting5").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "meeting5").build()
     );
     meeting5.put("EmployeeID", AttributeValue.builder().s("emp_002").build());
     meeting5.put(
@@ -263,7 +265,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting6 = new HashMap<>();
     meeting6.put(
       "partition_key",
-      AttributeValue.builder().s("meeting6").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "meeting6").build()
     );
     meeting6.put("EmployeeID", AttributeValue.builder().s("emp_003").build());
     meeting6.put(
@@ -293,7 +295,8 @@ public class PutRequests {
   // employee.json
   public static void putAllEmployeeItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
     final HashMap<String, AttributeValue> employee1Location = new HashMap<>();
     employee1Location.put("Building", AttributeValue.builder().s("44").build());
@@ -307,7 +310,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee1 = new HashMap<>();
     employee1.put(
       "partition_key",
-      AttributeValue.builder().s("employee1").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "employee1").build()
     );
     employee1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     employee1.put(
@@ -344,7 +347,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee2 = new HashMap<>();
     employee2.put(
       "partition_key",
-      AttributeValue.builder().s("employee2").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "employee2").build()
     );
     employee2.put("EmployeeID", AttributeValue.builder().s("emp_002").build());
     employee2.put(
@@ -381,7 +384,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee3 = new HashMap<>();
     employee3.put(
       "partition_key",
-      AttributeValue.builder().s("employee3").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "employee3").build()
     );
     employee3.put("EmployeeID", AttributeValue.builder().s("emp_003").build());
     employee3.put(
@@ -415,7 +418,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee4 = new HashMap<>();
     employee4.put(
       "partition_key",
-      AttributeValue.builder().s("employee4").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "employee4").build()
     );
     employee4.put("EmployeeID", AttributeValue.builder().s("emp_004").build());
     employee4.put(
@@ -444,12 +447,13 @@ public class PutRequests {
   // project.json
   public static void putAllProjectItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
     final HashMap<String, AttributeValue> project1 = new HashMap<>();
     project1.put(
       "partition_key",
-      AttributeValue.builder().s("project1").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "project1").build()
     );
     project1.put(
       "ProjectName",
@@ -479,7 +483,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project2 = new HashMap<>();
     project2.put(
       "partition_key",
-      AttributeValue.builder().s("project2").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "project2").build()
     );
     project2.put(
       "ProjectName",
@@ -506,7 +510,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project3 = new HashMap<>();
     project3.put(
       "partition_key",
-      AttributeValue.builder().s("project3").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "project3").build()
     );
     project3.put(
       "ProjectName",
@@ -530,7 +534,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project4 = new HashMap<>();
     project4.put(
       "partition_key",
-      AttributeValue.builder().s("project4").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "project4").build()
     );
     project4.put(
       "ProjectName",
@@ -555,7 +559,8 @@ public class PutRequests {
   // reservation.json
   public static void putAllReservationItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
     final List<AttributeValue> reservation1AttendeeList = new ArrayList<>();
     reservation1AttendeeList.add(
@@ -577,7 +582,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> reservation1 = new HashMap<>();
     reservation1.put(
       "partition_key",
-      AttributeValue.builder().s("reservation1").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "reservation1").build()
     );
     reservation1.put(
       "Location",
@@ -629,7 +634,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> reservation2 = new HashMap<>();
     reservation2.put(
       "partition_key",
-      AttributeValue.builder().s("reservation2").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "reservation2").build()
     );
     reservation2.put(
       "Location",
@@ -662,10 +667,11 @@ public class PutRequests {
   // ticket.json
   public static void putAllTicketItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
     final HashMap<String, AttributeValue> ticket1 = new HashMap<>();
-    ticket1.put("partition_key", AttributeValue.builder().s("ticket1").build());
+    ticket1.put("partition_key", AttributeValue.builder().s(partitionKeyPrefix + "ticket1").build());
     ticket1.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_001").build()
@@ -694,7 +700,7 @@ public class PutRequests {
     );
 
     final HashMap<String, AttributeValue> ticket2 = new HashMap<>();
-    ticket2.put("partition_key", AttributeValue.builder().s("ticket2").build());
+    ticket2.put("partition_key", AttributeValue.builder().s(partitionKeyPrefix + "ticket2").build());
     ticket2.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_001").build()
@@ -723,7 +729,7 @@ public class PutRequests {
     );
 
     final HashMap<String, AttributeValue> ticket3 = new HashMap<>();
-    ticket3.put("partition_key", AttributeValue.builder().s("ticket3").build());
+    ticket3.put("partition_key", AttributeValue.builder().s(partitionKeyPrefix + "ticket3").build());
     ticket3.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_002").build()
@@ -752,7 +758,7 @@ public class PutRequests {
     );
 
     final HashMap<String, AttributeValue> ticket4 = new HashMap<>();
-    ticket4.put("partition_key", AttributeValue.builder().s("ticket4").build());
+    ticket4.put("partition_key", AttributeValue.builder().s(partitionKeyPrefix + "ticket4").build());
     ticket4.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_002").build()
@@ -784,12 +790,13 @@ public class PutRequests {
   // timecard.json
   public static void putAllTimecardItemsToTable(
     String ddbTableName,
-    DynamoDbClient ddb
+    DynamoDbClient ddb,
+    String partitionKeyPrefix
   ) {
     final HashMap<String, AttributeValue> timecard1 = new HashMap<>();
     timecard1.put(
       "partition_key",
-      AttributeValue.builder().s("timecard1").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "timecard1").build()
     );
     timecard1.put(
       "ProjectName",
@@ -813,7 +820,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard2 = new HashMap<>();
     timecard2.put(
       "partition_key",
-      AttributeValue.builder().s("timecard2").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "timecard2").build()
     );
     timecard2.put(
       "ProjectName",
@@ -837,7 +844,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard3 = new HashMap<>();
     timecard3.put(
       "partition_key",
-      AttributeValue.builder().s("timecard3").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "timecard3").build()
     );
     timecard3.put(
       "ProjectName",
@@ -861,7 +868,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard4 = new HashMap<>();
     timecard4.put(
       "partition_key",
-      AttributeValue.builder().s("timecard4").build()
+      AttributeValue.builder().s(partitionKeyPrefix + "timecard4").build()
     );
     timecard4.put(
       "ProjectName",

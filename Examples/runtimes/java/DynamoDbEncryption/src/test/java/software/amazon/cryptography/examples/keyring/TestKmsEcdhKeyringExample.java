@@ -5,10 +5,14 @@ import static software.amazon.cryptography.examples.keyring.KmsEcdhKeyringExampl
 import static software.amazon.cryptography.examples.keyring.KmsEcdhKeyringExample.shouldGetNewPublicKeys;
 import static software.amazon.cryptography.examples.keyring.KmsEcdhKeyringExample.writePublicKeyPemForEccKey;
 
+import java.util.UUID;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestKmsEcdhKeyringExample {
+
+  private static final String partitionKeyValue = "KmsEcdhKeyringExample" + UUID.randomUUID();
+  private static final String sortKeyValue = "0";
 
   @Test
   public void TestKmsEcdhKeyringExampleStatic() {
@@ -31,7 +35,11 @@ public class TestKmsEcdhKeyringExample {
 
     KmsEcdhKeyringExample.KmsEcdhKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,
-      TestUtils.TEST_KMS_ECDH_KEY_ID_P256_SENDER
+      TestUtils.TEST_KMS_ECDH_KEY_ID_P256_SENDER,
+      EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME,
+      EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME,
+      partitionKeyValue,
+      sortKeyValue
     );
   }
 
@@ -43,7 +51,9 @@ public class TestKmsEcdhKeyringExample {
     // to write an item meant for the recipient.
     KmsEcdhKeyringExample.KmsEcdhDiscoveryGetItem(
       TestUtils.TEST_DDB_TABLE_NAME,
-      TestUtils.TEST_KMS_ECDH_KEY_ID_P256_RECIPIENT
+      TestUtils.TEST_KMS_ECDH_KEY_ID_P256_RECIPIENT,
+      partitionKeyValue,
+      sortKeyValue
     );
   }
 }

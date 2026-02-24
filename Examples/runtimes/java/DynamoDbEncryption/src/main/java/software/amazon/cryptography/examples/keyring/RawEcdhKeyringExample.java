@@ -101,7 +101,9 @@ public class RawEcdhKeyringExample {
    */
   public static void RawEcdhKeyringGetItemPutItem(
     String ddbTableName,
-    ECDHCurveSpec curveSpec
+    ECDHCurveSpec curveSpec,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Load key pair from UTF-8 encoded PEM files.
     // You may provide your own PEM files to use here. If you provide this, it MUST
@@ -190,7 +192,7 @@ public class RawEcdhKeyringExample {
       .build();
     IKeyring rawEcdhKeyring = matProv.CreateRawEcdhKeyring(keyringInput);
 
-    PutGetExampleWithKeyring(rawEcdhKeyring, ddbTableName);
+    PutGetExampleWithKeyring(rawEcdhKeyring, ddbTableName, partitionKeyValue, sortKeyValue);
   }
 
   /*
@@ -205,7 +207,9 @@ public class RawEcdhKeyringExample {
    */
   public static void EphemeralRawEcdhKeyringPutItem(
     String ddbTableName,
-    ECDHCurveSpec ecdhCurveSpec
+    ECDHCurveSpec ecdhCurveSpec,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Load public key from UTF-8 encoded PEM files into a DER encoded public key.
     // You may provide your own PEM files to use here. If you provide this, it MUST
@@ -278,7 +282,7 @@ public class RawEcdhKeyringExample {
     // A raw ecdh keyring with Ephemeral configuration cannot decrypt data since the key pair
     // used as the sender is ephemeral. This means that at decrypt time it does not have
     // the private key that corresponds to the public key that is stored on the message.
-    PutExampleWithKeyring(rawEcdhKeyring, ddbTableName);
+    PutExampleWithKeyring(rawEcdhKeyring, ddbTableName, partitionKeyValue, sortKeyValue);
   }
 
   /*
@@ -293,7 +297,9 @@ public class RawEcdhKeyringExample {
    */
   public static void DiscoveryRawEcdhKeyringGetItem(
     String ddbTableName,
-    ECDHCurveSpec ecdhCurveSpec
+    ECDHCurveSpec ecdhCurveSpec,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Load key pair from UTF-8 encoded PEM files.
     // You may provide your own PEM files to use here. If you provide this, it MUST
@@ -344,12 +350,14 @@ public class RawEcdhKeyringExample {
 
     // A raw ecdh keyring with discovery configuration cannot encrypt data since the keyring
     // looks for its configured public key on the message.
-    GetExampleWithKeyring(rawEcdhKeyring, ddbTableName);
+    GetExampleWithKeyring(rawEcdhKeyring, ddbTableName, partitionKeyValue, sortKeyValue);
   }
 
   public static void PutGetExampleWithKeyring(
     IKeyring rawEcdhKeyring,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Configure which attributes are encrypted and/or signed when writing new items.
     // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -438,9 +446,9 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -463,9 +471,9 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -486,7 +494,9 @@ public class RawEcdhKeyringExample {
 
   public static void PutExampleWithKeyring(
     IKeyring rawEcdhKeyring,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Configure which attributes are encrypted and/or signed when writing new items.
     // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -575,9 +585,9 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -597,7 +607,9 @@ public class RawEcdhKeyringExample {
 
   public static void GetExampleWithKeyring(
     IKeyring rawEcdhKeyring,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Configure which attributes are encrypted and/or signed when writing new items.
     // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -685,9 +697,9 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -720,7 +732,7 @@ public class RawEcdhKeyringExample {
     }
     final String ddbTableName = args[0];
 
-    RawEcdhKeyringGetItemPutItem(ddbTableName, ECDHCurveSpec.ECC_NIST_P256);
+    RawEcdhKeyringGetItemPutItem(ddbTableName, ECDHCurveSpec.ECC_NIST_P256, "rawEcdhKeyringItem", "0");
   }
 
   public static boolean shouldGenerateNewEccKeyPairs() {

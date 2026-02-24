@@ -49,7 +49,9 @@ public class ClientSupplierExample {
     String ddbTableName,
     String keyArn,
     List<String> accountIds,
-    List<String> regions
+    List<String> regions,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // 1. Create a single MRK multi-keyring.
     //    This can be either a single-region KMS key or an MRK.
@@ -166,9 +168,9 @@ public class ClientSupplierExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("clientSupplierItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -191,9 +193,9 @@ public class ClientSupplierExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("clientSupplierItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -289,11 +291,11 @@ public class ClientSupplierExample {
       new HashMap<>();
     onlyReplicaKeyKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
     onlyReplicaKeyKeyToGet.put(
       "sort_key",
-      AttributeValue.builder().n("0").build()
+      AttributeValue.builder().n(sortKeyValue).build()
     );
 
     final GetItemRequest onlyReplicaKeyGetRequest = GetItemRequest
@@ -347,6 +349,6 @@ public class ClientSupplierExample {
     ) {
       regions.add(args[i]);
     }
-    ClientSupplierPutItemGetItem(ddbTableName, keyArn, accounts, regions);
+    ClientSupplierPutItemGetItem(ddbTableName, keyArn, accounts, regions, "clientSupplierItem", "0");
   }
 }

@@ -34,7 +34,7 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class ItemEncryptDecryptExample {
 
-  public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
+  public static void PutItemGetItem(String kmsKeyId, String ddbTableName, String partitionKeyValue, String sortKeyValue) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -124,9 +124,9 @@ public class ItemEncryptDecryptExample {
     final Map<String, AttributeValue> originalItem = new HashMap<>();
     originalItem.put(
       "partition_key",
-      AttributeValue.builder().s("ItemEncryptDecryptExample").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    originalItem.put("sort_key", AttributeValue.builder().n("0").build());
+    originalItem.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     originalItem.put(
       "attribute1",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -150,8 +150,8 @@ public class ItemEncryptDecryptExample {
     assert encryptedItem
       .get("partition_key")
       .s()
-      .equals("ItemEncryptDecryptExample");
-    assert encryptedItem.get("sort_key").n().equals("0");
+      .equals(partitionKeyValue);
+    assert encryptedItem.get("sort_key").n().equals(sortKeyValue);
     assert encryptedItem.get("attribute1").b() != null;
 
     // 7. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
@@ -165,8 +165,8 @@ public class ItemEncryptDecryptExample {
     assert decryptedItem
       .get("partition_key")
       .s()
-      .equals("ItemEncryptDecryptExample");
-    assert decryptedItem.get("sort_key").n().equals("0");
+      .equals(partitionKeyValue);
+    assert decryptedItem.get("sort_key").n().equals(sortKeyValue);
     assert decryptedItem.get("attribute1").s().equals("encrypt and sign me!");
   }
 
@@ -178,6 +178,6 @@ public class ItemEncryptDecryptExample {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
-    PutItemGetItem(kmsKeyId, ddbTableName);
+    PutItemGetItem(kmsKeyId, ddbTableName, "ItemEncryptDecryptExample", "0");
   }
 }

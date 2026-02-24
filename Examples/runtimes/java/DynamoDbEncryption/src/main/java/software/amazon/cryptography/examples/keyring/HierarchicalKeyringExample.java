@@ -76,7 +76,9 @@ public class HierarchicalKeyringExample {
     String tenant2BranchKeyId,
     String keyStoreTableName,
     String logicalKeyStoreName,
-    String kmsKeyId
+    String kmsKeyId,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Initial KeyStore Setup: This example requires that you have already
     // created your KeyStore, and have populated it with two new branch keys.
@@ -235,8 +237,8 @@ public class HierarchicalKeyringExample {
     //    based on the code we wrote in the ExampleBranchKeySupplier,
     //    `tenant1BranchKeyId` will be used to encrypt this item.
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("partition_key", AttributeValue.builder().s("tenant1Id").build());
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("partition_key", AttributeValue.builder().s(partitionKeyValue).build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "tenant_sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -262,9 +264,9 @@ public class HierarchicalKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("tenant1Id").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -302,7 +304,9 @@ public class HierarchicalKeyringExample {
       tenant2BranchKeyId,
       keyStoreTableName,
       logicalKeyStoreName,
-      kmsKeyId
+      kmsKeyId,
+      "tenant1Id",
+      "0"
     );
   }
 }

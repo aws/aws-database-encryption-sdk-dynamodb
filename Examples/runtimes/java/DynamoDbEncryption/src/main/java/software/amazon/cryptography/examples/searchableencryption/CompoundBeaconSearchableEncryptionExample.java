@@ -85,7 +85,8 @@ public class CompoundBeaconSearchableEncryptionExample {
     String ddbTableName,
     String branchKeyId,
     String branchKeyWrappingKmsKeyArn,
-    String branchKeyDdbTableName
+    String branchKeyDdbTableName,
+    String workId
   ) {
     // 1. Create Beacons.
     //    These are the same beacons as in the "BasicSearchableEncryptionExample" in this directory.
@@ -286,7 +287,7 @@ public class CompoundBeaconSearchableEncryptionExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "work_id",
-      AttributeValue.builder().s("9ce39272-8068-4efd-a211-cd162ad65d4c").build()
+      AttributeValue.builder().s(workId).build()
     );
     item.put(
       "inspection_date",
@@ -448,7 +449,8 @@ public class CompoundBeaconSearchableEncryptionExample {
       ddbTableName,
       branchKeyId,
       branchKeyWrappingKmsKeyId,
-      branchKeyDdbTableName
+      branchKeyDdbTableName,
+      "9ce39272-8068-4efd-a211-cd162ad65d4c"
     );
   }
 }

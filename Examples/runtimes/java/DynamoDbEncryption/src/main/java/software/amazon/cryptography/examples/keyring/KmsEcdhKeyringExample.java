@@ -111,7 +111,9 @@ public class KmsEcdhKeyringExample {
     String ddbTableName,
     String eccKeyArn,
     String eccPublicKeySenderFileName,
-    String eccPublicKeyRecipientFileName
+    String eccPublicKeyRecipientFileName,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Load UTF-8 encoded public key PEM files as DER encoded bytes.
     // You may provide your own PEM files to use here. If you provide this, it MUST
@@ -174,7 +176,7 @@ public class KmsEcdhKeyringExample {
       createAwsKmsEcdhKeyringInput
     );
 
-    PutGetItemWithKeyring(kmsEcdhKeyring, ddbTableName);
+    PutGetItemWithKeyring(kmsEcdhKeyring, ddbTableName, partitionKeyValue, sortKeyValue);
   }
 
   /*
@@ -200,7 +202,9 @@ public class KmsEcdhKeyringExample {
    */
   public static void KmsEcdhDiscoveryGetItem(
     String ddbTableName,
-    String eccRecipientKeyArn
+    String eccRecipientKeyArn,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Create a KMS ECDH keyring.
     // This keyring uses the KmsPublicKeyDiscovery configuration.
@@ -240,12 +244,14 @@ public class KmsEcdhKeyringExample {
       createAwsKmsEcdhKeyringInput
     );
 
-    GetItemWithKeyring(kmsEcdhKeyring, ddbTableName);
+    GetItemWithKeyring(kmsEcdhKeyring, ddbTableName, partitionKeyValue, sortKeyValue);
   }
 
   private static void GetItemWithKeyring(
     IKeyring kmsEcdhKeyring,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Configure which attributes are encrypted and/or signed when writing new items.
     // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -339,9 +345,9 @@ public class KmsEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -362,7 +368,9 @@ public class KmsEcdhKeyringExample {
 
   private static void PutGetItemWithKeyring(
     IKeyring awsKmsEcdhKeyring,
-    String ddbTableName
+    String ddbTableName,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // Configure which attributes are encrypted and/or signed when writing new items.
     // For each attribute that may exist on the items we plan to write to our DynamoDbTable,
@@ -456,9 +464,9 @@ public class KmsEcdhKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -481,9 +489,9 @@ public class KmsEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -548,7 +556,9 @@ public class KmsEcdhKeyringExample {
       ddbTableName,
       eccKeyArn,
       EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME,
-      EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME
+      EXAMPLE_ECC_PUBLIC_KEY_RECIPIENT_FILENAME,
+      "awsKmsEcdhKeyringItem",
+      "0"
     );
   }
 
@@ -609,7 +619,9 @@ public class KmsEcdhKeyringExample {
       ddbTableName,
       eccKeyArn,
       eccPublicKeySenderFilename,
-      eccPublicKeyRecipientFilename
+      eccPublicKeyRecipientFilename,
+      "awsKmsEcdhKeyringItem",
+      "0"
     );
   }
 

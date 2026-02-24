@@ -65,7 +65,9 @@ public class MultiKeyringExample {
   public static void MultiKeyringGetItemPutItem(
     String ddbTableName,
     String keyArn,
-    ByteBuffer aesKeyBytes
+    ByteBuffer aesKeyBytes,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // 1. Create the raw AES keyring.
     final MaterialProviders matProv = MaterialProviders
@@ -203,9 +205,9 @@ public class MultiKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("multiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -230,9 +232,9 @@ public class MultiKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("multiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -298,11 +300,11 @@ public class MultiKeyringExample {
       new HashMap<>();
     onlyAesKeyringKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("multiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
     onlyAesKeyringKeyToGet.put(
       "sort_key",
-      AttributeValue.builder().n("0").build()
+      AttributeValue.builder().n(sortKeyValue).build()
     );
 
     final GetItemRequest onlyAesKeyringGetRequest = GetItemRequest
@@ -336,7 +338,7 @@ public class MultiKeyringExample {
     // Generate a new AES key
     ByteBuffer aesKeyBytes = generateAesKeyBytes();
 
-    MultiKeyringGetItemPutItem(ddbTableName, keyArn, aesKeyBytes);
+    MultiKeyringGetItemPutItem(ddbTableName, keyArn, aesKeyBytes, "multiKeyringItem", "0");
   }
 
   static ByteBuffer generateAesKeyBytes() {

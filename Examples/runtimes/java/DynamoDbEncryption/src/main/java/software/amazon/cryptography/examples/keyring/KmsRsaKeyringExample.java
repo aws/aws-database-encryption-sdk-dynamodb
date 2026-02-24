@@ -68,7 +68,9 @@ public class KmsRsaKeyringExample {
   public static void KmsRsaKeyringGetItemPutItem(
     String ddbTableName,
     String rsaKeyArn,
-    String rsaPublicKeyFilename
+    String rsaPublicKeyFilename,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // 1. Load UTF-8 encoded public key PEM file.
     //    You may have an RSA public key file already defined.
@@ -201,9 +203,9 @@ public class KmsRsaKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsRsaKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -226,9 +228,9 @@ public class KmsRsaKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsRsaKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -254,7 +256,9 @@ public class KmsRsaKeyringExample {
     KmsRsaKeyringGetItemPutItem(
       ddbTableName,
       rsaKeyArn,
-      DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME
+      DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME,
+      "awsKmsRsaKeyringItem",
+      "0"
     );
   }
 
@@ -280,7 +284,7 @@ public class KmsRsaKeyringExample {
       writePublicKeyPemForRsaKey(rsaKeyArn, rsaPublicKeyFilename);
     }
 
-    KmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename);
+    KmsRsaKeyringGetItemPutItem(ddbTableName, rsaKeyArn, rsaPublicKeyFilename, "awsKmsRsaKeyringItem", "0");
   }
 
   static boolean shouldGetNewPublicKey() {
