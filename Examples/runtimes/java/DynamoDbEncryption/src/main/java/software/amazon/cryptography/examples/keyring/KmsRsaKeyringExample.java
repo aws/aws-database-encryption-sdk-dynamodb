@@ -251,14 +251,16 @@ public class KmsRsaKeyringExample {
 
   public static void KmsRsaKeyringGetItemPutItem(
     String ddbTableName,
-    String rsaKeyArn
+    String rsaKeyArn,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     KmsRsaKeyringGetItemPutItem(
       ddbTableName,
       rsaKeyArn,
       DEFAULT_EXAMPLE_RSA_PUBLIC_KEY_FILENAME,
-      "awsKmsRsaKeyringItem",
-      "0"
+      partitionKeyValue,
+      sortKeyValue
     );
   }
 
