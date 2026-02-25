@@ -52,7 +52,9 @@ public class RawAesKeyringExample {
 
   public static void RawAesKeyringGetItemPutItem(
     String ddbTableName,
-    ByteBuffer aesKeyBytes
+    ByteBuffer aesKeyBytes,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // 1. Create the keyring.
     //    The DynamoDb encryption client uses this to encrypt and decrypt items.
@@ -156,9 +158,9 @@ public class RawAesKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("rawAesKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -181,9 +183,9 @@ public class RawAesKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("rawAesKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -213,7 +215,7 @@ public class RawAesKeyringExample {
     // Generate a new AES key
     ByteBuffer aesKeyBytes = generateAesKeyBytes();
 
-    RawAesKeyringGetItemPutItem(ddbTableName, aesKeyBytes);
+    RawAesKeyringGetItemPutItem(ddbTableName, aesKeyBytes, "rawAesKeyringItem", "0");
   }
 
   static ByteBuffer generateAesKeyBytes() {

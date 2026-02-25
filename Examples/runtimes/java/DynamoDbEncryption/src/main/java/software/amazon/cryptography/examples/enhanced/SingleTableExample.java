@@ -37,7 +37,7 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class SingleTableExample {
 
-  public static void TransactWriteItems(String kmsKeyId, String ddbTableName) {
+  public static void TransactWriteItems(String kmsKeyId, String ddbTableName, String partitionKeyPrefix, int sortKeyValue) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -168,22 +168,22 @@ public class SingleTableExample {
     //    The item will be encrypted client-side according to your
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass item1 = new SimpleClass();
-    item1.setPartitionKey("EnhancedPutGetExample1");
-    item1.setSortKey(0);
+    item1.setPartitionKey(partitionKeyPrefix + "1");
+    item1.setSortKey(sortKeyValue);
     item1.setAttribute1("item1 encrypt and sign me!");
     item1.setAttribute2("item1 sign me!");
     item1.setAttribute3("item1 ignore me!");
 
     final SimpleClass2 item2 = new SimpleClass2();
-    item2.setPartitionKey("EnhancedPutGetExample2");
-    item2.setSortKey(0);
+    item2.setPartitionKey(partitionKeyPrefix + "2");
+    item2.setSortKey(sortKeyValue);
     item2.setAttribute4("item2 encrypt and sign me!");
     item2.setAttribute5("item2 sign me!");
     item2.setAttribute3("item2 ignore me!");
 
     final SimpleClass3 item3 = new SimpleClass3();
-    item3.setPartitionKey("EnhancedPutGetExample3");
-    item3.setSortKey(0);
+    item3.setPartitionKey(partitionKeyPrefix + "3");
+    item3.setSortKey(sortKeyValue);
     item3.setAttribute6("item3 encrypt and sign me!");
     item3.setAttribute2("item3 sign me!");
     item3.setAttribute7("item3 sign and include me!");
@@ -202,16 +202,16 @@ public class SingleTableExample {
     //    The item will be decrypted client-side, and you will get back the
     //    original item.
     final SimpleClass key1 = new SimpleClass();
-    key1.setPartitionKey("EnhancedPutGetExample1");
-    key1.setSortKey(0);
+    key1.setPartitionKey(partitionKeyPrefix + "1");
+    key1.setSortKey(sortKeyValue);
 
     final SimpleClass2 key2 = new SimpleClass2();
-    key2.setPartitionKey("EnhancedPutGetExample2");
-    key2.setSortKey(0);
+    key2.setPartitionKey(partitionKeyPrefix + "2");
+    key2.setSortKey(sortKeyValue);
 
     final SimpleClass3 key3 = new SimpleClass3();
-    key3.setPartitionKey("EnhancedPutGetExample3");
-    key3.setSortKey(0);
+    key3.setPartitionKey(partitionKeyPrefix + "3");
+    key3.setSortKey(sortKeyValue);
 
     final TransactGetItemsEnhancedRequest getRequest =
       TransactGetItemsEnhancedRequest
@@ -240,6 +240,6 @@ public class SingleTableExample {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
-    TransactWriteItems(kmsKeyId, ddbTableName);
+    TransactWriteItems(kmsKeyId, ddbTableName, "EnhancedPutGetExample", 0);
   }
 }

@@ -48,7 +48,7 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class LombokPutGetExample {
 
-  public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
+  public static void PutItemGetItem(String kmsKeyId, String ddbTableName, String partitionKeyValue, int sortKeyValue) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -163,8 +163,8 @@ public class LombokPutGetExample {
     //    configuration above before it is sent to DynamoDb.
     final SimpleViaLombok.SimpleViaLombokBuilder itemBuilder =
       SimpleViaLombok.builder();
-    itemBuilder.partitionKey("LombokPutGetExample");
-    itemBuilder.sortKey(0);
+    itemBuilder.partitionKey(partitionKeyValue);
+    itemBuilder.sortKey(sortKeyValue);
     itemBuilder.attribute1("encrypt and sign me!");
     itemBuilder.attribute2("sign me!");
     itemBuilder.attribute3("ignore me!");
@@ -176,8 +176,8 @@ public class LombokPutGetExample {
     //    original item.
     final Key key = Key
       .builder()
-      .partitionValue("LombokPutGetExample")
-      .sortValue(0)
+      .partitionValue(partitionKeyValue)
+      .sortValue(sortKeyValue)
       .build();
 
     final SimpleViaLombok decrypted =
@@ -252,6 +252,6 @@ public class LombokPutGetExample {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
-    PutItemGetItem(kmsKeyId, ddbTableName);
+    PutItemGetItem(kmsKeyId, ddbTableName, "LombokPutGetExample", 0);
   }
 }

@@ -76,7 +76,7 @@ public class RawRsaKeyringExample {
   private static String EXAMPLE_RSA_PUBLIC_KEY_FILENAME =
     "RawRsaKeyringExamplePublicKey.pem";
 
-  public static void RawRsaKeyringGetItemPutItem(String ddbTableName) {
+  public static void RawRsaKeyringGetItemPutItem(String ddbTableName, String partitionKeyValue, String sortKeyValue) {
     // 1. Load key pair from UTF-8 encoded PEM files.
     //    You may provide your own PEM files to use here.
     //    If you do not, the main method in this class will generate PEM
@@ -210,9 +210,9 @@ public class RawRsaKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("rawRsaKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -235,9 +235,9 @@ public class RawRsaKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("rawRsaKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -272,7 +272,7 @@ public class RawRsaKeyringExample {
       generateRsaKeyPair();
     }
 
-    RawRsaKeyringGetItemPutItem(ddbTableName);
+    RawRsaKeyringGetItemPutItem(ddbTableName, "rawRsaKeyringItem", "0");
   }
 
   static boolean shouldGenerateNewRsaKeyPair() {

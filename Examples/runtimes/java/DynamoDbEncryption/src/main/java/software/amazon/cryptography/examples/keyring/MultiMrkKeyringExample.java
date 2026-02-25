@@ -73,7 +73,9 @@ public class MultiMrkKeyringExample {
     String ddbTableName,
     String mrkKeyArn,
     String keyArn,
-    String mrkReplicaKeyArn
+    String mrkReplicaKeyArn,
+    String partitionKeyValue,
+    String sortKeyValue
   ) {
     // 1. Create a single MRK multi-keyring using the MRK arn and the single-region key arn.
     final MaterialProviders matProv = MaterialProviders
@@ -187,9 +189,9 @@ public class MultiMrkKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -214,9 +216,9 @@ public class MultiMrkKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -296,11 +298,11 @@ public class MultiMrkKeyringExample {
       new HashMap<>();
     onlyReplicaKeyKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
     onlyReplicaKeyKeyToGet.put(
       "sort_key",
-      AttributeValue.builder().n("0").build()
+      AttributeValue.builder().n(sortKeyValue).build()
     );
 
     final GetItemRequest onlyReplicaKeyGetRequest = GetItemRequest
@@ -378,9 +380,9 @@ public class MultiMrkKeyringExample {
     final HashMap<String, AttributeValue> onlySrkKeyToGet = new HashMap<>();
     onlySrkKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(partitionKeyValue).build()
     );
-    onlySrkKeyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    onlySrkKeyToGet.put("sort_key", AttributeValue.builder().n(sortKeyValue).build());
 
     final GetItemRequest onlySrkGetRequest = GetItemRequest
       .builder()
@@ -416,7 +418,9 @@ public class MultiMrkKeyringExample {
       ddbTableName,
       mrkKeyArn,
       srkArn,
-      mrkReplicaKeyArn
+      mrkReplicaKeyArn,
+      "awsKmsMrkMultiKeyringItem",
+      "0"
     );
   }
 }

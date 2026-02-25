@@ -1,5 +1,6 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
+import java.util.UUID;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.CreateKeyStoreKeyExample;
 
@@ -18,11 +19,14 @@ public class TestCompoundBeaconSearchableEncryptionExample {
     // our test fails due to eventual consistency issues.
     Thread.sleep(5000);
 
+    final String workId = UUID.randomUUID().toString();
+
     CompoundBeaconSearchableEncryptionExample.PutItemQueryItemWithCompoundBeacon(
       SearchableEncryptionTestUtils.UNIT_INSPECTION_TEST_DDB_TABLE_NAME,
       keyId,
       SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN,
-      SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME
+      SearchableEncryptionTestUtils.TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME,
+      workId
     );
   }
 }

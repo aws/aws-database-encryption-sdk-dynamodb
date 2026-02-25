@@ -24,33 +24,33 @@ import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 public class QueryRequests {
 
-  public static void runQueries(String ddbTableName, DynamoDbClient ddb) {
-    runQuery1(ddbTableName, ddb);
-    runQuery2(ddbTableName, ddb);
-    runQuery3(ddbTableName, ddb);
-    runQuery4(ddbTableName, ddb);
-    runQuery5(ddbTableName, ddb);
-    runQuery6(ddbTableName, ddb);
-    runQuery7(ddbTableName, ddb);
-    runQuery8(ddbTableName, ddb);
-    runQuery9(ddbTableName, ddb);
-    runQuery10(ddbTableName, ddb);
-    runQuery11(ddbTableName, ddb);
-    runQuery12(ddbTableName, ddb);
-    runQuery13(ddbTableName, ddb);
-    runQuery14(ddbTableName, ddb);
-    runQuery15(ddbTableName, ddb);
-    runQuery16(ddbTableName, ddb);
-    runQuery17(ddbTableName, ddb);
-    runQuery18(ddbTableName, ddb);
-    runQuery19(ddbTableName, ddb);
-    runQuery20(ddbTableName, ddb);
-    runQuery21(ddbTableName, ddb);
-    runQuery22(ddbTableName, ddb);
-    runQuery23(ddbTableName, ddb);
+  public static void runQueries(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
+    runQuery1(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery2(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery3(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery4(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery5(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery6(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery7(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery8(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery9(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery10(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery11(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery12(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery13(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery14(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery15(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery16(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery17(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery18(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery19(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery20(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery21(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery22(ddbTableName, ddb, partitionKeyPrefix);
+    runQuery23(ddbTableName, ddb, partitionKeyPrefix);
   }
 
-  public static void runQuery1(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery1(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 1: Get meetings by date and email
     // Key condition: PK1=email SK1 between(date1, date2)
     // Filter condition: duration > 0
@@ -93,7 +93,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery1 = false;
     for (Map<String, AttributeValue> item : query1Response.items()) {
-      if (item.get("partition_key").s().equals("meeting1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "meeting1")) {
         foundKnownValueItemQuery1 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -106,7 +106,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery1;
   }
 
-  public static void runQuery2(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery2(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 2: Get meetings by date and employeeID
     // Key condition: PK=employeeID SK between(date1, date2)
     // Filter condition: duration > 0
@@ -151,7 +151,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery2 = false;
     for (Map<String, AttributeValue> item : query2Response.items()) {
-      if (item.get("partition_key").s().equals("meeting1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "meeting1")) {
         foundKnownValueItemQuery2 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -164,7 +164,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery2;
   }
 
-  public static void runQuery3(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery3(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 3: Get meetings by date and building/floor/room
     // Key condition: PK=employeeID SK between(date1, date2)
     // Filter condition: SK contains building.floor.room (see NOTE)
@@ -228,7 +228,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery3 = false;
     for (Map<String, AttributeValue> item : query3Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "reservation1")) {
         foundKnownValueItemQuery3 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Building").s().equals("SEA33");
@@ -241,7 +241,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery3;
   }
 
-  public static void runQuery4(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery4(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 4: Get employee data by email
     // Key condition: PK1=email SK1=employee ID
     Map<String, String> query4AttributeNames = new HashMap<>();
@@ -276,7 +276,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery4 = false;
     for (Map<String, AttributeValue> item : query4Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "employee1")) {
         foundKnownValueItemQuery4 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
         assert item.get("Location").m().get("Desk").s().equals("3");
@@ -285,7 +285,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery4;
   }
 
-  public static void runQuery5(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery5(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 5: Get meetings by email
     // Key condition: PK1=email SK1 > 30 days ago
     Map<String, String> query5AttributeNames = new HashMap<>();
@@ -326,7 +326,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery5 = false;
     for (Map<String, AttributeValue> item : query5Response.items()) {
-      if (item.get("partition_key").s().equals("meeting1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "meeting1")) {
         foundKnownValueItemQuery5 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -339,7 +339,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery5;
   }
 
-  public static void runQuery6(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery6(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 6: Get tickets by email
     // Key condition: PK1=email SK1 > 30 days ago
     Map<String, String> query6AttributeNames = new HashMap<>();
@@ -375,7 +375,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery6 = false;
     for (Map<String, AttributeValue> item : query6Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "ticket1")) {
         foundKnownValueItemQuery6 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -383,7 +383,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery6;
   }
 
-  public static void runQuery7(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery7(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 7: Get reservations by email
     // Key condition: PK1=organizeremail SK1 > 30 days ago
     Map<String, String> query7AttributeNames = new HashMap<>();
@@ -420,7 +420,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery7 = false;
     for (Map<String, AttributeValue> item : query7Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "reservation1")) {
         foundKnownValueItemQuery7 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -433,7 +433,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery7;
   }
 
-  public static void runQuery8(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery8(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 8: Get time cards by email
     // Key condition: PK1=employeeemail SK1 > 30 days ago
     Map<String, String> query8AttributeNames = new HashMap<>();
@@ -474,7 +474,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery8 = false;
     for (Map<String, AttributeValue> item : query8Response.items()) {
-      if (item.get("partition_key").s().equals("timecard1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "timecard1")) {
         foundKnownValueItemQuery8 = true;
         assert item.get("ProjectName").s().equals("project_002");
       }
@@ -482,7 +482,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery8;
   }
 
-  public static void runQuery9(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery9(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 9: Get employee info by employee ID
     // Key condition: PK1=employeeID SK starts with "E-"
     Map<String, String> query9AttributeNames = new HashMap<>();
@@ -517,7 +517,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery9 = false;
     for (Map<String, AttributeValue> item : query9Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "employee1")) {
         foundKnownValueItemQuery9 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
       }
@@ -525,7 +525,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery9;
   }
 
-  public static void runQuery10(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery10(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 10: Get employee info by email
     // Key condition: PK1=email
     // Filter condition: SK starts with "E-"
@@ -561,7 +561,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery10 = false;
     for (Map<String, AttributeValue> item : query10Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "employee1")) {
         foundKnownValueItemQuery10 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
       }
@@ -569,7 +569,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery10;
   }
 
-  public static void runQuery11(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery11(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 11: Get ticket history by ticket number
     // Key condition: PK=TicketNumber
     Map<String, String> query11AttributeNames = new HashMap<>();
@@ -600,7 +600,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery11 = false;
     for (Map<String, AttributeValue> item : query11Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "ticket1")) {
         foundKnownValueItemQuery11 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -608,7 +608,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery11;
   }
 
-  public static void runQuery12(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery12(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 12: Get Ticket History by employee email
     // Key condition: PK1=CreatorEmail
     // Filter condition: PK=TicketNumber
@@ -645,7 +645,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery12 = false;
     for (Map<String, AttributeValue> item : query12Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "ticket1")) {
         foundKnownValueItemQuery12 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -653,7 +653,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery12;
   }
 
-  public static void runQuery13(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery13(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 13: Get ticket history by assignee email
     // Key condition: PK=AssigneeEmail
     // Filter condition: PK=ticketNumber
@@ -690,7 +690,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery13 = false;
     for (Map<String, AttributeValue> item : query13Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "ticket1")) {
         foundKnownValueItemQuery13 = true;
         assert item.get("Subject").s().equals("Bad bug");
       }
@@ -698,7 +698,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery13;
   }
 
-  public static void runQuery14(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery14(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 14: Get employees by city.building.floor.desk
     // Key condition: PK3=city SK3 begins_with(building.floor.desk)
     Map<String, String> query14AttributeNames = new HashMap<>();
@@ -745,7 +745,7 @@ public class QueryRequests {
       // Known value test: Assert some properties on one of the items
       boolean foundKnownValueItemQuery14 = false;
       for (Map<String, AttributeValue> item : query14Response.items()) {
-        if (item.get("partition_key").s().equals("employee1")) {
+        if (item.get("partition_key").s().equals(partitionKeyPrefix + "employee1")) {
           foundKnownValueItemQuery14 = true;
           assert item.get("EmployeeID").s().equals("emp_001");
           assert item.get("Location").m().get("Desk").s().equals("3");
@@ -756,7 +756,7 @@ public class QueryRequests {
     }
   }
 
-  public static void runQuery15(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery15(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 15: Get employees by manager email
     // Key condition: PK2 = ManagerEmail
     Map<String, String> query15AttributeNames = new HashMap<>();
@@ -787,7 +787,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery15 = false;
     for (Map<String, AttributeValue> item : query15Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "employee1")) {
         foundKnownValueItemQuery15 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
         assert item.get("Location").m().get("Desk").s().equals("3");
@@ -796,7 +796,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery15;
   }
 
-  public static void runQuery16(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery16(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 16: Get assigned tickets by assignee email
     // Key condition: PK2 = AssigneeEmail
     Map<String, String> query16AttributeNames = new HashMap<>();
@@ -827,7 +827,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery16 = false;
     for (Map<String, AttributeValue> item : query16Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "ticket1")) {
         foundKnownValueItemQuery16 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -835,7 +835,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery16;
   }
 
-  public static void runQuery17(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery17(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 17: Get tickets updated within the last 24 hours
     // Key condition: PK3 = Severity, SK3 > 24 hours ago
     // (For the sake of this example, we will assume
@@ -875,7 +875,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery17 = false;
     for (Map<String, AttributeValue> item : query17Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "ticket1")) {
         foundKnownValueItemQuery17 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -883,7 +883,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery17;
   }
 
-  public static void runQuery18(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery18(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 18: Get projects by status, start and target date
     // Key condition: PK1 = Status, SK1 > StartDate
     // Filter condition: TargetDelivery < TargetDate
@@ -925,7 +925,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery18 = false;
     for (Map<String, AttributeValue> item : query18Response.items()) {
-      if (item.get("partition_key").s().equals("project1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "project1")) {
         foundKnownValueItemQuery18 = true;
         assert item.get("ProjectName").s().equals("project_001");
       }
@@ -933,7 +933,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery18;
   }
 
-  public static void runQuery19(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery19(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 19: Get projects by name
     // Key condition: PK = ProjectName, SK = ProjectName
     Map<String, String> query19AttributeNames = new HashMap<>();
@@ -964,7 +964,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery19 = false;
     for (Map<String, AttributeValue> item : query19Response.items()) {
-      if (item.get("partition_key").s().equals("project1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "project1")) {
         foundKnownValueItemQuery19 = true;
         assert item.get("ProjectName").s().equals("project_001");
       }
@@ -972,7 +972,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery19;
   }
 
-  public static void runQuery20(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery20(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 20: Get Project History by date range (against timecard record)
     // Key condition: PK = ProjectName, SK between(date1, date2)
     Map<String, String> query20AttributeNames = new HashMap<>();
@@ -1014,7 +1014,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery20 = false;
     for (Map<String, AttributeValue> item : query20Response.items()) {
-      if (item.get("partition_key").s().equals("timecard1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "timecard1")) {
         foundKnownValueItemQuery20 = true;
         assert item.get("ProjectName").s().equals("project_002");
       }
@@ -1022,7 +1022,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery20;
   }
 
-  public static void runQuery21(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery21(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 21: Get Project History by role
     // Key condition: PK = ProjectName
     // Filter condition: role=rolename
@@ -1059,7 +1059,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery21 = false;
     for (Map<String, AttributeValue> item : query21Response.items()) {
-      if (item.get("partition_key").s().equals("timecard1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "timecard1")) {
         foundKnownValueItemQuery21 = true;
         assert item.get("ProjectName").s().equals("project_002");
       }
@@ -1067,7 +1067,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery21;
   }
 
-  public static void runQuery22(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery22(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 22: Get reservations by building ID
     // Key condition: PK = Building ID
     Map<String, String> query22AttributeNames = new HashMap<>();
@@ -1098,7 +1098,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery22 = false;
     for (Map<String, AttributeValue> item : query22Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "reservation1")) {
         foundKnownValueItemQuery22 = true;
         assert item.get("Subject").s().equals("Scan beacons");
       }
@@ -1106,7 +1106,7 @@ public class QueryRequests {
     assert foundKnownValueItemQuery22;
   }
 
-  public static void runQuery23(String ddbTableName, DynamoDbClient ddb) {
+  public static void runQuery23(String ddbTableName, DynamoDbClient ddb, String partitionKeyPrefix) {
     // Query 23: Get reservations by building ID and time range
     // Key condition: PK = Building ID, SK between(date1, date2)
     // Filter condition: Duration > 0
@@ -1155,7 +1155,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery23 = false;
     for (Map<String, AttributeValue> item : query23Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals(partitionKeyPrefix + "reservation1")) {
         foundKnownValueItemQuery23 = true;
         assert item.get("Subject").s().equals("Scan beacons");
       }

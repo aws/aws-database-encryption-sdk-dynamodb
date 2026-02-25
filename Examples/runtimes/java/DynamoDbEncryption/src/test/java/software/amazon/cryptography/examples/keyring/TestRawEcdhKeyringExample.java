@@ -2,6 +2,7 @@ package software.amazon.cryptography.examples.keyring;
 
 import java.nio.ByteBuffer;
 import java.security.spec.ECGenParameterSpec;
+import java.util.UUID;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 import software.amazon.cryptography.primitives.model.ECDHCurveSpec;
@@ -20,11 +21,16 @@ public class TestRawEcdhKeyringExample {
       RawEcdhKeyringExample.generateEccKeyPairs();
     }
 
+    String partitionKeyValue = "RawEcdhKeyringExample" + UUID.randomUUID();
+    String sortKeyValue = "0";
+
     // Part of using these keyrings is knowing which curve the keys used in the key agreement
     // lie on. The keyring will fail if the keys do not lie on the configured curve.
     RawEcdhKeyringExample.RawEcdhKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,
-      ECDHCurveSpec.ECC_NIST_P256
+      ECDHCurveSpec.ECC_NIST_P256,
+      partitionKeyValue,
+      sortKeyValue
     );
   }
 
@@ -39,11 +45,16 @@ public class TestRawEcdhKeyringExample {
       RawEcdhKeyringExample.generateEccKeyPairs();
     }
 
+    String partitionKeyValue = "RawEcdhKeyringExample" + UUID.randomUUID();
+    String sortKeyValue = "0";
+
     // Part of using these keyrings is knowing which curve the keys used in the key agreement
     // lie on. The keyring will fail if the keys do not lie on the configured curve.
     RawEcdhKeyringExample.EphemeralRawEcdhKeyringPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,
-      ECDHCurveSpec.ECC_NIST_P256
+      ECDHCurveSpec.ECC_NIST_P256,
+      partitionKeyValue,
+      sortKeyValue
     );
   }
 
@@ -59,6 +70,9 @@ public class TestRawEcdhKeyringExample {
       RawEcdhKeyringExample.generateEccKeyPairs();
     }
 
+    String partitionKeyValue = "RawEcdhKeyringExample" + UUID.randomUUID();
+    String sortKeyValue = "0";
+
     // The discovery configuration is not allowed to encrypt
     // To understand this example best, we will write a record with the ephemeral configuration
     // in the previous example. This means that the recipient public key configured on
@@ -69,7 +83,9 @@ public class TestRawEcdhKeyringExample {
     // The recipient will be able to decrypt the message
     RawEcdhKeyringExample.EphemeralRawEcdhKeyringPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,
-      ECDHCurveSpec.ECC_NIST_P256
+      ECDHCurveSpec.ECC_NIST_P256,
+      partitionKeyValue,
+      sortKeyValue
     );
 
     // In this call we are reading a record that was written with the recipient's public key.
@@ -77,7 +93,9 @@ public class TestRawEcdhKeyringExample {
     // calculate the appropriate shared secret to successfully decrypt the message.
     RawEcdhKeyringExample.DiscoveryRawEcdhKeyringGetItem(
       TestUtils.TEST_DDB_TABLE_NAME,
-      ECDHCurveSpec.ECC_NIST_P256
+      ECDHCurveSpec.ECC_NIST_P256,
+      partitionKeyValue,
+      sortKeyValue
     );
   }
 }

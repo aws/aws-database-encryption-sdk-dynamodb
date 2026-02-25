@@ -38,7 +38,7 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 public class EnhancedPutGetExample {
 
-  public static void PutItemGetItem(String kmsKeyId, String ddbTableName) {
+  public static void PutItemGetItem(String kmsKeyId, String ddbTableName, String partitionKeyValue, int sortKeyValue) {
     // 1. Create a Keyring. This Keyring will be responsible for protecting the data keys that protect your data.
     //    For this example, we will create a AWS KMS Keyring with the AWS KMS Key we want to use.
     //    We will use the `CreateMrkMultiKeyring` method to create this keyring,
@@ -153,8 +153,8 @@ public class EnhancedPutGetExample {
     //    The item will be encrypted client-side according to your
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass4 item = new SimpleClass4();
-    item.setPartitionKey("EnhancedPutGetExample");
-    item.setSortKey(0);
+    item.setPartitionKey(partitionKeyValue);
+    item.setSortKey(sortKeyValue);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");
     item.setAttribute3("ignore me!");
@@ -167,8 +167,8 @@ public class EnhancedPutGetExample {
     //    original item.
     final Key key = Key
       .builder()
-      .partitionValue("EnhancedPutGetExample")
-      .sortValue(0)
+      .partitionValue(partitionKeyValue)
+      .sortValue(sortKeyValue)
       .build();
 
     final SimpleClass4 result =
@@ -181,7 +181,7 @@ public class EnhancedPutGetExample {
 
     // retrieve the same record via a Query
     PageIterable<SimpleClass4> items = table.query(
-      QueryConditional.keyEqualTo(k -> k.partitionValue("EnhancedPutGetExample")
+      QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKeyValue)
       )
     );
     List<SimpleClass4> itemList = new ArrayList<SimpleClass4>();
@@ -199,6 +199,6 @@ public class EnhancedPutGetExample {
     }
     final String kmsKeyId = args[0];
     final String ddbTableName = args[1];
-    PutItemGetItem(kmsKeyId, ddbTableName);
+    PutItemGetItem(kmsKeyId, ddbTableName, "EnhancedPutGetExample", 0);
   }
 }

@@ -66,7 +66,8 @@ public class BasicSearchableEncryptionExample {
     String ddbTableName,
     String branchKeyId,
     String branchKeyWrappingKmsKeyArn,
-    String branchKeyDdbTableName
+    String branchKeyDdbTableName,
+    String workId
   ) {
     // 1. Configure Beacons.
     //    The beacon name must be the name of a table attribute that will be encrypted.
@@ -318,7 +319,7 @@ public class BasicSearchableEncryptionExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "work_id",
-      AttributeValue.builder().s("1313ba89-5661-41eb-ba6c-cb1b4cb67b2d").build()
+      AttributeValue.builder().s(workId).build()
     );
     item.put(
       "inspection_date",
@@ -416,7 +417,8 @@ public class BasicSearchableEncryptionExample {
       ddbTableName,
       branchKeyId,
       branchKeyWrappingKmsKeyArn,
-      branchKeyDdbTableName
+      branchKeyDdbTableName,
+      "1313ba89-5661-41eb-ba6c-cb1b4cb67b2d"
     );
   }
 }

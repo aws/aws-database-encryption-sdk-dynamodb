@@ -134,7 +134,8 @@ public class VirtualBeaconSearchableEncryptionExample {
     String ddbTableName,
     String branchKeyId,
     String branchKeyWrappingKmsKeyArn,
-    String branchKeyDdbTableName
+    String branchKeyDdbTableName,
+    String customerId
   ) {
     // 1. Construct a length-1 prefix virtual transform.
     //    `hasTestResult` is a binary attribute, containing either `true` or `false`.
@@ -366,7 +367,7 @@ public class VirtualBeaconSearchableEncryptionExample {
       new HashMap<>();
     itemWithHasTestResult.put(
       "customer_id",
-      AttributeValue.builder().s("ABC-123").build()
+      AttributeValue.builder().s(customerId + "-1").build()
     );
     itemWithHasTestResult.put(
       "create_time",
@@ -386,7 +387,7 @@ public class VirtualBeaconSearchableEncryptionExample {
       new HashMap<>();
     itemWithNoHasTestResult.put(
       "customer_id",
-      AttributeValue.builder().s("DEF-456").build()
+      AttributeValue.builder().s(customerId + "-2").build()
     );
     itemWithNoHasTestResult.put(
       "create_time",
@@ -561,7 +562,8 @@ public class VirtualBeaconSearchableEncryptionExample {
       ddbTableName,
       branchKeyId,
       branchKeyWrappingKmsKeyArn,
-      branchKeyDdbTableName
+      branchKeyDdbTableName,
+      "virtual-beacon-test"
     );
   }
 }
