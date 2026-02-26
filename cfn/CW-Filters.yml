@@ -603,6 +603,125 @@ Resources:
             - Key: Language
               Value: "$.result.language"
 
+  # Filter 1: Memory Efficiency Ratio - JavaDDBEC
+  JavaDDBECMemoryEfficiencyRatioFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java-ddbec-native" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: MemoryEfficiencyRatio
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.memory_efficiency_ratio"
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 2: Memory Usage 50MB - JavaDDBEC
+  JavaDDBECMemoryUsage50MBFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java-ddbec-native" && $.result.test_name = "memory" }'
+      MetricTransformations:
+        - MetricName: PeakMemoryMB
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.peak_memory_mb"
+          Unit: Megabytes
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 3: DataSize 52MB P50 Latency - JavaDDBEC
+  JavaDDBECDataSize52MBP50LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "java-ddbec-native" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P50Latency
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.p50_latency"
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 4: DataSize 52MB P95 Latency - JavaDDBEC
+  JavaDDBECDataSize52MBP95LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "java-ddbec-native" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P95Latency
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.p95_latency"
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 5: DataSize 52MB P99 Latency - JavaDDBEC
+  JavaDDBECDataSize52MBP99LatencyFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.metadata.language = "java-ddbec-native" && $.result.test_name = "throughput" }'
+      MetricTransformations:
+        - MetricName: P99Latency
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.p99_latency"
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 6: Concurrency P50 - JavaDDBEC
+  JavaDDBECConcurrencyP50Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java-ddbec-native" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP50Latency
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.p50_latency"
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 7: Concurrency P95 - JavaDDBEC
+  JavaDDBECConcurrencyP95Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java-ddbec-native" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP95Latency
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.p95_latency"
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
+  # Filter 8: Concurrency P99 - JavaDDBEC
+  JavaDDBECConcurrencyP99Filter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LogGroupName
+      FilterPattern: '{ $.result.language = "java-ddbec-native" && $.result.test_name = "concurrent" }'
+      MetricTransformations:
+        - MetricName: ConcurrencyP99Latency
+          MetricNamespace: JavaDDBECPerformanceBenchmarks
+          MetricValue: "$.result.p99_latency"
+          Unit: Milliseconds
+          Dimensions:
+            - Key: Language
+              Value: "$.result.language"
+
 Outputs:
   LogGroupName:
     Description: "CloudWatch Log Group Name"
@@ -612,8 +731,8 @@ Outputs:
 
   TotalFiltersCreated:
     Description: "Total number of metric filters created"
-    Value: "40"
+    Value: "48"
 
   MetricNamespaces:
     Description: "CloudWatch Metrics Namespaces by Language"
-    Value: "JavaDBESDKPerformanceBenchmarks, NetDBESDKPerformanceBenchmarks, PythonDBESDKPerformanceBenchmarks, GoDBESDKPerformanceBenchmarks, RustDBESDKPerformanceBenchmarks"
+    Value: "JavaDBESDKPerformanceBenchmarks, NetDBESDKPerformanceBenchmarks, PythonDBESDKPerformanceBenchmarks, GoDBESDKPerformanceBenchmarks, RustDBESDKPerformanceBenchmarks, JavaDDBECPerformanceBenchmarks"
