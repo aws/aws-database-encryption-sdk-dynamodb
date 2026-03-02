@@ -20,9 +20,9 @@ public class TestHierarchicalKeyringExample {
       TestUtils.TEST_KEYSTORE_KMS_KEY_ID
     );
 
-    // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
+    // Key creation is eventually consistent, so wait 8 seconds to decrease the likelihood
     // our test fails due to eventual consistency issues.
-    Thread.sleep(5000);
+    Thread.sleep(8000);
 
     HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,

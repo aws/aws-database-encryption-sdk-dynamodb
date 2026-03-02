@@ -62,10 +62,10 @@ pub async fn main() -> Result<(), BoxError2> {
 
     let key_id = create_keystore_key::keystore_create_key().await?;
     let key_id2 = create_keystore_key::keystore_create_key().await?;
-    // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
+    // Key creation is eventually consistent, so wait 8 seconds to decrease the likelihood
     // our test fails due to eventual consistency issues.
-    println!("Key Store Keys created. Waiting 5 seconds for consistency.");
-    std::thread::sleep(std::time::Duration::from_secs(5));
+    println!("Key Store Keys created. Waiting 8 seconds for consistency.");
+    std::thread::sleep(std::time::Duration::from_secs(8));
 
     keyring::hierarchical_keyring::put_item_get_item(&key_id, &key_id2).await?;
 
