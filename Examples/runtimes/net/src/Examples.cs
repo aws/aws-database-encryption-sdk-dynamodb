@@ -28,9 +28,9 @@ namespace Examples
 
             var keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey();
             var keyId2 = CreateKeyStoreKeyExample.KeyStoreCreateKey();
-            // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
+            // Key creation is eventually consistent, so wait 8 seconds to decrease the likelihood
             // our test fails due to eventual consistency issues.
-            Thread.Sleep(5000);
+            Thread.Sleep(8000);
 
             await HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(keyId, keyId2);
             await SharedCacheAcrossHierarchicalKeyringsExample.SharedCacheAcrossHierarchicalKeyringsGetItemPutItem(keyId);

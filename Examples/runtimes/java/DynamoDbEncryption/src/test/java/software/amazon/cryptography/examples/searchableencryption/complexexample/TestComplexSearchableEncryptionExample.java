@@ -15,9 +15,9 @@ public class TestComplexSearchableEncryptionExample {
       SearchableEncryptionTestUtils.TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN
     );
 
-    // Key creation is eventually consistent, so wait 5 seconds to decrease the likelihood
+    // Key creation is eventually consistent, so wait 8 seconds to decrease the likelihood
     // our test fails due to eventual consistency issues.
-    Thread.sleep(5000);
+    Thread.sleep(8000);
 
     ComplexSearchableEncryptionExample.runExample(
       ComplexSearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,
