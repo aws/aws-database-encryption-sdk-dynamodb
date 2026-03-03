@@ -17,23 +17,25 @@ package software.amazon.cryptools.dynamodbencryptionclientsdk2.internal;
 import java.security.SecureRandom;
 
 public class Utils {
-    private static final ThreadLocal<SecureRandom> RND = ThreadLocal.withInitial(() -> {
-        final SecureRandom result = new SecureRandom();
-        result.nextBoolean(); // Force seeding
-        return result;
+
+  private static final ThreadLocal<SecureRandom> RND =
+    ThreadLocal.withInitial(() -> {
+      final SecureRandom result = new SecureRandom();
+      result.nextBoolean(); // Force seeding
+      return result;
     });
 
-    private Utils() {
-        // Prevent instantiation
-    }
+  private Utils() {
+    // Prevent instantiation
+  }
 
-    public static SecureRandom getRng() {
-        return RND.get();
-    }
+  public static SecureRandom getRng() {
+    return RND.get();
+  }
 
-    public static byte[] getRandom(int len) {
-        final byte[] result = new byte[len];
-        getRng().nextBytes(result);
-        return result;
-    }
+  public static byte[] getRandom(int len) {
+    final byte[] result = new byte[len];
+    getRng().nextBytes(result);
+    return result;
+  }
 }

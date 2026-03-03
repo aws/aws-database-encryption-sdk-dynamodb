@@ -17,8 +17,8 @@ package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materi
 import java.util.Map;
 
 /**
- * @author Greg Rubin 
+ * @author Greg Rubin
  */
 public interface CryptographicMaterials {
-    Map<String, String> getMaterialDescription();
+  Map<String, String> getMaterialDescription();
 }

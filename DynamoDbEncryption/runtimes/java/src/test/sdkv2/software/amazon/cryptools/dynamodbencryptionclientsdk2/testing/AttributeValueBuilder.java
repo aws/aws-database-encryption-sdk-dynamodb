@@ -16,7 +16,6 @@ package software.amazon.cryptools.dynamodbencryptionclientsdk2.testing;
 
 import java.util.List;
 import java.util.Map;
-
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -25,43 +24,44 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * chain.
  */
 public final class AttributeValueBuilder {
-    private AttributeValueBuilder() {
-        // Static helper class
-    }
 
-    public static AttributeValue ofS(String value) {
-        return AttributeValue.builder().s(value).build();
-    }
+  private AttributeValueBuilder() {
+    // Static helper class
+  }
 
-    public static AttributeValue ofN(String value) {
-        return AttributeValue.builder().n(value).build();
-    }
+  public static AttributeValue ofS(String value) {
+    return AttributeValue.builder().s(value).build();
+  }
 
-    public static AttributeValue ofB(byte [] value) {
-        return AttributeValue.builder().b(SdkBytes.fromByteArray(value)).build();
-    }
+  public static AttributeValue ofN(String value) {
+    return AttributeValue.builder().n(value).build();
+  }
 
-    public static AttributeValue ofBool(Boolean value) {
-        return AttributeValue.builder().bool(value).build();
-    }
+  public static AttributeValue ofB(byte[] value) {
+    return AttributeValue.builder().b(SdkBytes.fromByteArray(value)).build();
+  }
 
-    public static AttributeValue ofNull() {
-        return AttributeValue.builder().nul(true).build();
-    }
+  public static AttributeValue ofBool(Boolean value) {
+    return AttributeValue.builder().bool(value).build();
+  }
 
-    public static AttributeValue ofL(List<AttributeValue> values) {
-        return AttributeValue.builder().l(values).build();
-    }
+  public static AttributeValue ofNull() {
+    return AttributeValue.builder().nul(true).build();
+  }
 
-    public static AttributeValue ofL(AttributeValue ...values) {
-        return AttributeValue.builder().l(values).build();
-    }
+  public static AttributeValue ofL(List<AttributeValue> values) {
+    return AttributeValue.builder().l(values).build();
+  }
 
-    public static AttributeValue ofM(Map<String, AttributeValue> valueMap) {
-        return AttributeValue.builder().m(valueMap).build();
-    }
+  public static AttributeValue ofL(AttributeValue... values) {
+    return AttributeValue.builder().l(values).build();
+  }
 
-    public static AttributeValue ofSS(String ...values) {
-        return AttributeValue.builder().ss(values).build();
-    }
+  public static AttributeValue ofM(Map<String, AttributeValue> valueMap) {
+    return AttributeValue.builder().m(valueMap).build();
+  }
+
+  public static AttributeValue ofSS(String... values) {
+    return AttributeValue.builder().ss(values).build();
+  }
 }

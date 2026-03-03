@@ -13,7 +13,7 @@
 package software.amazon.cryptools.dynamodbencryptionclientsdk2.internal;
 
 interface MsClock {
-    MsClock WALLCLOCK = System::nanoTime;
+  MsClock WALLCLOCK = System::nanoTime;
 
-    public long timestampNano();
+  public long timestampNano();
 }

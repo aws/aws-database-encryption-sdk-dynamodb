@@ -15,9 +15,9 @@
 package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption;
 
 /**
- * @author Greg Rubin 
+ * @author Greg Rubin
  */
 public enum EncryptionFlags {
-    ENCRYPT,
-    SIGN
+  ENCRYPT,
+  SIGN,
 }

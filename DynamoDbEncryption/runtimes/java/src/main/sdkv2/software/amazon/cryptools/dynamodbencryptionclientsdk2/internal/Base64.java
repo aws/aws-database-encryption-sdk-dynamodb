@@ -20,29 +20,30 @@ import static java.util.Base64.*;
  * A class for decoding Base64 strings and encoding bytes as Base64 strings.
  */
 public class Base64 {
-    private static final Decoder DECODER = getMimeDecoder();
-    private static final Encoder ENCODER = getEncoder();
 
-    private Base64() { }
+  private static final Decoder DECODER = getMimeDecoder();
+  private static final Encoder ENCODER = getEncoder();
 
-    /**
-     * Encode the bytes as a Base64 string.
-     * <p>
-     * See the Basic encoder in {@link java.util.Base64}
-     */
-    public static String encodeToString(byte[] bytes) {
-        return ENCODER.encodeToString(bytes);
+  private Base64() {}
+
+  /**
+   * Encode the bytes as a Base64 string.
+   * <p>
+   * See the Basic encoder in {@link java.util.Base64}
+   */
+  public static String encodeToString(byte[] bytes) {
+    return ENCODER.encodeToString(bytes);
+  }
+
+  /**
+   * Decode the Base64 string as bytes, ignoring illegal characters.
+   * <p>
+   * See the Mime Decoder in {@link java.util.Base64}
+   */
+  public static byte[] decode(String str) {
+    if (str == null) {
+      return null;
     }
-
-    /**
-     * Decode the Base64 string as bytes, ignoring illegal characters.
-     * <p>
-     * See the Mime Decoder in {@link java.util.Base64}
-     */
-    public static byte[] decode(String str) {
-        if(str == null) {
-            return null;
-        }
-        return DECODER.decode(str);
-    }
+    return DECODER.decode(str);
+  }
 }
