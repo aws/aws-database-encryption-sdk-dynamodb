@@ -109,13 +109,24 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
         final String providedEncAlg = materialDescription.get(CONTENT_KEY_ALGORITHM);
         final String providedSigAlg = materialDescription.get(SIGNING_KEY_ALGORITHM);
 
+        final String envelopeKey = materialDescription.get(ENVELOPE_KEY);
+
+        // DDBEC with SDK v1 does not do this check and returns NPE
+        // DDBEC with SDK v2 does not return NPE but return DynamoDbEncryptionException
+        if (envelopeKey == null) {
+            throw new DynamoDbEncryptionException(
+                "Missing " + ENVELOPE_KEY + " in material description. " +
+                "This item may have been encrypted with a different encryption format."
+            );
+        }
+
         ec.put("*" + CONTENT_KEY_ALGORITHM + "*", providedEncAlg);
         ec.put("*" + SIGNING_KEY_ALGORITHM + "*", providedSigAlg);
 
         populateKmsEcFromEc(context, ec);
 
         DecryptRequest.Builder request = DecryptRequest.builder();
-        request.ciphertextBlob(SdkBytes.fromByteArray(Base64.decode(materialDescription.get(ENVELOPE_KEY))));
+        request.ciphertextBlob(SdkBytes.fromByteArray(Base64.decode(envelopeKey)));
         request.encryptionContext(ec);
         final DecryptResponse decryptResponse = decrypt(request.build(), context);
         validateEncryptionKeyId(decryptResponse.keyId(), context);
