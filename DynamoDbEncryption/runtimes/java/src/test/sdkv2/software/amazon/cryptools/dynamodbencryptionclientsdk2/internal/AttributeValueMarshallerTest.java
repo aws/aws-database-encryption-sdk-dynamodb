@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.internal;
+package com.amazonaws.services.dynamodbv2.internal;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -24,8 +24,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.AttributeValueMarshaller.marshall;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.AttributeValueMarshaller.unmarshall;
+import static com.amazonaws.services.dynamodbv2.internal.AttributeValueMarshaller.marshall;
+import static com.amazonaws.services.dynamodbv2.internal.AttributeValueMarshaller.unmarshall;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.AttributeValueBuilder;
+import com.amazonaws.services.dynamodbv2.testing.AttributeValueBuilder;
 
 public class AttributeValueMarshallerTest {
 

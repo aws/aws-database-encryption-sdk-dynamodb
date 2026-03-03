@@ -12,17 +12,17 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers;
+package com.amazonaws.services.dynamodbv2.encryption.providers;
 
 import java.security.KeyPair;
 import java.util.Collections;
 import java.util.Map;
 import javax.crypto.SecretKey;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.CryptographicMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.SymmetricRawMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.materials.CryptographicMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.SymmetricRawMaterials;
 
 /**
  * A provider which always returns the same provided symmetric

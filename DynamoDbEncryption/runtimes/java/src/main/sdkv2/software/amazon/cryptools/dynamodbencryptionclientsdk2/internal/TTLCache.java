@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.internal;
+package com.amazonaws.services.dynamodbv2.internal;
 
 import io.netty.util.internal.ObjectUtil;
 import java.util.concurrent.TimeUnit;

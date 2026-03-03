@@ -10,7 +10,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers;
+package com.amazonaws.services.dynamodbv2.encryption.providers;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -38,12 +38,12 @@ import software.amazon.awssdk.services.kms.model.DecryptRequest;
 import software.amazon.awssdk.services.kms.model.DecryptResponse;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.WrappedRawMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Base64;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.FakeKMS;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.WrappedRawMaterials;
+import com.amazonaws.services.dynamodbv2.internal.Base64;
+import com.amazonaws.services.dynamodbv2.testing.FakeKMS;
 
 public class DirectKmsMaterialsProviderTest {
 

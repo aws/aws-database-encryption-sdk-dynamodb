@@ -1,15 +1,15 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers;
+package com.amazonaws.services.dynamodbv2.encryption.providers;
 
 import io.netty.util.internal.ObjectUtil;
 import java.util.concurrent.TimeUnit;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.store.ProviderStore;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.TTLCache;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.TTLCache.EntryLoader;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.providers.store.ProviderStore;
+import com.amazonaws.services.dynamodbv2.internal.TTLCache;
+import com.amazonaws.services.dynamodbv2.internal.TTLCache.EntryLoader;
 
 /**
  * This meta-Provider encrypts data with the most recent version of keying materials from a {@link

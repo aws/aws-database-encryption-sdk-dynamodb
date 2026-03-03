@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption;
+package com.amazonaws.services.dynamodbv2.encryption;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.testng.AssertJUnit.assertEquals;
@@ -38,11 +38,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.SymmetricStaticProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.AttrMatcher;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.TestDelegatedKey;
+import com.amazonaws.services.dynamodbv2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.SymmetricStaticProvider;
+import com.amazonaws.services.dynamodbv2.internal.Utils;
+import com.amazonaws.services.dynamodbv2.testing.AttrMatcher;
+import com.amazonaws.services.dynamodbv2.testing.TestDelegatedKey;
 
 public class DelegatedEncryptionTest {
 

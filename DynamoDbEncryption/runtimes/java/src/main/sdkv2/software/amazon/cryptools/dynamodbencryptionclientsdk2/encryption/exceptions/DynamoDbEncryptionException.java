@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions;
+package com.amazonaws.services.dynamodbv2.encryption.exceptions;
 
 /**
  * Generic exception thrown for any problem the DynamoDB encryption client has performing tasks

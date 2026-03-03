@@ -12,11 +12,11 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers;
+package com.amazonaws.services.dynamodbv2.encryption.providers;
 
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.WrappedRawMaterials.CONTENT_KEY_ALGORITHM;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.WrappedRawMaterials.ENVELOPE_KEY;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.WrappedRawMaterials.KEY_WRAPPING_ALGORITHM;
+import static com.amazonaws.services.dynamodbv2.encryption.materials.WrappedRawMaterials.CONTENT_KEY_ALGORITHM;
+import static com.amazonaws.services.dynamodbv2.encryption.materials.WrappedRawMaterials.ENVELOPE_KEY;
+import static com.amazonaws.services.dynamodbv2.encryption.materials.WrappedRawMaterials.KEY_WRAPPING_ALGORITHM;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -31,14 +31,14 @@ import software.amazon.awssdk.services.kms.model.DecryptRequest;
 import software.amazon.awssdk.services.kms.model.DecryptResponse;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions.DynamoDbEncryptionException;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.SymmetricRawMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.WrappedRawMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Base64;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Hkdf;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.exceptions.DynamoDbEncryptionException;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.SymmetricRawMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.WrappedRawMaterials;
+import com.amazonaws.services.dynamodbv2.internal.Base64;
+import com.amazonaws.services.dynamodbv2.internal.Hkdf;
 
 /**
  * Generates a unique data key for each record in DynamoDB and protects that key

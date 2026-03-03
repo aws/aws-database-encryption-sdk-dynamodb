@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers;
+package com.amazonaws.services.dynamodbv2.encryption.providers;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -31,12 +31,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions.DynamoDbEncryptionException;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.AsymmetricRawMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.SymmetricRawMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.exceptions.DynamoDbEncryptionException;
+import com.amazonaws.services.dynamodbv2.encryption.materials.AsymmetricRawMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.SymmetricRawMaterials;
 
 /**
  * @author Greg Rubin

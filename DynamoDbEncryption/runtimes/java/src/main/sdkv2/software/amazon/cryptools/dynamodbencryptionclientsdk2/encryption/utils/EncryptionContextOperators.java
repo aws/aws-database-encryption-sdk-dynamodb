@@ -12,11 +12,11 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.utils;
+package com.amazonaws.services.dynamodbv2.encryption.utils;
 
 import java.util.Map;
 import java.util.function.UnaryOperator;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
 
 /**
  * Implementations of common operators for overriding the EncryptionContext

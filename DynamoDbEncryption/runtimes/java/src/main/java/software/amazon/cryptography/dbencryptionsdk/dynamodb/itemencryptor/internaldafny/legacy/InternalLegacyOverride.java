@@ -221,11 +221,11 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
         );
     } else if (
       maybeEncryptor instanceof
-      software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor
+      com.amazonaws.services.dynamodbv2.encryption.DynamoDBEncryptor
     ) {
       encryptorAdapter =
         new V2EncryptorAdapter(
-          (software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor) maybeEncryptor,
+          (com.amazonaws.services.dynamodbv2.encryption.DynamoDBEncryptor) maybeEncryptor,
           convertActionsV1ToV2(maybeActions.value()),
           convertEncryptionContextV1ToV2(maybeEncryptionContext.value())
         );
@@ -265,7 +265,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
       maybe instanceof
         com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor ||
       maybe instanceof
-        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor
+        com.amazonaws.services.dynamodbv2.encryption.DynamoDBEncryptor
     );
   }
 
@@ -273,22 +273,22 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   private static Map<
     String,
     Set<
-      software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags
+      com.amazonaws.services.dynamodbv2.encryption.EncryptionFlags
     >
   > convertActionsV1ToV2(Map<String, Set<EncryptionFlags>> v1Actions) {
     Map<
       String,
       Set<
-        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags
+        com.amazonaws.services.dynamodbv2.encryption.EncryptionFlags
       >
     > v2Actions = new HashMap<>();
     for (Map.Entry<String, Set<EncryptionFlags>> entry : v1Actions.entrySet()) {
       Set<
-        software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags
+        com.amazonaws.services.dynamodbv2.encryption.EncryptionFlags
       > v2Flags = new HashSet<>();
       for (EncryptionFlags v1Flag : entry.getValue()) {
         v2Flags.add(
-          software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags.valueOf(
+          com.amazonaws.services.dynamodbv2.encryption.EncryptionFlags.valueOf(
             v1Flag.name()
           )
         );
@@ -299,11 +299,11 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   }
 
   // Convert SDK V1 EncryptionContext to SDK V2
-  private static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
+  private static com.amazonaws.services.dynamodbv2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
     final EncryptionContext v1Context
   ) {
-    final software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext.Builder builder =
-      software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext
+    final com.amazonaws.services.dynamodbv2.encryption.EncryptionContext.Builder builder =
+      com.amazonaws.services.dynamodbv2.encryption.EncryptionContext
         .builder()
         .tableName(v1Context.getTableName())
         .hashKeyName(v1Context.getHashKeyName())

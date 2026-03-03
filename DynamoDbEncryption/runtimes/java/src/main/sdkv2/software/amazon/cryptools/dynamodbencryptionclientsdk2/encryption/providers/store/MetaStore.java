@@ -10,7 +10,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.store;
+package com.amazonaws.services.dynamodbv2.encryption.providers.store;
 
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
@@ -42,11 +42,11 @@ import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.WrappedMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
+import com.amazonaws.services.dynamodbv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.WrappedMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.internal.Utils;
 
 /**
  * Provides a simple collection of EncryptionMaterialProviders backed by an encrypted DynamoDB

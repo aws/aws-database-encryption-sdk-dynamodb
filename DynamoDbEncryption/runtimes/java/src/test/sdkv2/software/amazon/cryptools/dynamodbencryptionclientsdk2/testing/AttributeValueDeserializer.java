@@ -1,4 +1,4 @@
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.testing;
+package com.amazonaws.services.dynamodbv2.testing;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;

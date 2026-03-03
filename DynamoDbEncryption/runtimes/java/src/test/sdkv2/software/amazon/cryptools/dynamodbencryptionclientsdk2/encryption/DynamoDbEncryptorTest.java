@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption;
+package com.amazonaws.services.dynamodbv2.encryption;
 
 import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,7 +25,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.collections.Sets.newHashSet;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.utils.EncryptionContextOperators.overrideEncryptionContextTableName;
+import static com.amazonaws.services.dynamodbv2.encryption.utils.EncryptionContextOperators.overrideEncryptionContextTableName;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -49,12 +49,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.SymmetricStaticProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.AttrMatcher;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.SymmetricStaticProvider;
+import com.amazonaws.services.dynamodbv2.internal.Utils;
+import com.amazonaws.services.dynamodbv2.testing.AttrMatcher;
 
 public class DynamoDbEncryptorTest {
 

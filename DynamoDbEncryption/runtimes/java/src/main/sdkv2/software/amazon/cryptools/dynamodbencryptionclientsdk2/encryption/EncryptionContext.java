@@ -12,15 +12,15 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption;
+package com.amazonaws.services.dynamodbv2.encryption;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.DecryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials.EncryptionMaterials;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.materials.DecryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.encryption.providers.EncryptionMaterialsProvider;
 
 /**
  * This class serves to provide additional useful data to

@@ -12,17 +12,17 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.utils;
+package com.amazonaws.services.dynamodbv2.encryption.utils;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.utils.EncryptionContextOperators.overrideEncryptionContextTableName;
-import static software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.utils.EncryptionContextOperators.overrideEncryptionContextTableNameUsingMap;
+import static com.amazonaws.services.dynamodbv2.encryption.utils.EncryptionContextOperators.overrideEncryptionContextTableName;
+import static com.amazonaws.services.dynamodbv2.encryption.utils.EncryptionContextOperators.overrideEncryptionContextTableNameUsingMap;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import org.testng.annotations.Test;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
 
 public class EncryptionContextOperatorsTest {
 

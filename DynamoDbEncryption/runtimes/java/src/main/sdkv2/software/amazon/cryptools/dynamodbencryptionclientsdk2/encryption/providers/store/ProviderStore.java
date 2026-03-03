@@ -10,10 +10,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.store;
+package com.amazonaws.services.dynamodbv2.encryption.providers.store;
 
 import java.util.Map;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.EncryptionMaterialsProvider;
 
 /**
  * Provides a standard way to retrieve and optionally create {@link EncryptionMaterialsProvider}s

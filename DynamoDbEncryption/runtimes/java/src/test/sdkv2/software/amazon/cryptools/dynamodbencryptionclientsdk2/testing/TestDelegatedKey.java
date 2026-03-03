@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.testing;
+package com.amazonaws.services.dynamodbv2.testing;
 
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
@@ -27,7 +27,7 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DelegatedKey;
+import com.amazonaws.services.dynamodbv2.encryption.DelegatedKey;
 
 public class TestDelegatedKey implements DelegatedKey {
 

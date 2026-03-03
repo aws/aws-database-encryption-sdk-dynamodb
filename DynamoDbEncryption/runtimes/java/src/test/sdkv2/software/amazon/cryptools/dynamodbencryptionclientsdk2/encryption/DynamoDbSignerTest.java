@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption;
+package com.amazonaws.services.dynamodbv2.encryption;
 
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
@@ -34,7 +34,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
+import com.amazonaws.services.dynamodbv2.internal.Utils;
 
 public class DynamoDbSignerTest {
 

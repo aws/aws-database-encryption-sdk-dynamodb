@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption;
+package com.amazonaws.services.dynamodbv2.encryption;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,8 +37,8 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.AttributeValueMarshaller;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
+import com.amazonaws.services.dynamodbv2.internal.AttributeValueMarshaller;
+import com.amazonaws.services.dynamodbv2.internal.Utils;
 
 /**
  * @author Greg Rubin

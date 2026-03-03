@@ -1,6 +1,6 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-package software.amazon.cryptools.dynamodbencryptionclientsdk2;
+package com.amazonaws.services.dynamodbv2;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -28,21 +28,21 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.kms.KmsClient;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.AsymmetricStaticProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.CachingMostRecentProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.DirectKmsMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.EncryptionMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.SymmetricStaticProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.WrappedMaterialsProvider;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.store.MetaStore;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.providers.store.ProviderStore;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.*;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.ScenarioManifest.KeyData;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.ScenarioManifest.Keys;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.testing.ScenarioManifest.Scenario;
+import com.amazonaws.services.dynamodbv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.encryption.providers.AsymmetricStaticProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.CachingMostRecentProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.SymmetricStaticProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.WrappedMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.encryption.providers.store.MetaStore;
+import com.amazonaws.services.dynamodbv2.encryption.providers.store.ProviderStore;
+import com.amazonaws.services.dynamodbv2.testing.*;
+import com.amazonaws.services.dynamodbv2.testing.ScenarioManifest.KeyData;
+import com.amazonaws.services.dynamodbv2.testing.ScenarioManifest.Keys;
+import com.amazonaws.services.dynamodbv2.testing.ScenarioManifest.Scenario;
 
 public class HolisticIT {
 

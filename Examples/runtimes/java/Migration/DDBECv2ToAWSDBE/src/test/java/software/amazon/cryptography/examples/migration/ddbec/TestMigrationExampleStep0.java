@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep3;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.exceptions.DynamoDbEncryptionException;
+import com.amazonaws.services.dynamodbv2.encryption.exceptions.DynamoDbEncryptionException;
 
 public class TestMigrationExampleStep0 {
 

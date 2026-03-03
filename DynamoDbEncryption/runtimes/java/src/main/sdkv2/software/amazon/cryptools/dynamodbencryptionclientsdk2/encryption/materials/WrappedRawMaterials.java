@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.materials;
+package com.amazonaws.services.dynamodbv2.encryption.materials;
 
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
@@ -26,9 +26,9 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DelegatedKey;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Base64;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.internal.Utils;
+import com.amazonaws.services.dynamodbv2.encryption.DelegatedKey;
+import com.amazonaws.services.dynamodbv2.internal.Base64;
+import com.amazonaws.services.dynamodbv2.internal.Utils;
 
 /**
  * Represents cryptographic materials used to manage unique record-level keys.

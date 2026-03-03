@@ -1,4 +1,4 @@
-package software.amazon.cryptools.dynamodbencryptionclientsdk2.internal;
+package com.amazonaws.services.dynamodbv2.internal;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
