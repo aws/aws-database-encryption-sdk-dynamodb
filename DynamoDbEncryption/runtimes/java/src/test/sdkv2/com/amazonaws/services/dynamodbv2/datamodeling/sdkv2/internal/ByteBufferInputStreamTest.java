@@ -21,66 +21,77 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
 import org.testng.annotations.Test;
 
 public class ByteBufferInputStreamTest {
-    
-    @Test
-    public void testRead() throws IOException {
-        ByteBufferInputStream bis = new ByteBufferInputStream(ByteBuffer.wrap(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
-        for (int x = 0; x < 10; ++x) {
-            assertEquals(10 - x, bis.available());
-            assertEquals(x, bis.read());
-        }
-        assertEquals(0, bis.available());
-        bis.close();
+
+  @Test
+  public void testRead() throws IOException {
+    ByteBufferInputStream bis = new ByteBufferInputStream(
+      ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
+    );
+    for (int x = 0; x < 10; ++x) {
+      assertEquals(10 - x, bis.available());
+      assertEquals(x, bis.read());
     }
+    assertEquals(0, bis.available());
+    bis.close();
+  }
 
-    @Test
-    public void testReadByteArray() throws IOException {
-        ByteBufferInputStream bis = new ByteBufferInputStream(ByteBuffer.wrap(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
-        assertEquals(10, bis.available());
-        
-        byte[] buff = new byte[4];
+  @Test
+  public void testReadByteArray() throws IOException {
+    ByteBufferInputStream bis = new ByteBufferInputStream(
+      ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 })
+    );
+    assertEquals(10, bis.available());
 
-        int len = bis.read(buff);
-        assertEquals(4, len);
-        assertEquals(6, bis.available());
-        assertThat(buff, is(new byte[] {0, 1, 2, 3}));
-        
-        len = bis.read(buff);
-        assertEquals(4, len);
-        assertEquals(2, bis.available());
-        assertThat(buff, is(new byte[] {4, 5, 6, 7}));
+    byte[] buff = new byte[4];
 
-        len = bis.read(buff);
-        assertEquals(2, len);
-        assertEquals(0, bis.available());
-        assertThat(buff, is(new byte[] {8, 9, 6, 7}));
-        bis.close();
+    int len = bis.read(buff);
+    assertEquals(4, len);
+    assertEquals(6, bis.available());
+    assertThat(buff, is(new byte[] { 0, 1, 2, 3 }));
+
+    len = bis.read(buff);
+    assertEquals(4, len);
+    assertEquals(2, bis.available());
+    assertThat(buff, is(new byte[] { 4, 5, 6, 7 }));
+
+    len = bis.read(buff);
+    assertEquals(2, len);
+    assertEquals(0, bis.available());
+    assertThat(buff, is(new byte[] { 8, 9, 6, 7 }));
+    bis.close();
+  }
+
+  @Test
+  public void testSkip() throws IOException {
+    ByteBufferInputStream bis = new ByteBufferInputStream(
+      ByteBuffer.wrap(
+        new byte[] { (byte) 0xFA, 15, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+      )
+    );
+    assertEquals(13, bis.available());
+    assertEquals(0xFA, bis.read());
+    assertEquals(12, bis.available());
+    bis.skip(2);
+    assertEquals(10, bis.available());
+    for (int x = 0; x < 10; ++x) {
+      assertEquals(x, bis.read());
     }
+    assertEquals(0, bis.available());
+    assertEquals(-1, bis.read());
+    bis.close();
+  }
 
-    @Test
-    public void testSkip() throws IOException {
-        ByteBufferInputStream bis = new ByteBufferInputStream(ByteBuffer.wrap(new byte[]{(byte) 0xFA, 15, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
-        assertEquals(13, bis.available());
-        assertEquals(0xFA, bis.read());
-        assertEquals(12, bis.available());
-        bis.skip(2);
-        assertEquals(10, bis.available());
-        for (int x = 0; x < 10; ++x) {
-            assertEquals(x, bis.read());
-        }
-        assertEquals(0, bis.available());
-        assertEquals(-1, bis.read());
-        bis.close();
+  @Test
+  public void testMarkSupported() throws IOException {
+    try (
+      ByteBufferInputStream bis = new ByteBufferInputStream(
+        ByteBuffer.allocate(0)
+      )
+    ) {
+      assertFalse(bis.markSupported());
     }
-
-    @Test
-    public void testMarkSupported() throws IOException {
-        try (ByteBufferInputStream bis = new ByteBufferInputStream(ByteBuffer.allocate(0))) {
-            assertFalse(bis.markSupported());
-        }
-    }
+  }
 }

@@ -18,30 +18,31 @@ package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.exceptio
  * Generic exception thrown for any problem the DynamoDB encryption client has performing tasks
  */
 public class DynamoDbEncryptionException extends RuntimeException {
-    private static final long serialVersionUID = - 7565904179772520868L;
 
-    /**
-     * Standard constructor
-     * @param cause exception cause
-     */
-    public DynamoDbEncryptionException(Throwable cause) {
-        super(cause);
-    }
+  private static final long serialVersionUID = -7565904179772520868L;
 
-    /**
-     * Standard constructor
-     * @param message exception message
-     */
-    public DynamoDbEncryptionException(String message) {
-        super(message);
-    }
+  /**
+   * Standard constructor
+   * @param cause exception cause
+   */
+  public DynamoDbEncryptionException(Throwable cause) {
+    super(cause);
+  }
 
-    /**
-     * Standard constructor
-     * @param message exception message
-     * @param cause exception cause
-     */
-    public DynamoDbEncryptionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  /**
+   * Standard constructor
+   * @param message exception message
+   */
+  public DynamoDbEncryptionException(String message) {
+    super(message);
+  }
+
+  /**
+   * Standard constructor
+   * @param message exception message
+   * @param cause exception cause
+   */
+  public DynamoDbEncryptionException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

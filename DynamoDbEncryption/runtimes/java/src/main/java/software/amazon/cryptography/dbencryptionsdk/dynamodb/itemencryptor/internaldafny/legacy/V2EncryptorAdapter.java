@@ -1,11 +1,11 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.legacy;
 
-import java.security.GeneralSecurityException;
-import java.util.Map;
-import java.util.Set;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
+import java.security.GeneralSecurityException;
+import java.util.Map;
+import java.util.Set;
 
 public class V2EncryptorAdapter implements LegacyEncryptorAdapter {
 

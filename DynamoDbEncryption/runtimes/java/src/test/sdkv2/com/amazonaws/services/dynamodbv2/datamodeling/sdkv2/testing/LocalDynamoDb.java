@@ -14,13 +14,11 @@
  */
 package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing;
 
+import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
+import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URI;
-
-import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
-import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
-
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -43,133 +41,144 @@ import software.amazon.awssdk.services.dynamodb.model.*;
  * this scenario, so it's best to write your tests to be resilient to tables that already have data in them.
  */
 public class LocalDynamoDb {
-    private static DynamoDBProxyServer server;
-    private static int port;
 
-    /**
-     * Start the local DynamoDb service and run in background
-     */
-    public void start() {
-        port = getFreePort();
-        String portString = Integer.toString(port);
+  private static DynamoDBProxyServer server;
+  private static int port;
 
-        try {
-            server = createServer(portString);
-            server.start();
-        } catch (Exception e) {
-            throw propagate(e);
-        }
+  /**
+   * Start the local DynamoDb service and run in background
+   */
+  public void start() {
+    port = getFreePort();
+    String portString = Integer.toString(port);
+
+    try {
+      server = createServer(portString);
+      server.start();
+    } catch (Exception e) {
+      throw propagate(e);
+    }
+  }
+
+  /**
+   * Create a standard AWS v2 SDK client pointing to the local DynamoDb instance
+   * @return A DynamoDbClient pointing to the local DynamoDb instance
+   */
+  public DynamoDbClient createClient() {
+    start();
+    String endpoint = String.format("http://localhost:%d", port);
+    return DynamoDbClient
+      .builder()
+      .endpointOverride(URI.create(endpoint))
+      // The region is meaningless for local DynamoDb but required for client builder validation
+      .region(Region.US_EAST_1)
+      .credentialsProvider(
+        StaticCredentialsProvider.create(
+          AwsBasicCredentials.create("dummykey", "dummysecret")
+        )
+      )
+      .build();
+  }
+
+  /**
+   * If you require a client object that can be mocked or spied using standard mocking frameworks, then you must call
+   * this method to create the client instead. Only some methods are supported by this client, but it is easy to add
+   * new ones.
+   * @return A mockable/spyable DynamoDbClient pointing to the Local DynamoDB service.
+   */
+  public DynamoDbClient createLimitedWrappedClient() {
+    return new WrappedDynamoDbClient(createClient());
+  }
+
+  /**
+   * Stops the local DynamoDb service and frees up resources it is using.
+   */
+  public void stop() {
+    try {
+      server.stop();
+    } catch (Exception e) {
+      throw propagate(e);
+    }
+  }
+
+  private static DynamoDBProxyServer createServer(String portString)
+    throws Exception {
+    return ServerRunner.createServerFromCommandLineArgs(
+      new String[] { "-inMemory", "-port", portString }
+    );
+  }
+
+  private static int getFreePort() {
+    try {
+      ServerSocket socket = new ServerSocket(0);
+      int port = socket.getLocalPort();
+      socket.close();
+      return port;
+    } catch (IOException ioe) {
+      throw propagate(ioe);
+    }
+  }
+
+  private static RuntimeException propagate(Exception e) {
+    if (e instanceof RuntimeException) {
+      throw (RuntimeException) e;
+    }
+    throw new RuntimeException(e);
+  }
+
+  /**
+   * This class can wrap any other implementation of a DynamoDbClient. The default implementation of the real
+   * DynamoDbClient is a final class, therefore it cannot be easily spied upon unless you first wrap it in a class
+   * like this. If there's a method you need it to support, just add it to the wrapper here.
+   */
+  private static class WrappedDynamoDbClient implements DynamoDbClient {
+
+    private final DynamoDbClient wrappedClient;
+
+    private WrappedDynamoDbClient(DynamoDbClient wrappedClient) {
+      this.wrappedClient = wrappedClient;
     }
 
-    /**
-     * Create a standard AWS v2 SDK client pointing to the local DynamoDb instance
-     * @return A DynamoDbClient pointing to the local DynamoDb instance
-     */
-    public DynamoDbClient createClient() {
-        start();
-        String endpoint = String.format("http://localhost:%d", port);
-        return DynamoDbClient.builder()
-                      .endpointOverride(URI.create(endpoint))
-                             // The region is meaningless for local DynamoDb but required for client builder validation
-                      .region(Region.US_EAST_1)
-                      .credentialsProvider(StaticCredentialsProvider.create(
-                          AwsBasicCredentials.create("dummykey", "dummysecret")))
-                      .build();
+    @Override
+    public String serviceName() {
+      return wrappedClient.serviceName();
     }
 
-    /**
-     * If you require a client object that can be mocked or spied using standard mocking frameworks, then you must call
-     * this method to create the client instead. Only some methods are supported by this client, but it is easy to add
-     * new ones.
-     * @return A mockable/spyable DynamoDbClient pointing to the Local DynamoDB service.
-     */
-    public DynamoDbClient createLimitedWrappedClient() {
-        return new WrappedDynamoDbClient(createClient());
+    @Override
+    public void close() {
+      wrappedClient.close();
     }
 
-    /**
-     * Stops the local DynamoDb service and frees up resources it is using.
-     */
-    public void stop() {
-        try {
-            server.stop();
-        } catch (Exception e) {
-            throw propagate(e);
-        }
+    @Override
+    public PutItemResponse putItem(PutItemRequest putItemRequest) {
+      return wrappedClient.putItem(putItemRequest);
     }
 
-    private static DynamoDBProxyServer createServer(String portString) throws Exception {
-        return ServerRunner.createServerFromCommandLineArgs(
-            new String[]{
-                    "-inMemory",
-                    "-port", portString
-            });
+    @Override
+    public GetItemResponse getItem(GetItemRequest getItemRequest) {
+      return wrappedClient.getItem(getItemRequest);
     }
 
-    private static int getFreePort() {
-        try {
-            ServerSocket socket = new ServerSocket(0);
-            int port = socket.getLocalPort();
-            socket.close();
-            return port;
-        } catch (IOException ioe) {
-            throw propagate(ioe);
-        }
+    @Override
+    public QueryResponse query(QueryRequest queryRequest) {
+      return wrappedClient.query(queryRequest);
     }
 
-    private static RuntimeException propagate(Exception e) {
-        if (e instanceof RuntimeException) {
-            throw (RuntimeException)e;
-        }
-        throw new RuntimeException(e);
+    @Override
+    public ListTablesResponse listTables(ListTablesRequest listTablesRequest) {
+      return wrappedClient.listTables(listTablesRequest);
     }
 
-    /**
-     * This class can wrap any other implementation of a DynamoDbClient. The default implementation of the real
-     * DynamoDbClient is a final class, therefore it cannot be easily spied upon unless you first wrap it in a class
-     * like this. If there's a method you need it to support, just add it to the wrapper here.
-     */
-    private static class WrappedDynamoDbClient implements DynamoDbClient {
-        private final DynamoDbClient wrappedClient;
-
-        private WrappedDynamoDbClient(DynamoDbClient wrappedClient) {
-            this.wrappedClient = wrappedClient;
-        }
-
-        @Override
-        public String serviceName() {
-            return wrappedClient.serviceName();
-        }
-
-        @Override
-        public void close() {
-            wrappedClient.close();
-        }
-
-        @Override
-        public PutItemResponse putItem(PutItemRequest putItemRequest) {
-            return wrappedClient.putItem(putItemRequest);
-        }
-
-        @Override
-        public GetItemResponse getItem(GetItemRequest getItemRequest) {
-            return wrappedClient.getItem(getItemRequest);
-        }
-
-        @Override
-        public QueryResponse query(QueryRequest queryRequest) {
-            return wrappedClient.query(queryRequest);
-        }
-
-        @Override
-        public ListTablesResponse listTables(ListTablesRequest listTablesRequest) { return wrappedClient.listTables(listTablesRequest); }
-
-        @Override
-        public ScanResponse scan(ScanRequest scanRequest) { return wrappedClient.scan(scanRequest); }
-
-        @Override
-        public CreateTableResponse createTable(CreateTableRequest createTableRequest) {
-            return wrappedClient.createTable(createTableRequest);
-        }
+    @Override
+    public ScanResponse scan(ScanRequest scanRequest) {
+      return wrappedClient.scan(scanRequest);
     }
+
+    @Override
+    public CreateTableResponse createTable(
+      CreateTableRequest createTableRequest
+    ) {
+      return wrappedClient.createTable(createTableRequest);
+    }
+  }
 }

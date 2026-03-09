@@ -209,7 +209,10 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     }
 
     final LegacyEncryptorAdapter encryptorAdapter;
-    if (maybeEncryptor instanceof com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor) {
+    if (
+      maybeEncryptor instanceof
+      com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor
+    ) {
       encryptorAdapter =
         new V1EncryptorAdapter(
           (com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor) maybeEncryptor,
@@ -259,7 +262,8 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor maybe
   ) {
     return (
-      maybe instanceof com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor ||
+      maybe instanceof
+        com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor ||
       maybe instanceof
         com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
     );

@@ -17,42 +17,50 @@ package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.material
 import java.security.KeyPair;
 import java.util.Collections;
 import java.util.Map;
-
 import javax.crypto.SecretKey;
 
 /**
- * @author Greg Rubin 
+ * @author Greg Rubin
  */
 public class SymmetricRawMaterials extends AbstractRawMaterials {
-    private final SecretKey cryptoKey;
 
-    @SuppressWarnings("unchecked")
-    public SymmetricRawMaterials(SecretKey encryptionKey, KeyPair signingPair) {
-        this(encryptionKey, signingPair, Collections.EMPTY_MAP);
-    }
+  private final SecretKey cryptoKey;
 
-    public SymmetricRawMaterials(SecretKey encryptionKey, KeyPair signingPair, Map<String, String> description) {
-        super(signingPair, description);
-        this.cryptoKey = encryptionKey;
-    }
+  @SuppressWarnings("unchecked")
+  public SymmetricRawMaterials(SecretKey encryptionKey, KeyPair signingPair) {
+    this(encryptionKey, signingPair, Collections.EMPTY_MAP);
+  }
 
-    @SuppressWarnings("unchecked")
-    public SymmetricRawMaterials(SecretKey encryptionKey, SecretKey macKey) {
-        this(encryptionKey, macKey, Collections.EMPTY_MAP);
-    }
+  public SymmetricRawMaterials(
+    SecretKey encryptionKey,
+    KeyPair signingPair,
+    Map<String, String> description
+  ) {
+    super(signingPair, description);
+    this.cryptoKey = encryptionKey;
+  }
 
-    public SymmetricRawMaterials(SecretKey encryptionKey, SecretKey macKey, Map<String, String> description) {
-        super(macKey, description);
-        this.cryptoKey = encryptionKey;
-    }
+  @SuppressWarnings("unchecked")
+  public SymmetricRawMaterials(SecretKey encryptionKey, SecretKey macKey) {
+    this(encryptionKey, macKey, Collections.EMPTY_MAP);
+  }
 
-    @Override
-    public SecretKey getEncryptionKey() {
-        return cryptoKey;
-    }
+  public SymmetricRawMaterials(
+    SecretKey encryptionKey,
+    SecretKey macKey,
+    Map<String, String> description
+  ) {
+    super(macKey, description);
+    this.cryptoKey = encryptionKey;
+  }
 
-    @Override
-    public SecretKey getDecryptionKey() {
-        return cryptoKey;
-    }
+  @Override
+  public SecretKey getEncryptionKey() {
+    return cryptoKey;
+  }
+
+  @Override
+  public SecretKey getDecryptionKey() {
+    return cryptoKey;
+  }
 }

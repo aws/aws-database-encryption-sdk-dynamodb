@@ -7,71 +7,75 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ScenarioManifest {
 
-    public static final String MOST_RECENT_PROVIDER_NAME = "most_recent";
-    public static final String WRAPPED_PROVIDER_NAME = "wrapped";
-    public static final String STATIC_PROVIDER_NAME = "static";
-    public static final String AWS_KMS_PROVIDER_NAME = "awskms";
-    public static final String SYMMETRIC_KEY_TYPE = "symmetric";
+  public static final String MOST_RECENT_PROVIDER_NAME = "most_recent";
+  public static final String WRAPPED_PROVIDER_NAME = "wrapped";
+  public static final String STATIC_PROVIDER_NAME = "static";
+  public static final String AWS_KMS_PROVIDER_NAME = "awskms";
+  public static final String SYMMETRIC_KEY_TYPE = "symmetric";
 
-    public List<Scenario> scenarios;
+  public List<Scenario> scenarios;
 
-    @JsonProperty("keys")
-    public String keyDataPath;
+  @JsonProperty("keys")
+  public String keyDataPath;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Scenario {
-        @JsonProperty("ciphertext")
-        public String ciphertextPath;
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class Scenario {
 
-        @JsonProperty("provider")
-        public String providerName;
+    @JsonProperty("ciphertext")
+    public String ciphertextPath;
 
-        public String version;
+    @JsonProperty("provider")
+    public String providerName;
 
-        @JsonProperty("material_name")
-        public String materialName;
+    public String version;
 
-        public Metastore metastore;
-        public Keys keys;
-    }
+    @JsonProperty("material_name")
+    public String materialName;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Metastore {
-        @JsonProperty("ciphertext")
-        public String path;
+    public Metastore metastore;
+    public Keys keys;
+  }
 
-        @JsonProperty("table_name")
-        public String tableName;
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class Metastore {
 
-        @JsonProperty("provider")
-        public String providerName;
+    @JsonProperty("ciphertext")
+    public String path;
 
-        public Keys keys;
-    }
+    @JsonProperty("table_name")
+    public String tableName;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Keys {
-        @JsonProperty("encrypt")
-        public String encryptName;
+    @JsonProperty("provider")
+    public String providerName;
 
-        @JsonProperty("sign")
-        public String signName;
+    public Keys keys;
+  }
 
-        @JsonProperty("decrypt")
-        public String decryptName;
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class Keys {
 
-        @JsonProperty("verify")
-        public String verifyName;
-    }
+    @JsonProperty("encrypt")
+    public String encryptName;
 
-    public static class KeyData {
-        public String material;
-        public String algorithm;
-        public String encoding;
+    @JsonProperty("sign")
+    public String signName;
 
-        @JsonProperty("type")
-        public String keyType;
+    @JsonProperty("decrypt")
+    public String decryptName;
 
-        public String keyId;
-    }
+    @JsonProperty("verify")
+    public String verifyName;
+  }
+
+  public static class KeyData {
+
+    public String material;
+    public String algorithm;
+    public String encoding;
+
+    @JsonProperty("type")
+    public String keyType;
+
+    public String keyId;
+  }
 }

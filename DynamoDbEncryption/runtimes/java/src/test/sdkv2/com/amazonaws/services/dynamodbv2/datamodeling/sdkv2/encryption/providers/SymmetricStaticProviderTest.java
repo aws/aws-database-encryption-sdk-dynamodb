@@ -18,165 +18,239 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.EncryptionMaterials;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.Utils;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.EncryptionMaterials;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.Utils;
-
 public class SymmetricStaticProviderTest {
-    private static SecretKey encryptionKey;
-    private static SecretKey macKey;
-    private static KeyPair sigPair;
-    private Map<String, String> description;
-    private EncryptionContext ctx;
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        KeyPairGenerator rsaGen = KeyPairGenerator.getInstance("RSA");
-        rsaGen.initialize(2048, Utils.getRng());
-        sigPair = rsaGen.generateKeyPair();
+  private static SecretKey encryptionKey;
+  private static SecretKey macKey;
+  private static KeyPair sigPair;
+  private Map<String, String> description;
+  private EncryptionContext ctx;
 
-        KeyGenerator macGen = KeyGenerator.getInstance("HmacSHA256");
-        macGen.init(256, Utils.getRng());
-        macKey = macGen.generateKey();
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    KeyPairGenerator rsaGen = KeyPairGenerator.getInstance("RSA");
+    rsaGen.initialize(2048, Utils.getRng());
+    sigPair = rsaGen.generateKeyPair();
 
-        KeyGenerator aesGen = KeyGenerator.getInstance("AES");
-        aesGen.init(128, Utils.getRng());
-        encryptionKey = aesGen.generateKey();
-    }
+    KeyGenerator macGen = KeyGenerator.getInstance("HmacSHA256");
+    macGen.init(256, Utils.getRng());
+    macKey = macGen.generateKey();
 
-    @BeforeMethod
-    public void setUp() {
-        description = new HashMap<String, String>();
-        description.put("TestKey", "test value");
-        description = Collections.unmodifiableMap(description);
-        ctx = new EncryptionContext.Builder().build();
-    }
+    KeyGenerator aesGen = KeyGenerator.getInstance("AES");
+    aesGen.init(128, Utils.getRng());
+    encryptionKey = aesGen.generateKey();
+  }
 
-    @Test
-    public void simpleMac() {
-        SymmetricStaticProvider prov =
-                new SymmetricStaticProvider(encryptionKey, macKey, Collections.emptyMap());
-        assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-        assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
+  @BeforeMethod
+  public void setUp() {
+    description = new HashMap<String, String>();
+    description.put("TestKey", "test value");
+    description = Collections.unmodifiableMap(description);
+    ctx = new EncryptionContext.Builder().build();
+  }
 
-        assertEquals(
-                encryptionKey,
-                prov.getDecryptionMaterials(ctx(Collections.emptyMap()))
-                        .getDecryptionKey());
-        assertEquals(
-                macKey,
-                prov.getDecryptionMaterials(ctx(Collections.emptyMap()))
-                        .getVerificationKey());
-    }
+  @Test
+  public void simpleMac() {
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      Collections.emptyMap()
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
 
-    @Test
-    public void simpleSig() {
-        SymmetricStaticProvider prov =
-                new SymmetricStaticProvider(encryptionKey, sigPair, Collections.emptyMap());
-        assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-        assertEquals(sigPair.getPrivate(), prov.getEncryptionMaterials(ctx).getSigningKey());
+    assertEquals(
+      encryptionKey,
+      prov
+        .getDecryptionMaterials(ctx(Collections.emptyMap()))
+        .getDecryptionKey()
+    );
+    assertEquals(
+      macKey,
+      prov
+        .getDecryptionMaterials(ctx(Collections.emptyMap()))
+        .getVerificationKey()
+    );
+  }
 
-        assertEquals(
-                encryptionKey,
-                prov.getDecryptionMaterials(ctx(Collections.emptyMap()))
-                        .getDecryptionKey());
-        assertEquals(
-                sigPair.getPublic(),
-                prov.getDecryptionMaterials(ctx(Collections.emptyMap()))
-                        .getVerificationKey());
-    }
+  @Test
+  public void simpleSig() {
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      sigPair,
+      Collections.emptyMap()
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(
+      sigPair.getPrivate(),
+      prov.getEncryptionMaterials(ctx).getSigningKey()
+    );
 
-    @Test
-    public void equalDescMac() {
-        SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-        assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-        assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
-        assertTrue(
-                prov.getEncryptionMaterials(ctx)
-                        .getMaterialDescription()
-                        .entrySet()
-                        .containsAll(description.entrySet()));
+    assertEquals(
+      encryptionKey,
+      prov
+        .getDecryptionMaterials(ctx(Collections.emptyMap()))
+        .getDecryptionKey()
+    );
+    assertEquals(
+      sigPair.getPublic(),
+      prov
+        .getDecryptionMaterials(ctx(Collections.emptyMap()))
+        .getVerificationKey()
+    );
+  }
 
-        assertEquals(encryptionKey, prov.getDecryptionMaterials(ctx(description)).getDecryptionKey());
-        assertEquals(macKey, prov.getDecryptionMaterials(ctx(description)).getVerificationKey());
-    }
+  @Test
+  public void equalDescMac() {
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
+    assertTrue(
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
-    @Test
-    public void supersetDescMac() {
-        SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-        assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-        assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
-        assertTrue(
-                prov.getEncryptionMaterials(ctx)
-                        .getMaterialDescription()
-                        .entrySet()
-                        .containsAll(description.entrySet()));
+    assertEquals(
+      encryptionKey,
+      prov.getDecryptionMaterials(ctx(description)).getDecryptionKey()
+    );
+    assertEquals(
+      macKey,
+      prov.getDecryptionMaterials(ctx(description)).getVerificationKey()
+    );
+  }
 
-        Map<String, String> superSet = new HashMap<String, String>(description);
-        superSet.put("NewValue", "super!");
+  @Test
+  public void supersetDescMac() {
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
+    assertTrue(
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
-        assertEquals(encryptionKey, prov.getDecryptionMaterials(ctx(superSet)).getDecryptionKey());
-        assertEquals(macKey, prov.getDecryptionMaterials(ctx(superSet)).getVerificationKey());
-    }
+    Map<String, String> superSet = new HashMap<String, String>(description);
+    superSet.put("NewValue", "super!");
 
-    @Test
-    public void subsetDescMac() {
-        SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-        assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-        assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
-        assertTrue(
-                prov.getEncryptionMaterials(ctx)
-                        .getMaterialDescription()
-                        .entrySet()
-                        .containsAll(description.entrySet()));
+    assertEquals(
+      encryptionKey,
+      prov.getDecryptionMaterials(ctx(superSet)).getDecryptionKey()
+    );
+    assertEquals(
+      macKey,
+      prov.getDecryptionMaterials(ctx(superSet)).getVerificationKey()
+    );
+  }
 
-        assertNull(prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap())));
-    }
+  @Test
+  public void subsetDescMac() {
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
+    assertTrue(
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
-    @Test
-    public void noMatchDescMac() {
-        SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-        assertEquals(encryptionKey, prov.getEncryptionMaterials(ctx).getEncryptionKey());
-        assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
-        assertTrue(
-                prov.getEncryptionMaterials(ctx)
-                        .getMaterialDescription()
-                        .entrySet()
-                        .containsAll(description.entrySet()));
+    assertNull(
+      prov.getDecryptionMaterials(ctx(Collections.<String, String>emptyMap()))
+    );
+  }
 
-        Map<String, String> noMatch = new HashMap<String, String>();
-        noMatch.put("NewValue", "no match!");
+  @Test
+  public void noMatchDescMac() {
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    assertEquals(
+      encryptionKey,
+      prov.getEncryptionMaterials(ctx).getEncryptionKey()
+    );
+    assertEquals(macKey, prov.getEncryptionMaterials(ctx).getSigningKey());
+    assertTrue(
+      prov
+        .getEncryptionMaterials(ctx)
+        .getMaterialDescription()
+        .entrySet()
+        .containsAll(description.entrySet())
+    );
 
-        assertNull(prov.getDecryptionMaterials(ctx(noMatch)));
-    }
+    Map<String, String> noMatch = new HashMap<String, String>();
+    noMatch.put("NewValue", "no match!");
 
-    @Test
-    public void testRefresh() {
-        // This does nothing, make sure we don't throw and exception.
-        SymmetricStaticProvider prov = new SymmetricStaticProvider(encryptionKey, macKey, description);
-        prov.refresh();
-    }
+    assertNull(prov.getDecryptionMaterials(ctx(noMatch)));
+  }
 
-    @SuppressWarnings("unused")
-    private static EncryptionContext ctx(EncryptionMaterials mat) {
-        return ctx(mat.getMaterialDescription());
-    }
+  @Test
+  public void testRefresh() {
+    // This does nothing, make sure we don't throw and exception.
+    SymmetricStaticProvider prov = new SymmetricStaticProvider(
+      encryptionKey,
+      macKey,
+      description
+    );
+    prov.refresh();
+  }
 
-    private static EncryptionContext ctx(Map<String, String> desc) {
-        return EncryptionContext.builder()
-            .materialDescription(desc).build();
-    }
+  @SuppressWarnings("unused")
+  private static EncryptionContext ctx(EncryptionMaterials mat) {
+    return ctx(mat.getMaterialDescription());
+  }
+
+  private static EncryptionContext ctx(Map<String, String> desc) {
+    return EncryptionContext.builder().materialDescription(desc).build();
+  }
 }

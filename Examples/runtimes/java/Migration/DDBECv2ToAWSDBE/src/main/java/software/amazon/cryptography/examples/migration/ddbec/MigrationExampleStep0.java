@@ -1,5 +1,9 @@
 package software.amazon.cryptography.examples.migration.ddbec;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
 import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -11,10 +15,6 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.kms.KmsClient;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
 
 /*
   Migration Step 0: This is an example demonstrating use with the DynamoDb Encryption Client

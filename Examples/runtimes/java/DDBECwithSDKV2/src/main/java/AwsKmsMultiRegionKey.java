@@ -1,6 +1,10 @@
 // Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
 import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -13,10 +17,6 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.kms.KmsClient;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
 
 /**
  * Example showing use of AWS KMS CMP with an AWS KMS Multi-Region Key. We encrypt a record with a
