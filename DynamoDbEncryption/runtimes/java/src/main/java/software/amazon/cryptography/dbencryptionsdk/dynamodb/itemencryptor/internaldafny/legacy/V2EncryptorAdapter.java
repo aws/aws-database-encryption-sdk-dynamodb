@@ -3,9 +3,9 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Set;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.DynamoDBEncryptor;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionContext;
-import software.amazon.cryptools.dynamodbencryptionclientsdk2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 
 public class V2EncryptorAdapter implements LegacyEncryptorAdapter {
 
