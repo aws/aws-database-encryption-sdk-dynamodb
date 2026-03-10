@@ -6,7 +6,6 @@
 
 - bump aws-lc-sys to 0.38 to mitigate false positive code scanners
 
-
 ## [3.9.1](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.0...v3.9.1) (2026-02-06)
 
 This release is available in the following languages:
