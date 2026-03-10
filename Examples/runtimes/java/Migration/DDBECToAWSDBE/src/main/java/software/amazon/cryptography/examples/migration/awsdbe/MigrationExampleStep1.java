@@ -1,9 +1,8 @@
 package software.amazon.cryptography.examples.migration.awsdbe;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,10 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.WrappedMaterialsProvider;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /*
   Migration Step 1: This is an example demonstrating how to start using the
@@ -99,10 +102,17 @@ public class MigrationExampleStep1 {
     legacyActions.put("attribute3", CryptoAction.DO_NOTHING);
 
     // 5. Configure the same DynamoDBEncryptor that we did in Step 0.
-    final AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kmsClient,
-      kmsKeyId
+    final SecureRandom secureRandom = new SecureRandom();
+    byte[] rawAes = new byte[32];
+    byte[] rawHmac = new byte[32];
+
+    final SecretKey wrappingKey = new SecretKeySpec(rawAes, "AES");
+    final SecretKey signingKey = new SecretKeySpec(rawHmac, "HmacSHA256");
+
+    final WrappedMaterialsProvider cmp = new WrappedMaterialsProvider(
+            wrappingKey,
+            wrappingKey,
+            signingKey
     );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
 
