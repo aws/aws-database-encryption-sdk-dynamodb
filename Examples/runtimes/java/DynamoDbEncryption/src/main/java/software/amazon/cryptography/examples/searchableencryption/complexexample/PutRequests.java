@@ -58,7 +58,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting1 = new HashMap<>();
     meeting1.put(
       "partition_key",
-      AttributeValue.builder().s("meeting1").build()
+      AttributeValue.builder().s("meeting1-java").build()
     );
     meeting1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     meeting1.put(
@@ -99,7 +99,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting2 = new HashMap<>();
     meeting2.put(
       "partition_key",
-      AttributeValue.builder().s("meeting2").build()
+      AttributeValue.builder().s("meeting2-java").build()
     );
     meeting2.put("EmployeeID", AttributeValue.builder().s("emp_002").build());
     meeting2.put(
@@ -140,7 +140,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting3 = new HashMap<>();
     meeting3.put(
       "partition_key",
-      AttributeValue.builder().s("meeting3").build()
+      AttributeValue.builder().s("meeting3-java").build()
     );
     meeting3.put("EmployeeID", AttributeValue.builder().s("emp_003").build());
     meeting3.put(
@@ -181,7 +181,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting4 = new HashMap<>();
     meeting4.put(
       "partition_key",
-      AttributeValue.builder().s("meeting4").build()
+      AttributeValue.builder().s("meeting4-java").build()
     );
     meeting4.put("EmployeeID", AttributeValue.builder().s("emp_004").build());
     meeting4.put(
@@ -222,7 +222,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting5 = new HashMap<>();
     meeting5.put(
       "partition_key",
-      AttributeValue.builder().s("meeting5").build()
+      AttributeValue.builder().s("meeting5-java").build()
     );
     meeting5.put("EmployeeID", AttributeValue.builder().s("emp_002").build());
     meeting5.put(
@@ -263,7 +263,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> meeting6 = new HashMap<>();
     meeting6.put(
       "partition_key",
-      AttributeValue.builder().s("meeting6").build()
+      AttributeValue.builder().s("meeting6-java").build()
     );
     meeting6.put("EmployeeID", AttributeValue.builder().s("emp_003").build());
     meeting6.put(
@@ -307,7 +307,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee1 = new HashMap<>();
     employee1.put(
       "partition_key",
-      AttributeValue.builder().s("employee1").build()
+      AttributeValue.builder().s("employee1-java").build()
     );
     employee1.put("EmployeeID", AttributeValue.builder().s("emp_001").build());
     employee1.put(
@@ -344,7 +344,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee2 = new HashMap<>();
     employee2.put(
       "partition_key",
-      AttributeValue.builder().s("employee2").build()
+      AttributeValue.builder().s("employee2-java").build()
     );
     employee2.put("EmployeeID", AttributeValue.builder().s("emp_002").build());
     employee2.put(
@@ -381,7 +381,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee3 = new HashMap<>();
     employee3.put(
       "partition_key",
-      AttributeValue.builder().s("employee3").build()
+      AttributeValue.builder().s("employee3-java").build()
     );
     employee3.put("EmployeeID", AttributeValue.builder().s("emp_003").build());
     employee3.put(
@@ -415,7 +415,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> employee4 = new HashMap<>();
     employee4.put(
       "partition_key",
-      AttributeValue.builder().s("employee4").build()
+      AttributeValue.builder().s("employee4-java").build()
     );
     employee4.put("EmployeeID", AttributeValue.builder().s("emp_004").build());
     employee4.put(
@@ -449,7 +449,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project1 = new HashMap<>();
     project1.put(
       "partition_key",
-      AttributeValue.builder().s("project1").build()
+      AttributeValue.builder().s("project1-java").build()
     );
     project1.put(
       "ProjectName",
@@ -479,7 +479,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project2 = new HashMap<>();
     project2.put(
       "partition_key",
-      AttributeValue.builder().s("project2").build()
+      AttributeValue.builder().s("project2-java").build()
     );
     project2.put(
       "ProjectName",
@@ -506,7 +506,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project3 = new HashMap<>();
     project3.put(
       "partition_key",
-      AttributeValue.builder().s("project3").build()
+      AttributeValue.builder().s("project3-java").build()
     );
     project3.put(
       "ProjectName",
@@ -530,7 +530,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> project4 = new HashMap<>();
     project4.put(
       "partition_key",
-      AttributeValue.builder().s("project4").build()
+      AttributeValue.builder().s("project4-java").build()
     );
     project4.put(
       "ProjectName",
@@ -577,7 +577,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> reservation1 = new HashMap<>();
     reservation1.put(
       "partition_key",
-      AttributeValue.builder().s("reservation1").build()
+      AttributeValue.builder().s("reservation1-java").build()
     );
     reservation1.put(
       "Location",
@@ -629,7 +629,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> reservation2 = new HashMap<>();
     reservation2.put(
       "partition_key",
-      AttributeValue.builder().s("reservation2").build()
+      AttributeValue.builder().s("reservation2-java").build()
     );
     reservation2.put(
       "Location",
@@ -665,7 +665,10 @@ public class PutRequests {
     DynamoDbClient ddb
   ) {
     final HashMap<String, AttributeValue> ticket1 = new HashMap<>();
-    ticket1.put("partition_key", AttributeValue.builder().s("ticket1").build());
+    ticket1.put(
+      "partition_key",
+      AttributeValue.builder().s("ticket1-java").build()
+    );
     ticket1.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_001").build()
@@ -694,7 +697,10 @@ public class PutRequests {
     );
 
     final HashMap<String, AttributeValue> ticket2 = new HashMap<>();
-    ticket2.put("partition_key", AttributeValue.builder().s("ticket2").build());
+    ticket2.put(
+      "partition_key",
+      AttributeValue.builder().s("ticket2-java").build()
+    );
     ticket2.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_001").build()
@@ -723,7 +729,10 @@ public class PutRequests {
     );
 
     final HashMap<String, AttributeValue> ticket3 = new HashMap<>();
-    ticket3.put("partition_key", AttributeValue.builder().s("ticket3").build());
+    ticket3.put(
+      "partition_key",
+      AttributeValue.builder().s("ticket3-java").build()
+    );
     ticket3.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_002").build()
@@ -752,7 +761,10 @@ public class PutRequests {
     );
 
     final HashMap<String, AttributeValue> ticket4 = new HashMap<>();
-    ticket4.put("partition_key", AttributeValue.builder().s("ticket4").build());
+    ticket4.put(
+      "partition_key",
+      AttributeValue.builder().s("ticket4-java").build()
+    );
     ticket4.put(
       "TicketNumber",
       AttributeValue.builder().s("ticket_002").build()
@@ -789,7 +801,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard1 = new HashMap<>();
     timecard1.put(
       "partition_key",
-      AttributeValue.builder().s("timecard1").build()
+      AttributeValue.builder().s("timecard1-java").build()
     );
     timecard1.put(
       "ProjectName",
@@ -813,7 +825,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard2 = new HashMap<>();
     timecard2.put(
       "partition_key",
-      AttributeValue.builder().s("timecard2").build()
+      AttributeValue.builder().s("timecard2-java").build()
     );
     timecard2.put(
       "ProjectName",
@@ -837,7 +849,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard3 = new HashMap<>();
     timecard3.put(
       "partition_key",
-      AttributeValue.builder().s("timecard3").build()
+      AttributeValue.builder().s("timecard3-java").build()
     );
     timecard3.put(
       "ProjectName",
@@ -861,7 +873,7 @@ public class PutRequests {
     final HashMap<String, AttributeValue> timecard4 = new HashMap<>();
     timecard4.put(
       "partition_key",
-      AttributeValue.builder().s("timecard4").build()
+      AttributeValue.builder().s("timecard4-java").build()
     );
     timecard4.put(
       "ProjectName",
