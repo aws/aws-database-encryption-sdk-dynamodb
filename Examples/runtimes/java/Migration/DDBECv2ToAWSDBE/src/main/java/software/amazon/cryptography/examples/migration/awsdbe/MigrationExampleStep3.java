@@ -146,7 +146,7 @@ public class MigrationExampleStep3 {
   public static void main(final String[] args) {
     if (args.length < 4) {
       throw new IllegalArgumentException(
-              "To run this example, include the kmsKeyId, ddbTableName, partitionKeyValue and sortReadValue as args."
+        "To run this example, include the kmsKeyId, ddbTableName, partitionKeyValue and sortReadValue as args."
       );
     }
     final String kmsKeyId = args[0];
