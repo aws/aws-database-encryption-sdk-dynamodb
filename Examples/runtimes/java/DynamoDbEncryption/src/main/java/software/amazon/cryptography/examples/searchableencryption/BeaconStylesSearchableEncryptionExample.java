@@ -482,33 +482,23 @@ public class BeaconStylesSearchableEncryptionExample {
     } finally {
       // Clean up: delete both items using a plain DDB client
       final DynamoDbClient plainDdb = DynamoDbClient.create();
-      plainDdb.deleteItem(
-        DeleteItemRequest
-          .builder()
-          .tableName(ddbTableName)
-          .key(
-            Map.of(
-              "work_id",
-              AttributeValue.builder().s(workId1).build(),
-              "inspection_date",
-              AttributeValue.builder().s("2023-06-13").build()
-            )
-          )
-          .build()
+      HashMap<String, AttributeValue> key1 = new HashMap<>();
+      key1.put("work_id", AttributeValue.builder().s(workId1).build());
+      key1.put(
+        "inspection_date",
+        AttributeValue.builder().s("2023-06-13").build()
       );
       plainDdb.deleteItem(
-        DeleteItemRequest
-          .builder()
-          .tableName(ddbTableName)
-          .key(
-            Map.of(
-              "work_id",
-              AttributeValue.builder().s(workId2).build(),
-              "inspection_date",
-              AttributeValue.builder().s("2023-06-13").build()
-            )
-          )
-          .build()
+        DeleteItemRequest.builder().tableName(ddbTableName).key(key1).build()
+      );
+      HashMap<String, AttributeValue> key2 = new HashMap<>();
+      key2.put("work_id", AttributeValue.builder().s(workId2).build());
+      key2.put(
+        "inspection_date",
+        AttributeValue.builder().s("2023-06-13").build()
+      );
+      plainDdb.deleteItem(
+        DeleteItemRequest.builder().tableName(ddbTableName).key(key2).build()
       );
     }
   }
