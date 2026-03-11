@@ -322,7 +322,6 @@ async fn run_scan_tests(
     work_id1: &str,
     work_id2: &str,
 ) -> Result<(), crate::BoxError> {
-    // TODO: Remove work_id IN filter once stale items are cleaned from the table.
     // These filters ensure scans only match items created by this test run.
     let wid_filter = "work_id IN (:wid1, :wid2)";
     let wid_values = HashMap::from([

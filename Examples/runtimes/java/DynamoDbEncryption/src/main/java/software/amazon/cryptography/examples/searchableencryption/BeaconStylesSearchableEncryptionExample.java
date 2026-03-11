@@ -355,7 +355,6 @@ public class BeaconStylesSearchableEncryptionExample {
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // TODO: Remove work_id IN filter once stale items are cleaned from the table.
     // These filters ensure scans only match items created by this test run.
     final String widFilter = "work_id IN (:wid1, :wid2)";
     final Map<String, AttributeValue> widValues = new HashMap<>();
