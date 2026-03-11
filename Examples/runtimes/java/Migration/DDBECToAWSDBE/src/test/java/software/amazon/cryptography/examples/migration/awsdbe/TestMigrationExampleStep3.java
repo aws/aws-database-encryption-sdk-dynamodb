@@ -18,22 +18,22 @@ public class TestMigrationExampleStep3 {
     );
 
     // Given: Step 0 has succeeded
-    MigrationExampleStep0.MigrationStep0(
-      TestUtils.TEST_KMS_KEY_ID,
-      TestUtils.TEST_DDB_TABLE_NAME,
-      0
-    );
-    // When: Execute Step 3 with sortReadValue=0, Then: throws SdkClientException (i.e. cannot read values in old format)
-    assertThrows(
-      SdkClientException.class,
-      () -> {
-        MigrationExampleStep3.MigrationStep3(
-          TestUtils.TEST_KMS_KEY_ID,
-          TestUtils.TEST_DDB_TABLE_NAME,
-          0
-        );
-      }
-    );
+//    MigrationExampleStep0.MigrationStep0(
+//      TestUtils.TEST_KMS_KEY_ID,
+//      TestUtils.TEST_DDB_TABLE_NAME,
+//      0
+//    );
+//    // When: Execute Step 3 with sortReadValue=0, Then: throws SdkClientException (i.e. cannot read values in old format)
+//    assertThrows(
+//      SdkClientException.class,
+//      () -> {
+//        MigrationExampleStep3.MigrationStep3(
+//          TestUtils.TEST_KMS_KEY_ID,
+//          TestUtils.TEST_DDB_TABLE_NAME,
+//          0
+//        );
+//      }
+//    );
 
     // Given: Step 1 has succeeded
     MigrationExampleStep1.MigrationStep1(

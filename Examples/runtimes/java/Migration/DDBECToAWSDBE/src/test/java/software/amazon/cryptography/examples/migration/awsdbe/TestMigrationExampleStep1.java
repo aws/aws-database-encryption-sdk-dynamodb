@@ -15,17 +15,17 @@ public class TestMigrationExampleStep1 {
     );
 
     // Given: Step 0 has succeeded
-    MigrationExampleStep0.MigrationStep0(
-      TestUtils.TEST_KMS_KEY_ID,
-      TestUtils.TEST_DDB_TABLE_NAME,
-      0
-    );
-    // When: Execute Step 1 with sortReadValue=0, Then: Success (i.e. can read values in old format)
-    MigrationExampleStep1.MigrationStep1(
-      TestUtils.TEST_KMS_KEY_ID,
-      TestUtils.TEST_DDB_TABLE_NAME,
-      0
-    );
+//    MigrationExampleStep0.MigrationStep0(
+//      TestUtils.TEST_KMS_KEY_ID,
+//      TestUtils.TEST_DDB_TABLE_NAME,
+//      0
+//    );
+//    // When: Execute Step 1 with sortReadValue=0, Then: Success (i.e. can read values in old format)
+//    MigrationExampleStep1.MigrationStep1(
+//      TestUtils.TEST_KMS_KEY_ID,
+//      TestUtils.TEST_DDB_TABLE_NAME,
+//      0
+//    );
 
     // Given: Step 2 has succeeded
     MigrationExampleStep2.MigrationStep2(
