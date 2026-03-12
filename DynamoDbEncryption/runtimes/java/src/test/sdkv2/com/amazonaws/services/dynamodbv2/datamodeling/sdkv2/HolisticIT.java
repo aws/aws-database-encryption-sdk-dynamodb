@@ -42,7 +42,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticITHelper;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
