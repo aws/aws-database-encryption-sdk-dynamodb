@@ -98,7 +98,7 @@ public class HolisticITHelper {
         }
     }
 
-    public static void decryptNonBmpHashKeyVector(String nonBMPinECCipherFile)
+    public static void decryptNonBmpHashKeyVectorAndWithNullKeyId(String nonBMPinECCipherFile)
             throws IOException, GeneralSecurityException {
         ScenarioManifest scenarioManifest = getManifestFromFile(
                 SCENARIO_MANIFEST_PATH,
@@ -108,8 +108,7 @@ public class HolisticITHelper {
 
         DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
                 new DirectKmsMaterialsProvider(
-                        kmsClient,
-                        keyDataMap.get("awsKmsUsWest2").keyId
+                        kmsClient
                 )
         );
         EncryptionContext ctx = EncryptionContext

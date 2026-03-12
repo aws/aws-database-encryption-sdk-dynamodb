@@ -550,7 +550,9 @@ public class HolisticIT {
       "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
 
     HolisticITHelper.decryptNullTableNameInEC(nullTableNameInECCipherFile);
-    HolisticITHelper.decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
+    // decryptNonBmpHashKeyVectorAndWithNullKeyId uses non bmp hash key and also does not use any KMS key id which proves
+    // that KMS key id is fetched from message format
+    HolisticITHelper.decryptNonBmpHashKeyVectorAndWithNullKeyId(nonBMPinECCipherFile);
     HolisticITHelper.decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
   }
 
