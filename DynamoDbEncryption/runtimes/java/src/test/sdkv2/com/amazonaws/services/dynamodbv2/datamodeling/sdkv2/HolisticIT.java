@@ -42,6 +42,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import sdkv2.com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticITHelper;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -95,26 +96,26 @@ public class HolisticIT {
   private static final PrivateKey rsaPriv;
   private static final PublicKey rsaPub;
   private static final KeyPair rsaPair;
-  private static final EncryptionMaterialsProvider symProv;
+  public static final EncryptionMaterialsProvider symProv;
   private static final EncryptionMaterialsProvider asymProv;
   private static final EncryptionMaterialsProvider symWrappedProv;
   private static final String HASH_KEY = "hashKey";
   private static final String RANGE_KEY = "rangeKey";
   private static final String RSA = "RSA";
-  private static final String tableName = "TableName";
-  final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
-  final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+  public static final String tableName = "TableName";
+  public static final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
+  public static final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
     EncryptionFlags.ENCRYPT,
     EncryptionFlags.SIGN
   );
 
   private final LocalDynamoDb localDynamoDb = new LocalDynamoDb();
   private DynamoDbClient client;
-  private static KmsClient kmsClient = KmsClient.builder().build();
+  public static KmsClient kmsClient = KmsClient.builder().build();
 
-  private static Map<String, KeyData> keyDataMap = new HashMap<>();
+  public static Map<String, KeyData> keyDataMap = new HashMap<>();
 
-  private static final Map<String, AttributeValue> ENCRYPTED_TEST_VALUE =
+  public static final Map<String, AttributeValue> ENCRYPTED_TEST_VALUE =
     new HashMap<>();
   private static final Map<String, AttributeValue> MIXED_TEST_VALUE =
     new HashMap<>();
@@ -134,7 +135,7 @@ public class HolisticIT {
 
   private static final String TEST_VECTOR_MANIFEST_DIR =
     "/vectors/encrypted_item/";
-  private static final String SCENARIO_MANIFEST_PATH =
+  public static final String SCENARIO_MANIFEST_PATH =
     TEST_VECTOR_MANIFEST_DIR + "scenarios.json";
   private static final String JAVA_DIR = "java";
 
@@ -549,9 +550,9 @@ public class HolisticIT {
     final String nonAsciiTableInECCipherFile =
       "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
 
-    decryptNullTableNameInEC(nullTableNameInECCipherFile);
-    decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
-    decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
+    HolisticITHelper.decryptNullTableNameInEC(nullTableNameInECCipherFile);
+    HolisticITHelper.decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
+    HolisticITHelper.decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
   }
 
   public void decryptNullTableNameInEC(String nullTableNameInECCipherFile)
@@ -1023,7 +1024,7 @@ public class HolisticIT {
     }
   }
 
-  private Map<
+  public static Map<
     String,
     List<Map<String, AttributeValue>>
   > getCiphertextManifestFromFile(String filename) throws IOException {
@@ -1035,7 +1036,7 @@ public class HolisticIT {
     );
   }
 
-  private static <T> T getManifestFromFile(
+  public static <T> T getManifestFromFile(
     String filename,
     TypeReference typeRef
   ) throws IOException {
@@ -1050,7 +1051,7 @@ public class HolisticIT {
     return (T) manifestMapper.readValue(manifestFile, typeRef);
   }
 
-  private static void loadKeyData(String filename) throws IOException {
+  public static void loadKeyData(String filename) throws IOException {
     keyDataMap =
       getManifestFromFile(
         TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
