@@ -16,7 +16,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStore;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.ProviderStore;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.*;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.LocalDynamoDb;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueDeserializer;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest.KeyData;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest.Keys;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest.Scenario;
@@ -533,6 +536,220 @@ public class HolisticIT {
       .stream()
       .map(s -> new Object[] { s })
       .toArray(Object[][]::new);
+  }
+
+  @Test
+  public void generateNullTableNameVector() throws Exception {
+    localDynamoDb.start();
+    client = localDynamoDb.createLimitedWrappedClient();
+    createCiphertextTables(client);
+
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
+    EncryptionContext ctx = EncryptionContext.builder()
+        .tableName(null)
+        .hashKeyName("hashKey")
+        .rangeKeyName("rangeKey")
+        .build();
+
+    Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    for (String attr : ENCRYPTED_TEST_VALUE.keySet()) {
+        switch (attr) {
+            case "hashKey": case "rangeKey": case "version":
+                actions.put(attr, signOnly); break;
+            default:
+                actions.put(attr, encryptAndSign); break;
+        }
+    }
+
+    Map<String, AttributeValue> encrypted =
+        encryptor.encryptRecord(ENCRYPTED_TEST_VALUE, actions, ctx);
+
+    printJSON(encrypted);
+
+    client.close();
+    localDynamoDb.stop();
+  }
+
+  @Test
+  public void generateNonBmpHashKeyVector() throws Exception {
+      localDynamoDb.start();
+      client = localDynamoDb.createLimitedWrappedClient();
+      createCiphertextTables(client);
+      
+      ScenarioManifest scenarioManifest = getManifestFromFile(
+        SCENARIO_MANIFEST_PATH, new TypeReference<ScenarioManifest>() {});
+      loadKeyData(scenarioManifest.keyDataPath);
+
+      DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+          new DirectKmsMaterialsProvider(kmsClient, keyDataMap.get("awsKmsUsWest2").keyId));
+      EncryptionContext ctx = EncryptionContext.builder()
+          .tableName("HashKeyOnly")
+          .hashKeyName("hashKey")
+          .build();
+
+      String nonBmpKey = "test\uD83D\uDE00\u03A8key";
+      Map<String, AttributeValue> item = new HashMap<>();
+      item.put("hashKey", AttributeValue.builder().s(nonBmpKey).build());
+
+      Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+      actions.put("hashKey", signOnly);
+
+      Map<String, AttributeValue> encrypted = encryptor.encryptRecord(item, actions, ctx);
+
+      printJSON(encrypted);
+
+      client.close();
+      localDynamoDb.stop();
+  }
+
+  @Test
+  public void generateNonAsciiTableNameVector() throws Exception {
+      localDynamoDb.start();
+      client = localDynamoDb.createLimitedWrappedClient();
+      createCiphertextTables(client);
+
+      DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
+      EncryptionContext ctx = EncryptionContext.builder()
+          .tableName("テーブル\uD83D\uDE00")
+          .hashKeyName("hashKey")
+          .rangeKeyName("rangeKey")
+          .build();
+
+      Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+      for (String attr : ENCRYPTED_TEST_VALUE.keySet()) {
+          switch (attr) {
+              case "hashKey": case "rangeKey": case "version":
+                  actions.put(attr, signOnly); break;
+              default:
+                  actions.put(attr, encryptAndSign); break;
+          }
+      }
+
+      Map<String, AttributeValue> encrypted = encryptor.encryptRecord(ENCRYPTED_TEST_VALUE, actions, ctx);
+
+      printJSON(encrypted);
+
+      client.close();
+      localDynamoDb.stop();
+  }
+
+  public void printJSON(Map<String, AttributeValue> encrypted) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{\n  \"TableName\": [\n    {\n");
+    for (Map.Entry<String, AttributeValue> e : encrypted.entrySet()) {
+        AttributeValue v = e.getValue();
+        sb.append("      \"").append(e.getKey()).append("\": {\n");
+        if (v.n() != null) {
+            sb.append("        \"N\": \"").append(v.n()).append("\"\n");
+        } else if (v.b() != null) {
+            sb.append("        \"B\": \"").append(Base64.encodeAsString(v.b().asByteArray())).append("\"\n");
+        } else if (v.s() != null) {
+            sb.append("        \"S\": \"").append(v.s()).append("\"\n");
+        }
+        sb.append("      },\n");
+    }
+    sb.append("    }\n  ]\n}");
+    System.out.println(sb);
+  }
+
+  // This test configures EC with various combination. This is different from other tests as other test run in same hardcoded EC.
+  @Test
+  public void decryptWithECConfigTest() throws IOException, GeneralSecurityException {
+    final String nullTableNameInECCipherFile = "file://ciphertext/java/static-aes-hmac-null-table-1.json";
+    final String nonBMPinECCipherFile = "file://ciphertext/java/kms-nonbmp-hashkey-1.json";
+    final String nonAsciiTableInECCipherFile = "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
+
+    localDynamoDb.start();
+    client = localDynamoDb.createLimitedWrappedClient();
+    createCiphertextTables(client);
+    decryptNullTableNameInEC(nullTableNameInECCipherFile);
+    decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
+    decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
+
+    client.close();
+    localDynamoDb.stop();
+  }
+
+  public void decryptNullTableNameInEC(String nullTableNameInECCipherFile) throws IOException, GeneralSecurityException {
+    putDataFromFile(client, nullTableNameInECCipherFile);
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
+    EncryptionContext ctx = EncryptionContext.builder()
+        .tableName(null)
+        .hashKeyName("hashKey")
+        .rangeKeyName("rangeKey")
+        .build();
+
+    Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    for (String attr : ENCRYPTED_TEST_VALUE.keySet()) {
+        switch (attr) {
+            case "hashKey": case "rangeKey": case "version":
+                actions.put(attr, signOnly); break;
+            default:
+                actions.put(attr, encryptAndSign); break;
+        }
+    }
+
+    HashMap<String, AttributeValue> key = new HashMap<>();
+    key.put("hashKey", ENCRYPTED_TEST_VALUE.get("hashKey"));
+    key.put("rangeKey", ENCRYPTED_TEST_VALUE.get("rangeKey"));
+    Map<String, AttributeValue> response = getItems(key, tableName);
+    Map<String, AttributeValue> decrypted =
+        encryptor.decryptRecord(response, actions, ctx);
+    assertTrue(new DdbRecordMatcher(ENCRYPTED_TEST_VALUE, false).matches(decrypted));
+  }
+
+  public void decryptNonBmpHashKeyVector(String nonBMPinECCipherFile) throws IOException, GeneralSecurityException {
+      ScenarioManifest scenarioManifest = getManifestFromFile(
+        SCENARIO_MANIFEST_PATH, new TypeReference<ScenarioManifest>() {});
+      loadKeyData(scenarioManifest.keyDataPath);
+
+      putDataFromFile(client, nonBMPinECCipherFile);
+
+      DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+          new DirectKmsMaterialsProvider(kmsClient, keyDataMap.get("awsKmsUsWest2").keyId));
+      EncryptionContext ctx = EncryptionContext.builder()
+          .tableName("HashKeyOnly")
+          .hashKeyName("hashKey")
+          .build();
+
+      Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+      actions.put("hashKey", signOnly);
+
+      String nonBmpKey = "test\uD83D\uDE00Ψkey";
+      HashMap<String, AttributeValue> key = new HashMap<>();
+      key.put("hashKey", AttributeValue.builder().s(nonBmpKey).build());
+
+      Map<String, AttributeValue> response = getItems(key, "HashKeyOnly");
+      Map<String, AttributeValue> decrypted = encryptor.decryptRecord(response, actions, ctx);
+      assertEquals(nonBmpKey, decrypted.get("hashKey").s());
+  }
+
+  public void decryptNonAsciiTableNameVector(String nonAsciiTableInECCipherFile) throws IOException, GeneralSecurityException {
+      putDataFromFile(client, nonAsciiTableInECCipherFile);
+
+      DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
+      EncryptionContext ctx = EncryptionContext.builder()
+          .tableName("テーブル\uD83D\uDE00")
+          .hashKeyName("hashKey")
+          .rangeKeyName("rangeKey")
+          .build();
+
+      Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+      for (String attr : ENCRYPTED_TEST_VALUE.keySet()) {
+          switch (attr) {
+              case "hashKey": case "rangeKey": case "version":
+                  actions.put(attr, signOnly); break;
+              default:
+                  actions.put(attr, encryptAndSign); break;
+          }
+      }
+
+      HashMap<String, AttributeValue> key = new HashMap<>();
+      key.put("hashKey", ENCRYPTED_TEST_VALUE.get("hashKey"));
+      key.put("rangeKey", ENCRYPTED_TEST_VALUE.get("rangeKey"));
+      Map<String, AttributeValue> response = getItems(key, tableName);
+      Map<String, AttributeValue> decrypted = encryptor.decryptRecord(response, actions, ctx);
+      assertTrue(new DdbRecordMatcher(ENCRYPTED_TEST_VALUE, false).matches(decrypted));
   }
 
   @Test(dataProvider = "getDecryptTestVectors")
