@@ -30,7 +30,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class TransformerHolisticITHelper {
-    private static void decryptNullTableNameInEC(String nullTableNameInECCipherFile)
+    public static void decryptNullTableNameInEC(String nullTableNameInECCipherFile)
             throws IOException, GeneralSecurityException {
         DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
         EncryptionContext ctx = new EncryptionContext.Builder()
@@ -76,7 +76,7 @@ public class TransformerHolisticITHelper {
         }
     }
 
-    private static void decryptNonBmpHashKeyVector(String nonBMPinECCipherFile)
+    public static void decryptNonBmpHashKeyVector(String nonBMPinECCipherFile)
             throws IOException, GeneralSecurityException {
         com.amazonaws.services.dynamodbv2.testing.ScenarioManifest scenarioManifest = getManifestFromFile(
                 SCENARIO_MANIFEST_PATH,
@@ -113,7 +113,7 @@ public class TransformerHolisticITHelper {
         }
     }
 
-    private static void decryptNonAsciiTableNameVector(
+    public static void decryptNonAsciiTableNameVector(
             String nonAsciiTableInECCipherFile
     ) throws IOException, GeneralSecurityException {
         DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
