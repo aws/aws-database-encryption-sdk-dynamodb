@@ -1123,8 +1123,18 @@ public class HolisticIT {
     assertTrue(
       new DdbRecordMatcher(ENCRYPTED_TEST_VALUE, false).matches(decryptedRecord)
     );
+    
+    // Atleast decrypt one item with only hash key.
+    EncryptionContext hashOnlyContext = EncryptionContext
+      .builder()
+      .tableName("HashKeyOnly")
+      .hashKeyName("hashKey")
+      .build();
+    Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
+    hashOnlyActions.put("hashKey", signOnly);
 
-    assertEquals("Foo", getItems(hashKey1, "HashKeyOnly").get("hashKey").s());
+    Map<String, AttributeValue> decryptedHashOnlyRecord = encryptor.decryptRecord(getItems(hashKey1, "HashKeyOnly"), hashOnlyActions, hashOnlyContext);
+    assertEquals("Foo", decryptedHashOnlyRecord.get("hashKey").s());
     assertEquals("Bar", getItems(hashKey2, "HashKeyOnly").get("hashKey").s());
     assertEquals("Baz", getItems(hashKey3, "HashKeyOnly").get("hashKey").s());
 
