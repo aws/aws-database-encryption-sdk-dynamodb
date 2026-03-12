@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
+import static com.amazonaws.services.dynamodbv2.datamodeling.LegacyTestVectors.baseClassToV1AttrMap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
@@ -11,6 +12,8 @@ import static org.testng.AssertJUnit.fail;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.AsymmetricStaticProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.CachingMostRecentProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
@@ -33,6 +36,7 @@ import com.amazonaws.services.dynamodbv2.testing.types.KeysOnly;
 import com.amazonaws.services.dynamodbv2.testing.types.Mixed;
 import com.amazonaws.services.dynamodbv2.testing.types.SignOnly;
 import com.amazonaws.services.dynamodbv2.testing.types.Untouched;
+import com.amazonaws.services.dynamodbv2.testing.DdbRecordMatcher;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
 import com.amazonaws.util.Base64;
@@ -324,6 +328,102 @@ public class TransformerHolisticIT {
 
     // load data into ciphertext tables
     createCiphertextTables(client);
+  }
+
+  // This test configures EC with various combination. This is different from other tests as other test run in same hardcoded EC.
+  @Test
+  public void decryptWithECConfigTest() throws IOException, GeneralSecurityException {
+    final String nullTableNameInECCipherFile = "file://ciphertext/java/static-aes-hmac-null-table-1.json";
+    final String nonBMPinECCipherFile = "file://ciphertext/java/kms-nonbmp-hashkey-1.json";
+    final String nonAsciiTableInECCipherFile = "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
+
+    decryptNullTableNameInEC(nullTableNameInECCipherFile);
+    decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
+    decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
+  }
+
+  private void decryptNullTableNameInEC(String nullTableNameInECCipherFile) throws IOException, GeneralSecurityException {
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
+    EncryptionContext ctx =
+            new EncryptionContext.Builder()
+                    .withTableName(null)
+                    .withHashKeyName("hashKey")
+                    .withRangeKeyName("rangeKey")
+                    .build();
+
+    Map<String, AttributeValue> expectedAttrMap = baseClassToV1AttrMap(ENCRYPTED_TEST_VALUE);
+    Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    for (String attr : expectedAttrMap.keySet()) {
+      switch (attr) {
+        case "hashKey": case "rangeKey": case "version":
+          actions.put(attr, EnumSet.of(EncryptionFlags.SIGN)); break;
+        default:
+          actions.put(attr, EnumSet.of(EncryptionFlags.ENCRYPT,
+                  EncryptionFlags.SIGN)); break;
+      }
+    }
+
+    Map<String, List<Map<String, AttributeValue>>> manifest =
+            getCiphertextManifestFromFile(nullTableNameInECCipherFile);
+
+    for (Map<String, AttributeValue> encryptedItem : manifest.get(BASE_CLASS_TABLE_NAME)) {
+      Map<String, AttributeValue> decrypted = encryptor.decryptRecord(encryptedItem, actions, ctx);
+      assertTrue(new DdbRecordMatcher(expectedAttrMap, false).matches(decrypted));
+    }
+  }
+
+  private void decryptNonBmpHashKeyVector(String nonBMPinECCipherFile) throws IOException, GeneralSecurityException {
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+        SCENARIO_MANIFEST_PATH, new TypeReference<ScenarioManifest>() {});
+    loadKeyData(scenarioManifest.keyDataPath);
+
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
+            new DirectKmsMaterialProvider(kmsClient, keyDataMap.get("awsKmsUsWest2").keyId));
+    EncryptionContext ctx =
+            new EncryptionContext.Builder()
+                    .withTableName("HashKeyOnly")
+                    .withHashKeyName("hashKey")
+                    .build();
+
+    Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    actions.put("hashKey", EnumSet.of(EncryptionFlags.SIGN));
+
+    String nonBmpKey = "test\uD83D\uDE00Ψkey";
+    Map<String, List<Map<String, AttributeValue>>> manifest =
+            getCiphertextManifestFromFile(nonBMPinECCipherFile);
+    for (Map<String, AttributeValue> encryptedItem : manifest.get(BASE_CLASS_TABLE_NAME)) {
+      Map<String, AttributeValue> decrypted = encryptor.decryptRecord(encryptedItem, actions, ctx);
+      assertEquals(nonBmpKey, decrypted.get("hashKey").getS());
+    }
+  }
+
+  private void decryptNonAsciiTableNameVector(String nonAsciiTableInECCipherFile) throws IOException, GeneralSecurityException {
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(symProv);
+    com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext ctx =
+            new com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext.Builder()
+                    .withTableName("テーブル\uD83D\uDE00")
+                    .withHashKeyName("hashKey")
+                    .withRangeKeyName("rangeKey")
+                    .build();
+
+    Map<String, AttributeValue> expectedAttrMap = baseClassToV1AttrMap(ENCRYPTED_TEST_VALUE);
+    Map<String, Set<com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags>> actions = new HashMap<>();
+    for (String attr : expectedAttrMap.keySet()) {
+      switch (attr) {
+        case "hashKey": case "rangeKey": case "version":
+          actions.put(attr, EnumSet.of(com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags.SIGN)); break;
+        default:
+          actions.put(attr, EnumSet.of(com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags.ENCRYPT,
+                  com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags.SIGN)); break;
+      }
+    }
+
+    Map<String, List<Map<String, AttributeValue>>> manifest =
+            getCiphertextManifestFromFile(nonAsciiTableInECCipherFile);
+    for (Map<String, AttributeValue> encryptedItem : manifest.get(BASE_CLASS_TABLE_NAME)) {
+      Map<String, AttributeValue> decrypted = encryptor.decryptRecord(encryptedItem, actions, ctx);
+      assertTrue(new DdbRecordMatcher(expectedAttrMap, false).matches(decrypted));
+    }
   }
 
   @Test(dataProvider = "getDecryptTestVectors")

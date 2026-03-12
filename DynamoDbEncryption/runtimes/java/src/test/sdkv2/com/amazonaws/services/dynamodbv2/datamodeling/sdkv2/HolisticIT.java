@@ -659,15 +659,9 @@ public class HolisticIT {
     final String nonBMPinECCipherFile = "file://ciphertext/java/kms-nonbmp-hashkey-1.json";
     final String nonAsciiTableInECCipherFile = "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
 
-    localDynamoDb.start();
-    client = localDynamoDb.createLimitedWrappedClient();
-    createCiphertextTables(client);
     decryptNullTableNameInEC(nullTableNameInECCipherFile);
     decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
     decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
-
-    client.close();
-    localDynamoDb.stop();
   }
 
   public void decryptNullTableNameInEC(String nullTableNameInECCipherFile) throws IOException, GeneralSecurityException {
@@ -697,6 +691,10 @@ public class HolisticIT {
   }
 
   public void decryptNonBmpHashKeyVector(String nonBMPinECCipherFile) throws IOException, GeneralSecurityException {
+      ScenarioManifest scenarioManifest = getManifestFromFile(
+        SCENARIO_MANIFEST_PATH, new TypeReference<ScenarioManifest>() {});
+      loadKeyData(scenarioManifest.keyDataPath);
+
       DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
           new DirectKmsMaterialsProvider(kmsClient, keyDataMap.get("awsKmsUsWest2").keyId));
       EncryptionContext ctx = EncryptionContext.builder()
