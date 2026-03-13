@@ -3,6 +3,7 @@ package com.amazonaws.services.dynamodbv2.testing;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ScenarioManifest {
@@ -34,6 +35,9 @@ public class ScenarioManifest {
 
     public Metastore metastore;
     public Keys keys;
+
+    @JsonProperty("material_description")
+    public Map<String, String> materialDescription;
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
