@@ -679,6 +679,59 @@ public class HolisticIT {
     localDynamoDb.stop();
   }
 
+  // One-off generator: run this test to produce the AES/128 ciphertext vector file.
+  // After generating, save stdout as ciphertext/java/aws-kms-aes128-1.json and disable this test.
+  @Test(enabled = false)
+  public void generateKmsAes128Vector() throws IOException {
+    localDynamoDb.start();
+    client = localDynamoDb.createLimitedWrappedClient();
+    createCiphertextTables(client);
+
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+      SCENARIO_MANIFEST_PATH,
+      new TypeReference<ScenarioManifest>() {}
+    );
+    loadKeyData(scenarioManifest.keyDataPath);
+
+    Map<String, String> desc = Collections.singletonMap("amzn-ddb-env-alg", "AES/128");
+    EncryptionMaterialsProvider provider = new DirectKmsMaterialsProvider(
+      kmsClient, keyDataMap.get("awsKmsUsWest2").keyId, desc);
+
+    generateStandardData(provider);
+
+    // Print tables in test vector format
+    ObjectMapper mapper = new ObjectMapper();
+    com.fasterxml.jackson.databind.module.SimpleModule module =
+      new com.fasterxml.jackson.databind.module.SimpleModule();
+    module.addSerializer(
+      AttributeValue.class,
+      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueSerializer()
+    );
+    mapper.registerModule(module);
+
+    Map<String, List<Map<String, AttributeValue>>> testVector = new HashMap<>();
+    for (String table : Arrays.asList("TableName", "HashKeyOnly")) {
+      List<Map<String, AttributeValue>> items = new ArrayList<>();
+      Map<String, AttributeValue> lastKey = null;
+      do {
+        ScanResponse scanResponse = client.scan(
+          ScanRequest.builder()
+            .tableName(table)
+            .exclusiveStartKey(lastKey)
+            .build()
+        );
+        lastKey = scanResponse.lastEvaluatedKey();
+        if (lastKey != null && lastKey.isEmpty()) lastKey = null;
+        items.addAll(scanResponse.items());
+      } while (lastKey != null);
+      testVector.put(table, items);
+    }
+    System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testVector));
+
+    client.close();
+    localDynamoDb.stop();
+  }
+
   private EncryptionMaterialsProvider createProvider(
     String providerName,
     String materialName,
