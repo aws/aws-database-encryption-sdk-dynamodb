@@ -338,9 +338,15 @@ public class TransformerHolisticIT {
     final String nonAsciiTableInECCipherFile =
       "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
 
-    TransformerHolisticITHelper.decryptNullTableNameInEC(nullTableNameInECCipherFile);
-    TransformerHolisticITHelper.decryptNonBmpHashKeyVector(nonBMPinECCipherFile);
-    TransformerHolisticITHelper.decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
+    TransformerHolisticITHelper.decryptNullTableNameInEC(
+      nullTableNameInECCipherFile
+    );
+    TransformerHolisticITHelper.decryptNonBmpHashKeyVector(
+      nonBMPinECCipherFile
+    );
+    TransformerHolisticITHelper.decryptNonAsciiTableNameVector(
+      nonAsciiTableInECCipherFile
+    );
   }
 
   @Test(dataProvider = "getDecryptTestVectors")

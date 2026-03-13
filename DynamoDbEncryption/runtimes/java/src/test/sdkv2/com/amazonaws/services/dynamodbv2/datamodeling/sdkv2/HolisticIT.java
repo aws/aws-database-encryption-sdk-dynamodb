@@ -102,7 +102,9 @@ public class HolisticIT {
   private static final String RANGE_KEY = "rangeKey";
   private static final String RSA = "RSA";
   public static final String tableName = "TableName";
-  public static final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
+  public static final EnumSet<EncryptionFlags> signOnly = EnumSet.of(
+    EncryptionFlags.SIGN
+  );
   public static final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
     EncryptionFlags.ENCRYPT,
     EncryptionFlags.SIGN
@@ -552,8 +554,12 @@ public class HolisticIT {
     HolisticITHelper.decryptNullTableNameInEC(nullTableNameInECCipherFile);
     // decryptNonBmpHashKeyVectorAndWithNullKeyId uses non bmp hash key and also does not use any KMS key id which proves
     // that KMS key id is fetched from message format
-    HolisticITHelper.decryptNonBmpHashKeyVectorAndWithNullKeyId(nonBMPinECCipherFile);
-    HolisticITHelper.decryptNonAsciiTableNameVector(nonAsciiTableInECCipherFile);
+    HolisticITHelper.decryptNonBmpHashKeyVectorAndWithNullKeyId(
+      nonBMPinECCipherFile
+    );
+    HolisticITHelper.decryptNonAsciiTableNameVector(
+      nonAsciiTableInECCipherFile
+    );
   }
 
   @Test(dataProvider = "getDecryptTestVectors")
