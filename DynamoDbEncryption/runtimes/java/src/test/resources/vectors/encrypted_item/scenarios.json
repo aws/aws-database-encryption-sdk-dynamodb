@@ -262,6 +262,20 @@
     },
     {
       "version": "v1",
+      "provider": "awskms",
+      "keys": {
+        "decrypt": "awsKmsUsWest2",
+        "verify": "awsKmsUsWest2"
+      },
+      "material_description": {
+        "amzn-ddb-env-alg": "AES/128"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/aws-kms-aes128-1.json",
+      "network": true
+    },
+    {
+      "version": "v1",
       "provider": "most_recent",
       "material_name": "java-rsa-material-name",
       "metastore": {
