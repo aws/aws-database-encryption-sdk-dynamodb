@@ -611,6 +611,26 @@ public class HolisticIT {
       scenario.materialDescription
     );
 
+    // If scenario specifies a material_description, verify it's baked into the ciphertext
+    if (scenario.materialDescription != null) {
+      Map<String, List<Map<String, AttributeValue>>> cipherData =
+        getCiphertextManifestFromFile(scenario.ciphertextPath);
+      for (List<Map<String, AttributeValue>> items : cipherData.values()) {
+        for (Map<String, AttributeValue> item : items) {
+          AttributeValue descAttr = item.get("*amzn-ddb-map-desc*");
+          if (descAttr != null && descAttr.b() != null) {
+            String descBlob = new String(descAttr.b().asByteArray(), java.nio.charset.StandardCharsets.ISO_8859_1);
+            for (Map.Entry<String, String> entry : scenario.materialDescription.entrySet()) {
+              assertTrue(
+                "Expected " + entry.getValue() + " in *amzn-ddb-map-desc* but not found",
+                descBlob.contains(entry.getValue())
+              );
+            }
+          }
+        }
+      }
+    }
+
     // Verify successful decryption
     switch (scenario.version) {
       case "v0":
