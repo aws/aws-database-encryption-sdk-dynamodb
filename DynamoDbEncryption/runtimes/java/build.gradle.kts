@@ -189,6 +189,7 @@ tasks.withType<Jar>() {
 }
 
 tasks.test {
+    outputs.upToDateWhen { false }
     useTestNG()
     dependsOn("CopyDynamoDb")
     systemProperty("java.library.path", "build/libs")
