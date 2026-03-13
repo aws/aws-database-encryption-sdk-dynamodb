@@ -16,7 +16,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStore;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.ProviderStore;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.*;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueDeserializer;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.LocalDynamoDb;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest.KeyData;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest.Keys;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest.Scenario;
@@ -92,26 +95,28 @@ public class HolisticIT {
   private static final PrivateKey rsaPriv;
   private static final PublicKey rsaPub;
   private static final KeyPair rsaPair;
-  private static final EncryptionMaterialsProvider symProv;
+  public static final EncryptionMaterialsProvider symProv;
   private static final EncryptionMaterialsProvider asymProv;
   private static final EncryptionMaterialsProvider symWrappedProv;
   private static final String HASH_KEY = "hashKey";
   private static final String RANGE_KEY = "rangeKey";
   private static final String RSA = "RSA";
-  private static final String tableName = "TableName";
-  final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
-  final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+  public static final String tableName = "TableName";
+  public static final EnumSet<EncryptionFlags> signOnly = EnumSet.of(
+    EncryptionFlags.SIGN
+  );
+  public static final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
     EncryptionFlags.ENCRYPT,
     EncryptionFlags.SIGN
   );
 
   private final LocalDynamoDb localDynamoDb = new LocalDynamoDb();
   private DynamoDbClient client;
-  private static KmsClient kmsClient = KmsClient.builder().build();
+  public static KmsClient kmsClient = KmsClient.builder().build();
 
-  private static Map<String, KeyData> keyDataMap = new HashMap<>();
+  public static Map<String, KeyData> keyDataMap = new HashMap<>();
 
-  private static final Map<String, AttributeValue> ENCRYPTED_TEST_VALUE =
+  public static final Map<String, AttributeValue> ENCRYPTED_TEST_VALUE =
     new HashMap<>();
   private static final Map<String, AttributeValue> MIXED_TEST_VALUE =
     new HashMap<>();
@@ -131,7 +136,7 @@ public class HolisticIT {
 
   private static final String TEST_VECTOR_MANIFEST_DIR =
     "/vectors/encrypted_item/";
-  private static final String SCENARIO_MANIFEST_PATH =
+  public static final String SCENARIO_MANIFEST_PATH =
     TEST_VECTOR_MANIFEST_DIR + "scenarios.json";
   private static final String JAVA_DIR = "java";
 
@@ -535,6 +540,28 @@ public class HolisticIT {
       .toArray(Object[][]::new);
   }
 
+  // This test configures EC with various combination. This is different from other tests as other test run in same hardcoded EC.
+  @Test
+  public void decryptWithECConfigTest()
+    throws IOException, GeneralSecurityException {
+    final String nullTableNameInECCipherFile =
+      "file://ciphertext/java/static-aes-hmac-null-table-1.json";
+    final String nonBMPinECCipherFile =
+      "file://ciphertext/java/kms-nonbmp-hashkey-1.json";
+    final String nonAsciiTableInECCipherFile =
+      "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
+
+    HolisticITHelper.decryptNullTableNameInEC(nullTableNameInECCipherFile);
+    // decryptNonBmpHashKeyVectorAndWithNullKeyId uses non bmp hash key and also does not use any KMS key id which proves
+    // that KMS key id is fetched from message format
+    HolisticITHelper.decryptNonBmpHashKeyVectorAndWithNullKeyId(
+      nonBMPinECCipherFile
+    );
+    HolisticITHelper.decryptNonAsciiTableNameVector(
+      nonAsciiTableInECCipherFile
+    );
+  }
+
   @Test(dataProvider = "getDecryptTestVectors")
   public void decryptTestVector(Scenario scenario)
     throws IOException, GeneralSecurityException {
@@ -890,7 +917,7 @@ public class HolisticIT {
     }
   }
 
-  private Map<
+  public static Map<
     String,
     List<Map<String, AttributeValue>>
   > getCiphertextManifestFromFile(String filename) throws IOException {
@@ -902,7 +929,7 @@ public class HolisticIT {
     );
   }
 
-  private static <T> T getManifestFromFile(
+  public static <T> T getManifestFromFile(
     String filename,
     TypeReference typeRef
   ) throws IOException {
@@ -917,7 +944,7 @@ public class HolisticIT {
     return (T) manifestMapper.readValue(manifestFile, typeRef);
   }
 
-  private static void loadKeyData(String filename) throws IOException {
+  public static void loadKeyData(String filename) throws IOException {
     keyDataMap =
       getManifestFromFile(
         TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
@@ -1124,7 +1151,22 @@ public class HolisticIT {
       new DdbRecordMatcher(ENCRYPTED_TEST_VALUE, false).matches(decryptedRecord)
     );
 
-    assertEquals("Foo", getItems(hashKey1, "HashKeyOnly").get("hashKey").s());
+    // Atleast decrypt one item with only hash key.
+    EncryptionContext hashOnlyContext = EncryptionContext
+      .builder()
+      .tableName("HashKeyOnly")
+      .hashKeyName("hashKey")
+      .build();
+    Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
+    hashOnlyActions.put("hashKey", signOnly);
+
+    Map<String, AttributeValue> decryptedHashOnlyRecord =
+      encryptor.decryptRecord(
+        getItems(hashKey1, "HashKeyOnly"),
+        hashOnlyActions,
+        hashOnlyContext
+      );
+    assertEquals("Foo", decryptedHashOnlyRecord.get("hashKey").s());
     assertEquals("Bar", getItems(hashKey2, "HashKeyOnly").get("hashKey").s());
     assertEquals("Baz", getItems(hashKey3, "HashKeyOnly").get("hashKey").s());
 

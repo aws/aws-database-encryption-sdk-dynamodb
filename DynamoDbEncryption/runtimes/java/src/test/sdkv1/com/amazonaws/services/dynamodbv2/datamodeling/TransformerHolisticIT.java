@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
+import static com.amazonaws.services.dynamodbv2.datamodeling.LegacyTestVectors.baseClassToV1AttrMap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
@@ -107,18 +108,18 @@ public class TransformerHolisticIT {
   private static final PrivateKey rsaPriv;
   private static final PublicKey rsaPub;
   private static final KeyPair rsaPair;
-  private static final EncryptionMaterialsProvider symProv;
+  public static final EncryptionMaterialsProvider symProv;
   private static final EncryptionMaterialsProvider asymProv;
   private static final EncryptionMaterialsProvider symWrappedProv;
   protected static final String HASH_KEY = "hashKey";
   protected static final String RANGE_KEY = "rangeKey";
-  protected static final String BASE_CLASS_TABLE_NAME = "TableName";
+  public static final String BASE_CLASS_TABLE_NAME = "TableName";
   private static final String RSA = "RSA";
 
   private AmazonDynamoDB client;
-  private static AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
+  public static AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
 
-  private static Map<String, KeyData> keyDataMap = new HashMap<>();
+  public static Map<String, KeyData> keyDataMap = new HashMap<>();
 
   // AttributeEncryptor *must* be used with SaveBehavior.CLOBBER to avoid the risk of data
   // corruption.
@@ -127,7 +128,7 @@ public class TransformerHolisticIT {
       .builder()
       .withSaveBehavior(SaveBehavior.CLOBBER)
       .build();
-  private static final BaseClass ENCRYPTED_TEST_VALUE = new BaseClass();
+  public static final BaseClass ENCRYPTED_TEST_VALUE = new BaseClass();
   private static final Mixed MIXED_TEST_VALUE = new Mixed();
   private static final SignOnly SIGNED_TEST_VALUE = new SignOnly();
   private static final Untouched UNTOUCHED_TEST_VALUE = new Untouched();
@@ -139,7 +140,7 @@ public class TransformerHolisticIT {
 
   private static final String TEST_VECTOR_MANIFEST_DIR =
     "/vectors/encrypted_item/";
-  private static final String SCENARIO_MANIFEST_PATH =
+  public static final String SCENARIO_MANIFEST_PATH =
     TEST_VECTOR_MANIFEST_DIR + "scenarios.json";
   private static final String JAVA_DIR = "java";
 
@@ -324,6 +325,28 @@ public class TransformerHolisticIT {
 
     // load data into ciphertext tables
     createCiphertextTables(client);
+  }
+
+  // This test configures EC with various combination. This is different from other tests as other test run in same hardcoded EC.
+  @Test
+  public void decryptWithECConfigTest()
+    throws IOException, GeneralSecurityException {
+    final String nullTableNameInECCipherFile =
+      "file://ciphertext/java/static-aes-hmac-null-table-1.json";
+    final String nonBMPinECCipherFile =
+      "file://ciphertext/java/kms-nonbmp-hashkey-1.json";
+    final String nonAsciiTableInECCipherFile =
+      "file://ciphertext/java/static-aes-hmac-nonascii-table-1.json";
+
+    TransformerHolisticITHelper.decryptNullTableNameInEC(
+      nullTableNameInECCipherFile
+    );
+    TransformerHolisticITHelper.decryptNonBmpHashKeyVector(
+      nonBMPinECCipherFile
+    );
+    TransformerHolisticITHelper.decryptNonAsciiTableNameVector(
+      nonAsciiTableInECCipherFile
+    );
   }
 
   @Test(dataProvider = "getDecryptTestVectors")
@@ -1353,7 +1376,7 @@ public class TransformerHolisticIT {
     }
   }
 
-  private Map<
+  public static Map<
     String,
     List<Map<String, AttributeValue>>
   > getCiphertextManifestFromFile(String filename) throws IOException {
@@ -1365,7 +1388,7 @@ public class TransformerHolisticIT {
     );
   }
 
-  private static <T> T getManifestFromFile(
+  public static <T> T getManifestFromFile(
     String filename,
     TypeReference typeRef
   ) throws IOException {
@@ -1380,7 +1403,7 @@ public class TransformerHolisticIT {
     return (T) manifestMapper.readValue(manifestFile, typeRef);
   }
 
-  private static void loadKeyData(String filename) throws IOException {
+  static void loadKeyData(String filename) throws IOException {
     keyDataMap =
       getManifestFromFile(
         TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),
