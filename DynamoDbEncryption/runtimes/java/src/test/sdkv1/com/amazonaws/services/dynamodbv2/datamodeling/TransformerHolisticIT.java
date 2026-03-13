@@ -372,6 +372,7 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
+        null,
         null
       );
       metastore =
@@ -387,7 +388,8 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore
+      metastore,
+      scenario.materialDescription
     );
     DynamoDBMapper mapper = new DynamoDBMapper(
       client,
@@ -437,6 +439,7 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
+        null,
         null
       );
       metastore =
@@ -452,7 +455,8 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore
+      metastore,
+      scenario.materialDescription
     );
 
     final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(
@@ -569,6 +573,7 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
+        null,
         null
       );
       metastore =
@@ -583,7 +588,8 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore
+      metastore,
+      scenario.materialDescription
     );
 
     generateStandardData(provider);
@@ -610,6 +616,7 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
+        null,
         null
       );
       metastore =
@@ -624,7 +631,8 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore
+      metastore,
+      scenario.materialDescription
     );
 
     final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(
@@ -1186,7 +1194,8 @@ public class TransformerHolisticIT {
     String providerName,
     String materialName,
     Keys keys,
-    ProviderStore metastore
+    ProviderStore metastore,
+    Map<String, String> materialDescription
   ) {
     switch (providerName) {
       case ScenarioManifest.MOST_RECENT_PROVIDER_NAME:
@@ -1258,6 +1267,13 @@ public class TransformerHolisticIT {
           }
         }
       case ScenarioManifest.AWS_KMS_PROVIDER_NAME:
+        if (materialDescription != null && !materialDescription.isEmpty()) {
+          return new DirectKmsMaterialProvider(
+            kmsClient,
+            keyDataMap.get(keys.decryptName).keyId,
+            materialDescription
+          );
+        }
         return new DirectKmsMaterialProvider(
           kmsClient,
           keyDataMap.get(keys.decryptName).keyId
