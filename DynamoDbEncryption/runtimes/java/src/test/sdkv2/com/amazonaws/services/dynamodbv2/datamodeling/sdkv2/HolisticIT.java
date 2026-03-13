@@ -591,6 +591,7 @@ public class HolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
+        null,
         null
       );
       metastore =
@@ -606,7 +607,8 @@ public class HolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore
+      metastore,
+      scenario.materialDescription
     );
 
     // Verify successful decryption
@@ -653,6 +655,7 @@ public class HolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
+        null,
         null
       );
       metastore =
@@ -668,7 +671,8 @@ public class HolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore
+      metastore,
+      scenario.materialDescription
     );
     generateStandardData(provider);
     client.close();
@@ -679,7 +683,8 @@ public class HolisticIT {
     String providerName,
     String materialName,
     Keys keys,
-    ProviderStore metastore
+    ProviderStore metastore,
+    Map<String, String> materialDescription
   ) {
     switch (providerName) {
       case ScenarioManifest.MOST_RECENT_PROVIDER_NAME:
@@ -751,6 +756,13 @@ public class HolisticIT {
           }
         }
       case ScenarioManifest.AWS_KMS_PROVIDER_NAME:
+        if (materialDescription != null && !materialDescription.isEmpty()) {
+          return new DirectKmsMaterialsProvider(
+            kmsClient,
+            keyDataMap.get(keys.decryptName).keyId,
+            materialDescription
+          );
+        }
         return new DirectKmsMaterialsProvider(
           kmsClient,
           keyDataMap.get(keys.decryptName).keyId
