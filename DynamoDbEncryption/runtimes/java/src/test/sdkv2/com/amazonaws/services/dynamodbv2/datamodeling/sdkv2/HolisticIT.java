@@ -699,34 +699,84 @@ public class HolisticIT {
 
     generateStandardData(provider);
 
-    // Print tables in test vector format
-    ObjectMapper mapper = new ObjectMapper();
-    com.fasterxml.jackson.databind.module.SimpleModule module =
-      new com.fasterxml.jackson.databind.module.SimpleModule();
-    module.addSerializer(
-      AttributeValue.class,
-      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueSerializer()
-    );
-    mapper.registerModule(module);
-
-    Map<String, List<Map<String, AttributeValue>>> testVector = new HashMap<>();
-    for (String table : Arrays.asList("TableName", "HashKeyOnly")) {
-      List<Map<String, AttributeValue>> items = new ArrayList<>();
-      Map<String, AttributeValue> lastKey = null;
-      do {
-        ScanResponse scanResponse = client.scan(
-          ScanRequest.builder()
-            .tableName(table)
-            .exclusiveStartKey(lastKey)
-            .build()
-        );
-        lastKey = scanResponse.lastEvaluatedKey();
-        if (lastKey != null && lastKey.isEmpty()) lastKey = null;
-        items.addAll(scanResponse.items());
-      } while (lastKey != null);
-      testVector.put(table, items);
+    // generateStandardData only writes to TableName; also write HashKeyOnly and KeysOnly
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(provider);
+    EncryptionContext hashOnlyCtx = EncryptionContext.builder()
+      .tableName("HashKeyOnly").hashKeyName("hashKey").build();
+    Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
+    hashOnlyActions.put("hashKey", signOnly);
+    for (String name : new String[]{"Foo", "Bar", "Baz"}) {
+      Map<String, AttributeValue> item = new HashMap<>();
+      item.put("hashKey", AttributeValue.builder().s(name).build());
+      putItems(encryptor.encryptRecord(item, hashOnlyActions, hashOnlyCtx), "HashKeyOnly");
     }
-    System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testVector));
+    EncryptionContext keysOnlyCtx = EncryptionContext.builder()
+      .tableName(tableName).hashKeyName("hashKey").rangeKeyName("rangeKey").build();
+    Map<String, Set<EncryptionFlags>> keysOnlyActions = new HashMap<>();
+    keysOnlyActions.put("hashKey", signOnly);
+    keysOnlyActions.put("rangeKey", signOnly);
+    int[][] keysOnlyPairs = {{0,1},{0,2},{0,3},{1,1},{1,2},{1,3},{5,1},{6,2},{7,3}};
+    for (int[] pair : keysOnlyPairs) {
+      Map<String, AttributeValue> item = new HashMap<>();
+      item.put("hashKey", AttributeValue.builder().n(String.valueOf(pair[0])).build());
+      item.put("rangeKey", AttributeValue.builder().n(String.valueOf(pair[1])).build());
+      putItems(encryptor.encryptRecord(item, keysOnlyActions, keysOnlyCtx), tableName);
+    }
+
+    // Scan and print tables in test vector JSON format
+    StringBuilder sb = new StringBuilder("{\n");
+    String[] tables = {"TableName", "HashKeyOnly"};
+    for (int t = 0; t < tables.length; t++) {
+      sb.append("  \"").append(tables[t]).append("\": [\n");
+      ScanResponse scanResponse = client.scan(
+        ScanRequest.builder().tableName(tables[t]).build());
+      List<Map<String, AttributeValue>> items = scanResponse.items();
+      for (int i = 0; i < items.size(); i++) {
+        sb.append("    {\n");
+        Map<String, AttributeValue> item = items.get(i);
+        int attrIdx = 0;
+        for (Map.Entry<String, AttributeValue> e : item.entrySet()) {
+          AttributeValue v = e.getValue();
+          sb.append("      \"").append(e.getKey()).append("\": {\n");
+          if (v.n() != null) {
+            sb.append("        \"N\": \"").append(v.n()).append("\"\n");
+          } else if (v.s() != null) {
+            sb.append("        \"S\": \"").append(v.s()).append("\"\n");
+          } else if (v.b() != null) {
+            sb.append("        \"B\": \"")
+              .append(Base64.encodeAsString(v.b().asByteArray()))
+              .append("\"\n");
+          } else if (v.hasSs()) {
+            sb.append("        \"SS\": [");
+            List<String> ss = v.ss();
+            for (int s = 0; s < ss.size(); s++) {
+              sb.append("\"").append(ss.get(s)).append("\"");
+              if (s < ss.size() - 1) sb.append(", ");
+            }
+            sb.append("]\n");
+          } else if (v.hasNs()) {
+            sb.append("        \"NS\": [");
+            List<String> ns = v.ns();
+            for (int n = 0; n < ns.size(); n++) {
+              sb.append("\"").append(ns.get(n)).append("\"");
+              if (n < ns.size() - 1) sb.append(", ");
+            }
+            sb.append("]\n");
+          }
+          sb.append("      }");
+          if (++attrIdx < item.size()) sb.append(",");
+          sb.append("\n");
+        }
+        sb.append("    }");
+        if (i < items.size() - 1) sb.append(",");
+        sb.append("\n");
+      }
+      sb.append("  ]");
+      if (t < tables.length - 1) sb.append(",");
+      sb.append("\n");
+    }
+    sb.append("}");
+    System.out.println(sb);
 
     client.close();
     localDynamoDb.stop();
