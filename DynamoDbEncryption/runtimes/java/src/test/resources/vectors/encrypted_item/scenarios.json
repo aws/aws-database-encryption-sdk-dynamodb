@@ -267,6 +267,9 @@
         "decrypt": "awsKmsUsWest2",
         "verify": "awsKmsUsWest2"
       },
+      "material_description": {
+        "amzn-ddb-env-alg": "AES/128"
+      },
       "plaintext": "file://plaintext.json",
       "ciphertext": "file://ciphertext/java/aws-kms-aes128-1.json",
       "network": true
