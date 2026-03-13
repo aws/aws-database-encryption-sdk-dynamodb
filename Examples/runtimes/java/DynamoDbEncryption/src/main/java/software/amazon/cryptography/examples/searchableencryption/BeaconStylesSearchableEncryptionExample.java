@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.swing.text.html.Option;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -74,6 +73,8 @@ import software.amazon.cryptography.materialproviders.model.MaterialProvidersCon
  */
 
 public class BeaconStylesSearchableEncryptionExample {
+
+  private static final String INSPECTION_DATE = "2023-06-13";
 
   public static void PutItemQueryItemWithBeaconStyles(
     String ddbTableName,
@@ -285,7 +286,7 @@ public class BeaconStylesSearchableEncryptionExample {
     item1.put("work_id", AttributeValue.builder().s(workId1).build());
     item1.put(
       "inspection_date",
-      AttributeValue.builder().s("2023-06-13").build()
+      AttributeValue.builder().s(INSPECTION_DATE).build()
     );
     item1.put("dessert", AttributeValue.builder().s("cake").build());
     item1.put("fruit", AttributeValue.builder().s("banana").build());
@@ -306,7 +307,7 @@ public class BeaconStylesSearchableEncryptionExample {
     item2.put("work_id", AttributeValue.builder().s(workId2).build());
     item2.put(
       "inspection_date",
-      AttributeValue.builder().s("2023-06-13").build()
+      AttributeValue.builder().s(INSPECTION_DATE).build()
     );
     item2.put("fruit", AttributeValue.builder().s("orange").build());
     item2.put("dessert", AttributeValue.builder().s("orange").build());
@@ -480,25 +481,28 @@ public class BeaconStylesSearchableEncryptionExample {
       assert scanResponse.items().get(0).equals(item1);
     } finally {
       // Clean up: delete both items using a plain DDB client
-      final DynamoDbClient plainDdb = DynamoDbClient.create();
-      HashMap<String, AttributeValue> key1 = new HashMap<>();
-      key1.put("work_id", AttributeValue.builder().s(workId1).build());
-      key1.put(
-        "inspection_date",
-        AttributeValue.builder().s("2023-06-13").build()
-      );
-      plainDdb.deleteItem(
-        DeleteItemRequest.builder().tableName(ddbTableName).key(key1).build()
-      );
-      HashMap<String, AttributeValue> key2 = new HashMap<>();
-      key2.put("work_id", AttributeValue.builder().s(workId2).build());
-      key2.put(
-        "inspection_date",
-        AttributeValue.builder().s("2023-06-13").build()
-      );
-      plainDdb.deleteItem(
-        DeleteItemRequest.builder().tableName(ddbTableName).key(key2).build()
-      );
+      try (DynamoDbClient plainDdb = DynamoDbClient.create()) {
+        HashMap<String, AttributeValue> key1 = new HashMap<>();
+        key1.put("work_id", AttributeValue.builder().s(workId1).build());
+        key1.put(
+          "inspection_date",
+          AttributeValue.builder().s(INSPECTION_DATE).build()
+        );
+        plainDdb.deleteItem(
+          DeleteItemRequest.builder().tableName(ddbTableName).key(key1).build()
+        );
+        HashMap<String, AttributeValue> key2 = new HashMap<>();
+        key2.put("work_id", AttributeValue.builder().s(workId2).build());
+        key2.put(
+          "inspection_date",
+          AttributeValue.builder().s(INSPECTION_DATE).build()
+        );
+        plainDdb.deleteItem(
+          DeleteItemRequest.builder().tableName(ddbTableName).key(key2).build()
+        );
+      } catch (Exception e) {
+        System.err.println("Cleanup failed: " + e.getMessage());
+      }
     }
   }
 

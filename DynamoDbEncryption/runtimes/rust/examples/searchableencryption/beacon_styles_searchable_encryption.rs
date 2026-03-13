@@ -23,6 +23,8 @@ use aws_db_esdk::DynamoDbTablesEncryptionConfig;
 use aws_sdk_dynamodb::types::AttributeValue;
 use std::collections::HashMap;
 
+const INSPECTION_DATE: &str = "2023-06-13";
+
 /*
  This example demonstrates how to use Beacons Styles on Standard Beacons on encrypted attributes,
      put an item with the beacon, and query against that beacon.
@@ -210,7 +212,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         ("work_id".to_string(), AttributeValue::S(work_id1.clone())),
         (
             "inspection_date".to_string(),
-            AttributeValue::S("2023-06-13".to_string()),
+            AttributeValue::S(INSPECTION_DATE.to_string()),
         ),
         ("dessert".to_string(), AttributeValue::S("cake".to_string())),
         ("fruit".to_string(), AttributeValue::S("banana".to_string())),
@@ -241,7 +243,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         ("work_id".to_string(), AttributeValue::S(work_id2.clone())),
         (
             "inspection_date".to_string(),
-            AttributeValue::S("2023-06-13".to_string()),
+            AttributeValue::S(INSPECTION_DATE.to_string()),
         ),
         (
             "dessert".to_string(),
@@ -298,14 +300,14 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         .delete_item()
         .table_name(ddb_table_name)
         .key("work_id", AttributeValue::S(work_id1))
-        .key("inspection_date", AttributeValue::S("2023-06-13".to_string()))
+        .key("inspection_date", AttributeValue::S(INSPECTION_DATE.to_string()))
         .send()
         .await;
     let _ = plain_ddb
         .delete_item()
         .table_name(ddb_table_name)
         .key("work_id", AttributeValue::S(work_id2))
-        .key("inspection_date", AttributeValue::S("2023-06-13".to_string()))
+        .key("inspection_date", AttributeValue::S(INSPECTION_DATE.to_string()))
         .send()
         .await;
 
