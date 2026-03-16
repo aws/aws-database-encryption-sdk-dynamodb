@@ -1204,14 +1204,28 @@ public class TransformerHolisticIT {
         KeyData decryptKeyData = keyDataMap.get(keys.decryptName);
         KeyData verifyKeyData = keyDataMap.get(keys.verifyName);
         SecretKey decryptKey = new SecretKeySpec(
-          Base64.decode(decryptKeyData.material),
-          decryptKeyData.algorithm
-        );
-        SecretKey verifyKey = new SecretKeySpec(
-          Base64.decode(verifyKeyData.material),
-          verifyKeyData.algorithm
-        );
-        return new SymmetricStaticProvider(decryptKey, verifyKey);
+            Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+        Map<String, String> desc = (materialDescription != null)
+            ? materialDescription : Collections.emptyMap();
+
+        if (verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)) {
+            SecretKey verifyKey = new SecretKeySpec(
+                Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
+            return new SymmetricStaticProvider(decryptKey, verifyKey, desc);
+        } else {
+            try {
+              KeyData signKeyData = keyDataMap.get(keys.signName);
+              KeyFactory rsaFact = KeyFactory.getInstance(RSA);
+              PublicKey verifyMaterial = rsaFact.generatePublic(
+                  new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
+              PrivateKey signingMaterial = rsaFact.generatePrivate(
+                  new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
+              KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
+              return new SymmetricStaticProvider(decryptKey, sigPair, desc);
+            } catch (GeneralSecurityException ex) {
+              throw new RuntimeException(ex);
+            }
+        }
       case ScenarioManifest.WRAPPED_PROVIDER_NAME:
         decryptKeyData = keyDataMap.get(keys.decryptName);
         verifyKeyData = keyDataMap.get(keys.verifyName);
@@ -1227,7 +1241,7 @@ public class TransformerHolisticIT {
               Base64.decode(decryptKeyData.material),
               decryptKeyData.algorithm
             );
-          verifyKey =
+          SecretKey verifyKey =
             new SecretKeySpec(
               Base64.decode(verifyKeyData.material),
               verifyKeyData.algorithm
