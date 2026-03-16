@@ -796,7 +796,11 @@ public class HolisticIT {
       sb.append("\n");
     }
     sb.append("}");
-    System.out.println(sb);
+    java.nio.file.Path vectorPath = java.nio.file.Paths.get(
+      HolisticIT.class.getResource(TEST_VECTOR_MANIFEST_DIR).getPath(),
+      "ciphertext", "java", "aws-kms-aes128-1.json");
+    java.nio.file.Files.write(vectorPath, sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    System.out.println("Wrote vector to: " + vectorPath);
 
     client.close();
     localDynamoDb.stop();
