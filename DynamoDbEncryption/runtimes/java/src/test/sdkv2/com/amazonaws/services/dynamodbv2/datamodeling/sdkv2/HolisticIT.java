@@ -984,7 +984,8 @@ public class HolisticIT {
       );
   }
 
-  public void generateStandardData(EncryptionMaterialsProvider prov) {
+  public Set<String> generateStandardData(EncryptionMaterialsProvider prov) {
+    Set<String> tables = new LinkedHashSet<>();
     DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
     Map<String, AttributeValue> encryptedRecord;
     Map<String, Set<EncryptionFlags>> actions;
@@ -1022,6 +1023,7 @@ public class HolisticIT {
         actions,
         encryptionContext
       );
+    tables.add(tableName);
     putItems(encryptedRecord, tableName);
 
     // mixed test record
@@ -1065,6 +1067,7 @@ public class HolisticIT {
     Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
     hashOnlyActions.put("hashKey", signOnly);
     for (Map<String, AttributeValue> hk : new Map[]{hashKey1, hashKey2, hashKey3}) {
+      tables.add("HashKeyOnly");
       putItems(encryptor.encryptRecord(hk, hashOnlyActions, hashOnlyCtx), "HashKeyOnly");
     }
 
@@ -1079,6 +1082,7 @@ public class HolisticIT {
       item.put("rangeKey", AttributeValue.builder().n(String.valueOf(pair[1])).build());
       putItems(encryptor.encryptRecord(item, keysOnlyActions, encryptionContext), tableName);
     }
+    return tables;
   }
 
   protected void putItems(Map<String, AttributeValue> map, String tableName) {

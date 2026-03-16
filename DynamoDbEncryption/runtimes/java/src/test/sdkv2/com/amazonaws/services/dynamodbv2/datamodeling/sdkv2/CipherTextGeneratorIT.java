@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.annotations.Test;
@@ -40,14 +41,14 @@ public class CipherTextGeneratorIT extends HolisticIT {
     EncryptionMaterialsProvider provider = new DirectKmsMaterialsProvider(
       kmsClient, keyDataMap.get("awsKmsUsWest2").keyId, desc);
 
-    generateStandardData(provider);
-    writeTablesAsTestVector("aws-kms-aes128-1.json", "TableName", "HashKeyOnly");
+    Set<String> tables = generateStandardData(provider);
+    writeTablesAsTestVector("aws-kms-aes128-1.json", tables.toArray(new String[0]));
 
     client.close();
     localDynamoDb.stop();
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void generateNonAsciiMaterialNameVector() throws IOException {
     localDynamoDb.start();
     client = localDynamoDb.createLimitedWrappedClient();
@@ -83,8 +84,8 @@ public class CipherTextGeneratorIT extends HolisticIT {
     EncryptionMaterialsProvider provider =
       new CachingMostRecentProvider(metastore, materialName, 1000);
 
-    generateStandardData(provider);
-    writeTablesAsTestVector("nonascii-material-name-1.json", "TableName", "HashKeyOnly");
+    Set<String> tables = generateStandardData(provider);
+    writeTablesAsTestVector("nonascii-material-name-1.json", tables.toArray(new String[0]));
     writeTablesAsTestVector("metastore-nonascii-name-1.json", metastoreTableName);
 
     client.close();
