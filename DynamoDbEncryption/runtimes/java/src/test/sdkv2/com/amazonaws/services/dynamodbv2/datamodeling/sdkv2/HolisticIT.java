@@ -718,12 +718,10 @@ public class HolisticIT {
             ? materialDescription : Collections.emptyMap();
 
         if (verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)) {
-            // Existing path: AES + HMAC (e.g. aesKey + hmacKey)
             SecretKey verifyKey = new SecretKeySpec(
                 Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
             return new SymmetricStaticProvider(decryptKey, verifyKey, desc);
         } else {
-            // New path: AES + RSA signing pair (e.g. aesKey + rsaSignPub/rsaSignPriv)
             try {
               KeyData signKeyData = keyDataMap.get(keys.signName);
               KeyFactory rsaFact = KeyFactory.getInstance(RSA);
