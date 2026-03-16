@@ -9,6 +9,8 @@ on:
 
 jobs:
   findTodos:
+    permissions:
+      contents: read
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v6

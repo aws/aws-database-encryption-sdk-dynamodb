@@ -12,6 +12,8 @@ on:
 
 jobs:
   getDafnyVersion:
+    permissions:
+      contents: read
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read_property.outputs.dafnyVersion }}

@@ -22,10 +22,14 @@ on:
 
 jobs:
   getMplHeadVersion:
+    permissions:
+      contents: read
     uses: ./.github/workflows/mpl_head_version.yml
     with:
       mpl-head: ${{inputs.mpl-commit}}
   dafny-interop-java:
+    permissions:
+      contents: read
     needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_java.yml
     with:
@@ -34,6 +38,8 @@ jobs:
       mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-java-test-vectors:
+    permissions:
+      contents: read
     needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_test_vector_java.yml
     with:
@@ -42,6 +48,8 @@ jobs:
       mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-java-examples:
+    permissions:
+      contents: read
     needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_examples_java.yml
     with:
@@ -50,18 +58,24 @@ jobs:
       mpl-version: ${{needs.getMplHeadVersion.outputs.version}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-net:
+    permissions:
+      contents: read
     uses: ./.github/workflows/dafny_interop_test_net.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-net-test-vectors:
+    permissions:
+      contents: read
     uses: ./.github/workflows/dafny_interop_test_vector_net.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
       mpl-commit: ${{inputs.mpl-commit}}
       dbesdk-dafny: ${{inputs.dbesdk-dafny}}
   dafny-interop-net-examples:
+    permissions:
+      contents: read
     uses: ./.github/workflows/dafny_interop_examples_net.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}

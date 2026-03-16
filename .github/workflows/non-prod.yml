@@ -15,13 +15,19 @@ on:
 
 jobs:
   getVersion:
+    permissions:
+      contents: read
     uses: ./.github/workflows/dafny_version.yml
   pr-ci-go:
+    permissions:
+      contents: read
     needs: getVersion
     uses: ./.github/workflows/ci_test_go.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
   pr-ci-all-required:
+    permissions:
+      contents: read
     if: always()
     needs:
       - getVersion
