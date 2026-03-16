@@ -172,6 +172,7 @@ public class CipherTextGeneratorIT extends HolisticIT {
 
   @Test(enabled = false)
   public void generateWrappedAesRsaVector() throws IOException {
+    // wrapping/unwrapping key = aes, signing = RSA
     localDynamoDb.start();
     client = localDynamoDb.createLimitedWrappedClient();
     createCiphertextTables(client);
@@ -207,6 +208,7 @@ public class CipherTextGeneratorIT extends HolisticIT {
 
   @Test(enabled = false)
   public void generateWrappedRsaHmacVector() throws IOException {
+    // wrapping/unwrapping key = rsa, signing = hmac
     localDynamoDb.start();
     client = localDynamoDb.createLimitedWrappedClient();
     createCiphertextTables(client);
