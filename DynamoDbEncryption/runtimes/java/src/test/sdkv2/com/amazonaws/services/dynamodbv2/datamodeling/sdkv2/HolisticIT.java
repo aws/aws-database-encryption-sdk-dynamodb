@@ -738,56 +738,59 @@ public class HolisticIT {
       case ScenarioManifest.WRAPPED_PROVIDER_NAME:
         decryptKeyData = keyDataMap.get(keys.decryptName);
         verifyKeyData = keyDataMap.get(keys.verifyName);
+        boolean symDecrypt = decryptKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE);
+        boolean symVerify = verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE);
 
-        // This can be either the asymmetric provider, where we should test using it's explicit
-        // constructor,
-        // or a wrapped symmetric where we use the wrapped materials constructor.
-        if (
-          decryptKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)
-        ) {
-          decryptKey =
-            new SecretKeySpec(
-              Base64.decode(decryptKeyData.material),
-              decryptKeyData.algorithm
-            );
-          SecretKey verifyKey =
-            new SecretKeySpec(
-              Base64.decode(verifyKeyData.material),
-              verifyKeyData.algorithm
-            );
-          return new WrappedMaterialsProvider(
-            decryptKey,
-            decryptKey,
-            verifyKey
-          );
-        } else {
-          KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
-          KeyData signKeyData = keyDataMap.get(keys.signName);
-          try {
-            // Hardcoded to use RSA for asymmetric keys. If we include vectors with a different
-            // asymmetric scheme this will need to be updated.
+        try {
+          if (symDecrypt && symVerify) {
+            // AES wrapping + HMAC signing
+            decryptKey = new SecretKeySpec(
+              Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+            SecretKey verifyKey = new SecretKeySpec(
+              Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
+            return new WrappedMaterialsProvider(decryptKey, decryptKey, verifyKey);
+          } else if (symDecrypt) {
+            // AES wrapping + RSA signing
+            decryptKey = new SecretKeySpec(
+              Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+            KeyData signKeyData = keyDataMap.get(keys.signName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
-
-            PublicKey encryptMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material))
-            );
-            PrivateKey decryptMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material))
-            );
-            KeyPair decryptPair = new KeyPair(encryptMaterial, decryptMaterial);
-
             PublicKey verifyMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
-            );
+              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
             PrivateKey signingMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
-            );
+              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
+            return new WrappedMaterialsProvider(
+              decryptKey, decryptKey, new KeyPair(verifyMaterial, signingMaterial));
+          } else if (symVerify) {
+            // RSA wrapping + HMAC signing
+            KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
+            KeyFactory rsaFact = KeyFactory.getInstance(RSA);
+            PublicKey wrappingKey = rsaFact.generatePublic(
+              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material)));
+            PrivateKey unwrappingKey = rsaFact.generatePrivate(
+              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material)));
+            SecretKey verifyKey = new SecretKeySpec(
+              Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
+            return new WrappedMaterialsProvider(wrappingKey, unwrappingKey, verifyKey);
+          } else {
+            // RSA wrapping + RSA signing
+            KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
+            KeyData signKeyData = keyDataMap.get(keys.signName);
+            KeyFactory rsaFact = KeyFactory.getInstance(RSA);
+            PublicKey encryptMaterial = rsaFact.generatePublic(
+              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material)));
+            PrivateKey decryptMaterial = rsaFact.generatePrivate(
+              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material)));
+            KeyPair decryptPair = new KeyPair(encryptMaterial, decryptMaterial);
+            PublicKey verifyMaterial = rsaFact.generatePublic(
+              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
+            PrivateKey signingMaterial = rsaFact.generatePrivate(
+              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
             KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
-
             return new AsymmetricStaticProvider(decryptPair, sigPair);
-          } catch (GeneralSecurityException ex) {
-            throw new RuntimeException(ex);
           }
+        } catch (GeneralSecurityException ex) {
+          throw new RuntimeException(ex);
         }
       case ScenarioManifest.AWS_KMS_PROVIDER_NAME:
         if (materialDescription != null && !materialDescription.isEmpty()) {

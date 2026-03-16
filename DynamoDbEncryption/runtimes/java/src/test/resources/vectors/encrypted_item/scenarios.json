@@ -354,6 +354,30 @@
       "plaintext": "file://plaintext.json",
       "ciphertext": "file://ciphertext/java/static-aes-hmac-nonbmp-desc-1.json",
       "network": false
+    },
+    {
+      "version": "v1",
+      "provider": "wrapped",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "rsaSignPub",
+        "sign": "rsaSignPriv"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/wrapped-aes-rsa-1.json",
+      "network": false
+    },
+    {
+      "version": "v1",
+      "provider": "wrapped",
+      "keys": {
+        "encrypt": "rsaEncPub",
+        "decrypt": "rsaEncPriv",
+        "verify": "hmacKey"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/wrapped-rsa-hmac-1.json",
+      "network": false
     }
   ]
 }

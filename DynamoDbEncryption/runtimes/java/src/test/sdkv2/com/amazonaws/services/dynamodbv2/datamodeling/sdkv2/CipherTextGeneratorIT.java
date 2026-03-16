@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.EncryptionMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.SymmetricStaticProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStore;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.ProviderStore;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest;
@@ -164,6 +165,76 @@ public class CipherTextGeneratorIT extends HolisticIT {
 
     Set<String> tables = generateStandardData(provider);
     writeTablesAsTestVector("static-aes-hmac-nonbmp-desc-1.json", tables.toArray(new String[0]));
+
+    client.close();
+    localDynamoDb.stop();
+  }
+
+  @Test(enabled = false)
+  public void generateWrappedAesRsaVector() throws IOException {
+    localDynamoDb.start();
+    client = localDynamoDb.createLimitedWrappedClient();
+    createCiphertextTables(client);
+
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+      SCENARIO_MANIFEST_PATH,
+      new TypeReference<ScenarioManifest>() {}
+    );
+    loadKeyData(scenarioManifest.keyDataPath);
+
+    ScenarioManifest.KeyData aesData = keyDataMap.get("aesKey");
+    ScenarioManifest.KeyData rsaPubData = keyDataMap.get("rsaSignPub");
+    ScenarioManifest.KeyData rsaPrivData = keyDataMap.get("rsaSignPriv");
+    SecretKey aes = new SecretKeySpec(Base64.decode(aesData.material), aesData.algorithm);
+    try {
+      KeyFactory rsaFact = KeyFactory.getInstance("RSA");
+      PublicKey pub = rsaFact.generatePublic(
+        new X509EncodedKeySpec(Base64.decode(rsaPubData.material)));
+      PrivateKey priv = rsaFact.generatePrivate(
+        new PKCS8EncodedKeySpec(Base64.decode(rsaPrivData.material)));
+      EncryptionMaterialsProvider provider =
+        new WrappedMaterialsProvider(aes, aes, new KeyPair(pub, priv));
+
+      Set<String> tables = generateStandardData(provider);
+      writeTablesAsTestVector("wrapped-aes-rsa-1.json", tables.toArray(new String[0]));
+    } catch (java.security.GeneralSecurityException ex) {
+      throw new RuntimeException(ex);
+    }
+
+    client.close();
+    localDynamoDb.stop();
+  }
+
+  @Test(enabled = false)
+  public void generateWrappedRsaHmacVector() throws IOException {
+    localDynamoDb.start();
+    client = localDynamoDb.createLimitedWrappedClient();
+    createCiphertextTables(client);
+
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+      SCENARIO_MANIFEST_PATH,
+      new TypeReference<ScenarioManifest>() {}
+    );
+    loadKeyData(scenarioManifest.keyDataPath);
+
+    ScenarioManifest.KeyData rsaEncPubData = keyDataMap.get("rsaEncPub");
+    ScenarioManifest.KeyData rsaEncPrivData = keyDataMap.get("rsaEncPriv");
+    ScenarioManifest.KeyData hmacData = keyDataMap.get("hmacKey");
+    SecretKey hmac = new SecretKeySpec(Base64.decode(hmacData.material), hmacData.algorithm);
+    try {
+      KeyFactory rsaFact = KeyFactory.getInstance("RSA");
+      PublicKey wrappingKey = rsaFact.generatePublic(
+        new X509EncodedKeySpec(Base64.decode(rsaEncPubData.material)));
+      PrivateKey unwrappingKey = rsaFact.generatePrivate(
+        new PKCS8EncodedKeySpec(Base64.decode(rsaEncPrivData.material)));
+      EncryptionMaterialsProvider provider =
+        new WrappedMaterialsProvider(wrappingKey, unwrappingKey, hmac);
+
+      Set<String> tables = generateStandardData(provider);
+      writeTablesAsTestVector("wrapped-rsa-hmac-1.json", tables.toArray(new String[0]));
+    } catch (java.security.GeneralSecurityException ex) {
+      throw new RuntimeException(ex);
+    }
 
     client.close();
     localDynamoDb.stop();
