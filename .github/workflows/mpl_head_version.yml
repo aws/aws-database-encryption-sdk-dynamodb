@@ -18,6 +18,10 @@ on:
 
 jobs:
   getMplHeadVersion:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read_property.outputs.mplVersion }}
