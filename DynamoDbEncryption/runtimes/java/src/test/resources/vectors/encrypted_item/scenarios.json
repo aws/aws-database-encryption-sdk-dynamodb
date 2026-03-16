@@ -309,6 +309,23 @@
       "plaintext": "file://plaintext.json",
       "ciphertext": "file://ciphertext/java/metastore-data-tables-3.json",
       "network": true
+    },
+    {
+      "version": "v1",
+      "provider": "most_recent",
+      "material_name": "テスト\u03A8素材\uD83D\uDE00",
+      "metastore": {
+        "table_name": "nonascii-metatable",
+        "provider": "awskms",
+        "keys": {
+          "decrypt": "awsKmsUsWest2",
+          "verify": "awsKmsUsWest2"
+        },
+        "ciphertext": "file://ciphertext/java/metastore-nonascii-name-1.json"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/nonascii-material-name-1.json",
+      "network": true
     }
   ]
 }

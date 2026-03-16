@@ -2,8 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.CachingMostRecentProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.EncryptionMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStore;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.ProviderStore;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
@@ -15,6 +19,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 
 public class CipherTextGeneratorIT extends HolisticIT {
@@ -37,6 +42,50 @@ public class CipherTextGeneratorIT extends HolisticIT {
 
     generateStandardData(provider);
     writeTablesAsTestVector("aws-kms-aes128-1.json", "TableName", "HashKeyOnly");
+
+    client.close();
+    localDynamoDb.stop();
+  }
+
+  @Test(enabled = false)
+  public void generateNonAsciiMaterialNameVector() throws IOException {
+    localDynamoDb.start();
+    client = localDynamoDb.createLimitedWrappedClient();
+    createCiphertextTables(client);
+
+    ScenarioManifest scenarioManifest = getManifestFromFile(
+      SCENARIO_MANIFEST_PATH,
+      new TypeReference<ScenarioManifest>() {}
+    );
+    loadKeyData(scenarioManifest.keyDataPath);
+
+    String materialName = "\u30C6\u30B9\u30C8\u03A8\u7D20\u6750\uD83D\uDE00";
+    String metastoreTableName = "nonascii-metatable";
+
+    // Create metastore table
+    MetaStore.createTable(
+      client,
+      metastoreTableName,
+      ProvisionedThroughput.builder()
+        .readCapacityUnits(100L)
+        .writeCapacityUnits(100L)
+        .build()
+    );
+
+    // Create KMS-backed metastore
+    EncryptionMaterialsProvider metaProvider = new DirectKmsMaterialsProvider(
+      kmsClient, keyDataMap.get("awsKmsUsWest2").keyId);
+    ProviderStore metastore = new MetaStore(
+      client, metastoreTableName,
+      DynamoDBEncryptor.getInstance(metaProvider));
+
+    // Create most_recent provider with non-ASCII material name
+    EncryptionMaterialsProvider provider =
+      new CachingMostRecentProvider(metastore, materialName, 1000);
+
+    generateStandardData(provider);
+    writeTablesAsTestVector("nonascii-material-name-1.json", "TableName", "HashKeyOnly");
+    writeTablesAsTestVector("metastore-nonascii-name-1.json", metastoreTableName);
 
     client.close();
     localDynamoDb.stop();
