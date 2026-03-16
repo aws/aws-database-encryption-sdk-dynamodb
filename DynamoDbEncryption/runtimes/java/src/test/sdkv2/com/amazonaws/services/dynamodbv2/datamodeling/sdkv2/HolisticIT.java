@@ -700,7 +700,6 @@ public class HolisticIT {
   }
 
   // One-off generator: run this test to produce the AES/128 ciphertext vector file.
-  // After generating, save stdout as ciphertext/java/aws-kms-aes128-1.json and disable this test.
   @Test(enabled = false)
   public void generateKmsAes128Vector() throws IOException {
     localDynamoDb.start();
@@ -719,31 +718,7 @@ public class HolisticIT {
 
     generateStandardData(provider);
 
-    // generateStandardData only writes to TableName; also write HashKeyOnly and KeysOnly
-    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(provider);
-    EncryptionContext hashOnlyCtx = EncryptionContext.builder()
-      .tableName("HashKeyOnly").hashKeyName("hashKey").build();
-    Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
-    hashOnlyActions.put("hashKey", signOnly);
-    for (String name : new String[]{"Foo", "Bar", "Baz"}) {
-      Map<String, AttributeValue> item = new HashMap<>();
-      item.put("hashKey", AttributeValue.builder().s(name).build());
-      putItems(encryptor.encryptRecord(item, hashOnlyActions, hashOnlyCtx), "HashKeyOnly");
-    }
-    EncryptionContext keysOnlyCtx = EncryptionContext.builder()
-      .tableName(tableName).hashKeyName("hashKey").rangeKeyName("rangeKey").build();
-    Map<String, Set<EncryptionFlags>> keysOnlyActions = new HashMap<>();
-    keysOnlyActions.put("hashKey", signOnly);
-    keysOnlyActions.put("rangeKey", signOnly);
-    int[][] keysOnlyPairs = {{0,1},{0,2},{0,3},{1,1},{1,2},{1,3},{5,1},{6,2},{7,3}};
-    for (int[] pair : keysOnlyPairs) {
-      Map<String, AttributeValue> item = new HashMap<>();
-      item.put("hashKey", AttributeValue.builder().n(String.valueOf(pair[0])).build());
-      item.put("rangeKey", AttributeValue.builder().n(String.valueOf(pair[1])).build());
-      putItems(encryptor.encryptRecord(item, keysOnlyActions, keysOnlyCtx), tableName);
-    }
-
-    // Scan and print tables in test vector JSON format
+    // Scan and write tables to vector file
     StringBuilder sb = new StringBuilder("{\n");
     String[] tables = {"TableName", "HashKeyOnly"};
     for (int t = 0; t < tables.length; t++) {
