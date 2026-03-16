@@ -16,6 +16,7 @@ jobs:
   get-dafny-version:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/dafny_version.yml
 
   go-release:

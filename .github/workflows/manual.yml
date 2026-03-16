@@ -20,6 +20,7 @@ jobs:
   manual-ci-format:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/library_format.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -27,6 +28,7 @@ jobs:
   manual-ci-verification:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -34,6 +36,7 @@ jobs:
   manual-ci-test-vector-verification:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/test_vector_verification.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -41,6 +44,7 @@ jobs:
   manual-ci-java:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci_test_java.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -48,6 +52,7 @@ jobs:
   manual-ci-java-test-vectors:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -55,6 +60,7 @@ jobs:
   manual-ci-java-examples:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -62,6 +68,7 @@ jobs:
   manual-ci-net:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci_test_net.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -69,6 +76,7 @@ jobs:
   manual-ci-rust:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -76,6 +84,7 @@ jobs:
   manual-ci-net-test-vectors:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
       dafny: ${{ inputs.dafny }}
@@ -83,6 +92,7 @@ jobs:
   manual-ci-net-examples:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/ci_examples_net.yml
     with:
       dafny: ${{ inputs.dafny }}

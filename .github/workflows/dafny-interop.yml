@@ -24,12 +24,14 @@ jobs:
   getMplHeadVersion:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/mpl_head_version.yml
     with:
       mpl-head: ${{inputs.mpl-commit}}
   dafny-interop-java:
     permissions:
       contents: read
+      pull-requests: write
     needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_java.yml
     with:
@@ -40,6 +42,7 @@ jobs:
   dafny-interop-java-test-vectors:
     permissions:
       contents: read
+      pull-requests: write
     needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_test_vector_java.yml
     with:
@@ -50,6 +53,7 @@ jobs:
   dafny-interop-java-examples:
     permissions:
       contents: read
+      pull-requests: write
     needs: getMplHeadVersion
     uses: ./.github/workflows/dafny_interop_examples_java.yml
     with:
@@ -60,6 +64,7 @@ jobs:
   dafny-interop-net:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/dafny_interop_test_net.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
@@ -68,6 +73,7 @@ jobs:
   dafny-interop-net-test-vectors:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/dafny_interop_test_vector_net.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
@@ -76,6 +82,7 @@ jobs:
   dafny-interop-net-examples:
     permissions:
       contents: read
+      pull-requests: write
     uses: ./.github/workflows/dafny_interop_examples_net.yml
     with:
       mpl-dafny: ${{inputs.mpl-dafny}}
