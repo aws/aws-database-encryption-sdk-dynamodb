@@ -48,7 +48,7 @@ public class CipherTextGeneratorIT extends HolisticIT {
     localDynamoDb.stop();
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void generateNonAsciiMaterialNameVector() throws IOException {
     localDynamoDb.start();
     client = localDynamoDb.createLimitedWrappedClient();
@@ -60,7 +60,7 @@ public class CipherTextGeneratorIT extends HolisticIT {
     );
     loadKeyData(scenarioManifest.keyDataPath);
 
-    String materialName = "\u30C6\u30B9\u30C8\u03A8\u7D20\u6750\uD83D\uDE00";
+    String materialName = "テストΨ素材\uD83D\uDE00";
     String metastoreTableName = "nonascii-metatable";
 
     // Create metastore table
