@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.testng.annotations.Test;
 
-public class CipherTestGenerator extends HolisticIT {
+public class CipherTextGenerator extends HolisticIT {
 
   @Test(enabled = false)
   public void generateKmsAes128Vector() throws IOException {
