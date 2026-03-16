@@ -699,30 +699,6 @@ public class HolisticIT {
     localDynamoDb.stop();
   }
 
-  protected void writeTablesAsTestVector(String outputFile, String... tableNames)
-    throws IOException {
-    com.fasterxml.jackson.databind.module.SimpleModule module =
-      new com.fasterxml.jackson.databind.module.SimpleModule();
-    module.addSerializer(AttributeValue.class,
-      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueSerializer());
-    ObjectMapper jsonMapper = new ObjectMapper();
-    jsonMapper.registerModule(module);
-
-    Map<String, List<Map<String, AttributeValue>>> testVector = new HashMap<>();
-    for (String table : tableNames) {
-      testVector.put(table, client.scan(
-        ScanRequest.builder().tableName(table).build()).items());
-    }
-
-    java.nio.file.Path vectorPath = java.nio.file.Paths.get(
-      "src", "test", "resources", "vectors", "encrypted_item",
-      "ciphertext", "java", outputFile);
-    java.nio.file.Files.createDirectories(vectorPath.getParent());
-    java.nio.file.Files.write(vectorPath,
-      jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(testVector));
-    System.out.println("Wrote vector to: " + vectorPath.toAbsolutePath());
-  }
-
   private EncryptionMaterialsProvider createProvider(
     String providerName,
     String materialName,
