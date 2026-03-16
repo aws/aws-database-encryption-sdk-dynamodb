@@ -1106,6 +1106,27 @@ public class HolisticIT {
 
     // untouched record
     putItems(UNTOUCHED_TEST_VALUE_2, tableName);
+
+    // HashKeyOnly items
+    EncryptionContext hashOnlyCtx = EncryptionContext.builder()
+      .tableName("HashKeyOnly").hashKeyName("hashKey").build();
+    Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
+    hashOnlyActions.put("hashKey", signOnly);
+    for (Map<String, AttributeValue> hk : new Map[]{hashKey1, hashKey2, hashKey3}) {
+      putItems(encryptor.encryptRecord(hk, hashOnlyActions, hashOnlyCtx), "HashKeyOnly");
+    }
+
+    // KeysOnly items
+    Map<String, Set<EncryptionFlags>> keysOnlyActions = new HashMap<>();
+    keysOnlyActions.put("hashKey", signOnly);
+    keysOnlyActions.put("rangeKey", signOnly);
+    int[][] keysOnlyPairs = {{0,1},{0,2},{0,3},{1,1},{1,2},{1,3},{5,1},{6,2},{7,3}};
+    for (int[] pair : keysOnlyPairs) {
+      Map<String, AttributeValue> item = new HashMap<>();
+      item.put("hashKey", AttributeValue.builder().n(String.valueOf(pair[0])).build());
+      item.put("rangeKey", AttributeValue.builder().n(String.valueOf(pair[1])).build());
+      putItems(encryptor.encryptRecord(item, keysOnlyActions, encryptionContext), tableName);
+    }
   }
 
   private void putItems(Map<String, AttributeValue> map, String tableName) {
