@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     uses: ./.github/workflows/dafny_version.yml
 
   go-release:

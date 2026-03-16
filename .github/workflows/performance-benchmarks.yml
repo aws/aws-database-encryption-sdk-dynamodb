@@ -17,12 +17,14 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/dafny_version.yml
   performance-benchmarks-go:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/performance-benchmarks-go.yml
     with:
@@ -31,6 +33,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/performance-benchmarks-rust.yml
     with:
@@ -39,6 +42,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: [getVersion, performance-benchmarks-go, performance-benchmarks-rust]
     if: ${{ failure() }}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main

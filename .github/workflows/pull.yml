@@ -13,16 +13,19 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     uses: ./.github/workflows/dafny_version.yml
   getVerifyVersion:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     uses: ./.github/workflows/dafny_verify_version.yml
   pr-ci-format:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/library_format.yml
     with:
@@ -31,6 +34,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_codegen.yml
     with:
@@ -39,6 +43,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVerifyVersion
     uses: ./.github/workflows/library_dafny_verification.yml
     with:
@@ -47,6 +52,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVerifyVersion
     uses: ./.github/workflows/test_vector_verification.yml
     with:
@@ -55,6 +61,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_test_java.yml
     with:
@@ -63,6 +70,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
@@ -71,6 +79,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_examples_java.yml
     with:
@@ -79,6 +88,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_test_net.yml
     with:
@@ -87,6 +97,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/library_rust_tests.yml
     with:
@@ -95,6 +106,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
@@ -103,6 +115,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_examples_net.yml
     with:
@@ -111,6 +124,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     if: always()
     needs:
       - getVersion

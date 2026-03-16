@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     # Don't run the cron builds on forks
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/dafny_version.yml
@@ -18,12 +19,14 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/dafny_verify_version.yml
   getMplHeadVersion:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/mpl_head_version.yml
     with:
@@ -32,6 +35,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/library_format.yml
@@ -41,6 +45,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: [getVerifyVersion, getMplHeadVersion]
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/library_dafny_verification.yml
@@ -52,6 +57,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: [getVerifyVersion, getMplHeadVersion]
     uses: ./.github/workflows/test_vector_verification.yml
     with:
@@ -62,6 +68,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_test_java.yml
     with:
@@ -72,6 +79,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
@@ -82,6 +90,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: [getVersion, getMplHeadVersion]
     uses: ./.github/workflows/ci_examples_java.yml
     with:
@@ -92,6 +101,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_test_net.yml
     with:
@@ -101,6 +111,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/library_rust_tests.yml
     with:
@@ -110,6 +121,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
@@ -119,6 +131,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
     needs: getVersion
     uses: ./.github/workflows/ci_examples_net.yml
     with:
