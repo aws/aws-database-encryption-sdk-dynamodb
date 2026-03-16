@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 
-public class CipherTextGenerator extends HolisticIT {
+public class CipherTextGeneratorIT extends HolisticIT {
 
   @Test(enabled = false)
   public void generateKmsAes128Vector() throws IOException {
