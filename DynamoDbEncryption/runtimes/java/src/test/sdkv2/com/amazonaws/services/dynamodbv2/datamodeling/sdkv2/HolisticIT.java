@@ -110,8 +110,8 @@ public class HolisticIT {
     EncryptionFlags.SIGN
   );
 
-  private final LocalDynamoDb localDynamoDb = new LocalDynamoDb();
-  private DynamoDbClient client;
+  protected final LocalDynamoDb localDynamoDb = new LocalDynamoDb();
+  protected DynamoDbClient client;
   public static KmsClient kmsClient = KmsClient.builder().build();
 
   public static Map<String, KeyData> keyDataMap = new HashMap<>();
@@ -699,31 +699,7 @@ public class HolisticIT {
     localDynamoDb.stop();
   }
 
-  // One-off generator: run this test to produce the AES/128 ciphertext vector file.
-  @Test(enabled = false)
-  public void generateKmsAes128Vector() throws IOException {
-    localDynamoDb.start();
-    client = localDynamoDb.createLimitedWrappedClient();
-    createCiphertextTables(client);
-
-    ScenarioManifest scenarioManifest = getManifestFromFile(
-      SCENARIO_MANIFEST_PATH,
-      new TypeReference<ScenarioManifest>() {}
-    );
-    loadKeyData(scenarioManifest.keyDataPath);
-
-    Map<String, String> desc = Collections.singletonMap("amzn-ddb-env-alg", "AES/128");
-    EncryptionMaterialsProvider provider = new DirectKmsMaterialsProvider(
-      kmsClient, keyDataMap.get("awsKmsUsWest2").keyId, desc);
-
-    generateStandardData(provider);
-    writeTablesAsTestVector("aws-kms-aes128-1.json", "TableName", "HashKeyOnly");
-
-    client.close();
-    localDynamoDb.stop();
-  }
-
-  private void writeTablesAsTestVector(String outputFile, String... tableNames)
+  protected void writeTablesAsTestVector(String outputFile, String... tableNames)
     throws IOException {
     com.fasterxml.jackson.databind.module.SimpleModule module =
       new com.fasterxml.jackson.databind.module.SimpleModule();
@@ -847,7 +823,7 @@ public class HolisticIT {
   // Create empty tables for the ciphertext.
   // The underlying structure to these tables is hardcoded,
   // and we run all test vectors assuming the ciphertext matches the key schema for these tables.
-  private void createCiphertextTables(DynamoDbClient localDynamoDb) {
+  protected void createCiphertextTables(DynamoDbClient localDynamoDb) {
     // TableName Setup
     ArrayList<AttributeDefinition> attrDef = new ArrayList<>();
     attrDef.add(
@@ -1129,7 +1105,7 @@ public class HolisticIT {
     }
   }
 
-  private void putItems(Map<String, AttributeValue> map, String tableName) {
+  protected void putItems(Map<String, AttributeValue> map, String tableName) {
     PutItemRequest request = PutItemRequest
       .builder()
       .item(map)
