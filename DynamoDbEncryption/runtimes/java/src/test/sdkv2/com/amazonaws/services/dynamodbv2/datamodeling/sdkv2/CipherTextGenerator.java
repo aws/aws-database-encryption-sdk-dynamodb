@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 public class CipherTextGenerator extends HolisticIT {
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void generateKmsAes128Vector() throws IOException {
     localDynamoDb.start();
     client = localDynamoDb.createLimitedWrappedClient();
