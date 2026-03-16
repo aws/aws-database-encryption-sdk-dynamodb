@@ -326,6 +326,34 @@
       "plaintext": "file://plaintext.json",
       "ciphertext": "file://ciphertext/java/nonascii-material-name-1.json",
       "network": true
+    },
+    {
+      "version": "v1",
+      "provider": "static",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "rsaSignPub",
+        "sign": "rsaSignPriv"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/static-aes-rsa-1.json",
+      "network": false
+    },
+    {
+      "version": "v1",
+      "provider": "static",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "hmacKey"
+      },
+      "material_description": {
+        "\uD834\uDD1Emusic": "\uD834\uDD22clef",
+        "emoji\uD83D\uDD11key": "value\uD83D\uDD12lock",
+        "\u03A8greek": "\u03A8value"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/static-aes-hmac-nonbmp-desc-1.json",
+      "network": false
     }
   ]
 }
