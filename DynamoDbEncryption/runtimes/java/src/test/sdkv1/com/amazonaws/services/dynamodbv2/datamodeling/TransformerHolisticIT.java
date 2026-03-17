@@ -1212,12 +1212,14 @@ public class TransformerHolisticIT {
           : Collections.emptyMap();
 
         if (verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)) {
+          // Symmetric encryption key + Symmetric verify key
           SecretKey verifyKey = new SecretKeySpec(
             Base64.decode(verifyKeyData.material),
             verifyKeyData.algorithm
           );
           return new SymmetricStaticProvider(decryptKey, verifyKey, desc);
         } else {
+          // Symmetric encryption key + Asymmetric verify key
           try {
             KeyData signKeyData = keyDataMap.get(keys.signName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
@@ -1245,7 +1247,6 @@ public class TransformerHolisticIT {
 
         try {
           if (symDecrypt && symVerify) {
-            // AES wrapping + HMAC signing
             decryptKey =
               new SecretKeySpec(
                 Base64.decode(decryptKeyData.material),
@@ -1261,7 +1262,7 @@ public class TransformerHolisticIT {
               verifyKey
             );
           } else if (symDecrypt) {
-            // AES wrapping + RSA signing
+            // Symmetric wrapping + Asymmetric signing
             decryptKey =
               new SecretKeySpec(
                 Base64.decode(decryptKeyData.material),
@@ -1281,7 +1282,7 @@ public class TransformerHolisticIT {
               new KeyPair(verifyMaterial, signingMaterial)
             );
           } else if (symVerify) {
-            // RSA wrapping + HMAC signing
+            // Asymmetric wrapping + Symmetric signing
             KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
             PublicKey wrappingKey = rsaFact.generatePublic(
@@ -1300,7 +1301,7 @@ public class TransformerHolisticIT {
               verifyKey
             );
           } else {
-            // RSA wrapping + RSA signing
+            // Asymmetric wrapping + Asymmetric signing
             KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
             KeyData signKeyData = keyDataMap.get(keys.signName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
