@@ -11,14 +11,13 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
@@ -140,13 +139,16 @@ public class HolisticITHelper {
     }
   }
 
-  public static void writeTablesAsTestVector(DynamoDbClient client, String outputFile, String... tableNames)
-          throws IOException {
+  public static void writeTablesAsTestVector(
+    DynamoDbClient client,
+    String outputFile,
+    String... tableNames
+  ) throws IOException {
     com.fasterxml.jackson.databind.module.SimpleModule module =
-            new com.fasterxml.jackson.databind.module.SimpleModule();
+      new com.fasterxml.jackson.databind.module.SimpleModule();
     module.addSerializer(
-            AttributeValue.class,
-            new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueSerializer()
+      AttributeValue.class,
+      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.AttributeValueSerializer()
     );
     ObjectMapper jsonMapper = new ObjectMapper();
     jsonMapper.registerModule(module);
@@ -154,25 +156,25 @@ public class HolisticITHelper {
     Map<String, List<Map<String, AttributeValue>>> testVector = new HashMap<>();
     for (String table : tableNames) {
       testVector.put(
-              table,
-              client.scan(ScanRequest.builder().tableName(table).build()).items()
+        table,
+        client.scan(ScanRequest.builder().tableName(table).build()).items()
       );
     }
 
     java.nio.file.Path vectorPath = java.nio.file.Paths.get(
-            "src",
-            "test",
-            "resources",
-            "vectors",
-            "encrypted_item",
-            "ciphertext",
-            "java",
-            outputFile
+      "src",
+      "test",
+      "resources",
+      "vectors",
+      "encrypted_item",
+      "ciphertext",
+      "java",
+      outputFile
     );
     java.nio.file.Files.createDirectories(vectorPath.getParent());
     java.nio.file.Files.write(
-            vectorPath,
-            jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(testVector)
+      vectorPath,
+      jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(testVector)
     );
   }
 }
