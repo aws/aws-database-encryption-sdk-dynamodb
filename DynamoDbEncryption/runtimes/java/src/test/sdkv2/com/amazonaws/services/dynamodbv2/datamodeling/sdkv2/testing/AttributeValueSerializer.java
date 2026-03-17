@@ -20,7 +20,10 @@ public class AttributeValueSerializer extends JsonSerializer<AttributeValue> {
     if (value.s() != null) {
       jgen.writeStringField("S", value.s());
     } else if (value.b() != null) {
-      jgen.writeStringField("B", Base64.encodeAsString(value.b().asByteArray()));
+      jgen.writeStringField(
+        "B",
+        Base64.encodeAsString(value.b().asByteArray())
+      );
     } else if (value.n() != null) {
       jgen.writeStringField("N", value.n());
     } else if (value.hasSs()) {

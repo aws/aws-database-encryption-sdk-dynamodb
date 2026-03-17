@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -619,7 +620,7 @@ public class HolisticIT {
         for (Map<String, AttributeValue> item : items) {
           AttributeValue descAttr = item.get("*amzn-ddb-map-desc*");
           if (descAttr != null && descAttr.b() != null) {
-            String descBlob = new String(descAttr.b().asByteArray(), java.nio.charset.StandardCharsets.ISO_8859_1);
+            String descBlob = new String(descAttr.b().asByteArray(), StandardCharsets.UTF_8);
             for (Map.Entry<String, String> entry : scenario.materialDescription.entrySet()) {
               assertTrue(
                 "Expected " + entry.getValue() + " in *amzn-ddb-map-desc* but not found",
@@ -652,6 +653,7 @@ public class HolisticIT {
 
   @Test(dataProvider = "getEncryptTestVectors")
   public void encryptWithTestVector(Scenario scenario) throws IOException {
+    boolean saveToJson = false;
     localDynamoDb.start();
     client = localDynamoDb.createLimitedWrappedClient();
 
@@ -670,7 +672,9 @@ public class HolisticIT {
           .writeCapacityUnits(100L)
           .build()
       );
-      putDataFromFile(client, scenario.metastore.path);
+      if (!saveToJson) {
+        putDataFromFile(client, scenario.metastore.path);
+      }
       EncryptionMaterialsProvider metaProvider = createProvider(
         scenario.metastore.providerName,
         scenario.materialName,
@@ -694,7 +698,20 @@ public class HolisticIT {
       metastore,
       scenario.materialDescription
     );
-    generateStandardData(provider);
+    Set<String> tables = generateStandardData(provider);
+
+    if (saveToJson && "v1".equals(scenario.version)) {
+      String outputFile = java.nio.file.Paths.get(
+              scenario.ciphertextPath.replace("file://", "")).getFileName().toString();
+      HolisticITHelper.writeTablesAsTestVector(client, outputFile, tables.toArray(new String[0]));
+      if (scenario.metastore != null) {
+        String metastorePath = java.nio.file.Paths.get(
+                scenario.metastore.path.replace("file://", "")).getFileName().toString();
+        HolisticITHelper.writeTablesAsTestVector(
+                client, metastorePath, scenario.metastore.tableName);
+      }
+    }
+
     client.close();
     localDynamoDb.stop();
   }
