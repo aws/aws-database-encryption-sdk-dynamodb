@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertNull;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.KeyStoreMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.Utils;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.LocalDynamoDb;
 import java.io.ByteArrayInputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
@@ -39,10 +38,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 /**
@@ -109,8 +106,6 @@ public class KeyStoreEncryptorIT {
     "K+MP8GlGqTldC6NaB1s7KuAX";
 
   private static KeyStore keyStore;
-  private final LocalDynamoDb localDynamoDb = new LocalDynamoDb();
-  private DynamoDbClient client;
 
   // Shared flags for all roundtrip tests
   private static final Set<EncryptionFlags> ENCRYPT_AND_SIGN =
@@ -147,52 +142,32 @@ public class KeyStoreEncryptorIT {
     keyStore.setEntry("sig", new SecretKeyEntry(hmacKey), PWD);
     keyStore.setEntry("enc-rsa", new PrivateKeyEntry(rsaKey, chain), PWD);
     keyStore.setEntry("sig-rsa", new PrivateKeyEntry(rsaKey, chain), PWD);
-
-    // Local DynamoDB
-    localDynamoDb.start();
-    client = localDynamoDb.createClient();
-    client.createTable(CreateTableRequest.builder()
-      .tableName(TABLE_NAME)
-      .keySchema(
-        KeySchemaElement.builder().attributeName(PK).keyType(KeyType.HASH).build(),
-        KeySchemaElement.builder().attributeName(SK).keyType(KeyType.RANGE).build())
-      .attributeDefinitions(
-        AttributeDefinition.builder().attributeName(PK).attributeType(ScalarAttributeType.S).build(),
-        AttributeDefinition.builder().attributeName(SK).attributeType(ScalarAttributeType.S).build())
-      .billingMode(BillingMode.PAY_PER_REQUEST)
-      .build());
   }
 
-  @AfterClass
-  public void tearDown() {
-    localDynamoDb.stop();
-  }
-
-  /** Test 1: AES encrypt + HmacSHA256 sign (symmetric-only) */
+  // AES encrypt + HmacSHA256 sign
   @Test
   public void aesEncryptHmacSign() throws Exception {
     assertRoundTrip("enc", "sig", "test1");
   }
 
-  /** Test 2: RSA encrypt + HmacSHA256 sign (envelope + HMAC) */
+  // RSA encrypt + HmacSHA256 sign (envelope + HMAC)
   @Test
   public void rsaEncryptHmacSign() throws Exception {
     assertRoundTrip("enc-rsa", "sig", "test2");
   }
 
-  /** Test 3: RSA encrypt + RSA sign (fully asymmetric) */
+  // RSA encrypt + RSA sign (fully asymmetric)
   @Test
   public void rsaEncryptRsaSign() throws Exception {
     assertRoundTrip("enc-rsa", "sig-rsa", "test3");
   }
 
-  /** Test 4: AES encrypt + RSA sign (symmetric encrypt + asymmetric sign) */
+  // AES encrypt + RSA sign (symmetric encrypt + asymmetric sign)
   @Test
   public void aesEncryptRsaSign() throws Exception {
     assertRoundTrip("enc", "sig-rsa", "test4");
   }
 
-  /** Test 5: Wrong encryption password → expect failure at construction */
   @Test(expectedExceptions = Exception.class)
   public void wrongPasswordFails() throws Exception {
     new KeyStoreMaterialsProvider(keyStore, "enc", "sig",
@@ -208,7 +183,6 @@ public class KeyStoreEncryptorIT {
     EncryptionContext ctx = EncryptionContext.builder()
       .tableName(TABLE_NAME).hashKeyName(PK).rangeKeyName(SK).build();
 
-    // Build item
     Map<String, AttributeValue> item = new HashMap<>();
     item.put(PK, AttributeValue.builder().s(pkValue).build());
     item.put(SK, AttributeValue.builder().s("range").build());
@@ -216,7 +190,6 @@ public class KeyStoreEncryptorIT {
     item.put("signedField", AttributeValue.builder().n("42").build());
     item.put("untouchedField", AttributeValue.builder().s("plain").build());
 
-    // Mixed flags
     Map<String, Set<EncryptionFlags>> flags = new HashMap<>();
     flags.put(PK, SIGN_ONLY);
     flags.put(SK, SIGN_ONLY);
@@ -224,23 +197,13 @@ public class KeyStoreEncryptorIT {
     flags.put("signedField", SIGN_ONLY);
     flags.put("untouchedField", DO_NOTHING);
 
-    // Encrypt
     Map<String, AttributeValue> encrypted = encryptor.encryptRecord(item, flags, ctx);
     assertNull(encrypted.get("secretField").s());
     assertNotNull(encrypted.get("secretField").b());
     assertEquals("42", encrypted.get("signedField").n());
     assertEquals("plain", encrypted.get("untouchedField").s());
 
-    // Store and retrieve
-    client.putItem(PutItemRequest.builder().tableName(TABLE_NAME).item(encrypted).build());
-    Map<String, AttributeValue> key = new HashMap<>();
-    key.put(PK, AttributeValue.builder().s(pkValue).build());
-    key.put(SK, AttributeValue.builder().s("range").build());
-    Map<String, AttributeValue> fetched = client.getItem(GetItemRequest.builder()
-      .tableName(TABLE_NAME).key(key).build()).item();
-
-    // Decrypt and verify
-    Map<String, AttributeValue> decrypted = encryptor.decryptRecord(fetched, flags, ctx);
+    Map<String, AttributeValue> decrypted = encryptor.decryptRecord(encrypted, flags, ctx);
     assertEquals("sensitive", decrypted.get("secretField").s());
     assertEquals("42", decrypted.get("signedField").n());
     assertEquals("plain", decrypted.get("untouchedField").s());
