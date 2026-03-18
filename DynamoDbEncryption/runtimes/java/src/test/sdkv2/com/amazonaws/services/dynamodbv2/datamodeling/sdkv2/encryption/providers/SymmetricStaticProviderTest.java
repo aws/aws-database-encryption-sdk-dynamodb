@@ -253,4 +253,14 @@ public class SymmetricStaticProviderTest {
   private static EncryptionContext ctx(Map<String, String> desc) {
     return EncryptionContext.builder().materialDescription(desc).build();
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullEncryptionKey() {
+    new SymmetricStaticProvider(null, macKey, description);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullMacKey() {
+    new SymmetricStaticProvider(encryptionKey, (SecretKey) null, description);
+  }
 }

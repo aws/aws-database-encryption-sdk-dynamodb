@@ -19,6 +19,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.DecryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.EncryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.SymmetricRawMaterials;
+import io.netty.util.internal.ObjectUtil;
 import java.security.KeyPair;
 import java.util.Collections;
 import java.util.Map;
@@ -67,6 +68,8 @@ public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
     KeyPair signingPair,
     Map<String, String> description
   ) {
+    ObjectUtil.checkNotNull(encryptionKey, "encryptionKey must not be null");
+    ObjectUtil.checkNotNull(signingPair, "signingPair must not be null");
     materials =
       new SymmetricRawMaterials(encryptionKey, signingPair, description);
   }
@@ -100,6 +103,8 @@ public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
     SecretKey macKey,
     Map<String, String> description
   ) {
+    ObjectUtil.checkNotNull(encryptionKey, "encryptionKey must not be null");
+    ObjectUtil.checkNotNull(macKey, "macKey must not be null");
     materials = new SymmetricRawMaterials(encryptionKey, macKey, description);
   }
 

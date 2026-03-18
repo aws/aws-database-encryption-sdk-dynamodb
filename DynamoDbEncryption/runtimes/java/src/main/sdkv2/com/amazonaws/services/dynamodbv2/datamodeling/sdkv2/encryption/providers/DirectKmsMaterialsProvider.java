@@ -26,6 +26,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.WrappedRawMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.Base64;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.Hkdf;
+import io.netty.util.internal.ObjectUtil;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,7 +81,7 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
     String encryptionKeyId,
     Map<String, String> materialDescription
   ) {
-    this.kms = kms;
+    this.kms = ObjectUtil.checkNotNull(kms, "kms client must not be null");
     this.encryptionKeyId = encryptionKeyId;
     this.description =
       materialDescription != null
@@ -327,6 +328,11 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
       final AttributeValue hashKey = context
         .getAttributeValues()
         .get(hashKeyName);
+      if (hashKey == null) {
+        throw new NullPointerException(
+          "attributeValues must contain the hashKey '" + hashKeyName + "'"
+        );
+      }
       if (hashKey.n() != null) {
         kmsEc.put(hashKeyName, hashKey.n());
       } else if (hashKey.s() != null) {
@@ -347,6 +353,11 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
       final AttributeValue rangeKey = context
         .getAttributeValues()
         .get(rangeKeyName);
+      if (rangeKey == null) {
+        throw new NullPointerException(
+          "attributeValues must contain the rangeKey '" + rangeKeyName + "'"
+        );
+      }
       if (rangeKey.n() != null) {
         kmsEc.put(rangeKeyName, rangeKey.n());
       } else if (rangeKey.s() != null) {

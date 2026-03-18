@@ -18,6 +18,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.exception
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.DecryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.EncryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.EncryptionMaterialsProvider;
+import io.netty.util.internal.ObjectUtil;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.utils.EncryptionContextOperators;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshaller;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ByteBufferInputStream;
@@ -89,7 +90,8 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     EncryptionMaterialsProvider provider,
     String descriptionBase
   ) {
-    this.encryptionMaterialsProvider = provider;
+    this.encryptionMaterialsProvider =
+      ObjectUtil.checkNotNull(provider, "provider must not be null");
     this.descriptionBase = descriptionBase;
     symmetricEncryptionModeHeader = this.descriptionBase + "sym-mode";
     signingAlgorithmHeader = this.descriptionBase + "signingAlg";
@@ -281,6 +283,10 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     Map<String, Set<EncryptionFlags>> attributeFlags,
     EncryptionContext context
   ) throws GeneralSecurityException {
+    ObjectUtil.checkNotNull(
+      itemAttributes,
+      "itemAttributes must not be null"
+    );
     if (
       !itemContainsFieldsToDecryptOrSign(
         itemAttributes.keySet(),
@@ -378,6 +384,10 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
     Map<String, Set<EncryptionFlags>> attributeFlags,
     EncryptionContext context
   ) {
+    ObjectUtil.checkNotNull(
+      itemAttributes,
+      "itemAttributes must not be null"
+    );
     if (attributeFlags.isEmpty()) {
       return itemAttributes;
     }

@@ -176,18 +176,6 @@ public class KeyStoreEncryptorIT {
     assertRoundTrip("enc", "sig-rsa", "test4");
   }
 
-  @Test(expectedExceptions = Exception.class)
-  public void wrongPasswordFails() throws Exception {
-    new KeyStoreMaterialsProvider(
-      keyStore,
-      "enc",
-      "sig",
-      new PasswordProtection("wrongPassword".toCharArray()),
-      PWD,
-      Collections.emptyMap()
-    );
-  }
-
   private void assertRoundTrip(
     String encAlias,
     String sigAlias,

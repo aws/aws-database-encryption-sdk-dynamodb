@@ -897,4 +897,47 @@ public class DynamoDbEncryptorTest {
       }
     }
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullProvider() {
+    DynamoDBEncryptor.getInstance(null);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void encryptRecordNullItemAttributes() {
+    encryptor.encryptRecord(
+      null,
+      Collections.emptyMap(),
+      context
+    );
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void decryptRecordNullItemAttributes() throws Exception {
+    encryptor.decryptRecord(
+      null,
+      Collections.emptyMap(),
+      context
+    );
+  }
+
+  @Test
+  public void encryptRecordEmptyItemAttributes() {
+    Map<String, AttributeValue> result = encryptor.encryptRecord(
+      Collections.emptyMap(),
+      Collections.emptyMap(),
+      context
+    );
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  public void decryptRecordEmptyItemAttributes() throws Exception {
+    Map<String, AttributeValue> result = encryptor.decryptRecord(
+      Collections.emptyMap(),
+      Collections.emptyMap(),
+      context
+    );
+    assertEquals(0, result.size());
+  }
 }

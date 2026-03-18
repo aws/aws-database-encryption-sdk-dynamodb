@@ -30,6 +30,7 @@ import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.SecretKeyEntry;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -398,5 +399,37 @@ public class KeyStoreMaterialsProviderTest {
 
   private static EncryptionContext ctx(Map<String, String> desc) {
     return EncryptionContext.builder().materialDescription(desc).build();
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void constructorMissingEncryptionAlias() throws Exception {
+    new KeyStoreMaterialsProvider(
+      keyStore,
+      "nonexistent-enc",
+      "sig",
+      description
+    );
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void constructorMissingSigningAlias() throws Exception {
+    new KeyStoreMaterialsProvider(
+      keyStore,
+      "enc",
+      "nonexistent-sig",
+      description
+    );
+  }
+
+  @Test(expectedExceptions = java.security.UnrecoverableKeyException.class)
+  public void wrongPasswordFails() throws Exception {
+    new KeyStoreMaterialsProvider(
+      keyStore,
+      "enc",
+      "sig",
+      new PasswordProtection("wrongPassword".toCharArray()),
+      passwordProtection,
+      Collections.emptyMap()
+    );
   }
 }

@@ -550,4 +550,70 @@ public class DirectKmsMaterialsProviderTest {
       .materialDescription(mat.getMaterialDescription())
       .build();
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullKmsClient() {
+    new DirectKmsMaterialsProvider(null, keyId);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void unsupportedHashKeyType() {
+    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+      kms,
+      keyId
+    );
+    Map<String, AttributeValue> attrVals = new HashMap<>();
+    attrVals.put("hk", AttributeValue.builder().bool(true).build());
+    EncryptionContext boolCtx = new EncryptionContext.Builder()
+      .hashKeyName("hk")
+      .attributeValues(attrVals)
+      .build();
+    prov.getEncryptionMaterials(boolCtx);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void unsupportedRangeKeyType() {
+    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+      kms,
+      keyId
+    );
+    Map<String, AttributeValue> attrVals = new HashMap<>();
+    attrVals.put("hk", AttributeValue.builder().s("HashKeyValue").build());
+    attrVals.put("rk", AttributeValue.builder().bool(true).build());
+    EncryptionContext boolCtx = new EncryptionContext.Builder()
+      .hashKeyName("hk")
+      .rangeKeyName("rk")
+      .attributeValues(attrVals)
+      .build();
+    prov.getEncryptionMaterials(boolCtx);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void hashKeyMissingFromAttributeValues() {
+    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+      kms,
+      keyId
+    );
+    EncryptionContext missingCtx = new EncryptionContext.Builder()
+      .hashKeyName("hk")
+      .attributeValues(Collections.emptyMap())
+      .build();
+    prov.getEncryptionMaterials(missingCtx);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void rangeKeyMissingFromAttributeValues() {
+    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+      kms,
+      keyId
+    );
+    Map<String, AttributeValue> attrVals = new HashMap<>();
+    attrVals.put("hk", AttributeValue.builder().s("HashKeyValue").build());
+    EncryptionContext missingCtx = new EncryptionContext.Builder()
+      .hashKeyName("hk")
+      .rangeKeyName("rk")
+      .attributeValues(attrVals)
+      .build();
+    prov.getEncryptionMaterials(missingCtx);
+  }
 }
