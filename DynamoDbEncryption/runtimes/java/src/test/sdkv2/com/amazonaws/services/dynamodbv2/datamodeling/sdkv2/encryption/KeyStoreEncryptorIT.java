@@ -53,8 +53,9 @@ public class KeyStoreEncryptorIT {
   private static final String PK = "pk";
   private static final String SK = "sk";
   private static final String PASSWORD = "testPassword";
-  private static final PasswordProtection PWD =
-    new PasswordProtection(PASSWORD.toCharArray());
+  private static final PasswordProtection PWD = new PasswordProtection(
+    PASSWORD.toCharArray()
+  );
 
   // Reuse cert/key PEMs from KeyStoreMaterialsProviderTest for PrivateKeyEntry
   private static final String CERT_PEM =
@@ -108,12 +109,16 @@ public class KeyStoreEncryptorIT {
   private static KeyStore keyStore;
 
   // Shared flags for all roundtrip tests
-  private static final Set<EncryptionFlags> ENCRYPT_AND_SIGN =
-    EnumSet.of(EncryptionFlags.ENCRYPT, EncryptionFlags.SIGN);
-  private static final Set<EncryptionFlags> SIGN_ONLY =
-    EnumSet.of(EncryptionFlags.SIGN);
-  private static final Set<EncryptionFlags> DO_NOTHING =
-    EnumSet.noneOf(EncryptionFlags.class);
+  private static final Set<EncryptionFlags> ENCRYPT_AND_SIGN = EnumSet.of(
+    EncryptionFlags.ENCRYPT,
+    EncryptionFlags.SIGN
+  );
+  private static final Set<EncryptionFlags> SIGN_ONLY = EnumSet.of(
+    EncryptionFlags.SIGN
+  );
+  private static final Set<EncryptionFlags> DO_NOTHING = EnumSet.noneOf(
+    EncryptionFlags.class
+  );
 
   @BeforeClass
   public void setUp() throws Exception {
@@ -129,10 +134,13 @@ public class KeyStoreEncryptorIT {
     // RSA key + cert for PrivateKeyEntry
     KeyFactory kf = KeyFactory.getInstance("RSA");
     PrivateKey rsaKey = kf.generatePrivate(
-      new PKCS8EncodedKeySpec(Base64.getDecoder().decode(KEY_PEM)));
-    Certificate cert = CertificateFactory.getInstance("X509")
+      new PKCS8EncodedKeySpec(Base64.getDecoder().decode(KEY_PEM))
+    );
+    Certificate cert = CertificateFactory
+      .getInstance("X509")
       .generateCertificate(
-        new ByteArrayInputStream(Base64.getDecoder().decode(CERT_PEM)));
+        new ByteArrayInputStream(Base64.getDecoder().decode(CERT_PEM))
+      );
     Certificate[] chain = new Certificate[] { cert };
 
     // Build JCEKS KeyStore with all four aliases
@@ -170,18 +178,36 @@ public class KeyStoreEncryptorIT {
 
   @Test(expectedExceptions = Exception.class)
   public void wrongPasswordFails() throws Exception {
-    new KeyStoreMaterialsProvider(keyStore, "enc", "sig",
+    new KeyStoreMaterialsProvider(
+      keyStore,
+      "enc",
+      "sig",
       new PasswordProtection("wrongPassword".toCharArray()),
-      PWD, Collections.emptyMap());
+      PWD,
+      Collections.emptyMap()
+    );
   }
 
-  private void assertRoundTrip(String encAlias, String sigAlias, String pkValue)
-      throws Exception {
+  private void assertRoundTrip(
+    String encAlias,
+    String sigAlias,
+    String pkValue
+  ) throws Exception {
     KeyStoreMaterialsProvider provider = new KeyStoreMaterialsProvider(
-      keyStore, encAlias, sigAlias, PWD, PWD, Collections.emptyMap());
+      keyStore,
+      encAlias,
+      sigAlias,
+      PWD,
+      PWD,
+      Collections.emptyMap()
+    );
     DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(provider);
-    EncryptionContext ctx = EncryptionContext.builder()
-      .tableName(TABLE_NAME).hashKeyName(PK).rangeKeyName(SK).build();
+    EncryptionContext ctx = EncryptionContext
+      .builder()
+      .tableName(TABLE_NAME)
+      .hashKeyName(PK)
+      .rangeKeyName(SK)
+      .build();
 
     Map<String, AttributeValue> item = new HashMap<>();
     item.put(PK, AttributeValue.builder().s(pkValue).build());
@@ -197,13 +223,21 @@ public class KeyStoreEncryptorIT {
     flags.put("signedField", SIGN_ONLY);
     flags.put("untouchedField", DO_NOTHING);
 
-    Map<String, AttributeValue> encrypted = encryptor.encryptRecord(item, flags, ctx);
+    Map<String, AttributeValue> encrypted = encryptor.encryptRecord(
+      item,
+      flags,
+      ctx
+    );
     assertNull(encrypted.get("secretField").s());
     assertNotNull(encrypted.get("secretField").b());
     assertEquals("42", encrypted.get("signedField").n());
     assertEquals("plain", encrypted.get("untouchedField").s());
 
-    Map<String, AttributeValue> decrypted = encryptor.decryptRecord(encrypted, flags, ctx);
+    Map<String, AttributeValue> decrypted = encryptor.decryptRecord(
+      encrypted,
+      flags,
+      ctx
+    );
     assertEquals("sensitive", decrypted.get("secretField").s());
     assertEquals("42", decrypted.get("signedField").n());
     assertEquals("plain", decrypted.get("untouchedField").s());

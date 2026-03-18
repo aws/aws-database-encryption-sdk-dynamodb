@@ -939,4 +939,9 @@ public class CachingMostRecentProviderTests {
       }
     );
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullKeystore() {
+    new CachingMostRecentProvider(null, MATERIAL_NAME, 500, 100);
+  }
 }
