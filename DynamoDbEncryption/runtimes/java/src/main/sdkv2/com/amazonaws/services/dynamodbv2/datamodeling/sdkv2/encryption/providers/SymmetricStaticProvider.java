@@ -68,7 +68,6 @@ public class SymmetricStaticProvider implements EncryptionMaterialsProvider {
     KeyPair signingPair,
     Map<String, String> description
   ) {
-    ObjectUtil.checkNotNull(encryptionKey, "encryptionKey must not be null");
     ObjectUtil.checkNotNull(signingPair, "signingPair must not be null");
     materials =
       new SymmetricRawMaterials(encryptionKey, signingPair, description);
