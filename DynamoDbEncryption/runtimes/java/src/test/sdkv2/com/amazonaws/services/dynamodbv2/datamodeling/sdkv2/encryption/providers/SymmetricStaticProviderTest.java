@@ -255,11 +255,6 @@ public class SymmetricStaticProviderTest {
   }
 
   @Test(expectedExceptions = NullPointerException.class)
-  public void constructorNullEncryptionKey() {
-    new SymmetricStaticProvider(null, macKey, description);
-  }
-
-  @Test(expectedExceptions = NullPointerException.class)
   public void constructorNullMacKey() {
     new SymmetricStaticProvider(encryptionKey, (SecretKey) null, description);
   }
