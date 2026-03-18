@@ -20,9 +20,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.DecryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.EncryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.WrappedRawMaterials;
+import io.netty.util.internal.ObjectUtil;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import io.netty.util.internal.ObjectUtil;
 import java.security.KeyPair;
 import java.util.Collections;
 import java.util.HashMap;

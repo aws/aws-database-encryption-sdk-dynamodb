@@ -905,20 +905,12 @@ public class DynamoDbEncryptorTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void encryptRecordNullItemAttributes() {
-    encryptor.encryptRecord(
-      null,
-      Collections.emptyMap(),
-      context
-    );
+    encryptor.encryptRecord(null, Collections.emptyMap(), context);
   }
 
   @Test(expectedExceptions = NullPointerException.class)
   public void decryptRecordNullItemAttributes() throws Exception {
-    encryptor.decryptRecord(
-      null,
-      Collections.emptyMap(),
-      context
-    );
+    encryptor.decryptRecord(null, Collections.emptyMap(), context);
   }
 
   @Test

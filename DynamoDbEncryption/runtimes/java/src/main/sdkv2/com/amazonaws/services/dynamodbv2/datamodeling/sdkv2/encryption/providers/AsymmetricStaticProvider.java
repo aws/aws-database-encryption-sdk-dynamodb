@@ -43,7 +43,8 @@ public class AsymmetricStaticProvider extends WrappedMaterialsProvider {
     Map<String, String> description
   ) {
     super(
-      ObjectUtil.checkNotNull(encryptionKey, "encryptionKey must not be null")
+      ObjectUtil
+        .checkNotNull(encryptionKey, "encryptionKey must not be null")
         .getPublic(),
       encryptionKey.getPrivate(),
       signingPair,
@@ -57,7 +58,8 @@ public class AsymmetricStaticProvider extends WrappedMaterialsProvider {
     Map<String, String> description
   ) {
     super(
-      ObjectUtil.checkNotNull(encryptionKey, "encryptionKey must not be null")
+      ObjectUtil
+        .checkNotNull(encryptionKey, "encryptionKey must not be null")
         .getPublic(),
       encryptionKey.getPrivate(),
       macKey,
