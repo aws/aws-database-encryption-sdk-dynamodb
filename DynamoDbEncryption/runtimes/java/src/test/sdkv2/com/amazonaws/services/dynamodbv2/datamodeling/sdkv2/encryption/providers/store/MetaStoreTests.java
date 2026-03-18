@@ -435,4 +435,24 @@ public class MetaStoreTests {
       result = slowStore.newProvider(MATERIAL_NAME);
     }
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullDdb() {
+    new MetaStore(null, SOURCE_TABLE_NAME, ENCRYPTOR);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullTableName() {
+    new MetaStore(client, null, ENCRYPTOR);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullEncryptor() {
+    new MetaStore(client, SOURCE_TABLE_NAME, null);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullExtraDataSupplier() {
+    new MetaStore(client, SOURCE_TABLE_NAME, ENCRYPTOR, null);
+  }
 }
