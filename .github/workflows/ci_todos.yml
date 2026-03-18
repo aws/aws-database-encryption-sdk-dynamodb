@@ -9,9 +9,13 @@ on:
 
 jobs:
   findTodos:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Check TODOs in code
         shell: bash
