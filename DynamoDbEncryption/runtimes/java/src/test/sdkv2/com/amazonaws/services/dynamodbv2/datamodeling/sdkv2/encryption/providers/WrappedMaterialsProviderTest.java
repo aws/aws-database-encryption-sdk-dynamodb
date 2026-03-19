@@ -544,4 +544,9 @@ public class WrappedMaterialsProviderTest {
       .materialDescription(mat.getMaterialDescription())
       .build();
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullWrappingKey() {
+    new WrappedMaterialsProvider(null, macKey, macKey);
+  }
 }

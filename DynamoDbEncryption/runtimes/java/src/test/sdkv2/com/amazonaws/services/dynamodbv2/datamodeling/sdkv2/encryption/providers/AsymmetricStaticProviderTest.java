@@ -137,4 +137,9 @@ public class AsymmetricStaticProviderTest {
       .materialDescription(mat.getMaterialDescription())
       .build();
   }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void constructorNullEncryptionKey() {
+    new AsymmetricStaticProvider(null, macKey, description);
+  }
 }

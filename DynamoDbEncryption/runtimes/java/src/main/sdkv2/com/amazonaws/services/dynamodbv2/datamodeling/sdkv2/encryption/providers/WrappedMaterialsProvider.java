@@ -20,6 +20,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.DecryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.EncryptionMaterials;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.WrappedRawMaterials;
+import io.netty.util.internal.ObjectUtil;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
@@ -93,7 +94,8 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
     KeyPair signingPair,
     Map<String, String> description
   ) {
-    this.wrappingKey = wrappingKey;
+    this.wrappingKey =
+      ObjectUtil.checkNotNull(wrappingKey, "wrappingKey must not be null");
     this.unwrappingKey = unwrappingKey;
     this.sigPair = signingPair;
     this.macKey = null;
@@ -140,7 +142,8 @@ public class WrappedMaterialsProvider implements EncryptionMaterialsProvider {
     SecretKey macKey,
     Map<String, String> description
   ) {
-    this.wrappingKey = wrappingKey;
+    this.wrappingKey =
+      ObjectUtil.checkNotNull(wrappingKey, "wrappingKey must not be null");
     this.unwrappingKey = unwrappingKey;
     this.sigPair = null;
     this.macKey = macKey;

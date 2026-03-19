@@ -14,6 +14,7 @@
  */
 package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers;
 
+import io.netty.util.internal.ObjectUtil;
 import java.security.KeyPair;
 import java.util.Collections;
 import java.util.Map;
@@ -42,7 +43,9 @@ public class AsymmetricStaticProvider extends WrappedMaterialsProvider {
     Map<String, String> description
   ) {
     super(
-      encryptionKey.getPublic(),
+      ObjectUtil
+        .checkNotNull(encryptionKey, "encryptionKey must not be null")
+        .getPublic(),
       encryptionKey.getPrivate(),
       signingPair,
       description
@@ -55,7 +58,9 @@ public class AsymmetricStaticProvider extends WrappedMaterialsProvider {
     Map<String, String> description
   ) {
     super(
-      encryptionKey.getPublic(),
+      ObjectUtil
+        .checkNotNull(encryptionKey, "encryptionKey must not be null")
+        .getPublic(),
       encryptionKey.getPrivate(),
       macKey,
       description
