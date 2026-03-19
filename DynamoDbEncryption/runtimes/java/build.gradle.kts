@@ -37,6 +37,9 @@ java {
     }
     sourceSets["test"].java {
         srcDir("src/test")
+        // adding sdkv1 and sdkv2 helps IDE to resolve package names inside SDK v1 and v2 test
+        srcDir("src/test/sdkv1")
+        srcDir("src/test/sdkv2")
     }
     withJavadocJar()
     withSourcesJar()
