@@ -852,14 +852,18 @@ public class HolisticIT {
             KeyData signKeyData = keyDataMap.get(keys.signName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
             PublicKey encryptMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material)));
+              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material))
+            );
             PrivateKey decryptMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material)));
+              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material))
+            );
             KeyPair decryptPair = new KeyPair(encryptMaterial, decryptMaterial);
             PublicKey verifyMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
+              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
+            );
             PrivateKey signingMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
+              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
+            );
             KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
             return new AsymmetricStaticProvider(decryptPair, sigPair);
           }
