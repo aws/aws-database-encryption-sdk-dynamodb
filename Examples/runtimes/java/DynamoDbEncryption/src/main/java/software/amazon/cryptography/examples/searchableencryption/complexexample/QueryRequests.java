@@ -74,12 +74,19 @@ public class QueryRequests {
     );
     query1AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
 
+    query1AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     final QueryRequest query1Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-1")
       .keyConditionExpression("#pk1 = :e AND #sk1 BETWEEN :date1 AND :date2")
-      .filterExpression("#duration > :zero")
+      .filterExpression(
+        "#duration > :zero AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query1AttributeNames)
       .expressionAttributeValues(query1AttributeValues)
       .build();
@@ -93,7 +100,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery1 = false;
     for (Map<String, AttributeValue> item : query1Response.items()) {
-      if (item.get("partition_key").s().equals("meeting1")) {
+      if (item.get("partition_key").s().equals("meeting1-java")) {
         foundKnownValueItemQuery1 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -130,6 +137,11 @@ public class QueryRequests {
     );
     query2AttributeValues.put(":zero", AttributeValue.builder().s("0").build());
 
+    query2AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query2Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -137,7 +149,9 @@ public class QueryRequests {
       .keyConditionExpression(
         "#pk = :employee AND #sk BETWEEN :date1 AND :date2"
       )
-      .filterExpression("#duration > :zero")
+      .filterExpression(
+        "#duration > :zero AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query2AttributeNames)
       .expressionAttributeValues(query2AttributeValues)
       .build();
@@ -151,7 +165,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery2 = false;
     for (Map<String, AttributeValue> item : query2Response.items()) {
-      if (item.get("partition_key").s().equals("meeting1")) {
+      if (item.get("partition_key").s().equals("meeting1-java")) {
         foundKnownValueItemQuery2 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -205,6 +219,11 @@ public class QueryRequests {
       AttributeValue.builder().s("MS-2022-07-08").build()
     );
 
+    query3AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query3Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -213,7 +232,7 @@ public class QueryRequests {
         "#pk = :buildingbeacon AND #sk BETWEEN :date1 AND :date2"
       )
       .filterExpression(
-        "#building = :building AND #floor = :floor AND #room = :room"
+        "#building = :building AND #floor = :floor AND #room = :room AND contains(partition_key, :javasuffix)"
       )
       .expressionAttributeNames(query3AttributeNames)
       .expressionAttributeValues(query3AttributeValues)
@@ -228,7 +247,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery3 = false;
     for (Map<String, AttributeValue> item : query3Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals("reservation1-java")) {
         foundKnownValueItemQuery3 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Building").s().equals("SEA33");
@@ -258,11 +277,17 @@ public class QueryRequests {
       AttributeValue.builder().s("E-emp_001").build()
     );
 
+    query4AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query4Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-1")
       .keyConditionExpression("#pk1 = :email AND #sk1 = :employee")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query4AttributeNames)
       .expressionAttributeValues(query4AttributeValues)
       .build();
@@ -276,7 +301,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery4 = false;
     for (Map<String, AttributeValue> item : query4Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals("employee1-java")) {
         foundKnownValueItemQuery4 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
         assert item.get("Location").m().get("Desk").s().equals("3");
@@ -306,6 +331,11 @@ public class QueryRequests {
       AttributeValue.builder().s("MS-").build()
     );
 
+    query5AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query5Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -313,6 +343,7 @@ public class QueryRequests {
       .keyConditionExpression(
         "#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago"
       )
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query5AttributeNames)
       .expressionAttributeValues(query5AttributeValues)
       .build();
@@ -326,7 +357,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery5 = false;
     for (Map<String, AttributeValue> item : query5Response.items()) {
-      if (item.get("partition_key").s().equals("meeting1")) {
+      if (item.get("partition_key").s().equals("meeting1-java")) {
         foundKnownValueItemQuery5 = true;
         assert item.get("Subject").s().equals("Scan Beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -356,11 +387,17 @@ public class QueryRequests {
       AttributeValue.builder().s("MS-2023-03-20").build()
     );
 
+    query6AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query6Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-1")
       .keyConditionExpression("#pk1 = :creatoremail AND #sk1 < :thirtydaysago")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query6AttributeNames)
       .expressionAttributeValues(query6AttributeValues)
       .build();
@@ -375,7 +412,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery6 = false;
     for (Map<String, AttributeValue> item : query6Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("ticket1-java")) {
         foundKnownValueItemQuery6 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -400,6 +437,11 @@ public class QueryRequests {
       AttributeValue.builder().s("MS-2023-03-20").build()
     );
 
+    query7AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query7Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -407,6 +449,7 @@ public class QueryRequests {
       .keyConditionExpression(
         "#pk1 = :organizeremail AND #sk1 < :thirtydaysago"
       )
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query7AttributeNames)
       .expressionAttributeValues(query7AttributeValues)
       .build();
@@ -420,7 +463,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery7 = false;
     for (Map<String, AttributeValue> item : query7Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals("reservation1-java")) {
         foundKnownValueItemQuery7 = true;
         assert item.get("Subject").s().equals("Scan beacons");
         assert item.get("Location").m().get("Floor").s().equals("12");
@@ -454,6 +497,11 @@ public class QueryRequests {
       AttributeValue.builder().s("TC-2023-03-20").build()
     );
 
+    query8AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query8Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -461,6 +509,7 @@ public class QueryRequests {
       .keyConditionExpression(
         "#pk1 = :email AND #sk1 BETWEEN :prefix AND :thirtydaysago"
       )
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query8AttributeNames)
       .expressionAttributeValues(query8AttributeValues)
       .build();
@@ -474,7 +523,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery8 = false;
     for (Map<String, AttributeValue> item : query8Response.items()) {
-      if (item.get("partition_key").s().equals("timecard1")) {
+      if (item.get("partition_key").s().equals("timecard1-java")) {
         foundKnownValueItemQuery8 = true;
         assert item.get("ProjectName").s().equals("project_002");
       }
@@ -499,11 +548,17 @@ public class QueryRequests {
       AttributeValue.builder().s("E-").build()
     );
 
+    query9AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query9Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-0")
       .keyConditionExpression("#pk = :employee AND begins_with(#sk, :prefix)")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query9AttributeNames)
       .expressionAttributeValues(query9AttributeValues)
       .build();
@@ -517,7 +572,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery9 = false;
     for (Map<String, AttributeValue> item : query9Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals("employee1-java")) {
         foundKnownValueItemQuery9 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
       }
@@ -543,11 +598,17 @@ public class QueryRequests {
       AttributeValue.builder().s("E-").build()
     );
 
+    query10AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query10Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-1")
       .keyConditionExpression("#pk1 = :email AND begins_with(#sk1, :prefix)")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query10AttributeNames)
       .expressionAttributeValues(query10AttributeValues)
       .build();
@@ -561,7 +622,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery10 = false;
     for (Map<String, AttributeValue> item : query10Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals("employee1-java")) {
         foundKnownValueItemQuery10 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
       }
@@ -581,11 +642,17 @@ public class QueryRequests {
       AttributeValue.builder().s("T-ticket_001").build()
     );
 
+    query11AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query11Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-0")
       .keyConditionExpression("#pk = :ticket")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query11AttributeNames)
       .expressionAttributeValues(query11AttributeValues)
       .build();
@@ -600,7 +667,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery11 = false;
     for (Map<String, AttributeValue> item : query11Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("ticket1-java")) {
         foundKnownValueItemQuery11 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -626,12 +693,19 @@ public class QueryRequests {
       AttributeValue.builder().s("T-ticket_001").build()
     );
 
+    query12AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query12Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-1")
       .keyConditionExpression("#pk1 = :email")
-      .filterExpression("#pk = :ticket")
+      .filterExpression(
+        "#pk = :ticket AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query12AttributeNames)
       .expressionAttributeValues(query12AttributeValues)
       .build();
@@ -645,7 +719,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery12 = false;
     for (Map<String, AttributeValue> item : query12Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("ticket1-java")) {
         foundKnownValueItemQuery12 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -671,12 +745,19 @@ public class QueryRequests {
       AttributeValue.builder().s("T-ticket_001").build()
     );
 
+    query13AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query13Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-2")
       .keyConditionExpression("#pk2 = :assigneeemail")
-      .filterExpression("#pk = :ticket")
+      .filterExpression(
+        "#pk = :ticket AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query13AttributeNames)
       .expressionAttributeValues(query13AttributeValues)
       .build();
@@ -690,7 +771,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery13 = false;
     for (Map<String, AttributeValue> item : query13Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("ticket1-java")) {
         foundKnownValueItemQuery13 = true;
         assert item.get("Subject").s().equals("Bad bug");
       }
@@ -715,11 +796,17 @@ public class QueryRequests {
       AttributeValue.builder().s("B-44~F-12~D-3").build()
     );
 
+    query14AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query14Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-3")
       .keyConditionExpression("#pk3 = :city AND begins_with(#sk3, :location)")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query14AttributeNames)
       .expressionAttributeValues(query14AttributeValues)
       .build();
@@ -745,7 +832,7 @@ public class QueryRequests {
       // Known value test: Assert some properties on one of the items
       boolean foundKnownValueItemQuery14 = false;
       for (Map<String, AttributeValue> item : query14Response.items()) {
-        if (item.get("partition_key").s().equals("employee1")) {
+        if (item.get("partition_key").s().equals("employee1-java")) {
           foundKnownValueItemQuery14 = true;
           assert item.get("EmployeeID").s().equals("emp_001");
           assert item.get("Location").m().get("Desk").s().equals("3");
@@ -768,11 +855,17 @@ public class QueryRequests {
       AttributeValue.builder().s("ME-zorro@gmail.com").build()
     );
 
+    query15AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query15Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-2")
       .keyConditionExpression("#pk2 = :manageremail")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query15AttributeNames)
       .expressionAttributeValues(query15AttributeValues)
       .build();
@@ -787,7 +880,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery15 = false;
     for (Map<String, AttributeValue> item : query15Response.items()) {
-      if (item.get("partition_key").s().equals("employee1")) {
+      if (item.get("partition_key").s().equals("employee1-java")) {
         foundKnownValueItemQuery15 = true;
         assert item.get("EmployeeID").s().equals("emp_001");
         assert item.get("Location").m().get("Desk").s().equals("3");
@@ -808,11 +901,17 @@ public class QueryRequests {
       AttributeValue.builder().s("AE-able@gmail.com").build()
     );
 
+    query16AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query16Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-2")
       .keyConditionExpression("#pk2 = :assigneeemail")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query16AttributeNames)
       .expressionAttributeValues(query16AttributeValues)
       .build();
@@ -827,7 +926,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery16 = false;
     for (Map<String, AttributeValue> item : query16Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("ticket1-java")) {
         foundKnownValueItemQuery16 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -856,11 +955,17 @@ public class QueryRequests {
       AttributeValue.builder().s("M-2022-10-07T09:30:00").build()
     );
 
+    query17AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query17Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-3")
       .keyConditionExpression("#pk3 = :severity AND #sk3 > :yesterday")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query17AttributeNames)
       .expressionAttributeValues(query17AttributeValues)
       .build();
@@ -875,7 +980,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery17 = false;
     for (Map<String, AttributeValue> item : query17Response.items()) {
-      if (item.get("partition_key").s().equals("ticket1")) {
+      if (item.get("partition_key").s().equals("ticket1-java")) {
         foundKnownValueItemQuery17 = true;
         assert item.get("TicketNumber").s().equals("ticket_001");
       }
@@ -906,12 +1011,19 @@ public class QueryRequests {
       AttributeValue.builder().s("2025-01-01").build()
     );
 
+    query18AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query18Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-1")
       .keyConditionExpression("#pk1 = :status AND #sk1 > :startdate")
-      .filterExpression("#target < :target")
+      .filterExpression(
+        "#target < :target AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query18AttributeNames)
       .expressionAttributeValues(query18AttributeValues)
       .build();
@@ -925,7 +1037,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery18 = false;
     for (Map<String, AttributeValue> item : query18Response.items()) {
-      if (item.get("partition_key").s().equals("project1")) {
+      if (item.get("partition_key").s().equals("project1-java")) {
         foundKnownValueItemQuery18 = true;
         assert item.get("ProjectName").s().equals("project_001");
       }
@@ -946,11 +1058,17 @@ public class QueryRequests {
       AttributeValue.builder().s("P-project_001").build()
     );
 
+    query19AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query19Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-0")
       .keyConditionExpression("#pk = :projectname AND #sk = :projectname")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query19AttributeNames)
       .expressionAttributeValues(query19AttributeValues)
       .build();
@@ -964,7 +1082,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery19 = false;
     for (Map<String, AttributeValue> item : query19Response.items()) {
-      if (item.get("partition_key").s().equals("project1")) {
+      if (item.get("partition_key").s().equals("project1-java")) {
         foundKnownValueItemQuery19 = true;
         assert item.get("ProjectName").s().equals("project_001");
       }
@@ -993,6 +1111,11 @@ public class QueryRequests {
       AttributeValue.builder().s("TC-2023-01-01").build()
     );
 
+    query20AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query20Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -1000,6 +1123,7 @@ public class QueryRequests {
       .keyConditionExpression(
         "#pk = :projectname AND #sk BETWEEN :date1 AND :date2"
       )
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query20AttributeNames)
       .expressionAttributeValues(query20AttributeValues)
       .build();
@@ -1014,7 +1138,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery20 = false;
     for (Map<String, AttributeValue> item : query20Response.items()) {
-      if (item.get("partition_key").s().equals("timecard1")) {
+      if (item.get("partition_key").s().equals("timecard1-java")) {
         foundKnownValueItemQuery20 = true;
         assert item.get("ProjectName").s().equals("project_002");
       }
@@ -1040,12 +1164,19 @@ public class QueryRequests {
       AttributeValue.builder().s("SDE3").build()
     );
 
+    query21AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query21Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-0")
       .keyConditionExpression("#pk = :projectname")
-      .filterExpression("#role = :role")
+      .filterExpression(
+        "#role = :role AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query21AttributeNames)
       .expressionAttributeValues(query21AttributeValues)
       .build();
@@ -1059,7 +1190,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery21 = false;
     for (Map<String, AttributeValue> item : query21Response.items()) {
-      if (item.get("partition_key").s().equals("timecard1")) {
+      if (item.get("partition_key").s().equals("timecard1-java")) {
         foundKnownValueItemQuery21 = true;
         assert item.get("ProjectName").s().equals("project_002");
       }
@@ -1079,11 +1210,17 @@ public class QueryRequests {
       AttributeValue.builder().s("B-SEA33").build()
     );
 
+    query22AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query22Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
       .indexName("GSI-0")
       .keyConditionExpression("#pk = :building")
+      .filterExpression("contains(partition_key, :javasuffix)")
       .expressionAttributeNames(query22AttributeNames)
       .expressionAttributeValues(query22AttributeValues)
       .build();
@@ -1098,7 +1235,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery22 = false;
     for (Map<String, AttributeValue> item : query22Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals("reservation1-java")) {
         foundKnownValueItemQuery22 = true;
         assert item.get("Subject").s().equals("Scan beacons");
       }
@@ -1133,6 +1270,11 @@ public class QueryRequests {
       AttributeValue.builder().s("0").build()
     );
 
+    query23AttributeValues.put(
+      ":javasuffix",
+      AttributeValue.builder().s("-java").build()
+    );
+
     QueryRequest query23Request = QueryRequest
       .builder()
       .tableName(ddbTableName)
@@ -1140,7 +1282,9 @@ public class QueryRequests {
       .keyConditionExpression(
         "#pk = :building AND #sk BETWEEN :date1 AND :date2"
       )
-      .filterExpression("#duration > :zero")
+      .filterExpression(
+        "#duration > :zero AND contains(partition_key, :javasuffix)"
+      )
       .expressionAttributeNames(query23AttributeNames)
       .expressionAttributeValues(query23AttributeValues)
       .build();
@@ -1155,7 +1299,7 @@ public class QueryRequests {
     // Known value test: Assert some properties on one of the items
     boolean foundKnownValueItemQuery23 = false;
     for (Map<String, AttributeValue> item : query23Response.items()) {
-      if (item.get("partition_key").s().equals("reservation1")) {
+      if (item.get("partition_key").s().equals("reservation1-java")) {
         foundKnownValueItemQuery23 = true;
         assert item.get("Subject").s().equals("Scan beacons");
       }

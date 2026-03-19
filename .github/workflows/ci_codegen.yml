@@ -10,6 +10,10 @@ on:
 
 jobs:
   code-generation:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -31,7 +35,7 @@ jobs:
         run: |
           git config --global core.longpaths true
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - run: git submodule update --init --recursive submodules/smithy-dafny

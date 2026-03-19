@@ -9,8 +9,16 @@ on:
 
 jobs:
   not-grep:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+      - name: Install setuptools dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install setuptools==81.0.0
       - name: not-grep
-        uses: mattsb42-meta/not-grep@1.0.0
+        uses: mattsb42-meta/not-grep@1.0.1

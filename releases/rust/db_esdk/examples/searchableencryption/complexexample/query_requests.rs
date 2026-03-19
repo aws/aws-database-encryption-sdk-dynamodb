@@ -74,6 +74,7 @@ async fn run_query1(
         entry(":date1", "MS-2022-07-02"),
         entry(":date2", "MS-2022-07-08"),
         entry(":zero", "0"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query1_response = ddb
@@ -83,7 +84,7 @@ async fn run_query1(
         .set_expression_attribute_names(Some(query1_names))
         .set_expression_attribute_values(Some(query1_values))
         .key_condition_expression("PK1 = :e AND SK1 BETWEEN :date1 AND :date2")
-        .filter_expression("#duration > :zero")
+        .filter_expression("#duration > :zero AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -92,7 +93,7 @@ async fn run_query1(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("meeting1"));
+    assert_eq!(items[0]["partition_key"], ss("meeting1-rust"));
     assert_eq!(items[0]["Subject"], ss("Scan Beacons"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Floor"], ss("12"));
     assert!(items[0]["Attendees"]
@@ -119,6 +120,7 @@ async fn run_query2(
         entry(":date1", "MS-2022-07-02"),
         entry(":date2", "MS-2022-07-08"),
         entry(":zero", "0"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query2_response = ddb
@@ -128,7 +130,7 @@ async fn run_query2(
         .set_expression_attribute_names(Some(query2_names))
         .set_expression_attribute_values(Some(query2_values))
         .key_condition_expression("PK = :employee AND SK BETWEEN :date1 AND :date2")
-        .filter_expression("#duration > :zero")
+        .filter_expression("#duration > :zero AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -137,7 +139,7 @@ async fn run_query2(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("meeting1"));
+    assert_eq!(items[0]["partition_key"], ss("meeting1-rust"));
     assert_eq!(items[0]["Subject"], ss("Scan Beacons"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Floor"], ss("12"));
     assert!(items[0]["Attendees"]
@@ -166,6 +168,7 @@ async fn run_query3(
         entry(":room", "403"),
         entry(":date1", "MS-2022-07-02"),
         entry(":date2", "MS-2022-07-08"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query3_response = ddb
@@ -174,7 +177,7 @@ async fn run_query3(
         .index_name("GSI-0")
         .set_expression_attribute_values(Some(query3_values))
         .key_condition_expression("PK = :buildingbeacon AND SK BETWEEN :date1 AND :date2")
-        .filter_expression("Building = :building AND Floor = :floor AND Room = :room")
+        .filter_expression("Building = :building AND Floor = :floor AND Room = :room AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -183,7 +186,7 @@ async fn run_query3(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("reservation1"));
+    assert_eq!(items[0]["partition_key"], ss("reservation1-rust"));
     assert_eq!(items[0]["Subject"], ss("Scan beacons"));
     assert_eq!(
         items[0]["Location"].as_m().unwrap()["Building"],
@@ -206,6 +209,7 @@ async fn run_query4(
     let query4_values = HashMap::from([
         entry(":email", "EE-able@gmail.com"),
         entry(":employee", "E-emp_001"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query4_response = ddb
@@ -214,6 +218,7 @@ async fn run_query4(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query4_values))
         .key_condition_expression("PK1 = :email AND SK1 = :employee")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -222,7 +227,7 @@ async fn run_query4(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("employee1"));
+    assert_eq!(items[0]["partition_key"], ss("employee1-rust"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Desk"], ss("3"));
     Ok(())
@@ -239,6 +244,7 @@ async fn run_query5(
         entry(":email", "EE-able@gmail.com"),
         entry(":thirtydaysago", "MS-2023-03-20"),
         entry(":prefix", "MS-"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query5_response = ddb
@@ -247,6 +253,7 @@ async fn run_query5(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query5_values))
         .key_condition_expression("PK1 = :email AND SK1 BETWEEN :prefix AND :thirtydaysago")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -255,7 +262,7 @@ async fn run_query5(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("meeting1"));
+    assert_eq!(items[0]["partition_key"], ss("meeting1-rust"));
     assert_eq!(items[0]["Subject"], ss("Scan Beacons"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Floor"], ss("12"));
     assert!(items[0]["Attendees"]
@@ -275,6 +282,7 @@ async fn run_query6(
     let query6_values = HashMap::from([
         entry(":creatoremail", "CE-zorro@gmail.com"),
         entry(":thirtydaysago", "MS-2023-03-20"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query6_response = ddb
@@ -283,6 +291,7 @@ async fn run_query6(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query6_values))
         .key_condition_expression("PK1 = :creatoremail AND SK1 < :thirtydaysago")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -292,10 +301,10 @@ async fn run_query6(
 
     // Expected to be `ticket1` and `ticket3`
     assert!(
-        ((items[0]["partition_key"] == ss("ticket1"))
-            && (items[1]["partition_key"] == ss("ticket3")))
-            || ((items[0]["partition_key"] == ss("ticket3"))
-                && (items[1]["partition_key"] == ss("ticket1")))
+        ((items[0]["partition_key"] == ss("ticket1-rust"))
+            && (items[1]["partition_key"] == ss("ticket3-rust")))
+            || ((items[0]["partition_key"] == ss("ticket3-rust"))
+                && (items[1]["partition_key"] == ss("ticket1-rust")))
     );
     Ok(())
 }
@@ -310,6 +319,7 @@ async fn run_query7(
     let query7_values = HashMap::from([
         entry(":organizeremail", "OE-able@gmail.com"),
         entry(":thirtydaysago", "MS-2023-03-20"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query7_response = ddb
@@ -318,6 +328,7 @@ async fn run_query7(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query7_values))
         .key_condition_expression("PK1 = :organizeremail AND SK1 < :thirtydaysago")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -326,7 +337,7 @@ async fn run_query7(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("reservation1"));
+    assert_eq!(items[0]["partition_key"], ss("reservation1-rust"));
     assert_eq!(items[0]["Subject"], ss("Scan beacons"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Floor"], ss("12"));
     assert!(items[0]["Attendees"]
@@ -347,6 +358,7 @@ async fn run_query8(
         entry(":email", "EE-able@gmail.com"),
         entry(":prefix", "TC-"),
         entry(":thirtydaysago", "TC-2023-03-20"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query8_response = ddb
@@ -355,6 +367,7 @@ async fn run_query8(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query8_values))
         .key_condition_expression("PK1 = :email AND SK1 BETWEEN :prefix AND :thirtydaysago")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -363,7 +376,7 @@ async fn run_query8(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("timecard1"));
+    assert_eq!(items[0]["partition_key"], ss("timecard1-rust"));
     assert_eq!(items[0]["ProjectName"], ss("project_002"));
     Ok(())
 }
@@ -375,7 +388,11 @@ async fn run_query9(
     // Query 9: Get employee info by employee ID
     // Key condition: PK1=employeeID SK starts with "E-"
 
-    let query9_values = HashMap::from([entry(":employee", "E-emp_001"), entry(":prefix", "E-")]);
+    let query9_values = HashMap::from([
+        entry(":employee", "E-emp_001"),
+        entry(":prefix", "E-"),
+        entry(":rustsuffix", "-rust"),
+    ]);
 
     let query9_response = ddb
         .query()
@@ -383,6 +400,7 @@ async fn run_query9(
         .index_name("GSI-0")
         .set_expression_attribute_values(Some(query9_values))
         .key_condition_expression("PK = :employee AND begins_with(SK, :prefix)")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -391,7 +409,7 @@ async fn run_query9(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("employee1"));
+    assert_eq!(items[0]["partition_key"], ss("employee1-rust"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
     Ok(())
 }
@@ -404,8 +422,11 @@ async fn run_query10(
     // Key condition: PK1=email
     // Filter condition: SK starts with "E-"
 
-    let query10_values =
-        HashMap::from([entry(":email", "EE-able@gmail.com"), entry(":prefix", "E-")]);
+    let query10_values = HashMap::from([
+        entry(":email", "EE-able@gmail.com"),
+        entry(":prefix", "E-"),
+        entry(":rustsuffix", "-rust"),
+    ]);
 
     let query10_response = ddb
         .query()
@@ -413,6 +434,7 @@ async fn run_query10(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query10_values))
         .key_condition_expression("PK1 = :email AND begins_with(SK1, :prefix)")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -421,7 +443,7 @@ async fn run_query10(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("employee1"));
+    assert_eq!(items[0]["partition_key"], ss("employee1-rust"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
     Ok(())
 }
@@ -433,7 +455,10 @@ async fn run_query11(
     // Query 11: Get ticket history by ticket number
     // Key condition: PK=TicketNumber
 
-    let query11_values = HashMap::from([entry(":ticket", "T-ticket_001")]);
+    let query11_values = HashMap::from([
+        entry(":ticket", "T-ticket_001"),
+        entry(":rustsuffix", "-rust"),
+    ]);
 
     let query11_response = ddb
         .query()
@@ -441,6 +466,7 @@ async fn run_query11(
         .index_name("GSI-0")
         .set_expression_attribute_values(Some(query11_values))
         .key_condition_expression("PK = :ticket")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -450,10 +476,10 @@ async fn run_query11(
 
     // Expected to be `ticket1` and `ticket3`
     assert!(
-        ((items[0]["partition_key"] == ss("ticket1"))
-            && (items[1]["partition_key"] == ss("ticket2")))
-            || ((items[0]["partition_key"] == ss("ticket2"))
-                && (items[1]["partition_key"] == ss("ticket1")))
+        ((items[0]["partition_key"] == ss("ticket1-rust"))
+            && (items[1]["partition_key"] == ss("ticket2-rust")))
+            || ((items[0]["partition_key"] == ss("ticket2-rust"))
+                && (items[1]["partition_key"] == ss("ticket1-rust")))
     );
     Ok(())
 }
@@ -469,6 +495,7 @@ async fn run_query12(
     let query12_values = HashMap::from([
         entry(":email", "CE-zorro@gmail.com"),
         entry(":ticket", "T-ticket_001"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query12_response = ddb
@@ -477,7 +504,7 @@ async fn run_query12(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query12_values))
         .key_condition_expression("PK1 = :email")
-        .filter_expression("PK = :ticket")
+        .filter_expression("PK = :ticket AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -486,7 +513,7 @@ async fn run_query12(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("ticket1"));
+    assert_eq!(items[0]["partition_key"], ss("ticket1-rust"));
     assert_eq!(items[0]["TicketNumber"], ss("ticket_001"));
     Ok(())
 }
@@ -501,6 +528,7 @@ async fn run_query13(
     let query13_values = HashMap::from([
         entry(":assigneeemail", "AE-able@gmail.com"),
         entry(":ticket", "T-ticket_001"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query13_response = ddb
@@ -509,7 +537,7 @@ async fn run_query13(
         .index_name("GSI-2")
         .set_expression_attribute_values(Some(query13_values))
         .key_condition_expression("PK2 = :assigneeemail")
-        .filter_expression("PK = :ticket")
+        .filter_expression("PK = :ticket AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -518,7 +546,7 @@ async fn run_query13(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("ticket1"));
+    assert_eq!(items[0]["partition_key"], ss("ticket1-rust"));
     assert_eq!(items[0]["Subject"], ss("Bad bug"));
     Ok(())
 }
@@ -533,6 +561,7 @@ async fn run_query14(
     let query14_values = HashMap::from([
         entry(":city", "C-Seattle"),
         entry(":location", "B-44~F-12~D-3"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query14_response = ddb
@@ -541,6 +570,7 @@ async fn run_query14(
         .index_name("GSI-3")
         .set_expression_attribute_values(Some(query14_values))
         .key_condition_expression("PK3 = :city AND begins_with(SK3, :location)")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -549,7 +579,7 @@ async fn run_query14(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("employee1"));
+    assert_eq!(items[0]["partition_key"], ss("employee1-rust"));
     assert_eq!(items[0]["EmployeeID"], ss("emp_001"));
     assert_eq!(items[0]["Location"].as_m().unwrap()["Desk"], ss("3"));
     Ok(())
@@ -562,7 +592,10 @@ async fn run_query15(
     // Query 15: Get employees by manager email
     // Key condition: PK2 = ManagerEmail
 
-    let query15_values = HashMap::from([entry(":manageremail", "ME-zorro@gmail.com")]);
+    let query15_values = HashMap::from([
+        entry(":manageremail", "ME-zorro@gmail.com"),
+        entry(":rustsuffix", "-rust"),
+    ]);
 
     let query15_response = ddb
         .query()
@@ -570,6 +603,7 @@ async fn run_query15(
         .index_name("GSI-2")
         .set_expression_attribute_values(Some(query15_values))
         .key_condition_expression("PK2 = :manageremail")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -580,7 +614,7 @@ async fn run_query15(
 
     let mut found_known_value_item_query15 = false;
     for item in &items {
-        if item["partition_key"] == ss("employee1") {
+        if item["partition_key"] == ss("employee1-rust") {
             found_known_value_item_query15 = true;
             assert_eq!(item["EmployeeID"], ss("emp_001"));
             assert_eq!(item["Location"].as_m().unwrap()["Desk"], ss("3"));
@@ -598,7 +632,10 @@ async fn run_query16(
     // Query 16: Get assigned tickets by assignee email
     // Key condition: PK2 = AssigneeEmail
 
-    let query16_values = HashMap::from([entry(":assigneeemail", "AE-able@gmail.com")]);
+    let query16_values = HashMap::from([
+        entry(":assigneeemail", "AE-able@gmail.com"),
+        entry(":rustsuffix", "-rust"),
+    ]);
 
     let query16_response = ddb
         .query()
@@ -606,6 +643,7 @@ async fn run_query16(
         .index_name("GSI-2")
         .set_expression_attribute_values(Some(query16_values))
         .key_condition_expression("PK2 = :assigneeemail")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -615,10 +653,10 @@ async fn run_query16(
 
     // Expected to be `ticket1` and `ticket4`
     assert!(
-        ((items[0]["partition_key"] == ss("ticket1"))
-            && (items[1]["partition_key"] == ss("ticket4")))
-            || ((items[0]["partition_key"] == ss("ticket4"))
-                && (items[1]["partition_key"] == ss("ticket1")))
+        ((items[0]["partition_key"] == ss("ticket1-rust"))
+            && (items[1]["partition_key"] == ss("ticket4-rust")))
+            || ((items[0]["partition_key"] == ss("ticket4-rust"))
+                && (items[1]["partition_key"] == ss("ticket1-rust")))
     );
     Ok(())
 }
@@ -637,6 +675,7 @@ async fn run_query17(
     let query17_values = HashMap::from([
         entry(":severity", "S-3"),
         entry(":yesterday", "M-2022-10-07T09:30:00"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query17_response = ddb
@@ -645,6 +684,7 @@ async fn run_query17(
         .index_name("GSI-3")
         .set_expression_attribute_values(Some(query17_values))
         .key_condition_expression("PK3 = :severity AND SK3 > :yesterday")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -656,7 +696,7 @@ async fn run_query17(
 
     let mut found_known_value_item_query17 = false;
     for item in &items {
-        if item["partition_key"] == ss("ticket1") {
+        if item["partition_key"] == ss("ticket1-rust") {
             found_known_value_item_query17 = true;
             assert_eq!(item["TicketNumber"], ss("ticket_001"));
         }
@@ -678,6 +718,7 @@ async fn run_query18(
         entry(":status", "PSts-Pending"),
         entry(":startdate", "PS-2022-01-01"),
         entry(":target", "2025-01-01"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query18_response = ddb
@@ -686,7 +727,7 @@ async fn run_query18(
         .index_name("GSI-1")
         .set_expression_attribute_values(Some(query18_values))
         .key_condition_expression("PK1 = :status AND SK1 > :startdate")
-        .filter_expression("ProjectTarget < :target")
+        .filter_expression("ProjectTarget < :target AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -695,7 +736,7 @@ async fn run_query18(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("project1"));
+    assert_eq!(items[0]["partition_key"], ss("project1-rust"));
     assert_eq!(items[0]["ProjectName"], ss("project_001"));
     Ok(())
 }
@@ -707,7 +748,10 @@ async fn run_query19(
     // Query 19: Get projects by name
     // Key condition: PK = ProjectName, SK = ProjectName
 
-    let query19_values = HashMap::from([entry(":projectname", "P-project_001")]);
+    let query19_values = HashMap::from([
+        entry(":projectname", "P-project_001"),
+        entry(":rustsuffix", "-rust"),
+    ]);
 
     let query19_response = ddb
         .query()
@@ -715,6 +759,7 @@ async fn run_query19(
         .index_name("GSI-0")
         .set_expression_attribute_values(Some(query19_values))
         .key_condition_expression("PK = :projectname AND SK = :projectname")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -723,7 +768,7 @@ async fn run_query19(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("project1"));
+    assert_eq!(items[0]["partition_key"], ss("project1-rust"));
     assert_eq!(items[0]["ProjectName"], ss("project_001"));
     Ok(())
 }
@@ -739,6 +784,7 @@ async fn run_query20(
         entry(":projectname", "P-project_002"),
         entry(":date1", "TC-2022-01-01"),
         entry(":date2", "TC-2023-01-01"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query20_response = ddb
@@ -747,6 +793,7 @@ async fn run_query20(
         .index_name("GSI-0")
         .set_expression_attribute_values(Some(query20_values))
         .key_condition_expression("PK = :projectname AND SK BETWEEN :date1 AND :date2")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -756,10 +803,10 @@ async fn run_query20(
     assert_eq!(items.len(), 2);
 
     assert!(
-        ((items[0]["partition_key"] == ss("timecard1"))
-            && (items[1]["partition_key"] == ss("timecard2")))
-            || ((items[0]["partition_key"] == ss("timecard2"))
-                && (items[1]["partition_key"] == ss("timecard1")))
+        ((items[0]["partition_key"] == ss("timecard1-rust"))
+            && (items[1]["partition_key"] == ss("timecard2-rust")))
+            || ((items[0]["partition_key"] == ss("timecard2-rust"))
+                && (items[1]["partition_key"] == ss("timecard1-rust")))
     );
     Ok(())
 }
@@ -779,6 +826,7 @@ async fn run_query21(
     let query21_values = HashMap::from([
         entry(":projectname", "P-project_002"),
         entry(":role", "SDE3"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query21_response = ddb
@@ -788,7 +836,7 @@ async fn run_query21(
         .set_expression_attribute_values(Some(query21_values))
         .set_expression_attribute_names(Some(query21_names))
         .key_condition_expression("PK = :projectname")
-        .filter_expression("#role = :role")
+        .filter_expression("#role = :role AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -797,7 +845,7 @@ async fn run_query21(
     assert_eq!(items.len(), 1);
 
     // Known value test: Assert some properties the item
-    assert_eq!(items[0]["partition_key"], ss("timecard1"));
+    assert_eq!(items[0]["partition_key"], ss("timecard1-rust"));
     assert_eq!(items[0]["ProjectName"], ss("project_002"));
     Ok(())
 }
@@ -809,7 +857,8 @@ async fn run_query22(
     // Query 22: Get reservations by building ID
     // Key condition: PK = Building ID
 
-    let query22_values = HashMap::from([entry(":building", "B-SEA33")]);
+    let query22_values =
+        HashMap::from([entry(":building", "B-SEA33"), entry(":rustsuffix", "-rust")]);
 
     let query22_response = ddb
         .query()
@@ -817,6 +866,7 @@ async fn run_query22(
         .index_name("GSI-0")
         .set_expression_attribute_values(Some(query22_values))
         .key_condition_expression("PK = :building")
+        .filter_expression("contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -826,10 +876,10 @@ async fn run_query22(
     assert_eq!(items.len(), 2);
 
     assert!(
-        ((items[0]["partition_key"] == ss("reservation1"))
-            && (items[1]["partition_key"] == ss("reservation2")))
-            || ((items[0]["partition_key"] == ss("reservation2"))
-                && (items[1]["partition_key"] == ss("reservation1")))
+        ((items[0]["partition_key"] == ss("reservation1-rust"))
+            && (items[1]["partition_key"] == ss("reservation2-rust")))
+            || ((items[0]["partition_key"] == ss("reservation2-rust"))
+                && (items[1]["partition_key"] == ss("reservation1-rust")))
     );
     Ok(())
 }
@@ -851,6 +901,7 @@ async fn run_query23(
         entry(":date1", "MS-2022-07-01"),
         entry(":date2", "MS-2022-07-08"),
         entry(":zero", "0"),
+        entry(":rustsuffix", "-rust"),
     ]);
 
     let query23_response = ddb
@@ -860,7 +911,7 @@ async fn run_query23(
         .set_expression_attribute_values(Some(query23_values))
         .set_expression_attribute_names(Some(query23_names))
         .key_condition_expression("PK = :building AND SK BETWEEN :date1 AND :date2")
-        .filter_expression("#duration > :zero")
+        .filter_expression("#duration > :zero AND contains(partition_key, :rustsuffix)")
         .send()
         .await?;
 
@@ -870,10 +921,10 @@ async fn run_query23(
     assert_eq!(items.len(), 2);
 
     assert!(
-        ((items[0]["partition_key"] == ss("reservation1"))
-            && (items[1]["partition_key"] == ss("reservation2")))
-            || ((items[0]["partition_key"] == ss("reservation2"))
-                && (items[1]["partition_key"] == ss("reservation1")))
+        ((items[0]["partition_key"] == ss("reservation1-rust"))
+            && (items[1]["partition_key"] == ss("reservation2-rust")))
+            || ((items[0]["partition_key"] == ss("reservation2-rust"))
+                && (items[1]["partition_key"] == ss("reservation1-rust")))
     );
     Ok(())
 }

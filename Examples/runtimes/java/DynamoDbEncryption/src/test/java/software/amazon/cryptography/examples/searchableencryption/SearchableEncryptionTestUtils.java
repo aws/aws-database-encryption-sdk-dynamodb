@@ -18,4 +18,8 @@ public class SearchableEncryptionTestUtils {
   public static final String TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME =
     "KeyStoreDdbTable";
   public static final String TEST_LOGICAL_KEYSTORE_NAME = "KeyStoreDdbTable";
+
+  // Pre-existing branch key ID in the key store
+  public static final String TEST_BRANCH_KEY_ID =
+    "3f43a9af-08c5-4317-b694-3d3e883dcaef";
 }

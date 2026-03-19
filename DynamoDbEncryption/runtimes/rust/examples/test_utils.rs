@@ -43,6 +43,10 @@ pub const TEST_BRANCH_KEY_WRAPPING_KMS_KEY_ARN: &str =
 
 // Our tests require access to DDB Table with this name configured as a branch keystore
 pub const TEST_BRANCH_KEYSTORE_DDB_TABLE_NAME: &str = "KeyStoreDdbTable";
+
+// Pre-existing branch key IDs in the key store, matching Java/NET test configuration
+pub const TEST_BRANCH_KEY_ID: &str = "3f43a9af-08c5-4317-b694-3d3e883dcaef";
+pub const TEST_ALTERNATE_BRANCH_KEY_ID: &str = "4bb57643-07c1-419e-92ad-0df0df149d7c";
 pub const TEST_COMPLEX_DDB_TABLE_NAME: &str = "ComplexBeaconTestTable";
 
 // Helper method to clean up test items

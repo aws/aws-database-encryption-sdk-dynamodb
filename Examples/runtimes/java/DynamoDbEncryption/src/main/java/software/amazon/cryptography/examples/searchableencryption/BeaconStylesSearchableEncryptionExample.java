@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.swing.text.html.Option;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
@@ -274,9 +276,13 @@ public class BeaconStylesSearchableEncryptionExample {
         .tableEncryptionConfigs(tableConfigs)
         .build();
 
+    // Generate unique work_id values for this run to avoid collisions with stale items
+    final String workId1 = UUID.randomUUID().toString();
+    final String workId2 = UUID.randomUUID().toString();
+
     // 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
     final HashMap<String, AttributeValue> item1 = new HashMap<>();
-    item1.put("work_id", AttributeValue.builder().s("1").build());
+    item1.put("work_id", AttributeValue.builder().s(workId1).build());
     item1.put(
       "inspection_date",
       AttributeValue.builder().s("2023-06-13").build()
@@ -297,7 +303,7 @@ public class BeaconStylesSearchableEncryptionExample {
 
     // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
     final HashMap<String, AttributeValue> item2 = new HashMap<>();
-    item2.put("work_id", AttributeValue.builder().s("2").build());
+    item2.put("work_id", AttributeValue.builder().s(workId2).build());
     item2.put(
       "inspection_date",
       AttributeValue.builder().s("2023-06-13").build()
@@ -349,135 +355,151 @@ public class BeaconStylesSearchableEncryptionExample {
     // Validate object put successfully
     assert 200 == putResponse.sdkHttpResponse().statusCode();
 
-    // 13. Test the first type of Set operation :
-    // Select records where the basket attribute holds a particular value
-    Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(
-      ":value",
-      AttributeValue.builder().s("banana").build()
-    );
+    // These filters ensure scans only match items created by this test run.
+    final String widFilter = "work_id IN (:wid1, :wid2)";
+    final Map<String, AttributeValue> widValues = new HashMap<>();
+    widValues.put(":wid1", AttributeValue.builder().s(workId1).build());
+    widValues.put(":wid2", AttributeValue.builder().s(workId2).build());
 
-    ScanRequest scanRequest = ScanRequest
-      .builder()
-      .tableName(ddbTableName)
-      .filterExpression("contains(basket, :value)")
-      .expressionAttributeValues(expressionAttributeValues)
-      .build();
+    try {
+      // 13. Test the first type of Set operation :
+      // Select records where the basket attribute holds a particular value
+      Map<String, AttributeValue> expressionAttributeValues = new HashMap<>(
+        widValues
+      );
+      expressionAttributeValues.put(
+        ":value",
+        AttributeValue.builder().s("banana").build()
+      );
 
-    ScanResponse scanResponse = ddb.scan(scanRequest);
-    // Validate query was returned successfully
-    assert 200 == scanResponse.sdkHttpResponse().statusCode();
-
-    // Validate only 1 item was returned: item1
-    assert scanResponse.items().size() == 1;
-    assert scanResponse.items().get(0).equals(item1);
-
-    // 14. Test the second type of Set operation :
-    // Select records where the basket attribute holds the fruit attribute
-    scanRequest =
-      ScanRequest
+      ScanRequest scanRequest = ScanRequest
         .builder()
         .tableName(ddbTableName)
-        .filterExpression("contains(basket, fruit)")
-        .build();
-
-    scanResponse = ddb.scan(scanRequest);
-    // Validate query was returned successfully
-    assert 200 == scanResponse.sdkHttpResponse().statusCode();
-
-    // Validate only 1 item was returned: item1
-    assert scanResponse.items().size() == 1;
-    assert scanResponse.items().get(0).equals(item1);
-
-    // 15. Test the third type of Set operation :
-    // Select records where the fruit attribute exists in a particular set
-    ArrayList<String> basket3 = new ArrayList<String>();
-    basket3.add("boysenberry");
-    basket3.add("grape");
-    basket3.add("orange");
-    expressionAttributeValues.put(
-      ":value",
-      AttributeValue.builder().ss(basket3).build()
-    );
-
-    scanRequest =
-      ScanRequest
-        .builder()
-        .tableName(ddbTableName)
-        .filterExpression("contains(:value, fruit)")
+        .filterExpression(widFilter + " AND contains(basket, :value)")
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
-    scanResponse = ddb.scan(scanRequest);
+      ScanResponse scanResponse = ddb.scan(scanRequest);
+      assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      assert scanResponse.items().size() == 1;
+      assert scanResponse.items().get(0).equals(item1);
 
-    // Validate query was returned successfully
-    assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      // 14. Test the second type of Set operation :
+      // Select records where the basket attribute holds the fruit attribute
+      scanRequest =
+        ScanRequest
+          .builder()
+          .tableName(ddbTableName)
+          .filterExpression(widFilter + " AND contains(basket, fruit)")
+          .expressionAttributeValues(widValues)
+          .build();
 
-    // Validate only 1 item was returned: item2
-    assert scanResponse.items().size() == 1;
-    assert scanResponse.items().get(0).equals(item2);
+      scanResponse = ddb.scan(scanRequest);
+      assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      assert scanResponse.items().size() == 1;
+      assert scanResponse.items().get(0).equals(item1);
 
-    // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
-    scanRequest =
-      ScanRequest
-        .builder()
-        .tableName(ddbTableName)
-        .filterExpression("dessert = fruit")
-        .build();
+      // 15. Test the third type of Set operation :
+      // Select records where the fruit attribute exists in a particular set
+      ArrayList<String> basket3 = new ArrayList<String>();
+      basket3.add("boysenberry");
+      basket3.add("grape");
+      basket3.add("orange");
+      expressionAttributeValues = new HashMap<>(widValues);
+      expressionAttributeValues.put(
+        ":value",
+        AttributeValue.builder().ss(basket3).build()
+      );
 
-    scanResponse = ddb.scan(scanRequest);
+      scanRequest =
+        ScanRequest
+          .builder()
+          .tableName(ddbTableName)
+          .filterExpression(widFilter + " AND contains(:value, fruit)")
+          .expressionAttributeValues(expressionAttributeValues)
+          .build();
 
-    // Validate query was returned successfully
-    assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      scanResponse = ddb.scan(scanRequest);
+      assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      assert scanResponse.items().size() == 1;
+      assert scanResponse.items().get(0).equals(item2);
 
-    // Validate only 1 item was returned: item2
-    assert scanResponse.items().size() == 1;
-    assert scanResponse.items().get(0).equals(item2);
+      // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
+      scanRequest =
+        ScanRequest
+          .builder()
+          .tableName(ddbTableName)
+          .filterExpression(widFilter + " AND dessert = fruit")
+          .expressionAttributeValues(widValues)
+          .build();
 
-    // 16. Test the AsSet attribute 'veggies' :
-    // Select records where the veggies attribute holds a particular value
-    expressionAttributeValues.put(
-      ":value",
-      AttributeValue.builder().s("peas").build()
-    );
+      scanResponse = ddb.scan(scanRequest);
+      assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      assert scanResponse.items().size() == 1;
+      assert scanResponse.items().get(0).equals(item2);
 
-    scanRequest =
-      ScanRequest
-        .builder()
-        .tableName(ddbTableName)
-        .filterExpression("contains(veggies, :value)")
-        .expressionAttributeValues(expressionAttributeValues)
-        .build();
+      // 16. Test the AsSet attribute 'veggies' :
+      // Select records where the veggies attribute holds a particular value
+      expressionAttributeValues = new HashMap<>(widValues);
+      expressionAttributeValues.put(
+        ":value",
+        AttributeValue.builder().s("peas").build()
+      );
 
-    scanResponse = ddb.scan(scanRequest);
-    // Validate query was returned successfully
-    assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      scanRequest =
+        ScanRequest
+          .builder()
+          .tableName(ddbTableName)
+          .filterExpression(widFilter + " AND contains(veggies, :value)")
+          .expressionAttributeValues(expressionAttributeValues)
+          .build();
 
-    // Validate only 1 item was returned: item1
-    assert scanResponse.items().size() == 1;
-    assert scanResponse.items().get(0).equals(item2);
+      scanResponse = ddb.scan(scanRequest);
+      assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      assert scanResponse.items().size() == 1;
+      assert scanResponse.items().get(0).equals(item2);
 
-    // 17. Test the compound beacon 'work_unit' :
-    expressionAttributeValues.put(
-      ":value",
-      AttributeValue.builder().s("I-1.T-small").build()
-    );
+      // 17. Test the compound beacon 'work_unit' :
+      expressionAttributeValues = new HashMap<>(widValues);
+      expressionAttributeValues.put(
+        ":value",
+        AttributeValue.builder().s("I-" + workId1 + ".T-small").build()
+      );
 
-    scanRequest =
-      ScanRequest
-        .builder()
-        .tableName(ddbTableName)
-        .filterExpression("work_unit = :value")
-        .expressionAttributeValues(expressionAttributeValues)
-        .build();
+      scanRequest =
+        ScanRequest
+          .builder()
+          .tableName(ddbTableName)
+          .filterExpression(widFilter + " AND work_unit = :value")
+          .expressionAttributeValues(expressionAttributeValues)
+          .build();
 
-    scanResponse = ddb.scan(scanRequest);
-    // Validate query was returned successfully
-    assert 200 == scanResponse.sdkHttpResponse().statusCode();
-
-    // Validate only 1 item was returned: item1
-    assert scanResponse.items().size() == 1;
-    assert scanResponse.items().get(0).equals(item1);
+      scanResponse = ddb.scan(scanRequest);
+      assert 200 == scanResponse.sdkHttpResponse().statusCode();
+      assert scanResponse.items().size() == 1;
+      assert scanResponse.items().get(0).equals(item1);
+    } finally {
+      // Clean up: delete both items using a plain DDB client
+      final DynamoDbClient plainDdb = DynamoDbClient.create();
+      HashMap<String, AttributeValue> key1 = new HashMap<>();
+      key1.put("work_id", AttributeValue.builder().s(workId1).build());
+      key1.put(
+        "inspection_date",
+        AttributeValue.builder().s("2023-06-13").build()
+      );
+      plainDdb.deleteItem(
+        DeleteItemRequest.builder().tableName(ddbTableName).key(key1).build()
+      );
+      HashMap<String, AttributeValue> key2 = new HashMap<>();
+      key2.put("work_id", AttributeValue.builder().s(workId2).build());
+      key2.put(
+        "inspection_date",
+        AttributeValue.builder().s("2023-06-13").build()
+      );
+      plainDdb.deleteItem(
+        DeleteItemRequest.builder().tableName(ddbTableName).key(key2).build()
+      );
+    }
   }
 
   public static void main(final String[] args) {

@@ -7,6 +7,10 @@ on:
 
 jobs:
   notify-issue:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     if: github.event_name == 'issues'
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
     with:
@@ -15,6 +19,10 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_GHI }}
 
   notify-comment:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     if: github.event_name == 'issue_comment' && !github.event.issue.pull_request
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
     with:
