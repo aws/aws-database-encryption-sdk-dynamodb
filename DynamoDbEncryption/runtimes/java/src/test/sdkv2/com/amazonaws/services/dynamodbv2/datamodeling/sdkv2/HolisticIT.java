@@ -620,10 +620,18 @@ public class HolisticIT {
         for (Map<String, AttributeValue> item : items) {
           AttributeValue descAttr = item.get("*amzn-ddb-map-desc*");
           if (descAttr != null && descAttr.b() != null) {
-            String descBlob = new String(descAttr.b().asByteArray(), StandardCharsets.UTF_8);
-            for (Map.Entry<String, String> entry : scenario.materialDescription.entrySet()) {
+            String descBlob = new String(
+              descAttr.b().asByteArray(),
+              StandardCharsets.UTF_8
+            );
+            for (Map.Entry<
+              String,
+              String
+            > entry : scenario.materialDescription.entrySet()) {
               assertTrue(
-                "Expected " + entry.getValue() + " in *amzn-ddb-map-desc* but not found",
+                "Expected " +
+                entry.getValue() +
+                " in *amzn-ddb-map-desc* but not found",
                 descBlob.contains(entry.getValue())
               );
             }
@@ -701,14 +709,25 @@ public class HolisticIT {
     Set<String> tables = generateStandardData(provider);
 
     if (saveToJson && "v1".equals(scenario.version)) {
-      String outputFile = java.nio.file.Paths.get(
-              scenario.ciphertextPath.replace("file://", "")).getFileName().toString();
-      HolisticITHelper.writeTablesAsTestVector(client, outputFile, tables.toArray(new String[0]));
+      String outputFile = java.nio.file.Paths
+        .get(scenario.ciphertextPath.replace("file://", ""))
+        .getFileName()
+        .toString();
+      HolisticITHelper.writeTablesAsTestVector(
+        client,
+        outputFile,
+        tables.toArray(new String[0])
+      );
       if (scenario.metastore != null) {
-        String metastorePath = java.nio.file.Paths.get(
-                scenario.metastore.path.replace("file://", "")).getFileName().toString();
+        String metastorePath = java.nio.file.Paths
+          .get(scenario.metastore.path.replace("file://", ""))
+          .getFileName()
+          .toString();
         HolisticITHelper.writeTablesAsTestVector(
-                client, metastorePath, scenario.metastore.tableName);
+          client,
+          metastorePath,
+          scenario.metastore.tableName
+        );
       }
     }
 
@@ -730,67 +749,105 @@ public class HolisticIT {
         KeyData decryptKeyData = keyDataMap.get(keys.decryptName);
         KeyData verifyKeyData = keyDataMap.get(keys.verifyName);
         SecretKey decryptKey = new SecretKeySpec(
-            Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+          Base64.decode(decryptKeyData.material),
+          decryptKeyData.algorithm
+        );
         Map<String, String> desc = (materialDescription != null)
-            ? materialDescription : Collections.emptyMap();
+          ? materialDescription
+          : Collections.emptyMap();
 
         if (verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)) {
-            SecretKey verifyKey = new SecretKeySpec(
-                Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
-            return new SymmetricStaticProvider(decryptKey, verifyKey, desc);
+          // Symmetric encryption key + Symmetric verify key
+          SecretKey verifyKey = new SecretKeySpec(
+            Base64.decode(verifyKeyData.material),
+            verifyKeyData.algorithm
+          );
+          return new SymmetricStaticProvider(decryptKey, verifyKey, desc);
         } else {
-            try {
-              KeyData signKeyData = keyDataMap.get(keys.signName);
-              KeyFactory rsaFact = KeyFactory.getInstance(RSA);
-              PublicKey verifyMaterial = rsaFact.generatePublic(
-                  new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
-              PrivateKey signingMaterial = rsaFact.generatePrivate(
-                  new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
-              KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
-              return new SymmetricStaticProvider(decryptKey, sigPair, desc);
-            } catch (GeneralSecurityException ex) {
-              throw new RuntimeException(ex);
-            }
+          // Symmetric encryption key + Asymmetric verify key
+          try {
+            KeyData signKeyData = keyDataMap.get(keys.signName);
+            KeyFactory rsaFact = KeyFactory.getInstance(RSA);
+            PublicKey verifyMaterial = rsaFact.generatePublic(
+              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
+            );
+            PrivateKey signingMaterial = rsaFact.generatePrivate(
+              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
+            );
+            KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
+            return new SymmetricStaticProvider(decryptKey, sigPair, desc);
+          } catch (GeneralSecurityException ex) {
+            throw new RuntimeException(ex);
+          }
         }
       case ScenarioManifest.WRAPPED_PROVIDER_NAME:
         decryptKeyData = keyDataMap.get(keys.decryptName);
         verifyKeyData = keyDataMap.get(keys.verifyName);
-        boolean symDecrypt = decryptKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE);
-        boolean symVerify = verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE);
+        boolean symDecrypt = decryptKeyData.keyType.equals(
+          ScenarioManifest.SYMMETRIC_KEY_TYPE
+        );
+        boolean symVerify = verifyKeyData.keyType.equals(
+          ScenarioManifest.SYMMETRIC_KEY_TYPE
+        );
 
         try {
           if (symDecrypt && symVerify) {
-            // AES wrapping + HMAC signing
-            decryptKey = new SecretKeySpec(
-              Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+            // Symmetric wrapping + Symmetric signing
+            decryptKey =
+              new SecretKeySpec(
+                Base64.decode(decryptKeyData.material),
+                decryptKeyData.algorithm
+              );
             SecretKey verifyKey = new SecretKeySpec(
-              Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
-            return new WrappedMaterialsProvider(decryptKey, decryptKey, verifyKey);
+              Base64.decode(verifyKeyData.material),
+              verifyKeyData.algorithm
+            );
+            return new WrappedMaterialsProvider(
+              decryptKey,
+              decryptKey,
+              verifyKey
+            );
           } else if (symDecrypt) {
-            // AES wrapping + RSA signing
-            decryptKey = new SecretKeySpec(
-              Base64.decode(decryptKeyData.material), decryptKeyData.algorithm);
+            // Symmetric wrapping + Asymmetric signing
+            decryptKey =
+              new SecretKeySpec(
+                Base64.decode(decryptKeyData.material),
+                decryptKeyData.algorithm
+              );
             KeyData signKeyData = keyDataMap.get(keys.signName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
             PublicKey verifyMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material)));
+              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
+            );
             PrivateKey signingMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material)));
+              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
+            );
             return new WrappedMaterialsProvider(
-              decryptKey, decryptKey, new KeyPair(verifyMaterial, signingMaterial));
+              decryptKey,
+              decryptKey,
+              new KeyPair(verifyMaterial, signingMaterial)
+            );
           } else if (symVerify) {
-            // RSA wrapping + HMAC signing
+            // Asymmetric wrapping + Symmetric signing
             KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
             PublicKey wrappingKey = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material)));
+              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material))
+            );
             PrivateKey unwrappingKey = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material)));
+              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material))
+            );
             SecretKey verifyKey = new SecretKeySpec(
-              Base64.decode(verifyKeyData.material), verifyKeyData.algorithm);
-            return new WrappedMaterialsProvider(wrappingKey, unwrappingKey, verifyKey);
+              Base64.decode(verifyKeyData.material),
+              verifyKeyData.algorithm
+            );
+            return new WrappedMaterialsProvider(
+              wrappingKey,
+              unwrappingKey,
+              verifyKey
+            );
           } else {
-            // RSA wrapping + RSA signing
+            // Asymmetric wrapping + Asymmetric signing
             KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
             KeyData signKeyData = keyDataMap.get(keys.signName);
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
@@ -1096,25 +1153,54 @@ public class HolisticIT {
     putItems(UNTOUCHED_TEST_VALUE_2, tableName);
 
     // HashKeyOnly items
-    EncryptionContext hashOnlyCtx = EncryptionContext.builder()
-      .tableName("HashKeyOnly").hashKeyName("hashKey").build();
+    EncryptionContext hashOnlyCtx = EncryptionContext
+      .builder()
+      .tableName("HashKeyOnly")
+      .hashKeyName("hashKey")
+      .build();
     Map<String, Set<EncryptionFlags>> hashOnlyActions = new HashMap<>();
     hashOnlyActions.put("hashKey", signOnly);
-    for (Map<String, AttributeValue> hk : new Map[]{hashKey1, hashKey2, hashKey3}) {
+    for (Map<String, AttributeValue> hk : new Map[] {
+      hashKey1,
+      hashKey2,
+      hashKey3,
+    }) {
       tables.add("HashKeyOnly");
-      putItems(encryptor.encryptRecord(hk, hashOnlyActions, hashOnlyCtx), "HashKeyOnly");
+      putItems(
+        encryptor.encryptRecord(hk, hashOnlyActions, hashOnlyCtx),
+        "HashKeyOnly"
+      );
     }
 
     // KeysOnly items
     Map<String, Set<EncryptionFlags>> keysOnlyActions = new HashMap<>();
     keysOnlyActions.put("hashKey", signOnly);
     keysOnlyActions.put("rangeKey", signOnly);
-    int[][] keysOnlyPairs = {{0,1},{0,2},{0,3},{1,1},{1,2},{1,3},{5,1},{6,2},{7,3}};
+    int[][] keysOnlyPairs = {
+      { 0, 1 },
+      { 0, 2 },
+      { 0, 3 },
+      { 1, 1 },
+      { 1, 2 },
+      { 1, 3 },
+      { 5, 1 },
+      { 6, 2 },
+      { 7, 3 },
+    };
     for (int[] pair : keysOnlyPairs) {
       Map<String, AttributeValue> item = new HashMap<>();
-      item.put("hashKey", AttributeValue.builder().n(String.valueOf(pair[0])).build());
-      item.put("rangeKey", AttributeValue.builder().n(String.valueOf(pair[1])).build());
-      putItems(encryptor.encryptRecord(item, keysOnlyActions, encryptionContext), tableName);
+      item.put(
+        "hashKey",
+        AttributeValue.builder().n(String.valueOf(pair[0])).build()
+      );
+      item.put(
+        "rangeKey",
+        AttributeValue.builder().n(String.valueOf(pair[1])).build()
+      );
+      putItems(
+        encryptor.encryptRecord(item, keysOnlyActions, encryptionContext),
+        tableName
+      );
     }
     return tables;
   }
