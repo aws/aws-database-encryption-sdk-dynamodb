@@ -4,7 +4,7 @@
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -104,8 +104,8 @@ public class AwsKmsMultiRegionKey {
     record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
     // Set up encryptor with first region's KMS key
-    final DirectKmsMaterialsProvider cmpEncrypt =
-      new DirectKmsMaterialsProvider(kmsEncrypt, cmkArnEncrypt);
+    final DirectKmsMaterialProvider cmpEncrypt =
+      new DirectKmsMaterialProvider(kmsEncrypt, cmkArnEncrypt);
     final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
       cmpEncrypt
     );
@@ -149,8 +149,8 @@ public class AwsKmsMultiRegionKey {
     );
 
     // Set up decryptor using the replica key from second region
-    final DirectKmsMaterialsProvider cmpDecrypt =
-      new DirectKmsMaterialsProvider(kmsDecrypt, cmkArnDecrypt);
+    final DirectKmsMaterialProvider cmpDecrypt =
+      new DirectKmsMaterialProvider(kmsDecrypt, cmkArnDecrypt);
     final DynamoDBEncryptor decryptor = DynamoDBEncryptor.getInstance(
       cmpDecrypt
     );

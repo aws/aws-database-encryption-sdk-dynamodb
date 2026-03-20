@@ -45,7 +45,7 @@ import software.amazon.awssdk.services.kms.model.DecryptResponse;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest;
 import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
 
-public class DirectKmsMaterialsProviderTest {
+public class DirectKmsMaterialProviderTest {
 
   private FakeKMS kms;
   private String keyId;
@@ -64,7 +64,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test
   public void simple() {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -96,7 +96,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test
   public void simpleWithKmsEc() {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -136,7 +136,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test
   public void simpleWithKmsEc2() throws GeneralSecurityException {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -176,7 +176,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test
   public void simpleWithKmsEc3() throws GeneralSecurityException {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -243,7 +243,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test
   public void randomEnvelopeKeys() throws GeneralSecurityException {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -264,7 +264,7 @@ public class DirectKmsMaterialsProviderTest {
   @Test
   public void testRefresh() {
     // This does nothing, make sure we don't throw and exception.
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -276,7 +276,7 @@ public class DirectKmsMaterialsProviderTest {
     Map<String, String> desc = new HashMap<>();
     desc.put(WrappedRawMaterials.CONTENT_KEY_ALGORITHM, "AES");
 
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId,
       desc
@@ -301,7 +301,7 @@ public class DirectKmsMaterialsProviderTest {
     Map<String, String> desc = new HashMap<>();
     desc.put(WrappedRawMaterials.CONTENT_KEY_ALGORITHM, "AES/128");
 
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId,
       desc
@@ -328,7 +328,7 @@ public class DirectKmsMaterialsProviderTest {
     Map<String, String> desc = new HashMap<>();
     desc.put(WrappedRawMaterials.CONTENT_KEY_ALGORITHM, "AES/256");
 
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId,
       desc
@@ -398,7 +398,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test(expectedExceptions = SdkException.class)
   public void encryptionKeyIdMismatch() throws SdkException {
-    DirectKmsMaterialsProvider directProvider = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider directProvider = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -469,12 +469,12 @@ public class DirectKmsMaterialsProviderTest {
       }
     };
     assertFalse(gdkCalled.get());
-    new DirectKmsMaterialsProvider(kmsSpy, keyId).getEncryptionMaterials(ctx);
+    new DirectKmsMaterialProvider(kmsSpy, keyId).getEncryptionMaterials(ctx);
     assertTrue(gdkCalled.get());
   }
 
   private static class ExtendedKmsMaterialsProvider
-    extends DirectKmsMaterialsProvider {
+    extends DirectKmsMaterialProvider {
 
     private final String encryptionKeyIdAttributeName;
 
@@ -553,12 +553,12 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void constructorNullKmsClient() {
-    new DirectKmsMaterialsProvider(null, keyId);
+    new DirectKmsMaterialProvider(null, keyId);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void unsupportedHashKeyType() {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -573,7 +573,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void unsupportedRangeKeyType() {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -590,7 +590,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void hashKeyMissingFromAttributeValues() {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );
@@ -603,7 +603,7 @@ public class DirectKmsMaterialsProviderTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void rangeKeyMissingFromAttributeValues() {
-    DirectKmsMaterialsProvider prov = new DirectKmsMaterialsProvider(
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
       kms,
       keyId
     );

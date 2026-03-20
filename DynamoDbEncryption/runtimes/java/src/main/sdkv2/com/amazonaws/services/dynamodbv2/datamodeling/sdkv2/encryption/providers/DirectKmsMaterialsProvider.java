@@ -49,7 +49,7 @@ import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
  *
  * @see <a href="http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html">KMS Encryption Context</a>
  */
-public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
+public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
 
   private static final String COVERED_ATTR_CTX_KEY = "aws-kms-ec-attr";
   private static final String SIGNING_KEY_ALGORITHM = "amzn-ddb-sig-alg";
@@ -72,11 +72,11 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
   private final int sigKeyLength;
   private final String sigKeyDesc;
 
-  public DirectKmsMaterialsProvider(KmsClient kms) {
+  public DirectKmsMaterialProvider(KmsClient kms) {
     this(kms, null);
   }
 
-  public DirectKmsMaterialsProvider(
+  public DirectKmsMaterialProvider(
     KmsClient kms,
     String encryptionKeyId,
     Map<String, String> materialDescription
@@ -106,7 +106,7 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
     this.sigKeyLength = parts.length == 2 ? Integer.parseInt(parts[1]) : 256;
   }
 
-  public DirectKmsMaterialsProvider(KmsClient kms, String encryptionKeyId) {
+  public DirectKmsMaterialProvider(KmsClient kms, String encryptionKeyId) {
     this(kms, encryptionKeyId, Collections.emptyMap());
   }
 
@@ -249,7 +249,7 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
 
   /**
    * Select encryption key id to be used to generate data key. The default implementation of this method returns
-   * {@link DirectKmsMaterialsProvider#encryptionKeyId}.
+   * {@link DirectKmsMaterialProvider#encryptionKeyId}.
    *
    * @param context encryption context.
    * @return the encryptionKeyId.
@@ -344,7 +344,7 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
         );
       } else {
         throw new UnsupportedOperationException(
-          "DirectKmsMaterialsProvider only supports String, Number, and Binary HashKeys"
+          "DirectKmsMaterialProvider only supports String, Number, and Binary HashKeys"
         );
       }
     }
@@ -369,7 +369,7 @@ public class DirectKmsMaterialsProvider implements EncryptionMaterialsProvider {
         );
       } else {
         throw new UnsupportedOperationException(
-          "DirectKmsMaterialsProvider only supports String, Number, and Binary RangeKeys"
+          "DirectKmsMaterialProvider only supports String, Number, and Binary RangeKeys"
         );
       }
     }

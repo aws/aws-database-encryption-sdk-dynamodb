@@ -1,7 +1,7 @@
 package software.amazon.cryptography.examples.migration.awsdbe;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +78,7 @@ public class MigrationExampleStep2 {
 
     // Configure the DynamoDBEncryptor using DDBEC SDK V2.
     final KmsClient kmsClient = KmsClient.create();
-    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(
+    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
       kmsClient,
       kmsKeyId
     );

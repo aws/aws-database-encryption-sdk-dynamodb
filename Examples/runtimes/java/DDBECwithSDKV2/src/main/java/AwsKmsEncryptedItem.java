@@ -4,7 +4,7 @@
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -54,8 +54,8 @@ public class AwsKmsEncryptedItem {
     );
     record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
-    // Create DirectKmsMaterialsProvider
-    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(
+    // Create DirectKmsMaterialProvider
+    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
       kmsClient,
       cmkArn
     );

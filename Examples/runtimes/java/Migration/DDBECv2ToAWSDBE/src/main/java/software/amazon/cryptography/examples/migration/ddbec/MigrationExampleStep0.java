@@ -3,7 +3,7 @@ package software.amazon.cryptography.examples.migration.ddbec;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -39,10 +39,10 @@ public class MigrationExampleStep0 {
     final String partitionKeyValue,
     final int sortReadValue
   ) throws GeneralSecurityException {
-    // 1. Create the DirectKmsMaterialsProvider that protects your data keys.
+    // 1. Create the DirectKmsMaterialProvider that protects your data keys.
     //    This uses the AWS SDK for Java V2 KmsClient.
     final KmsClient kmsClient = KmsClient.create();
-    final DirectKmsMaterialsProvider cmp = new DirectKmsMaterialsProvider(
+    final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
       kmsClient,
       kmsKeyId
     );

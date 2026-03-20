@@ -10,7 +10,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.Encryptio
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.AsymmetricStaticProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.CachingMostRecentProvider;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.EncryptionMaterialsProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.SymmetricStaticProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProvider;
@@ -872,13 +872,13 @@ public class HolisticIT {
         }
       case ScenarioManifest.AWS_KMS_PROVIDER_NAME:
         if (materialDescription != null && !materialDescription.isEmpty()) {
-          return new DirectKmsMaterialsProvider(
+          return new DirectKmsMaterialProvider(
             kmsClient,
             keyDataMap.get(keys.decryptName).keyId,
             materialDescription
           );
         }
-        return new DirectKmsMaterialsProvider(
+        return new DirectKmsMaterialProvider(
           kmsClient,
           keyDataMap.get(keys.decryptName).keyId
         );
