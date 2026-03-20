@@ -14,6 +14,12 @@ public class TestUtils {
   public static final String TEST_PARTITION_ID =
     "91c1b6a2-6fc3-4539-ad5e-938d597ed730";
 
+  // Pre-existing branch key IDs in the key store
+  public static final String TEST_BRANCH_KEY_ID =
+    "3f43a9af-08c5-4317-b694-3d3e883dcaef";
+  public static final String TEST_ALTERNATE_BRANCH_KEY_ID =
+    "4bb57643-07c1-419e-92ad-0df0df149d7c";
+
   public static final String TEST_AWS_ACCOUNT_ID = "658956600833";
   public static final String TEST_AWS_REGION = "us-west-2";
   // These are public KMS Keys that MUST only be used for testing, and MUST NOT be used for any production data

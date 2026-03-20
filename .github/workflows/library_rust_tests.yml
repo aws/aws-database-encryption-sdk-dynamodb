@@ -35,7 +35,7 @@ jobs:
       RUST_MIN_STACK: 838860800
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
@@ -43,7 +43,7 @@ jobs:
 
       - name: Setup Docker
         if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
-        uses: douglascamata/setup-docker-macos-action@v1.0.2
+        uses: douglascamata/setup-docker-macos-action@v1.1.0
 
       - name: Setup DynamoDB Local
         if: matrix.library == 'TestVectors'
@@ -55,7 +55,7 @@ jobs:
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Init Submodules
         shell: bash
         run: |
@@ -122,7 +122,7 @@ jobs:
           make test_rust
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2

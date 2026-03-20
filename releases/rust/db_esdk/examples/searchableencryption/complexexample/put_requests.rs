@@ -62,7 +62,7 @@ async fn put_all_meeting_items(
     let meeting1_attendee_list = vec![ss("able@gmail.com"), ss("zorro@gmail.com")];
     let meeting1_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
     let meeting1 = HashMap::from([
-        entry("partition_key", "meeting1"),
+        entry("partition_key", "meeting1-rust"),
         entry("EmployeeID", "emp_001"),
         entry("EmployeeEmail", "able@gmail.com"),
         entry("MeetingStart", "2022-07-04T13:00"),
@@ -79,7 +79,7 @@ async fn put_all_meeting_items(
     let meeting2_attendee_list = vec![ss("barney@gmail.com"), ss("zorro@gmail.com")];
     let meeting2_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
     let meeting2 = HashMap::from([
-        entry("partition_key", "meeting2"),
+        entry("partition_key", "meeting2-rust"),
         entry("EmployeeID", "emp_002"),
         entry("EmployeeEmail", "barney@gmail.com"),
         entry("MeetingStart", "2022-07-04T13:00"),
@@ -96,7 +96,7 @@ async fn put_all_meeting_items(
     let meeting3_attendee_list = vec![ss("charlie@gmail.com"), ss("zorro@gmail.com")];
     let meeting3_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
     let meeting3 = HashMap::from([
-        entry("partition_key", "meeting3"),
+        entry("partition_key", "meeting3-rust"),
         entry("EmployeeID", "emp_003"),
         entry("EmployeeEmail", "charlie@gmail.com"),
         entry("MeetingStart", "2022-07-04T13:00"),
@@ -113,7 +113,7 @@ async fn put_all_meeting_items(
     let meeting4_attendee_list = vec![ss("david@gmail.com"), ss("zorro@gmail.com")];
     let meeting4_location = HashMap::from([entry("Floor", "12"), entry("Room", "403")]);
     let meeting4 = HashMap::from([
-        entry("partition_key", "meeting4"),
+        entry("partition_key", "meeting4-rust"),
         entry("EmployeeID", "emp_004"),
         entry("EmployeeEmail", "david@gmail.com"),
         entry("MeetingStart", "2022-07-04T13:00"),
@@ -130,7 +130,7 @@ async fn put_all_meeting_items(
     let meeting5_attendee_list = vec![ss("barney@gmail.com"), ss("zorro@gmail.com")];
     let meeting5_location = HashMap::from([entry("Floor", "12"), entry("Room", "407")]);
     let meeting5 = HashMap::from([
-        entry("partition_key", "meeting5"),
+        entry("partition_key", "meeting5-rust"),
         entry("EmployeeID", "emp_002"),
         entry("EmployeeEmail", "barney@gmail.com"),
         entry("MeetingStart", "2022-07-04T14:00"),
@@ -147,7 +147,7 @@ async fn put_all_meeting_items(
     let meeting6_attendee_list = vec![ss("charlie@gmail.com"), ss("zorro@gmail.com")];
     let meeting6_location = HashMap::from([entry("Floor", "12"), entry("Room", "407")]);
     let meeting6 = HashMap::from([
-        entry("partition_key", "meeting6"),
+        entry("partition_key", "meeting6-rust"),
         entry("EmployeeID", "emp_003"),
         entry("EmployeeEmail", "charlie@gmail.com"),
         entry("MeetingStart", "2022-07-04T14:00"),
@@ -175,7 +175,7 @@ async fn put_all_employee_items(
         entry("City", "Seattle"),
     ]);
     let employee1 = HashMap::from([
-        entry("partition_key", "employee1"),
+        entry("partition_key", "employee1-rust"),
         entry("EmployeeID", "emp_001"),
         entry("EmployeeEmail", "able@gmail.com"),
         entry("ManagerEmail", "zorro@gmail.com"),
@@ -195,7 +195,7 @@ async fn put_all_employee_items(
         entry("City", "Seattle"),
     ]);
     let employee2 = HashMap::from([
-        entry("partition_key", "employee2"),
+        entry("partition_key", "employee2-rust"),
         entry("EmployeeID", "emp_002"),
         entry("EmployeeEmail", "barney@gmail.com"),
         entry("ManagerEmail", "zorro@gmail.com"),
@@ -215,7 +215,7 @@ async fn put_all_employee_items(
         entry("City", "Seattle"),
     ]);
     let employee3 = HashMap::from([
-        entry("partition_key", "employee3"),
+        entry("partition_key", "employee3-rust"),
         entry("EmployeeID", "emp_003"),
         entry("EmployeeEmail", "charlie@gmail.com"),
         entry("ManagerEmail", "zorro@gmail.com"),
@@ -235,7 +235,7 @@ async fn put_all_employee_items(
         entry("City", "NYC"),
     ]);
     let employee4 = HashMap::from([
-        entry("partition_key", "employee4"),
+        entry("partition_key", "employee4-rust"),
         entry("EmployeeID", "emp_004"),
         entry("EmployeeEmail", "david@gmail.com"),
         entry("ManagerEmail", "zorro@gmail.com"),
@@ -256,7 +256,7 @@ async fn put_all_project_items(
     ddb: &mut aws_sdk_dynamodb::Client,
 ) -> Result<(), crate::BoxError> {
     let project1 = HashMap::from([
-        entry("partition_key", "project1"),
+        entry("partition_key", "project1-rust"),
         entry("ProjectName", "project_001"),
         entry("ProjectStatus", "Pending"),
         entry("ProjectStart", "2022-11-01"),
@@ -266,7 +266,7 @@ async fn put_all_project_items(
     put_item(ddb_table_name, ddb, project1).await?;
 
     let project2 = HashMap::from([
-        entry("partition_key", "project2"),
+        entry("partition_key", "project2-rust"),
         entry("ProjectName", "project_002"),
         entry("ProjectStatus", "Active"),
         entry("ProjectStart", "2022-07-04"),
@@ -276,7 +276,7 @@ async fn put_all_project_items(
     put_item(ddb_table_name, ddb, project2).await?;
 
     let project3 = HashMap::from([
-        entry("partition_key", "project3"),
+        entry("partition_key", "project3-rust"),
         entry("ProjectName", "project_003"),
         entry("ProjectStatus", "Active"),
         entry("ProjectStart", "2022-08-05"),
@@ -286,7 +286,7 @@ async fn put_all_project_items(
     put_item(ddb_table_name, ddb, project3).await?;
 
     let project4 = HashMap::from([
-        entry("partition_key", "project4"),
+        entry("partition_key", "project4-rust"),
         entry("ProjectName", "project_004"),
         entry("ProjectStatus", "Done"),
         entry("ProjectStart", "2020-03-03"),
@@ -309,7 +309,7 @@ async fn put_all_reservation_items(
         entry("Room", "403"),
     ]);
     let reservation1 = HashMap::from([
-        entry("partition_key", "reservation1"),
+        entry("partition_key", "reservation1-rust"),
         entry("MeetingStart", "2022-07-04T13:00"),
         entry("OrganizerEmail", "able@gmail.com"),
         entry("Duration", "30"),
@@ -332,7 +332,7 @@ async fn put_all_reservation_items(
         entry("Room", "407"),
     ]);
     let reservation2 = HashMap::from([
-        entry("partition_key", "reservation2"),
+        entry("partition_key", "reservation2-rust"),
         entry("MeetingStart", "2022-07-04T14:00"),
         entry("OrganizerEmail", "barney@gmail.com"),
         entry("Duration", "30"),
@@ -356,7 +356,7 @@ async fn put_all_ticket_items(
     ddb: &mut aws_sdk_dynamodb::Client,
 ) -> Result<(), crate::BoxError> {
     let ticket1 = HashMap::from([
-        entry("partition_key", "ticket1"),
+        entry("partition_key", "ticket1-rust"),
         entry("TicketNumber", "ticket_001"),
         entry("TicketModTime", "2022-10-07T14:32:25"),
         entry("CreatorEmail", "zorro@gmail.com"),
@@ -368,7 +368,7 @@ async fn put_all_ticket_items(
     put_item(ddb_table_name, ddb, ticket1).await?;
 
     let ticket2 = HashMap::from([
-        entry("partition_key", "ticket2"),
+        entry("partition_key", "ticket2-rust"),
         entry("TicketNumber", "ticket_001"),
         entry("TicketModTime", "2022-10-07T14:32:25"),
         entry("CreatorEmail", "able@gmail.com"),
@@ -380,7 +380,7 @@ async fn put_all_ticket_items(
     put_item(ddb_table_name, ddb, ticket2).await?;
 
     let ticket3 = HashMap::from([
-        entry("partition_key", "ticket3"),
+        entry("partition_key", "ticket3-rust"),
         entry("TicketNumber", "ticket_002"),
         entry("TicketModTime", "2022-10-06T14:32:25"),
         entry("CreatorEmail", "zorro@gmail.com"),
@@ -392,7 +392,7 @@ async fn put_all_ticket_items(
     put_item(ddb_table_name, ddb, ticket3).await?;
 
     let ticket4 = HashMap::from([
-        entry("partition_key", "ticket4"),
+        entry("partition_key", "ticket4-rust"),
         entry("TicketNumber", "ticket_002"),
         entry("TicketModTime", "2022-10-08T14:32:25"),
         entry("CreatorEmail", "charlie@gmail.com"),
@@ -411,7 +411,7 @@ async fn put_all_timecard_items(
     ddb: &mut aws_sdk_dynamodb::Client,
 ) -> Result<(), crate::BoxError> {
     let timecard1 = HashMap::from([
-        entry("partition_key", "timecard1"),
+        entry("partition_key", "timecard1-rust"),
         entry("ProjectName", "project_002"),
         entry("TimeCardStart", "2022-09-12"),
         entry("EmployeeEmail", "able@gmail.com"),
@@ -421,7 +421,7 @@ async fn put_all_timecard_items(
     put_item(ddb_table_name, ddb, timecard1).await?;
 
     let timecard2 = HashMap::from([
-        entry("partition_key", "timecard2"),
+        entry("partition_key", "timecard2-rust"),
         entry("ProjectName", "project_002"),
         entry("TimeCardStart", "2022-09-12"),
         entry("EmployeeEmail", "barney@gmail.com"),
@@ -431,7 +431,7 @@ async fn put_all_timecard_items(
     put_item(ddb_table_name, ddb, timecard2).await?;
 
     let timecard3 = HashMap::from([
-        entry("partition_key", "timecard3"),
+        entry("partition_key", "timecard3-rust"),
         entry("ProjectName", "project_003"),
         entry("TimeCardStart", "2022-09-12"),
         entry("EmployeeEmail", "charlie@gmail.com"),
@@ -441,7 +441,7 @@ async fn put_all_timecard_items(
     put_item(ddb_table_name, ddb, timecard3).await?;
 
     let timecard4 = HashMap::from([
-        entry("partition_key", "timecard4"),
+        entry("partition_key", "timecard4-rust"),
         entry("ProjectName", "project_003"),
         entry("TimeCardStart", "2022-09-12"),
         entry("EmployeeEmail", "barney@gmail.com"),

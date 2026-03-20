@@ -201,9 +201,13 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         .table_encryption_configs(HashMap::from([(ddb_table_name.to_string(), table_config)]))
         .build()?;
 
+    // Generate unique work_id values for this run to avoid collisions with stale items
+    let work_id1 = uuid::Uuid::new_v4().to_string();
+    let work_id2 = uuid::Uuid::new_v4().to_string();
+
     // 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
     let item1 = HashMap::from([
-        ("work_id".to_string(), AttributeValue::S("1".to_string())),
+        ("work_id".to_string(), AttributeValue::S(work_id1.clone())),
         (
             "inspection_date".to_string(),
             AttributeValue::S("2023-06-13".to_string()),
@@ -234,7 +238,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
 
     // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
     let item2 = HashMap::from([
-        ("work_id".to_string(), AttributeValue::S("2".to_string())),
+        ("work_id".to_string(), AttributeValue::S(work_id2.clone())),
         (
             "inspection_date".to_string(),
             AttributeValue::S("2023-06-13".to_string()),
@@ -285,43 +289,78 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         .send()
         .await?;
 
+    // Run all scan tests, then clean up items regardless of success or failure
+    let result = run_scan_tests(&ddb, ddb_table_name, &item1, &item2, &work_id1, &work_id2).await;
+
+    // Clean up: delete both items
+    let plain_ddb = aws_sdk_dynamodb::Client::new(&sdk_config);
+    let _ = plain_ddb
+        .delete_item()
+        .table_name(ddb_table_name)
+        .key("work_id", AttributeValue::S(work_id1))
+        .key("inspection_date", AttributeValue::S("2023-06-13".to_string()))
+        .send()
+        .await;
+    let _ = plain_ddb
+        .delete_item()
+        .table_name(ddb_table_name)
+        .key("work_id", AttributeValue::S(work_id2))
+        .key("inspection_date", AttributeValue::S("2023-06-13".to_string()))
+        .send()
+        .await;
+
+    result?;
+    println!("beacon_styles_searchable_encryption successful.");
+    Ok(())
+}
+
+async fn run_scan_tests(
+    ddb: &aws_sdk_dynamodb::Client,
+    ddb_table_name: &str,
+    item1: &HashMap<String, AttributeValue>,
+    item2: &HashMap<String, AttributeValue>,
+    work_id1: &str,
+    work_id2: &str,
+) -> Result<(), crate::BoxError> {
+    // These filters ensure scans only match items created by this test run.
+    let wid_filter = "work_id IN (:wid1, :wid2)";
+    let wid_values = HashMap::from([
+        (":wid1".to_string(), AttributeValue::S(work_id1.to_string())),
+        (":wid2".to_string(), AttributeValue::S(work_id2.to_string())),
+    ]);
+
     // 12. Test the first type of Set operation :
     // Select records where the basket attribute holds a particular value
-    let expression_attribute_values = HashMap::from([(
-        ":value".to_string(),
-        AttributeValue::S("banana".to_string()),
-    )]);
+    let mut expr_vals = wid_values.clone();
+    expr_vals.insert(":value".to_string(), AttributeValue::S("banana".to_string()));
 
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
-        .filter_expression("contains(basket, :value)")
-        .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+        .filter_expression(format!("{wid_filter} AND contains(basket, :value)"))
+        .set_expression_attribute_values(Some(expr_vals))
         .send()
         .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
     assert_eq!(attribute_values.len(), 1);
-    let returned_item = &attribute_values[0];
-    // Validate the item has the expected attributes
-    assert_eq!(returned_item["work_id"], item1["work_id"]);
+    assert_eq!(attribute_values[0]["work_id"], item1["work_id"]);
 
     // 13. Test the second type of Set operation :
     // Select records where the basket attribute holds the fruit attribute
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
-        .filter_expression("contains(basket, fruit)")
+        .filter_expression(format!("{wid_filter} AND contains(basket, fruit)"))
+        .set_expression_attribute_values(Some(wid_values.clone()))
         .send()
         .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
     assert_eq!(attribute_values.len(), 1);
-    let returned_item = &attribute_values[0];
-    // Validate the item has the expected attributes
-    assert_eq!(returned_item["work_id"], item1["work_id"]);
+    assert_eq!(attribute_values[0]["work_id"], item1["work_id"]);
 
     // 14. Test the third type of Set operation :
     // Select records where the fruit attribute exists in a particular set
@@ -330,80 +369,73 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         "orange".to_string(),
         "grape".to_string(),
     ];
-    let expression_attribute_values =
-        HashMap::from([(":value".to_string(), AttributeValue::Ss(basket3))]);
+    let mut expr_vals = wid_values.clone();
+    expr_vals.insert(":value".to_string(), AttributeValue::Ss(basket3));
 
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
-        .filter_expression("contains(:value, fruit)")
-        .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+        .filter_expression(format!("{wid_filter} AND contains(:value, fruit)"))
+        .set_expression_attribute_values(Some(expr_vals))
         .send()
         .await?;
 
     let attribute_values = scan_response.items.unwrap();
-    // Validate only 1 item was returned: item1
+    // Validate only 1 item was returned: item2
     assert_eq!(attribute_values.len(), 1);
-    let returned_item = &attribute_values[0];
-    // Validate the item has the expected attributes
-    assert_eq!(returned_item["work_id"], item2["work_id"]);
+    assert_eq!(attribute_values[0]["work_id"], item2["work_id"]);
 
     // 15. Test a Shared search. Select records where the dessert attribute matches the fruit attribute
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
-        .filter_expression("dessert = fruit")
+        .filter_expression(format!("{wid_filter} AND dessert = fruit"))
+        .set_expression_attribute_values(Some(wid_values.clone()))
         .send()
         .await?;
 
     let attribute_values = scan_response.items.unwrap();
-    // Validate only 1 item was returned: item1
+    // Validate only 1 item was returned: item2
     assert_eq!(attribute_values.len(), 1);
-    let returned_item = &attribute_values[0];
-    // Validate the item has the expected attributes
-    assert_eq!(returned_item["work_id"], item2["work_id"]);
+    assert_eq!(attribute_values[0]["work_id"], item2["work_id"]);
 
-    // 15. Test the AsSet attribute 'veggies' :
+    // 16. Test the AsSet attribute 'veggies' :
     // Select records where the veggies attribute holds a particular value
-    let expression_attribute_values =
-        HashMap::from([(":value".to_string(), AttributeValue::S("peas".to_string()))]);
+    let mut expr_vals = wid_values.clone();
+    expr_vals.insert(":value".to_string(), AttributeValue::S("peas".to_string()));
 
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
-        .filter_expression("contains(veggies, :value)")
-        .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+        .filter_expression(format!("{wid_filter} AND contains(veggies, :value)"))
+        .set_expression_attribute_values(Some(expr_vals))
         .send()
         .await?;
 
     let attribute_values = scan_response.items.unwrap();
-    // Validate only 1 item was returned: item1
+    // Validate only 1 item was returned: item2
     assert_eq!(attribute_values.len(), 1);
-    let returned_item = &attribute_values[0];
-    // Validate the item has the expected attributes
-    assert_eq!(returned_item["work_id"], item2["work_id"]);
+    assert_eq!(attribute_values[0]["work_id"], item2["work_id"]);
 
-    // 16. Test the compound beacon 'work_unit' :
-    let expression_attribute_values = HashMap::from([(
+    // 17. Test the compound beacon 'work_unit' :
+    let mut expr_vals = wid_values.clone();
+    expr_vals.insert(
         ":value".to_string(),
-        AttributeValue::S("I-1.T-small".to_string()),
-    )]);
+        AttributeValue::S(format!("I-{}.T-small", item1["work_id"].as_s().unwrap())),
+    );
 
     let scan_response = ddb
         .scan()
         .table_name(ddb_table_name)
-        .filter_expression("work_unit = :value")
-        .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+        .filter_expression(format!("{wid_filter} AND work_unit = :value"))
+        .set_expression_attribute_values(Some(expr_vals))
         .send()
         .await?;
 
     let attribute_values = scan_response.items.unwrap();
     // Validate only 1 item was returned: item1
     assert_eq!(attribute_values.len(), 1);
-    let returned_item = &attribute_values[0];
-    // Validate the item has the expected attributes
-    assert_eq!(returned_item["work_id"], item1["work_id"]);
+    assert_eq!(attribute_values[0]["work_id"], item1["work_id"]);
 
-    println!("beacon_styles_searchable_encryption successful.");
     Ok(())
 }
