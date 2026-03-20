@@ -64,10 +64,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test
   public void simple() {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
 
     EncryptionMaterials eMat = prov.getEncryptionMaterials(ctx);
     SecretKey encryptionKey = eMat.getEncryptionKey();
@@ -96,10 +93,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test
   public void simpleWithKmsEc() {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
 
     Map<String, AttributeValue> attrVals = new HashMap<>();
     attrVals.put("hk", AttributeValue.builder().s("HashKeyValue").build());
@@ -136,10 +130,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test
   public void simpleWithKmsEc2() throws GeneralSecurityException {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
 
     Map<String, AttributeValue> attrVals = new HashMap<>();
     attrVals.put("hk", AttributeValue.builder().n("10").build());
@@ -176,10 +167,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test
   public void simpleWithKmsEc3() throws GeneralSecurityException {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
 
     Map<String, AttributeValue> attrVals = new HashMap<>();
     attrVals.put(
@@ -243,10 +231,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test
   public void randomEnvelopeKeys() throws GeneralSecurityException {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
 
     EncryptionMaterials eMat = prov.getEncryptionMaterials(ctx);
     SecretKey encryptionKey = eMat.getEncryptionKey();
@@ -264,10 +249,7 @@ public class DirectKmsMaterialProviderTest {
   @Test
   public void testRefresh() {
     // This does nothing, make sure we don't throw and exception.
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
     prov.refresh();
   }
 
@@ -558,10 +540,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void unsupportedHashKeyType() {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
     Map<String, AttributeValue> attrVals = new HashMap<>();
     attrVals.put("hk", AttributeValue.builder().bool(true).build());
     EncryptionContext boolCtx = new EncryptionContext.Builder()
@@ -573,10 +552,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void unsupportedRangeKeyType() {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
     Map<String, AttributeValue> attrVals = new HashMap<>();
     attrVals.put("hk", AttributeValue.builder().s("HashKeyValue").build());
     attrVals.put("rk", AttributeValue.builder().bool(true).build());
@@ -590,10 +566,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void hashKeyMissingFromAttributeValues() {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
     EncryptionContext missingCtx = new EncryptionContext.Builder()
       .hashKeyName("hk")
       .attributeValues(Collections.emptyMap())
@@ -603,10 +576,7 @@ public class DirectKmsMaterialProviderTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void rangeKeyMissingFromAttributeValues() {
-    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(
-      kms,
-      keyId
-    );
+    DirectKmsMaterialProvider prov = new DirectKmsMaterialProvider(kms, keyId);
     Map<String, AttributeValue> attrVals = new HashMap<>();
     attrVals.put("hk", AttributeValue.builder().s("HashKeyValue").build());
     EncryptionContext missingCtx = new EncryptionContext.Builder()

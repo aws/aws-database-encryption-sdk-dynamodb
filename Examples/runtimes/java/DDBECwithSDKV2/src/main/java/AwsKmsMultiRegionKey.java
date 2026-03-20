@@ -104,8 +104,10 @@ public class AwsKmsMultiRegionKey {
     record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
     // Set up encryptor with first region's KMS key
-    final DirectKmsMaterialProvider cmpEncrypt =
-      new DirectKmsMaterialProvider(kmsEncrypt, cmkArnEncrypt);
+    final DirectKmsMaterialProvider cmpEncrypt = new DirectKmsMaterialProvider(
+      kmsEncrypt,
+      cmkArnEncrypt
+    );
     final DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
       cmpEncrypt
     );
@@ -149,8 +151,10 @@ public class AwsKmsMultiRegionKey {
     );
 
     // Set up decryptor using the replica key from second region
-    final DirectKmsMaterialProvider cmpDecrypt =
-      new DirectKmsMaterialProvider(kmsDecrypt, cmkArnDecrypt);
+    final DirectKmsMaterialProvider cmpDecrypt = new DirectKmsMaterialProvider(
+      kmsDecrypt,
+      cmkArnDecrypt
+    );
     final DynamoDBEncryptor decryptor = DynamoDBEncryptor.getInstance(
       cmpDecrypt
     );
