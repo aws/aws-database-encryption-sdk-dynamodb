@@ -83,10 +83,11 @@ public class BasicSearchableEncryptionExample {
     //     values are uniformly distributed across its range of possible values.
     //     In many use cases, the prefix of an identifier encodes some information
     //     about that identifier (e.g. zipcode and SSN prefixes encode geographic
-    //     information), while the suffix does not and is more uniformly distributed.
+    //     information), while the suffix does not encode such structure and tends 
+    //     to be closer to uniformly distributed, though not perfectly uniform.
     //     We will assume that the inspector ID field matches a similar use case.
-    //     So for this example, we only store and use the last
-    //     4 digits of the inspector ID, which we assume is uniformly distributed.
+    //     For this example, we use only the last four digits of the inspector ID and apply two partitions, 
+    //     assuming the suffix has sufficient uniformity for this purpose.
     // Since the full ID's range is divisible by the range of the last 4 digits,
     //     then the last 4 digits of the inspector ID are uniformly distributed
     //     over the range from 0 to 9,999.
@@ -126,13 +127,14 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
+      .numberOfPartitions(2)
       .build();
     standardBeaconList.add(last4Beacon);
 
     // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
     // This field holds a unit serial number.
     // For this example, this is a 12-digit integer from 0 to 999,999,999,999 (10^12 possible values).
-    // We will assume values for this attribute are uniformly distributed across this range.
+    // We will assume values for this attribute are uniformly distributed across this range using 2 partitions.
     // A single unit serial number may be assigned to multiple `work_id`s.
     //
     // This link provides guidance for choosing a beacon length:
@@ -159,6 +161,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("unit")
       .length(30)
+      .numberOfPartitions(2)
       .build();
     standardBeaconList.add(unitBeacon);
 
@@ -191,6 +194,8 @@ public class BasicSearchableEncryptionExample {
     // 3. Create BeaconVersion.
     //    The BeaconVersion inside the list holds the list of beacons on the table.
     //    The BeaconVersion also stores information about the keystore.
+    //    The BeaconVersion parameter specifies the maximumNumberOfPartitions associated with a given beacon configuration. 
+    //    "maximumNumberOfPartitions" must be greater than "numberOfPartitions"; we set it to 8 to allow room for future expansion.
     //    BeaconVersion must be provided:
     //      - keyStore: The keystore configured in step 2.
     //      - keySource: A configuration for the key source.
@@ -206,6 +211,7 @@ public class BasicSearchableEncryptionExample {
         .builder()
         .standardBeacons(standardBeaconList)
         .version(1) // MUST be 1
+        .maximumNumberOfPartitions(8) 
         .keyStore(keyStore)
         .keySource(
           BeaconKeySource
@@ -351,49 +357,69 @@ public class BasicSearchableEncryptionExample {
     //     This procedure is internal to the client and is abstracted away from the user;
     //     e.g. the user will only see "123456789012" and never
     //        "098765432109", though the actual query returned both.
+
+    List<Map<String, AttributeValue>> allResults = new ArrayList<>();
+
+    
     Map<String, String> expressionAttributesNames = new HashMap<>();
     expressionAttributesNames.put("#last4", "inspector_id_last4");
     expressionAttributesNames.put("#unit", "unit");
 
-    Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-    expressionAttributeValues.put(
-      ":last4",
-      AttributeValue.builder().s("4321").build()
-    );
-    expressionAttributeValues.put(
-      ":unit",
-      AttributeValue.builder().s("123456789012").build()
-    );
-
-    QueryRequest queryRequest = QueryRequest
-      .builder()
-      .tableName(ddbTableName)
-      .indexName(GSI_NAME)
-      .keyConditionExpression("#last4 = :last4 and #unit = :unit")
-      .expressionAttributeNames(expressionAttributesNames)
-      .expressionAttributeValues(expressionAttributeValues)
-      .build();
+    // In this simple example, we know there are two buckets, 
+    // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
+    int numQueries = 2; 
+    //We need to query for all possible parttions 
+    
+    for (int partition = 0; partition < numQueries; partition++) {
+      Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+      expressionAttributeValues.put(
+        ":last4",
+        AttributeValue.builder().s("4321").build()
+      );
+      expressionAttributeValues.put(
+        ":unit",
+        AttributeValue.builder().s("123456789012").build()
+      );
+      expressionAttributeValues().put(
+        ":aws_dbe_partition",
+        AttributeValue.builder().n(Integer.toString(i)).build()
+      );
+  
+      QueryRequest queryRequest = QueryRequest
+        .builder()
+        .tableName(ddbTableName)
+        .indexName(GSI_NAME)
+        .keyConditionExpression("#last4 = :last4 and #unit = :unit")
+        .expressionAttributeNames(expressionAttributesNames)
+        .expressionAttributeValues(expressionAttributeValues)
+        .build();
 
     // GSIs do not update instantly
     // so if the results come back empty
     // we retry after a short sleep
-    for (int i = 0; i < 10; ++i) {
-      final QueryResponse queryResponse = ddb.query(queryRequest);
-      List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
-      // Validate query was returned successfully
-      assert 200 == queryResponse.sdkHttpResponse().statusCode();
+      for (int i = 0; i < 10; ++i) {
+        final QueryResponse queryResponse = ddb.query(queryRequest);
+        List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+        // Validate query was returned successfully
+        assert 200 == queryResponse.sdkHttpResponse().statusCode();
 
-      // if no results, sleep and try again
-      if (attributeValues.size() == 0) {
-        try {
-          Thread.sleep(20);
-        } catch (Exception e) {}
-        continue;
+        // if no results, sleep and try again
+        if (attributeValues.size() == 0) {
+          try {
+            Thread.sleep(20);
+          } catch (Exception e) {}
+          continue;
+        }
+        else {
+           // Adding the result for partition i
+            allResults.addAll(queryResponse.items());
+        }
       }
+    }
 
       // Validate only 1 item was returned: the item we just put
-      assert attributeValues.size() == 1;
-      final Map<String, AttributeValue> returnedItem = attributeValues.get(0);
+      assert allResults.size() == 1;
+      final Map<String, AttributeValue> returnedItem = allResults.get(0);
       // Validate the item has the expected attributes
       assert returnedItem.get("inspector_id_last4").s().equals("4321");
       assert returnedItem.get("unit").s().equals("123456789012");
