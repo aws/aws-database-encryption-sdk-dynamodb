@@ -43,6 +43,10 @@ jobs:
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Java-Tests
 
+      # Rust files have long names, so we need to enable long paths
+      - name: Enable long paths
+        run: git config --system core.longpaths true
+
       - uses: actions/checkout@v6
         with:
           submodules: recursive
