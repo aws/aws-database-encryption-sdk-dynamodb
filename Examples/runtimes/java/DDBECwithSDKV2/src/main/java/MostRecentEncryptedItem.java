@@ -5,7 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBE
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.CachingMostRecentProvider;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStore;
 import java.security.GeneralSecurityException;
 import java.util.EnumSet;
@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.kms.KmsClient;
 
 /**
  * This demonstrates how to use the CachingMostRecentProvider backed by a MetaStore
- * and the DirectKmsMaterialsProvider to encrypt your data.
+ * and the DirectKmsMaterialProvider to encrypt your data.
  */
 public class MostRecentEncryptedItem {
 
@@ -62,7 +62,7 @@ public class MostRecentEncryptedItem {
     record.put(IGNORED_FIELD_NAME, AttributeValue.builder().s("alone").build());
 
     // Provider Configuration to protect the data keys
-    final DirectKmsMaterialsProvider kmsProv = new DirectKmsMaterialsProvider(
+    final DirectKmsMaterialProvider kmsProv = new DirectKmsMaterialProvider(
       kmsClient,
       cmkArn
     );

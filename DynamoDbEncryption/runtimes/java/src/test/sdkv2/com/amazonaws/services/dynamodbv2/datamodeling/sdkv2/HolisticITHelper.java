@@ -7,7 +7,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialsProvider;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -114,7 +114,7 @@ public class HolisticITHelper {
     loadKeyData(scenarioManifest.keyDataPath);
 
     DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(
-      new DirectKmsMaterialsProvider(kmsClient)
+      new DirectKmsMaterialProvider(kmsClient)
     );
     EncryptionContext ctx = EncryptionContext
       .builder()
