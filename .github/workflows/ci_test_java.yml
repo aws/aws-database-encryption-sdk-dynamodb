@@ -30,14 +30,14 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         java-version: [8, 11, 17, 19, 21]
-        os: [macos-14]
+        os: [macos-14, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
