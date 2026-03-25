@@ -145,7 +145,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        let unit_beacon = StandardBeacon::builder().name("unit").length(30)..numberOfPartitions(2).build()?;
+        let unit_beacon = StandardBeacon::builder().name("unit").length(30).numberOfPartitions(2).build()?;
 
         let standard_beacon_list = vec![last4_beacon, unit_beacon];
 
@@ -342,7 +342,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                 .query()
                 .table_name(ddb_table_name)
                 .index_name(GSI_NAME)
-                .key_condition_expression("#last4 = :last4 and #unit = :unit")
+                .key_condition_expression("#last4 = :last4 and #unit = :unit and #partition = :partition")
                 .set_expression_attribute_names(Some(expression_attributes_names.clone()))
                 .set_expression_attribute_values(Some(expression_attribute_values.clone()))
                 .send()
