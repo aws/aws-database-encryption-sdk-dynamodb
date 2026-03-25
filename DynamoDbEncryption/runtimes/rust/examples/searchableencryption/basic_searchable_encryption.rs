@@ -311,18 +311,28 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         //     This procedure is internal to the client and is abstracted away from the user;
         //     e.g. the user will only see "123456789012" and never
         //        "098765432109", though the actual query returned both.
+
+        let mut all_results: Vec<HashMap<String, AttributeValue>> = Vec::new();
+
         let expression_attributes_names = HashMap::from([
             ("#last4".to_string(), "inspector_id_last4".to_string()),
             ("#unit".to_string(), "unit".to_string()),
         ]);
 
+      // In this simple example, we know there are two buckets, 
+    // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
+    let numQueries = 2; 
+        
+     //We need to query for all possible parttions 
+    
+       for partition in 0..numQueries {
+
         let expression_attribute_values = HashMap::from([
             (":last4".to_string(), AttributeValue::S("4321".to_string())),
-            (
-                ":unit".to_string(),
-                AttributeValue::S("123456789012".to_string()),
-            ),
+            (":unit".to_string(), AttributeValue::S("123456789012".to_string())),
+            ( ":aws_dbe_partition".to_string(), AttributeValue::N(partition.to_string())),
         ]);
+
 
         // GSIs do not update instantly
         // so if the results come back empty
@@ -338,13 +348,19 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                 .send()
                 .await?;
 
-            // if no results, sleep and try again
-            if query_response.items.is_none() || query_response.items.as_ref().unwrap().is_empty() {
-                std::thread::sleep(std::time::Duration::from_millis(20));
-                continue;
-            }
+                if let Some(items) = query_response.items() {
+                  if !items.is_empty() {
+                    all_results.extend(items.clone());
+                    break;
+                   }
+                 }
 
-            let attribute_values = query_response.items.unwrap();
+                sleep(Duration::from_millis(20)).await;
+         }
+        }
+
+
+            let attribute_values = all_results;
             // Validate only 1 item was returned: the item we just put
             assert_eq!(attribute_values.len(), 1);
             let returned_item = &attribute_values[0];
@@ -357,7 +373,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                 returned_item["unit"],
                 AttributeValue::S("123456789012".to_string())
             );
-            break;
+      
         }
         println!("basic_searchable_encryption successful.");
         Ok(())
