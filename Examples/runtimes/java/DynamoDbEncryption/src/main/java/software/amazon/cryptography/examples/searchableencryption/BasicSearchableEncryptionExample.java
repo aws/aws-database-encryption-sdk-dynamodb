@@ -412,6 +412,7 @@ public class BasicSearchableEncryptionExample {
         else {
            // Adding the result for this partition
             allResults.addAll(queryResponse.items());
+            break;
         }
       }
     }
@@ -422,7 +423,7 @@ public class BasicSearchableEncryptionExample {
       // Validate the item has the expected attributes
       assert returnedItem.get("inspector_id_last4").s().equals("4321");
       assert returnedItem.get("unit").s().equals("123456789012");
-      break;
+   
   }
   
 
