@@ -320,7 +320,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         ]);
 
       // In this simple example, we know there are two buckets, 
-    // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
+      // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
     let numQueries = 2; 
         
      //We need to query for all possible parttions 
@@ -358,23 +358,20 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                 sleep(Duration::from_millis(20)).await;
          }
         }
-
-
-            let attribute_values = all_results;
-            // Validate only 1 item was returned: the item we just put
-            assert_eq!(attribute_values.len(), 1);
-            let returned_item = &attribute_values[0];
-            // Validate the item has the expected attributes
-            assert_eq!(
-                returned_item["inspector_id_last4"],
-                AttributeValue::S("4321".to_string())
-            );
-            assert_eq!(
-                returned_item["unit"],
-                AttributeValue::S("123456789012".to_string())
-            );
-      
-        }
+        let attribute_values = all_results;
+        // Validate only 1 item was returned: the item we just put
+        assert_eq!(attribute_values.len(), 1);
+        let returned_item = &attribute_values[0];
+        // Validate the item has the expected attributes
+        assert_eq!(
+           returned_item["inspector_id_last4"],
+           AttributeValue::S("4321".to_string())
+        );
+        assert_eq!(
+            returned_item["unit"],
+            AttributeValue::S("123456789012".to_string())
+        );
+     
         println!("basic_searchable_encryption successful.");
         Ok(())
     };
