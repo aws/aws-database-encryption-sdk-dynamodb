@@ -342,7 +342,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                 .query()
                 .table_name(ddb_table_name)
                 .index_name(GSI_NAME)
-                .key_condition_expression("#last4 = :last4 and #unit = :unit and #partition = :partition")
+                .key_condition_expression("#last4 = :last4 and #unit = :unit")
                 .set_expression_attribute_names(Some(expression_attributes_names.clone()))
                 .set_expression_attribute_values(Some(expression_attribute_values.clone()))
                 .send()
