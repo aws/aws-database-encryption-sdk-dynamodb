@@ -28,8 +28,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [8, 11, 17, 19]
-        os: [macos-14]
+        java-version: [8, 11, 17, 19, 21]
+        os: [macos-14, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -41,6 +41,10 @@ jobs:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Java-Tests
+
+      # Rust files have long names, so we need to enable long paths
+      - name: Enable long paths
+        run: git config --system core.longpaths true
 
       - uses: actions/checkout@v6
         with:
