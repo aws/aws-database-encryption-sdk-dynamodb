@@ -380,9 +380,8 @@ public class BasicSearchableEncryptionExample {
         ":unit",
         AttributeValue.builder().s("123456789012").build()
       );
-      expressionAttributeValues().put(
-        ":aws_dbe_partition",
-        AttributeValue.builder().n(Integer.toString(i)).build()
+      expressionAttributeValues.put(":aws_dbe_partition",
+      AttributeValue.builder().n(Integer.toString(partition)).build()
       );
   
       QueryRequest queryRequest = QueryRequest
@@ -411,7 +410,7 @@ public class BasicSearchableEncryptionExample {
           continue;
         }
         else {
-           // Adding the result for partition i
+           // Adding the result for this partition
             allResults.addAll(queryResponse.items());
         }
       }
@@ -424,8 +423,8 @@ public class BasicSearchableEncryptionExample {
       assert returnedItem.get("inspector_id_last4").s().equals("4321");
       assert returnedItem.get("unit").s().equals("123456789012");
       break;
-    }
   }
+  
 
   public static void main(final String[] args) {
     if (args.length <= 1) {
