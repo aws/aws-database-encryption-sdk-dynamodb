@@ -388,7 +388,7 @@ public class BasicSearchableEncryptionExample {
         .builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
-        .keyConditionExpression("#last4 = :last4 and #unit = :unit" and #partition = :partition")
+        .keyConditionExpression("#last4 = :last4 and #unit = :unit and #partition = :partition")
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
