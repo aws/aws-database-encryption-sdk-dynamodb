@@ -115,7 +115,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         let last4_beacon = StandardBeacon::builder()
             .name("inspector_id_last4")
             .length(10)
-            .numberOfPartitions(2)
+            .number_of_partitions(2)
             .build()?;
 
         // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
@@ -145,7 +145,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        let unit_beacon = StandardBeacon::builder().name("unit").length(30).numberOfPartitions(2).build()?;
+        let unit_beacon = StandardBeacon::builder().name("unit").length(30).number_of_partitions(2).build()?;
 
         let standard_beacon_list = vec![last4_beacon, unit_beacon];
 
@@ -187,7 +187,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         let beacon_version = BeaconVersion::builder()
             .standard_beacons(standard_beacon_list)
             .version(1) // MUST be 1
-            .maximumNumberOfPartitions(8) 
+            .maximum_number_of_partitions(8)
             .key_store(key_store.clone())
             .key_source(BeaconKeySource::Single(
                 SingleKeyStore::builder()
@@ -348,14 +348,15 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                 .send()
                 .await?;
 
-                if let Some(items) = query_response.items() {
-                  if !items.is_empty() {
-                    all_results.extend(items.clone());
-                    break;
-                   }
+             
+                 if let Some(items) = query_response.items {
+                   if !items.is_empty() {
+                      all_results.extend(items.clone());
+                      break;
+                    }
                  }
 
-                sleep(Duration::from_millis(20)).await;
+                std::thread::sleep(std::time::Duration::from_millis(20));
          }
         }
         let attribute_values = all_results;
