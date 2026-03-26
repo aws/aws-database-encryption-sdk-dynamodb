@@ -392,15 +392,26 @@ public class BasicSearchableEncryptionExample {
     //We need to query for all possible parttions 
     
     for (int partition = 0; partition < numQueries; partition++) {
- 
-      queryRequest.ExpressionAttributeValues.Add(":aws_dbe_partition", N(partition.to_string())
-      
 
+      expressionAttributeValues.put(
+        ":aws_dbe_partition",
+        AttributeValue.builder().n(partition.to_string()).build()
+      );
+            
+      QueryRequest updatedQueryRequest = QueryRequest
+        .builder()
+        .tableName(ddbTableName)
+        .indexName(GSI_NAME)
+        .keyConditionExpression("#last4 = :last4 and #unit = :unit")
+        .expressionAttributeNames(expressionAttributesNames)
+        .expressionAttributeValues(expressionAttributeValues)
+        .build(); 
+      
     // GSIs do not update instantly
     // so if the results come back empty
     // we retry after a short sleep
       for (int i = 0; i < 10; ++i) {
-        final QueryResponse queryResponse = ddb.query(queryRequest);
+        final QueryResponse queryResponse = ddb.query(updatedQueryRequest);
         List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
         // Validate query was returned successfully
         assert 200 == queryResponse.sdkHttpResponse().statusCode();
