@@ -321,11 +321,11 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
 
       // In this simple example, we know there are two buckets, 
       // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
-    let numQueries = 2; 
+      let num_queries = 2; 
         
      //We need to query for all possible parttions 
     
-       for partition in 0..numQueries {
+       for partition in 0..num_queries {
 
         let expression_attribute_values = HashMap::from([
             (":last4".to_string(), AttributeValue::S("4321".to_string())),
