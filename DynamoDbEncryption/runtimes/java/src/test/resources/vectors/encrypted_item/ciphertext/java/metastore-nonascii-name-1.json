@@ -1,0 +1,33 @@
+{
+  "nonascii-metatable": [
+    {
+      "*amzn-ddb-map-desc*": {
+        "B": "AAAAAAAAABBhbXpuLWRkYi1lbnYta2V5AAAA4EFRRUJBSGhBODR3blhqRUpkQmJCQnlsUlVGY1paSzJqN3h3aDZVeUxvTDI4blErMEZBQUFBSDR3ZkFZSktvWklodmNOQVFjR29HOHdiUUlCQURCb0Jna3Foa2lHOXcwQkJ3RXdIZ1lKWUlaSUFXVURCQUV1TUJFRURGMVo0eVNOSFpjbXo0Ky9vZ0lCRUlBN3hwL1J4K2Z4OE4yRzBiZFppM3dvWHpiejJ5ZXJIWk80TmlqWVBhWHZENzcxbmY3Q1cxRm1YUzY5Um1GRjBjRXlVTkNmVHk4anZJa0JlWVE9AAAAD2F3cy1rbXMtZWMtYXR0cgAAAAYqa2V5cyoAAAAQYW16bi1kZGItZW52LWFsZwAAAAdBRVMvMjU2AAAAEGFtem4tZGRiLXNpZy1hbGcAAAAOSG1hY1NIQTI1Ni8yNTYAAAARYW16bi1kZGItd3JhcC1hbGcAAAADa21zAAAAFWFtem4tZGRiLW1hcC1zeW0tbW9kZQAAABEvQ0JDL1BLQ1M1UGFkZGluZw=="
+      },
+      "t": {
+        "B": "Aytthuzqg8+ovuhyjSrnJPdCrSCzr0hGq+P25QjM5Lk="
+      },
+      "V": {
+        "N": "0"
+      },
+      "encAlg": {
+        "B": "EU2NEt5cohFAUdVGVUzAKB7ywZJ7fukGfX5LwvZ5d38="
+      },
+      "enc": {
+        "B": "Ctyt15L9T3dtnDZgwxMwaLVsPUqLajsm2on+NFyPE+K20EbThFVZlfL8tBeKg95zhfpV3SMk6Tr3H3V72ttCLg=="
+      },
+      "intAlg": {
+        "B": "slaBhG/rQuJGdfN1xk1l010iAu8o0FNRYSeZonAzMRSkxDGR2ZPoxwx4KhTtfLaV"
+      },
+      "N": {
+        "S": "テストΨ素材\uD83D\uDE00"
+      },
+      "int": {
+        "B": "1SFTmZuykcMQo0iPoJy14xNhRqPlSSmPFx9YAuDCv+JrW+/FfUAZiZxei1Du5MOLTPBXv6a1bAK9v4LWc3N2EQ=="
+      },
+      "*amzn-ddb-map-sig*": {
+        "B": "LHsI6noUN3eS6FK03l8Cd/IfXZgCa2xIKmmXHaZijZ4="
+      }
+    }
+  ]
+}

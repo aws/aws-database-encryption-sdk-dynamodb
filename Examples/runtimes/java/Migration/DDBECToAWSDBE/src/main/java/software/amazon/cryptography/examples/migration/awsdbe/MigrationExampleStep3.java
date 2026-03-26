@@ -63,7 +63,7 @@ public class MigrationExampleStep3 {
 
     final List<String> allowedUnsignedAttributes = Arrays.asList("attribute3");
 
-    // 3. Create the DynamoDb Encryption Interceptor with the above configuration.
+    // 2. Create the DynamoDb Encryption Interceptor with the above configuration.
     //    Do not configure any legacy behavior.
     final Map<String, DynamoDbEnhancedTableEncryptionConfig> tableConfigs =
       new HashMap<>();
@@ -85,7 +85,7 @@ public class MigrationExampleStep3 {
           .build()
       );
 
-    // 4. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
+    // 3. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient
       .builder()
       .overrideConfiguration(
@@ -96,7 +96,7 @@ public class MigrationExampleStep3 {
       )
       .build();
 
-    // 5. Create the DynamoDbEnhancedClient using the AWS SDK Client created above,
+    // 4. Create the DynamoDbEnhancedClient using the AWS SDK Client created above,
     //    and create a Table with your modelled class
     final DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient
       .builder()
@@ -107,7 +107,7 @@ public class MigrationExampleStep3 {
       schemaOnEncrypt
     );
 
-    // 6. Put an item into your table using the DynamoDb Enhanced Client.
+    // 5. Put an item into your table using the DynamoDb Enhanced Client.
     //    This item will be encrypted in the latest format, using the
     //    configuration from your modelled class to decide
     //    which attribute to encrypt and/or sign.
@@ -120,7 +120,7 @@ public class MigrationExampleStep3 {
 
     table.putItem(item);
 
-    // 7. Get an item back from the table using the DynamoDb Enhanced Client.
+    // 6. Get an item back from the table using the DynamoDb Enhanced Client.
     //    If this is an item written in the old format (e.g. any item written
     //    during Step 0 or 1), then we fail to return the item.
     //    If this is an item written in the new format (e.g. any item written

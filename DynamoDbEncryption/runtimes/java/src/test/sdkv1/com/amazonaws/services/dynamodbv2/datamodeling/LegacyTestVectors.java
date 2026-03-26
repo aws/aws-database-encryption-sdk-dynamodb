@@ -397,6 +397,47 @@ public class LegacyTestVectors {
     return value;
   }
 
+  public static Map<String, AttributeValue> baseClassToV1AttrMap(
+    BaseClass obj
+  ) {
+    Map<String, AttributeValue> map = new HashMap<>();
+    map.put(
+      HASH_KEY,
+      new AttributeValue().withN(String.valueOf(obj.getHashKey()))
+    );
+    map.put(
+      RANGE_KEY,
+      new AttributeValue().withN(String.valueOf(obj.getRangeKey()))
+    );
+    map.put(
+      "version",
+      new AttributeValue().withN(String.valueOf(obj.getVersion()))
+    );
+    map.put(
+      "intValue",
+      new AttributeValue().withN(String.valueOf(obj.getIntValue()))
+    );
+    map.put("stringValue", new AttributeValue().withS(obj.getStringValue()));
+    map.put(
+      "byteArrayValue",
+      new AttributeValue()
+        .withB(java.nio.ByteBuffer.wrap(obj.getByteArrayValue()))
+    );
+    map.put("stringSet", new AttributeValue().withSS(obj.getStringSet()));
+    map.put(
+      "intSet",
+      new AttributeValue()
+        .withNS(
+          obj
+            .getIntSet()
+            .stream()
+            .map(String::valueOf)
+            .collect(java.util.stream.Collectors.toList())
+        )
+    );
+    return map;
+  }
+
   public static Map<
     String,
     software.amazon.awssdk.services.dynamodb.model.AttributeValue
