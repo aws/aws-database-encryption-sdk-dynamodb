@@ -188,6 +188,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
             .standard_beacons(standard_beacon_list)
             .version(1) // MUST be 1
             .maximum_number_of_partitions(8)
+            .default_number_of_partitions(1) //For beacons that do not require partitioning, only a single partition is used.
             .key_store(key_store.clone())
             .key_source(BeaconKeySource::Single(
                 SingleKeyStore::builder()
