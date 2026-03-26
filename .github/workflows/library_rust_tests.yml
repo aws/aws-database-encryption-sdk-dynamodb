@@ -148,3 +148,4 @@ jobs:
         run: |
           cargo run --release --example main
           cargo test --release --example main
+          
