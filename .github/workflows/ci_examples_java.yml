@@ -44,7 +44,7 @@ jobs:
 
       # Rust files have long names, so we need to enable long paths
       - name: Enable long paths
-        run: git config --system core.longpaths true
+        run: git config --global core.longpaths true
 
       - uses: actions/checkout@v6
         with:
