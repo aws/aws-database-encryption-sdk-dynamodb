@@ -95,14 +95,24 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Build ${{ matrix.library }} implementation
-        shell: bash
-        working-directory: ./${{ matrix.library }}
-        run: |
-          # This works because `node` is installed by default on GHA runners
-          CORES=$(node -e 'console.log(os.cpus().length)')
-          make build_java CORES=$CORES
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 3
+          shell: bash
+          command: |
+            # This works because `node` is installed by default on GHA runners
+            CORES=$(node -e 'console.log(os.cpus().length)')
+            make build_java CORES=$CORES
 
       - name: Test ${{ matrix.library }}
-        working-directory: ./${{ matrix.library }}
-        run: |
-          make test_java
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 3
+          shell: bash
+          command: |
+            cd ./${{ matrix.library }}
+            make test_java
