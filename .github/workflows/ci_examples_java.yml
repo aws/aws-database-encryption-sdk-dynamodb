@@ -94,31 +94,20 @@ jobs:
           update-and-regenerate-mpl: true
 
       - name: Build and locally deploy dependencies for examples
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./DynamoDbEncryption
-            # This works because `node` is installed by default on GHA runners
-            CORES=$(node -e 'console.log(os.cpus().length)')
-            # This will recursively build and deploy MPL as well
-            make build_java CORES=$CORES
-            make mvn_local_deploy
+        shell: bash
+        working-directory: ./DynamoDbEncryption
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          # This will recursively build and deploy MPL as well
+          make build_java CORES=$CORES
+          make mvn_local_deploy
 
       - name: Test Examples
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./Examples
-            # Run simple examples
-            gradle -p runtimes/java/DynamoDbEncryption test 
-            # Run migration examples
-            gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-            gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+        working-directory: ./Examples
+        run: |
+          # Run simple examples
+          gradle -p runtimes/java/DynamoDbEncryption test 
+          # Run migration examples
+          gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
+          gradle -p runtimes/java/Migration/DDBECToAWSDBE test
