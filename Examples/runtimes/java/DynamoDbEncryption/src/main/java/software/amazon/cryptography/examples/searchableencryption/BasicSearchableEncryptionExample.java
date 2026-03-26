@@ -393,7 +393,7 @@ public class BasicSearchableEncryptionExample {
     
     for (int partition = 0; partition < numQueries; partition++) {
  
-      queryRequest.ExpressionAttributeValues.Add(":aws_dbe_partition", N(i.to_string())
+      queryRequest.ExpressionAttributeValues.Add(":aws_dbe_partition", N(partition.to_string())
       
 
     // GSIs do not update instantly
