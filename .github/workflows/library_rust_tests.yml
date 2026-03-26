@@ -101,17 +101,12 @@ jobs:
           make polymorph_rust
 
       - name: Compile ${{ matrix.library }} implementation
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./${{ matrix.library }}
-            # This works because `node` is installed by default on GHA runners
-            CORES=$(node -e 'console.log(os.cpus().length)')
-            make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          # This works because `node` is installed by default on GHA runners
+          CORES=$(node -e 'console.log(os.cpus().length)')
+          make transpile_rust TRANSPILE_TESTS_IN_RUST=1 CORES=$CORES
 
       - name: Copy ${{ matrix.library }} Vector Files
         if: ${{ matrix.library == 'TestVectors' }}
@@ -121,15 +116,10 @@ jobs:
           cp runtimes/java/*.json runtimes/rust/
 
       - name: Test ${{ matrix.library }} Rust
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./${{ matrix.library }}
-            make test_rust
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make test_rust
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -139,37 +129,22 @@ jobs:
           role-session-name: DDBEC-Dafny-Rust-Tests
 
       - name: Test ${{ matrix.library }} Rust Fips
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./${{ matrix.library }}/runtimes/rust/
-            cargo test --release --features fips -- --nocapture
+        shell: bash
+        working-directory: ./${{ matrix.library }}/runtimes/rust/
+        run: |
+          cargo test --release --features fips -- --nocapture
 
       - name: Test ${{ matrix.library }} Rust Debug
         if: ${{ matrix.library != 'TestVectors' }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./${{ matrix.library }}
-            make test_rust test_rust_debug
+        shell: bash
+        working-directory: ./${{ matrix.library }}
+        run: |
+          make test_rust test_rust_debug
 
       - name: Test Examples for Rust in ${{ matrix.library }}
         if: ${{ matrix.library == 'DynamoDbEncryption' }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          retry_wait_seconds: 15
-          max_attempts: 3
-          shell: bash
-          command: |
-            cd ./${{ matrix.library }}/runtimes/rust/
-            cargo run --release --example main
-            cargo test --release --example main
+        working-directory: ./${{ matrix.library }}/runtimes/rust/
+        shell: bash
+        run: |
+          cargo run --release --example main
+          cargo test --release --example main
