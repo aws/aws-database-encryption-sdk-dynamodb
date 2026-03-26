@@ -12,6 +12,7 @@ use aws_db_esdk::CryptoAction;
 use aws_db_esdk::dynamodb::types::BeaconKeySource;
 use aws_db_esdk::dynamodb::types::BeaconVersion;
 use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
+use aws_sdk_dynamodb::types::QueryRequest;
 use aws_db_esdk::dynamodb::types::SearchConfig;
 use aws_db_esdk::dynamodb::types::SingleKeyStore;
 use aws_db_esdk::dynamodb::types::StandardBeacon;
@@ -320,44 +321,51 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
             ("#unit".to_string(), "unit".to_string()),
         ]);
 
-      // In this simple example, we know there are two buckets, 
-      // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
-      let num_queries = 2; 
-        
-     //We need to query for all possible parttions 
-    
-       for partition in 0..num_queries {
-
         let expression_attribute_values = HashMap::from([
             (":last4".to_string(), AttributeValue::S("4321".to_string())),
             (":unit".to_string(), AttributeValue::S("123456789012".to_string())),
-            ( ":aws_dbe_partition".to_string(), AttributeValue::N(partition.to_string())),
         ]);
 
+        let query_request = QueryRequest::builder()
+           .table_name(ddb_table_name.clone())
+           .index_name(GSI_NAME)
+           .key_condition_expression("#last4 = :last4 and #unit = :unit")
+           .set_expression_attribute_names(Some(expression_attribute_names.clone()))
+           .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+           .build();
+        //( ":aws_dbe_partition".to_string(), AttributeValue::N(partition.to_string())),
 
-        // GSIs do not update instantly
-        // so if the results come back empty
-        // we retry after a short sleep
-        for _i in 0..10 {
-            let query_response = ddb
-                .query()
-                .table_name(ddb_table_name)
-                .index_name(GSI_NAME)
-                .key_condition_expression("#last4 = :last4 and #unit = :unit")
-                .set_expression_attribute_names(Some(expression_attributes_names.clone()))
-                .set_expression_attribute_values(Some(expression_attribute_values.clone()))
-                .send()
-                .await?;
+        //The number of queries can be obtained using transformClient.getNumberOfQueries(query)
+        let num_queries = transform_client.get_number_of_queries(&query_request)?;
+        
+        //We need to query for all possible parttions 
+        for partition in 0..num_queries {
+           let mut expression_attribute_values = base_expression_attribute_values.clone();
+            expression_attribute_values.insert(
+                ":aws_dbe_partition".to_string(),
+                AttributeValue::N(partition.to_string()),
+            );
+           let updated_query_request = QueryRequest::builder()
+               .table_name(ddb_table_name.clone())
+               .index_name(GSI_NAME)
+               .key_condition_expression("#last4 = :last4 and #unit = :unit")
+               .set_expression_attribute_names(Some(expression_attribute_names.clone()))
+               .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+               .build();
+        
+          // GSIs do not update instantly
+          // so if the results come back empty
+          // we retry after a short sleep
+          for _i in 0..10 {
+            let query_response = ddb.query(updated_query_request).await?;
+               if let Some(items) = query_response.items {
+                 if !items.is_empty() {
+                    all_results.extend(items.clone());
+                    break;
+                  }
+                }
 
-             
-                 if let Some(items) = query_response.items {
-                   if !items.is_empty() {
-                      all_results.extend(items.clone());
-                      break;
-                    }
-                 }
-
-                std::thread::sleep(std::time::Duration::from_millis(20));
+            std::thread::sleep(std::time::Duration::from_millis(20));
          }
         }
         let attribute_values = all_results;
