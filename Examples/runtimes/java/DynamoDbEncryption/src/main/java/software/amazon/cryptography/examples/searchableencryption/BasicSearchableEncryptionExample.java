@@ -212,6 +212,7 @@ public class BasicSearchableEncryptionExample {
         .standardBeacons(standardBeaconList)
         .version(1) // MUST be 1
         .maximumNumberOfPartitions(8) 
+        .defaultNumberOfPartitions(1)  //For beacons that do not require partitioning, only a single partition is used.
         .keyStore(keyStore)
         .keySource(
           BeaconKeySource
@@ -365,14 +366,8 @@ public class BasicSearchableEncryptionExample {
     expressionAttributesNames.put("#last4", "inspector_id_last4");
     expressionAttributesNames.put("#unit", "unit");
 
-    // In this simple example, we know there are two buckets, 
-    // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
-    int numQueries = 2; 
-    //We need to query for all possible parttions 
-    
-    for (int partition = 0; partition < numQueries; partition++) {
-      Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-      expressionAttributeValues.put(
+    Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+    expressionAttributeValues.put(
         ":last4",
         AttributeValue.builder().s("4321").build()
       );
@@ -380,11 +375,8 @@ public class BasicSearchableEncryptionExample {
         ":unit",
         AttributeValue.builder().s("123456789012").build()
       );
-      expressionAttributeValues.put(":aws_dbe_partition",
-      AttributeValue.builder().n(Integer.toString(partition)).build()
-      );
-  
-      QueryRequest queryRequest = QueryRequest
+
+     QueryRequest queryRequest = QueryRequest
         .builder()
         .tableName(ddbTableName)
         .indexName(GSI_NAME)
@@ -392,6 +384,17 @@ public class BasicSearchableEncryptionExample {
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
+
+    
+    // The number can be obtained using transformClient.getNumberOfQueries(query)
+    int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
+    
+    //We need to query for all possible parttions 
+    
+    for (int partition = 0; partition < numQueries; partition++) {
+ 
+      queryRequest.ExpressionAttributeValues.Add(":aws_dbe_partition", N(i.to_string())
+      
 
     // GSIs do not update instantly
     // so if the results come back empty
