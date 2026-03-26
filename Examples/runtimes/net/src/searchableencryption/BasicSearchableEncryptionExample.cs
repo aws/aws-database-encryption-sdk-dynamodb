@@ -65,10 +65,12 @@ public class BasicSearchableEncryptionExample
         //     values are uniformly distributed across its range of possible values.
         //     In many use cases, the prefix of an identifier encodes some information
         //     about that identifier (e.g. zipcode and SSN prefixes encode geographic
-        //     information), while the suffix does not and is more uniformly distributed.
+        //     information),  while the suffix does not encode such structure and tends 
+        //     to be closer to uniformly distributed, though not perfectly uniform.
         //     We will assume that the inspector ID field matches a similar use case.
         //     So for this example, we only store and use the last
-        //     4 digits of the inspector ID, which we assume is uniformly distributed.
+        //     4 digits of the inspector ID, and apply two partitions, 
+        //     assuming the suffix has sufficient uniformity for this purpose.
         // Since the full ID's range is divisible by the range of the last 4 digits,
         //     then the last 4 digits of the inspector ID are uniformly distributed
         //     over the range from 0 to 9,999.
@@ -104,13 +106,13 @@ public class BasicSearchableEncryptionExample
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10,000/1,024) ~= 9.8 4-digit inspector ID suffixes
         //    sharing that beacon value.
-        var last4Beacon = new StandardBeacon { Name = "inspector_id_last4", Length = 10 };
+        var last4Beacon = new StandardBeacon { Name = "inspector_id_last4", Length = 10 ,  NumberOfPartitions = 2};
         standardBeaconList.Add(last4Beacon);
 
         // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
         // This field holds a unit serial number.
         // For this example, this is a 12-digit integer from 0 to 999,999,999,999 (10^12 possible values).
-        // We will assume values for this attribute are uniformly distributed across this range.
+        // We will assume values for this attribute are uniformly distributed across this range using 2 partitions.
         // A single unit serial number may be assigned to multiple `work_id`s.
         //
         // This link provides guidance for choosing a beacon length:
@@ -133,7 +135,7 @@ public class BasicSearchableEncryptionExample
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        var unitBeacon = new StandardBeacon { Name = "unit", Length = 30 };
+        var unitBeacon = new StandardBeacon { Name = "unit", Length = 30 ,  NumberOfPartitions = 2};
         standardBeaconList.Add(unitBeacon);
 
         // 2. Configure Keystore.
@@ -156,6 +158,8 @@ public class BasicSearchableEncryptionExample
         // 3. Create BeaconVersion.
         //    The BeaconVersion inside the list holds the list of beacons on the table.
         //    The BeaconVersion also stores information about the keystore.
+        //    The BeaconVersion parameter specifies the MaximumNumberOfPartitions associated with a given beacon configuration. 
+        //    "MaximumNumberOfPartitions" must be greater than "NumberOfPartitions"; we set it to 8 to allow room for future expansion.
         //    BeaconVersion must be provided:
         //      - keyStore: The keystore configured in step 2.
         //      - keySource: A configuration for the key source.
@@ -171,6 +175,8 @@ public class BasicSearchableEncryptionExample
             {
                 StandardBeacons = standardBeaconList,
                 Version = 1, // MUST be 1
+                MaximumNumberOfPartitions = 8,  
+                DefaultNumberOfPartitions = 1, //For beacons that do not require partitioning, only a single partition is used. 
                 KeyStore = keyStore,
                 KeySource = new BeaconKeySource
                 {

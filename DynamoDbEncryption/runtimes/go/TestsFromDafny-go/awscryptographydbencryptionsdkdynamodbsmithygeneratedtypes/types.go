@@ -518,12 +518,22 @@ func (input KeyStoreReference) Validate() error {
 	return nil
 }
 
+type PartitionSelectorReference struct {
+}
+
+func (input PartitionSelectorReference) Validate() error {
+
+	return nil
+}
+
 type StandardBeacon struct {
 	Length int32
 
 	Name string
 
 	Loc *string
+
+	NumberOfPartitions *int32
 
 	Style BeaconStyle
 }
@@ -538,6 +548,14 @@ func (input StandardBeacon) Validate() error {
 	if input.Loc != nil {
 		if len(*input.Loc) < 1 {
 			return fmt.Errorf("TerminalLocation has a minimum length of 1 but has the length of %d.", len(*input.Loc))
+		}
+	}
+	if input.NumberOfPartitions != nil {
+		if *input.NumberOfPartitions < 1 {
+			return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", *input.NumberOfPartitions)
+		}
+		if *input.NumberOfPartitions > 255 {
+			return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", *input.NumberOfPartitions)
 		}
 	}
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_Validate() != nil {
@@ -781,7 +799,13 @@ type BeaconVersion struct {
 
 	CompoundBeacons []CompoundBeacon
 
+	DefaultNumberOfPartitions *int32
+
 	EncryptedParts []EncryptedPart
+
+	MaximumNumberOfPartitions *int32
+
+	PartitionSelector IPartitionSelector
 
 	SignedParts []SignedPart
 
@@ -813,11 +837,27 @@ func (input BeaconVersion) Validate() error {
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_Validate()
 	}
+	if input.DefaultNumberOfPartitions != nil {
+		if *input.DefaultNumberOfPartitions < 1 {
+			return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", *input.DefaultNumberOfPartitions)
+		}
+		if *input.DefaultNumberOfPartitions > 255 {
+			return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", *input.DefaultNumberOfPartitions)
+		}
+	}
 	if len(input.EncryptedParts) < 1 {
 		return fmt.Errorf("EncryptedPartsList has a minimum length of 1 but has the length of %d.", len(input.EncryptedParts))
 	}
 	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate() != nil {
 		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_Validate()
+	}
+	if input.MaximumNumberOfPartitions != nil {
+		if *input.MaximumNumberOfPartitions < 1 {
+			return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", *input.MaximumNumberOfPartitions)
+		}
+		if *input.MaximumNumberOfPartitions > 255 {
+			return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", *input.MaximumNumberOfPartitions)
+		}
 	}
 	if len(input.SignedParts) < 1 {
 		return fmt.Errorf("SignedPartsList has a minimum length of 1 but has the length of %d.", len(input.SignedParts))
@@ -1121,6 +1161,21 @@ func (input DynamoDbTablesEncryptionConfig) Aws_cryptography_dbEncryptionSdk_dyn
 	return nil
 }
 
+type GetPartitionNumberOutput struct {
+	PartitionNumber int32
+}
+
+func (input GetPartitionNumberOutput) Validate() error {
+	if input.PartitionNumber < 0 {
+		return fmt.Errorf("PartitionNumber has a minimum of 0 but has the value of %d.", input.PartitionNumber)
+	}
+	if input.PartitionNumber > 254 {
+		return fmt.Errorf("PartitionNumber has a maximum of 254 but has the value of %d.", input.PartitionNumber)
+	}
+
+	return nil
+}
+
 type GetBranchKeyIdFromDdbKeyInput struct {
 	DdbKey map[string]dynamodbtypes.AttributeValue
 }
@@ -1242,6 +1297,143 @@ func (input GetBranchKeyIdFromDdbKeyInput) Aws_cryptography_dbEncryptionSdk_dyna
 		}
 		if input.Com_amazonaws_dynamodb_Key_value_Validate(value) != nil {
 			return input.Com_amazonaws_dynamodb_Key_value_Validate(value)
+		}
+	}
+
+	return nil
+}
+
+type GetPartitionNumberInput struct {
+	Item map[string]dynamodbtypes.AttributeValue
+
+	LogicalTableName string
+
+	NumberOfPartitions int32
+}
+
+func (input GetPartitionNumberInput) Validate() error {
+	if input.Item == nil {
+		return fmt.Errorf("input.Item is required but has a nil value.")
+	}
+	if input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_Validate() != nil {
+		return input.Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_Validate()
+	}
+	if input.NumberOfPartitions < 1 {
+		return fmt.Errorf("PartitionCount has a minimum of 1 but has the value of %d.", input.NumberOfPartitions)
+	}
+	if input.NumberOfPartitions > 255 {
+		return fmt.Errorf("PartitionCount has a maximum of 255 but has the value of %d.", input.NumberOfPartitions)
+	}
+
+	return nil
+}
+
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_AttributeMap_value_Validate(Value dynamodbtypes.AttributeValue) error {
+	if Value == nil {
+		return nil
+	}
+	switch unionType := Value.(type) {
+	case *dynamodbtypes.AttributeValueMemberS:
+	case *dynamodbtypes.AttributeValueMemberN:
+	case *dynamodbtypes.AttributeValueMemberB:
+	case *dynamodbtypes.AttributeValueMemberSS:
+	case *dynamodbtypes.AttributeValueMemberNS:
+	case *dynamodbtypes.AttributeValueMemberBS:
+	case *dynamodbtypes.AttributeValueMemberM:
+	case *dynamodbtypes.AttributeValueMemberL:
+	case *dynamodbtypes.AttributeValueMemberNULL:
+	case *dynamodbtypes.AttributeValueMemberBOOL:
+	// Default case should not be reached.
+	default:
+		panic(fmt.Sprintf("Unhandled union type: %T ", unionType))
+	}
+
+	return nil
+}
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(Value dynamodbtypes.AttributeValue) error {
+	if Value == nil {
+		return nil
+	}
+	switch unionType := Value.(type) {
+	case *dynamodbtypes.AttributeValueMemberS:
+	case *dynamodbtypes.AttributeValueMemberN:
+	case *dynamodbtypes.AttributeValueMemberB:
+	case *dynamodbtypes.AttributeValueMemberSS:
+	case *dynamodbtypes.AttributeValueMemberNS:
+	case *dynamodbtypes.AttributeValueMemberBS:
+	case *dynamodbtypes.AttributeValueMemberM:
+		if input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_M_Validate(unionType.Value)
+		}
+	case *dynamodbtypes.AttributeValueMemberL:
+	case *dynamodbtypes.AttributeValueMemberNULL:
+	case *dynamodbtypes.AttributeValueMemberBOOL:
+	// Default case should not be reached.
+	default:
+		panic(fmt.Sprintf("Unhandled union type: %T ", unionType))
+	}
+
+	return nil
+}
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_AttributeValue_M_Validate(Value map[string]dynamodbtypes.AttributeValue) error {
+	for key, value := range Value {
+		if len(key) < 0 {
+			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
+		}
+		if len(key) > 65535 {
+			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
+		}
+		if input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_MapAttributeValue_value_Validate(value)
+		}
+	}
+
+	return nil
+}
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(Value dynamodbtypes.AttributeValue) error {
+	if Value == nil {
+		return nil
+	}
+	switch unionType := Value.(type) {
+	case *dynamodbtypes.AttributeValueMemberS:
+	case *dynamodbtypes.AttributeValueMemberN:
+	case *dynamodbtypes.AttributeValueMemberB:
+	case *dynamodbtypes.AttributeValueMemberSS:
+	case *dynamodbtypes.AttributeValueMemberNS:
+	case *dynamodbtypes.AttributeValueMemberBS:
+	case *dynamodbtypes.AttributeValueMemberM:
+	case *dynamodbtypes.AttributeValueMemberL:
+		if input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeValue_L_Validate(unionType.Value)
+		}
+	case *dynamodbtypes.AttributeValueMemberNULL:
+	case *dynamodbtypes.AttributeValueMemberBOOL:
+	// Default case should not be reached.
+	default:
+		panic(fmt.Sprintf("Unhandled union type: %T ", unionType))
+	}
+
+	return nil
+}
+func (input GetPartitionNumberInput) Com_amazonaws_dynamodb_AttributeValue_L_Validate(Value []dynamodbtypes.AttributeValue) error {
+	for _, item := range Value {
+		if input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item) != nil {
+			return input.Com_amazonaws_dynamodb_ListAttributeValue_member_Validate(item)
+		}
+	}
+
+	return nil
+}
+func (input GetPartitionNumberInput) Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_Validate() error {
+	for key, value := range input.Item {
+		if len(key) < 0 {
+			return fmt.Errorf("AttributeName has a minimum length of 0 but has the length of %d.", len(key))
+		}
+		if len(key) > 65535 {
+			return fmt.Errorf("AttributeName has a maximum length of 65535 but has the length of %d.", len(key))
+		}
+		if input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value) != nil {
+			return input.Com_amazonaws_dynamodb_AttributeMap_value_Validate(value)
 		}
 	}
 
@@ -1388,4 +1580,8 @@ type IDynamoDbKeyBranchKeyIdSupplier interface {
 }
 
 type ILegacyDynamoDbEncryptor interface {
+}
+
+type IPartitionSelector interface {
+	GetPartitionNumber(GetPartitionNumberInput) (*GetPartitionNumberOutput, error)
 }

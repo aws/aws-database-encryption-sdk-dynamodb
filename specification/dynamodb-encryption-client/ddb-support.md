@@ -78,6 +78,10 @@ and [Encrypt Item Output](./encrypt-item.md#output).
 To obtain [Beacon Key Materials] GetEncryptedBeacons
 MUST call [Get beacon key after encrypt](../searchable-encryption/search-config.md#get-beacon-key-after-encrypt).
 
+A [partition number](search-config.md#partitionnumber) MUST be generated
+by calling the [partition selector](search-config.md#partition-selector).
+This [partition number](search-config.md#partitionnumber) is to be used for all [standard beacons](./searchable-encryption/beacons.md#standard-beacon) in the item.
+
 GetEncryptedBeacons MUST NOT operate on [compound beacons](../searchable-encryption/beacons.md#compound-beacon)
 that only have [signed parts](../searchable-encryption/beacons.md#compound-beacon-initialization).
 
@@ -154,6 +158,18 @@ from [Get beacon key for query](../searchable-encryption/search-config.md#get-be
 If the [QueryObject does not have encrypted values](#queryobject-has-encrypted-values)
 then QueryInputForBeacons MUST NOT attempt to obtain [Beacon Key Materials](../searchable-encryption/search-config.md#beacon-key-materials).
 
+When querying, a [partition number](search-config.md#partitionnumber) MUST be determined by examining
+the `:aws_dbe_partition` value in the `ExpressionAttributeValues`.
+
+If this value is absent, a partition number of `0` MUST be used.
+
+If this value is not of type `N` or fails to hold an integer value
+greater than or equal to zero and less than the [max partitions](search-config.md#max-partitions),
+an error MUST be returned.
+
+If this value is valid, then this value is used and the `:aws_dbe_partition` field MUST
+be removed from the `ExpressionAttributeValues`.
+
 For any operand in the KeyConditionExpression or FilterExpression which is a beacon name,
 the name MUST be replaced by the internal beacon name (i.e. NAME replaced by aws_dbe_b_NAME).
 
@@ -174,6 +190,9 @@ MUST be obtained from the [Beacon Key Materials](../searchable-encryption/search
 [HMAC Keys map](../searchable-encryption/search-config.md#hmac-keys) using the beacon name
 as the key.
 
+If [Beacon Partitions](../changes/2025-08-25-partition-beacons/background.md) are being used,
+then the [FilterExpression](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.FilterExpression.html) must be augmented as described in [Filter Expressions for Query](#filter-expressions-for-query).
+
 For example if the query is
 "MyBeacon = :value" and ExpressionAttributeValues holds (:value = banana),
 then the ExpressionAttributeValues must be changed to (:value = 13fd),
@@ -191,6 +210,31 @@ Hypothetically, this operation could split `:foo` into `:foo1` and `:foo2`
 in this situation, but that risks leaking the connection between the two beacons and spoiling k-anonymity.
 Similarly, if one of the two was not a beacon, then we would be leaking the fact that
 this beacon came from that text.
+
+### Filter Expressions for Query
+
+if [GetNumberOfQueries](./ddb-get-number-of-queries.md) returns a number less than the configured
+[maximum number of partitions](../searchable-encryption/search-config.md#max-partitions)
+then the FilterExpression MUST be augmented to match against partitions greater than
+the limit returned from GetNumberOfQueries.
+
+For each partition number that would map to the current partition,
+calculate the Filter Expression as for that partition.
+The FilterExpression sent to DynamoDB MUST be the `OR` combination of all of these expressions.
+
+The text of the FilterExpression is unlikely to change between partitions.
+What will change is the values in the ExpressionAttributeValues,
+which will be different if they involve standard beacons calculated with different partitions.
+This implies that additional unique values will need to be added to ExpressionAttributeValues.
+
+As an example, if a table is configured with five partitions,
+and GetNumberOfQueries returns two, and `foo[n]` represents the expression as calculated for partition `n`,
+then when `:aws_dbe_partition = 0` the filter expression must be `(foo[0]) OR (foo[2]) OR (foo[4])`
+ands when `:aws_dbe_partition = 1` the filter expression must be `(foo[1]) OR (foo[3])`.
+
+The resulting FilterExpression might look something like this:
+
+`(aws_dbe_b_Attr3 = :attr3 AND aws_dbe_b_Attr4 = :attr4) OR (aws_dbe_b_Attr3 = :attr3AA AND aws_dbe_b_Attr4 = :attr4AA) OR (aws_dbe_b_Attr3 = :attr3AB AND aws_dbe_b_Attr4 = :attr4AB)`
 
 ### QueryObject has encrypted values
 
@@ -260,7 +304,9 @@ any error encountered during filtering MUST result in a failure of the query ope
 
 Transform an unencrypted ScanInput object for searchable encryption.
 
-The ScanInput is transformed in the same way as [QueryInputForBeacons](#queryinputforbeacons).
+The ScanInput is transformed in the same way as [QueryInputForBeacons](#queryinputforbeacons),
+except that [Filter Expressions for Query](#filter-expressions-for-query) is calculated
+as if GetNumberOfQueries returned `1`.
 
 ## ScanOutputForBeacons
 
