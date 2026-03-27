@@ -12,7 +12,7 @@ use aws_db_esdk::CryptoAction;
 use aws_db_esdk::dynamodb::types::BeaconKeySource;
 use aws_db_esdk::dynamodb::types::BeaconVersion;
 use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
-use aws_sdk_dynamodb::types::QueryRequest;
+use aws_sdk_dynamodb::types::PutRequest;
 use aws_db_esdk::dynamodb::types::SearchConfig;
 use aws_db_esdk::dynamodb::types::SingleKeyStore;
 use aws_db_esdk::dynamodb::types::StandardBeacon;
@@ -316,7 +316,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
 
         let mut all_results: Vec<HashMap<String, AttributeValue>> = Vec::new();
 
-        let expression_attributes_names = HashMap::from([
+        let  = HashMap::from([
             ("#last4".to_string(), "inspector_id_last4".to_string()),
             ("#unit".to_string(), "unit".to_string()),
         ]);
@@ -330,7 +330,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
            .table_name(ddb_table_name.clone())
            .index_name(GSI_NAME)
            .key_condition_expression("#last4 = :last4 and #unit = :unit")
-           .set_expression_attribute_names(Some(expression_attribute_names.clone()))
+           .set_expression_attribute_names(Some(.clone()))
            .set_expression_attribute_values(Some(expression_attribute_values.clone()))
            .build();
         //( ":aws_dbe_partition".to_string(), AttributeValue::N(partition.to_string())),
@@ -340,7 +340,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         
         //We need to query for all possible parttions 
         for partition in 0..num_queries {
-           let mut expression_attribute_values = base_expression_attribute_values.clone();
+           let mut expression_attribute_values = expression_attribute_values.clone();
             expression_attribute_values.insert(
                 ":aws_dbe_partition".to_string(),
                 AttributeValue::N(partition.to_string()),
@@ -349,7 +349,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
                .table_name(ddb_table_name.clone())
                .index_name(GSI_NAME)
                .key_condition_expression("#last4 = :last4 and #unit = :unit")
-               .set_expression_attribute_names(Some(expression_attribute_names.clone()))
+               .set_expression_attribute_names(Some(.clone()))
                .set_expression_attribute_values(Some(expression_attribute_values.clone()))
                .build();
         
