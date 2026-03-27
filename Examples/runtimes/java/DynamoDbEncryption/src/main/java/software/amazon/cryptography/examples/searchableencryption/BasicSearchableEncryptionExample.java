@@ -393,7 +393,7 @@ public class BasicSearchableEncryptionExample {
 
     
     // The number can be obtained using transformClient.getNumberOfQueries(query)
-    int numQueries = transformClient.getNumberOfQueries(queryRequest); 
+    int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
     
     //We need to query for all possible partitions 
     
