@@ -43,9 +43,10 @@ const props = parsePropertiesFile("./project.properties");
 // each one has files that need to be updated.
 // We model all the files and the runtimes here in this structure
 const Runtimes = {
-  java: {
-    "project.properties": {
+  net: {
+    "DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj": {
       dependencies: [],
+      assemblyInfo: "DynamoDbEncryption/runtimes/net/AssemblyInfo.cs",
     },
   },
 };
@@ -56,6 +57,7 @@ const Runtimes = {
 module.exports = {
   branches: ["main"],
   repositoryUrl: "git@github.com:aws/aws-database-encryption-sdk-dynamodb.git",
+  tagFormat: "v${version}-net",
   plugins: [
     // Check the commits since the last release
     [
@@ -63,7 +65,7 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["BREAKING-CHANGE", "BREAKING-CHANGES"],
+          noteKeywords: ["DOTNET-BREAKING-CHANGE", "DOTNET-BREAKING-CHANGES"],
         },
         presetConfig: {
           types: [
@@ -91,7 +93,7 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["BREAKING-CHANGE", "BREAKING-CHANGES"],
+          noteKeywords: ["DOTNET-BREAKING-CHANGE", "DOTNET-BREAKING-CHANGES"],
         },
         presetConfig: {
           types: [
@@ -103,17 +105,10 @@ module.exports = {
             },
             {
               type: "feat",
-              scope: "java",
-              section: "Features -- Java",
+              scope: "dotnet",
+              section: "Features -- DotNet",
               hidden: false,
             },
-            {
-              type: "feat",
-              scope: "rust",
-              section: "Features -- Rust",
-              hidden: false,
-            },
-
             {
               type: "fix",
               scope: "dafny",
@@ -122,17 +117,10 @@ module.exports = {
             },
             {
               type: "fix",
-              scope: "java",
-              section: "Fixes -- Java",
+              scope: "dotnet",
+              section: "Fixes -- DotNet",
               hidden: false,
             },
-            {
-              type: "fix",
-              scope: "rust",
-              section: "Fixes -- Rust",
-              hidden: false,
-            },
-
             {
               type: "chore",
               scope: "dafny",
@@ -141,19 +129,8 @@ module.exports = {
             },
             {
               type: "chore",
-              scope: "java",
-              section: "Maintenance -- Java",
-              hidden: false,
-            },
-            {
-              type: "chore",
-              scope: "rust",
-              section: "Maintenance -- Rust",
-              hidden: false,
-            },
-            {
-              type: "chore",
-              section: "Miscellaneous",
+              scope: "dotnet",
+              section: "Maintenance -- DotNet",
               hidden: false,
             },
             {
@@ -164,14 +141,8 @@ module.exports = {
             },
             {
               type: "docs",
-              scope: "java",
-              section: "Maintenance -- Java",
-              hidden: false,
-            },
-            {
-              type: "docs",
-              scope: "rust",
-              section: "Maintenance -- Rust",
+              scope: "dotnet",
+              section: "Maintenance -- DotNet",
               hidden: false,
             },
             {
@@ -182,14 +153,8 @@ module.exports = {
             },
             {
               type: "revert",
-              scope: "java",
-              section: "Fixes -- Java",
-              hidden: false,
-            },
-            {
-              type: "revert",
-              scope: "rust",
-              section: "Fixes -- Rust",
+              scope: "dotnet",
+              section: "Fixes -- DotNet",
               hidden: false,
             },
             { type: "style", section: "Miscellaneous", hidden: false },
@@ -214,15 +179,32 @@ module.exports = {
       "semantic-release-replace-plugin",
       {
         replacements: [
-          // Update the version for all Gradle Java projects
+          // Update the version for all DotNet projects
           // Does not update the dependencies
           {
-            files: Object.keys(Runtimes.java),
-            from: "projectJavaVersion=.*",
-            to: "projectJavaVersion=${nextRelease.version}",
-            results: Object.keys(Runtimes.java).map(CheckResults),
+            files: Object.keys(Runtimes.net),
+            from: "<Version>.*</Version>",
+            to: "<Version>${nextRelease.version}</Version>",
+            results: Object.keys(Runtimes.net).map(CheckResults),
             countMatches: true,
           },
+          {
+            files: Object.keys(Runtimes.net),
+            from: '<ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>',
+            to: `<PackageReference Include="AWS.Cryptography.MaterialProviders" Version="[${props.mplDependencyNetVersion}]" />`,
+            results: Object.keys(Runtimes.net).map(CheckResults),
+            countMatches: true,
+          },
+          // Update the AssmeblyInfo.cs file of the DotNet projects
+          ...Object.entries(Runtimes.net).flatMap(
+            ([file, { assemblyInfo }]) => ({
+              files: assemblyInfo,
+              from: "assembly: AssemblyVersion(.*)",
+              to: 'assembly: AssemblyVersion("${nextRelease.version}")]',
+              results: [CheckResults(assemblyInfo)],
+              countMatches: true,
+            }),
+          ),
         ],
       },
     ],
@@ -233,6 +215,7 @@ module.exports = {
         assets: [
           "CHANGELOG.md",
           ...Object.values(Runtimes).flatMap((r) => Object.keys(r)),
+          ...Object.values(Runtimes.net).flatMap((r) => r.assemblyInfo),
         ],
         message:
           "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}",
