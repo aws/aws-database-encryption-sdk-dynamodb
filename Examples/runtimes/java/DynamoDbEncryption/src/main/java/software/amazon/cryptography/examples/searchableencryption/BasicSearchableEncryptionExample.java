@@ -388,7 +388,7 @@ public class BasicSearchableEncryptionExample {
     
     DynamoDbEncryptionTransforms transformClient =
       DynamoDbEncryptionTransforms.builder()
-        .config(config)
+        .DynamoDbTablesEncryptionConfig(config)
         .build();
 
     
