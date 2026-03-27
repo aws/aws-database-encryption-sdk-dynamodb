@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.DynamoDbEncryptionTransforms;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -384,18 +385,23 @@ public class BasicSearchableEncryptionExample {
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
+    
+    DynamoDbEncryptionTransforms transformClient =
+      DynamoDbEncryptionTransforms.builder()
+        .config(config)
+        .build();
 
     
     // The number can be obtained using transformClient.getNumberOfQueries(query)
-    int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
+    int numQueries = transformClient.getNumberOfQueries(queryRequest); 
     
-    //We need to query for all possible parttions 
+    //We need to query for all possible partitions 
     
     for (int partition = 0; partition < numQueries; partition++) {
 
       expressionAttributeValues.put(
         ":aws_dbe_partition",
-        AttributeValue.builder().n(partition.to_string()).build()
+        AttributeValue.builder().n(Integer.toString(partition)).build()
       );
             
       QueryRequest updatedQueryRequest = QueryRequest
