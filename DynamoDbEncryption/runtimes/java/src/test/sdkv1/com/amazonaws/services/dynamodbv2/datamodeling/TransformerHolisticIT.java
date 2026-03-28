@@ -405,6 +405,9 @@ public class TransformerHolisticIT {
       case "v1":
         assertVersionCompatibility_2(mapper);
         break;
+      case "v2_complex":
+        assertVersionCompatibility_complex(mapper);
+        break;
       default:
         throw new IllegalStateException(
           "Version " +
@@ -507,6 +510,23 @@ public class TransformerHolisticIT {
         //        This is why this vector exists but is not tested.
         //        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
         break;
+      case "v2_complex":
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          withComplexValue(ENCRYPTED_TEST_VALUE_2)
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          withComplexValue(MIXED_TEST_VALUE_2)
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          withComplexValue(SIGNED_TEST_VALUE_2)
+        );
+        break;
       default:
         throw new IllegalStateException(
           "Version " +
@@ -515,41 +535,43 @@ public class TransformerHolisticIT {
         );
     }
 
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(
-      client,
-      legacyEncryptor,
-      "Foo"
-    );
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(
-      client,
-      legacyEncryptor,
-      "Bar"
-    );
-    LegacyTestVectors.decryptHashKeyOnlyTestVector(
-      client,
-      legacyEncryptor,
-      "Baz"
-    );
+    if (!"v2_complex".equals(scenario.version)) {
+      LegacyTestVectors.decryptHashKeyOnlyTestVector(
+        client,
+        legacyEncryptor,
+        "Foo"
+      );
+      LegacyTestVectors.decryptHashKeyOnlyTestVector(
+        client,
+        legacyEncryptor,
+        "Bar"
+      );
+      LegacyTestVectors.decryptHashKeyOnlyTestVector(
+        client,
+        legacyEncryptor,
+        "Baz"
+      );
 
-    for (int x = 1; x <= 3; ++x) {
-      LegacyTestVectors.decryptKeysOnlyTestVector(
-        client,
-        legacyEncryptor,
-        0,
-        x
-      );
-      LegacyTestVectors.decryptKeysOnlyTestVector(
-        client,
-        legacyEncryptor,
-        1,
-        x
-      );
-      LegacyTestVectors.decryptKeysOnlyTestVector(
-        client,
-        legacyEncryptor,
-        4 + x,
-        x
-      );
+      for (int x = 1; x <= 3; ++x) {
+        LegacyTestVectors.decryptKeysOnlyTestVector(
+          client,
+          legacyEncryptor,
+          0,
+          x
+        );
+        LegacyTestVectors.decryptKeysOnlyTestVector(
+          client,
+          legacyEncryptor,
+          1,
+          x
+        );
+        LegacyTestVectors.decryptKeysOnlyTestVector(
+          client,
+          legacyEncryptor,
+          4 + x,
+          x
+        );
+      }
     }
   }
 
@@ -1157,6 +1179,77 @@ public class TransformerHolisticIT {
       assertEquals(4 + x, obj.getHashKey());
       assertEquals(x, obj.getRangeKey());
     }
+  }
+
+  private static final List<Map<String, String>> COMPLEX_VALUE =
+    java.util.Arrays.asList(
+      new java.util.HashMap<String, String>() {
+        {
+          put("innerKey", "innerVal");
+          put("innerNum", "42");
+        }
+      },
+      new java.util.HashMap<String, String>() {
+        {
+          put("nestedKey", "nestedVal");
+        }
+      }
+    );
+
+  @SuppressWarnings("unchecked")
+  private static <T extends BaseClass> T withComplexValue(T source) {
+    try {
+      T copy = (T) source.getClass().getDeclaredConstructor().newInstance();
+      copy.setHashKey(source.getHashKey());
+      copy.setRangeKey(source.getRangeKey());
+      copy.setVersion(source.getVersion());
+      copy.setIntValue(source.getIntValue());
+      copy.setStringValue(source.getStringValue());
+      copy.setByteArrayValue(source.getByteArrayValue());
+      copy.setStringSet(source.getStringSet());
+      copy.setIntSet(source.getIntSet());
+      copy.setDoubleValue(source.getDoubleValue());
+      copy.setDoubleSet(source.getDoubleSet());
+      copy.setComplexValue(COMPLEX_VALUE);
+      return copy;
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void assertVersionCompatibility_complex(DynamoDBMapper mapper) {
+    assertEquals(
+      withComplexValue(UNTOUCHED_TEST_VALUE_2),
+      mapper.load(
+        UNTOUCHED_TEST_VALUE_2.getClass(),
+        UNTOUCHED_TEST_VALUE_2.getHashKey(),
+        UNTOUCHED_TEST_VALUE_2.getRangeKey()
+      )
+    );
+    assertEquals(
+      withComplexValue(SIGNED_TEST_VALUE_2),
+      mapper.load(
+        SIGNED_TEST_VALUE_2.getClass(),
+        SIGNED_TEST_VALUE_2.getHashKey(),
+        SIGNED_TEST_VALUE_2.getRangeKey()
+      )
+    );
+    assertEquals(
+      withComplexValue(MIXED_TEST_VALUE_2),
+      mapper.load(
+        MIXED_TEST_VALUE_2.getClass(),
+        MIXED_TEST_VALUE_2.getHashKey(),
+        MIXED_TEST_VALUE_2.getRangeKey()
+      )
+    );
+    assertEquals(
+      withComplexValue(ENCRYPTED_TEST_VALUE_2),
+      mapper.load(
+        ENCRYPTED_TEST_VALUE_2.getClass(),
+        ENCRYPTED_TEST_VALUE_2.getHashKey(),
+        ENCRYPTED_TEST_VALUE_2.getRangeKey()
+      )
+    );
   }
 
   // Prints all current tables in the expected test vector format.

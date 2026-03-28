@@ -1,0 +1,198 @@
+{
+  "TableName": [
+    {
+      "hashKey": {
+        "N": "5"
+      },
+      "intSet": {
+        "B": "8opVq3jaEQzMyl/IpUpPSMT4/ZBCWM99xKZbHLUgOAC9VQy6s8ALz31nouDRdHsO3di+gK+lc5KyZ3Xnswy8ug=="
+      },
+      "doubleSet": {
+        "B": "pj0Z9DVUZwaWRZAc5VDRqLuCVnaPIWrwRD0o8ov92rjMUh/x5dRq9x6wUJvFQk3b5OHpiaV9h37Szww6ZznvOg=="
+      },
+      "intValue": {
+        "B": "9Ykw7qNiJnxRFq4Qv3FULrcAH/zjgxwUnk6TCTmpRo0="
+      },
+      "stringSet": {
+        "B": "BGF4UgtpuxecA4ekUfdrSTi5780EjKnK27p3xKRwCNHqKabD6qts86KKKWfudISZ0EHRU9rqYDt4Worz7krguA=="
+      },
+      "doubleValue": {
+        "B": "mjlEbixV4CXTu69osmacBk1fpsDZu5T33gHKSnblq2o="
+      },
+      "version": {
+        "N": "0"
+      },
+      "*amzn-ddb-map-sig*": {
+        "B": "sU5hyFsSyqRN0Xo8gHXPw5xMU4RPOR8AgFefsFSCmEE="
+      },
+      "rangeKey": {
+        "N": "7"
+      },
+      "stringValue": {
+        "B": "+sY4HCjSWlPQBpjyhdLPQm3a+qgMzba7dS9Cr+jXKS/iGgebu6n6H95D4AGfNEyu"
+      },
+      "*amzn-ddb-map-desc*": {
+        "B": "AAAAAAAAABVhbXpuLWRkYi1tYXAtc3ltLW1vZGUAAAARL0NCQy9QS0NTNVBhZGRpbmc="
+      },
+      "byteArrayValue": {
+        "B": "4ofQ7VKBlFWO+VZb1LIQQsDvmkeh6W82MFs2JKP0XCs="
+      },
+      "complexValue": {
+        "B": "Eh8eXrxBUCZ4x/QR9Ub7l0inMcHHL5GhgDFUuc64+Fk196zzebXFyr1yHE/Yfr57jstYIPS1XXOtGHaa6TCFh+hQQOijcLxkxKyeRboev2vCOoPF3Og9SMwRcZvlchxePJsHeIBTc0KlKHD1nZ4sSEmDdxmy7E9mZgcgHELYwoA="
+      }
+    },
+    {
+      "hashKey": {
+        "N": "8"
+      },
+      "intSet": {
+        "NS": ["0", "1", "10", "15", "200"]
+      },
+      "doubleSet": {
+        "NS": ["-34.2", "-3", "0", "7.6", "15"]
+      },
+      "intValue": {
+        "N": "123"
+      },
+      "stringSet": {
+        "SS": ["?", "Cruel", "Goodbye", "World"]
+      },
+      "doubleValue": {
+        "N": "15"
+      },
+      "version": {
+        "N": "0"
+      },
+      "*amzn-ddb-map-sig*": {
+        "B": "n7z2izd+rfq/3BGoqRRgobOwZ3zHEkYZwWdnDpG7CNw="
+      },
+      "rangeKey": {
+        "N": "10"
+      },
+      "stringValue": {
+        "S": "Hello world!"
+      },
+      "*amzn-ddb-map-desc*": {
+        "B": "AAAAAAAAABVhbXpuLWRkYi1tYXAtc3ltLW1vZGUAAAARL0NCQy9QS0NTNVBhZGRpbmc="
+      },
+      "byteArrayValue": {
+        "B": "AAECAwQF"
+      },
+      "complexValue": {
+        "L": [
+          {
+            "M": {
+              "innerNum": {
+                "S": "42"
+              },
+              "innerKey": {
+                "S": "innerVal"
+              }
+            }
+          },
+          {
+            "M": {
+              "nestedKey": {
+                "S": "nestedVal"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "rangeKey": {
+        "N": "9"
+      },
+      "hashKey": {
+        "N": "7"
+      },
+      "stringValue": {
+        "S": "Hello world!"
+      },
+      "intSet": {
+        "NS": ["0", "1", "10", "15", "200"]
+      },
+      "doubleSet": {
+        "NS": ["-34.2", "-3", "0", "7.6", "15"]
+      },
+      "byteArrayValue": {
+        "B": "AAECAwQF"
+      },
+      "complexValue": {
+        "L": [
+          {
+            "M": {
+              "innerNum": {
+                "S": "42"
+              },
+              "innerKey": {
+                "S": "innerVal"
+              }
+            }
+          },
+          {
+            "M": {
+              "nestedKey": {
+                "S": "nestedVal"
+              }
+            }
+          }
+        ]
+      },
+      "intValue": {
+        "N": "123"
+      },
+      "stringSet": {
+        "SS": ["?", "Cruel", "Goodbye", "World"]
+      },
+      "doubleValue": {
+        "N": "15"
+      },
+      "version": {
+        "N": "0"
+      }
+    },
+    {
+      "hashKey": {
+        "N": "6"
+      },
+      "intSet": {
+        "B": "GQqk1bZLTkSwzf/v95GBpxKVjQFNs/PDeRY8eltfzDVFs1HRhNwP6A9VobvR+rv7aCwhIzXWRepkTPoibalm7w=="
+      },
+      "doubleSet": {
+        "NS": ["-34.2", "-3", "0", "7.6", "15"]
+      },
+      "intValue": {
+        "N": "123"
+      },
+      "stringSet": {
+        "B": "ZaKWrxJmvTOhcTxXrLD01VEy2ABTX/JpBR75lRl2QWuoy0Ly0Kod0DtscHnEJkO8U79FhumOi9r0C3yYH9iM8A=="
+      },
+      "doubleValue": {
+        "N": "15"
+      },
+      "version": {
+        "N": "0"
+      },
+      "*amzn-ddb-map-sig*": {
+        "B": "8vHkkQ6zSMP846QOJrelmFI/EZA2HmI7TgZUbccE1rI="
+      },
+      "rangeKey": {
+        "N": "8"
+      },
+      "stringValue": {
+        "S": "Hello world!"
+      },
+      "*amzn-ddb-map-desc*": {
+        "B": "AAAAAAAAABVhbXpuLWRkYi1tYXAtc3ltLW1vZGUAAAARL0NCQy9QS0NTNVBhZGRpbmc="
+      },
+      "byteArrayValue": {
+        "B": "j0oZDI4LcQpD8h6+5/v2iPD2riMsq7WH804sAyr6J94="
+      },
+      "complexValue": {
+        "B": "SY5ypLds8Bx6+9nNBfEe7ZkYD2BG8lYNkEngMI14A77hgC3TYJg40LA5gV6jgrXw5K4Z/s5DQCTKjNco+BUT6p4bKmuA3QO1XI00Uddgq+Ci9YjQewpYO9P2tUnnGe/1xSa8V+9JFaG2plVTL0H2Js7zDbu5geTok8blhvScXi0="
+      }
+    }
+  ]
+}
