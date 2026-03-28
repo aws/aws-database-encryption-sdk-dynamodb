@@ -19,6 +19,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBVersionAttribute;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @DynamoDBTable(tableName = "TableName")
@@ -38,6 +40,8 @@ public class BaseClass {
       prime * result + ((stringValue == null) ? 0 : stringValue.hashCode());
     result = prime * result + Double.valueOf(doubleValue).hashCode();
     result = prime * result + ((doubleSet == null) ? 0 : doubleSet.hashCode());
+    result =
+      prime * result + ((complexValue == null) ? 0 : complexValue.hashCode());
     return result;
   }
 
@@ -63,6 +67,9 @@ public class BaseClass {
     if (doubleSet == null) {
       if (other.doubleSet != null) return false;
     } else if (!doubleSet.equals(other.doubleSet)) return false;
+    if (complexValue == null) {
+      if (other.complexValue != null) return false;
+    } else if (!complexValue.equals(other.complexValue)) return false;
     return true;
   }
 
@@ -76,6 +83,7 @@ public class BaseClass {
   private Integer version;
   private double doubleValue;
   private Set<Double> doubleSet;
+  private List<Map<String, String>> complexValue;
 
   @DynamoDBHashKey
   public int getHashKey() {
@@ -143,6 +151,14 @@ public class BaseClass {
     this.doubleSet = doubleSet;
   }
 
+  public List<Map<String, String>> getComplexValue() {
+    return complexValue;
+  }
+
+  public void setComplexValue(List<Map<String, String>> complexValue) {
+    this.complexValue = complexValue;
+  }
+
   public double getDoubleValue() {
     return doubleValue;
   }
@@ -181,6 +197,8 @@ public class BaseClass {
       doubleValue +
       ", doubleSet=" +
       doubleSet +
+      ", complexValue=" +
+      complexValue +
       ", version=" +
       version +
       "]"
