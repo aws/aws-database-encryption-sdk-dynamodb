@@ -18,6 +18,8 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -59,6 +61,24 @@ public class AttributeValueMatcher extends BaseMatcher<AttributeValue> {
       !isEqual(e.getSS(), a.getSS())
     ) {
       return false;
+    }
+    List<AttributeValue> eL = e.getL();
+    List<AttributeValue> aL = a.getL();
+    if ((eL == null) != (aL == null)) return false;
+    if (eL != null) {
+      if (eL.size() != aL.size()) return false;
+      for (int i = 0; i < eL.size(); i++) {
+        if (!attrEquals(eL.get(i), aL.get(i))) return false;
+      }
+    }
+    Map<String, AttributeValue> eM = e.getM();
+    Map<String, AttributeValue> aM = a.getM();
+    if ((eM == null) != (aM == null)) return false;
+    if (eM != null) {
+      if (!eM.keySet().equals(aM.keySet())) return false;
+      for (String key : eM.keySet()) {
+        if (!attrEquals(eM.get(key), aM.get(key))) return false;
+      }
     }
     return true;
   }
