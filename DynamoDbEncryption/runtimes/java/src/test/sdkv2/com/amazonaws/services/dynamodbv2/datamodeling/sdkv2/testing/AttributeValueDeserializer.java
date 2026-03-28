@@ -57,6 +57,31 @@ public class AttributeValueDeserializer
             new TypeReference<Set<String>>() {}
           );
           return AttributeValue.builder().ns(numSet).build();
+        case "L":
+          java.util.List<AttributeValue> listItems =
+            new java.util.ArrayList<>();
+          for (JsonNode element : value) {
+            JsonParser elemParser = objectMapper.treeAsTokens(element);
+            elemParser.nextToken();
+            listItems.add(deserialize(elemParser, ctxt));
+          }
+          return AttributeValue.builder().l(listItems).build();
+        case "M":
+          java.util.Map<String, AttributeValue> mapItems =
+            new java.util.LinkedHashMap<>();
+          for (
+            java.util.Iterator<java.util.Map.Entry<String, JsonNode>> mapIter =
+              value.fields();
+            mapIter.hasNext();
+          ) {
+            java.util.Map.Entry<String, JsonNode> entry = mapIter.next();
+            JsonParser entryParser = objectMapper.treeAsTokens(
+              entry.getValue()
+            );
+            entryParser.nextToken();
+            mapItems.put(entry.getKey(), deserialize(entryParser, ctxt));
+          }
+          return AttributeValue.builder().m(mapItems).build();
         default:
           throw new IllegalStateException(
             "DDB JSON type " +

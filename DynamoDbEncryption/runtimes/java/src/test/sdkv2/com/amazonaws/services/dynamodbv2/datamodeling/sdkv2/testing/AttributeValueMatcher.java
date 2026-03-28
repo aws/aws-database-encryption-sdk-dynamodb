@@ -3,6 +3,8 @@ package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -45,6 +47,24 @@ public class AttributeValueMatcher extends BaseMatcher<AttributeValue> {
       !isEqual(e.ss(), a.ss())
     ) {
       return false;
+    }
+    if (e.hasL() != a.hasL()) return false;
+    if (e.hasL()) {
+      List<AttributeValue> eL = e.l();
+      List<AttributeValue> aL = a.l();
+      if (eL.size() != aL.size()) return false;
+      for (int i = 0; i < eL.size(); i++) {
+        if (!attrEquals(eL.get(i), aL.get(i))) return false;
+      }
+    }
+    if (e.hasM() != a.hasM()) return false;
+    if (e.hasM()) {
+      Map<String, AttributeValue> eM = e.m();
+      Map<String, AttributeValue> aM = a.m();
+      if (!eM.keySet().equals(aM.keySet())) return false;
+      for (String key : eM.keySet()) {
+        if (!attrEquals(eM.get(key), aM.get(key))) return false;
+      }
     }
     return true;
   }
