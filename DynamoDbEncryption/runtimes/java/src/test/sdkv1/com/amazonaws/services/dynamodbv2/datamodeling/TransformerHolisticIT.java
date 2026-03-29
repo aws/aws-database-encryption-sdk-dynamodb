@@ -512,19 +512,19 @@ public class TransformerHolisticIT {
         break;
       case "v1_complex":
         LegacyTestVectors.decryptBaseClassTestVector(
-                client,
-                legacyEncryptor,
-                withComplexValue(ENCRYPTED_TEST_VALUE_2)
+          client,
+          legacyEncryptor,
+          withComplexValue(ENCRYPTED_TEST_VALUE_2)
         );
         LegacyTestVectors.decryptBaseClassTestVector(
-                client,
-                legacyEncryptor,
-                withComplexValue(MIXED_TEST_VALUE_2)
+          client,
+          legacyEncryptor,
+          withComplexValue(MIXED_TEST_VALUE_2)
         );
         LegacyTestVectors.decryptBaseClassTestVector(
-                client,
-                legacyEncryptor,
-                withComplexValue(SIGNED_TEST_VALUE_2)
+          client,
+          legacyEncryptor,
+          withComplexValue(SIGNED_TEST_VALUE_2)
         );
         break;
       default:
