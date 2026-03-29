@@ -518,43 +518,44 @@ public class TransformerHolisticIT {
         );
     }
 
-    if (!"v1_complex".equals(scenario.version)) {
-      LegacyTestVectors.decryptHashKeyOnlyTestVector(
-        client,
-        legacyEncryptor,
-        "Foo"
-      );
-      LegacyTestVectors.decryptHashKeyOnlyTestVector(
-        client,
-        legacyEncryptor,
-        "Bar"
-      );
-      LegacyTestVectors.decryptHashKeyOnlyTestVector(
-        client,
-        legacyEncryptor,
-        "Baz"
-      );
+    if ("v1_complex".equals(scenario.version)) {
+      return
+    }
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Foo"
+    );
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Bar"
+    );
+    LegacyTestVectors.decryptHashKeyOnlyTestVector(
+      client,
+      legacyEncryptor,
+      "Baz"
+    );
 
-      for (int x = 1; x <= 3; ++x) {
-        LegacyTestVectors.decryptKeysOnlyTestVector(
-          client,
-          legacyEncryptor,
-          0,
-          x
-        );
-        LegacyTestVectors.decryptKeysOnlyTestVector(
-          client,
-          legacyEncryptor,
-          1,
-          x
-        );
-        LegacyTestVectors.decryptKeysOnlyTestVector(
-          client,
-          legacyEncryptor,
-          4 + x,
-          x
-        );
-      }
+    for (int x = 1; x <= 3; ++x) {
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        0,
+        x
+      );
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        1,
+        x
+      );
+      LegacyTestVectors.decryptKeysOnlyTestVector(
+        client,
+        legacyEncryptor,
+        4 + x,
+        x
+      );
     }
   }
 
