@@ -519,7 +519,7 @@ public class TransformerHolisticIT {
     }
 
     if ("v1_complex".equals(scenario.version)) {
-      return
+      return;
     }
     LegacyTestVectors.decryptHashKeyOnlyTestVector(
       client,
