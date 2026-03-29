@@ -12,6 +12,7 @@ plugins {
     `maven-publish`
     `signing`
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    `jacoco`
 }
 
 var props = Properties().apply {
@@ -250,6 +251,22 @@ tasks.javadoc {
         (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
     }
     exclude("src/main/dafny-generated")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    classDirectories.setFrom(
+        fileTree("build/classes/java/main") {
+            include("**/sdkv2/**")
+        }
+    )
+    sourceDirectories.setFrom(
+        files("src/main/sdkv2")
+    )
 }
 
 nexusPublishing {
