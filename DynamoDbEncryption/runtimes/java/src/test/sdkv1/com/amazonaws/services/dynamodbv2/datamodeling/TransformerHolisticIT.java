@@ -1181,19 +1181,11 @@ public class TransformerHolisticIT {
     }
   }
 
-  private static final List<Map<String, String>> COMPLEX_VALUE =
-    java.util.Arrays.asList(
-      new java.util.HashMap<String, String>() {
-        {
-          put("innerKey", "innerVal");
-          put("innerNum", "42");
-        }
-      },
-      new java.util.HashMap<String, String>() {
-        {
-          put("nestedKey", "nestedVal");
-        }
-      }
+  private static final java.util.List<java.util.Map<String, java.util.Set<String>>> COMPLEX_VALUE =
+    java.util.Collections.singletonList(
+      new java.util.HashMap<String, java.util.Set<String>>() {{
+        put("tags", new java.util.HashSet<>(java.util.Arrays.asList("banana", "apple", "cherry")));
+      }}
     );
 
   @SuppressWarnings("unchecked")

@@ -405,23 +405,14 @@ public class LegacyTestVectors {
       );
     }
     if (attributeMap.containsKey("complexValue")) {
-      List<Map<String, String>> complex = attributeMap
-        .get("complexValue")
-        .l()
-        .stream()
-        .map(av ->
-          av
-            .m()
-            .entrySet()
-            .stream()
-            .collect(
-              java.util.stream.Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().s()
-              )
-            )
-        )
-        .collect(java.util.stream.Collectors.toList());
+      java.util.List<java.util.Map<String, java.util.Set<String>>> complex =
+        attributeMap.get("complexValue").l().stream()
+          .map(av -> {
+            java.util.Map<String, java.util.Set<String>> m = new java.util.HashMap<>();
+            av.m().forEach((k, v) -> m.put(k, new java.util.HashSet<>(v.ss())));
+            return m;
+          })
+          .collect(java.util.stream.Collectors.toList());
       value.setComplexValue(complex);
     }
 
@@ -467,12 +458,10 @@ public class LegacyTestVectors {
         )
     );
     if (obj.getComplexValue() != null) {
-      java.util.List<AttributeValue> listItems = obj
-        .getComplexValue()
-        .stream()
+      java.util.List<AttributeValue> listItems = obj.getComplexValue().stream()
         .map(m -> {
           Map<String, AttributeValue> avMap = new HashMap<>();
-          m.forEach((k, v) -> avMap.put(k, new AttributeValue().withS(v)));
+          m.forEach((k, v) -> avMap.put(k, new AttributeValue().withSS(v)));
           return new AttributeValue().withM(avMap);
         })
         .collect(java.util.stream.Collectors.toList());
@@ -575,38 +564,17 @@ public class LegacyTestVectors {
           .build()
       );
       if (((BaseClass) TEST_VALUE).getComplexValue() != null) {
-        java.util.List<
-          software.amazon.awssdk.services.dynamodb.model.AttributeValue
-        > listItems =
-          ((BaseClass) TEST_VALUE).getComplexValue()
-            .stream()
+        java.util.List<software.amazon.awssdk.services.dynamodb.model.AttributeValue> listItems =
+          ((BaseClass) TEST_VALUE).getComplexValue().stream()
             .map(m -> {
-              Map<
-                String,
-                software.amazon.awssdk.services.dynamodb.model.AttributeValue
-              > avMap = new HashMap<>();
-              m.forEach((k, v) ->
-                avMap.put(
-                  k,
-                  software.amazon.awssdk.services.dynamodb.model.AttributeValue
-                    .builder()
-                    .s(v)
-                    .build()
-                )
-              );
-              return software.amazon.awssdk.services.dynamodb.model.AttributeValue
-                .builder()
-                .m(avMap)
-                .build();
+              Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> avMap = new HashMap<>();
+              m.forEach((k, v) -> avMap.put(k,
+                software.amazon.awssdk.services.dynamodb.model.AttributeValue.builder().ss(v).build()));
+              return software.amazon.awssdk.services.dynamodb.model.AttributeValue.builder().m(avMap).build();
             })
             .collect(java.util.stream.Collectors.toList());
-        attributes.put(
-          "complexValue",
-          software.amazon.awssdk.services.dynamodb.model.AttributeValue
-            .builder()
-            .l(listItems)
-            .build()
-        );
+        attributes.put("complexValue",
+          software.amazon.awssdk.services.dynamodb.model.AttributeValue.builder().l(listItems).build());
       }
     } else if (TEST_VALUE instanceof KeysOnly) {
       attributes.put(

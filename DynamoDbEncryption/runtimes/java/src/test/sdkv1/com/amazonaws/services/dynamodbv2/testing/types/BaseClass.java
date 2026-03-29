@@ -83,7 +83,7 @@ public class BaseClass {
   private Integer version;
   private double doubleValue;
   private Set<Double> doubleSet;
-  private List<Map<String, String>> complexValue;
+  private List<Map<String, Set<String>>> complexValue;
 
   @DynamoDBHashKey
   public int getHashKey() {
@@ -151,11 +151,11 @@ public class BaseClass {
     this.doubleSet = doubleSet;
   }
 
-  public List<Map<String, String>> getComplexValue() {
+  public List<Map<String, Set<String>>> getComplexValue() {
     return complexValue;
   }
 
-  public void setComplexValue(List<Map<String, String>> complexValue) {
+  public void setComplexValue(List<Map<String, Set<String>>> complexValue) {
     this.complexValue = complexValue;
   }
 

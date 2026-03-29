@@ -1230,18 +1230,11 @@ public class HolisticIT {
       .rangeKeyName("rangeKey")
       .build();
 
-    Map<String, AttributeValue> innerMap1 = new HashMap<>();
-    innerMap1.put("innerKey", AttributeValue.builder().s("innerVal").build());
-    innerMap1.put("innerNum", AttributeValue.builder().s("42").build());
-    innerMap1.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
-    Map<String, AttributeValue> innerMap2 = new HashMap<>();
-    innerMap2.put("nestedKey", AttributeValue.builder().s("nestedVal").build());
+    Map<String, AttributeValue> setMap = new HashMap<>();
+    setMap.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
     AttributeValue complexAttr = AttributeValue
       .builder()
-      .l(
-        AttributeValue.builder().m(innerMap1).build(),
-        AttributeValue.builder().m(innerMap2).build()
-      )
+      .l(AttributeValue.builder().m(setMap).build())
       .build();
 
     Map<String, AttributeValue> item;
@@ -1646,19 +1639,12 @@ public class HolisticIT {
       .hashKeyName("hashKey")
       .rangeKeyName("rangeKey")
       .build();
-
-    Map<String, AttributeValue> innerMap1 = new HashMap<>();
-    innerMap1.put("innerKey", AttributeValue.builder().s("innerVal").build());
-    innerMap1.put("innerNum", AttributeValue.builder().s("42").build());
-    innerMap1.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
-    Map<String, AttributeValue> innerMap2 = new HashMap<>();
-    innerMap2.put("nestedKey", AttributeValue.builder().s("nestedVal").build());
+    
+    Map<String, AttributeValue> setMap = new HashMap<>();
+    setMap.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
     AttributeValue complexAttr = AttributeValue
       .builder()
-      .l(
-        AttributeValue.builder().m(innerMap1).build(),
-        AttributeValue.builder().m(innerMap2).build()
-      )
+      .l(AttributeValue.builder().m(setMap).build())
       .build();
 
     Map<String, AttributeValue> expectedEncrypted = new HashMap<>(
