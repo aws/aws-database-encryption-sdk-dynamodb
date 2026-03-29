@@ -1233,6 +1233,7 @@ public class HolisticIT {
     Map<String, AttributeValue> innerMap1 = new HashMap<>();
     innerMap1.put("innerKey", AttributeValue.builder().s("innerVal").build());
     innerMap1.put("innerNum", AttributeValue.builder().s("42").build());
+    innerMap1.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
     Map<String, AttributeValue> innerMap2 = new HashMap<>();
     innerMap2.put("nestedKey", AttributeValue.builder().s("nestedVal").build());
     AttributeValue complexAttr = AttributeValue
@@ -1649,6 +1650,7 @@ public class HolisticIT {
     Map<String, AttributeValue> innerMap1 = new HashMap<>();
     innerMap1.put("innerKey", AttributeValue.builder().s("innerVal").build());
     innerMap1.put("innerNum", AttributeValue.builder().s("42").build());
+    innerMap1.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
     Map<String, AttributeValue> innerMap2 = new HashMap<>();
     innerMap2.put("nestedKey", AttributeValue.builder().s("nestedVal").build());
     AttributeValue complexAttr = AttributeValue
