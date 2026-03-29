@@ -648,7 +648,7 @@ public class HolisticIT {
       case "v1":
         assertVersionCompatibility_2(provider, tableName);
         break;
-      case "v2_complex":
+      case "v1_complex":
         assertVersionCompatibility_complex(provider, tableName);
         break;
       default:
@@ -710,7 +710,7 @@ public class HolisticIT {
       scenario.materialDescription
     );
     Set<String> tables;
-    if ("v2_complex".equals(scenario.version)) {
+    if ("v1_complex".equals(scenario.version)) {
       tables = generateComplexData(provider);
     } else {
       tables = generateStandardData(provider);
@@ -718,7 +718,7 @@ public class HolisticIT {
 
     if (
       saveToJson &&
-      ("v1".equals(scenario.version) || "v2_complex".equals(scenario.version))
+      ("v1".equals(scenario.version) || "v1_complex".equals(scenario.version))
     ) {
       String outputFile = java.nio.file.Paths
         .get(scenario.ciphertextPath.replace("file://", ""))
@@ -1231,7 +1231,10 @@ public class HolisticIT {
       .build();
 
     Map<String, AttributeValue> setMap = new HashMap<>();
-    setMap.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
+    setMap.put(
+      "tags",
+      AttributeValue.builder().ss("banana", "apple", "cherry").build()
+    );
     AttributeValue complexAttr = AttributeValue
       .builder()
       .l(AttributeValue.builder().m(setMap).build())
@@ -1639,9 +1642,12 @@ public class HolisticIT {
       .hashKeyName("hashKey")
       .rangeKeyName("rangeKey")
       .build();
-    
+
     Map<String, AttributeValue> setMap = new HashMap<>();
-    setMap.put("tags", AttributeValue.builder().ss("banana", "apple", "cherry").build());
+    setMap.put(
+      "tags",
+      AttributeValue.builder().ss("banana", "apple", "cherry").build()
+    );
     AttributeValue complexAttr = AttributeValue
       .builder()
       .l(AttributeValue.builder().m(setMap).build())

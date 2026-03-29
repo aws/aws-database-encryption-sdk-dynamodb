@@ -405,7 +405,7 @@ public class TransformerHolisticIT {
       case "v1":
         assertVersionCompatibility_2(mapper);
         break;
-      case "v2_complex":
+      case "v1_complex":
         assertVersionCompatibility_complex(mapper);
         break;
       default:
@@ -510,7 +510,7 @@ public class TransformerHolisticIT {
         //        This is why this vector exists but is not tested.
         //        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
         break;
-      case "v2_complex":
+      case "v1_complex":
         LegacyTestVectors.decryptBaseClassTestVector(
           client,
           legacyEncryptor,
@@ -535,7 +535,7 @@ public class TransformerHolisticIT {
         );
     }
 
-    if (!"v2_complex".equals(scenario.version)) {
+    if (!"v1_complex".equals(scenario.version)) {
       LegacyTestVectors.decryptHashKeyOnlyTestVector(
         client,
         legacyEncryptor,
@@ -1181,12 +1181,20 @@ public class TransformerHolisticIT {
     }
   }
 
-  private static final java.util.List<java.util.Map<String, java.util.Set<String>>> COMPLEX_VALUE =
-    java.util.Collections.singletonList(
-      new java.util.HashMap<String, java.util.Set<String>>() {{
-        put("tags", new java.util.HashSet<>(java.util.Arrays.asList("banana", "apple", "cherry")));
-      }}
-    );
+  private static final java.util.List<
+    java.util.Map<String, java.util.Set<String>>
+  > COMPLEX_VALUE = java.util.Collections.singletonList(
+    new java.util.HashMap<String, java.util.Set<String>>() {
+      {
+        put(
+          "tags",
+          new java.util.HashSet<>(
+            java.util.Arrays.asList("banana", "apple", "cherry")
+          )
+        );
+      }
+    }
+  );
 
   @SuppressWarnings("unchecked")
   private static <T extends BaseClass> T withComplexValue(T source) {
