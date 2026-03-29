@@ -380,7 +380,7 @@
       "network": false
     },
     {
-      "version": "v2_complex",
+      "version": "v1_complex",
       "provider": "static",
       "keys": {
         "decrypt": "aesKey",
