@@ -230,6 +230,7 @@ tasks.test {
             }
         }
     })
+    finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
 tasks.register<JavaExec>("runTests") {
@@ -253,12 +254,7 @@ tasks.javadoc {
     exclude("src/main/dafny-generated")
 }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
+tasks.jacocoTestCoverageVerification {
     classDirectories.setFrom(
         fileTree("build/classes/java/main") {
             include("**/sdkv2/**")
@@ -267,6 +263,13 @@ tasks.jacocoTestReport {
     sourceDirectories.setFrom(
         files("src/main/sdkv2")
     )
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.90".toBigDecimal()
+            }
+        }
+    }
 }
 
 nexusPublishing {
