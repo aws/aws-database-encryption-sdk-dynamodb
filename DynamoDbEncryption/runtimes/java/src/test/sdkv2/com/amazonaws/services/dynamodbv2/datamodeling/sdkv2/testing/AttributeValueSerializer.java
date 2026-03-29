@@ -40,6 +40,23 @@ public class AttributeValueSerializer extends JsonSerializer<AttributeValue> {
         jgen.writeString(num);
       }
       jgen.writeEndArray();
+    } else if (value.hasL()) {
+      jgen.writeFieldName("L");
+      jgen.writeStartArray();
+      for (AttributeValue item : value.l()) {
+        serialize(item, jgen, provider);
+      }
+      jgen.writeEndArray();
+    } else if (value.hasM()) {
+      jgen.writeFieldName("M");
+      jgen.writeStartObject();
+      for (java.util.Map.Entry<String, AttributeValue> entry : value
+        .m()
+        .entrySet()) {
+        jgen.writeFieldName(entry.getKey());
+        serialize(entry.getValue(), jgen, provider);
+      }
+      jgen.writeEndObject();
     } else {
       throw new IllegalStateException(
         "AttributeValue has no value or type not implemented for serialization."

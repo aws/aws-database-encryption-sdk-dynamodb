@@ -405,6 +405,9 @@ public class TransformerHolisticIT {
       case "v1":
         assertVersionCompatibility_2(mapper);
         break;
+      case "v1_complex":
+        assertVersionCompatibility_complex(mapper);
+        break;
       default:
         throw new IllegalStateException(
           "Version " +
@@ -507,6 +510,23 @@ public class TransformerHolisticIT {
         //        This is why this vector exists but is not tested.
         //        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
         break;
+      case "v1_complex":
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          withComplexValue(ENCRYPTED_TEST_VALUE_2)
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          withComplexValue(MIXED_TEST_VALUE_2)
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+          client,
+          legacyEncryptor,
+          withComplexValue(SIGNED_TEST_VALUE_2)
+        );
+        break;
       default:
         throw new IllegalStateException(
           "Version " +
@@ -515,6 +535,9 @@ public class TransformerHolisticIT {
         );
     }
 
+    if ("v1_complex".equals(scenario.version)) {
+      return;
+    }
     LegacyTestVectors.decryptHashKeyOnlyTestVector(
       client,
       legacyEncryptor,
@@ -1157,6 +1180,77 @@ public class TransformerHolisticIT {
       assertEquals(4 + x, obj.getHashKey());
       assertEquals(x, obj.getRangeKey());
     }
+  }
+
+  private static final java.util.List<
+    java.util.Map<String, java.util.Set<String>>
+  > COMPLEX_VALUE = java.util.Collections.singletonList(
+    new java.util.HashMap<String, java.util.Set<String>>() {
+      {
+        put(
+          "tags",
+          new java.util.HashSet<>(
+            java.util.Arrays.asList("banana", "apple", "cherry")
+          )
+        );
+      }
+    }
+  );
+
+  @SuppressWarnings("unchecked")
+  private static <T extends BaseClass> T withComplexValue(T source) {
+    try {
+      T copy = (T) source.getClass().getDeclaredConstructor().newInstance();
+      copy.setHashKey(source.getHashKey());
+      copy.setRangeKey(source.getRangeKey());
+      copy.setVersion(source.getVersion());
+      copy.setIntValue(source.getIntValue());
+      copy.setStringValue(source.getStringValue());
+      copy.setByteArrayValue(source.getByteArrayValue());
+      copy.setStringSet(source.getStringSet());
+      copy.setIntSet(source.getIntSet());
+      copy.setDoubleValue(source.getDoubleValue());
+      copy.setDoubleSet(source.getDoubleSet());
+      copy.setComplexValue(COMPLEX_VALUE);
+      return copy;
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void assertVersionCompatibility_complex(DynamoDBMapper mapper) {
+    assertEquals(
+      withComplexValue(UNTOUCHED_TEST_VALUE_2),
+      mapper.load(
+        UNTOUCHED_TEST_VALUE_2.getClass(),
+        UNTOUCHED_TEST_VALUE_2.getHashKey(),
+        UNTOUCHED_TEST_VALUE_2.getRangeKey()
+      )
+    );
+    assertEquals(
+      withComplexValue(SIGNED_TEST_VALUE_2),
+      mapper.load(
+        SIGNED_TEST_VALUE_2.getClass(),
+        SIGNED_TEST_VALUE_2.getHashKey(),
+        SIGNED_TEST_VALUE_2.getRangeKey()
+      )
+    );
+    assertEquals(
+      withComplexValue(MIXED_TEST_VALUE_2),
+      mapper.load(
+        MIXED_TEST_VALUE_2.getClass(),
+        MIXED_TEST_VALUE_2.getHashKey(),
+        MIXED_TEST_VALUE_2.getRangeKey()
+      )
+    );
+    assertEquals(
+      withComplexValue(ENCRYPTED_TEST_VALUE_2),
+      mapper.load(
+        ENCRYPTED_TEST_VALUE_2.getClass(),
+        ENCRYPTED_TEST_VALUE_2.getHashKey(),
+        ENCRYPTED_TEST_VALUE_2.getRangeKey()
+      )
+    );
   }
 
   // Prints all current tables in the expected test vector format.

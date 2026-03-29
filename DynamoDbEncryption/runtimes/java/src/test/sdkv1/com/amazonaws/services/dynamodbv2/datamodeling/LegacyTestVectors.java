@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.testing.types.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import software.amazon.awssdk.core.SdkBytes;
@@ -279,6 +280,10 @@ public class LegacyTestVectors {
       attributeActionsOnEncrypt.put("version", CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put("doubleValue", CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put("doubleSet", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put(
+        "complexValue",
+        CryptoAction.ENCRYPT_AND_SIGN
+      );
     } else if (value instanceof SignOnly) {
       attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
@@ -290,6 +295,7 @@ public class LegacyTestVectors {
       attributeActionsOnEncrypt.put("version", CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put("doubleValue", CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put("doubleSet", CryptoAction.SIGN_ONLY);
+      attributeActionsOnEncrypt.put("complexValue", CryptoAction.SIGN_ONLY);
     } else if (value instanceof Untouched) {
       attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
@@ -301,6 +307,7 @@ public class LegacyTestVectors {
       attributeActionsOnEncrypt.put("version", CryptoAction.DO_NOTHING);
       attributeActionsOnEncrypt.put("doubleValue", CryptoAction.DO_NOTHING);
       attributeActionsOnEncrypt.put("doubleSet", CryptoAction.DO_NOTHING);
+      attributeActionsOnEncrypt.put("complexValue", CryptoAction.DO_NOTHING);
     } else if (value instanceof BaseClass) {
       // This is a BaseClass
       attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
@@ -322,6 +329,10 @@ public class LegacyTestVectors {
         CryptoAction.ENCRYPT_AND_SIGN
       );
       attributeActionsOnEncrypt.put("doubleSet", CryptoAction.ENCRYPT_AND_SIGN);
+      attributeActionsOnEncrypt.put(
+        "complexValue",
+        CryptoAction.ENCRYPT_AND_SIGN
+      );
     } else if (value instanceof KeysOnly) {
       attributeActionsOnEncrypt.put(HASH_KEY, CryptoAction.SIGN_ONLY);
       attributeActionsOnEncrypt.put(RANGE_KEY, CryptoAction.SIGN_ONLY);
@@ -393,6 +404,21 @@ public class LegacyTestVectors {
           .collect(Collectors.toSet())
       );
     }
+    if (attributeMap.containsKey("complexValue")) {
+      java.util.List<java.util.Map<String, java.util.Set<String>>> complex =
+        attributeMap
+          .get("complexValue")
+          .l()
+          .stream()
+          .map(av -> {
+            java.util.Map<String, java.util.Set<String>> m =
+              new java.util.HashMap<>();
+            av.m().forEach((k, v) -> m.put(k, new java.util.HashSet<>(v.ss())));
+            return m;
+          })
+          .collect(java.util.stream.Collectors.toList());
+      value.setComplexValue(complex);
+    }
 
     return value;
   }
@@ -435,6 +461,18 @@ public class LegacyTestVectors {
             .collect(java.util.stream.Collectors.toList())
         )
     );
+    if (obj.getComplexValue() != null) {
+      java.util.List<AttributeValue> listItems = obj
+        .getComplexValue()
+        .stream()
+        .map(m -> {
+          Map<String, AttributeValue> avMap = new HashMap<>();
+          m.forEach((k, v) -> avMap.put(k, new AttributeValue().withSS(v)));
+          return new AttributeValue().withM(avMap);
+        })
+        .collect(java.util.stream.Collectors.toList());
+      map.put("complexValue", new AttributeValue().withL(listItems));
+    }
     return map;
   }
 
@@ -531,6 +569,40 @@ public class LegacyTestVectors {
           )
           .build()
       );
+      if (((BaseClass) TEST_VALUE).getComplexValue() != null) {
+        java.util.List<
+          software.amazon.awssdk.services.dynamodb.model.AttributeValue
+        > listItems =
+          ((BaseClass) TEST_VALUE).getComplexValue()
+            .stream()
+            .map(m -> {
+              Map<
+                String,
+                software.amazon.awssdk.services.dynamodb.model.AttributeValue
+              > avMap = new HashMap<>();
+              m.forEach((k, v) ->
+                avMap.put(
+                  k,
+                  software.amazon.awssdk.services.dynamodb.model.AttributeValue
+                    .builder()
+                    .ss(v)
+                    .build()
+                )
+              );
+              return software.amazon.awssdk.services.dynamodb.model.AttributeValue
+                .builder()
+                .m(avMap)
+                .build();
+            })
+            .collect(java.util.stream.Collectors.toList());
+        attributes.put(
+          "complexValue",
+          software.amazon.awssdk.services.dynamodb.model.AttributeValue
+            .builder()
+            .l(listItems)
+            .build()
+        );
+      }
     } else if (TEST_VALUE instanceof KeysOnly) {
       attributes.put(
         HASH_KEY,

@@ -378,6 +378,17 @@
       "plaintext": "file://plaintext.json",
       "ciphertext": "file://ciphertext/java/wrapped-rsa-hmac-1.json",
       "network": false
+    },
+    {
+      "version": "v1_complex",
+      "provider": "static",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "hmacKey"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/static-aes-hmac-complex-1.json",
+      "network": false
     }
   ]
 }
