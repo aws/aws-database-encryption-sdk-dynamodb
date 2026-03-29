@@ -510,6 +510,23 @@ public class TransformerHolisticIT {
         //        This is why this vector exists but is not tested.
         //        assertTrue(LegacyTestVectors.testDecryptionTestVector(client, legacyEncryptor, UNTOUCHED_TEST_VALUE_2));
         break;
+      case "v1_complex":
+        LegacyTestVectors.decryptBaseClassTestVector(
+                client,
+                legacyEncryptor,
+                withComplexValue(ENCRYPTED_TEST_VALUE_2)
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+                client,
+                legacyEncryptor,
+                withComplexValue(MIXED_TEST_VALUE_2)
+        );
+        LegacyTestVectors.decryptBaseClassTestVector(
+                client,
+                legacyEncryptor,
+                withComplexValue(SIGNED_TEST_VALUE_2)
+        );
+        break;
       default:
         throw new IllegalStateException(
           "Version " +
