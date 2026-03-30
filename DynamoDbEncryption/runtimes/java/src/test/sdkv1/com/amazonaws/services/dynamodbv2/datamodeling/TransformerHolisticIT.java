@@ -1190,7 +1190,7 @@ public class TransformerHolisticIT {
         put(
           "tags",
           new java.util.HashSet<>(
-            java.util.Arrays.asList("banana", "apple", "cherry")
+            java.util.Arrays.asList("banana", "apple", "cherr")
           )
         );
       }
