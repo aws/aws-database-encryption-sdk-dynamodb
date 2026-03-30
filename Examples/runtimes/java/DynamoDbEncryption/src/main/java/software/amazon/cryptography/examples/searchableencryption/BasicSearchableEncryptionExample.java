@@ -385,11 +385,15 @@ public class BasicSearchableEncryptionExample {
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
-
+    
+    DynamoDbTablesEncryptionConfig tablesConfig =
+    DynamoDbTablesEncryptionConfig.builder()
+        .tableEncryptionConfigs(tableConfigs)
+        .build();
     
     DynamoDbEncryptionTransforms transformClient =
       DynamoDbEncryptionTransforms.builder()
-        .DynamoDbTablesEncryptionConfig(tableConfigs)
+        .DynamoDbTablesEncryptionConfig(tablesConfig)
         .build();
 
     
