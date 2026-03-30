@@ -54,8 +54,7 @@ import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
  */
 public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
 
-  static final String USER_AGENT_PREFIX = "DynamodbEncryptionSdkJava/";
-  private static final String USER_AGENT = USER_AGENT_PREFIX + loadVersion();
+  private static final String USER_AGENT = "DynamodbEncryptionSdkJava/";
 
   private static final String COVERED_ATTR_CTX_KEY = "aws-kms-ec-attr";
   private static final String SIGNING_KEY_ALGORITHM = "amzn-ddb-sig-alg";
@@ -393,7 +392,7 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
 
   private static AwsRequestOverrideConfiguration userAgentOverrideConfig() {
     return AwsRequestOverrideConfiguration.builder()
-        .addApiName(ApiName.builder().name("DynamodbEncryptionSdkJava").version(loadVersion()).build())
+        .addApiName(ApiName.builder().name(USER_AGENT).version(loadVersion()).build())
         .build();
   }
 
