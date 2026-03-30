@@ -391,16 +391,27 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
   }
 
   private static AwsRequestOverrideConfiguration userAgentOverrideConfig() {
-    return AwsRequestOverrideConfiguration.builder()
-        .addApiName(ApiName.builder().name(USER_AGENT).version(loadVersion()).build())
-        .build();
+    return AwsRequestOverrideConfiguration
+      .builder()
+      .addApiName(
+        ApiName.builder().name(USER_AGENT).version(loadVersion()).build()
+      )
+      .build();
   }
 
   private static DecryptRequest appendUserAgent(final DecryptRequest request) {
-    return request.toBuilder().overrideConfiguration(userAgentOverrideConfig()).build();
+    return request
+      .toBuilder()
+      .overrideConfiguration(userAgentOverrideConfig())
+      .build();
   }
 
-  private static GenerateDataKeyRequest appendUserAgent(final GenerateDataKeyRequest request) {
-    return request.toBuilder().overrideConfiguration(userAgentOverrideConfig()).build();
+  private static GenerateDataKeyRequest appendUserAgent(
+    final GenerateDataKeyRequest request
+  ) {
+    return request
+      .toBuilder()
+      .overrideConfiguration(userAgentOverrideConfig())
+      .build();
   }
 }
