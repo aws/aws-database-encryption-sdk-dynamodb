@@ -648,6 +648,9 @@ public class HolisticIT {
       case "v1":
         assertVersionCompatibility_2(provider, tableName);
         break;
+      case "v1_complex":
+        assertVersionCompatibility_complex(provider, tableName);
+        break;
       default:
         throw new IllegalStateException(
           "Version " +
@@ -706,9 +709,17 @@ public class HolisticIT {
       metastore,
       scenario.materialDescription
     );
-    Set<String> tables = generateStandardData(provider);
+    Set<String> tables;
+    if ("v1_complex".equals(scenario.version)) {
+      tables = generateComplexData(provider);
+    } else {
+      tables = generateStandardData(provider);
+    }
 
-    if (saveToJson && "v1".equals(scenario.version)) {
+    if (
+      saveToJson &&
+      ("v1".equals(scenario.version) || "v1_complex".equals(scenario.version))
+    ) {
       String outputFile = java.nio.file.Paths
         .get(scenario.ciphertextPath.replace("file://", ""))
         .getFileName()
@@ -1209,6 +1220,97 @@ public class HolisticIT {
     return tables;
   }
 
+  public Set<String> generateComplexData(EncryptionMaterialsProvider prov) {
+    Set<String> tables = new LinkedHashSet<>();
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(prov);
+    EncryptionContext encryptionContext = EncryptionContext
+      .builder()
+      .tableName(tableName)
+      .hashKeyName("hashKey")
+      .rangeKeyName("rangeKey")
+      .build();
+
+    Map<String, AttributeValue> setMap = new HashMap<>();
+    setMap.put(
+      "tags",
+      AttributeValue.builder().ss("banana", "apple", "cherry").build()
+    );
+    AttributeValue complexAttr = AttributeValue
+      .builder()
+      .l(AttributeValue.builder().m(setMap).build())
+      .build();
+
+    Map<String, AttributeValue> item;
+    Map<String, Set<EncryptionFlags>> actions;
+
+    // encrypted
+    item = new HashMap<>(ENCRYPTED_TEST_VALUE_2);
+    item.put("complexValue", complexAttr);
+    actions = new HashMap<>();
+    for (String attr : item.keySet()) {
+      switch (attr) {
+        case "hashKey":
+        case "rangeKey":
+        case "version":
+          actions.put(attr, signOnly);
+          break;
+        default:
+          actions.put(attr, encryptAndSign);
+          break;
+      }
+    }
+    tables.add(tableName);
+    putItems(
+      encryptor.encryptRecord(item, actions, encryptionContext),
+      tableName
+    );
+
+    // mixed
+    item = new HashMap<>(MIXED_TEST_VALUE_2);
+    item.put("complexValue", complexAttr);
+    actions = new HashMap<>();
+    for (String attr : item.keySet()) {
+      switch (attr) {
+        case "rangeKey":
+        case "hashKey":
+        case "version":
+        case "stringValue":
+        case "doubleValue":
+        case "doubleSet":
+          actions.put(attr, signOnly);
+          break;
+        case "intValue":
+          break;
+        default:
+          actions.put(attr, encryptAndSign);
+          break;
+      }
+    }
+    putItems(
+      encryptor.encryptRecord(item, actions, encryptionContext),
+      tableName
+    );
+
+    // signed
+    item = new HashMap<>(SIGNED_TEST_VALUE_2);
+    item.put("complexValue", complexAttr);
+    actions = new HashMap<>();
+    for (String attr : item.keySet()) {
+      actions.put(attr, signOnly);
+    }
+    putItems(
+      encryptor.encryptRecord(item, actions, encryptionContext),
+      tableName
+    );
+
+    // untouched
+    item = new HashMap<>(UNTOUCHED_TEST_VALUE_2);
+    item.put("complexValue", complexAttr);
+    putItems(item, tableName);
+
+    return tables;
+  }
+
   protected void putItems(Map<String, AttributeValue> map, String tableName) {
     PutItemRequest request = PutItemRequest
       .builder()
@@ -1527,6 +1629,147 @@ public class HolisticIT {
       assertEquals(4 + i, Integer.parseInt(response.get("hashKey").n()));
       assertEquals(i, Integer.parseInt(response.get("rangeKey").n()));
     }
+  }
+
+  private void assertVersionCompatibility_complex(
+    EncryptionMaterialsProvider provider,
+    String tableName
+  ) throws java.security.GeneralSecurityException {
+    DynamoDBEncryptor encryptor = DynamoDBEncryptor.getInstance(provider);
+    EncryptionContext encryptionContext = EncryptionContext
+      .builder()
+      .tableName(tableName)
+      .hashKeyName("hashKey")
+      .rangeKeyName("rangeKey")
+      .build();
+
+    Map<String, AttributeValue> setMap = new HashMap<>();
+    setMap.put(
+      "tags",
+      AttributeValue.builder().ss("banana", "apple", "cherry").build()
+    );
+    AttributeValue complexAttr = AttributeValue
+      .builder()
+      .l(AttributeValue.builder().m(setMap).build())
+      .build();
+
+    Map<String, AttributeValue> expectedEncrypted = new HashMap<>(
+      ENCRYPTED_TEST_VALUE_2
+    );
+    expectedEncrypted.put("complexValue", complexAttr);
+    Map<String, AttributeValue> expectedMixed = new HashMap<>(
+      MIXED_TEST_VALUE_2
+    );
+    expectedMixed.put("complexValue", complexAttr);
+    Map<String, AttributeValue> expectedSigned = new HashMap<>(
+      SIGNED_TEST_VALUE_2
+    );
+    expectedSigned.put("complexValue", complexAttr);
+    Map<String, AttributeValue> expectedUntouched = new HashMap<>(
+      UNTOUCHED_TEST_VALUE_2
+    );
+    expectedUntouched.put("complexValue", complexAttr);
+
+    // untouched
+    HashMap<String, AttributeValue> key = new HashMap<>();
+    key.put("hashKey", expectedUntouched.get("hashKey"));
+    key.put("rangeKey", expectedUntouched.get("rangeKey"));
+    assertTrue(
+      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher(
+        expectedUntouched,
+        false
+      )
+        .matches(getItems(key, tableName))
+    );
+
+    // signed
+    key = new HashMap<>();
+    key.put("hashKey", expectedSigned.get("hashKey"));
+    key.put("rangeKey", expectedSigned.get("rangeKey"));
+    Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    for (String attr : expectedSigned.keySet()) {
+      actions.put(attr, signOnly);
+    }
+    assertTrue(
+      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher(
+        expectedSigned,
+        false
+      )
+        .matches(
+          encryptor.decryptRecord(
+            getItems(key, tableName),
+            actions,
+            encryptionContext
+          )
+        )
+    );
+
+    // mixed
+    key = new HashMap<>();
+    key.put("hashKey", expectedMixed.get("hashKey"));
+    key.put("rangeKey", expectedMixed.get("rangeKey"));
+    actions = new HashMap<>();
+    for (String attr : expectedMixed.keySet()) {
+      switch (attr) {
+        case "rangeKey":
+        case "hashKey":
+        case "version":
+        case "stringValue":
+        case "doubleValue":
+        case "doubleSet":
+          actions.put(attr, signOnly);
+          break;
+        case "intValue":
+          break;
+        default:
+          actions.put(attr, encryptAndSign);
+          break;
+      }
+    }
+    assertTrue(
+      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher(
+        expectedMixed,
+        false
+      )
+        .matches(
+          encryptor.decryptRecord(
+            getItems(key, tableName),
+            actions,
+            encryptionContext
+          )
+        )
+    );
+
+    // encrypted
+    key = new HashMap<>();
+    key.put("hashKey", expectedEncrypted.get("hashKey"));
+    key.put("rangeKey", expectedEncrypted.get("rangeKey"));
+    actions = new HashMap<>();
+    for (String attr : expectedEncrypted.keySet()) {
+      switch (attr) {
+        case "hashKey":
+        case "rangeKey":
+        case "version":
+          actions.put(attr, signOnly);
+          break;
+        default:
+          actions.put(attr, encryptAndSign);
+          break;
+      }
+    }
+    assertTrue(
+      new com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.DdbRecordMatcher(
+        expectedEncrypted,
+        false
+      )
+        .matches(
+          encryptor.decryptRecord(
+            getItems(key, tableName),
+            actions,
+            encryptionContext
+          )
+        )
+    );
   }
 
   private static String stripFilePath(String path) {
