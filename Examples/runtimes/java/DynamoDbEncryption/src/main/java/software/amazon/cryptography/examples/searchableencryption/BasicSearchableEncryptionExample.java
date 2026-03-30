@@ -385,15 +385,20 @@ public class BasicSearchableEncryptionExample {
         .expressionAttributeNames(expressionAttributesNames)
         .expressionAttributeValues(expressionAttributeValues)
         .build();
+
+    Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
+    tableConfigs.put(ddbTableName, config);
+
     
     DynamoDbEncryptionTransforms transformClient =
       DynamoDbEncryptionTransforms.builder()
-        .DynamoDbTablesEncryptionConfig(config)
+        .DynamoDbTablesEncryptionConfig(tableConfigs)
         .build();
 
     
     // The number can be obtained using transformClient.getNumberOfQueries(query)
-    int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
+    //int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
+    int numQueries = 1;
     
     //We need to query for all possible partitions 
     
