@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -72,7 +74,7 @@ public class CachingMostRecentProviderTests {
   }
 
   @AfterMethod
-  public static void tearDownDDBLocal() {
+  public void tearDownDDBLocal() {
     if (client != null) {
       client.shutdown();
       client = null;

@@ -17,6 +17,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.local.embedded.DynamoDBEmbedded;
+import org.testng.annotations.AfterClass;
+
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
