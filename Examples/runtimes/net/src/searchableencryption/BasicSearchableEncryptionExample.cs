@@ -307,6 +307,13 @@ public class BasicSearchableEncryptionExample
             ExpressionAttributeValues = expressionAttributeValues
         };
 
+
+        // We must query all possible partitions, so numQueries defines how many queries to issue.
+        // In this example, the value is hardcoded for simplicity.
+        // In practice, it can be obtained via transformClient.GetNumberOfQueries(queryRequest).
+
+        int numQueries = 1;
+
         // GSIs do not update instantly
         // so if the results come back empty
         // we retry after a short sleep
