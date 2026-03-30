@@ -38,4 +38,8 @@ public class Utils {
     getRng().nextBytes(result);
     return result;
   }
+
+  public static String loadVersion() {
+    return "4.x-legacy";
+  }
 }

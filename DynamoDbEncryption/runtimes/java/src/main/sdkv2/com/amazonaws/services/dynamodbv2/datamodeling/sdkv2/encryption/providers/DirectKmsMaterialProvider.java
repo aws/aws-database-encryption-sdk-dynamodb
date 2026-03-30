@@ -17,6 +17,7 @@ package com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.provider
 import static com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.WrappedRawMaterials.CONTENT_KEY_ALGORITHM;
 import static com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.WrappedRawMaterials.ENVELOPE_KEY;
 import static com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.materials.WrappedRawMaterials.KEY_WRAPPING_ALGORITHM;
+import static com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.Utils.loadVersion;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.exceptions.DynamoDbEncryptionException;
@@ -33,6 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
+import software.amazon.awssdk.core.ApiName;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -50,6 +53,8 @@ import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
  * @see <a href="http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html">KMS Encryption Context</a>
  */
 public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
+
+  private static final String USER_AGENT = "DynamodbEncryptionSdkJava/";
 
   private static final String COVERED_ATTR_CTX_KEY = "aws-kms-ec-attr";
   private static final String SIGNING_KEY_ALGORITHM = "amzn-ddb-sig-alg";
@@ -288,7 +293,7 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
     final DecryptRequest request,
     final EncryptionContext context
   ) {
-    return kms.decrypt(request);
+    return kms.decrypt(appendUserAgent(request));
   }
 
   /**
@@ -305,7 +310,7 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
     final GenerateDataKeyRequest request,
     final EncryptionContext context
   ) {
-    return kms.generateDataKey(request);
+    return kms.generateDataKey(appendUserAgent(request));
   }
 
   /**
@@ -383,5 +388,19 @@ public class DirectKmsMaterialProvider implements EncryptionMaterialsProvider {
   @Override
   public void refresh() {
     // No action needed
+  }
+
+  private static AwsRequestOverrideConfiguration userAgentOverrideConfig() {
+    return AwsRequestOverrideConfiguration.builder()
+        .addApiName(ApiName.builder().name(USER_AGENT).version(loadVersion()).build())
+        .build();
+  }
+
+  private static DecryptRequest appendUserAgent(final DecryptRequest request) {
+    return request.toBuilder().overrideConfiguration(userAgentOverrideConfig()).build();
+  }
+
+  private static GenerateDataKeyRequest appendUserAgent(final GenerateDataKeyRequest request) {
+    return request.toBuilder().overrideConfiguration(userAgentOverrideConfig()).build();
   }
 }
