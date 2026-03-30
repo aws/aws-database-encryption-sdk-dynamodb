@@ -7,6 +7,10 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
 {
     public static class TypeConversion
     {
+        private const string ISO8601DateFormat = "yyyy-MM-dd\\THH:mm:ss.fff\\Z";
+
+        private const string ISO8601DateFormatNoMS = "yyyy-MM-dd\\THH:mm:ss\\Z";
+
         public static AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet FromDafny_N3_aws__N12_cryptography__N15_dbEncryptionSdk__N8_dynamoDb__S5_AsSet(software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types._IAsSet value)
         {
             software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.AsSet concrete = (software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.AsSet)value; AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet converted = new AWS.Cryptography.DbEncryptionSDK.DynamoDb.AsSet(); return converted;
@@ -2210,23 +2214,23 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Wrapped
             {
                 return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_B(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_B(value.B));
             }
-            if (value.SS != null && value.SS.Any())
+            if (value.SS != null)
             {
                 return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_SS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_SS(value.SS));
             }
-            if (value.NS != null && value.NS.Any())
+            if (value.NS != null)
             {
                 return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_NS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_NS(value.NS));
             }
-            if (value.BS != null && value.BS.Any())
+            if (value.BS != null)
             {
                 return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_BS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_BS(value.BS));
             }
-            if (value.IsMSet)
+            if (value.M != null)
             {
                 return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_M(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_M(value.M));
             }
-            if (value.IsLSet)
+            if (value.L != null)
             {
                 return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_L(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_L(value.L));
             }
