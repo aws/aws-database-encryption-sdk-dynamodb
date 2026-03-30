@@ -386,9 +386,6 @@ public class BasicSearchableEncryptionExample {
         .expressionAttributeValues(expressionAttributeValues)
         .build();
 
-    Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
-    tableConfigs.put(ddbTableName, config);
-
     
     DynamoDbEncryptionTransforms transformClient =
       DynamoDbEncryptionTransforms.builder()
