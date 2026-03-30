@@ -71,6 +71,14 @@ public class CachingMostRecentProviderTests {
     methodCalls.clear();
   }
 
+  @AfterMethod
+  public static void tearDownDDBLocal() {
+    if (client != null) {
+      client.shutdown();
+      client = null;
+    }
+  }
+
   @Test
   public void testConstructors() {
     final CachingMostRecentProvider prov = new CachingMostRecentProvider(

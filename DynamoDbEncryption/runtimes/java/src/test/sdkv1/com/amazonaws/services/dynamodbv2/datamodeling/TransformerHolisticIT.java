@@ -327,6 +327,14 @@ public class TransformerHolisticIT {
     createCiphertextTables(client);
   }
 
+  @AfterTest
+  public static void tearDownDDBLocal() {
+    if (client != null) {
+      client.shutdown();
+      client = null;
+    }
+  }
+
   // This test configures EC with various combination. This is different from other tests as other test run in same hardcoded EC.
   @Test
   public void decryptWithECConfigTest()

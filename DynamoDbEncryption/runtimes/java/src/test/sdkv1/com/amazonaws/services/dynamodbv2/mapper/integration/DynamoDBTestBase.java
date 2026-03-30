@@ -30,6 +30,14 @@ public class DynamoDBTestBase {
     dynamo = DynamoDBEmbedded.create().amazonDynamoDB();
   }
 
+  @AfterClass
+  public static void tearDownDDBLocal() {
+    if (dynamo != null) {
+      dynamo.shutdown();
+      dynamo = null;
+    }
+  }
+
   public static AmazonDynamoDB getClient() {
     if (dynamo == null) {
       setUpTestBase();
