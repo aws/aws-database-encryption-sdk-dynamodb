@@ -402,7 +402,7 @@ public class BasicSearchableEncryptionExample {
     // The number can be obtained using transformClient.getNumberOfQueries(query)
     //int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
    QueryInputTransformInput transformInput = QueryInputTransformInput.builder()
-       .logicalTableName(ddbTableName)   
+       .tableName(ddbTableName)   
        .queryRequest(queryRequest)
        .build();
 
