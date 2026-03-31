@@ -212,8 +212,8 @@ public class BasicSearchableEncryptionExample {
         .builder()
         .standardBeacons(standardBeaconList)
         .version(1) // MUST be 1
-        .maximumNumberOfPartitions(3) 
-        .defaultNumberOfPartitions(3)  //For beacons that do not require partitioning, only a single partition is used.
+        .maximumNumberOfPartitions(4) 
+        .defaultNumberOfPartitions(3)  //For beacons that do not require partitioning, only a single partition is used. must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions.
         .keyStore(keyStore)
         .keySource(
           BeaconKeySource
