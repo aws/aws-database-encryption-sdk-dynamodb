@@ -15,7 +15,7 @@
 
 - An integer in the range 0..254
 - The number of the partition currently under consideration in some context
-- For customers not using PartitionBeacons, this is always `1`
+- For customers not using PartitionBeacons, this is always `0`
 - Range can also be considered : `0 <= PartitionNumber < PartitionCount`
 
 ### PartitionSelector
