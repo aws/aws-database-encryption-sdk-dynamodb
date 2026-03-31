@@ -399,7 +399,16 @@ public class BasicSearchableEncryptionExample {
     
     // The number can be obtained using transformClient.getNumberOfQueries(query)
     //int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
-    int numQueries = 3;
+   QueryInputTransformInput transformInput = QueryInputTransformInput.builder()
+       .logicalTableName(ddbTableName)   
+       .queryRequest(queryRequest)
+       .build();
+
+    QueryInputTransformOutput transformed = transformClient.queryInputTransform(transformInput);
+
+    int numQueries = transformClient.getNumberOfQueries(transformed);
+    
+    //int numQueries = 1;
     
     //We need to query for all possible partitions 
     
