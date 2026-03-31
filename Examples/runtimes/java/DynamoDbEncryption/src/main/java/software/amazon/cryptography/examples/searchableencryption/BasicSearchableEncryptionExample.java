@@ -30,6 +30,8 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryInputTransformInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryInputTransformOutput;
 
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
@@ -128,7 +130,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
-      .numberOfPartitions(3)
+      .numberOfPartitions(1)
       .build();
     standardBeaconList.add(last4Beacon);
 
@@ -162,7 +164,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("unit")
       .length(30)
-      .numberOfPartitions(3)
+      .numberOfPartitions(1)
       .build();
     standardBeaconList.add(unitBeacon);
 
@@ -213,7 +215,7 @@ public class BasicSearchableEncryptionExample {
         .standardBeacons(standardBeaconList)
         .version(1) // MUST be 1
         .maximumNumberOfPartitions(4) 
-        .defaultNumberOfPartitions(3)  //For beacons that do not require partitioning, only a single partition is used. must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions.
+        .defaultNumberOfPartitions(1)  //For beacons that do not require partitioning, only a single partition is used. must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions.
         .keyStore(keyStore)
         .keySource(
           BeaconKeySource
@@ -406,7 +408,7 @@ public class BasicSearchableEncryptionExample {
 
     QueryInputTransformOutput transformed = transformClient.queryInputTransform(transformInput);
 
-    int numQueries = transformClient.getNumberOfQueries(transformed);
+    int numQueries = transformClient.GetNumberOfQueries(transformed);
     
     //int numQueries = 1;
     
@@ -446,14 +448,16 @@ public class BasicSearchableEncryptionExample {
         }
         else {
            // Adding the result for this partition
-            allResults.addAll(queryResponse.items());
+            allResults.addAll(attributeValues);
             break;
         }
       }
     }
 
       // Validate only 1 item was returned: the item we just put
-      assert allResults.size() == 1;
+      if (allResults.size() != 1) {
+         throw new RuntimeException("Expected exactly one result, got " + allResults.size());
+      }
       final Map<String, AttributeValue> returnedItem = allResults.get(0);
       // Validate the item has the expected attributes
       assert returnedItem.get("inspector_id_last4").s().equals("4321");
