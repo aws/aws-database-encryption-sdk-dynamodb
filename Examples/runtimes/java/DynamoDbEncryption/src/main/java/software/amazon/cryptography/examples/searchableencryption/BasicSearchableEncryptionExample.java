@@ -30,9 +30,8 @@ import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsHierarchicalKeyringInput;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryInputTransformInput;
-import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.QueryInputTransformOutput;
-import software.amazon.cryptography.keystore.model.CreateKeyOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesOutput;
 /*
   This example demonstrates how to set up a beacon on an encrypted attribute,
   put an item with the beacon, and query against that beacon.
