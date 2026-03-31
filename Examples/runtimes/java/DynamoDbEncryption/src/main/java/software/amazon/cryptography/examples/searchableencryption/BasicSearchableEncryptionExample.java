@@ -401,14 +401,15 @@ public class BasicSearchableEncryptionExample {
     
     // The number can be obtained using transformClient.getNumberOfQueries(query)
     //int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
-   QueryInputTransformInput transformInput = QueryInputTransformInput.builder()
-       .tableName(ddbTableName)   
-       .queryRequest(queryRequest)
-       .build();
+    GetNumberOfQueriesInput numberOfQueriesInput = GetNumberOfQueriesInput
+     .builder()
+     .input(queryRequest)
+     .build();
 
-    QueryInputTransformOutput transformed = transformClient.queryInputTransform(transformInput);
-
-    int numQueries = transformClient.GetNumberOfQueries(transformed);
+     GetNumberOfQueriesOutput numberOfQueriesOutput =
+        transformClient.GetNumberOfQueries(numberOfQueriesInput);
+    
+    int numQueries = numberOfQueriesOutput.numberOfQueries();
     
     //int numQueries = 1;
     
