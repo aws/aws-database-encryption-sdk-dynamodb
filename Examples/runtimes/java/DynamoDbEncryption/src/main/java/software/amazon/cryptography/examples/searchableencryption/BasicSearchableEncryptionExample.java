@@ -128,7 +128,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
-      .numberOfPartitions(2)
+      .numberOfPartitions(3)
       .build();
     standardBeaconList.add(last4Beacon);
 
@@ -162,7 +162,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("unit")
       .length(30)
-      .numberOfPartitions(2)
+      .numberOfPartitions(3)
       .build();
     standardBeaconList.add(unitBeacon);
 
@@ -212,8 +212,8 @@ public class BasicSearchableEncryptionExample {
         .builder()
         .standardBeacons(standardBeaconList)
         .version(1) // MUST be 1
-        .maximumNumberOfPartitions(8) 
-        .defaultNumberOfPartitions(1)  //For beacons that do not require partitioning, only a single partition is used.
+        .maximumNumberOfPartitions(3) 
+        .defaultNumberOfPartitions(3)  //For beacons that do not require partitioning, only a single partition is used.
         .keyStore(keyStore)
         .keySource(
           BeaconKeySource
@@ -399,7 +399,7 @@ public class BasicSearchableEncryptionExample {
     
     // The number can be obtained using transformClient.getNumberOfQueries(query)
     //int numQueries = transformClient.GetNumberOfQueries(queryRequest); 
-    int numQueries = 2;
+    int numQueries = 3;
     
     //We need to query for all possible partitions 
     
