@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.testng.annotations.AfterClass;
 
 public class DynamoDBTestBase {
 
@@ -28,6 +29,14 @@ public class DynamoDBTestBase {
 
   public static void setUpTestBase() {
     dynamo = DynamoDBEmbedded.create().amazonDynamoDB();
+  }
+
+  @AfterClass
+  public static void tearDownDDBLocal() {
+    if (dynamo != null) {
+      dynamo.shutdown();
+      dynamo = null;
+    }
   }
 
   public static AmazonDynamoDB getClient() {

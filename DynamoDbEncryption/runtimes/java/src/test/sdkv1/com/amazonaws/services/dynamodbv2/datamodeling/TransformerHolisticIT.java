@@ -55,6 +55,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -324,6 +325,14 @@ public class TransformerHolisticIT {
 
     // load data into ciphertext tables
     createCiphertextTables(client);
+  }
+
+  @AfterTest
+  public void tearDownDDBLocal() {
+    if (client != null) {
+      client.shutdown();
+      client = null;
+    }
   }
 
   @Test(dataProvider = "getDecryptTestVectors")
