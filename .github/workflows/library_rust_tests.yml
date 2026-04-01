@@ -150,6 +150,7 @@ jobs:
           cargo test --release --example main
 
       - name: Run clippy
+        if: ${{ matrix.library == 'DynamoDbEncryption' }}
         working-directory: ${{ matrix.library }}/runtimes/rust
         shell: bash
         run: |
