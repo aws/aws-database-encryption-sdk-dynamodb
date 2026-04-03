@@ -129,14 +129,14 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
-      .numberOfPartitions(1)
+      .numberOfPartitions(2)
       .build();
     standardBeaconList.add(last4Beacon);
 
     // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
     // This field holds a unit serial number.
     // For this example, this is a 12-digit integer from 0 to 999,999,999,999 (10^12 possible values).
-    // We will assume values for this attribute are uniformly distributed across this range using 2 partitions.
+    // We will assume values for this attribute are uniformly distributed across this range using 1 partitions.
     // A single unit serial number may be assigned to multiple `work_id`s.
     //
     // This link provides guidance for choosing a beacon length:
@@ -409,9 +409,7 @@ public class BasicSearchableEncryptionExample {
         transformClient.GetNumberOfQueries(numberOfQueriesInput);
     
     int numQueries = numberOfQueriesOutput.numberOfQueries();
-    
-    //int numQueries = 1;
-    
+        
     //We need to query for all possible partitions 
     
     for (int partition = 0; partition < numQueries; partition++) {
