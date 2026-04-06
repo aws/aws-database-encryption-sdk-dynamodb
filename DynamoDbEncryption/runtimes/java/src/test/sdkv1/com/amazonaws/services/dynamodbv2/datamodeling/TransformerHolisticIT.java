@@ -327,7 +327,7 @@ public class TransformerHolisticIT {
     createCiphertextTables(client);
   }
 
-  @AfterTest
+  @AfterMethod
   public void tearDownDDBLocal() {
     if (client != null) {
       client.shutdown();
