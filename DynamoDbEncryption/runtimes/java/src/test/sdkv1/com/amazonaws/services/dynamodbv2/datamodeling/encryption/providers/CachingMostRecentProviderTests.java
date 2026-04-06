@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -52,20 +53,17 @@ public class CachingMostRecentProviderTests {
   private static AmazonDynamoDB rawClient;
   private static AmazonDynamoDB instrumentedClient;
   private static Map<String, Integer> methodCalls;
-  private static ProviderStore store;
+  private ProviderStore store;
   private EncryptionContext ctx;
 
+  // DDB Local client is created once per class since DynamoDBEmbedded.create() is expensive.
+  // Table is created/deleted per method to ensure test isolation, as tests assert
+  // exact DynamoDB call counts and expect a clean table with no leftover data.
   @BeforeClass
   public static void setupClient() {
     methodCalls = new HashMap<String, Integer>();
     rawClient = DynamoDBEmbedded.create().amazonDynamoDB();
     instrumentedClient = instrument(rawClient, AmazonDynamoDB.class, methodCalls);
-    MetaStore.createTable(
-      instrumentedClient,
-      TABLE_NAME,
-      new ProvisionedThroughput(1L, 1L)
-    );
-    store = new MetaStore(instrumentedClient, TABLE_NAME, ENCRYPTOR);
   }
 
   @AfterClass
@@ -78,8 +76,19 @@ public class CachingMostRecentProviderTests {
 
   @BeforeMethod
   public void setup() {
+    MetaStore.createTable(
+      instrumentedClient,
+      TABLE_NAME,
+      new ProvisionedThroughput(1L, 1L)
+    );
+    store = new MetaStore(instrumentedClient, TABLE_NAME, ENCRYPTOR);
     ctx = new EncryptionContext.Builder().build();
     methodCalls.clear();
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    rawClient.deleteTable(TABLE_NAME);
   }
 
   @Test
