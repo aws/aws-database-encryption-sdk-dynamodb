@@ -63,7 +63,8 @@ public class CachingMostRecentProviderTests {
   public static void setupClient() {
     methodCalls = new HashMap<String, Integer>();
     rawClient = DynamoDBEmbedded.create().amazonDynamoDB();
-    instrumentedClient = instrument(rawClient, AmazonDynamoDB.class, methodCalls);
+    instrumentedClient =
+      instrument(rawClient, AmazonDynamoDB.class, methodCalls);
   }
 
   @AfterClass
