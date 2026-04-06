@@ -26,7 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -48,36 +49,37 @@ public class CachingMostRecentProviderTests {
   private static final DynamoDBEncryptor ENCRYPTOR =
     DynamoDBEncryptor.getInstance(BASE_PROVIDER);
 
-  private AmazonDynamoDB client;
-  private Map<String, Integer> methodCalls;
-  private ProviderStore store;
+  private static AmazonDynamoDB rawClient;
+  private static AmazonDynamoDB instrumentedClient;
+  private static Map<String, Integer> methodCalls;
+  private static ProviderStore store;
   private EncryptionContext ctx;
 
-  @BeforeMethod
-  public void setup() {
+  @BeforeClass
+  public static void setupClient() {
     methodCalls = new HashMap<String, Integer>();
-    client =
-      instrument(
-        DynamoDBEmbedded.create().amazonDynamoDB(),
-        AmazonDynamoDB.class,
-        methodCalls
-      );
+    rawClient = DynamoDBEmbedded.create().amazonDynamoDB();
+    instrumentedClient = instrument(rawClient, AmazonDynamoDB.class, methodCalls);
     MetaStore.createTable(
-      client,
+      instrumentedClient,
       TABLE_NAME,
       new ProvisionedThroughput(1L, 1L)
     );
-    store = new MetaStore(client, TABLE_NAME, ENCRYPTOR);
-    ctx = new EncryptionContext.Builder().build();
-    methodCalls.clear();
+    store = new MetaStore(instrumentedClient, TABLE_NAME, ENCRYPTOR);
   }
 
-  @AfterMethod
-  public void tearDownDDBLocal() {
-    if (client != null) {
-      client.shutdown();
-      client = null;
+  @AfterClass
+  public static void tearDownDDBLocal() {
+    if (rawClient != null) {
+      rawClient.shutdown();
+      rawClient = null;
     }
+  }
+
+  @BeforeMethod
+  public void setup() {
+    ctx = new EncryptionContext.Builder().build();
+    methodCalls.clear();
   }
 
   @Test
