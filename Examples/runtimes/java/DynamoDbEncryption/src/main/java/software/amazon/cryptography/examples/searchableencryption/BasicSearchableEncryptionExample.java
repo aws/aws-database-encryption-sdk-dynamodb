@@ -129,7 +129,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
-      .numberOfPartitions(2)
+      //.numberOfPartitions(2)
       .build();
     standardBeaconList.add(last4Beacon);
 
@@ -214,7 +214,7 @@ public class BasicSearchableEncryptionExample {
         .standardBeacons(standardBeaconList)
         .version(1) // MUST be 1
         .maximumNumberOfPartitions(4) 
-        .defaultNumberOfPartitions(1)  //For beacons that do not require partitioning, only a single partition is used. must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions.
+        //.defaultNumberOfPartitions(1)  //For beacons that do not require partitioning, only a single partition is used. must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions.
         .keyStore(keyStore)
         .keySource(
           BeaconKeySource
