@@ -1,10 +1,8 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.nio.ByteBuffer;
 import java.util.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -274,9 +272,8 @@ public class TestUtils {
   }
 
   public static DynamoDBEncryptor createLegacyEncryptor() {
-    AWSKMS kms = AWSKMSClientBuilder.standard().build();
     DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kms,
+      KmsClient.create(),
       KMS_TEST_KEY_ID
     );
     return DynamoDBEncryptor.getInstance(cmp);

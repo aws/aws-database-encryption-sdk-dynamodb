@@ -23,8 +23,6 @@ import dafny.DafnySequence;
 import dafny.TypeDescriptor;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
