@@ -82,5 +82,19 @@ setup_semantic_release:
 run_semantic_release:
 	npx semantic-release --no-ci
 
+run_net_semantic_release:
+	mv .releaserc.cjs .releaserc-main.cjs
+	mv .releaserc-net.cjs .releaserc.cjs
+	npx semantic-release --no-ci
+	mv .releaserc.cjs .releaserc-net.cjs
+	mv .releaserc-main.cjs .releaserc.cjs
+
 dry_run_semantic_release:
 	npx semantic-release --dry-run
+
+dry_run_net_semantic_release:
+	mv .releaserc.cjs .releaserc-main.cjs
+	mv .releaserc-net.cjs .releaserc.cjs
+	npx semantic-release --dry-run
+	mv .releaserc.cjs .releaserc-net.cjs
+	mv .releaserc-main.cjs .releaserc.cjs
