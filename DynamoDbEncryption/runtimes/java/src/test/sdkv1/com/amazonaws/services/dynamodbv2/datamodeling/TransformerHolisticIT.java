@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.amazonaws.services.dynamodbv2.datamodeling;
 
-import static com.amazonaws.services.dynamodbv2.datamodeling.LegacyTestVectors.baseClassToV1AttrMap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
@@ -108,18 +107,18 @@ public class TransformerHolisticIT {
   private static final PrivateKey rsaPriv;
   private static final PublicKey rsaPub;
   private static final KeyPair rsaPair;
-  public static final EncryptionMaterialsProvider symProv;
+  private static final EncryptionMaterialsProvider symProv;
   private static final EncryptionMaterialsProvider asymProv;
   private static final EncryptionMaterialsProvider symWrappedProv;
   protected static final String HASH_KEY = "hashKey";
   protected static final String RANGE_KEY = "rangeKey";
-  public static final String BASE_CLASS_TABLE_NAME = "TableName";
+  protected static final String BASE_CLASS_TABLE_NAME = "TableName";
   private static final String RSA = "RSA";
 
   private AmazonDynamoDB client;
-  public static AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
+  private static AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
 
-  public static Map<String, KeyData> keyDataMap = new HashMap<>();
+  private static Map<String, KeyData> keyDataMap = new HashMap<>();
 
   // AttributeEncryptor *must* be used with SaveBehavior.CLOBBER to avoid the risk of data
   // corruption.
@@ -128,7 +127,7 @@ public class TransformerHolisticIT {
       .builder()
       .withSaveBehavior(SaveBehavior.CLOBBER)
       .build();
-  public static final BaseClass ENCRYPTED_TEST_VALUE = new BaseClass();
+  private static final BaseClass ENCRYPTED_TEST_VALUE = new BaseClass();
   private static final Mixed MIXED_TEST_VALUE = new Mixed();
   private static final SignOnly SIGNED_TEST_VALUE = new SignOnly();
   private static final Untouched UNTOUCHED_TEST_VALUE = new Untouched();
@@ -140,7 +139,7 @@ public class TransformerHolisticIT {
 
   private static final String TEST_VECTOR_MANIFEST_DIR =
     "/vectors/encrypted_item/";
-  public static final String SCENARIO_MANIFEST_PATH =
+  private static final String SCENARIO_MANIFEST_PATH =
     TEST_VECTOR_MANIFEST_DIR + "scenarios.json";
   private static final String JAVA_DIR = "java";
 
@@ -349,6 +348,14 @@ public class TransformerHolisticIT {
     );
   }
 
+  @AfterTest
+  public void tearDownDDBLocal() {
+    if (client != null) {
+      client.shutdown();
+      client = null;
+    }
+  }
+
   @Test(dataProvider = "getDecryptTestVectors")
   public void decryptTestVector(Scenario scenario) throws IOException {
     client = DynamoDBEmbedded.create().amazonDynamoDB();
@@ -372,7 +379,6 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
-        null,
         null
       );
       metastore =
@@ -388,8 +394,7 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore,
-      scenario.materialDescription
+      metastore
     );
     DynamoDBMapper mapper = new DynamoDBMapper(
       client,
@@ -439,7 +444,6 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
-        null,
         null
       );
       metastore =
@@ -455,8 +459,7 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore,
-      scenario.materialDescription
+      metastore
     );
 
     final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(
@@ -573,7 +576,6 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
-        null,
         null
       );
       metastore =
@@ -588,8 +590,7 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore,
-      scenario.materialDescription
+      metastore
     );
 
     generateStandardData(provider);
@@ -616,7 +617,6 @@ public class TransformerHolisticIT {
         scenario.metastore.providerName,
         scenario.materialName,
         scenario.metastore.keys,
-        null,
         null
       );
       metastore =
@@ -631,8 +631,7 @@ public class TransformerHolisticIT {
       scenario.providerName,
       scenario.materialName,
       scenario.keys,
-      metastore,
-      scenario.materialDescription
+      metastore
     );
 
     final DynamoDBEncryptor legacyEncryptor = DynamoDBEncryptor.getInstance(
@@ -1194,8 +1193,7 @@ public class TransformerHolisticIT {
     String providerName,
     String materialName,
     Keys keys,
-    ProviderStore metastore,
-    Map<String, String> materialDescription
+    ProviderStore metastore
   ) {
     switch (providerName) {
       case ScenarioManifest.MOST_RECENT_PROVIDER_NAME:
@@ -1207,104 +1205,44 @@ public class TransformerHolisticIT {
           Base64.decode(decryptKeyData.material),
           decryptKeyData.algorithm
         );
-        Map<String, String> desc = (materialDescription != null)
-          ? materialDescription
-          : Collections.emptyMap();
-
-        if (verifyKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)) {
-          // Symmetric encryption key + Symmetric verify key
-          SecretKey verifyKey = new SecretKeySpec(
-            Base64.decode(verifyKeyData.material),
-            verifyKeyData.algorithm
-          );
-          return new SymmetricStaticProvider(decryptKey, verifyKey, desc);
-        } else {
-          // Symmetric encryption key + Asymmetric verify key
-          try {
-            KeyData signKeyData = keyDataMap.get(keys.signName);
-            KeyFactory rsaFact = KeyFactory.getInstance(RSA);
-            PublicKey verifyMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
-            );
-            PrivateKey signingMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
-            );
-            KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
-            return new SymmetricStaticProvider(decryptKey, sigPair, desc);
-          } catch (GeneralSecurityException ex) {
-            throw new RuntimeException(ex);
-          }
-        }
+        SecretKey verifyKey = new SecretKeySpec(
+          Base64.decode(verifyKeyData.material),
+          verifyKeyData.algorithm
+        );
+        return new SymmetricStaticProvider(decryptKey, verifyKey);
       case ScenarioManifest.WRAPPED_PROVIDER_NAME:
         decryptKeyData = keyDataMap.get(keys.decryptName);
         verifyKeyData = keyDataMap.get(keys.verifyName);
-        boolean symDecrypt = decryptKeyData.keyType.equals(
-          ScenarioManifest.SYMMETRIC_KEY_TYPE
-        );
-        boolean symVerify = verifyKeyData.keyType.equals(
-          ScenarioManifest.SYMMETRIC_KEY_TYPE
-        );
 
-        try {
-          if (symDecrypt && symVerify) {
-            decryptKey =
-              new SecretKeySpec(
-                Base64.decode(decryptKeyData.material),
-                decryptKeyData.algorithm
-              );
-            SecretKey verifyKey = new SecretKeySpec(
+        // This can be either the asymmetric provider, where we should test using it's explicit
+        // constructor,
+        // or a wrapped symmetric where we use the wrapped materials constructor.
+        if (
+          decryptKeyData.keyType.equals(ScenarioManifest.SYMMETRIC_KEY_TYPE)
+        ) {
+          decryptKey =
+            new SecretKeySpec(
+              Base64.decode(decryptKeyData.material),
+              decryptKeyData.algorithm
+            );
+          verifyKey =
+            new SecretKeySpec(
               Base64.decode(verifyKeyData.material),
               verifyKeyData.algorithm
             );
-            return new WrappedMaterialsProvider(
-              decryptKey,
-              decryptKey,
-              verifyKey
-            );
-          } else if (symDecrypt) {
-            // Symmetric wrapping + Asymmetric signing
-            decryptKey =
-              new SecretKeySpec(
-                Base64.decode(decryptKeyData.material),
-                decryptKeyData.algorithm
-              );
-            KeyData signKeyData = keyDataMap.get(keys.signName);
+          return new WrappedMaterialsProvider(
+            decryptKey,
+            decryptKey,
+            verifyKey
+          );
+        } else {
+          KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
+          KeyData signKeyData = keyDataMap.get(keys.signName);
+          try {
+            // Hardcoded to use RSA for asymmetric keys. If we include vectors with a different
+            // asymmetric scheme this will need to be updated.
             KeyFactory rsaFact = KeyFactory.getInstance(RSA);
-            PublicKey verifyMaterial = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
-            );
-            PrivateKey signingMaterial = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
-            );
-            return new WrappedMaterialsProvider(
-              decryptKey,
-              decryptKey,
-              new KeyPair(verifyMaterial, signingMaterial)
-            );
-          } else if (symVerify) {
-            // Asymmetric wrapping + Symmetric signing
-            KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
-            KeyFactory rsaFact = KeyFactory.getInstance(RSA);
-            PublicKey wrappingKey = rsaFact.generatePublic(
-              new X509EncodedKeySpec(Base64.decode(encryptKeyData.material))
-            );
-            PrivateKey unwrappingKey = rsaFact.generatePrivate(
-              new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material))
-            );
-            SecretKey verifyKey = new SecretKeySpec(
-              Base64.decode(verifyKeyData.material),
-              verifyKeyData.algorithm
-            );
-            return new WrappedMaterialsProvider(
-              wrappingKey,
-              unwrappingKey,
-              verifyKey
-            );
-          } else {
-            // Asymmetric wrapping + Asymmetric signing
-            KeyData encryptKeyData = keyDataMap.get(keys.encryptName);
-            KeyData signKeyData = keyDataMap.get(keys.signName);
-            KeyFactory rsaFact = KeyFactory.getInstance(RSA);
+
             PublicKey encryptMaterial = rsaFact.generatePublic(
               new X509EncodedKeySpec(Base64.decode(encryptKeyData.material))
             );
@@ -1312,6 +1250,7 @@ public class TransformerHolisticIT {
               new PKCS8EncodedKeySpec(Base64.decode(decryptKeyData.material))
             );
             KeyPair decryptPair = new KeyPair(encryptMaterial, decryptMaterial);
+
             PublicKey verifyMaterial = rsaFact.generatePublic(
               new X509EncodedKeySpec(Base64.decode(verifyKeyData.material))
             );
@@ -1319,19 +1258,13 @@ public class TransformerHolisticIT {
               new PKCS8EncodedKeySpec(Base64.decode(signKeyData.material))
             );
             KeyPair sigPair = new KeyPair(verifyMaterial, signingMaterial);
+
             return new AsymmetricStaticProvider(decryptPair, sigPair);
+          } catch (GeneralSecurityException ex) {
+            throw new RuntimeException(ex);
           }
-        } catch (GeneralSecurityException ex) {
-          throw new RuntimeException(ex);
         }
       case ScenarioManifest.AWS_KMS_PROVIDER_NAME:
-        if (materialDescription != null && !materialDescription.isEmpty()) {
-          return new DirectKmsMaterialProvider(
-            kmsClient,
-            keyDataMap.get(keys.decryptName).keyId,
-            materialDescription
-          );
-        }
         return new DirectKmsMaterialProvider(
           kmsClient,
           keyDataMap.get(keys.decryptName).keyId
@@ -1450,7 +1383,7 @@ public class TransformerHolisticIT {
     }
   }
 
-  public static Map<
+  private Map<
     String,
     List<Map<String, AttributeValue>>
   > getCiphertextManifestFromFile(String filename) throws IOException {
@@ -1462,7 +1395,7 @@ public class TransformerHolisticIT {
     );
   }
 
-  public static <T> T getManifestFromFile(
+  private static <T> T getManifestFromFile(
     String filename,
     TypeReference typeRef
   ) throws IOException {
@@ -1477,7 +1410,7 @@ public class TransformerHolisticIT {
     return (T) manifestMapper.readValue(manifestFile, typeRef);
   }
 
-  static void loadKeyData(String filename) throws IOException {
+  private static void loadKeyData(String filename) throws IOException {
     keyDataMap =
       getManifestFromFile(
         TEST_VECTOR_MANIFEST_DIR + stripFilePath(filename),

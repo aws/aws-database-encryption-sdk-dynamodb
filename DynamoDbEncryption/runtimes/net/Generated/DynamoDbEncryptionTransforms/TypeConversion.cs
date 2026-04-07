@@ -3196,33 +3196,33 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       {
         return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_B(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_B(value.B));
       }
-      if (value.SS.Any())
+      if (value.SS != null)
       {
         return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_SS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_SS(value.SS));
       }
-      if (value.NS.Any())
+      if (value.NS != null)
       {
         return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_NS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_NS(value.NS));
       }
-      if (value.BS.Any())
+      if (value.BS != null)
       {
         return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_BS(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M2_BS(value.BS));
       }
-      if (value.IsMSet)
+      if (value.M != null)
       {
         return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_M(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_M(value.M));
       }
-      if (value.IsLSet)
+      if (value.L != null)
       {
         return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_L(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M1_L(value.L));
       }
       if (value.NULL == true)
       {
-        return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_NULL(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_NULL(value.NULL));
+        return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_NULL(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_NULL((bool)value.NULL));
       }
-      if (value.IsBOOLSet)
+      if (value.BOOL != null)
       {
-        return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_BOOL(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_BOOL(value.BOOL));
+        return software.amazon.cryptography.services.dynamodb.internaldafny.types.AttributeValue.create_BOOL(ToDafny_N3_com__N9_amazonaws__N8_dynamodb__S14_AttributeValue__M4_BOOL((bool)value.BOOL));
       }
       throw new System.ArgumentException("Invalid Amazon.DynamoDBv2.Model.AttributeValue state");
     }
@@ -5693,7 +5693,7 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
       string var_indexName = value.IndexName != null ? value.IndexName : (string)null;
       Amazon.DynamoDBv2.Select var_select = value.Select != null ? value.Select : (Amazon.DynamoDBv2.Select)null;
       System.Collections.Generic.List<string> var_attributesToGet = value.AttributesToGet != null ? value.AttributesToGet : (System.Collections.Generic.List<string>)null;
-      int? var_limit = value.IsLimitSet ? value.Limit : (int?)null;
+      int? var_limit = value.Limit != null ? value.Limit : (int?)null;
       bool? var_consistentRead = value.ConsistentRead != null ? value.ConsistentRead : (bool?)null;
       System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_keyConditions = value.KeyConditions != null ? value.KeyConditions : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)null;
       System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_queryFilter = value.QueryFilter != null ? value.QueryFilter : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)null;
@@ -5982,14 +5982,14 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb.Transforms
 
       string var_indexName = value.IndexName != null ? value.IndexName : (string)null;
       System.Collections.Generic.List<string> var_attributesToGet = value.AttributesToGet != null ? value.AttributesToGet : (System.Collections.Generic.List<string>)null;
-      int? var_limit = value.IsLimitSet ? value.Limit : (int?)null;
+      int? var_limit = value.Limit != null ? value.Limit : (int?)null;
       Amazon.DynamoDBv2.Select var_select = value.Select != null ? value.Select : (Amazon.DynamoDBv2.Select)null;
       System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition> var_scanFilter = value.ScanFilter != null ? value.ScanFilter : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.Condition>)null;
       Amazon.DynamoDBv2.ConditionalOperator var_conditionalOperator = value.ConditionalOperator != null ? value.ConditionalOperator : (Amazon.DynamoDBv2.ConditionalOperator)null;
       System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> var_exclusiveStartKey = value.ExclusiveStartKey != null ? value.ExclusiveStartKey : (System.Collections.Generic.Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>)null;
       Amazon.DynamoDBv2.ReturnConsumedCapacity var_returnConsumedCapacity = value.ReturnConsumedCapacity != null ? value.ReturnConsumedCapacity : (Amazon.DynamoDBv2.ReturnConsumedCapacity)null;
-      int? var_totalSegments = value.IsTotalSegmentsSet ? value.TotalSegments : (int?)null;
-      int? var_segment = value.IsSegmentSet ? value.Segment : (int?)null;
+      int? var_totalSegments = value.TotalSegments != null ? value.TotalSegments : (int?)null;
+      int? var_segment = value.Segment != null ? value.Segment : (int?)null;
       string var_projectionExpression = value.ProjectionExpression != null ? value.ProjectionExpression : (string)null;
       string var_filterExpression = value.FilterExpression != null ? value.FilterExpression : (string)null;
       System.Collections.Generic.Dictionary<string, string> var_expressionAttributeNames = value.ExpressionAttributeNames != null ? value.ExpressionAttributeNames : (System.Collections.Generic.Dictionary<string, string>)null;
