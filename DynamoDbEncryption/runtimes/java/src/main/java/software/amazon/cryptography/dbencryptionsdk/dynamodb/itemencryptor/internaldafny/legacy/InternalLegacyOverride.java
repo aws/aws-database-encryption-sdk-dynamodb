@@ -16,8 +16,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
 import StandardLibraryInternal.InternalResult;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import dafny.TypeDescriptor;
@@ -211,23 +211,13 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     final LegacyEncryptorAdapter encryptorAdapter;
     if (
       maybeEncryptor instanceof
-      com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor
-    ) {
-      encryptorAdapter =
-        new V1EncryptorAdapter(
-          (com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor) maybeEncryptor,
-          maybeActions.value(),
-          maybeEncryptionContext.value()
-        );
-    } else if (
-      maybeEncryptor instanceof
       com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
     ) {
       encryptorAdapter =
         new V2EncryptorAdapter(
           (com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor) maybeEncryptor,
-          convertActionsV1ToV2(maybeActions.value()),
-          convertEncryptionContextV1ToV2(maybeEncryptionContext.value())
+          maybeActions.value(),
+          maybeEncryptionContext.value()
         );
     } else {
       return CreateBuildFailure(
@@ -263,60 +253,8 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   ) {
     return (
       maybe instanceof
-        com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor ||
-      maybe instanceof
         com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
     );
-  }
-
-  // Convert SDK V1 EncryptionFlags to SDK V2
-  private static Map<
-    String,
-    Set<
-      com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags
-    >
-  > convertActionsV1ToV2(Map<String, Set<EncryptionFlags>> v1Actions) {
-    Map<
-      String,
-      Set<
-        com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags
-      >
-    > v2Actions = new HashMap<>();
-    for (Map.Entry<String, Set<EncryptionFlags>> entry : v1Actions.entrySet()) {
-      Set<
-        com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags
-      > v2Flags = new HashSet<>();
-      for (EncryptionFlags v1Flag : entry.getValue()) {
-        v2Flags.add(
-          com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags.valueOf(
-            v1Flag.name()
-          )
-        );
-      }
-      v2Actions.put(entry.getKey(), v2Flags);
-    }
-    return v2Actions;
-  }
-
-  // Convert SDK V1 EncryptionContext to SDK V2
-  private static com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
-    final EncryptionContext v1Context
-  ) {
-    final com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext.Builder builder =
-      com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext
-        .builder()
-        .tableName(v1Context.getTableName())
-        .hashKeyName(v1Context.getHashKeyName())
-        .rangeKeyName(v1Context.getRangeKeyName())
-        .developerContext(v1Context.getDeveloperContext());
-
-    if (v1Context.getMaterialDescription() != null) {
-      builder.materialDescription(v1Context.getMaterialDescription());
-    }
-    if (v1Context.getAttributeValues() != null) {
-      builder.attributeValues(V1MapToV2Map(v1Context.getAttributeValues()));
-    }
-    return builder.build();
   }
 
   public static String ToNativeString(DafnySequence<? extends Character> s) {
@@ -338,14 +276,14 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     try {
       EncryptionContext.Builder encryptionContextBuilder =
         new EncryptionContext.Builder()
-          .withTableName(ToNativeString(config.dtor_logicalTableName()))
-          .withHashKeyName(ToNativeString(config.dtor_partitionKeyName()));
+          .tableName(ToNativeString(config.dtor_logicalTableName()))
+          .hashKeyName(ToNativeString(config.dtor_partitionKeyName()));
 
       final EncryptionContext encryptionContext = config
           .dtor_sortKeyName()
           .is_Some()
         ? encryptionContextBuilder
-          .withRangeKeyName(
+          .rangeKeyName(
             ToNativeString(config.dtor_sortKeyName().dtor_value())
           )
           .build()
