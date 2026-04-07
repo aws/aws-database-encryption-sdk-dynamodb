@@ -6,8 +6,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotEncrypt;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -61,7 +59,6 @@ public class LegacyClass {
   }
 
   @DynamoDBAttribute
-  @DoNotEncrypt
   @DynamoDbEncryptionSignOnly
   public String getSignOnly() {
     return this.signOnly;
@@ -72,7 +69,6 @@ public class LegacyClass {
   }
 
   @DynamoDBAttribute
-  @DoNotTouch
   @DynamoDbEncryptionDoNothing
   public String getDoNothing() {
     return this.doNothing;

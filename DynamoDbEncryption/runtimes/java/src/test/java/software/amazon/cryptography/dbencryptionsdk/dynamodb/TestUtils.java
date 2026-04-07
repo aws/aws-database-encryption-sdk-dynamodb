@@ -212,7 +212,7 @@ public class TestUtils {
 
   public static Map<
     String,
-    com.amazonaws.services.dynamodbv2.model.AttributeValue
+    AttributeValue
   > createLegacyTestItem(
     String partition,
     String sort,
@@ -221,24 +221,23 @@ public class TestUtils {
   ) {
     HashMap<
       String,
-      com.amazonaws.services.dynamodbv2.model.AttributeValue
+      AttributeValue
     > item = new HashMap<>();
     item.put(
       TEST_PARTITION_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue()
-        .withS(partition)
+      AttributeValue.builder().s(partition).build()
     );
     item.put(
       TEST_SORT_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue().withN(sort)
+      AttributeValue.builder().n(sort).build()
     );
     item.put(
       TEST_ATTR_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue().withS(attr1)
+      AttributeValue.builder().s(attr1).build()
     );
     item.put(
       TEST_ATTR2_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue().withS(attr2)
+      AttributeValue.builder().s(attr2).build()
     );
     return item;
   }
