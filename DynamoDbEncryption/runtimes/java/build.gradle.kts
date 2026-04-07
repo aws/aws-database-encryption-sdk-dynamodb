@@ -95,9 +95,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
-    
-    // For the DDB-EC with SDK v1
-    compileOnly("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
+
     // For the DDB-EC with SDK V2
     implementation("io.netty:netty-common:4.2.9.Final")
 
@@ -106,8 +104,6 @@ dependencies {
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
     testImplementation("com.amazonaws:DynamoDBLocal:1.+")
-    // This is where we gather the SQLLite files to copy over
-    dynamodb("com.amazonaws:DynamoDBLocal:1.+")
     // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
     // This checks the dependencies and adds a native library
     // to support this architecture.
