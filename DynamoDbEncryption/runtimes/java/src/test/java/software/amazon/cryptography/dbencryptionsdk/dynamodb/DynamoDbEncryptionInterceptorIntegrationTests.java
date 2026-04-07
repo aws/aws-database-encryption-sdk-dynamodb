@@ -5,17 +5,16 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
+
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
@@ -612,10 +611,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     String sortValue = "42";
     String attrValue = "bar";
     String attrValue2 = "hello world";
-    Map<
-      String,
-      com.amazonaws.services.dynamodbv2.model.AttributeValue
-    > legacyItem = createLegacyTestItem(
+    Map<String, AttributeValue> legacyItem = createLegacyTestItem(
       partitionValue,
       sortValue,
       attrValue,
@@ -626,28 +622,21 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
 
     EncryptionContext encryptionContext = new EncryptionContext.Builder()
-      .withTableName(TEST_TABLE_NAME)
-      .withHashKeyName(TEST_PARTITION_NAME)
-      .withRangeKeyName(TEST_SORT_NAME)
+      .tableName(TEST_TABLE_NAME)
+      .hashKeyName(TEST_PARTITION_NAME)
+      .rangeKeyName(TEST_SORT_NAME)
       .build();
     Map<String, Set<EncryptionFlags>> actions = createLegacyAttributeFlags();
 
     // Encrypt the plaintext record directly
-    final Map<
-      String,
-      com.amazonaws.services.dynamodbv2.model.AttributeValue
-    > encrypted_record = legacyEncryptor.encryptRecord(
-      legacyItem,
-      actions,
-      encryptionContext
-    );
-    // Put record into ddb directly using SDKv1 Java client
-    AmazonDynamoDB legacyDDB = AmazonDynamoDBClientBuilder.standard().build();
-    legacyDDB.putItem(
-      new com.amazonaws.services.dynamodbv2.model.PutItemRequest(
-        TEST_TABLE_NAME,
-        encrypted_record
-      )
+    final Map<String, AttributeValue> encrypted_record =
+      legacyEncryptor.encryptRecord(legacyItem, actions, encryptionContext);
+    // Put record into ddb directly
+    DynamoDbClient legacyDDB = DynamoDbClient.create();
+    legacyDDB.putItem(PutItemRequest.builder()
+      .tableName(TEST_TABLE_NAME)
+      .item(encrypted_record)
+      .build()
     );
 
     DynamoDbEncryptionInterceptor interceptor = createInterceptor(
@@ -702,9 +691,9 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     DynamoDBEncryptor legacyEncryptor = createLegacyEncryptor();
 
     EncryptionContext encryptionContext = new EncryptionContext.Builder()
-      .withTableName(TEST_TABLE_NAME)
-      .withHashKeyName(TEST_PARTITION_NAME)
-      .withRangeKeyName(TEST_SORT_NAME)
+      .tableName(TEST_TABLE_NAME)
+      .hashKeyName(TEST_PARTITION_NAME)
+      .rangeKeyName(TEST_SORT_NAME)
       .build();
     Map<String, Set<EncryptionFlags>> actions = createLegacyAttributeFlags();
 
@@ -733,47 +722,26 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     PutItemResponse putResponse = ddbWithLegacy.putItem(putRequest);
     assertEquals(200, putResponse.sdkHttpResponse().statusCode());
 
-    // Get record from ddb directly using SDKv1 Java client
-    final Map<
-      String,
-      com.amazonaws.services.dynamodbv2.model.AttributeValue
-    > itemKey = new HashMap<>();
-    itemKey.put(
-      TEST_PARTITION_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue()
-        .withS(partitionValue)
-    );
-    itemKey.put(
-      TEST_SORT_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue()
-        .withN(sortValue)
-    );
+    // Get record from ddb directly
+    Map<String, AttributeValue> itemKey = new HashMap<>();
+    itemKey.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
+    itemKey.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue).build());
 
-    AmazonDynamoDB legacyDDB = AmazonDynamoDBClientBuilder.standard().build();
-    com.amazonaws.services.dynamodbv2.model.GetItemResult getItemResponse =
-      legacyDDB.getItem(
-        new com.amazonaws.services.dynamodbv2.model.GetItemRequest(
-          TEST_TABLE_NAME,
-          itemKey
-        )
-      );
+    DynamoDbClient legacyDDB = DynamoDbClient.create();
+    Map<String, AttributeValue> encryptedItem = legacyDDB.getItem(
+      GetItemRequest.builder()
+        .tableName(TEST_TABLE_NAME)
+        .key(itemKey)
+        .build()
+    ).item();
 
     // Decrypt the plaintext record directly
-    final Map<
-      String,
-      com.amazonaws.services.dynamodbv2.model.AttributeValue
-    > decryptedRecord = legacyEncryptor.decryptRecord(
-      getItemResponse.getItem(),
-      actions,
-      encryptionContext
-    );
+    final Map<String, AttributeValue> decryptedRecord =
+      legacyEncryptor.decryptRecord(encryptedItem, actions, encryptionContext);
     assertNotNull(decryptedRecord);
-    assertEquals(
-      partitionValue,
-      decryptedRecord.get(TEST_PARTITION_NAME).getS()
-    );
-    assertEquals(sortValue, decryptedRecord.get(TEST_SORT_NAME).getN());
-    assertEquals(attrValue, decryptedRecord.get(TEST_ATTR_NAME).getS());
+    assertEquals(partitionValue, decryptedRecord.get(TEST_PARTITION_NAME).s());
+    assertEquals(sortValue, decryptedRecord.get(TEST_SORT_NAME).n());
+    assertEquals(attrValue, decryptedRecord.get(TEST_ATTR_NAME).s());
   }
 
   @Test
