@@ -37,9 +37,6 @@ java {
         srcDir("src/main/sdkv2")
     }
     sourceSets["test"].java {
-        srcDir("src/test/java")
-        srcDir("src/test/dafny-generated")
-        srcDir("src/test/smithy-generated")
         srcDir("src/test/sdkv1")
         srcDir("src/test/sdkv2")
     }
@@ -98,7 +95,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
     
     // For the DDB-EC with SDK v1
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
+    compileOnly("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
 
     // For the DDB-EC with SDK V2
     implementation("io.netty:netty-common:4.2.9.Final")
