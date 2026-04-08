@@ -28,16 +28,13 @@ jobs:
             });
   notify:
     permissions:
-        contents: read
-        pull-requests: write
-        id-token: write
-    needs:
-        [
-        trigger
-        ]
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: [trigger]
     if: ${{ failure() && github.event_name == 'schedule'}}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
     with:
-        message: "Failed to trigger Daily CI for branch v3.x-Java (see daily_ci_java_3x.yml on main) on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      message: "Failed to trigger Daily CI for branch v3.x-Java (see daily_ci_java_3x.yml on main) on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
     secrets:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CI }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CI }}
