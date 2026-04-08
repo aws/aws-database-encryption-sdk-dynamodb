@@ -1593,6 +1593,6 @@ public class TransformerHolisticIT {
     return path.replaceFirst("file://", "");
   }
 
-  @JsonDeserialize(using = AttributeValueDeserializer.class)
-  public static class DeserializedAttributeValue extends AttributeValue {}
+  @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = AttributeValueDeserializer.class)
+  public static class DeserializedAttributeValue extends com.amazonaws.services.dynamodbv2.model.AttributeValue {}
 }
