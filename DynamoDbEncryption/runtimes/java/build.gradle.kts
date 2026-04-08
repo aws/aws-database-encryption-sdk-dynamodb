@@ -33,14 +33,10 @@ java {
         srcDir("src/main/java")
         srcDir("src/main/dafny-generated")
         srcDir("src/main/smithy-generated")
-        srcDir("src/main/sdkv1")
         srcDir("src/main/sdkv2")
     }
     sourceSets["test"].java {
         srcDir("src/test")
-        // adding sdkv1 and sdkv2 helps IDE to resolve package names inside SDK v1 and v2 test
-        srcDir("src/test/sdkv1")
-        srcDir("src/test/sdkv2")
     }
     withJavadocJar()
     withSourcesJar()
