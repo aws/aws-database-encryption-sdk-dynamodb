@@ -640,8 +640,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         TableName := TableName,
         IndexName := Some("ATTR_INDEX51"),
         FilterExpression := None,
-        KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
-        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+        KeyConditionExpression := Some("Attr5 = :attr5 and Attr1 = :attr1"),
+        ExpressionAttributeValues := Some(map[":attr5" := DDB.AttributeValue.S("EEEE"), ":attr1" := DDB.AttributeValue.S("AAAA")])
       )
     }
     function GetPartitionQuery2() : DDB.QueryInput
