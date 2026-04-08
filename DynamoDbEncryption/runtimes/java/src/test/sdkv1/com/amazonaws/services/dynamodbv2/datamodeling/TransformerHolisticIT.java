@@ -22,7 +22,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.store
 import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.store.ProviderStore;
 import com.amazonaws.services.dynamodbv2.local.embedded.DynamoDBEmbedded;
 import com.amazonaws.services.dynamodbv2.model.*;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.testing.AttributeValueDeserializer;
 import com.amazonaws.services.dynamodbv2.testing.AttributeValueSerializer;
 import com.amazonaws.services.dynamodbv2.testing.ScenarioManifest;
@@ -1593,6 +1592,9 @@ public class TransformerHolisticIT {
     return path.replaceFirst("file://", "");
   }
 
-  @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = AttributeValueDeserializer.class)
-  public static class DeserializedAttributeValue extends com.amazonaws.services.dynamodbv2.model.AttributeValue {}
+  @com.fasterxml.jackson.databind.annotation.JsonDeserialize(
+    using = AttributeValueDeserializer.class
+  )
+  public static class DeserializedAttributeValue
+    extends com.amazonaws.services.dynamodbv2.model.AttributeValue {}
 }
