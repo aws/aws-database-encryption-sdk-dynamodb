@@ -210,35 +210,20 @@ public class TestUtils {
     return item;
   }
 
-  public static Map<
-    String,
-    AttributeValue
-  > createLegacyTestItem(
+  public static Map<String, AttributeValue> createLegacyTestItem(
     String partition,
     String sort,
     String attr1,
     String attr2
   ) {
-    HashMap<
-      String,
-      AttributeValue
-    > item = new HashMap<>();
+    HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       TEST_PARTITION_NAME,
       AttributeValue.builder().s(partition).build()
     );
-    item.put(
-      TEST_SORT_NAME,
-      AttributeValue.builder().n(sort).build()
-    );
-    item.put(
-      TEST_ATTR_NAME,
-      AttributeValue.builder().s(attr1).build()
-    );
-    item.put(
-      TEST_ATTR2_NAME,
-      AttributeValue.builder().s(attr2).build()
-    );
+    item.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
+    item.put(TEST_ATTR_NAME, AttributeValue.builder().s(attr1).build());
+    item.put(TEST_ATTR2_NAME, AttributeValue.builder().s(attr2).build());
     return item;
   }
 

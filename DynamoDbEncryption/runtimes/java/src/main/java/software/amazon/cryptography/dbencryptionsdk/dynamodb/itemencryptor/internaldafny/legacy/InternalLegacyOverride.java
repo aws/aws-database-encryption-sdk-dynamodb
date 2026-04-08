@@ -251,7 +251,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   ) {
     return (
       maybe instanceof
-        com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
+      com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
     );
   }
 
@@ -281,9 +281,7 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
           .dtor_sortKeyName()
           .is_Some()
         ? encryptionContextBuilder
-          .rangeKeyName(
-            ToNativeString(config.dtor_sortKeyName().dtor_value())
-          )
+          .rangeKeyName(ToNativeString(config.dtor_sortKeyName().dtor_value()))
           .build()
         : encryptionContextBuilder.build();
 

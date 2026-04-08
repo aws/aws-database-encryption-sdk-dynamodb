@@ -3,14 +3,13 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 import static org.testng.Assert.*;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -302,7 +301,7 @@ public class DynamoDbEnhancedClientEncryptionTest {
   public void TestEnhancedCreateWithLegacyPolicy() {
     // Encryptor creation
     final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-            KmsClient.create(),
+      KmsClient.create(),
       "kmsKeyARN"
     );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);

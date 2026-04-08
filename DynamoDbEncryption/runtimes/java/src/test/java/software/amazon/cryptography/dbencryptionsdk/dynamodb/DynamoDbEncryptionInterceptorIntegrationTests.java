@@ -5,16 +5,15 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
-
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
@@ -633,10 +632,12 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
       legacyEncryptor.encryptRecord(legacyItem, actions, encryptionContext);
     // Put record into ddb directly
     DynamoDbClient legacyDDB = DynamoDbClient.create();
-    legacyDDB.putItem(PutItemRequest.builder()
-      .tableName(TEST_TABLE_NAME)
-      .item(encrypted_record)
-      .build()
+    legacyDDB.putItem(
+      PutItemRequest
+        .builder()
+        .tableName(TEST_TABLE_NAME)
+        .item(encrypted_record)
+        .build()
     );
 
     DynamoDbEncryptionInterceptor interceptor = createInterceptor(
@@ -724,16 +725,18 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
 
     // Get record from ddb directly
     Map<String, AttributeValue> itemKey = new HashMap<>();
-    itemKey.put(TEST_PARTITION_NAME, AttributeValue.builder().s(partitionValue).build());
+    itemKey.put(
+      TEST_PARTITION_NAME,
+      AttributeValue.builder().s(partitionValue).build()
+    );
     itemKey.put(TEST_SORT_NAME, AttributeValue.builder().n(sortValue).build());
 
     DynamoDbClient legacyDDB = DynamoDbClient.create();
-    Map<String, AttributeValue> encryptedItem = legacyDDB.getItem(
-      GetItemRequest.builder()
-        .tableName(TEST_TABLE_NAME)
-        .key(itemKey)
-        .build()
-    ).item();
+    Map<String, AttributeValue> encryptedItem = legacyDDB
+      .getItem(
+        GetItemRequest.builder().tableName(TEST_TABLE_NAME).key(itemKey).build()
+      )
+      .item();
 
     // Decrypt the plaintext record directly
     final Map<String, AttributeValue> decryptedRecord =

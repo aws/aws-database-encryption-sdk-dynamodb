@@ -14,7 +14,7 @@ do_test_net:
 # requires "make build_java mvn_local_deploy" in DynamoDbEncryption
 test_migrate:
 	gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-	gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+	gradle -p runtimes/java/Migration/DDBECv2ToAWSDBE test
 
 clean:
 	rm -f runtimes/net/*.pem runtimes/java/*.pem

@@ -7,7 +7,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBE
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
-
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -399,11 +398,20 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
 
     // Build plaintext record using SDK v2 AttributeValue
     Map<String, AttributeValue> plaintextItem = new HashMap<>();
-    plaintextItem.put("partition_key", AttributeValue.builder().s("ddbMapperItem").build());
+    plaintextItem.put(
+      "partition_key",
+      AttributeValue.builder().s("ddbMapperItem").build()
+    );
     plaintextItem.put("sort_key", AttributeValue.builder().n("777").build());
-    plaintextItem.put("encryptAndSign", AttributeValue.builder().s("lorem").build());
+    plaintextItem.put(
+      "encryptAndSign",
+      AttributeValue.builder().s("lorem").build()
+    );
     plaintextItem.put("signOnly", AttributeValue.builder().s("ipsum").build());
-    plaintextItem.put("doNothing", AttributeValue.builder().s("fizzbuzz").build());
+    plaintextItem.put(
+      "doNothing",
+      AttributeValue.builder().s("fizzbuzz").build()
+    );
 
     // Encrypt using legacy encryptor
     final EncryptionContext encryptionContext = EncryptionContext
@@ -423,15 +431,21 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     actions.put("encryptAndSign", encryptAndSign);
     actions.put("signOnly", signOnly);
 
-    Map<String, AttributeValue> encryptedItem =
-      oldEncryptor.encryptRecord(plaintextItem, actions, encryptionContext);
+    Map<String, AttributeValue> encryptedItem = oldEncryptor.encryptRecord(
+      plaintextItem,
+      actions,
+      encryptionContext
+    );
 
     // Put encrypted item using SDK v2 DynamoDbClient
     DynamoDbClient ddb = DynamoDbClient.create();
-    ddb.putItem(PutItemRequest.builder()
-      .tableName(TEST_TABLE_NAME)
-      .item(encryptedItem)
-      .build());
+    ddb.putItem(
+      PutItemRequest
+        .builder()
+        .tableName(TEST_TABLE_NAME)
+        .item(encryptedItem)
+        .build()
+    );
 
     // Read back using enhanced client with legacy override
     TableSchema<LegacyClass> schemaOnEncrypt = TableSchema.fromBean(
@@ -494,14 +508,20 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     // Read back using SDK v2 DynamoDbClient and decrypt with legacy encryptor
     DynamoDbClient ddb = DynamoDbClient.create();
     Map<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put("partition_key", AttributeValue.builder().s("legacyItem").build());
+    keyToGet.put(
+      "partition_key",
+      AttributeValue.builder().s("legacyItem").build()
+    );
     keyToGet.put("sort_key", AttributeValue.builder().n("777").build());
-    Map<String, AttributeValue> encryptedItem = ddb.getItem(
-      GetItemRequest.builder()
-        .tableName(TEST_TABLE_NAME)
-        .key(keyToGet)
-        .build()
-    ).item();
+    Map<String, AttributeValue> encryptedItem = ddb
+      .getItem(
+        GetItemRequest
+          .builder()
+          .tableName(TEST_TABLE_NAME)
+          .key(keyToGet)
+          .build()
+      )
+      .item();
 
     final EncryptionContext encryptionContext = EncryptionContext
       .builder()
@@ -520,8 +540,11 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     actions.put("encryptAndSign", encryptAndSign);
     actions.put("signOnly", signOnly);
 
-    Map<String, AttributeValue> decryptedItem =
-      oldEncryptor.decryptRecord(encryptedItem, actions, encryptionContext);
+    Map<String, AttributeValue> decryptedItem = oldEncryptor.decryptRecord(
+      encryptedItem,
+      actions,
+      encryptionContext
+    );
 
     assertEquals("legacyItem", decryptedItem.get("partition_key").s());
     assertEquals("777", decryptedItem.get("sort_key").n());
