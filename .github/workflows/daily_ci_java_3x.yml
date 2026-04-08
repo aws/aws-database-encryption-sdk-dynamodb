@@ -32,7 +32,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'daily_ci.yml',
-              ref: 'main-dbesdk-java-v3.0'
+              ref: 'v3.x-Java'
             });
   notify:
     permissions:
