@@ -7,6 +7,9 @@ on:
 
 jobs:
   trigger:
+    permissions:
+      actions: write
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Fail after end of support
