@@ -6,8 +6,7 @@ permissions:
   id-token: write
 
 on:
-  schedule:
-    - cron: "00 16 * * 1-5"
+  workflow_dispatch:
   pull_request:
     paths: .github/workflows/daily_ci.yml
 
@@ -153,6 +152,6 @@ jobs:
     if: ${{ failure() && github.event_name == 'schedule'}}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
     with:
-      message: "Daily CI failed on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      message: "Daily CI for branch v3.x-Java branch failed on `${{ github.repository }}`. View run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_CI }}
