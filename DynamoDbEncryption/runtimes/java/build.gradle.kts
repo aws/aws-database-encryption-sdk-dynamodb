@@ -37,7 +37,11 @@ java {
         srcDir("src/main/sdkv2")
     }
     sourceSets["test"].java {
-        srcDir("src/test")
+        srcDir("src/test/java")
+        srcDir("src/test/dafny-generated")
+        srcDir("src/test/smithy-generated")
+        srcDir("src/test/sdkv1")
+        srcDir("src/test/sdkv2")
     }
     withJavadocJar()
     withSourcesJar()
