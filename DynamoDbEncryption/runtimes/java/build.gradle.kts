@@ -38,9 +38,6 @@ java {
     }
     sourceSets["test"].java {
         srcDir("src/test")
-        // adding sdkv1 and sdkv2 helps IDE to resolve package names inside SDK v1 and v2 test
-        srcDir("src/test/sdkv1")
-        srcDir("src/test/sdkv2")
     }
     withJavadocJar()
     withSourcesJar()
@@ -97,7 +94,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
     
     // For the DDB-EC with SDK v1
-    compileOnly("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
 
     // For the DDB-EC with SDK V2
     implementation("io.netty:netty-common:4.2.9.Final")
