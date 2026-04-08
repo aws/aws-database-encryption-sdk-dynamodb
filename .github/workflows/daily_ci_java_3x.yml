@@ -3,7 +3,12 @@ name: Daily CI (main-dbesdk-java-v3.0)
 on:
   schedule:
     - cron: "00 13 * * 1-5"
-  workflow_dispatch:
+  pull_request:
+    paths: .github/workflows/daily_ci_java_3x.yml
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   trigger:
