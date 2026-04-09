@@ -190,8 +190,9 @@ public class CachingMostRecentProviderTests {
       0,
       store.getVersionFromMaterialDescription(eMat2.getMaterialDescription())
     );
-    // Let the TTL be exceeded
-    Thread.sleep(500);
+    // Let the TTL be exceeded; sleep must be > TTL (500ms) to reliably
+    // land in the grace period and trigger a cache refresh.
+    Thread.sleep(700);
     final EncryptionMaterials eMat3 = prov.getEncryptionMaterials(ctx);
     assertEquals(2, methodCalls.size());
     assertEquals(1, (int) methodCalls.getOrDefault("query", 0)); // To find current version
@@ -356,8 +357,9 @@ public class CachingMostRecentProviderTests {
       "Expected no calls but was " + methodCalls.toString(),
       methodCalls.isEmpty()
     );
-    // Let the TTL be exceeded
-    Thread.sleep(500);
+    // Let the TTL be exceeded; sleep must be > TTL (500ms) to reliably
+    // land in the grace period and trigger a cache refresh.
+    Thread.sleep(700);
     final EncryptionMaterials eMat3 = prov.getEncryptionMaterials(ctx);
 
     assertEquals(1, (int) methodCalls.getOrDefault("query", 0)); // To find current version
@@ -512,8 +514,9 @@ public class CachingMostRecentProviderTests {
       store.getVersionFromMaterialDescription(eMat2_2.getMaterialDescription())
     );
 
-    // Let the TTL be exceeded
-    Thread.sleep(500);
+    // Let the TTL be exceeded; sleep must be > TTL (500ms) to reliably
+    // land in the grace period and trigger a cache refresh.
+    Thread.sleep(700);
     final EncryptionMaterials eMat3_1 = prov.getEncryptionMaterials(ctx1);
     assertEquals(2, methodCalls.size());
     assertEquals(1, (int) methodCalls.get("query")); // To find current version
