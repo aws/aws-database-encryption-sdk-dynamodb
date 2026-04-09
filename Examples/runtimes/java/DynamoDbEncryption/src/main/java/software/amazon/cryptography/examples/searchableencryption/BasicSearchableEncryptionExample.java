@@ -88,7 +88,7 @@ public class BasicSearchableEncryptionExample {
     //     information), while the suffix does not encode such structure and tends 
     //     to be closer to uniformly distributed, though not perfectly uniform.
     //     We will assume that the inspector ID field matches a similar use case.
-    //     For this example, we use only the last four digits of the inspector ID and apply two partitions, 
+    //     For this example, we use only the last four digits of the inspector ID and apply one partitions, 
     //     assuming the suffix has sufficient uniformity for this purpose.
     // Since the full ID's range is divisible by the range of the last 4 digits,
     //     then the last 4 digits of the inspector ID are uniformly distributed
@@ -129,7 +129,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
-      //.numberOfPartitions(2)
+      .numberOfPartitions(1)
       .build();
     standardBeaconList.add(last4Beacon);
 
@@ -163,7 +163,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("unit")
       .length(30)
-      //.numberOfPartitions(2)
+      .numberOfPartitions(1)
       .build();
     standardBeaconList.add(unitBeacon);
 
@@ -409,8 +409,8 @@ public class BasicSearchableEncryptionExample {
         transformClient.GetNumberOfQueries(numberOfQueriesInput);
     
     int numQueries = numberOfQueriesOutput.numberOfQueries();
-    if ( numQueries != 2) {
-         throw new RuntimeException("Expected to query 2 partitions, but numQueries is " + numQueries);
+    if ( numQueries != 1) {
+         throw new RuntimeException("Expected to query 1 partitions, but numQueries is " + numQueries);
       }
     
     //We need to query for all possible partitions 
