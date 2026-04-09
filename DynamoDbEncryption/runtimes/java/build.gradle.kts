@@ -91,6 +91,12 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+<<<<<<< HEAD
+=======
+    
+    // For the DDB-EC with SDK v1
+    compileOnly("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
+>>>>>>> ddbec-with-sdk-v2
 
     // For the DDB-EC with SDK V2
     implementation("io.netty:netty-common:4.2.9.Final")
