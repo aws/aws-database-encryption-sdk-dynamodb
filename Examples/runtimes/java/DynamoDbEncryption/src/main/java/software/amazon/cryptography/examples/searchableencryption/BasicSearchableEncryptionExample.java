@@ -129,7 +129,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("inspector_id_last4")
       .length(10)
-      .numberOfPartitions(2)
+      //.numberOfPartitions(2)
       .build();
     standardBeaconList.add(last4Beacon);
 
@@ -163,7 +163,7 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .name("unit")
       .length(30)
-      .numberOfPartitions(2)
+      //.numberOfPartitions(2)
       .build();
     standardBeaconList.add(unitBeacon);
 
