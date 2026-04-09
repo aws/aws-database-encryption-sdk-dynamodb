@@ -1,4 +1,4 @@
-name: Daily CI (main-dbesdk-java-v3.0)
+name: Daily CI (v3.x-java)
 
 on:
   schedule:
