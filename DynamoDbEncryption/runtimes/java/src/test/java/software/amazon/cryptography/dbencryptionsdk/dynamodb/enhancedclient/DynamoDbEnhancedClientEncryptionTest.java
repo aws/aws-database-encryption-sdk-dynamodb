@@ -3,10 +3,8 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 import static org.testng.Assert.*;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.invaliddatamodels.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.*;
@@ -301,9 +300,8 @@ public class DynamoDbEnhancedClientEncryptionTest {
   @Test
   public void TestEnhancedCreateWithLegacyPolicy() {
     // Encryptor creation
-    AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
     final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kmsClient,
+      KmsClient.create(),
       "kmsKeyARN"
     );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
@@ -345,9 +343,8 @@ public class DynamoDbEnhancedClientEncryptionTest {
   @Test
   public void TestEnhancedCreateWithAlgorithmSuite() {
     // Encryptor creation
-    AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
     final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kmsClient,
+      KmsClient.create(),
       "kmsKeyARN"
     );
 

@@ -16,15 +16,13 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.inte
 import StandardLibraryInternal.InternalResult;
 import Wrappers_Compile.Option;
 import Wrappers_Compile.Result;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionContext;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
 import dafny.DafnyMap;
 import dafny.DafnySequence;
 import dafny.TypeDescriptor;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ILegacyDynamoDbEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.internaldafny.types.LegacyPolicy;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internaldafny.types.Error;
@@ -211,23 +209,13 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     final LegacyEncryptorAdapter encryptorAdapter;
     if (
       maybeEncryptor instanceof
-      com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor
-    ) {
-      encryptorAdapter =
-        new V1EncryptorAdapter(
-          (com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor) maybeEncryptor,
-          maybeActions.value(),
-          maybeEncryptionContext.value()
-        );
-    } else if (
-      maybeEncryptor instanceof
       com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
     ) {
       encryptorAdapter =
         new V2EncryptorAdapter(
           (com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor) maybeEncryptor,
-          convertActionsV1ToV2(maybeActions.value()),
-          convertEncryptionContextV1ToV2(maybeEncryptionContext.value())
+          maybeActions.value(),
+          maybeEncryptionContext.value()
         );
     } else {
       return CreateBuildFailure(
@@ -263,60 +251,8 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
   ) {
     return (
       maybe instanceof
-        com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor ||
-      maybe instanceof
-        com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
+      com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor
     );
-  }
-
-  // Convert SDK V1 EncryptionFlags to SDK V2
-  private static Map<
-    String,
-    Set<
-      com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags
-    >
-  > convertActionsV1ToV2(Map<String, Set<EncryptionFlags>> v1Actions) {
-    Map<
-      String,
-      Set<
-        com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags
-      >
-    > v2Actions = new HashMap<>();
-    for (Map.Entry<String, Set<EncryptionFlags>> entry : v1Actions.entrySet()) {
-      Set<
-        com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags
-      > v2Flags = new HashSet<>();
-      for (EncryptionFlags v1Flag : entry.getValue()) {
-        v2Flags.add(
-          com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags.valueOf(
-            v1Flag.name()
-          )
-        );
-      }
-      v2Actions.put(entry.getKey(), v2Flags);
-    }
-    return v2Actions;
-  }
-
-  // Convert SDK V1 EncryptionContext to SDK V2
-  private static com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext convertEncryptionContextV1ToV2(
-    final EncryptionContext v1Context
-  ) {
-    final com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext.Builder builder =
-      com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext
-        .builder()
-        .tableName(v1Context.getTableName())
-        .hashKeyName(v1Context.getHashKeyName())
-        .rangeKeyName(v1Context.getRangeKeyName())
-        .developerContext(v1Context.getDeveloperContext());
-
-    if (v1Context.getMaterialDescription() != null) {
-      builder.materialDescription(v1Context.getMaterialDescription());
-    }
-    if (v1Context.getAttributeValues() != null) {
-      builder.attributeValues(V1MapToV2Map(v1Context.getAttributeValues()));
-    }
-    return builder.build();
   }
 
   public static String ToNativeString(DafnySequence<? extends Character> s) {
@@ -338,16 +274,14 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     try {
       EncryptionContext.Builder encryptionContextBuilder =
         new EncryptionContext.Builder()
-          .withTableName(ToNativeString(config.dtor_logicalTableName()))
-          .withHashKeyName(ToNativeString(config.dtor_partitionKeyName()));
+          .tableName(ToNativeString(config.dtor_logicalTableName()))
+          .hashKeyName(ToNativeString(config.dtor_partitionKeyName()));
 
       final EncryptionContext encryptionContext = config
           .dtor_sortKeyName()
           .is_Some()
         ? encryptionContextBuilder
-          .withRangeKeyName(
-            ToNativeString(config.dtor_sortKeyName().dtor_value())
-          )
+          .rangeKeyName(ToNativeString(config.dtor_sortKeyName().dtor_value()))
           .build()
         : encryptionContextBuilder.build();
 
@@ -402,149 +336,5 @@ public class InternalLegacyOverride extends _ExternBase_InternalLegacyOverride {
     } catch (Exception ex) {
       return InternalResult.failure(Error.create_Opaque(ex));
     }
-  }
-
-  public static com.amazonaws.services.dynamodbv2.model.AttributeValue V2AttributeToV1Attribute(
-    software.amazon.awssdk.services.dynamodb.model.AttributeValue value
-  ) {
-    final com.amazonaws.services.dynamodbv2.model.AttributeValue attribute =
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue();
-    switch (value.type()) {
-      case B:
-        return attribute.withB(value.b().asByteBuffer());
-      case BOOL:
-        return attribute.withBOOL(value.bool());
-      case BS:
-        return attribute.withBS(
-          value
-            .bs()
-            .stream()
-            .map(b -> b.asByteBuffer())
-            .collect(Collectors.toList())
-        );
-      case L:
-        return attribute.withL(
-          value
-            .l()
-            .stream()
-            .map(a -> V2AttributeToV1Attribute(a))
-            .collect(Collectors.toList())
-        );
-      case M:
-        return attribute.withM(V2MapToV1Map(value.m()));
-      case N:
-        return attribute.withN(value.n());
-      case NS:
-        return attribute.withNS(value.ns());
-      case NUL:
-        return attribute.withNULL(value.nul());
-      case S:
-        return attribute.withS(value.s());
-      case SS:
-        return attribute.withSS(value.ss());
-      case UNKNOWN_TO_SDK_VERSION:
-        throw new IllegalArgumentException(
-          "Unsupported AttributeValue type: UNKNOWN_TO_SDK_VERSION. This may indicate a newer DynamoDB attribute type that is not supported by this SDK version."
-        );
-    }
-
-    throw new IllegalArgumentException(
-      "Unexpected AttributeValue type: " +
-      value.type() +
-      ". Unable to convert from SDK v2 to SDK v1 format."
-    );
-  }
-
-  public static Map<
-    String,
-    com.amazonaws.services.dynamodbv2.model.AttributeValue
-  > V2MapToV1Map(
-    Map<
-      String,
-      software.amazon.awssdk.services.dynamodb.model.AttributeValue
-    > input
-  ) {
-    if (input == null) {
-      return null;
-    }
-    return input
-      .entrySet()
-      .stream()
-      .collect(
-        Collectors.toMap(
-          entry -> entry.getKey(),
-          entry -> V2AttributeToV1Attribute(entry.getValue())
-        )
-      );
-  }
-
-  public static software.amazon.awssdk.services.dynamodb.model.AttributeValue V1AttributeToV2Attribute(
-    com.amazonaws.services.dynamodbv2.model.AttributeValue value
-  ) {
-    final software.amazon.awssdk.services.dynamodb.model.AttributeValue.Builder attributeBuilder =
-      software.amazon.awssdk.services.dynamodb.model.AttributeValue.builder();
-    if (Boolean.TRUE.equals(value.getNULL())) {
-      return attributeBuilder.nul(value.getNULL()).build();
-    } else if (Boolean.FALSE.equals(value.getNULL())) {
-      throw new UnsupportedOperationException(
-        "False-NULL is not supported in DynamoDB"
-      );
-    } else if (value.getBOOL() != null) {
-      return attributeBuilder.bool(value.getBOOL()).build();
-    } else if (value.getS() != null) {
-      return attributeBuilder.s(value.getS()).build();
-    } else if (value.getN() != null) {
-      return attributeBuilder.n(value.getN()).build();
-    } else if (value.getB() != null) {
-      return attributeBuilder.b(SdkBytes.fromByteBuffer(value.getB())).build();
-    } else if (value.getSS() != null) {
-      return attributeBuilder.ss(value.getSS()).build();
-    } else if (value.getNS() != null) {
-      return attributeBuilder.ns(value.getNS()).build();
-    } else if (value.getBS() != null) {
-      return attributeBuilder
-        .bs(
-          value
-            .getBS()
-            .stream()
-            .map(bb -> SdkBytes.fromByteBuffer(bb))
-            .collect(Collectors.toList())
-        )
-        .build();
-    } else if (value.getL() != null) {
-      return attributeBuilder
-        .l(
-          value
-            .getL()
-            .stream()
-            .map(a -> V1AttributeToV2Attribute(a))
-            .collect(Collectors.toList())
-        )
-        .build();
-    } else if (value.getM() != null) {
-      return attributeBuilder.m(V1MapToV2Map(value.getM())).build();
-    } else {
-      throw new IllegalArgumentException("Unsupported Value" + value);
-    }
-  }
-
-  public static Map<
-    String,
-    software.amazon.awssdk.services.dynamodb.model.AttributeValue
-  > V1MapToV2Map(
-    Map<String, com.amazonaws.services.dynamodbv2.model.AttributeValue> input
-  ) {
-    if (input == null) {
-      return null;
-    }
-    return input
-      .entrySet()
-      .stream()
-      .collect(
-        Collectors.toMap(
-          entry -> entry.getKey(),
-          entry -> V1AttributeToV2Attribute(entry.getValue())
-        )
-      );
   }
 }

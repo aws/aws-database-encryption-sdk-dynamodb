@@ -1,10 +1,8 @@
 package software.amazon.cryptography.dbencryptionsdk.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.EncryptionFlags;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
 import java.nio.ByteBuffer;
 import java.util.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -212,36 +210,20 @@ public class TestUtils {
     return item;
   }
 
-  public static Map<
-    String,
-    com.amazonaws.services.dynamodbv2.model.AttributeValue
-  > createLegacyTestItem(
+  public static Map<String, AttributeValue> createLegacyTestItem(
     String partition,
     String sort,
     String attr1,
     String attr2
   ) {
-    HashMap<
-      String,
-      com.amazonaws.services.dynamodbv2.model.AttributeValue
-    > item = new HashMap<>();
+    HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       TEST_PARTITION_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue()
-        .withS(partition)
+      AttributeValue.builder().s(partition).build()
     );
-    item.put(
-      TEST_SORT_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue().withN(sort)
-    );
-    item.put(
-      TEST_ATTR_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue().withS(attr1)
-    );
-    item.put(
-      TEST_ATTR2_NAME,
-      new com.amazonaws.services.dynamodbv2.model.AttributeValue().withS(attr2)
-    );
+    item.put(TEST_SORT_NAME, AttributeValue.builder().n(sort).build());
+    item.put(TEST_ATTR_NAME, AttributeValue.builder().s(attr1).build());
+    item.put(TEST_ATTR2_NAME, AttributeValue.builder().s(attr2).build());
     return item;
   }
 
@@ -274,9 +256,8 @@ public class TestUtils {
   }
 
   public static DynamoDBEncryptor createLegacyEncryptor() {
-    AWSKMS kms = AWSKMSClientBuilder.standard().build();
     DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kms,
+      KmsClient.create(),
       KMS_TEST_KEY_ID
     );
     return DynamoDBEncryptor.getInstance(cmp);
