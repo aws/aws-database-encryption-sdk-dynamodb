@@ -118,7 +118,7 @@ module TestBeaconPartition {
     expect_equal(res2.error, E("Invalid defaultNumberOfPartitions specified, 10, must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions."));
   }
 
-  method {:test} TestOutOfBoundsPartitionNumberConfigError() {
+  method {:test} TestConstrainedBeaconConfigErrorsNumPartitionsEqConstrainedBeaconPartionsFail() {
     var store := GetKeyStore();
 
     // --- numberOfPartitions == maximumNumberOfPartitions (should fail) ---
@@ -135,8 +135,17 @@ module TestBeaconPartition {
       maximumNumberOfPartitions := Some(5)
     );
     var src1 := GetLiteralSource([1,2,3,4,5], version1);
-    var res1 := C.ConvertVersionWithSource(FullTableConfig, version1, src1);
-    expect res1.Success?;
+    var res1 := C.ConvertVersionWithSource(
+      FullTableConfig.(search := Some(T.SearchConfig(versions := [version1], writeVersion := 1))),
+      version1,
+      src1
+    );
+    expect res1.Failure?;
+    expect_equal(res1.error, E("Constrained numberOfPartitions for  std2 is 5 but it must be less than the maximumNumberOfPartitions 5"));
+  }
+
+  method {:test} TestConstrainedBeaconPartitionGreaterThanMaxNumPartitionsFail() {
+    var store := GetKeyStore();
 
     // --- numberOfPartitions > maximumNumberOfPartitions (should fail) ---
     var overBeacon := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(10));
@@ -152,9 +161,17 @@ module TestBeaconPartition {
       maximumNumberOfPartitions := Some(5)
     );
     var src2 := GetLiteralSource([1,2,3,4,5], version2);
-    var res2 := C.ConvertVersionWithSource(FullTableConfig, version2, src2);
+    var res2 := C.ConvertVersionWithSource(
+      FullTableConfig.(search := Some(T.SearchConfig(versions := [version2], writeVersion := 1))),
+      version2,
+      src2
+    );
     expect res2.Failure?;
-    expect_equal(res2.error, E("Constrained numberOfPartitions for std2 is 10 but it must be less than the maximumNumberOfPartitions 5"));
+    expect_equal(res2.error, E("Constrained numberOfPartitions for  std2 is 10 but it must be less than the maximumNumberOfPartitions 5")); 
+  }
+
+  method {:test} TestConstrainedBeaconNumPartitionLessThanMaxNumPartitionsSucceed() {
+    var store := GetKeyStore();
 
     // --- numberOfPartitions < maximumNumberOfPartitions (should succeed) ---
     var validBeacon := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(3));
