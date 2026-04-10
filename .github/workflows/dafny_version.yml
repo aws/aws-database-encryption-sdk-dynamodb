@@ -5,6 +5,12 @@ name: Dafny Version
 
 on:
   workflow_call:
+    inputs:
+      branch:
+        description: "Branch to checkout"
+        required: false
+        default: main
+        type: string
     outputs:
       version:
         description: "The dafny version"
@@ -21,6 +27,8 @@ jobs:
       version: ${{ steps.read_property.outputs.dafnyVersion }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch }}
       - name: Read version from Properties-file
         id: read_property
         uses: christian-draeger/read-properties@1.1.1
