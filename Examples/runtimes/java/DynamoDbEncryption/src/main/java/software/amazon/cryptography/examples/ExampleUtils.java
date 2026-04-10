@@ -5,14 +5,27 @@ package software.amazon.cryptography.examples;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Shared utilities for examples. The SORT_KEY constant provides a unique value
+ * Shared utilities for examples. The TEST_PREFIX provides a unique suffix
  * per JVM process so that parallel CI matrix jobs (different Java versions / OS)
  * do not overwrite each other's items in the shared DynamoDB test table.
+ *
+ * Each example uses a hardcoded partition key like "rawEcdhKeyringItem".
+ * In CI, multiple JVMs run in parallel against the same table. Without
+ * isolation, one JVM can overwrite another's item, causing decrypt failures.
+ * By appending a random prefix, each JVM writes to its own partition key
+ * (e.g., "rawEcdhKeyringItem-482913") while keeping cross-example reads
+ * working within the same JVM.
  */
 public class ExampleUtils {
 
-  public static final int SORT_KEY =
-    ThreadLocalRandom.current().nextInt(100000, 999999);
+  private static final String TEST_PREFIX =
+    String.valueOf(ThreadLocalRandom.current().nextInt(100000, 999999));
 
-  public static final String SORT_KEY_VALUE = String.valueOf(SORT_KEY);
+  /**
+   * Returns a partition key value unique to this JVM process.
+   * Example: "rawEcdhKeyringItem" becomes "rawEcdhKeyringItem-482913"
+   */
+  public static String uniquePk(String base) {
+    return base + "-" + TEST_PREFIX;
+  }
 }

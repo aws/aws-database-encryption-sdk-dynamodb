@@ -165,8 +165,8 @@ public class LombokPutGetExample {
     //    configuration above before it is sent to DynamoDb.
     final SimpleViaLombok.SimpleViaLombokBuilder itemBuilder =
       SimpleViaLombok.builder();
-    itemBuilder.partitionKey("LombokPutGetExample");
-    itemBuilder.sortKey(ExampleUtils.SORT_KEY);
+    itemBuilder.partitionKey(ExampleUtils.uniquePk("LombokPutGetExample"));
+    itemBuilder.sortKey(0);
     itemBuilder.attribute1("encrypt and sign me!");
     itemBuilder.attribute2("sign me!");
     itemBuilder.attribute3("ignore me!");
@@ -178,7 +178,7 @@ public class LombokPutGetExample {
     //    original item.
     final Key key = Key
       .builder()
-      .partitionValue("LombokPutGetExample")
+      .partitionValue(ExampleUtils.uniquePk("LombokPutGetExample"))
       .sortValue(0)
       .build();
 

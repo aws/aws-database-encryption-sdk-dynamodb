@@ -188,9 +188,9 @@ public class MultiMrkKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsMrkMultiKeyringItem")).build()
     );
-    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -215,9 +215,9 @@ public class MultiMrkKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsMrkMultiKeyringItem")).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -297,11 +297,11 @@ public class MultiMrkKeyringExample {
       new HashMap<>();
     onlyReplicaKeyKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsMrkMultiKeyringItem")).build()
     );
     onlyReplicaKeyKeyToGet.put(
       "sort_key",
-      AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build()
+      AttributeValue.builder().n("0").build()
     );
 
     final GetItemRequest onlyReplicaKeyGetRequest = GetItemRequest
@@ -379,9 +379,9 @@ public class MultiMrkKeyringExample {
     final HashMap<String, AttributeValue> onlySrkKeyToGet = new HashMap<>();
     onlySrkKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsMrkMultiKeyringItem")).build()
     );
-    onlySrkKeyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    onlySrkKeyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
     final GetItemRequest onlySrkGetRequest = GetItemRequest
       .builder()

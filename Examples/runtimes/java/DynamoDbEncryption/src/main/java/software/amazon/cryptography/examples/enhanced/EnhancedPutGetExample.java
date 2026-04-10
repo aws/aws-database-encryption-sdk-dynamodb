@@ -155,8 +155,8 @@ public class EnhancedPutGetExample {
     //    The item will be encrypted client-side according to your
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass4 item = new SimpleClass4();
-    item.setPartitionKey("EnhancedPutGetExample");
-    item.setSortKey(ExampleUtils.SORT_KEY);
+    item.setPartitionKey(ExampleUtils.uniquePk("EnhancedPutGetExample"));
+    item.setSortKey(0);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");
     item.setAttribute3("ignore me!");
@@ -169,7 +169,7 @@ public class EnhancedPutGetExample {
     //    original item.
     final Key key = Key
       .builder()
-      .partitionValue("EnhancedPutGetExample")
+      .partitionValue(ExampleUtils.uniquePk("EnhancedPutGetExample"))
       .sortValue(0)
       .build();
 
@@ -183,7 +183,7 @@ public class EnhancedPutGetExample {
 
     // retrieve the same record via a Query
     PageIterable<SimpleClass4> items = table.query(
-      QueryConditional.keyEqualTo(k -> k.partitionValue("EnhancedPutGetExample")
+      QueryConditional.keyEqualTo(k -> k.partitionValue(ExampleUtils.uniquePk("EnhancedPutGetExample"))
       )
     );
     List<SimpleClass4> itemList = new ArrayList<SimpleClass4>();

@@ -360,8 +360,8 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // BranchKeyIdSupplier as per your use-case. See the HierarchicalKeyringsExample.java for more
     // information.
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("partition_key", AttributeValue.builder().s("id").build());
-    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    item.put("partition_key", AttributeValue.builder().s(ExampleUtils.uniquePk("id")).build());
+    item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -385,8 +385,8 @@ public class SharedCacheAcrossHierarchicalKeyringsExample {
     // BranchKeyIdSupplier as per your use-case. See the HierarchicalKeyringsExample.java for more
     // information.
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
-    keyToGet.put("partition_key", AttributeValue.builder().s("id").build());
-    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    keyToGet.put("partition_key", AttributeValue.builder().s(ExampleUtils.uniquePk("id")).build());
+    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

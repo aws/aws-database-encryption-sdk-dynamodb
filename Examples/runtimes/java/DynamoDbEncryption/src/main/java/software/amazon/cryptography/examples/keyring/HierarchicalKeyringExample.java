@@ -236,8 +236,8 @@ public class HierarchicalKeyringExample {
     //    based on the code we wrote in the ExampleBranchKeySupplier,
     //    `tenant1BranchKeyId` will be used to encrypt this item.
     final HashMap<String, AttributeValue> item = new HashMap<>();
-    item.put("partition_key", AttributeValue.builder().s("tenant1Id").build());
-    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    item.put("partition_key", AttributeValue.builder().s(ExampleUtils.uniquePk("tenant1Id")).build());
+    item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
       "tenant_sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -263,9 +263,9 @@ public class HierarchicalKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("tenant1Id").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("tenant1Id")).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

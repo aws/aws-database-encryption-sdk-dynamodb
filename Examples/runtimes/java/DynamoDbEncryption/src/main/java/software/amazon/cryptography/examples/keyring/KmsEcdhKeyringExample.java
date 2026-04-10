@@ -340,9 +340,9 @@ public class KmsEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsEcdhKeyringItem")).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -457,9 +457,9 @@ public class KmsEcdhKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsEcdhKeyringItem")).build()
     );
-    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -482,9 +482,9 @@ public class KmsEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
+      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsEcdhKeyringItem")).build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
+    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
