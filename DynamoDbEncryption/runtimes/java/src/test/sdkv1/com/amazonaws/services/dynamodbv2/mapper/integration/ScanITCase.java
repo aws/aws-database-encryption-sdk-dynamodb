@@ -238,7 +238,8 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       assertNotNull(ase.getErrorType());
       assertNotNull(ase.getMessage());
     } catch (Exception e) {
-      fail("Should have seen the AmazonServiceException");
+      fail("Should have seen the AmazonServiceException, but got: "
+        + e.getClass().getName() + ": " + e.getMessage());
     }
   }
 

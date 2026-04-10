@@ -35,7 +35,7 @@ public class TestKmsEcdhKeyringExample {
     );
   }
 
-  @Test(dependsOnMethods = {"TestKmsEcdhKeyringExampleStatic"})
+  @Test(dependsOnMethods = { "TestKmsEcdhKeyringExampleStatic" })
   public void TestKmsEcdhKeyringExampleDiscovery() {
     // In this example you do not need to provide the recipient ECC Public Key.
     // On initialization, the keyring will call KMS:getPublicKey on the configured

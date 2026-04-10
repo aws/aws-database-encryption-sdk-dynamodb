@@ -18,8 +18,9 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class ExampleUtils {
 
-  private static final String TEST_PREFIX =
-    String.valueOf(ThreadLocalRandom.current().nextInt(100000, 999999));
+  private static final String TEST_PREFIX = String.valueOf(
+    ThreadLocalRandom.current().nextInt(100000, 999999)
+  );
 
   /**
    * Returns a partition key value unique to this JVM process.
