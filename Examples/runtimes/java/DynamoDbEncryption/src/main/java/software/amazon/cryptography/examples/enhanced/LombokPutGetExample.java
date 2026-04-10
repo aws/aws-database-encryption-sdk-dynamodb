@@ -1,6 +1,8 @@
 package software.amazon.cryptography.examples.enhanced;
 
 import static software.amazon.cryptography.examples.ConfigUtils.fromEncryptionInterceptor;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertNotManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertProtectedByEncryptionContext;
@@ -164,7 +166,7 @@ public class LombokPutGetExample {
     final SimpleViaLombok.SimpleViaLombokBuilder itemBuilder =
       SimpleViaLombok.builder();
     itemBuilder.partitionKey("LombokPutGetExample");
-    itemBuilder.sortKey(0);
+    itemBuilder.sortKey(ExampleUtils.SORT_KEY);
     itemBuilder.attribute1("encrypt and sign me!");
     itemBuilder.attribute2("sign me!");
     itemBuilder.attribute3("ignore me!");

@@ -1,5 +1,7 @@
 package software.amazon.cryptography.examples.enhanced;
 
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,21 +171,21 @@ public class SingleTableExample {
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass item1 = new SimpleClass();
     item1.setPartitionKey("EnhancedPutGetExample1");
-    item1.setSortKey(0);
+    item1.setSortKey(ExampleUtils.SORT_KEY);
     item1.setAttribute1("item1 encrypt and sign me!");
     item1.setAttribute2("item1 sign me!");
     item1.setAttribute3("item1 ignore me!");
 
     final SimpleClass2 item2 = new SimpleClass2();
     item2.setPartitionKey("EnhancedPutGetExample2");
-    item2.setSortKey(0);
+    item2.setSortKey(ExampleUtils.SORT_KEY);
     item2.setAttribute4("item2 encrypt and sign me!");
     item2.setAttribute5("item2 sign me!");
     item2.setAttribute3("item2 ignore me!");
 
     final SimpleClass3 item3 = new SimpleClass3();
     item3.setPartitionKey("EnhancedPutGetExample3");
-    item3.setSortKey(0);
+    item3.setSortKey(ExampleUtils.SORT_KEY);
     item3.setAttribute6("item3 encrypt and sign me!");
     item3.setAttribute2("item3 sign me!");
     item3.setAttribute7("item3 sign and include me!");
@@ -203,15 +205,15 @@ public class SingleTableExample {
     //    original item.
     final SimpleClass key1 = new SimpleClass();
     key1.setPartitionKey("EnhancedPutGetExample1");
-    key1.setSortKey(0);
+    key1.setSortKey(ExampleUtils.SORT_KEY);
 
     final SimpleClass2 key2 = new SimpleClass2();
     key2.setPartitionKey("EnhancedPutGetExample2");
-    key2.setSortKey(0);
+    key2.setSortKey(ExampleUtils.SORT_KEY);
 
     final SimpleClass3 key3 = new SimpleClass3();
     key3.setPartitionKey("EnhancedPutGetExample3");
-    key3.setSortKey(0);
+    key3.setSortKey(ExampleUtils.SORT_KEY);
 
     final TransactGetItemsEnhancedRequest getRequest =
       TransactGetItemsEnhancedRequest

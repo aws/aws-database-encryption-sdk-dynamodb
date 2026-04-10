@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import java.io.File;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -203,7 +204,7 @@ public class KmsRsaKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsRsaKeyringItem").build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -228,7 +229,7 @@ public class KmsRsaKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsRsaKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

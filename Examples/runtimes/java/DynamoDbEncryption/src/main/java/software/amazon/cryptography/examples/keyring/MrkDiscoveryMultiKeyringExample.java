@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import java.util.ArrayList;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +160,7 @@ public class MrkDiscoveryMultiKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -252,7 +253,7 @@ public class MrkDiscoveryMultiKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsMrkDiscoveryMultiKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

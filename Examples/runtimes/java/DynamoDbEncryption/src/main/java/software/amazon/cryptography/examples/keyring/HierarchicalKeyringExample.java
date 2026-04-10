@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import java.util.HashMap;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.Map;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -236,7 +237,7 @@ public class HierarchicalKeyringExample {
     //    `tenant1BranchKeyId` will be used to encrypt this item.
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put("partition_key", AttributeValue.builder().s("tenant1Id").build());
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "tenant_sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -264,7 +265,7 @@ public class HierarchicalKeyringExample {
       "partition_key",
       AttributeValue.builder().s("tenant1Id").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

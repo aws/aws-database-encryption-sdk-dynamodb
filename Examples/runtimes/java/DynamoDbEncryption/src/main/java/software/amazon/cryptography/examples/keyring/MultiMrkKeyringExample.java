@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import java.util.Collections;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.HashMap;
 import java.util.Map;
 import software.amazon.awssdk.arns.Arn;
@@ -189,7 +190,7 @@ public class MultiMrkKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -216,7 +217,7 @@ public class MultiMrkKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -300,7 +301,7 @@ public class MultiMrkKeyringExample {
     );
     onlyReplicaKeyKeyToGet.put(
       "sort_key",
-      AttributeValue.builder().n("0").build()
+      AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build()
     );
 
     final GetItemRequest onlyReplicaKeyGetRequest = GetItemRequest
@@ -380,7 +381,7 @@ public class MultiMrkKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsMrkMultiKeyringItem").build()
     );
-    onlySrkKeyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    onlySrkKeyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest onlySrkGetRequest = GetItemRequest
       .builder()

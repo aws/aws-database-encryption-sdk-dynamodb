@@ -1,6 +1,8 @@
 package software.amazon.cryptography.examples.enhanced;
 
 import static software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags.primaryPartitionKey;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import static software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags.primarySortKey;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertNotManipulationProof;
@@ -213,7 +215,7 @@ public class TableSchemaBuilderPutGetExample {
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass item = new SimpleClass();
     item.setPartitionKey("TableSchemaBuilderPutGetExample");
-    item.setSortKey(0);
+    item.setSortKey(ExampleUtils.SORT_KEY);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");
     item.setAttribute3("ignore me!");

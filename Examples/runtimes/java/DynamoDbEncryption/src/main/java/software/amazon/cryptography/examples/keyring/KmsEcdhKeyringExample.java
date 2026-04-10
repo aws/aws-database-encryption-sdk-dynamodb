@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import java.io.ByteArrayInputStream;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -341,7 +342,7 @@ public class KmsEcdhKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -458,7 +459,7 @@ public class KmsEcdhKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -483,7 +484,7 @@ public class KmsEcdhKeyringExample {
       "partition_key",
       AttributeValue.builder().s("awsKmsEcdhKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

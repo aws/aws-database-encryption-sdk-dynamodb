@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.internal.Utils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -205,7 +206,7 @@ public class MultiKeyringExample {
       "partition_key",
       AttributeValue.builder().s("multiKeyringItem").build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -232,7 +233,7 @@ public class MultiKeyringExample {
       "partition_key",
       AttributeValue.builder().s("multiKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()
@@ -302,7 +303,7 @@ public class MultiKeyringExample {
     );
     onlyAesKeyringKeyToGet.put(
       "sort_key",
-      AttributeValue.builder().n("0").build()
+      AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build()
     );
 
     final GetItemRequest onlyAesKeyringGetRequest = GetItemRequest

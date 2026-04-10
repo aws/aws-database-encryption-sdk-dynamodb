@@ -1,6 +1,8 @@
 package software.amazon.cryptography.examples.enhanced;
 
 import java.util.ArrayList;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,7 +156,7 @@ public class EnhancedPutGetExample {
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass4 item = new SimpleClass4();
     item.setPartitionKey("EnhancedPutGetExample");
-    item.setSortKey(0);
+    item.setSortKey(ExampleUtils.SORT_KEY);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");
     item.setAttribute3("ignore me!");

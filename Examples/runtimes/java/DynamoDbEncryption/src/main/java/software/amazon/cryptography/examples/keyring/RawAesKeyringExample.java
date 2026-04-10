@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.keyring;
 
 import java.nio.ByteBuffer;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -158,7 +159,7 @@ public class RawAesKeyringExample {
       "partition_key",
       AttributeValue.builder().s("rawAesKeyringItem").build()
     );
-    item.put("sort_key", AttributeValue.builder().n("0").build());
+    item.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     item.put(
       "sensitive_data",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -183,7 +184,7 @@ public class RawAesKeyringExample {
       "partition_key",
       AttributeValue.builder().s("rawAesKeyringItem").build()
     );
-    keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
+    keyToGet.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
 
     final GetItemRequest getRequest = GetItemRequest
       .builder()

@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.itemencryptor;
 
 import java.util.HashMap;
+import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.Map;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
@@ -126,7 +127,7 @@ public class ItemEncryptDecryptExample {
       "partition_key",
       AttributeValue.builder().s("ItemEncryptDecryptExample").build()
     );
-    originalItem.put("sort_key", AttributeValue.builder().n("0").build());
+    originalItem.put("sort_key", AttributeValue.builder().n(ExampleUtils.SORT_KEY_VALUE).build());
     originalItem.put(
       "attribute1",
       AttributeValue.builder().s("encrypt and sign me!").build()
@@ -151,7 +152,7 @@ public class ItemEncryptDecryptExample {
       .get("partition_key")
       .s()
       .equals("ItemEncryptDecryptExample");
-    assert encryptedItem.get("sort_key").n().equals("0");
+    assert encryptedItem.get("sort_key").n().equals(ExampleUtils.SORT_KEY_VALUE);
     assert encryptedItem.get("attribute1").b() != null;
 
     // 7. Directly decrypt the encrypted item using the DynamoDb Item Encryptor
@@ -166,7 +167,7 @@ public class ItemEncryptDecryptExample {
       .get("partition_key")
       .s()
       .equals("ItemEncryptDecryptExample");
-    assert decryptedItem.get("sort_key").n().equals("0");
+    assert decryptedItem.get("sort_key").n().equals(ExampleUtils.SORT_KEY_VALUE);
     assert decryptedItem.get("attribute1").s().equals("encrypt and sign me!");
   }
 
