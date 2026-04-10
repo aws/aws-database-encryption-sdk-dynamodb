@@ -1,8 +1,6 @@
 package software.amazon.cryptography.examples.enhanced;
 
 import static software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags.primaryPartitionKey;
-import software.amazon.cryptography.examples.ExampleUtils;
-import software.amazon.cryptography.examples.ExampleUtils;
 import static software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags.primarySortKey;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertNotManipulationProof;
@@ -33,6 +31,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.SignOnlyTag;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.examples.ConfigUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -214,7 +214,9 @@ public class TableSchemaBuilderPutGetExample {
     //    The item will be encrypted client-side according to your
     //    configuration above before it is sent to DynamoDb.
     final SimpleClass item = new SimpleClass();
-    item.setPartitionKey(ExampleUtils.uniquePk("TableSchemaBuilderPutGetExample"));
+    item.setPartitionKey(
+      ExampleUtils.uniquePk("TableSchemaBuilderPutGetExample")
+    );
     item.setSortKey(0);
     item.setAttribute1("encrypt and sign me!");
     item.setAttribute2("sign me!");

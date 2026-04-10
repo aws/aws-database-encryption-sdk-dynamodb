@@ -1,8 +1,6 @@
 package software.amazon.cryptography.examples.enhanced;
 
 import java.util.ArrayList;
-import software.amazon.cryptography.examples.ExampleUtils;
-import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +17,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.CreateDynamoDbEncryptionInterceptorInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -183,7 +183,8 @@ public class EnhancedPutGetExample {
 
     // retrieve the same record via a Query
     PageIterable<SimpleClass4> items = table.query(
-      QueryConditional.keyEqualTo(k -> k.partitionValue(ExampleUtils.uniquePk("EnhancedPutGetExample"))
+      QueryConditional.keyEqualTo(k ->
+        k.partitionValue(ExampleUtils.uniquePk("EnhancedPutGetExample"))
       )
     );
     List<SimpleClass4> itemList = new ArrayList<SimpleClass4>();

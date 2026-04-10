@@ -1,7 +1,6 @@
 package software.amazon.cryptography.examples.clientsupplier;
 
 import java.util.ArrayList;
-import software.amazon.cryptography.examples.ExampleUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.examples.ExampleUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkDiscoveryMultiKeyringInput;
@@ -167,7 +167,10 @@ public class ClientSupplierExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s(ExampleUtils.uniquePk("clientSupplierItem")).build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("clientSupplierItem"))
+        .build()
     );
     item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
@@ -192,7 +195,10 @@ public class ClientSupplierExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s(ExampleUtils.uniquePk("clientSupplierItem")).build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("clientSupplierItem"))
+        .build()
     );
     keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
@@ -290,7 +296,10 @@ public class ClientSupplierExample {
       new HashMap<>();
     onlyReplicaKeyKeyToGet.put(
       "partition_key",
-      AttributeValue.builder().s(ExampleUtils.uniquePk("awsKmsMrkMultiKeyringItem")).build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("awsKmsMrkMultiKeyringItem"))
+        .build()
     );
     onlyReplicaKeyKeyToGet.put(
       "sort_key",

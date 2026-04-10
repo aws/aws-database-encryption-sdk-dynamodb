@@ -1,8 +1,6 @@
 package software.amazon.cryptography.examples.enhanced;
 
 import static software.amazon.cryptography.examples.ConfigUtils.fromEncryptionInterceptor;
-import software.amazon.cryptography.examples.ExampleUtils;
-import software.amazon.cryptography.examples.ExampleUtils;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertNotManipulationProof;
 import static software.amazon.cryptography.examples.ManipulationUtils.assertProtectedByEncryptionContext;
@@ -29,6 +27,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Crea
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;

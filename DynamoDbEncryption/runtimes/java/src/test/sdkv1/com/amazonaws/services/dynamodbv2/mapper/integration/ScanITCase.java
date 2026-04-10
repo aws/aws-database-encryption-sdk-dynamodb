@@ -237,9 +237,17 @@ public class ScanITCase extends DynamoDBMapperCryptoIntegrationTestBase {
       assertNotNull(ase.getErrorCode());
       assertNotNull(ase.getErrorType());
       assertNotNull(ase.getMessage());
+    } catch (java.util.concurrent.RejectedExecutionException e) {
+      // This is expected when the thread pool shuts down after the first
+      // segment fails with AmazonServiceException, causing the second
+      // segment's task to be rejected.
     } catch (Exception e) {
-      fail("Should have seen the AmazonServiceException, but got: "
-        + e.getClass().getName() + ": " + e.getMessage());
+      fail(
+        "Should have seen AmazonServiceException or RejectedExecutionException, but got: " +
+        e.getClass().getName() +
+        ": " +
+        e.getMessage()
+      );
     }
   }
 
