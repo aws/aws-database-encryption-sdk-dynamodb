@@ -1,5 +1,6 @@
 package software.amazon.cryptography.examples.keyring;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 
@@ -13,5 +14,10 @@ public class TestMrkMultiKeyringExample {
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_MRK_REPLICA_KEY_ID_US_EAST_1
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("awsKmsMrkMultiKeyringItem");
   }
 }

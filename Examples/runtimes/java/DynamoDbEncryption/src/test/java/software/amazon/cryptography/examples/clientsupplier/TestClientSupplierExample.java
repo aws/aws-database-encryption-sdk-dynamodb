@@ -2,6 +2,7 @@ package software.amazon.cryptography.examples.clientsupplier;
 
 import java.util.Collections;
 import java.util.List;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.cryptography.examples.TestUtils;
@@ -34,5 +35,11 @@ public class TestClientSupplierExample {
       // ...and access its replica in eu-west-1
       regions
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("clientSupplierItem");
+    TestUtils.cleanUpExampleItem("awsKmsMrkMultiKeyringItem");
   }
 }

@@ -3,6 +3,7 @@ package software.amazon.cryptography.examples.keyring;
 import static software.amazon.cryptography.examples.keyring.KmsRsaKeyringExample.shouldGetNewPublicKey;
 import static software.amazon.cryptography.examples.keyring.KmsRsaKeyringExample.writePublicKeyPemForRsaKey;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 
@@ -21,5 +22,10 @@ public class TestKmsRsaKeyringExample {
       TestUtils.TEST_DDB_TABLE_NAME,
       TestUtils.TEST_KMS_RSA_KEY_ID
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("awsKmsRsaKeyringItem");
   }
 }
