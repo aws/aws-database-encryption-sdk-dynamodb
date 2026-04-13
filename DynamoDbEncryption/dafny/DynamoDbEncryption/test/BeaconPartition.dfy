@@ -226,4 +226,27 @@ module TestBeaconPartition {
     expect res3.Failure?;
   }
 
+  method {:test} TestLongAttributeNameForPartitionBeacon() {
+    var store := GetKeyStore();
+
+    // -- create a beacon with a long name
+    // standarad beacon name constraints is that it has to be of type string.
+    var longName := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    var longNameBeacon := T.StandardBeacon(name := longName, length := 24, loc := None, style := None, numberOfPartitions := Some(3));
+    var longNameVersion := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [longNameBeacon],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(10)
+    );
+    var longNameConfig := FullTableConfig.(attributeActionsOnEncrypt := map[longName := SE.ENCRYPT_AND_SIGN]);
+    var src3 := GetLiteralSource([1,2,3,4,5], longNameVersion);
+    var res3 := C.ConvertVersionWithSource(longNameConfig, longNameVersion, src3);
+    expect res3.Success?;
+  }
 }
