@@ -167,7 +167,7 @@ module TestBeaconPartition {
       src2
     );
     expect res2.Failure?;
-    expect_equal(res2.error, E("Constrained numberOfPartitions for  std2 is 10 but it must be less than the maximumNumberOfPartitions 5")); 
+    expect_equal(res2.error, E("Constrained numberOfPartitions for  std2 is 10 but it must be less than the maximumNumberOfPartitions 5"));
   }
 
   method {:test} TestConstrainedBeaconNumPartitionLessThanMaxNumPartitionsSucceed() {
