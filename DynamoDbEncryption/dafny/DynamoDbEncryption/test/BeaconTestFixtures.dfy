@@ -33,6 +33,7 @@ module BeaconTestFixtures {
 
   const std2 := StandardBeacon(name := "std2", length := 24, loc := None, style := None)
   const std4 := StandardBeacon(name := "std4", length := 24, loc := Some("std4"), style := None)
+  const std4Partitioned := StandardBeacon(name := "std4", length := 24, loc := Some("std4"), style := None, numberOfPartitions := Some(5))
   const std6 := StandardBeacon(name := "std6", length := 26, loc := Some("std6[0]"), style := None)
   const NameB := StandardBeacon(name := "Name", length := 32, loc := None, style := None)
   const TitleB := StandardBeacon(name := "Title", length := 32, loc := None, style := None)

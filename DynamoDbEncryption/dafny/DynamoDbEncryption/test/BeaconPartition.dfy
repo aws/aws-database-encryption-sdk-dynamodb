@@ -249,4 +249,54 @@ module TestBeaconPartition {
     var res3 := C.ConvertVersionWithSource(longNameConfig, longNameVersion, src3);
     expect res3.Success?;
   }
+
+  method {:test} TestQueryMixedTableBeaconPartitions() {
+    var context := ExprContext (
+      None,
+      Some("std2 = :std2 AND std4 = :std4 AND :std6 = std6 AND Name = :Name AND Mixed = :Mixed"
+           + " AND :NameTitle = NameTitle AND NameTitle = :NameTitleN AND NameTitle = :NameTitleT AND NameTitle = :NameTitleTN"
+           + " AND NameTitleField = :NameTitleField And Title = :Title AND YearName = :YearName"),
+      Some(map[
+             ":std2" := Std2String,
+             ":std4" := Std4String,
+             ":std6" := Std6String,
+             ":Name" := NameString,
+             ":Title" := TitleString,
+             ":Mixed" := DDB.AttributeValue.S("N_MyName.Y_1984"),
+             ":NameTitle" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
+             ":NameTitleN" := DDB.AttributeValue.S("N_MyName"),
+             ":NameTitleT" := DDB.AttributeValue.S("T_MyTitle"),
+             ":NameTitleTN" := DDB.AttributeValue.S("N_MyName.T_MyTitle"),
+             ":NameTitleField" := DDB.AttributeValue.S("MyName__mytitle"),
+             ":YearName" := DDB.AttributeValue.S("Y_1984.N_MyName")
+           ]),
+      None
+    );
+    // We need to create a table with mulitple beacons with different partition numbers
+    // We will test with the current number of partitions which is 1 and 5 partitions
+    var version := GetLotsaBeacons();
+    var partionedVersion := version.(standardBeacons := [std2, std4Partitioned, std6, NameTitleBeacon, NameB, TitleB], maximumNumberOfPartitions := Some(10));
+    var src := GetLiteralSource([1,2,3,4,5], partionedVersion);
+    var res2 := C.ConvertVersionWithSource(
+      FullTableConfig.(search := Some(T.SearchConfig(versions := [partionedVersion], writeVersion := 1))),
+      partionedVersion,
+      src
+    );
+    var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, partionedVersion, src);
+    var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
+    expect newContext.values == Some(map[
+                                       ":Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
+                                       ":Name" := DDB.AttributeValue.S(Name_beacon),
+                                       ":NameTitle" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
+                                       ":NameTitleTN" := DDB.AttributeValue.S("N_" + Name_beacon + ".T_" + Title_beacon),
+                                       ":NameTitleN" := DDB.AttributeValue.S("N_" + Name_beacon),
+                                       ":NameTitleT" := DDB.AttributeValue.S("T_" + Title_beacon),
+                                       ":NameTitleField" := DDB.AttributeValue.S(NameTitle_beacon),
+                                       ":std2" := DDB.AttributeValue.S(std2_beacon),
+                                       ":Title" := DDB.AttributeValue.S(Title_beacon),
+                                       ":std6" := DDB.AttributeValue.S(std6_beacon),
+                                       ":std4" := DDB.AttributeValue.S(std4_beacon),
+                                       ":YearName" := DDB.AttributeValue.S("Y_1984.N_" + Name_beacon)
+                                     ]);
+  }
 }
