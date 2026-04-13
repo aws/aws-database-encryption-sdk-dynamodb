@@ -27,6 +27,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Crea
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryption;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
+import software.amazon.cryptography.examples.ExampleUtils;
+import software.amazon.cryptography.examples.ExampleUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateAwsKmsMrkMultiKeyringInput;
@@ -163,7 +165,7 @@ public class LombokPutGetExample {
     //    configuration above before it is sent to DynamoDb.
     final SimpleViaLombok.SimpleViaLombokBuilder itemBuilder =
       SimpleViaLombok.builder();
-    itemBuilder.partitionKey("LombokPutGetExample");
+    itemBuilder.partitionKey(ExampleUtils.uniquePk("LombokPutGetExample"));
     itemBuilder.sortKey(0);
     itemBuilder.attribute1("encrypt and sign me!");
     itemBuilder.attribute2("sign me!");
@@ -176,7 +178,7 @@ public class LombokPutGetExample {
     //    original item.
     final Key key = Key
       .builder()
-      .partitionValue("LombokPutGetExample")
+      .partitionValue(ExampleUtils.uniquePk("LombokPutGetExample"))
       .sortValue(0)
       .build();
 

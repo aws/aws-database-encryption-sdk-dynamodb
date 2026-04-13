@@ -43,6 +43,20 @@ public class TestUtils {
     "DynamoDbEncryptionInterceptorTestTable";
 
   /**
+   * Deletes a test item using the standard table schema (partition_key S, sort_key N).
+   * Use this for items written by examples that use ExampleUtils.uniquePk().
+   */
+  public static void cleanUpExampleItem(final String partitionKeyBase) {
+    cleanUpDDBItem(
+      TEST_DDB_TABLE_NAME,
+      "partition_key",
+      "sort_key",
+      ExampleUtils.uniquePk(partitionKeyBase),
+      "0"
+    );
+  }
+
+  /**
    * Deletes an item from a DynamoDB table.
    *
    * @param tableName The name of the DynamoDB table
