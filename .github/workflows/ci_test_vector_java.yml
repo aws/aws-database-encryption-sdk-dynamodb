@@ -26,6 +26,7 @@ on:
 jobs:
   testJava:
     strategy:
+      fail-fast: false
       matrix:
         library: [TestVectors]
         java-version: [8, 11, 17, 19]
