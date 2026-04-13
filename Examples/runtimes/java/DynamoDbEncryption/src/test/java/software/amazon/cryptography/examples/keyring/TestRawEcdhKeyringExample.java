@@ -2,6 +2,7 @@ package software.amazon.cryptography.examples.keyring;
 
 import java.nio.ByteBuffer;
 import java.security.spec.ECGenParameterSpec;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 import software.amazon.cryptography.primitives.model.ECDHCurveSpec;
@@ -79,5 +80,10 @@ public class TestRawEcdhKeyringExample {
       TestUtils.TEST_DDB_TABLE_NAME,
       ECDHCurveSpec.ECC_NIST_P256
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("rawEcdhKeyringItem");
   }
 }
