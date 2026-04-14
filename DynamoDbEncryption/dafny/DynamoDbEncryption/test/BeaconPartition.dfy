@@ -298,5 +298,6 @@ module TestBeaconPartition {
                                        ":std4" := DDB.AttributeValue.S(std4_beacon),
                                        ":YearName" := DDB.AttributeValue.S("Y_1984.N_" + Name_beacon)
                                      ]);
+      expect newContext.names == None;
   }
 }
