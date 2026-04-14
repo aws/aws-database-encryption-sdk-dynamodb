@@ -8,6 +8,11 @@ on:
         description: "The Dafny version to run"
         required: true
         type: string
+      branch:
+        description: "Branch to checkout"
+        required: false
+        default: main
+        type: string
       regenerate-code:
         description: "Regenerate code using smithy-dafny"
         required: false
@@ -44,6 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.branch }}
           submodules: recursive
 
       - name: Setup Dafny
