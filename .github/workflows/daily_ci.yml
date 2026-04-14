@@ -1,5 +1,5 @@
 # This workflow runs every weekday at 16:00 UTC (9AM PDT)
-name: Daily CI
+name: daily CI
 
 permissions:
   contents: read
