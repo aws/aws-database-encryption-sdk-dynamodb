@@ -8,8 +8,7 @@ permissions:
 on:
   schedule:
     - cron: "00 16 * * 1-5"
-  pull_request:
-    paths: .github/workflows/daily_ci.yml
+  workflow_dispatch:
 
 jobs:
   getVersion:
