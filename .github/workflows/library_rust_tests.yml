@@ -11,7 +11,6 @@ on:
       branch:
         description: "Branch to checkout"
         required: false
-        default: main
         type: string
       regenerate-code:
         description: "Regenerate code using smithy-dafny"
@@ -62,7 +61,7 @@ jobs:
           git config --global core.longpaths true
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.branch || github.head_ref || github.ref }}
       - name: Init Submodules
         shell: bash
         run: |

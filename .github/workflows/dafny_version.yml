@@ -9,7 +9,6 @@ on:
       branch:
         description: "Branch to checkout"
         required: false
-        default: main
         type: string
     outputs:
       version:
@@ -28,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.branch || github.head_ref || github.ref }}
       - name: Read version from Properties-file
         id: read_property
         uses: christian-draeger/read-properties@1.1.1
