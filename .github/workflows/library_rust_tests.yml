@@ -8,6 +8,10 @@ on:
         description: "The Dafny version to run"
         required: true
         type: string
+      branch:
+        description: "Branch to checkout"
+        required: false
+        type: string
       regenerate-code:
         description: "Regenerate code using smithy-dafny"
         required: false
@@ -56,6 +60,8 @@ jobs:
         run: |
           git config --global core.longpaths true
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.head_ref || github.ref }}
       - name: Init Submodules
         shell: bash
         run: |

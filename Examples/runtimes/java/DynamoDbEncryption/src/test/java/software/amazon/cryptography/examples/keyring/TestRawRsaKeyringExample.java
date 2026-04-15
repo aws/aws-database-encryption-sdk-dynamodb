@@ -1,5 +1,6 @@
 package software.amazon.cryptography.examples.keyring;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 
@@ -18,5 +19,10 @@ public class TestRawRsaKeyringExample {
     RawRsaKeyringExample.RawRsaKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("rawRsaKeyringItem");
   }
 }

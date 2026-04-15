@@ -2,6 +2,7 @@ package software.amazon.cryptography.examples.keyring;
 
 import java.util.Collections;
 import java.util.List;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.TestUtils;
 
@@ -20,5 +21,10 @@ public class TestMrkDiscoveryMultiKeyringExample {
       accounts,
       regions
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("awsKmsMrkDiscoveryMultiKeyringItem");
   }
 }

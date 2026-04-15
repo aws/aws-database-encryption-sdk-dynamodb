@@ -5,6 +5,11 @@ name: Dafny Verify Version
 
 on:
   workflow_call:
+    inputs:
+      branch:
+        description: "Branch to checkout"
+        required: false
+        type: string
     outputs:
       version:
         description: "The dafny version for verify"
@@ -21,6 +26,8 @@ jobs:
       version: ${{ steps.read_property.outputs.dafnyVerifyVersion }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.head_ref || github.ref }}
       - name: Read version from Properties-file
         id: read_property
         uses: christian-draeger/read-properties@1.1.1
