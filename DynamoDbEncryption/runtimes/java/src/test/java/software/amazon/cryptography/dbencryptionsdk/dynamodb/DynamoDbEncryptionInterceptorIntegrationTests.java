@@ -392,7 +392,7 @@ public class DynamoDbEncryptionInterceptorIntegrationTests {
     // Put Item into table via transactions
     HashMap<String, AttributeValue> item = new HashMap<>();
 
-    String partitionValue = "transact";
+    String partitionValue = "transact" + randomNum;
     String sortValue1 = "1";
     String sortValue2 = "2";
     String attrValue = "lorem ipsum";
