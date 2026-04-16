@@ -355,6 +355,7 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
       materials.getVerificationKey(),
       signature
     );
+    DynamoDbSigner.putCacheIfEmpty(signer);
     itemAttributes.remove(materialDescriptionFieldName);
 
     actualDecryption(
