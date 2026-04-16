@@ -226,7 +226,13 @@ public final class AttributeSerializer {
       if (value.length != 1) {
         throw new DbeException("Invalid boolean value: expected 1 byte");
       }
-      return AttributeValue.fromBool(value[0] != 0x00);
+      if (value[0] == 0x00) {
+        return AttributeValue.fromBool(false);
+      } else if (value[0] == 0x01) {
+        return AttributeValue.fromBool(true);
+      } else {
+        throw new DbeException("Invalid boolean value: " + (value[0] & 0xFF));
+      }
     }
     if (Arrays.equals(typeId, TypeId.STRING_SET)) {
       return deserializeStringSet(value);
@@ -254,7 +260,11 @@ public final class AttributeSerializer {
     List<byte[]> entries = unpackSet(value);
     List<String> ss = new ArrayList<>(entries.size());
     for (byte[] e : entries) {
-      ss.add(new String(e, StandardCharsets.UTF_8));
+      String s = new String(e, StandardCharsets.UTF_8);
+      if (ss.contains(s)) {
+        throw new DbeException("Duplicate value in String Set");
+      }
+      ss.add(s);
     }
     return AttributeValue.builder().ss(ss).build();
   }
@@ -263,7 +273,11 @@ public final class AttributeSerializer {
     List<byte[]> entries = unpackSet(value);
     List<String> ns = new ArrayList<>(entries.size());
     for (byte[] e : entries) {
-      ns.add(new String(e, StandardCharsets.UTF_8));
+      String n = new String(e, StandardCharsets.UTF_8);
+      if (ns.contains(n)) {
+        throw new DbeException("Duplicate value in Number Set");
+      }
+      ns.add(n);
     }
     return AttributeValue.builder().ns(ns).build();
   }
@@ -271,8 +285,13 @@ public final class AttributeSerializer {
   private static AttributeValue deserializeBinarySet(byte[] value) {
     List<byte[]> entries = unpackSet(value);
     List<SdkBytes> bs = new ArrayList<>(entries.size());
-    for (byte[] e : entries) {
-      bs.add(SdkBytes.fromByteArray(e));
+    for (int i = 0; i < entries.size(); i++) {
+      for (int j = 0; j < i; j++) {
+        if (Arrays.equals(entries.get(i), entries.get(j))) {
+          throw new DbeException("Duplicate value in Binary Set");
+        }
+      }
+      bs.add(SdkBytes.fromByteArray(entries.get(i)));
     }
     return AttributeValue.builder().bs(bs).build();
   }
@@ -295,7 +314,10 @@ public final class AttributeSerializer {
     int count = buf.getInt();
     Map<String, AttributeValue> m = new LinkedHashMap<>(count);
     for (int i = 0; i < count; i++) {
-      buf.getShort(); // key type (always 0x0001)
+      short keyType = buf.getShort();
+      if (keyType != 0x0001) {
+        throw new DbeException("Map key type must be String (0x0001), got: " + keyType);
+      }
       int keyLen = buf.getInt();
       byte[] keyBytes = new byte[keyLen];
       buf.get(keyBytes);

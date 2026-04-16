@@ -385,6 +385,64 @@ class AttributeSerializerTest {
             () -> AttributeSerializer.deserializeValue(TypeId.STRING_SET, new byte[]{}));
     }
 
+    // ---- Deserialization strictness tests (bugs found during validation) ----
+
+    @Test
+    void testBooleanDeserializationRejectsInvalidValues() {
+        // Only 0x00 and 0x01 are valid boolean values
+        assertThrows(DbeException.class,
+            () -> AttributeSerializer.deserializeValue(TypeId.BOOLEAN, new byte[]{0x02}));
+        assertThrows(DbeException.class,
+            () -> AttributeSerializer.deserializeValue(TypeId.BOOLEAN, new byte[]{(byte) 0xFF}));
+    }
+
+    @Test
+    void testMapDeserializationRejectsInvalidKeyType() {
+        // Map with key type 0x0002 (Number) instead of 0x0001 (String)
+        byte[] badMap = new byte[]{
+            0, 0, 0, 1,       // count = 1
+            0, 2,              // key type: Number (WRONG - should be 0x0001)
+            0, 0, 0, 1, 65,   // key: "A"
+            0, 0,              // value type: Null
+            0, 0, 0, 0        // value length: 0
+        };
+        assertThrows(DbeException.class,
+            () -> AttributeSerializer.deserializeValue(TypeId.MAP, badMap));
+    }
+
+    @Test
+    void testDeserializationRejectsDuplicateStringSet() {
+        byte[] dupSS = new byte[]{
+            0, 0, 0, 2,       // count = 2
+            0, 0, 0, 3, 49, 50, 51,  // "123"
+            0, 0, 0, 3, 49, 50, 51   // "123" (duplicate)
+        };
+        assertThrows(DbeException.class,
+            () -> AttributeSerializer.deserializeValue(TypeId.STRING_SET, dupSS));
+    }
+
+    @Test
+    void testDeserializationRejectsDuplicateNumberSet() {
+        byte[] dupNS = new byte[]{
+            0, 0, 0, 2,
+            0, 0, 0, 3, 49, 50, 51,  // "123"
+            0, 0, 0, 3, 49, 50, 51   // "123" (duplicate)
+        };
+        assertThrows(DbeException.class,
+            () -> AttributeSerializer.deserializeValue(TypeId.NUMBER_SET, dupNS));
+    }
+
+    @Test
+    void testDeserializationRejectsDuplicateBinarySet() {
+        byte[] dupBS = new byte[]{
+            0, 0, 0, 2,
+            0, 0, 0, 3, 1, 2, 3,  // [1,2,3]
+            0, 0, 0, 3, 1, 2, 3   // [1,2,3] (duplicate)
+        };
+        assertThrows(DbeException.class,
+            () -> AttributeSerializer.deserializeValue(TypeId.BINARY_SET, dupBS));
+    }
+
     // ---- Depth limit tests (from TestMaxDepth, TestTooDeep) ----
 
     @Test

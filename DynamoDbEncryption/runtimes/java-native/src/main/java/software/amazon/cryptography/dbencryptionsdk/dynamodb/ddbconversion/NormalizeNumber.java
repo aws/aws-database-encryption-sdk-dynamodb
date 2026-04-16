@@ -36,10 +36,7 @@ public final class NormalizeNumber {
       throw new DbeException("Invalid DynamoDB number: empty string");
     }
 
-    String s = number.trim();
-    if (s.isEmpty()) {
-      throw new DbeException("Invalid DynamoDB number: blank string");
-    }
+    String s = number;
 
     // Handle sign
     boolean negative = false;
