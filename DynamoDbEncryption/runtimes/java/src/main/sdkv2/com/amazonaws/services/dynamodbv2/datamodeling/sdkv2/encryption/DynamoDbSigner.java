@@ -62,9 +62,12 @@ class DynamoDbSigner {
     DynamoDbSigner result = cache.get(signingAlgorithm);
     if (result == null) {
       result = new DynamoDbSigner(signingAlgorithm, rnd);
-      cache.putIfAbsent(signingAlgorithm, result);
     }
     return result;
+  }
+
+  static void putCacheIfEmpty(DynamoDbSigner signer) {
+    cache.putIfAbsent(signer.getSigningAlgorithm(), signer);
   }
 
   /**
