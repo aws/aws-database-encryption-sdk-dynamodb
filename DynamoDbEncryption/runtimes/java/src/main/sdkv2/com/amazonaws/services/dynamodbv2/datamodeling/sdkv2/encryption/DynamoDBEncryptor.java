@@ -326,9 +326,8 @@ public class DynamoDBEncryptor implements ILegacyDynamoDbEncryptor {
 
     materials = encryptionMaterialsProvider.getDecryptionMaterials(context);
     decryptionKey = materials.getDecryptionKey();
-    String signingAlg;
     if (materialDescription.containsKey(signingAlgorithmHeader)) {
-      signingAlg = materialDescription.get(signingAlgorithmHeader);
+      String signingAlg = materialDescription.get(signingAlgorithmHeader);
       signer = DynamoDbSigner.getInstance(signingAlg, Utils.getRng());
     }
 
