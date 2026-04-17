@@ -24,6 +24,7 @@ Within `runtimes/java`:
 - `src/main/java` contains all hand written Java code, including externs.
 - `src/main/dafny-generated` contains all Dafny to Java transpiled code.
 - `src/main/smithy-generated` contains all Smithy to Java generated code.
+- `src/main/sdkv2` contains an embedded copy of the DynamoDB Encryption Client (DDBEC), which can be used as a standalone DDBEC or during migration from DDBEC to the DB-ESDK.
 
 #### .NET
 

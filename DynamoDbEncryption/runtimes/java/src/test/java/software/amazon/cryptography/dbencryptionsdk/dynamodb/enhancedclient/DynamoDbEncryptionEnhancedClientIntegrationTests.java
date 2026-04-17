@@ -3,20 +3,18 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient;
 import static org.testng.Assert.assertEquals;
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.*;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.AttributeEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DynamoDBEncryptor;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.providers.DirectKmsMaterialProvider;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDBEncryptor;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionContext;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.EncryptionFlags;
+import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.DirectKmsMaterialProvider;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nullable;
 import org.testng.annotations.Test;
@@ -30,8 +28,12 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
+import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.KmsException;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.validdatamodels.*;
@@ -387,34 +389,65 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
   }
 
   @Test
-  public void TestGetLegacyItem() {
-    // Put item using legacy DDBMapper
-    AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
+  public void TestGetLegacyItem() throws GeneralSecurityException {
     final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kmsClient,
+      KmsClient.create(),
       KMS_TEST_KEY_ID
     );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
-    final AmazonDynamoDB ddbv1 = AmazonDynamoDBClientBuilder.standard().build();
-    DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig
-      .builder()
-      .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.PUT)
-      .build();
-    DynamoDBMapper mapper = new DynamoDBMapper(
-      ddbv1,
-      mapperConfig,
-      new AttributeEncryptor(oldEncryptor)
+
+    // Build plaintext record using SDK v2 AttributeValue
+    Map<String, AttributeValue> plaintextItem = new HashMap<>();
+    plaintextItem.put(
+      "partition_key",
+      AttributeValue.builder().s("ddbMapperItem").build()
+    );
+    plaintextItem.put("sort_key", AttributeValue.builder().n("777").build());
+    plaintextItem.put(
+      "encryptAndSign",
+      AttributeValue.builder().s("lorem").build()
+    );
+    plaintextItem.put("signOnly", AttributeValue.builder().s("ipsum").build());
+    plaintextItem.put(
+      "doNothing",
+      AttributeValue.builder().s("fizzbuzz").build()
     );
 
-    LegacyClass record = new LegacyClass();
-    record.setPartitionKey("ddbMapperItem");
-    record.setSortKey(777);
-    record.setEncryptAndSign("lorem");
-    record.setSignOnly("ipsum");
-    record.setDoNothing("fizzbuzz");
+    // Encrypt using legacy encryptor
+    final EncryptionContext encryptionContext = EncryptionContext
+      .builder()
+      .tableName(TEST_TABLE_NAME)
+      .hashKeyName("partition_key")
+      .rangeKeyName("sort_key")
+      .build();
+    final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
+    final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+      EncryptionFlags.ENCRYPT,
+      EncryptionFlags.SIGN
+    );
+    final Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    actions.put("partition_key", signOnly);
+    actions.put("sort_key", signOnly);
+    actions.put("encryptAndSign", encryptAndSign);
+    actions.put("signOnly", signOnly);
 
-    mapper.save(record);
+    Map<String, AttributeValue> encryptedItem = oldEncryptor.encryptRecord(
+      plaintextItem,
+      actions,
+      encryptionContext
+    );
 
+    // Put encrypted item using SDK v2 DynamoDbClient
+    DynamoDbClient ddb = DynamoDbClient.create();
+    ddb.putItem(
+      PutItemRequest
+        .builder()
+        .tableName(TEST_TABLE_NAME)
+        .item(encryptedItem)
+        .build()
+    );
+
+    // Read back using enhanced client with legacy override
     TableSchema<LegacyClass> schemaOnEncrypt = TableSchema.fromBean(
       LegacyClass.class
     );
@@ -422,13 +455,11 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
       oldEncryptor,
       schemaOnEncrypt
     );
-
     DynamoDbTable<LegacyClass> table = enhancedClient.table(
       TEST_TABLE_NAME,
       schemaOnEncrypt
     );
 
-    // Get the item back from the table
     Key key = Key
       .builder()
       .partitionValue("ddbMapperItem")
@@ -446,11 +477,10 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
   }
 
   @Test
-  public void TestWriteLegacyItem() {
+  public void TestWriteLegacyItem() throws GeneralSecurityException {
     // Configure EnhancedClient with Legacy behavior
-    AWSKMS kmsClient = AWSKMSClientBuilder.standard().build();
     final DirectKmsMaterialProvider cmp = new DirectKmsMaterialProvider(
-      kmsClient,
+      KmsClient.create(),
       KMS_TEST_KEY_ID
     );
     final DynamoDBEncryptor oldEncryptor = DynamoDBEncryptor.getInstance(cmp);
@@ -475,24 +505,52 @@ public class DynamoDbEncryptionEnhancedClientIntegrationTests {
     );
     table.putItem(record);
 
-    // Get item using legacy DDBMapper
-    final AmazonDynamoDB ddbv1 = AmazonDynamoDBClientBuilder.standard().build();
-    DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig
+    // Read back using SDK v2 DynamoDbClient and decrypt with legacy encryptor
+    DynamoDbClient ddb = DynamoDbClient.create();
+    Map<String, AttributeValue> keyToGet = new HashMap<>();
+    keyToGet.put(
+      "partition_key",
+      AttributeValue.builder().s("legacyItem").build()
+    );
+    keyToGet.put("sort_key", AttributeValue.builder().n("777").build());
+    Map<String, AttributeValue> encryptedItem = ddb
+      .getItem(
+        GetItemRequest
+          .builder()
+          .tableName(TEST_TABLE_NAME)
+          .key(keyToGet)
+          .build()
+      )
+      .item();
+
+    final EncryptionContext encryptionContext = EncryptionContext
       .builder()
-      .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.PUT)
+      .tableName(TEST_TABLE_NAME)
+      .hashKeyName("partition_key")
+      .rangeKeyName("sort_key")
       .build();
-    DynamoDBMapper mapper = new DynamoDBMapper(
-      ddbv1,
-      mapperConfig,
-      new AttributeEncryptor(oldEncryptor)
+    final EnumSet<EncryptionFlags> signOnly = EnumSet.of(EncryptionFlags.SIGN);
+    final EnumSet<EncryptionFlags> encryptAndSign = EnumSet.of(
+      EncryptionFlags.ENCRYPT,
+      EncryptionFlags.SIGN
+    );
+    final Map<String, Set<EncryptionFlags>> actions = new HashMap<>();
+    actions.put("partition_key", signOnly);
+    actions.put("sort_key", signOnly);
+    actions.put("encryptAndSign", encryptAndSign);
+    actions.put("signOnly", signOnly);
+
+    Map<String, AttributeValue> decryptedItem = oldEncryptor.decryptRecord(
+      encryptedItem,
+      actions,
+      encryptionContext
     );
 
-    LegacyClass result = mapper.load(LegacyClass.class, "legacyItem", 777);
-    assertEquals("legacyItem", result.getPartitionKey());
-    assertEquals(777, result.getSortKey());
-    assertEquals("lorem", result.getEncryptAndSign());
-    assertEquals("ipsum", result.getSignOnly());
-    assertEquals("fizzbuzz", result.getDoNothing());
+    assertEquals("legacyItem", decryptedItem.get("partition_key").s());
+    assertEquals("777", decryptedItem.get("sort_key").n());
+    assertEquals("lorem", decryptedItem.get("encryptAndSign").s());
+    assertEquals("ipsum", decryptedItem.get("signOnly").s());
+    assertEquals("fizzbuzz", decryptedItem.get("doNothing").s());
   }
 
   @Test

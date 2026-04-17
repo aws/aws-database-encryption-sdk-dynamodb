@@ -12,6 +12,7 @@ plugins {
     `maven-publish`
     `signing`
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    `jacoco`
 }
 
 var props = Properties().apply {
@@ -32,7 +33,7 @@ java {
         srcDir("src/main/java")
         srcDir("src/main/dafny-generated")
         srcDir("src/main/smithy-generated")
-        srcDir("src/main/sdkv1")
+        srcDir("src/main/sdkv2")
     }
     sourceSets["test"].java {
         srcDir("src/test")
@@ -90,15 +91,15 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
-    
-    //    For the DDB-EC v1
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.780")
+
+    // For the DDB-EC with SDK V2
+    implementation("io.netty:netty-common:4.2.9.Final")
+
+    testImplementation("software.amazon.awssdk:url-connection-client:2.41.17")
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
     testImplementation("com.amazonaws:DynamoDBLocal:1.+")
-    // This is where we gather the SQLLite files to copy over
-    dynamodb("com.amazonaws:DynamoDBLocal:1.+")
     // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
     // This checks the dependencies and adds a native library
     // to support this architecture.
@@ -221,6 +222,7 @@ tasks.test {
             }
         }
     })
+    finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
 tasks.register<JavaExec>("runTests") {
@@ -242,6 +244,24 @@ tasks.javadoc {
         (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
     }
     exclude("src/main/dafny-generated")
+}
+
+tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        fileTree("build/classes/java/main") {
+            include("**/sdkv2/**")
+        }
+    )
+    sourceDirectories.setFrom(
+        files("src/main/sdkv2")
+    )
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.90".toBigDecimal()
+            }
+        }
+    }
 }
 
 nexusPublishing {

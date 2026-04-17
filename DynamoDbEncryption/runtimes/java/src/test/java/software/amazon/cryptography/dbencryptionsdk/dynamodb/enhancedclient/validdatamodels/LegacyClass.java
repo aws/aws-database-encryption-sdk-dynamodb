@@ -2,12 +2,6 @@ package software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.val
 
 import static software.amazon.cryptography.dbencryptionsdk.dynamodb.TestUtils.TEST_TABLE_NAME;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotEncrypt;
-import com.amazonaws.services.dynamodbv2.datamodeling.encryption.DoNotTouch;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -20,7 +14,6 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.Dyna
  */
 
 @DynamoDbBean
-@DynamoDBTable(tableName = TEST_TABLE_NAME)
 public class LegacyClass {
 
   private String partitionKey;
@@ -31,7 +24,6 @@ public class LegacyClass {
 
   @DynamoDbPartitionKey
   @DynamoDbAttribute(value = "partition_key")
-  @DynamoDBHashKey(attributeName = "partition_key")
   public String getPartitionKey() {
     return this.partitionKey;
   }
@@ -42,7 +34,6 @@ public class LegacyClass {
 
   @DynamoDbSortKey
   @DynamoDbAttribute(value = "sort_key")
-  @DynamoDBRangeKey(attributeName = "sort_key")
   public int getSortKey() {
     return this.sortKey;
   }
@@ -51,7 +42,6 @@ public class LegacyClass {
     this.sortKey = sortKey;
   }
 
-  @DynamoDBAttribute
   public String getEncryptAndSign() {
     return this.encryptAndSign;
   }
@@ -60,8 +50,6 @@ public class LegacyClass {
     this.encryptAndSign = encryptAndSign;
   }
 
-  @DynamoDBAttribute
-  @DoNotEncrypt
   @DynamoDbEncryptionSignOnly
   public String getSignOnly() {
     return this.signOnly;
@@ -71,8 +59,6 @@ public class LegacyClass {
     this.signOnly = signOnly;
   }
 
-  @DynamoDBAttribute
-  @DoNotTouch
   @DynamoDbEncryptionDoNothing
   public String getDoNothing() {
     return this.doNothing;
