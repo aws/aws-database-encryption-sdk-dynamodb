@@ -3,8 +3,9 @@
 name: Test Latest Released MPL Java with DB-ESDK HEAD
 
 on:
-  schedule:
-    - cron: "00 16 * * 1-5"
+  # Unless we update MPL's project properties, this cannot work on schedule
+  # schedule:
+  #   - cron: "00 16 * * 1-5"
   workflow_dispatch: # allows triggering this manually through the Actions UI
     inputs:
       run_test_vectors:
@@ -12,6 +13,10 @@ on:
         required: false
         default: true
         type: boolean
+      mpl_version:
+        description: "Latest released MPL version (e.g. 1.11.1). Overrides version in project.properties."
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -75,9 +80,10 @@ jobs:
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
-      - name: Strip SNAPSHOT from MPL dependency version
+      - name: Override MPL dependency version
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          sed -i 's/mplDependencyJavaVersion=\(.*\)-SNAPSHOT/mplDependencyJavaVersion=\1/' project.properties
+          sed -i "s/mplDependencyJavaVersion=.*/mplDependencyJavaVersion=${{ inputs.mpl_version }}/" project.properties
 
       # The following two steps: "Build and deploy to maven local" and "Run Extensive Tests"
       # mimic the tests in ./codebuild/staging/release-staging.yml
