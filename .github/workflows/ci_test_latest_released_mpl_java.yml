@@ -75,6 +75,10 @@ jobs:
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
+      - name: Strip SNAPSHOT from MPL dependency version
+        run: |
+          sed -i 's/mplDependencyJavaVersion=\(.*\)-SNAPSHOT/mplDependencyJavaVersion=\1/' project.properties
+
       # The following two steps: "Build and deploy to maven local" and "Run Extensive Tests"
       # mimic the tests in ./codebuild/staging/release-staging.yml
       - name: Build and deploy to maven local
