@@ -22,6 +22,7 @@ import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.AesWrappingAlg;
 import software.amazon.cryptography.materialproviders.model.CreateDefaultCryptographicMaterialsManagerInput;
 import software.amazon.cryptography.materialproviders.model.CreateRawAesKeyringInput;
+import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
 import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 /**
@@ -77,6 +78,7 @@ class MplKeyringIntegrationTest {
                 .sortKeyName("sk")
                 .attributeActionsOnEncrypt(actions)
                 .cmm(cmm)
+                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .build());
 
         Map<String, AttributeValue> original = new LinkedHashMap<>();
@@ -121,6 +123,7 @@ class MplKeyringIntegrationTest {
                 .partitionKeyName("pk")
                 .attributeActionsOnEncrypt(actions)
                 .cmm(cmm)
+                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .build());
 
         Map<String, AttributeValue> original = new LinkedHashMap<>();
@@ -153,6 +156,7 @@ class MplKeyringIntegrationTest {
                 .partitionKeyName("pk")
                 .attributeActionsOnEncrypt(actions)
                 .cmm(cmm)
+                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .build());
 
         Map<String, AttributeValue> original = new LinkedHashMap<>();
@@ -183,6 +187,7 @@ class MplKeyringIntegrationTest {
                 .partitionKeyName("pk")
                 .attributeActionsOnEncrypt(actions)
                 .cmm(cmm)
+                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .build());
 
         Map<String, AttributeValue> original = new LinkedHashMap<>();
@@ -211,6 +216,7 @@ class MplKeyringIntegrationTest {
                 .partitionKeyName("pk")
                 .attributeActionsOnEncrypt(actions)
                 .cmm(cmm2)
+                .algorithmSuiteId(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_SYMSIG_HMAC_SHA384)
                 .build());
 
         assertThrows(Exception.class, () -> enc2.decryptItem(encrypted));
