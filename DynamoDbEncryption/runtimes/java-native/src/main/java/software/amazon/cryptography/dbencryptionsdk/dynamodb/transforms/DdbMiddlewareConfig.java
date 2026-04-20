@@ -6,6 +6,7 @@ import java.util.Map;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DbeException;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.searchable.BeaconManager;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 
 /**
@@ -17,9 +18,16 @@ public final class DdbMiddlewareConfig {
     private static final String RESERVED_PREFIX = "aws_dbe_";
 
     private final Map<String, DynamoDbItemEncryptor> tableEncryptors;
+    private final Map<String, BeaconManager> tableBeacons;
 
     public DdbMiddlewareConfig(Map<String, DynamoDbItemEncryptor> tableEncryptors) {
+        this(tableEncryptors, null);
+    }
+
+    public DdbMiddlewareConfig(Map<String, DynamoDbItemEncryptor> tableEncryptors,
+                               Map<String, BeaconManager> tableBeacons) {
         this.tableEncryptors = tableEncryptors;
+        this.tableBeacons = tableBeacons != null ? tableBeacons : java.util.Collections.<String, BeaconManager>emptyMap();
     }
 
     /** Get the encryptor for a table, or null if the table is not configured. */
@@ -30,6 +38,11 @@ public final class DdbMiddlewareConfig {
     /** Returns true if the table should pass through without encryption. */
     public boolean isPlainWrite(String tableName) {
         return !tableEncryptors.containsKey(tableName);
+    }
+
+    /** Get the beacon manager for a table, or null if not configured. */
+    public BeaconManager getBeaconManager(String tableName) {
+        return tableBeacons.get(tableName);
     }
 
     // ---- Shared Validation Helpers ----

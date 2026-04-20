@@ -308,14 +308,19 @@ public final class Footer {
 
     static byte[] ecdsaSign(byte[] signingKey, byte[] message) {
         try {
-            java.security.KeyFactory kf = java.security.KeyFactory.getInstance("EC");
-            java.security.spec.PKCS8EncodedKeySpec spec =
-                new java.security.spec.PKCS8EncodedKeySpec(signingKey);
-            java.security.PrivateKey privKey = kf.generatePrivate(spec);
-            java.security.Signature sig = java.security.Signature.getInstance("SHA384withECDSA");
-            sig.initSign(privKey);
-            sig.update(message);
-            return sig.sign();
+            software.amazon.cryptography.primitives.AtomicPrimitives crypto =
+                software.amazon.cryptography.primitives.AtomicPrimitives.builder()
+                    .CryptoConfig(software.amazon.cryptography.primitives.model.CryptoConfig.builder().build())
+                    .build();
+            java.nio.ByteBuffer result = crypto.ECDSASign(
+                software.amazon.cryptography.primitives.model.ECDSASignInput.builder()
+                    .signatureAlgorithm(software.amazon.cryptography.primitives.model.ECDSASignatureAlgorithm.ECDSA_P384)
+                    .signingKey(java.nio.ByteBuffer.wrap(signingKey))
+                    .message(java.nio.ByteBuffer.wrap(message))
+                    .build());
+            byte[] sig = new byte[result.remaining()];
+            result.get(sig);
+            return sig;
         } catch (Exception e) {
             throw new DbeException("ECDSA sign failed: " + e.getMessage());
         }
@@ -323,14 +328,17 @@ public final class Footer {
 
     static boolean ecdsaVerify(byte[] verificationKey, byte[] message, byte[] signature) {
         try {
-            java.security.KeyFactory kf = java.security.KeyFactory.getInstance("EC");
-            java.security.spec.X509EncodedKeySpec spec =
-                new java.security.spec.X509EncodedKeySpec(verificationKey);
-            java.security.PublicKey pubKey = kf.generatePublic(spec);
-            java.security.Signature sig = java.security.Signature.getInstance("SHA384withECDSA");
-            sig.initVerify(pubKey);
-            sig.update(message);
-            return sig.verify(signature);
+            software.amazon.cryptography.primitives.AtomicPrimitives crypto =
+                software.amazon.cryptography.primitives.AtomicPrimitives.builder()
+                    .CryptoConfig(software.amazon.cryptography.primitives.model.CryptoConfig.builder().build())
+                    .build();
+            return crypto.ECDSAVerify(
+                software.amazon.cryptography.primitives.model.ECDSAVerifyInput.builder()
+                    .signatureAlgorithm(software.amazon.cryptography.primitives.model.ECDSASignatureAlgorithm.ECDSA_P384)
+                    .verificationKey(java.nio.ByteBuffer.wrap(verificationKey))
+                    .message(java.nio.ByteBuffer.wrap(message))
+                    .signature(java.nio.ByteBuffer.wrap(signature))
+                    .build());
         } catch (Exception e) {
             throw new DbeException("ECDSA verify failed: " + e.getMessage());
         }

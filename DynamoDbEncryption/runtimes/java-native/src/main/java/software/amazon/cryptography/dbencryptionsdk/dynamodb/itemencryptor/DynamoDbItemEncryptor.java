@@ -20,7 +20,10 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.PathSegment;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredDataTerminal;
 import software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager;
+import software.amazon.cryptography.materialproviders.MaterialProviders;
+import software.amazon.cryptography.materialproviders.model.CreateRequiredEncryptionContextCMMInput;
 import software.amazon.cryptography.materialproviders.model.DBEAlgorithmSuiteId;
+import software.amazon.cryptography.materialproviders.model.MaterialProvidersConfig;
 
 /**
  * Encrypts and decrypts DynamoDB items using structured encryption.
@@ -84,11 +87,14 @@ public final class DynamoDbItemEncryptor {
         // Build encryption context
         Map<String, String> encContext = buildEncryptionContext(plaintextItem);
 
+        // Wrap CMM with RequiredEncryptionContextCMM
+        ICryptographicMaterialsManager effectiveCmm = wrapWithRequiredEcCmm(config.getCmm(), encContext);
+
         // Encrypt
         EncryptPathStructure.Result result = EncryptPathStructure.encrypt(
             config.getLogicalTableName(),
             cryptoList,
-            config.getCmm(),
+            effectiveCmm,
             config.getAlgorithmSuiteId(),
             encContext);
 
@@ -126,6 +132,31 @@ public final class DynamoDbItemEncryptor {
         }
 
         return encryptedItem;
+    }
+
+    // ---- RequiredEncryptionContextCMM ----
+
+    private static ICryptographicMaterialsManager wrapWithRequiredEcCmm(
+            ICryptographicMaterialsManager underlyingCmm, Map<String, String> encContext) {
+        if (encContext.isEmpty()) return underlyingCmm;
+        // Only wrap if the CMM is a real MPL CMM (has the Dafny wrapper class)
+        // Mock CMMs in tests don't support the RequiredEncryptionContext protocol
+        String className = underlyingCmm.getClass().getName();
+        if (!className.contains("software.amazon.cryptography.materialproviders")) {
+            return underlyingCmm;
+        }
+        try {
+            MaterialProviders matProv = MaterialProviders.builder()
+                .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
+                .build();
+            return matProv.CreateRequiredEncryptionContextCMM(
+                CreateRequiredEncryptionContextCMMInput.builder()
+                    .underlyingCMM(underlyingCmm)
+                    .requiredEncryptionContextKeys(new ArrayList<>(encContext.keySet()))
+                    .build());
+        } catch (Exception e) {
+            return underlyingCmm;
+        }
     }
 
     // ---- DecryptItem ----

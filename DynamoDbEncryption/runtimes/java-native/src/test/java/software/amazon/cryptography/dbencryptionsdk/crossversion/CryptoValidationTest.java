@@ -232,18 +232,21 @@ class CryptoValidationTest {
 
     @Test
     void testEcdsaRoundTrip() {
-        // Generate ECDSA P-384 key pair
-        java.security.KeyPair kp;
-        try {
-            java.security.KeyPairGenerator gen = java.security.KeyPairGenerator.getInstance("EC");
-            gen.initialize(new java.security.spec.ECGenParameterSpec("secp384r1"));
-            kp = gen.generateKeyPair();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // Generate ECDSA P-384 key pair using MPL primitives
+        software.amazon.cryptography.primitives.AtomicPrimitives crypto =
+            software.amazon.cryptography.primitives.AtomicPrimitives.builder()
+                .CryptoConfig(software.amazon.cryptography.primitives.model.CryptoConfig.builder().build())
+                .build();
+        software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyOutput keyOut =
+            crypto.GenerateECDSASignatureKey(
+                software.amazon.cryptography.primitives.model.GenerateECDSASignatureKeyInput.builder()
+                    .signatureAlgorithm(software.amazon.cryptography.primitives.model.ECDSASignatureAlgorithm.ECDSA_P384)
+                    .build());
 
-        byte[] signingKey = kp.getPrivate().getEncoded();    // PKCS8
-        byte[] verificationKey = kp.getPublic().getEncoded(); // X509
+        byte[] signingKey = new byte[keyOut.signingKey().remaining()];
+        keyOut.signingKey().get(signingKey);
+        byte[] verificationKey = new byte[keyOut.verificationKey().remaining()];
+        keyOut.verificationKey().get(verificationKey);
 
         DynamoDbItemEncryptor enc = createEcdsaEncryptor(signingKey, verificationKey);
 

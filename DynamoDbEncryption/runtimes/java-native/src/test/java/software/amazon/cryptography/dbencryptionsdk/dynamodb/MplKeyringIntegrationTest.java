@@ -175,6 +175,34 @@ class MplKeyringIntegrationTest {
     }
 
     @Test
+    void testRoundTripWithEcdsaSuite() {
+        // Default algorithm suite uses ECDSA (flavor 0x01)
+        // This validates the MPL key format works with our ECDSA code
+        Map<String, CryptoAction> actions = new LinkedHashMap<>();
+        actions.put("pk", CryptoAction.SIGN_ONLY);
+        actions.put("secret", CryptoAction.ENCRYPT_AND_SIGN);
+
+        DynamoDbItemEncryptor encryptor = DynamoDbItemEncryptor.create(
+            DynamoDbItemEncryptorConfig.builder()
+                .logicalTableName("EcdsaIntegTable")
+                .partitionKeyName("pk")
+                .attributeActionsOnEncrypt(actions)
+                .cmm(cmm)
+                // No algorithmSuiteId → uses default ECDSA suite
+                .build());
+
+        Map<String, AttributeValue> original = new LinkedHashMap<>();
+        original.put("pk", AttributeValue.fromS("user1"));
+        original.put("secret", AttributeValue.fromS("ecdsa-protected"));
+
+        Map<String, AttributeValue> encrypted = encryptor.encryptItem(original);
+        Map<String, AttributeValue> decrypted = encryptor.decryptItem(encrypted);
+
+        assertEquals("user1", decrypted.get("pk").s());
+        assertEquals("ecdsa-protected", decrypted.get("secret").s());
+    }
+
+    @Test
     void testDifferentKeyCantDecrypt() {
         Map<String, CryptoAction> actions = new LinkedHashMap<>();
         actions.put("pk", CryptoAction.SIGN_ONLY);

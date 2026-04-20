@@ -88,6 +88,11 @@ public final class EncryptPathStructure {
         Map<String, String> ec = encryptionContext != null
             ? new LinkedHashMap<>(encryptionContext) : new LinkedHashMap<String, String>();
 
+        // Step 2.5: V2 encryption context augmentation
+        if (version == 2) {
+            augmentEncryptionContextV2(canonFields, ec);
+        }
+
         GetEncryptionMaterialsInput.Builder matInputBuilder = GetEncryptionMaterialsInput.builder()
             .encryptionContext(ec)
             .commitmentPolicy(CommitmentPolicy.builder()
@@ -211,6 +216,60 @@ public final class EncryptPathStructure {
             }
         }
         return result;
+    }
+
+    /**
+     * V2: Add SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT field values to the encryption context.
+     * Keys: "aws-crypto-attr.<path>", values: type-dependent encoding.
+     * Also adds "aws-crypto-legend" with one char per attribute (S/N/L/B).
+     */
+    private static void augmentEncryptionContextV2(
+            List<Canonize.CanonField> canonFields, Map<String, String> ec) {
+        // Collect SIGN_AND_INCLUDE_IN_EC fields, sorted by their EC key
+        java.util.TreeMap<String, Canonize.CanonField> ecFields = new java.util.TreeMap<>();
+        for (Canonize.CanonField f : canonFields) {
+            if (f.getAction() == CryptoAction.SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT) {
+                String attrName = f.getOriginalPath().get(0).getKey();
+                String ecKey = "aws-crypto-attr." + attrName;
+                ecFields.put(ecKey, f);
+            }
+        }
+
+        StringBuilder legend = new StringBuilder();
+        for (Map.Entry<String, Canonize.CanonField> entry : ecFields.entrySet()) {
+            StructuredDataTerminal data = entry.getValue().getData();
+            byte[] typeId = data.getTypeId();
+            byte[] value = data.getValue();
+            String ecValue;
+            char legendChar;
+
+            if (typeId[0] == 0x00 && typeId[1] == 0x00) { // NULL
+                ecValue = "null";
+                legendChar = 'L';
+            } else if (typeId[0] == 0x00 && typeId[1] == 0x01) { // STRING
+                ecValue = new String(value, StandardCharsets.UTF_8);
+                legendChar = 'S';
+            } else if (typeId[0] == 0x00 && typeId[1] == 0x02) { // NUMBER
+                ecValue = new String(value, StandardCharsets.UTF_8);
+                legendChar = 'N';
+            } else if (typeId[0] == 0x00 && typeId[1] == 0x04) { // BOOLEAN
+                ecValue = (value.length == 1 && value[0] == 0) ? "false" : "true";
+                legendChar = 'L';
+            } else { // Binary and complex types: base64(typeId + value)
+                byte[] combined = new byte[2 + value.length];
+                combined[0] = typeId[0]; combined[1] = typeId[1];
+                System.arraycopy(value, 0, combined, 2, value.length);
+                ecValue = java.util.Base64.getEncoder().encodeToString(combined);
+                legendChar = 'B';
+            }
+
+            ec.put(entry.getKey(), ecValue);
+            legend.append(legendChar);
+        }
+
+        if (legend.length() > 0) {
+            ec.put("aws-crypto-legend", legend.toString());
+        }
     }
 
     private static byte flavorFromMaterials(EncryptionMaterials materials) {

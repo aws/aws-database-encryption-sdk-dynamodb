@@ -73,6 +73,15 @@ public final class DdbTransforms {
         // Encrypt the item
         Map<String, AttributeValue> encryptedItem = encryptor.encryptItem(request.item());
 
+        // Add beacon attributes (computed from plaintext, added after encryption)
+        software.amazon.cryptography.dbencryptionsdk.dynamodb.searchable.BeaconManager beaconMgr =
+            config.getBeaconManager(request.tableName());
+        if (beaconMgr != null && beaconMgr.hasBeacons()) {
+            Map<String, AttributeValue> beacons = beaconMgr.computeBeacons(request.item());
+            encryptedItem = new LinkedHashMap<>(encryptedItem);
+            encryptedItem.putAll(beacons);
+        }
+
         return request.toBuilder().item(encryptedItem).build();
     }
 
@@ -312,7 +321,8 @@ public final class DdbTransforms {
         List<Map<String, AttributeValue>> result = new ArrayList<>(items.size());
         for (Map<String, AttributeValue> item : items) {
             if (item.containsKey("aws_dbe_head")) {
-                result.add(encryptor.decryptItem(item));
+                Map<String, AttributeValue> decrypted = encryptor.decryptItem(item);
+                result.add(software.amazon.cryptography.dbencryptionsdk.dynamodb.searchable.BeaconManager.removeBeacons(decrypted));
             } else {
                 result.add(item);
             }
