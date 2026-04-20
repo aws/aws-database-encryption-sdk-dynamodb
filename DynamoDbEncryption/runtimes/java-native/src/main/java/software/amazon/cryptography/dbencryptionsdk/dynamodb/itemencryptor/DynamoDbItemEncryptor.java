@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.ddbconversion.AttributeSerializer;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DbeException;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.Canonize;
+import software.amazon.cryptography.dbencryptionsdk.structuredencryption.DecryptPathStructure;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.EncryptPathStructure;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoItem;
@@ -120,6 +121,102 @@ public final class DynamoDbItemEncryptor {
         }
 
         return encryptedItem;
+    }
+
+    // ---- DecryptItem ----
+
+    /**
+     * Decrypt a DynamoDB item that was encrypted by this SDK.
+     *
+     * @param encryptedItem the encrypted item (must contain aws_dbe_head and aws_dbe_foot)
+     * @return decrypted item with aws_dbe_head/foot removed
+     */
+    public Map<String, AttributeValue> decryptItem(Map<String, AttributeValue> encryptedItem) {
+        // Check if item is plaintext (no header)
+        if (!encryptedItem.containsKey("aws_dbe_head")) {
+            throw new DbeException("Item is not encrypted (missing aws_dbe_head)");
+        }
+
+        // Convert encrypted DDB item to CryptoList
+        List<CryptoItem> cryptoList = new ArrayList<>();
+        for (Map.Entry<String, AttributeValue> entry : encryptedItem.entrySet()) {
+            String attrName = entry.getKey();
+            // Determine action for this attribute
+            CryptoAction action;
+            if (attrName.equals("aws_dbe_head") || attrName.equals("aws_dbe_foot")) {
+                // Header/footer are passed to DecryptPathStructure as-is
+                action = CryptoAction.DO_NOTHING; // placeholder, will be handled specially
+            } else if (attrName.startsWith(RESERVED_PREFIX)) {
+                continue; // skip other reserved attributes (beacons etc)
+            } else {
+                action = resolveActionForDecrypt(attrName);
+            }
+
+            StructuredDataTerminal terminal = AttributeSerializer.serializeAttr(entry.getValue());
+            cryptoList.add(new CryptoItem(
+                Collections.singletonList(new PathSegment(attrName)),
+                terminal, action));
+        }
+
+        // Build encryption context
+        Map<String, String> encContext = buildEncryptionContextForDecrypt(encryptedItem);
+
+        // Decrypt
+        DecryptPathStructure.Result result = DecryptPathStructure.decrypt(
+            config.getLogicalTableName(),
+            cryptoList,
+            config.getCmm(),
+            encContext);
+
+        // Convert back to DDB item
+        Map<String, AttributeValue> decryptedItem = new LinkedHashMap<>();
+        for (CryptoItem item : result.getPlaintextStructure()) {
+            String attrName = item.getKey().get(0).getKey();
+            decryptedItem.put(attrName, AttributeSerializer.deserializeAttr(item.getData()));
+        }
+
+        // Add DO_NOTHING attributes from original (excluding reserved)
+        for (Map.Entry<String, AttributeValue> entry : encryptedItem.entrySet()) {
+            String attrName = entry.getKey();
+            if (attrName.startsWith(RESERVED_PREFIX)) continue;
+            if (!decryptedItem.containsKey(attrName)) {
+                decryptedItem.put(attrName, entry.getValue());
+            }
+        }
+
+        return decryptedItem;
+    }
+
+    private CryptoAction resolveActionForDecrypt(String attrName) {
+        Map<String, CryptoAction> actions = config.getAttributeActionsOnEncrypt();
+        if (actions.containsKey(attrName)) {
+            return actions.get(attrName);
+        }
+        if (isAllowedUnsigned(attrName)) {
+            return CryptoAction.DO_NOTHING;
+        }
+        // Unknown attribute during decrypt — treat as SIGN_ONLY (authenticated)
+        return CryptoAction.SIGN_ONLY;
+    }
+
+    private Map<String, String> buildEncryptionContextForDecrypt(Map<String, AttributeValue> item) {
+        // For decrypt, we build the same base context as encrypt
+        // The stored EC from the header will be merged by DecryptPathStructure
+        Map<String, String> ec = new LinkedHashMap<>();
+        ec.put(EC_TABLE_NAME, config.getLogicalTableName());
+        ec.put(EC_PARTITION_NAME, config.getPartitionKeyName());
+        if (config.getSortKeyName() != null) {
+            ec.put(EC_SORT_NAME, config.getSortKeyName());
+        }
+        if (config.getVersion() == 1) {
+            AttributeValue pkVal = item.get(config.getPartitionKeyName());
+            if (pkVal != null) addKeyValueToContext(ec, config.getPartitionKeyName(), pkVal);
+            if (config.getSortKeyName() != null) {
+                AttributeValue skVal = item.get(config.getSortKeyName());
+                if (skVal != null) addKeyValueToContext(ec, config.getSortKeyName(), skVal);
+            }
+        }
+        return ec;
     }
 
     // ---- Encryption Context ----

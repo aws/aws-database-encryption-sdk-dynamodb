@@ -93,11 +93,8 @@ public final class DdbTransforms {
         }
 
         // Decrypt the item
-        // TODO: implement full DecryptItem when DecryptPathStructure is available
-        // For now, this is a placeholder that shows the integration point
         DynamoDbItemEncryptor encryptor = config.getEncryptor(originalRequest.tableName());
-        // Map<String, AttributeValue> decrypted = encryptor.decryptItem(item);
-        // return response.toBuilder().item(decrypted).build();
-        return response;
+        Map<String, AttributeValue> decrypted = encryptor.decryptItem(item);
+        return response.toBuilder().item(decrypted).build();
     }
 }
