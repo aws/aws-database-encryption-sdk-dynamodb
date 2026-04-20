@@ -1,0 +1,40 @@
+# This workflow automatically re-runs failed jobs from the Daily CI.
+# It triggers once when the Daily CI completes, and if any jobs failed,
+# it re-runs only the failed jobs. This handles transient failures like
+# Maven Central outages, Docker pull errors, or credential issues.
+# It only retries once to avoid infinite loops.
+name: Retry Failed Daily CI
+
+on:
+  workflow_run:
+    workflows: ["Daily CI"]
+    types:
+      - completed
+
+jobs:
+  retry:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Re-run failed jobs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if this run was already a retry to avoid infinite loops
+            const run = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            if (run.data.run_attempt > 1) {
+              console.log('Already a retry (attempt ' + run.data.run_attempt + '). Skipping.');
+              return;
+            }
+            console.log('Re-running failed jobs for run ' + context.payload.workflow_run.id);
+            await github.rest.actions.reRunWorkflowFailedJobs({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
