@@ -1,13 +1,13 @@
-# This workflow automatically re-runs failed jobs from the Daily CI.
-# It triggers once when the Daily CI completes, and if any jobs failed,
+# This workflow automatically re-runs failed jobs from the Daily CI and PR CI.
+# It triggers once when either workflow completes, and if any jobs failed,
 # it re-runs only the failed jobs. This handles transient failures like
 # Maven Central outages, Docker pull errors, or credential issues.
 # It only retries once to avoid infinite loops.
-name: Retry Failed Daily CI
+name: Retry Failed CI
 
 on:
   workflow_run:
-    workflows: ["Daily CI"]
+    workflows: ["Daily CI", "PR CI"]
     types:
       - completed
 
