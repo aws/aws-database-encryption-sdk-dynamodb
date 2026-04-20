@@ -15,6 +15,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.WriteRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutRequest;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptor;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.DynamoDbItemEncryptorConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DbeException;
@@ -161,6 +167,93 @@ class DdbTransformsTest {
         Map<String, String> item = new HashMap<>();
         item.put("normal_attr", "ok");
         assertDoesNotThrow(() -> DdbMiddlewareConfig.validateWriteable(item));
+    }
+
+    // ---- Query ----
+
+    @Test
+    void testQueryRejectsFilterOnEncryptedAttr() {
+        Map<String, String> exprNames = new HashMap<>();
+        exprNames.put("#d", "data");
+        QueryRequest request = QueryRequest.builder()
+            .tableName("TestTable")
+            .filterExpression("#d = :v")
+            .expressionAttributeNames(exprNames)
+            .build();
+        assertThrows(DbeException.class, () -> DdbTransforms.queryInput(config, request));
+    }
+
+    @Test
+    void testQueryAllowsFilterOnSignedAttr() {
+        Map<String, String> exprNames = new HashMap<>();
+        exprNames.put("#p", "pk");
+        QueryRequest request = QueryRequest.builder()
+            .tableName("TestTable")
+            .keyConditionExpression("#p = :v")
+            .expressionAttributeNames(exprNames)
+            .build();
+        assertDoesNotThrow(() -> DdbTransforms.queryInput(config, request));
+    }
+
+    // ---- Scan ----
+
+    @Test
+    void testScanRejectsFilterOnEncryptedAttr() {
+        Map<String, String> exprNames = new HashMap<>();
+        exprNames.put("#d", "data");
+        ScanRequest request = ScanRequest.builder()
+            .tableName("TestTable")
+            .filterExpression("#d = :v")
+            .expressionAttributeNames(exprNames)
+            .build();
+        assertThrows(DbeException.class, () -> DdbTransforms.scanInput(config, request));
+    }
+
+    // ---- UpdateItem ----
+
+    @Test
+    void testUpdateItemRejectsUpdateOnEncryptedAttr() {
+        Map<String, String> exprNames = new HashMap<>();
+        exprNames.put("#d", "data");
+        UpdateItemRequest request = UpdateItemRequest.builder()
+            .tableName("TestTable")
+            .updateExpression("SET #d = :v")
+            .expressionAttributeNames(exprNames)
+            .build();
+        assertThrows(DbeException.class, () -> DdbTransforms.updateItemInput(config, request));
+    }
+
+    @Test
+    void testUpdateItemAllowsUpdateOnSignedAttr() {
+        Map<String, String> exprNames = new HashMap<>();
+        exprNames.put("#p", "pk");
+        UpdateItemRequest request = UpdateItemRequest.builder()
+            .tableName("TestTable")
+            .updateExpression("SET #p = :v")
+            .expressionAttributeNames(exprNames)
+            .build();
+        assertDoesNotThrow(() -> DdbTransforms.updateItemInput(config, request));
+    }
+
+    // ---- BatchWriteItem ----
+
+    @Test
+    void testBatchWriteEncryptsItems() {
+        Map<String, AttributeValue> item = new LinkedHashMap<>();
+        item.put("pk", AttributeValue.fromS("id1"));
+        item.put("data", AttributeValue.fromS("secret"));
+
+        Map<String, java.util.List<WriteRequest>> requestItems = new HashMap<>();
+        requestItems.put("TestTable", Collections.singletonList(
+            WriteRequest.builder().putRequest(PutRequest.builder().item(item).build()).build()));
+
+        BatchWriteItemRequest request = BatchWriteItemRequest.builder()
+            .requestItems(requestItems).build();
+
+        BatchWriteItemRequest transformed = DdbTransforms.batchWriteInput(config, request);
+        Map<String, AttributeValue> encItem = transformed.requestItems().get("TestTable").get(0).putRequest().item();
+        assertNotNull(encItem.get("aws_dbe_head"));
+        assertNotNull(encItem.get("data").b());
     }
 
     // ---- Mock CMM ----
