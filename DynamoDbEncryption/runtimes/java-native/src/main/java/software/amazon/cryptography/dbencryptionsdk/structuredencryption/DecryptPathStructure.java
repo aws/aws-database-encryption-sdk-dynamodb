@@ -143,7 +143,7 @@ public final class DecryptPathStructure {
         // We need to verify footer BEFORE decrypting (per spec)
         Map<byte[], byte[]> fullECBytes = stringMapToByteMap(materials.encryptionContext());
         boolean hasSig = header.getFlavor() == 0x01;
-        Footer footer = Footer.deserialize(footerBytes, hasSig);
+        Footer footer = Footer.deserialize(footerBytes, hasSig, header.getDataKeys().size());
 
         byte[] symmetricSigningKey = toBytes(materials.symmetricSigningKey());
         byte[] verificationKey = materials.verificationKey() != null

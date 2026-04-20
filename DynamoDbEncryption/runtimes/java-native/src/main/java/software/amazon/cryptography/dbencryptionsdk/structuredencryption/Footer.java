@@ -244,14 +244,32 @@ public final class Footer {
 
     // ---- Deserialization ----
 
-    /** Deserialize a footer from bytes. */
+    /** Deserialize a footer from bytes, given the number of EDKs from the header. */
     public static Footer deserialize(byte[] data, boolean hasSig) {
+        return deserialize(data, hasSig, -1);
+    }
+
+    /** Deserialize with known EDK count for unambiguous parsing. */
+    public static Footer deserialize(byte[] data, boolean hasSig, int edkCount) {
         if (hasSig) {
-            if (data.length < RECIPIENT_TAG_SIZE + SIGNATURE_SIZE) {
-                throw new DbeException("Footer too short");
+            int tagDataLen;
+            if (edkCount > 0) {
+                tagDataLen = edkCount * RECIPIENT_TAG_SIZE;
+            } else {
+                // Fallback: assume signature is SIGNATURE_SIZE (103) bytes
+                tagDataLen = data.length - SIGNATURE_SIZE;
+                // If that doesn't work, try to find the right split
+                if (tagDataLen <= 0 || tagDataLen % RECIPIENT_TAG_SIZE != 0) {
+                    // Variable-length signature: tags must be a multiple of 48
+                    // Try each possible split point
+                    tagDataLen = -1;
+                    for (int tl = RECIPIENT_TAG_SIZE; tl < data.length - 90; tl += RECIPIENT_TAG_SIZE) {
+                        tagDataLen = tl;
+                    }
+                    if (tagDataLen < 0) throw new DbeException("Footer too short for signature");
+                }
             }
-            int tagDataLen = data.length - SIGNATURE_SIZE;
-            if (tagDataLen % RECIPIENT_TAG_SIZE != 0) {
+            if (tagDataLen < RECIPIENT_TAG_SIZE || tagDataLen % RECIPIENT_TAG_SIZE != 0 || tagDataLen >= data.length) {
                 throw new DbeException("Malformed signed footer");
             }
             List<byte[]> tags = gatherTags(data, tagDataLen);

@@ -55,6 +55,11 @@ public final class DynamoDbItemEncryptor {
      * @return encrypted item with aws_dbe_head and aws_dbe_foot attributes
      */
     public Map<String, AttributeValue> encryptItem(Map<String, AttributeValue> plaintextItem) {
+        // Plaintext policy: FORCE_PLAINTEXT_WRITE returns item unchanged
+        if (config.getPlaintextPolicy() == DynamoDbItemEncryptorConfig.PlaintextPolicy.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ) {
+            return plaintextItem;
+        }
+
         // Validate required keys exist
         if (!plaintextItem.containsKey(config.getPartitionKeyName())) {
             throw new DbeException("Item missing partition key: " + config.getPartitionKeyName());
@@ -134,6 +139,11 @@ public final class DynamoDbItemEncryptor {
     public Map<String, AttributeValue> decryptItem(Map<String, AttributeValue> encryptedItem) {
         // Check if item is plaintext (no header)
         if (!encryptedItem.containsKey("aws_dbe_head")) {
+            // Plaintext policy: allow plaintext reads if configured
+            if (config.getPlaintextPolicy() == DynamoDbItemEncryptorConfig.PlaintextPolicy.FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+                || config.getPlaintextPolicy() == DynamoDbItemEncryptorConfig.PlaintextPolicy.FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ) {
+                return encryptedItem;
+            }
             throw new DbeException("Item is not encrypted (missing aws_dbe_head)");
         }
 

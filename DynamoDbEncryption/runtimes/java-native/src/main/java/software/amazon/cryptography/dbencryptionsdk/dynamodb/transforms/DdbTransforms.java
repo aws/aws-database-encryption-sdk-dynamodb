@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.KeysAndAttributes;
@@ -252,6 +254,55 @@ public final class DdbTransforms {
         DdbMiddlewareConfig.validateExpression(
             request.conditionExpression(), request.expressionAttributeNames(), encryptor.getConfig());
         return request;
+    }
+
+    // ---- PartiQL: ExecuteStatement ----
+
+    public static ExecuteStatementRequest executeStatementInput(
+            DdbMiddlewareConfig config, ExecuteStatementRequest request) {
+        // Extract table name from PartiQL statement (simplified: first word after FROM/INTO/UPDATE)
+        String tableName = extractTableName(request.statement());
+        if (tableName == null || config.isPlainWrite(tableName)) return request;
+        // PartiQL statements on encrypted tables are rejected if they could reference encrypted fields
+        // A full implementation would parse the statement; for safety, we reject all DML on encrypted tables
+        throw new DbeException("PartiQL statements on encrypted tables are not supported. Use the standard DynamoDB API.");
+    }
+
+    public static ExecuteTransactionRequest executeTransactionInput(
+            DdbMiddlewareConfig config, ExecuteTransactionRequest request) {
+        if (!request.hasTransactStatements()) return request;
+        for (software.amazon.awssdk.services.dynamodb.model.ParameterizedStatement stmt : request.transactStatements()) {
+            String tableName = extractTableName(stmt.statement());
+            if (tableName != null && !config.isPlainWrite(tableName)) {
+                throw new DbeException("PartiQL transactions on encrypted tables are not supported.");
+            }
+        }
+        return request;
+    }
+
+    /** Simple table name extraction from PartiQL: finds word after FROM/INTO/UPDATE. */
+    public static String extractTableName(String statement) {
+        if (statement == null) return null;
+        String upper = statement.toUpperCase().trim();
+        String[] keywords = {"FROM ", "INTO ", "UPDATE "};
+        for (String kw : keywords) {
+            int idx = upper.indexOf(kw);
+            if (idx >= 0) {
+                String rest = statement.substring(idx + kw.length()).trim();
+                // Table name is the next word (may be quoted with double quotes)
+                if (rest.startsWith("\"")) {
+                    int end = rest.indexOf('"', 1);
+                    return end > 0 ? rest.substring(1, end) : null;
+                }
+                int end = 0;
+                while (end < rest.length() && !Character.isWhitespace(rest.charAt(end))
+                       && rest.charAt(end) != '.' && rest.charAt(end) != '(') {
+                    end++;
+                }
+                return end > 0 ? rest.substring(0, end) : null;
+            }
+        }
+        return null;
     }
 
     // ---- Shared ----

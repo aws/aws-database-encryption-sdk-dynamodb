@@ -231,6 +231,126 @@ class CryptoValidationTest {
     // ---- Step 6: Full Encrypt → Decrypt with Tamper Detection ----
 
     @Test
+    void testEcdsaRoundTrip() {
+        // Generate ECDSA P-384 key pair
+        java.security.KeyPair kp;
+        try {
+            java.security.KeyPairGenerator gen = java.security.KeyPairGenerator.getInstance("EC");
+            gen.initialize(new java.security.spec.ECGenParameterSpec("secp384r1"));
+            kp = gen.generateKeyPair();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] signingKey = kp.getPrivate().getEncoded();    // PKCS8
+        byte[] verificationKey = kp.getPublic().getEncoded(); // X509
+
+        DynamoDbItemEncryptor enc = createEcdsaEncryptor(signingKey, verificationKey);
+
+        Map<String, AttributeValue> original = new LinkedHashMap<>();
+        original.put("pk", AttributeValue.fromS("user1"));
+        original.put("data", AttributeValue.fromS("secret"));
+
+        Map<String, AttributeValue> encrypted = enc.encryptItem(original);
+
+        // Header should have flavor 0x01
+        byte[] headerBytes = encrypted.get("aws_dbe_head").b().asByteArray();
+        Header.PartialHeader header = Header.deserialize(headerBytes);
+        assertEquals(0x01, header.getFlavor());
+
+        // Footer should have signature (48B tag + 103B sig = 151B for 1 EDK)
+        byte[] footerBytes = encrypted.get("aws_dbe_foot").b().asByteArray();
+        Footer footer = Footer.deserialize(footerBytes, true);
+        assertNotNull(footer.getSignature());
+
+        // Decrypt should succeed
+        Map<String, AttributeValue> decrypted = enc.decryptItem(encrypted);
+        assertEquals("user1", decrypted.get("pk").s());
+        assertEquals("secret", decrypted.get("data").s());
+
+        // Tamper with signed field → ECDSA verification should fail
+        Map<String, AttributeValue> tampered = new LinkedHashMap<>(encrypted);
+        tampered.put("pk", AttributeValue.fromS("user2"));
+        assertThrows(Exception.class, () -> enc.decryptItem(tampered));
+    }
+
+    private static DynamoDbItemEncryptor createEcdsaEncryptor(byte[] signingKey, byte[] verificationKey) {
+        Map<String, CryptoAction> actions = new LinkedHashMap<>();
+        actions.put("pk", CryptoAction.SIGN_ONLY);
+        actions.put("data", CryptoAction.ENCRYPT_AND_SIGN);
+
+        return DynamoDbItemEncryptor.create(
+            DynamoDbItemEncryptorConfig.builder()
+                .logicalTableName("EcdsaTable")
+                .partitionKeyName("pk")
+                .attributeActionsOnEncrypt(actions)
+                .cmm(new EcdsaCMM(signingKey, verificationKey))
+                .build());
+    }
+
+    /** CMM that returns flavor 0x01 (ECDSA) materials. */
+    static class EcdsaCMM implements ICryptographicMaterialsManager {
+        private final byte[] signingKey;
+        private final byte[] verificationKey;
+
+        EcdsaCMM(byte[] signingKey, byte[] verificationKey) {
+            this.signingKey = signingKey;
+            this.verificationKey = verificationKey;
+        }
+
+        @Override
+        public GetEncryptionMaterialsOutput GetEncryptionMaterials(GetEncryptionMaterialsInput input) {
+            return GetEncryptionMaterialsOutput.builder().encryptionMaterials(
+                EncryptionMaterials.builder()
+                    .algorithmSuite(buildEcdsaSuite())
+                    .encryptionContext(input.encryptionContext() != null ? input.encryptionContext() : new HashMap<String, String>())
+                    .encryptedDataKeys(Collections.singletonList(EncryptedDataKey.builder()
+                        .keyProviderId("static").keyProviderInfo(ByteBuffer.wrap("t".getBytes(StandardCharsets.UTF_8)))
+                        .ciphertext(ByteBuffer.wrap(FIXED_DATA_KEY)).build()))
+                    .requiredEncryptionContextKeys(Collections.<String>emptyList())
+                    .plaintextDataKey(ByteBuffer.wrap(FIXED_DATA_KEY))
+                    .signingKey(ByteBuffer.wrap(signingKey))
+                    .symmetricSigningKeys(Collections.singletonList(ByteBuffer.wrap(FIXED_SIGNING_KEY)))
+                    .build()
+            ).build();
+        }
+
+        @Override
+        public DecryptMaterialsOutput DecryptMaterials(DecryptMaterialsInput input) {
+            return DecryptMaterialsOutput.builder().decryptionMaterials(
+                DecryptionMaterials.builder()
+                    .algorithmSuite(buildEcdsaSuite())
+                    .encryptionContext(input.encryptionContext() != null ? input.encryptionContext() : new HashMap<String, String>())
+                    .requiredEncryptionContextKeys(Collections.<String>emptyList())
+                    .plaintextDataKey(ByteBuffer.wrap(FIXED_DATA_KEY))
+                    .symmetricSigningKey(ByteBuffer.wrap(FIXED_SIGNING_KEY))
+                    .verificationKey(ByteBuffer.wrap(verificationKey))
+                    .build()
+            ).build();
+        }
+
+        private static AlgorithmSuiteInfo buildEcdsaSuite() {
+            return AlgorithmSuiteInfo.builder()
+                .id(AlgorithmSuiteId.builder().DBE(DBEAlgorithmSuiteId.ALG_AES_256_GCM_HKDF_SHA512_COMMIT_KEY_ECDSA_P384_SYMSIG_HMAC_SHA384).build())
+                .binaryId(ByteBuffer.wrap(new byte[]{0x67, 0x01})).messageVersion(2)
+                .encrypt(software.amazon.cryptography.materialproviders.model.Encrypt.builder()
+                    .AES_GCM(software.amazon.cryptography.primitives.model.AES_GCM.builder().keyLength(32).tagLength(16).ivLength(12).build()).build())
+                .kdf(software.amazon.cryptography.materialproviders.model.DerivationAlgorithm.builder()
+                    .HKDF(software.amazon.cryptography.materialproviders.model.HKDF.builder().hmac(software.amazon.cryptography.primitives.model.DigestAlgorithm.SHA_512).saltLength(0).inputKeyLength(32).outputKeyLength(32).build()).build())
+                .commitment(software.amazon.cryptography.materialproviders.model.DerivationAlgorithm.builder()
+                    .HKDF(software.amazon.cryptography.materialproviders.model.HKDF.builder().hmac(software.amazon.cryptography.primitives.model.DigestAlgorithm.SHA_512).saltLength(0).inputKeyLength(32).outputKeyLength(32).build()).build())
+                .signature(software.amazon.cryptography.materialproviders.model.SignatureAlgorithm.builder()
+                    .ECDSA(software.amazon.cryptography.materialproviders.model.ECDSA.builder()
+                        .curve(software.amazon.cryptography.primitives.model.ECDSASignatureAlgorithm.ECDSA_P384).build()).build())
+                .symmetricSignature(software.amazon.cryptography.materialproviders.model.SymmetricSignatureAlgorithm.builder()
+                    .HMAC(software.amazon.cryptography.primitives.model.DigestAlgorithm.SHA_384).build())
+                .edkWrapping(software.amazon.cryptography.materialproviders.model.EdkWrappingAlgorithm.builder()
+                    .DIRECT_KEY_WRAPPING(software.amazon.cryptography.materialproviders.model.DIRECT_KEY_WRAPPING.builder().build()).build())
+                .build();
+        }
+    }
+
+    @Test
     void testFullRoundTripWithIntegrityChecks() {
         DynamoDbItemEncryptor enc = createEncryptor();
 

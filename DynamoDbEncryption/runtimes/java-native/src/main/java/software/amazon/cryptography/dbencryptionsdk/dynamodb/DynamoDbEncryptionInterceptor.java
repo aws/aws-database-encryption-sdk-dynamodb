@@ -17,6 +17,8 @@ import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest;
+import software.amazon.awssdk.services.dynamodb.model.ExecuteTransactionRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -101,6 +103,10 @@ public final class DynamoDbEncryptionInterceptor implements ExecutionInterceptor
                 return DdbTransforms.deleteItemInput(config, (DeleteItemRequest) request);
             case "UpdateItem":
                 return DdbTransforms.updateItemInput(config, (UpdateItemRequest) request);
+            case "ExecuteStatement":
+                return DdbTransforms.executeStatementInput(config, (ExecuteStatementRequest) request);
+            case "ExecuteTransaction":
+                return DdbTransforms.executeTransactionInput(config, (ExecuteTransactionRequest) request);
             default:
                 return request;
         }

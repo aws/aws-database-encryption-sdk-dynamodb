@@ -21,6 +21,14 @@ public final class DynamoDbItemEncryptorConfig {
     private final DBEAlgorithmSuiteId algorithmSuiteId;
     private final List<String> allowedUnsignedAttributes;
     private final String allowedUnsignedAttributePrefix;
+    private final PlaintextPolicy plaintextPolicy;
+
+    /** Plaintext read/write policy for migration scenarios. */
+    public enum PlaintextPolicy {
+        FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ,
+        FORBID_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ,
+        FORCE_PLAINTEXT_WRITE_ALLOW_PLAINTEXT_READ
+    }
 
     private DynamoDbItemEncryptorConfig(Builder builder) {
         this.logicalTableName = builder.logicalTableName;
@@ -31,6 +39,8 @@ public final class DynamoDbItemEncryptorConfig {
         this.algorithmSuiteId = builder.algorithmSuiteId;
         this.allowedUnsignedAttributes = builder.allowedUnsignedAttributes;
         this.allowedUnsignedAttributePrefix = builder.allowedUnsignedAttributePrefix;
+        this.plaintextPolicy = builder.plaintextPolicy != null
+            ? builder.plaintextPolicy : PlaintextPolicy.FORBID_PLAINTEXT_WRITE_FORBID_PLAINTEXT_READ;
     }
 
     public String getLogicalTableName() { return logicalTableName; }
@@ -41,6 +51,7 @@ public final class DynamoDbItemEncryptorConfig {
     public DBEAlgorithmSuiteId getAlgorithmSuiteId() { return algorithmSuiteId; }
     public List<String> getAllowedUnsignedAttributes() { return allowedUnsignedAttributes; }
     public String getAllowedUnsignedAttributePrefix() { return allowedUnsignedAttributePrefix; }
+    public PlaintextPolicy getPlaintextPolicy() { return plaintextPolicy; }
 
     /** Version: 2 if any action is SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT, else 1. */
     public int getVersion() {
@@ -63,6 +74,7 @@ public final class DynamoDbItemEncryptorConfig {
         private DBEAlgorithmSuiteId algorithmSuiteId;
         private List<String> allowedUnsignedAttributes;
         private String allowedUnsignedAttributePrefix;
+        private PlaintextPolicy plaintextPolicy;
 
         public Builder logicalTableName(String v) { this.logicalTableName = v; return this; }
         public Builder partitionKeyName(String v) { this.partitionKeyName = v; return this; }
@@ -72,6 +84,7 @@ public final class DynamoDbItemEncryptorConfig {
         public Builder algorithmSuiteId(DBEAlgorithmSuiteId v) { this.algorithmSuiteId = v; return this; }
         public Builder allowedUnsignedAttributes(List<String> v) { this.allowedUnsignedAttributes = v; return this; }
         public Builder allowedUnsignedAttributePrefix(String v) { this.allowedUnsignedAttributePrefix = v; return this; }
+        public Builder plaintextPolicy(PlaintextPolicy v) { this.plaintextPolicy = v; return this; }
 
         public DynamoDbItemEncryptorConfig build() {
             return new DynamoDbItemEncryptorConfig(this);
