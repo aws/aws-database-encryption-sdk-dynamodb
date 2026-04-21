@@ -113,7 +113,12 @@ jobs:
         run: |
           # Run simple examples
           gradle -p runtimes/java/DynamoDbEncryption test 
-          gradle -p runtimes/java/DDBECwithSDKV2 test 
-          # Run migration examples
-          gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-          gradle -p runtimes/java/Migration/DDBECv2ToAWSDBE test
+          # Same workflow for daily CI works for main and v3.x-Java branch so we check the branch name
+          if [[ "${{ inputs.branch }}" == "v3.x-Java" ]]; then                                                                                 
+            gradle -p runtimes/java/Migration/PlaintextToAWSDBE test                                                                           
+            gradle -p runtimes/java/Migration/DDBECToAWSDBE test                                                                               
+          else                                                                                                                                 
+            gradle -p runtimes/java/DDBECwithSDKV2 test                                                                                        
+            gradle -p runtimes/java/Migration/PlaintextToAWSDBE test                                                                           
+            gradle -p runtimes/java/Migration/DDBECv2ToAWSDBE test                                                                             
+          fi
