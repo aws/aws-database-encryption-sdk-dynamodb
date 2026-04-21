@@ -1,0 +1,74 @@
+# This workflow automatically re-runs failed jobs from the Daily CI and PR CI.
+# It triggers once when either workflow completes, and if any jobs failed,
+# it re-runs only the failed jobs — but ONLY if no failures are in the
+# skip list below. If any failure matches the skip list (e.g., fuzz tests),
+# the retry is skipped to avoid masking non-deterministic test failures.
+# It only retries once to avoid infinite loops.
+name: Retry Failed CI
+
+on:
+  workflow_run:
+    workflows: ["Daily CI", "PR CI"]
+    types:
+      - completed
+
+jobs:
+  retry:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Check failures and retry if appropriate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runId = context.payload.workflow_run.id;
+
+            // Check if this is already a retry to avoid infinite loops
+            const run = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+            });
+            if (run.data.run_attempt > 1) {
+              console.log('Already a retry (attempt ' + run.data.run_attempt + '). Skipping.');
+              return;
+            }
+
+            // Jobs that should NOT be retried. These are non-deterministic tests
+            // (e.g., fuzz tests) where a retry could mask a real failure.
+            // Use job name prefixes/substrings to match.
+            const skipPatterns = [
+              'fuzz',
+            ];
+
+            // Get all jobs for this run
+            const jobs = await github.paginate(
+              github.rest.actions.listJobsForWorkflowRun,
+              { owner: context.repo.owner, repo: context.repo.repo, run_id: runId }
+            );
+
+            const failedJobs = jobs.filter(j => j.conclusion === 'failure');
+            console.log(`Found ${failedJobs.length} failed job(s):`);
+            failedJobs.forEach(j => console.log(`  - ${j.name}`));
+
+            // Check if any failed job matches the skip list
+            const skipped = failedJobs.filter(job => {
+              return skipPatterns.some(pattern =>
+                job.name.toLowerCase().includes(pattern.toLowerCase())
+              );
+            });
+
+            if (skipped.length > 0) {
+              console.log('Failures in skip-listed jobs found. Skipping retry:');
+              skipped.forEach(j => console.log(`  - ${j.name}`));
+              return;
+            }
+
+            console.log('No skip-listed failures. Re-running failed jobs...');
+            await github.rest.actions.reRunWorkflowFailedJobs({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+            });
