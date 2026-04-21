@@ -12,7 +12,6 @@ use aws_db_esdk::CryptoAction;
 use aws_db_esdk::dynamodb::types::BeaconKeySource;
 use aws_db_esdk::dynamodb::types::BeaconVersion;
 use aws_db_esdk::dynamodb::types::DynamoDbTableEncryptionConfig;
-use aws_sdk_dynamodb::types::PutRequest;
 use aws_db_esdk::dynamodb::types::SearchConfig;
 use aws_db_esdk::dynamodb::types::SingleKeyStore;
 use aws_db_esdk::dynamodb::types::StandardBeacon;
@@ -76,7 +75,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         //     information), while the suffix does not encode such structure and tends 
         //     to be closer to uniformly distributed, though not perfectly uniform.
         //     We will assume that the inspector ID field matches a similar use case.
-        //     For this example, we use only the last four digits of the inspector ID and apply two partitions, 
+        //     For this example, we use only the last four digits of the inspector ID and apply one partitions, 
         //     assuming the suffix has sufficient uniformity for this purpose.
         // Since the full ID's range is divisible by the range of the last 4 digits,
         //     then the last 4 digits of the inspector ID are uniformly distributed
@@ -116,14 +115,14 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         let last4_beacon = StandardBeacon::builder()
             .name("inspector_id_last4")
             .length(10)
-            .number_of_partitions(2)
+            .number_of_partitions(1)
             .build()?;
 
         // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
         // This field holds a unit serial number.
         // For this example, this is a 12-digit integer from 0 to 999,999,999,999 (10^12 possible values).
         // We will assume values for this attribute are uniformly distributed across this range
-        // using 2 partitions.
+        // using one partitions.
         // A single unit serial number may be assigned to multiple `work_id`s.
         //
         // This link provides guidance for choosing a beacon length:
@@ -146,7 +145,7 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        let unit_beacon = StandardBeacon::builder().name("unit").length(30).number_of_partitions(2).build()?;
+        let unit_beacon = StandardBeacon::builder().name("unit").length(30).number_of_partitions(1).build()?;
 
         let standard_beacon_list = vec![last4_beacon, unit_beacon];
 
@@ -316,56 +315,49 @@ pub async fn put_and_query_with_beacon(branch_key_id: &str) -> Result<(), crate:
 
         let mut all_results: Vec<HashMap<String, AttributeValue>> = Vec::new();
 
-        let  = HashMap::from([
+        let expression_attributes_names = HashMap::from([
             ("#last4".to_string(), "inspector_id_last4".to_string()),
             ("#unit".to_string(), "unit".to_string()),
         ]);
 
+      // In this simple example, we know there are one buckets, 
+      // but in general the number can be obtained using transformClient.getNumberOfQueries(query)
+      let num_queries = 1; 
+        
+     //We need to query for all possible parttions 
+    
+       for partition in 0..num_queries {
+
         let expression_attribute_values = HashMap::from([
             (":last4".to_string(), AttributeValue::S("4321".to_string())),
             (":unit".to_string(), AttributeValue::S("123456789012".to_string())),
+            ( ":aws_dbe_partition".to_string(), AttributeValue::N(partition.to_string())),
         ]);
 
-        let query_request = QueryRequest::builder()
-           .table_name(ddb_table_name.clone())
-           .index_name(GSI_NAME)
-           .key_condition_expression("#last4 = :last4 and #unit = :unit")
-           .set_expression_attribute_names(Some(.clone()))
-           .set_expression_attribute_values(Some(expression_attribute_values.clone()))
-           .build();
-        //( ":aws_dbe_partition".to_string(), AttributeValue::N(partition.to_string())),
 
-        //The number of queries can be obtained using transformClient.getNumberOfQueries(query)
-        let num_queries = transform_client.get_number_of_queries(&query_request)?;
-        
-        //We need to query for all possible parttions 
-        for partition in 0..num_queries {
-           let mut expression_attribute_values = expression_attribute_values.clone();
-            expression_attribute_values.insert(
-                ":aws_dbe_partition".to_string(),
-                AttributeValue::N(partition.to_string()),
-            );
-           let updated_query_request = QueryRequest::builder()
-               .table_name(ddb_table_name.clone())
-               .index_name(GSI_NAME)
-               .key_condition_expression("#last4 = :last4 and #unit = :unit")
-               .set_expression_attribute_names(Some(.clone()))
-               .set_expression_attribute_values(Some(expression_attribute_values.clone()))
-               .build();
-        
-          // GSIs do not update instantly
-          // so if the results come back empty
-          // we retry after a short sleep
-          for _i in 0..10 {
-            let query_response = ddb.query(updated_query_request).await?;
-               if let Some(items) = query_response.items {
-                 if !items.is_empty() {
-                    all_results.extend(items.clone());
-                    break;
-                  }
-                }
+        // GSIs do not update instantly
+        // so if the results come back empty
+        // we retry after a short sleep
+        for _i in 0..10 {
+            let query_response = ddb
+                .query()
+                .table_name(ddb_table_name)
+                .index_name(GSI_NAME)
+                .key_condition_expression("#last4 = :last4 and #unit = :unit")
+                .set_expression_attribute_names(Some(expression_attributes_names.clone()))
+                .set_expression_attribute_values(Some(expression_attribute_values.clone()))
+                .send()
+                .await?;
 
-            std::thread::sleep(std::time::Duration::from_millis(20));
+             
+                 if let Some(items) = query_response.items {
+                   if !items.is_empty() {
+                      all_results.extend(items.clone());
+                      break;
+                    }
+                 }
+
+                std::thread::sleep(std::time::Duration::from_millis(20));
          }
         }
         let attribute_values = all_results;
