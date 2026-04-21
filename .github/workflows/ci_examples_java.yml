@@ -110,6 +110,7 @@ jobs:
 
       - name: Test Examples
         working-directory: ./Examples
+        shell: bash
         run: |
           # Run simple examples
           gradle -p runtimes/java/DynamoDbEncryption test 
