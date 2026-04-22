@@ -456,6 +456,254 @@ module TestBeaconPartition {
   }
 
   method {:test} TestNumberOfQueriesForCompoundBeacons() {
-    
+    var store := GetKeyStore();
+
+    // NameTitle compound beacon uses Name (encrypted) and Title (encrypted) parts.
+    // Give Name 3 partitions and Title 5 partitions via their standard beacons.
+    var namePartitioned := T.StandardBeacon(name := "Name", length := 32, loc := None, style := None, numberOfPartitions := Some(3));
+    var titlePartitioned := T.StandardBeacon(name := "Title", length := 32, loc := None, style := None, numberOfPartitions := Some(5));
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [namePartitioned, titlePartitioned],
+      compoundBeacons := Some([NameTitle]),
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(16)
+    );
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var beaconVersion :- expect C.ConvertVersionWithSource(config, version, src);
+
+    // Query on compound beacon NameTitle with both parts → LCM(3,5) = 15
+    var queryInput := DDB.QueryInput(
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("NameTitle = :nt"),
+      ExpressionAttributeValues := Some(map[":nt" := DDB.AttributeValue.S("N_MyName.T_MyTitle")])
+    );
+    var res := DDBS.GetNumberOfQueries(search := beaconVersion, query := queryInput);
+    expect res.Success?;
+    expect res.value == 15;
+
+    // Query on compound beacon with only Name part → should be 3
+    var queryInput2 := DDB.QueryInput(
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("NameTitle = :nt"),
+      ExpressionAttributeValues := Some(map[":nt" := DDB.AttributeValue.S("N_MyName")])
+    );
+    var res2 := DDBS.GetNumberOfQueries(search := beaconVersion, query := queryInput2);
+    expect res2.Success?;
+    expect res2.value == 3;
+  }
+
+  method {:test} TestDefaultPartitionsWithoutMaxPartitionsFail() {
+    var store := GetKeyStore();
+
+    // Spec: Initialization MUST fail if defaultNumberOfPartitions is supplied
+    // but maximumNumberOfPartitions is not.
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [std2],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      defaultNumberOfPartitions := Some(3)
+    );
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var res := C.ConvertVersionWithSource(FullTableConfig, version, src);
+    expect res.Failure?;
+  }
+
+  method {:test} TestBoundaryPartitionValues() {
+    var store := GetKeyStore();
+
+    // --- maximumNumberOfPartitions = 255 is INVALID (must be < MAX_PARTITION_COUNT=255) ---
+    var beacon254 := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(253));
+    var version255 := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [beacon254],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(255)
+    );
+    var src := GetLiteralSource([1,2,3,4,5], version255);
+    var res := C.ConvertVersionWithSource(FullTableConfig, version255, src);
+    expect res.Failure?;
+
+    // --- maximumNumberOfPartitions = 254 (actual max allowed) with beacon constrained to 253 ---
+    var beacon253 := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(253));
+    var version254 := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [beacon253],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(254)
+    );
+    var src1 := GetLiteralSource([1,2,3,4,5], version254);
+    var res1 := C.ConvertVersionWithSource(FullTableConfig, version254, src1);
+    expect res1.Success?;
+
+    // --- maximumNumberOfPartitions = 128 (representative large) ---
+    var beacon64 := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(64));
+    var version128 := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [beacon64],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(128)
+    );
+    var src2 := GetLiteralSource([1,2,3,4,5], version128);
+    var res2 := C.ConvertVersionWithSource(FullTableConfig, version128, src2);
+    expect res2.Success?;
+
+    // Verify GetNumberOfQueries returns 64 for the constrained beacon
+    var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [version128], writeVersion := 1)));
+    var bv :- expect C.ConvertVersionWithSource(config, version128, src2);
+    var queryInput := DDB.QueryInput(
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("std2 = :std2"),
+      ExpressionAttributeValues := Some(map[":std2" := Std2String])
+    );
+    var qRes := DDBS.GetNumberOfQueries(search := bv, query := queryInput);
+    expect qRes.Success?;
+    expect qRes.value == 64;
+  }
+
+  method {:test} TestBeaconPartitionEncoding() {
+    // Same value hashed in partition 0 vs partition N should produce different beacon values.
+    // Use the same beacon set as GetLotsaBeacons so HMAC keys match.
+    // Must set defaultNumberOfPartitions AND pass a config with search set,
+    // because GetPartitionCount returns 1 when outer.search.None?.
+    var lotsaVersion := GetLotsaBeacons();
+    var partitionedVersion := lotsaVersion.(maximumNumberOfPartitions := Some(10), defaultNumberOfPartitions := Some(5));
+    var src := GetLiteralSource([1,2,3,4,5], partitionedVersion);
+    var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [partitionedVersion], writeVersion := 1)));
+    var bv :- expect C.ConvertVersionWithSource(config, partitionedVersion, src);
+
+    // Generate beacons for partition 0 and partition 1
+    var attrs0 :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
+    var attrs1 :- expect bv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 1);
+
+    // Both should produce beacon values
+    expect "aws_dbe_b_Name" in attrs0;
+    expect "aws_dbe_b_Name" in attrs1;
+    expect attrs0["aws_dbe_b_Name"].S?;
+    expect attrs1["aws_dbe_b_Name"].S?;
+
+    // Core property: different partitions produce different beacon hashes for the same input
+    expect attrs0["aws_dbe_b_Name"] != attrs1["aws_dbe_b_Name"];
+
+    // Partition 0 uses empty encoding (PartitionNumberToBytes(0) == []),
+    // so it should match the non-partitioned beacon from the same beacon set
+    var noPartVersion := GetLotsaBeacons();
+    var noPartSrc := GetLiteralSource([1,2,3,4,5], noPartVersion);
+    var noPartBv :- expect C.ConvertVersionWithSource(FullTableConfig, noPartVersion, noPartSrc);
+    var noPartAttrs :- expect noPartBv.GenerateEncryptedBeacons(SimpleItem, DontUseKeyId, 0);
+    expect "aws_dbe_b_Name" in noPartAttrs;
+    expect attrs0["aws_dbe_b_Name"] == noPartAttrs["aws_dbe_b_Name"];
+  }
+
+  method {:test} TestDefaultPartitionInheritance() {
+    var store := GetKeyStore();
+
+    // Set maximumNumberOfPartitions=10, defaultNumberOfPartitions=3.
+    // Beacons without explicit numberOfPartitions should inherit default (3).
+    var unconstrainedBeacon := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None);
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [unconstrainedBeacon],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(10),
+      defaultNumberOfPartitions := Some(3)
+    );
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var bv :- expect C.ConvertVersionWithSource(config, version, src);
+
+    // GetNumberOfQueries should return 3 (the default), not 10 (the max)
+    var queryInput := DDB.QueryInput(
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("std2 = :std2"),
+      ExpressionAttributeValues := Some(map[":std2" := Std2String])
+    );
+    var res := DDBS.GetNumberOfQueries(search := bv, query := queryInput);
+    expect res.Success?;
+    expect res.value == 3;
+  }
+
+  method {:test} TestInvalidPartitionType() {
+    var store := GetKeyStore();
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [std2, NameB, TitleB],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(5)
+    );
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var bv :- expect C.ConvertVersionWithSource(FullTableConfig, version, src);
+
+    // :aws_dbe_partition as type S (string) instead of N — should fail
+    var valuesS : DDB.ExpressionAttributeValueMap := map[":aws_dbe_partition" := DDB.AttributeValue.S("2")];
+    var resS := DDBS.ExtractPartition(bv, None, Some("Name = :val"), None, Some(valuesS), FullTableConfig.attributeActionsOnEncrypt);
+    expect resS.Failure?;
+
+    // :aws_dbe_partition as type BOOL — should fail
+    var valuesB : DDB.ExpressionAttributeValueMap := map[":aws_dbe_partition" := DDB.AttributeValue.BOOL(true)];
+    var resB := DDBS.ExtractPartition(bv, None, Some("Name = :val"), None, Some(valuesB), FullTableConfig.attributeActionsOnEncrypt);
+    expect resB.Failure?;
+  }
+
+  method {:test} TestMissingBeaconAttributeWithPartitions() {
+    var store := GetKeyStore();
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [NameB],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(5)
+    );
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var bv :- expect C.ConvertVersionWithSource(config, version, src);
+
+    // Item missing the "Name" attribute — beacon should not be generated for it
+    var itemMissingName : DDB.AttributeMap := map[
+      "std2" := Std2String,
+      "Title" := TitleString
+    ];
+    var attrs :- expect bv.GenerateEncryptedBeacons(itemMissingName, DontUseKeyId, 2);
+    // The Name beacon should not appear since the attribute is absent
+    expect "aws_dbe_b_Name" !in attrs;
   }
 }
