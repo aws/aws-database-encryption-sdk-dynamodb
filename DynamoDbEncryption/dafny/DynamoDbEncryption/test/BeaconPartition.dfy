@@ -277,12 +277,11 @@ module TestBeaconPartition {
     var version := GetLotsaBeacons();
     var partionedVersion := version.(standardBeacons := [std2, std4Partitioned, std6, NameTitleBeacon, NameB, TitleB], maximumNumberOfPartitions := Some(10));
     var src := GetLiteralSource([1,2,3,4,5], partionedVersion);
-    var res2 := C.ConvertVersionWithSource(
+    var beaconVersion :- expect C.ConvertVersionWithSource(
       FullTableConfig.(search := Some(T.SearchConfig(versions := [partionedVersion], writeVersion := 1))),
       partionedVersion,
       src
     );
-    var beaconVersion :- expect C.ConvertVersionWithSource(FullTableConfig, partionedVersion, src);
     var newContext :- expect Beaconize(beaconVersion, context, DontUseKeyId, 0);
     expect newContext.values == Some(map[
                                        ":Mixed" := DDB.AttributeValue.S("N_" + Name_beacon + ".Y_1984"),
@@ -299,5 +298,164 @@ module TestBeaconPartition {
                                        ":YearName" := DDB.AttributeValue.S("Y_1984.N_" + Name_beacon)
                                      ]);
       expect newContext.names == None;
+  }
+
+  method {:test} TestNumberOfQueriesPartition1() {
+    var store := GetKeyStore();
+
+    //  --- Not passing any partition number is the same as saying partitions == 1 ---
+    var validBeacon := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None);
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [validBeacon],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None
+    ); 
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var longNameConfig := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var beaconVersion :- expect C.ConvertVersionWithSource(longNameConfig, version, src);
+    var queryInput := DDB.QueryInput(
+        TableName := "SomeTable",
+        KeyConditionExpression := Some("std2 = :std2"),
+        ExpressionAttributeValues := Some(map[":std2" := Std2String])
+    );
+
+    var res := DDBS.GetNumberOfQueries(
+      search := beaconVersion,
+      query := queryInput 
+    );
+
+    expect res.Success?;
+    expect res.value == 1;
+  }
+  
+  method {:test} TestNumberOfQueriesPartition5() {
+    var store := GetKeyStore();
+
+    //  --- Using 5 partitions, should get back 5 as the number of queries ---
+    var validBeacon := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(5));
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [validBeacon],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(6)
+    ); 
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var longNameConfig := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var beaconVersion :- expect C.ConvertVersionWithSource(longNameConfig, version, src);
+    var queryInput := DDB.QueryInput(
+        TableName := "SomeTable",
+        KeyConditionExpression := Some("std2 = :std2"),
+        ExpressionAttributeValues := Some(map[":std2" := Std2String])
+    );
+
+    var res := DDBS.GetNumberOfQueries(
+      search := beaconVersion,
+      query := queryInput 
+    );
+
+    expect res.Success?;
+    expect res.value == 5;
+  }
+
+  method {:test} TestNumberOfQueriesPartition25() {
+    var store := GetKeyStore();
+
+    //  --- Using 25 partitions, should get back 25 as the number of queries ---
+    var validBeacon := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(25));
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [validBeacon],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(26)
+    ); 
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var longNameConfig := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var beaconVersion :- expect C.ConvertVersionWithSource(longNameConfig, version, src);
+    var queryInput := DDB.QueryInput(
+        TableName := "SomeTable",
+        KeyConditionExpression := Some("std2 = :std2"),
+        ExpressionAttributeValues := Some(map[":std2" := Std2String])
+    );
+
+    var res := DDBS.GetNumberOfQueries(
+      search := beaconVersion,
+      query := queryInput 
+    );
+
+    expect res.Success?;
+    expect res.value == 25;
+  }
+
+  method {:test} TestNumberOfQueriesWithMultipleBeaconsConfigured() {
+    var store := GetKeyStore();
+    // -- Test with 2 Beacons one with 3 the other with 5, this should result in a 15 Number of Queries
+    var beacon3 := T.StandardBeacon(name := "std2", length := 24, loc := None, style := None, numberOfPartitions := Some(3));
+    var beacon5 := std4Partitioned;
+
+    // Test only the least common multiple logic, since the number of partitions
+    // for beacon3 and beacon5 is 3 and 5 respectively, the
+    // LCM(3, 5) is 15. The spec says, that the number of queries is the minimum value between
+    // max number of partitions configured on the table and the LCM of the beacons being evaluated.
+    var version := T.BeaconVersion(
+      version := 1,
+      keyStore := store,
+      keySource := T.single(T.SingleKeyStore(keyId := "foo", cacheTTL := 42)),
+      standardBeacons := [beacon3, beacon5],
+      compoundBeacons := None,
+      virtualFields := None,
+      encryptedParts := None,
+      signedParts := None,
+      maximumNumberOfPartitions := Some(16)
+    ); 
+    var src := GetLiteralSource([1,2,3,4,5], version);
+    var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
+    var beaconVersion :- expect C.ConvertVersionWithSource(config, version, src);
+    var queryInput := DDB.QueryInput(
+        TableName := "SomeTable",
+        KeyConditionExpression := Some("std4 = :std4 AND std2 = :std2"),
+        ExpressionAttributeValues := Some(map[
+            ":std4" := Std4String,
+            ":std2" := Std2String
+        ])
+    );
+    
+    var res := DDBS.GetNumberOfQueries(
+      search := beaconVersion,
+      query := queryInput
+    );
+
+    expect res.Success?;
+    expect res.value == 15;
+
+    // Test that the hard limit of max number of partitions gets evaluated when
+    // it comes to number of queries
+    version := version.(maximumNumberOfPartitions := Some(6));
+    beaconVersion :- expect C.ConvertVersionWithSource(config, version, src);
+    res := DDBS.GetNumberOfQueries(
+      search := beaconVersion,
+      query := queryInput
+    );
+
+    expect res.Success?;
+    expect res.value == 6;
+  }
+
+  method {:test} TestNumberOfQueriesForCompoundBeacons() {
+    
   }
 }
