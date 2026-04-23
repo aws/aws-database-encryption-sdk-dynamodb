@@ -1,8 +1,7 @@
 # This workflow automatically re-runs failed jobs from the Daily CI and PR CI.
-# It triggers once when either workflow completes, and if any jobs failed,
-# it re-runs only the failed jobs — but ONLY if no failures are in the
-# skip list below. If any failure matches the skip list (e.g., fuzz tests),
-# the retry is skipped to avoid masking non-deterministic test failures.
+# It only retries if ALL failures match known infrastructure error patterns
+# (e.g., Maven Central outages, Docker pull errors, Windows credential issues).
+# If any failure looks like a real test assertion failure, the retry is skipped.
 # It only retries once to avoid infinite loops.
 name: Retry Failed CI
 
@@ -19,7 +18,7 @@ jobs:
     permissions:
       actions: write
     steps:
-      - name: Check failures and retry if appropriate
+      - name: Check failure patterns and retry if infrastructure-related
         uses: actions/github-script@v7
         with:
           script: |
@@ -36,10 +35,38 @@ jobs:
               return;
             }
 
-            // Jobs that should NOT be retried. These are non-deterministic tests
-            // (e.g., fuzz tests) where a retry could mask a real failure.
-            // Use job name prefixes/substrings to match.
-            const skipPatterns = [
+            // Known infrastructure error patterns that are safe to retry
+            const infraPatterns = [
+              // Maven Central outages
+              'could not get',
+              'could not resolve',
+              'status code 502',
+              'status code 403',
+              'bad gateway',
+              // Docker/Colima failures on macOS
+              'docker: unexpected eof',
+              'connection reset by peer',
+              'wrong diff id',
+              // Windows DLL/process crashes
+              'exit code -1073741502',
+              'exit code -1073741819',
+              // Windows OIDC credential signing issues
+              'invalidsignatureexception',
+              'the request signature we calculated does not match',
+              // Transient DynamoDB errors
+              'provisionedthroughputexceededexception',
+            ];
+
+            // Patterns that indicate real test failures — never retry these
+            const testFailurePatterns = [
+              'assertionerror',
+              'assertionfailederror',
+              'expected:<',
+              'nullpointerexception',
+            ];
+
+            // Jobs that should never be retried regardless of error pattern
+            const skipJobPatterns = [
               'fuzz',
             ];
 
@@ -51,22 +78,66 @@ jobs:
 
             const failedJobs = jobs.filter(j => j.conclusion === 'failure');
             console.log(`Found ${failedJobs.length} failed job(s):`);
-            failedJobs.forEach(j => console.log(`  - ${j.name}`));
+            failedJobs.forEach(j => console.log(`  - ${j.name} (id: ${j.id})`));
 
-            // Check if any failed job matches the skip list
-            const skipped = failedJobs.filter(job => {
-              return skipPatterns.some(pattern =>
-                job.name.toLowerCase().includes(pattern.toLowerCase())
-              );
-            });
-
-            if (skipped.length > 0) {
-              console.log('Failures in skip-listed jobs found. Skipping retry:');
-              skipped.forEach(j => console.log(`  - ${j.name}`));
+            if (failedJobs.length === 0) {
+              console.log('No failed jobs found. Skipping.');
               return;
             }
 
-            console.log('No skip-listed failures. Re-running failed jobs...');
+            // Check skip list first
+            const skippedJobs = failedJobs.filter(job =>
+              skipJobPatterns.some(p => job.name.toLowerCase().includes(p))
+            );
+            if (skippedJobs.length > 0) {
+              console.log('Skip-listed job(s) failed. Not retrying:');
+              skippedJobs.forEach(j => console.log(`  - ${j.name}`));
+              return;
+            }
+
+            // Check each failed job's logs
+            let allInfra = true;
+            for (const job of failedJobs) {
+              console.log(`\nAnalyzing logs for: ${job.name}`);
+              let logs;
+              try {
+                const response = await github.rest.actions.downloadJobLogsForWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  job_id: job.id,
+                });
+                logs = response.data.toLowerCase();
+              } catch (e) {
+                console.log(`  Could not fetch logs: ${e.message}. Assuming real failure.`);
+                allInfra = false;
+                break;
+              }
+
+              // Check for real test failures first
+              const hasTestFailure = testFailurePatterns.some(p => logs.includes(p));
+              if (hasTestFailure) {
+                console.log(`  Found test assertion failure. Not retrying.`);
+                allInfra = false;
+                break;
+              }
+
+              // Check if failure matches known infra patterns
+              const matchedInfra = infraPatterns.filter(p => logs.includes(p));
+              if (matchedInfra.length > 0) {
+                console.log(`  Matched infra patterns: ${matchedInfra.join(', ')}`);
+              } else {
+                console.log(`  No known infra pattern matched. Assuming real failure.`);
+                allInfra = false;
+                break;
+              }
+            }
+
+            if (!allInfra) {
+              console.log('\nReal test failure detected. Skipping retry.');
+              return;
+            }
+
+            console.log('\nAll failures are infrastructure-related. Re-running failed jobs...');
             await github.rest.actions.reRunWorkflowFailedJobs({
               owner: context.repo.owner,
               repo: context.repo.repo,
