@@ -97,7 +97,7 @@ dependencies {
 
     testImplementation("software.amazon.awssdk:url-connection-client:2.41.17")
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation("org.testng:testng:7.5")
+    testImplementation("org.testng:testng:7.11.0")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
     testImplementation("com.amazonaws:DynamoDBLocal:1.+")
     // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
