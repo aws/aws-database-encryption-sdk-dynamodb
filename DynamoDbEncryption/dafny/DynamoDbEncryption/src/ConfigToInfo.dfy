@@ -617,7 +617,6 @@ module SearchConfigToInfo {
     else
     if PartitionCountNone(inner) then
       Success(defaultPartitions)
-    // TODO: should this be <= ??
     else if inner.value < maxPartitions then
       Success(inner.value)
     else

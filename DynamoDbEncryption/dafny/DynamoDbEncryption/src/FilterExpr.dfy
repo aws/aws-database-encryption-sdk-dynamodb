@@ -1676,7 +1676,7 @@ module DynamoDBFilterExpr {
         var strValue := if oldValue.S? then oldValue.S else "";
         var attr := AttrForValue(expr, pos as nat);
         if attr.Some? && attr.value.s in bv.beacons {
-            result := result + [(bv.beacons[attr.value.s], strValue)];
+          result := result + [(bv.beacons[attr.value.s], strValue)];
         }
       }
     }

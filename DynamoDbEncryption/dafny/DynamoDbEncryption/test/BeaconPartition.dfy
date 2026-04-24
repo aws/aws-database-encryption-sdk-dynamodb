@@ -55,8 +55,13 @@ module TestBeaconPartition {
     );
     var unicodeConfig := FullTableConfig.(attributeActionsOnEncrypt := map["caf\u00E9" := SE.ENCRYPT_AND_SIGN]);
     var unicodeSrc := GetLiteralSource([1,2,3,4,5], unicodeVersion);
-    var unicodeRes := C.ConvertVersionWithSource(unicodeConfig, unicodeVersion, unicodeSrc);
-    expect unicodeRes.Success?;
+    var unicodeRes :- expect C.ConvertVersionWithSource(unicodeConfig, unicodeVersion, unicodeSrc);
+    var cafeValueItem := SimpleItem["caf\u00E9" := DDB.AttributeValue.S("caf\u00E9")];
+    var cafeValueAttrs :- expect unicodeRes.GenerateEncryptedBeacons(cafeValueItem, DontUseKeyId, 0);
+    expect "aws_dbe_b_caf\u00E9" in cafeValueAttrs;
+    // The beacon value should be non-empty
+    expect cafeValueAttrs["aws_dbe_b_caf\u00E9"].S?;
+    expect |cafeValueAttrs["aws_dbe_b_caf\u00E9"].S| > 0;
     // Unicode names should succeed
 
     // --- Empty string value hashing ---
@@ -212,6 +217,7 @@ module TestBeaconPartition {
     var values1 : DDB.ExpressionAttributeValueMap := map[":aws_dbe_partition" := DDB.AttributeValue.N("5")];
     var res1 := DDBS.ExtractPartition(bv, None, Some("Name = :val"), None, Some(values1), FullTableConfig.attributeActionsOnEncrypt);
     expect res1.Failure?;
+    expect_equal(res1.error, E(":aws_dbe_partition specified in FilterExpression was 5 must be less than the number of partitions: 5"));
 
     // --- Partition specified when no partitions configured (should fail) ---
     var noPartVersion := GetLotsaBeacons();
@@ -220,10 +226,12 @@ module TestBeaconPartition {
     var values2 : DDB.ExpressionAttributeValueMap := map[":aws_dbe_partition" := DDB.AttributeValue.N("0")];
     var res2 := DDBS.ExtractPartition(noPartBv, None, Some("Name = :val"), None, Some(values2), FullTableConfig.attributeActionsOnEncrypt);
     expect res2.Failure?;
+    expect_equal(res2.error, E("If no partitions are configured, do not specify :aws_dbe_partition"));
 
     // --- Missing partition when partitions configured and encrypted fields used (should fail) ---
     var res3 := DDBS.ExtractPartition(bv, None, Some("Name = :val"), None, None, FullTableConfig.attributeActionsOnEncrypt);
     expect res3.Failure?;
+    expect_equal(res3.error, E("When numberOfPartitions is greater than one, XXXValues must contain :aws_dbe_partition"));
   }
 
   method {:test} TestLongAttributeNameForPartitionBeacon() {
@@ -297,7 +305,7 @@ module TestBeaconPartition {
                                        ":std4" := DDB.AttributeValue.S(std4_beacon),
                                        ":YearName" := DDB.AttributeValue.S("Y_1984.N_" + Name_beacon)
                                      ]);
-      expect newContext.names == None;
+    expect newContext.names == None;
   }
 
   method {:test} TestNumberOfQueriesPartition1() {
@@ -314,25 +322,25 @@ module TestBeaconPartition {
       virtualFields := None,
       encryptedParts := None,
       signedParts := None
-    ); 
+    );
     var src := GetLiteralSource([1,2,3,4,5], version);
     var longNameConfig := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
     var beaconVersion :- expect C.ConvertVersionWithSource(longNameConfig, version, src);
     var queryInput := DDB.QueryInput(
-        TableName := "SomeTable",
-        KeyConditionExpression := Some("std2 = :std2"),
-        ExpressionAttributeValues := Some(map[":std2" := Std2String])
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("std2 = :std2"),
+      ExpressionAttributeValues := Some(map[":std2" := Std2String])
     );
 
     var res := DDBS.GetNumberOfQueries(
       search := beaconVersion,
-      query := queryInput 
+      query := queryInput
     );
 
     expect res.Success?;
     expect res.value == 1;
   }
-  
+
   method {:test} TestNumberOfQueriesPartition5() {
     var store := GetKeyStore();
 
@@ -348,19 +356,19 @@ module TestBeaconPartition {
       encryptedParts := None,
       signedParts := None,
       maximumNumberOfPartitions := Some(6)
-    ); 
+    );
     var src := GetLiteralSource([1,2,3,4,5], version);
     var longNameConfig := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
     var beaconVersion :- expect C.ConvertVersionWithSource(longNameConfig, version, src);
     var queryInput := DDB.QueryInput(
-        TableName := "SomeTable",
-        KeyConditionExpression := Some("std2 = :std2"),
-        ExpressionAttributeValues := Some(map[":std2" := Std2String])
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("std2 = :std2"),
+      ExpressionAttributeValues := Some(map[":std2" := Std2String])
     );
 
     var res := DDBS.GetNumberOfQueries(
       search := beaconVersion,
-      query := queryInput 
+      query := queryInput
     );
 
     expect res.Success?;
@@ -382,19 +390,19 @@ module TestBeaconPartition {
       encryptedParts := None,
       signedParts := None,
       maximumNumberOfPartitions := Some(26)
-    ); 
+    );
     var src := GetLiteralSource([1,2,3,4,5], version);
     var longNameConfig := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
     var beaconVersion :- expect C.ConvertVersionWithSource(longNameConfig, version, src);
     var queryInput := DDB.QueryInput(
-        TableName := "SomeTable",
-        KeyConditionExpression := Some("std2 = :std2"),
-        ExpressionAttributeValues := Some(map[":std2" := Std2String])
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("std2 = :std2"),
+      ExpressionAttributeValues := Some(map[":std2" := Std2String])
     );
 
     var res := DDBS.GetNumberOfQueries(
       search := beaconVersion,
-      query := queryInput 
+      query := queryInput
     );
 
     expect res.Success?;
@@ -421,19 +429,19 @@ module TestBeaconPartition {
       encryptedParts := None,
       signedParts := None,
       maximumNumberOfPartitions := Some(16)
-    ); 
+    );
     var src := GetLiteralSource([1,2,3,4,5], version);
     var config := FullTableConfig.(search := Some(T.SearchConfig(versions := [version], writeVersion := 1)));
     var beaconVersion :- expect C.ConvertVersionWithSource(config, version, src);
     var queryInput := DDB.QueryInput(
-        TableName := "SomeTable",
-        KeyConditionExpression := Some("std4 = :std4 AND std2 = :std2"),
-        ExpressionAttributeValues := Some(map[
-            ":std4" := Std4String,
-            ":std2" := Std2String
-        ])
+      TableName := "SomeTable",
+      KeyConditionExpression := Some("std4 = :std4 AND std2 = :std2"),
+      ExpressionAttributeValues := Some(map[
+                                          ":std4" := Std4String,
+                                          ":std2" := Std2String
+                                        ])
     );
-    
+
     var res := DDBS.GetNumberOfQueries(
       search := beaconVersion,
       query := queryInput
@@ -517,6 +525,7 @@ module TestBeaconPartition {
     var src := GetLiteralSource([1,2,3,4,5], version);
     var res := C.ConvertVersionWithSource(FullTableConfig, version, src);
     expect res.Failure?;
+    expect_equal(res.error, E("Invalid defaultNumberOfPartitions specified, 3, must be 0 < defaultNumberOfPartitions < maximumNumberOfPartitions."));
   }
 
   method {:test} TestBoundaryPartitionValues() {
