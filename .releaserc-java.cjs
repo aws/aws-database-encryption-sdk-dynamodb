@@ -56,6 +56,7 @@ const Runtimes = {
 module.exports = {
   branches: ["main"],
   repositoryUrl: "git@github.com:aws/aws-database-encryption-sdk-dynamodb.git",
+  tagFormat: "v${version}-java",
   plugins: [
     // Check the commits since the last release
     [
@@ -79,9 +80,14 @@ module.exports = {
           ],
         },
         releaseRules: [
-          { type: "docs", release: "patch" },
-          { type: "revert", release: "patch" },
-          { type: "chore", release: "patch" },
+          // go is in main but not in prod. Mentioning go as we do make PR scoping Go in this repo
+          // python is not in main and not in prod. Mentioning python for defensive coding.
+          { scope: "python", release: false },
+          { scope: "dotnet", release: false },
+          { scope: ".net", release: false },
+          { scope: "net", release: false },
+          { scope: "go", release: false },
+          { scope: "rust", release: false },
         ],
       },
     ],
@@ -91,7 +97,7 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["BREAKING-CHANGE", "BREAKING-CHANGES"],
+          noteKeywords: ["JAVA-BREAKING-CHANGE", "JAVA-BREAKING-CHANGES", "JAVA BREAKING CHANGE", "JAVA BREAKING CHANGES"],
         },
         presetConfig: {
           types: [
@@ -107,13 +113,12 @@ module.exports = {
               section: "Features -- Java",
               hidden: false,
             },
-            {
-              type: "feat",
-              scope: "rust",
-              section: "Features -- Rust",
-              hidden: false,
-            },
-
+            { type: "feat", scope: ".net", hidden: true },
+            { type: "feat", scope: "net", hidden: true },
+            { type: "feat", scope: "dotnet", hidden: true },
+            { type: "feat", scope: "python", hidden: true },
+            { type: "feat", scope: "go", hidden: true },
+            { type: "feat", scope: "rust", hidden: true },
             {
               type: "fix",
               scope: "dafny",
@@ -126,13 +131,12 @@ module.exports = {
               section: "Fixes -- Java",
               hidden: false,
             },
-            {
-              type: "fix",
-              scope: "rust",
-              section: "Fixes -- Rust",
-              hidden: false,
-            },
-
+            { type: "fix", scope: ".net", hidden: true },
+            { type: "fix", scope: "net", hidden: true },
+            { type: "fix", scope: "dotnet", hidden: true },
+            { type: "fix", scope: "python", hidden: true },
+            { type: "fix", scope: "go", hidden: true },
+            { type: "fix", scope: "rust", hidden: true },
             {
               type: "chore",
               scope: "dafny",
@@ -145,12 +149,12 @@ module.exports = {
               section: "Maintenance -- Java",
               hidden: false,
             },
-            {
-              type: "chore",
-              scope: "rust",
-              section: "Maintenance -- Rust",
-              hidden: false,
-            },
+            { type: "chore", scope: ".net", hidden: true },
+            { type: "chore", scope: "net", hidden: true },
+            { type: "chore", scope: "dotnet", hidden: true },
+            { type: "chore", scope: "python", hidden: true },
+            { type: "chore", scope: "go", hidden: true },
+            { type: "chore", scope: "rust", hidden: true },
             {
               type: "chore",
               section: "Miscellaneous",
@@ -168,12 +172,11 @@ module.exports = {
               section: "Maintenance -- Java",
               hidden: false,
             },
-            {
-              type: "docs",
-              scope: "rust",
-              section: "Maintenance -- Rust",
-              hidden: false,
-            },
+            { type: "docs", scope: ".net", hidden: true },
+            { type: "docs", scope: "dotnet", hidden: true },
+            { type: "docs", scope: "python", hidden: true },
+            { type: "docs", scope: "go", hidden: true },
+            { type: "docs", scope: "rust", hidden: true },
             {
               type: "revert",
               scope: "dafny",
@@ -186,10 +189,50 @@ module.exports = {
               section: "Fixes -- Java",
               hidden: false,
             },
+            { type: "revert", scope: ".net", hidden: true },
+            { type: "revert", scope: "dotnet", hidden: true },
+            { type: "revert", scope: "python", hidden: true },
+            { type: "revert", scope: "go", hidden: true },
+            { type: "revert", scope: "rust", hidden: true },
+            {
+              type: "feat",
+              section: "Features -- All Languages",
+              hidden: false,
+            },
+            { type: "fix", section: "Fixes -- All Languages", hidden: false },
+            {
+              type: "chore",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "docs",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
             {
               type: "revert",
-              scope: "rust",
-              section: "Fixes -- Rust",
+              section: "Fixes -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "style",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "refactor",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "perf",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "test",
+              section: "Miscellaneous -- All Languages",
               hidden: false,
             },
             { type: "style", section: "Miscellaneous", hidden: false },
@@ -204,7 +247,7 @@ module.exports = {
     [
       "@semantic-release/changelog",
       {
-        changelogFile: "CHANGELOG.md",
+        changelogFile: "CHANGELOG-java.md",
         changelogTitle: "# Changelog",
       },
     ],
@@ -231,7 +274,7 @@ module.exports = {
       "@semantic-release/git",
       {
         assets: [
-          "CHANGELOG.md",
+          "CHANGELOG-java.md",
           ...Object.values(Runtimes).flatMap((r) => Object.keys(r)),
         ],
         message:
