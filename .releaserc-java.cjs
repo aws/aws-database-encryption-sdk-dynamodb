@@ -97,7 +97,12 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["JAVA-BREAKING-CHANGE", "JAVA-BREAKING-CHANGES", "JAVA BREAKING CHANGE", "JAVA BREAKING CHANGES"],
+          noteKeywords: [
+            "JAVA-BREAKING-CHANGE",
+            "JAVA-BREAKING-CHANGES",
+            "JAVA BREAKING CHANGE",
+            "JAVA BREAKING CHANGES",
+          ],
         },
         presetConfig: {
           types: [
