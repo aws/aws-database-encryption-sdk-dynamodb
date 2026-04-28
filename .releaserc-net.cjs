@@ -65,7 +65,16 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["DOTNET-BREAKING-CHANGE", "DOTNET-BREAKING-CHANGES"],
+          noteKeywords: [
+            "DOTNET-BREAKING-CHANGE",
+            "DOTNET-BREAKING-CHANGES",
+            "DOTNET BREAKING CHANGE",
+            "DOTNET BREAKING CHANGES",
+            "NET-BREAKING-CHANGE",
+            "NET-BREAKING-CHANGES",
+            "NET BREAKING CHANGE",
+            "NET BREAKING CHANGES",
+          ],
         },
         presetConfig: {
           types: [
