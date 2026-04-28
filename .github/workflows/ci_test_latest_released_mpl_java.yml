@@ -24,7 +24,7 @@ on:
         default: true
         type: boolean
       strip_snapshot:
-        description: "Strip -SNAPSHOT suffix from mplDependencyJavaVersion?"
+        description: "Strip -SNAPSHOT suffix from mpl Dependency in project properties?"
         required: false
         default: false
         type: boolean
@@ -49,7 +49,7 @@ on:
         default: true
         type: boolean
       strip_snapshot:
-        description: "Strip -SNAPSHOT suffix from mplDependencyJavaVersion?"
+        description: "Strip -SNAPSHOT suffix from mpl Dependency in project properties?"
         required: false
         default: false
         type: boolean
@@ -60,10 +60,10 @@ permissions:
 
 jobs:
   getMplDependencyJavaVersion:
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
+    if: github.repository_owner == 'aws'
     uses: ./.github/workflows/mpl_dependency_java_version.yml
     with:
-      strip_snapshot: ${{ inputs.strip_snapshot == true || github.event_name == 'schedule' }}
+      strip_snapshot: ${{ inputs.strip_snapshot == true }}
   testJava:
     needs: [getMplDependencyJavaVersion]
     strategy:
