@@ -163,8 +163,12 @@ jobs:
       - name: Test Examples
         working-directory: ./Examples
         run: |
-          # Run Simple Examples
-          gradle -p runtimes/java/DynamoDbEncryption test
-          # Run Migration Examples
-          gradle -p runtimes/java/Migration/PlaintextToAWSDBE test
-          gradle -p runtimes/java/Migration/DDBECToAWSDBE test
+          gradle -p runtimes/java/DynamoDbEncryption test 
+          if [[ "${{ inputs.branch }}" == "v3.x-Java" ]]; then                                                                                 
+            gradle -p runtimes/java/Migration/PlaintextToAWSDBE test                                                                           
+            gradle -p runtimes/java/Migration/DDBECToAWSDBE test                                                                               
+          else                                                                                                                                 
+            gradle -p runtimes/java/DDBECwithSDKV2 test                                                                                        
+            gradle -p runtimes/java/Migration/PlaintextToAWSDBE test                                                                           
+            gradle -p runtimes/java/Migration/DDBECv2ToAWSDBE test                                                                             
+          fi
