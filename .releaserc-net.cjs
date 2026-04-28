@@ -65,7 +65,16 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["DOTNET-BREAKING-CHANGE", "DOTNET-BREAKING-CHANGES"],
+          noteKeywords: [
+            "DOTNET-BREAKING-CHANGE",
+            "DOTNET-BREAKING-CHANGES",
+            "DOTNET BREAKING CHANGE",
+            "DOTNET BREAKING CHANGES",
+            "NET-BREAKING-CHANGE",
+            "NET-BREAKING-CHANGES",
+            "NET BREAKING CHANGE",
+            "NET BREAKING CHANGES",
+          ],
         },
         presetConfig: {
           types: [
@@ -81,9 +90,12 @@ module.exports = {
           ],
         },
         releaseRules: [
-          { type: "docs", release: "patch" },
-          { type: "revert", release: "patch" },
-          { type: "chore", release: "patch" },
+          // go is in main but not in prod. Mentioning go as we do make PR scoping Go in this repo
+          // python is not in main and not in prod. Mentioning python for defensive coding.
+          { scope: "python", release: false },
+          { scope: "java", release: false },
+          { scope: "go", release: false },
+          { scope: "rust", release: false },
         ],
       },
     ],
@@ -93,7 +105,16 @@ module.exports = {
       {
         preset: "conventionalcommits",
         parserOpts: {
-          noteKeywords: ["DOTNET-BREAKING-CHANGE", "DOTNET-BREAKING-CHANGES"],
+          noteKeywords: [
+            "DOTNET-BREAKING-CHANGE",
+            "DOTNET-BREAKING-CHANGES",
+            "DOTNET BREAKING CHANGE",
+            "DOTNET BREAKING CHANGES",
+            "NET-BREAKING-CHANGE",
+            "NET-BREAKING-CHANGES",
+            "NET BREAKING CHANGE",
+            "NET BREAKING CHANGES",
+          ],
         },
         presetConfig: {
           types: [
@@ -109,6 +130,10 @@ module.exports = {
               section: "Features -- DotNet",
               hidden: false,
             },
+            { type: "feat", scope: "java", hidden: true },
+            { type: "feat", scope: "python", hidden: true },
+            { type: "feat", scope: "go", hidden: true },
+            { type: "feat", scope: "rust", hidden: true },
             {
               type: "fix",
               scope: "dafny",
@@ -121,6 +146,10 @@ module.exports = {
               section: "Fixes -- DotNet",
               hidden: false,
             },
+            { type: "fix", scope: "java", hidden: true },
+            { type: "fix", scope: "python", hidden: true },
+            { type: "fix", scope: "go", hidden: true },
+            { type: "fix", scope: "rust", hidden: true },
             {
               type: "chore",
               scope: "dafny",
@@ -133,6 +162,10 @@ module.exports = {
               section: "Maintenance -- DotNet",
               hidden: false,
             },
+            { type: "chore", scope: "java", hidden: true },
+            { type: "chore", scope: "python", hidden: true },
+            { type: "chore", scope: "go", hidden: true },
+            { type: "chore", scope: "rust", hidden: true },
             {
               type: "docs",
               scope: "dafny",
@@ -145,6 +178,10 @@ module.exports = {
               section: "Maintenance -- DotNet",
               hidden: false,
             },
+            { type: "docs", scope: "java", hidden: true },
+            { type: "docs", scope: "python", hidden: true },
+            { type: "docs", scope: "go", hidden: true },
+            { type: "docs", scope: "rust", hidden: true },
             {
               type: "revert",
               scope: "dafny",
@@ -155,6 +192,51 @@ module.exports = {
               type: "revert",
               scope: "dotnet",
               section: "Fixes -- DotNet",
+              hidden: false,
+            },
+            { type: "revert", scope: "java", hidden: true },
+            { type: "revert", scope: "python", hidden: true },
+            { type: "revert", scope: "go", hidden: true },
+            { type: "revert", scope: "rust", hidden: true },
+            {
+              type: "feat",
+              section: "Features -- All Languages",
+              hidden: false,
+            },
+            { type: "fix", section: "Fixes -- All Languages", hidden: false },
+            {
+              type: "chore",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "docs",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "revert",
+              section: "Fixes -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "style",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "refactor",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "perf",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "test",
+              section: "Miscellaneous -- All Languages",
               hidden: false,
             },
             { type: "style", section: "Miscellaneous", hidden: false },
@@ -169,7 +251,7 @@ module.exports = {
     [
       "@semantic-release/changelog",
       {
-        changelogFile: "CHANGELOG.md",
+        changelogFile: "CHANGELOG-net.md",
         changelogTitle: "# Changelog",
       },
     ],
@@ -213,7 +295,7 @@ module.exports = {
       "@semantic-release/git",
       {
         assets: [
-          "CHANGELOG.md",
+          "CHANGELOG-net.md",
           ...Object.values(Runtimes).flatMap((r) => Object.keys(r)),
           ...Object.values(Runtimes.net).flatMap((r) => r.assemblyInfo),
         ],
