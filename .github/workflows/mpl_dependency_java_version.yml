@@ -34,8 +34,8 @@ jobs:
           properties: "mplDependencyJavaVersion"
       - name: Resolve version
         id: resolve_version
-        env:                                                                                                                                                                                     
-          RAW_VERSION: ${{ steps.read_property.outputs.mplDependencyJavaVersion }}                                                                                                               
+        env:
+          RAW_VERSION: ${{ steps.read_property.outputs.mplDependencyJavaVersion }}
           STRIP: ${{ inputs.strip_snapshot }}
         run: |
           VERSION="$RAW_VERSION"
