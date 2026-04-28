@@ -1,15 +1,5 @@
 # Changelog
 
-## [4.0.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.10.0-java...v4.0.0-java) (2026-04-28)
-
-### ⚠ BREAKING CHANGES
-
-* **java:** something
-
-### Features -- Java
-
-* **java:** empty commit ([89abb22](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/89abb22332da65577c73f140aea58973a5110a73))
-
 ## [3.10.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.1-java...v3.10.0-java) (2026-04-28)
 
 ### Features -- Java
