@@ -182,6 +182,17 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
       branch: ${{ matrix.branch }}
+  test-with-released-mpl:
+    needs: getVersion
+    strategy:
+      matrix:
+        branch: [main, v3.x-Java]
+    uses: ./.github/workflows/ci_test_latest_released_mpl_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      run_test_vectors: true
+      strip_snapshot: true
+
   notify:
     permissions:
       contents: read

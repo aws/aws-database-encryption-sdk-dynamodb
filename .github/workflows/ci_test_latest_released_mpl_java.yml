@@ -3,11 +3,46 @@
 name: Test Latest Released MPL Java with DB-ESDK HEAD
 
 on:
-  # Unless we update MPL's project properties, this cannot work on schedule
-  schedule:
-    - cron: "00 15 * * 1-5"
-  workflow_dispatch: # allows triggering this manually through the Actions UI
+  workflow_dispatch:
     inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      branch:
+        description: "Branch to checkout"
+        required: true
+        type: string
+      run_test_vectors:
+        description: "Run Test Vectors?"
+        required: false
+        default: true
+        type: boolean
+      strip_snapshot:
+        description: "Strip -SNAPSHOT suffix from mplDependencyJavaVersion?"
+        required: false
+        default: false
+        type: boolean
+  workflow_call:
+    inputs:
+      dafny:
+        description: "The Dafny version to run"
+        required: true
+        type: string
+      regenerate-code:
+        description: "Regenerate code using smithy-dafny"
+        required: false
+        default: false
+        type: boolean
+      branch:
+        description: "Branch to checkout"
+        required: false
+        type: string
       run_test_vectors:
         description: "Run Test Vectors?"
         required: false
@@ -25,20 +60,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  getVersion:
-    # Don't run the cron builds on forks
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/dafny_version.yml
-  getVerifyVersion:
-    if: github.event_name != 'schedule' || github.repository_owner == 'aws'
-    uses: ./.github/workflows/dafny_verify_version.yml
   getMplDependencyJavaVersion:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     uses: ./.github/workflows/mpl_dependency_java_version.yml
     with:
       strip_snapshot: ${{ inputs.strip_snapshot == true || github.event_name == 'schedule' }}
   testJava:
-    needs: [getVersion, getMplDependencyJavaVersion]
+    needs: [getMplDependencyJavaVersion]
     env:                                                                                                                                                                                        
       MPL_VERSION: ${{ inputs.mpl_version || needs.getMplDependencyJavaVersion.outputs.version }}
     strategy:
@@ -58,8 +86,9 @@ jobs:
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
           role-session-name: DDBEC-Dafny-Java-Tests
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.branch }}
           submodules: recursive
 
       - name: Setup Java ${{ matrix.java-version }}
@@ -71,7 +100,7 @@ jobs:
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
         with:
-          dafny-version: ${{ needs.getVersion.outputs.version }}
+          dafny-version: ${{ inputs.dafny }}
 
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
@@ -80,7 +109,7 @@ jobs:
         if: ${{ inputs.regenerate-code }}
         uses: ./.github/actions/polymorph_codegen
         with:
-          dafny: ${{ env.DAFNY_VERSION }}
+          dafny: ${{ inputs.dafny }}
           library: DynamoDbEncryption
           diff-generated-code: false
           update-and-regenerate-mpl: true
@@ -125,7 +154,7 @@ jobs:
           make mvn_local_deploy
 
       - name: Run Test Vectors
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && ${{inputs.run_test_vectors}})
+        if: github.event_name == 'workflow_dispatch' && inputs.run_test_vectors
         working-directory: ./TestVectors
         run: |
           # Spin up ddb local
