@@ -59,7 +59,7 @@
   <ItemGroup>
     <PackageReference Include="DafnyRuntime" Version="$(DafnyVersion)" />
     <!-- Before releasing a new DBESDK version ensure to pin the MPL -->
-    <PackageReference Include="AWS.Cryptography.MaterialProviders" Version="[2.0.0]" />
+    <ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>
     <!--
       System.Collections.Immutable can be removed once dafny.msbuild is updated with
       https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
