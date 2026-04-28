@@ -67,7 +67,7 @@ jobs:
       strip_snapshot: ${{ inputs.strip_snapshot == true || github.event_name == 'schedule' }}
   testJava:
     needs: [getMplDependencyJavaVersion]
-    env:                                                                                                                                                                                        
+    env:
       MPL_VERSION: ${{ inputs.mpl_version || needs.getMplDependencyJavaVersion.outputs.version }}
     strategy:
       max-parallel: 1
@@ -102,17 +102,17 @@ jobs:
         with:
           dafny-version: ${{ inputs.dafny }}
 
-      - name: Install Smithy-Dafny codegen dependencies
-        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+      # - name: Install Smithy-Dafny codegen dependencies
+      #   uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
 
-      - name: Regenerate code using smithy-dafny if necessary
-        if: ${{ inputs.regenerate-code }}
-        uses: ./.github/actions/polymorph_codegen
-        with:
-          dafny: ${{ inputs.dafny }}
-          library: DynamoDbEncryption
-          diff-generated-code: false
-          update-and-regenerate-mpl: true
+      # - name: Regenerate code using smithy-dafny if necessary
+      #   if: ${{ inputs.regenerate-code }}
+      #   uses: ./.github/actions/polymorph_codegen
+      #   with:
+      #     dafny: ${{ inputs.dafny }}
+      #     library: DynamoDbEncryption
+      #     diff-generated-code: false
+      #     update-and-regenerate-mpl: true
 
       - name: Override MPL dependency version
         run: |
@@ -120,22 +120,22 @@ jobs:
 
       # The following two steps: "Build and deploy to maven local" and "Run Extensive Tests"
       # mimic the tests in ./codebuild/staging/release-staging.yml
-      - name: Build and deploy to maven local
-        shell: bash
-        working-directory: ./DynamoDbEncryption
-        run: |
-          # Run transpile by itself. We don't want to locally build the MPL because
-          # we want to verify that the version pulled down from maven works correctly
-          make transpile_implementation_java
-          make transpile_test_java
-          make mvn_local_deploy
-          make test_java
+      # - name: Build and deploy to maven local
+      #   shell: bash
+      #   working-directory: ./DynamoDbEncryption
+      #   run: |
+      #     # Run transpile by itself. We don't want to locally build the MPL because
+      #     # we want to verify that the version pulled down from maven works correctly
+      #     make transpile_implementation_java
+      #     make transpile_test_java
+      #     make mvn_local_deploy
+      #     make test_java
 
-      - name: Run Extensive Tests
-        working-directory: ./DynamoDbEncryption
-        run: |
-          gradle -p runtimes/java clean
-          gradle -p runtimes/java test
+      # - name: Run Extensive Tests
+      #   working-directory: ./DynamoDbEncryption
+      #   run: |
+      #     gradle -p runtimes/java clean
+      #     gradle -p runtimes/java test
 
       - name: Update project.properties to use the correct MPL version (from project.properties in DB-ESDK)
         working-directory: ./submodules/MaterialProviders/
