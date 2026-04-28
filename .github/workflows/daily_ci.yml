@@ -182,7 +182,10 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
       branch: ${{ matrix.branch }}
-  test-with-released-mpl:
+  daily-test-with-released-mpl:
+    permissions:
+      id-token: write
+      contents: read
     needs: getVersion
     strategy:
       matrix:
@@ -213,6 +216,7 @@ jobs:
         daily-ci-rust,
         daily-ci-net-test-vectors,
         daily-ci-net-examples,
+        daily-test-with-released-mpl,
       ]
     if: ${{ failure() && github.event_name == 'schedule'}}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
