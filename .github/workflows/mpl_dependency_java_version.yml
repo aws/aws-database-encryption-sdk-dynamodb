@@ -34,9 +34,12 @@ jobs:
           properties: "mplDependencyJavaVersion"
       - name: Resolve version
         id: resolve_version
+        env:                                                                                                                                                                                     
+          RAW_VERSION: ${{ steps.read_property.outputs.mplDependencyJavaVersion }}                                                                                                               
+          STRIP: ${{ inputs.strip_snapshot }}
         run: |
-          VERSION="${{ steps.read_property.outputs.mplDependencyJavaVersion }}"
-          if [ "${{ inputs.strip_snapshot }}" == "true" ]; then
-            VERSION="${VERSION%-SNAPSHOT}"
-          fi
+          VERSION="$RAW_VERSION"
+          if [ "$STRIP" == "true" ]; then                                                                                                                                                        
+            VERSION="${VERSION%-SNAPSHOT}"                                                                                                                                                       
+          fi                                                                                                                                                                                     
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"

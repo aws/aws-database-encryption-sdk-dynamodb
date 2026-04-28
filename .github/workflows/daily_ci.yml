@@ -193,6 +193,7 @@ jobs:
     uses: ./.github/workflows/ci_test_latest_released_mpl_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      branch: ${{ matrix.branch }}
       run_test_vectors: true
       strip_snapshot: true
 

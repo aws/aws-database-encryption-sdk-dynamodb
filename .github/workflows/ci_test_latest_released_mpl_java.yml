@@ -41,7 +41,7 @@ on:
         type: boolean
       branch:
         description: "Branch to checkout"
-        required: false
+        required: true
         type: string
       run_test_vectors:
         description: "Run Test Vectors?"
@@ -150,7 +150,7 @@ jobs:
           make mvn_local_deploy
 
       - name: Run Test Vectors
-        if: github.event_name == 'workflow_dispatch' && inputs.run_test_vectors
+        if: inputs.run_test_vectors
         working-directory: ./TestVectors
         run: |
           # Spin up ddb local
