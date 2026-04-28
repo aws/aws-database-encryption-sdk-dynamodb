@@ -106,7 +106,7 @@ public class BasicSearchableEncryptionExample
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10,000/1,024) ~= 9.8 4-digit inspector ID suffixes
         //    sharing that beacon value.
-        var last4Beacon = new StandardBeacon { Name = "inspector_id_last4", Length = 10 ,  NumberOfPartitions = 2};
+        var last4Beacon = new StandardBeacon { Name = "inspector_id_last4", Length = 10, NumberOfPartitions = 2 };
         standardBeaconList.Add(last4Beacon);
 
         // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
@@ -135,7 +135,7 @@ public class BasicSearchableEncryptionExample
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        var unitBeacon = new StandardBeacon { Name = "unit", Length = 30 ,  NumberOfPartitions = 2};
+        var unitBeacon = new StandardBeacon { Name = "unit", Length = 30, NumberOfPartitions = 2 };
         standardBeaconList.Add(unitBeacon);
 
         // 2. Configure Keystore.
@@ -175,7 +175,7 @@ public class BasicSearchableEncryptionExample
             {
                 StandardBeacons = standardBeaconList,
                 Version = 1, // MUST be 1
-                MaximumNumberOfPartitions = 8,  
+                MaximumNumberOfPartitions = 8,
                 DefaultNumberOfPartitions = 1, //For beacons that do not require partitioning, only a single partition is used. 
                 KeyStore = keyStore,
                 KeySource = new BeaconKeySource
