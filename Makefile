@@ -79,22 +79,22 @@ generate_properties_file:
 setup_semantic_release:
 	npm i --no-save semantic-release @semantic-release/changelog semantic-release-replace-plugin conventional-changelog-conventionalcommits @semantic-release/git
 
-run_semantic_release:
+run_java_semantic_release:
+	mv .releaserc-java.cjs .releaserc.cjs
 	npx semantic-release --no-ci
+	mv .releaserc.cjs .releaserc-java.cjs
 
 run_net_semantic_release:
-	mv .releaserc.cjs .releaserc-main.cjs
 	mv .releaserc-net.cjs .releaserc.cjs
 	npx semantic-release --no-ci
 	mv .releaserc.cjs .releaserc-net.cjs
-	mv .releaserc-main.cjs .releaserc.cjs
 
-dry_run_semantic_release:
+dry_run_java_semantic_release:
+	mv .releaserc-java.cjs .releaserc.cjs
 	npx semantic-release --dry-run
+	mv .releaserc.cjs .releaserc-java.cjs
 
 dry_run_net_semantic_release:
-	mv .releaserc.cjs .releaserc-main.cjs
 	mv .releaserc-net.cjs .releaserc.cjs
 	npx semantic-release --dry-run
 	mv .releaserc.cjs .releaserc-net.cjs
-	mv .releaserc-main.cjs .releaserc.cjs
