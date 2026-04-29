@@ -182,6 +182,21 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
       branch: ${{ matrix.branch }}
+  daily-test-with-released-mpl:
+    permissions:
+      id-token: write
+      contents: read
+    needs: getVersion
+    strategy:
+      matrix:
+        branch: [main, v3.x-Java]
+    uses: ./.github/workflows/ci_test_latest_released_mpl_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      branch: ${{ matrix.branch }}
+      run_test_vectors: true
+      strip_snapshot: true
+
   notify:
     permissions:
       contents: read
@@ -202,6 +217,7 @@ jobs:
         daily-ci-rust,
         daily-ci-net-test-vectors,
         daily-ci-net-examples,
+        daily-test-with-released-mpl,
       ]
     if: ${{ failure() && github.event_name == 'schedule'}}
     uses: aws/aws-cryptographic-material-providers-library/.github/workflows/slack-notification.yml@main
