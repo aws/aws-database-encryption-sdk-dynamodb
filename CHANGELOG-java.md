@@ -5,9 +5,8 @@
 ### ⚠ BREAKING CHANGES
 
 * **java:** add DDBEC with SDK v2 and remove DDBEC with SDK V1 (#2048)
-* **.net:** Bump MPL V2 (#2145)
-
-* **.net:** Bump MPL V2 ([#2145](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2145)) ([87c534b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/87c534bb2c6b95792b67e30b94d91865e91ffbf0))
+  * The AWS Database Encryption SDK for DynamoDB will NOT support AWS SDK for Java 1.x in the embedded 2.x version (which was known as DynamoDB Encryption Client(DDBEC)). The embedded DDBEC will now use AWS SDK for Java 2.x. These changes are limited to embedded DDBEC and rest of DB-ESDK has no code changes.
+  * If consumer of DB-ESDK is using APIs from namespace `com.amazonaws.services.dynamodbv2` through DB-ESDK then they have to migrate to use corresponding API from namespace `com.amazonaws.services.dynamodbv2.datamodeling.sdkv2`. If consumer of DB-ESDK are NOT using namespace `com.amazonaws.services.dynamodbv2` through DB-ESDK then there will not be any breaking change when moving to next major version.
 
 ### Features -- Java
 
