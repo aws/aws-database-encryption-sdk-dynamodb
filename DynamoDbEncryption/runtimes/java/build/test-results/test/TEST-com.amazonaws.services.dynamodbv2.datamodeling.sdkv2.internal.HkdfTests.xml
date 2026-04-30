@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.HkdfTests" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:30" hostname="bcd074aae394" time="0.003">
+  <properties/>
+  <testcase name="defaultSalt" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.HkdfTests" time="0.001"/>
+  <testcase name="nullTests" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.HkdfTests" time="0.0"/>
+  <testcase name="rfc5869Tests" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.HkdfTests" time="0.001"/>
+  <system-out><![CDATA[Test case A.1
+Test case A.2
+Test case A.3
+Test case A.4
+Test case A.5
+Test case A.6
+Test case A.7
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:20:01" hostname="bcd074aae394" time="146.624">
+  <properties/>
+  <testcase name="constructorNullDdb" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.0"/>
+  <testcase name="constructorNullEncryptor" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.0"/>
+  <testcase name="constructorNullExtraDataSupplier" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.0"/>
+  <testcase name="constructorNullTableName" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.0"/>
+  <testcase name="getOrCreateCollision" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.035"/>
+  <testcase name="getOrCreateWithContextSupplier" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.023"/>
+  <testcase name="invalidSignedOnlyField" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.0"/>
+  <testcase name="invalidVersion" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.01"/>
+  <testcase name="newProviderCollision" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="1.048"/>
+  <testcase name="replicateIntermediateKeysTest" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.034"/>
+  <testcase name="replicateIntermediateKeysWhenMaterialNotFoundTest" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.01"/>
+  <testcase name="singleMaterial" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.016"/>
+  <testcase name="singleMaterialExplicitAccess" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.019"/>
+  <testcase name="singleMaterialExplicitAccessWithVersion" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.022"/>
+  <testcase name="singleMaterialWithImplicitCreation" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.022"/>
+  <testcase name="testNoMaterials" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.011"/>
+  <testcase name="twoDifferentMaterials" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.store.MetaStoreTests" time="0.023"/>
+  <system-out><![CDATA[Initializing DynamoDB Local with the following configuration:
+Port:	50890
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50892
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50893
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50895
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50899
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50900
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50901
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50903
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50907
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50910
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50912
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50914
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50919
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50921
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50922
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50923
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50927
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50928
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50931
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50935
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50942
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50946
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50947
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50949
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50953
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50954
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50955
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50956
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50961
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50962
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50963
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50964
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50972
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50974
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50975
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50978
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50982
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50984
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50985
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50987
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50993
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50994
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50999
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51004
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51007
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51008
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51009
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51010
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51017
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51021
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51023
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51024
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51027
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51028
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51031
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51034
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51037
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51040
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51045
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51047
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51053
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51057
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51058
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51060
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51063
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51067
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51068
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	51069
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ByteBufferInputStreamTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:30" hostname="bcd074aae394" time="0.001">
+  <properties/>
+  <testcase name="testMarkSupported" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ByteBufferInputStreamTest" time="0.0"/>
+  <testcase name="testRead" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ByteBufferInputStreamTest" time="0.0"/>
+  <testcase name="testReadByteArray" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ByteBufferInputStreamTest" time="0.0"/>
+  <testcase name="testSkip" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ByteBufferInputStreamTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

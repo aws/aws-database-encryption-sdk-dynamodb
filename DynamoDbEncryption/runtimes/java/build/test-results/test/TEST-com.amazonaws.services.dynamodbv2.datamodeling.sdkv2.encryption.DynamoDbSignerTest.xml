@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:19:40" hostname="bcd074aae394" time="0.032">
+  <properties/>
+  <testcase name="mac" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.0"/>
+  <testcase name="macChangedAssociatedData" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.0"/>
+  <testcase name="macChangedFlag" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.0"/>
+  <testcase name="macChangedValue" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.0"/>
+  <testcase name="macLists" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="macListsUnsorted" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.0"/>
+  <testcase name="macNoAdMatchesEmptyAd" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.0"/>
+  <testcase name="macWithIgnoredChange" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="sig" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.002"/>
+  <testcase name="sigChangedAssociatedData" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="sigChangedFlag" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="sigChangedValue" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="sigEcdsa" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.003"/>
+  <testcase name="sigEcdsaChangedAssociatedData" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.002"/>
+  <testcase name="sigEcdsaChangedValue" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.002"/>
+  <testcase name="sigEcdsaNoAdMatchesEmptyAd" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.002"/>
+  <testcase name="sigEcdsaWithIgnoredChange" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.003"/>
+  <testcase name="sigEcdsaWithReadOnlySignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.002"/>
+  <testcase name="sigNoAdMatchesEmptyAd" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="sigWithIgnoredChange" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <testcase name="sigWithReadOnlySignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbSignerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

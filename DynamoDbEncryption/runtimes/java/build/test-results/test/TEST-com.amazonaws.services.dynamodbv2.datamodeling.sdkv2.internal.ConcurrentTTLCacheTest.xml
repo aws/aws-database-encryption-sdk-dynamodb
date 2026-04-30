@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ConcurrentTTLCacheTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:30" hostname="bcd074aae394" time="0.401">
+  <properties/>
+  <testcase name="testExpiredCase" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ConcurrentTTLCacheTest" time="0.193"/>
+  <testcase name="testGracePeriodCase" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ConcurrentTTLCacheTest" time="0.07"/>
+  <testcase name="testNewEntryCase" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ConcurrentTTLCacheTest" time="0.071"/>
+  <testcase name="testPutLoadCase" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.ConcurrentTTLCacheTest" time="0.067"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

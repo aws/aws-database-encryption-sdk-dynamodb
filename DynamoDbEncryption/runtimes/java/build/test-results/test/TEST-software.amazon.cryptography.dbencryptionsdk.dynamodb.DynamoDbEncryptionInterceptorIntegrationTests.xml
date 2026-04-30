@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:30" hostname="bcd074aae394" time="5.231">
+  <properties/>
+  <testcase name="TestBatchWriteBatchGet" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.573"/>
+  <testcase name="TestDeleteItem" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.154"/>
+  <testcase name="TestFailsNonDDBClient" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.009"/>
+  <testcase name="TestFailsNonSyncClient" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.13"/>
+  <testcase name="TestOnDecryptKeyringFailure" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.175"/>
+  <testcase name="TestPlaintextRead" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.12"/>
+  <testcase name="TestPlaintextWrite" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.115"/>
+  <testcase name="TestPutItemGetItem" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.112"/>
+  <testcase name="TestQuery" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.172"/>
+  <testcase name="TestReadLegacyItem" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.249"/>
+  <testcase name="TestScan" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="2.687"/>
+  <testcase name="TestTransactWriteAndGet" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.276"/>
+  <testcase name="TestUpdateItemReturnAll" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.154"/>
+  <testcase name="TestUpdateItemReturnUpdated" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.058"/>
+  <testcase name="TestWriteLegacyItem" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorIntegrationTests" time="0.241"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

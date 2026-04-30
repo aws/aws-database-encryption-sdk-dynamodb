@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:36" hostname="bcd074aae394" time="1.995">
+  <properties/>
+  <testcase name="TestDdbError" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.212"/>
+  <testcase name="TestDelete" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.2"/>
+  <testcase name="TestGetLegacyItem" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.177"/>
+  <testcase name="TestKmsError" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.057"/>
+  <testcase name="TestPutAndGet" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.165"/>
+  <testcase name="TestPutAndGetAllTypes" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.205"/>
+  <testcase name="TestPutAndGetAnnotatedConvertedBy" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.33"/>
+  <testcase name="TestPutAndGetAnnotatedFlattenedBean" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.159"/>
+  <testcase name="TestPutAndGetSignOnly" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.143"/>
+  <testcase name="TestUpdate" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.175"/>
+  <testcase name="TestWriteLegacyItem" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEncryptionEnhancedClientIntegrationTests" time="0.17"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

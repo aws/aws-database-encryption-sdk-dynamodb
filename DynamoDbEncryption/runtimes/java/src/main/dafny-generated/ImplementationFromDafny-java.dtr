@@ -1,0 +1,188 @@
+file_format_version = "1.0"
+dafny_version = "4.10.0.0"
+[options_by_module.AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkStructuredEncryptionService]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.StructuredEncryptionUtil]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.Sets]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.StructuredEncryptionPaths]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.StructuredEncryptionHeader]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.StructuredEncryptionFooter]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.OptimizedMergeSort]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.SortCanon]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.Canonize]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.StructuredEncryptionCrypt]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.Maps]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkStructuredEncryptionOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.StructuredEncryption]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbTypes]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorService]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbEncryptionUtil]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbNormalizeNumber]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoToStruct]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbItemEncryptorUtil]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.InternalLegacyOverride]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbItemEncryptor]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbService]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbEncryptionBranchKeyIdSupplier]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbEncryption]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TermLoc]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DdbVirtualFields]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbUpdateExpr]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BaseBeacon]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.CompoundBeacon]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.SearchableEncryptionInfo]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDBFilterExpr]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDBSupport]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.SearchConfigToInfo]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsService]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DdbMiddlewareConfig]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DdbStatement]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbMiddlewareSupport]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.PutItemTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.GetItemTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.UpdateItemTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BatchWriteItemTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TransactWriteItemsTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BatchGetItemTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.ScanTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.QueryTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TransactGetItemsTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DeleteItemTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.ExecuteStatementTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BatchExecuteStatementTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.ExecuteTransactionTransform]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AttributeResolver]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbEncryptionTransforms]
+legacy-module-names = true
+rust-sync = false

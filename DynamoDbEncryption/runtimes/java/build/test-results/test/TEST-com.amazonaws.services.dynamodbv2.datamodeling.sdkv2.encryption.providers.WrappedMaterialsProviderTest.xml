@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:19:48" hostname="bcd074aae394" time="0.011">
+  <properties/>
+  <testcase name="constructorNullWrappingKey" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="randomEnvelopeKeys" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="simpleMac" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="simpleSigPair" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="testRefresh" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="unwrapAsymMatExplicitEncAlgAes128" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.001"/>
+  <testcase name="unwrapAsymMatExplicitEncAlgAes256" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.001"/>
+  <testcase name="unwrapSymMatExplicitEncAlgAes128" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="unwrapSymMatExplicitEncAlgAes256" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="wrapUnwrapAsymMatExplicitContentKeyAlgorithm" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.002"/>
+  <testcase name="wrapUnwrapAsymMatExplicitContentKeyLength128" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.001"/>
+  <testcase name="wrapUnwrapAsymMatExplicitContentKeyLength256" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.001"/>
+  <testcase name="wrapUnwrapAsymMatExplicitWrappingAlgorithmPkcs1" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.001"/>
+  <testcase name="wrapUnwrapAsymMatExplicitWrappingAlgorithmPkcs2" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.001"/>
+  <testcase name="wrapUnwrapSymMatExplicitContentKeyAlgorithm" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="wrapUnwrapSymMatExplicitContentKeyLength128" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <testcase name="wrapUnwrapSymMatExplicitContentKeyLength256" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.providers.WrappedMaterialsProviderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:35" hostname="bcd074aae394" time="0.105">
+  <properties/>
+  <testcase name="TestBadCryptoActionOnPartitionKey" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.011"/>
+  <testcase name="TestBadCryptoActionOnSortKey" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.004"/>
+  <testcase name="TestDeleteItemWithConditionExpression" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestDeleteItemWithConditionExpressionNonEncryptedTable" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestEmptyInterceptorBuild" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestExecuteStatementOnEncryptedTable" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.012"/>
+  <testcase name="TestExecuteStatementOnNonEncryptedTable" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.002"/>
+  <testcase name="TestNonDDBServiceRequest" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestNonSyncClientRequest" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestPutItemEncryptsAccordingToAttributeActions" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.054"/>
+  <testcase name="TestPutItemGetItemWithConditionExpressionBad" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.001"/>
+  <testcase name="TestPutMissingPartition" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestPutMissingSort" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestPutWithInvalidCryptoAction" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.004"/>
+  <testcase name="TestQueryPreservesEmptyExclusiveStartKey" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.001"/>
+  <testcase name="TestScanPreservesEmptyExclusiveStartKey" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestSignatureScopeExtraAttr" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.004"/>
+  <testcase name="TestSignatureScopeMissingAttr" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.002"/>
+  <testcase name="TestTransactWriteItemsWithConditionCheck" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.002"/>
+  <testcase name="TestTransactWriteItemsWithDeleteConditionExpression" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.002"/>
+  <testcase name="TestTransactWriteItemsWithPutConditionExpression" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestTransactWriteItemsWithUpdateOnEncryptedTableBad" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.002"/>
+  <testcase name="TestTransactWriteItemsWithUpdateOnEncryptedTableGood" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestUnknownOperationRequest" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestUpdateItemOnEncryptedTableBad" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <testcase name="TestUpdateItemOnEncryptedTableGood" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.001"/>
+  <testcase name="TestUpdateItemOnNonEncryptedTable" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionInterceptorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

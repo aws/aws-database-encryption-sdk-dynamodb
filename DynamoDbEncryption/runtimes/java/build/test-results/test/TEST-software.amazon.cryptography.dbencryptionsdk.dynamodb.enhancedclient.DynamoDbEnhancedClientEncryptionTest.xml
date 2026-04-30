@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:23:38" hostname="bcd074aae394" time="0.178">
+  <properties/>
+  <testcase name="TestAnnotatedConvertedBy" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.006"/>
+  <testcase name="TestConflictingAnnotatedNestedBean" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.015"/>
+  <testcase name="TestDoNothingOnPartitionAttribute" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.005"/>
+  <testcase name="TestDoNothingOnSortAttribute" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.005"/>
+  <testcase name="TestDoubleAnnotationOnAttribute" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.049"/>
+  <testcase name="TestEnhancedCreateWithAlgorithmSuite" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.006"/>
+  <testcase name="TestEnhancedCreateWithLegacyPolicy" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.008"/>
+  <testcase name="TestFlattenedNestedBeanAnnotation" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.003"/>
+  <testcase name="TestFlattenedNestedBeanAnnotationMissingUnauthenticatedAttributes" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.006"/>
+  <testcase name="TestIncompatibleClasses" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.012"/>
+  <testcase name="TestInconsistentSignatureScopeIncorrect" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.002"/>
+  <testcase name="TestInconsistentSignatureScopeMissing" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.002"/>
+  <testcase name="TestInvalidDeepFlatten" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.009"/>
+  <testcase name="TestInvalidDeepNested" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.009"/>
+  <testcase name="TestInvalidNestedBeanAnnotation" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.007"/>
+  <testcase name="TestMultipleTables" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.enhancedclient.DynamoDbEnhancedClientEncryptionTest" time="0.031"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

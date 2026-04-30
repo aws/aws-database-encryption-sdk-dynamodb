@@ -1,0 +1,98 @@
+file_format_version = "1.0"
+dafny_version = "4.10.0.0"
+[options_by_module.StructuredDataTestFixtures]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.HappyCaseTests]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.PathsTests]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestHeader]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestStructuredEncryptionCrypt]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BeaconTestFixtures]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestFixtures]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbItemEncryptorTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.GetItemTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DdbStatementTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.ExecuteTransactionTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BatchWriteItemTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TransactGetItemsTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BatchExecuteStatementTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.BatchGetItemTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.ScanTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.UpdateItemTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.ExecuteStatementTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TransactWriteItemsTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.PutItemTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DeleteItemTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.QueryTransformTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestDynamoDBFilterExpr]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestBaseBeacon]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoToStructTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestUpdateExpr]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestDdbVirtualFields]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestDynamoDBConfigToInfo]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestDDBSupport]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.TestNormalizeNumber]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbEncryptionBranchKeyIdSupplierTest]
+legacy-module-names = true
+rust-sync = false
+[options_by_module.DynamoDbGetEncryptedDataKeyDescriptionTest]
+legacy-module-names = true
+rust-sync = false

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:22:28" hostname="bcd074aae394" time="0.008">
+  <properties/>
+  <testcase name="testActualNULL" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testBoolFalse" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testBoolTrue" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testByteBuffer" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testByteBufferS" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testByteBufferSOrdering" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testComplexList" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.001"/>
+  <testcase name="testComplexMap" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testEmpty" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.001"/>
+  <testcase name="testEmptyList" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testEmptyMap" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testList" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testListDuplicates" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testListOfString" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testListWithNull" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.002"/>
+  <testcase name="testMapOrdering" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testNULL" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testNumber" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testNumberS" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testNumberSOrdering" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.001"/>
+  <testcase name="testSimpleMap" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testSimpleMapWithNull" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testString" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testStringS" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testStringSOrdering" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.0"/>
+  <testcase name="testVersioningCompatibility" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.internal.AttributeValueMarshallerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

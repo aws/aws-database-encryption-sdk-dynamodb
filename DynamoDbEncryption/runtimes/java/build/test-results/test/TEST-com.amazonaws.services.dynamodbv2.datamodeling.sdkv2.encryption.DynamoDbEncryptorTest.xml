@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:19:40" hostname="bcd074aae394" time="0.49">
+  <properties/>
+  <testcase name="EcdsaSignedOnly" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.295"/>
+  <testcase name="EcdsaSignedOnlyBadSignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.006"/>
+  <testcase name="RsaSignedOnly" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.132"/>
+  <testcase name="RsaSignedOnlyBadSignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.037"/>
+  <testcase name="badVersionNumber" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <testcase name="constructorNullProvider" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="decryptRecordEmptyItemAttributes" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <testcase name="decryptRecordNullItemAttributes" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="encryptRecordEmptyItemAttributes" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="encryptRecordNullItemAttributes" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="ensureEncryptedAttributesUnmodified" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="fullEncryption" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="fullEncryptionBadSignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="signedOnly" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <testcase name="signedOnlyBadSignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="signedOnlyNoSignature" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="signedOnlyNullCryptoKey" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <testcase name="testDecryptWithPlainTextItemAndAdditionNewAttributeHavingEncryptionFlag" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.003"/>
+  <testcase name="testDecryptWithPlaintextItem" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="testNullEncryptionContextOperator" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <testcase name="testSetMaterialDescriptionFieldName" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="testSetSignatureFieldName" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="testTableNameOverriddenEncryptionContextOperator" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.004"/>
+  <testcase name="testTableNameOverriddenEncryptionContextOperatorWithSecondEncryptor" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <testcase name="testTableNameOverriddenEncryptionContextOperatorWithSecondEncryptorButTheOriginalEncryptionContext" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.0"/>
+  <testcase name="toByteArray" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.DynamoDbEncryptorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

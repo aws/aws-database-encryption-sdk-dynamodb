@@ -1,0 +1,900 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" tests="48" skipped="0" failures="0" errors="0" timestamp="2026-04-30T23:15:15" hostname="bcd074aae394" time="264.427">
+  <properties/>
+  <testcase name="decryptTestVector[0](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@66ac1070)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="8.727"/>
+  <testcase name="decryptTestVector[1](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@2a2c0286)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.831"/>
+  <testcase name="decryptTestVector[2](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@603591d9)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.497"/>
+  <testcase name="decryptTestVector[3](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@3e8b010a)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.37"/>
+  <testcase name="decryptTestVector[4](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@6ad00689)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.376"/>
+  <testcase name="decryptTestVector[5](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@2353f2e7)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.154"/>
+  <testcase name="decryptTestVector[6](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@71ecf516)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.709"/>
+  <testcase name="decryptTestVector[7](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@6aa0c66)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="4.609"/>
+  <testcase name="decryptTestVector[8](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@1e115dc4)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.205"/>
+  <testcase name="decryptTestVector[9](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@1a6d31b3)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.563"/>
+  <testcase name="decryptTestVector[10](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@72d11900)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="3.28"/>
+  <testcase name="decryptTestVector[11](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@52df8c67)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.209"/>
+  <testcase name="decryptTestVector[12](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@196c1669)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.362"/>
+  <testcase name="decryptTestVector[13](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@2e15d67c)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.36"/>
+  <testcase name="decryptTestVector[14](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@3d6e3a16)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.117"/>
+  <testcase name="decryptTestVector[15](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@63682263)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="4.344"/>
+  <testcase name="decryptTestVector[16](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@5a9a0f3)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.014"/>
+  <testcase name="decryptTestVector[17](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@30e94123)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.687"/>
+  <testcase name="decryptTestVector[18](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@432feed3)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.916"/>
+  <testcase name="decryptTestVector[19](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@136e14ff)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.405"/>
+  <testcase name="decryptTestVector[20](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@4b5bbd78)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.916"/>
+  <testcase name="decryptTestVector[21](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@65537e7)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.573"/>
+  <testcase name="decryptTestVector[22](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@2309f9e1)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="2.912"/>
+  <testcase name="decryptTestVector[23](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@23cc1be1)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.75"/>
+  <testcase name="decryptTestVector[24](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@78c63d82)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.761"/>
+  <testcase name="decryptTestVector[25](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@424a62b)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.443"/>
+  <testcase name="decryptTestVector[26](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@1fd7d22d)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="3.238"/>
+  <testcase name="decryptTestVector[27](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@7be4b9d6)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.088"/>
+  <testcase name="decryptTestVector[28](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@30a657a4)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.02"/>
+  <testcase name="decryptWithECConfigTest" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="0.1"/>
+  <testcase name="encryptWithTestVector[0](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@390d60eb)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.648"/>
+  <testcase name="encryptWithTestVector[1](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@601afbac)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="7.007"/>
+  <testcase name="encryptWithTestVector[2](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@29cb7bc8)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="3.52"/>
+  <testcase name="encryptWithTestVector[3](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@476d94ee)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.363"/>
+  <testcase name="encryptWithTestVector[4](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@7f5f07a3)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.4"/>
+  <testcase name="encryptWithTestVector[5](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@7d633dad)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.221"/>
+  <testcase name="encryptWithTestVector[6](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@40405791)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.993"/>
+  <testcase name="encryptWithTestVector[7](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@354f1731)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.155"/>
+  <testcase name="encryptWithTestVector[8](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@1ab7eb95)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.179"/>
+  <testcase name="encryptWithTestVector[9](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@31e6654f)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="3.642"/>
+  <testcase name="encryptWithTestVector[10](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@1703cc2)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.028"/>
+  <testcase name="encryptWithTestVector[11](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@7e3ced81)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="6.523"/>
+  <testcase name="encryptWithTestVector[12](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@15610569)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="1.649"/>
+  <testcase name="encryptWithTestVector[13](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@120215bd)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="3.64"/>
+  <testcase name="encryptWithTestVector[14](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@55bd7391)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.119"/>
+  <testcase name="encryptWithTestVector[15](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@5e8e4dec)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.567"/>
+  <testcase name="encryptWithTestVector[16](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@2b9ad46)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="5.619"/>
+  <testcase name="encryptWithTestVector[17](com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.testing.ScenarioManifest$Scenario@60c0b1cb)" classname="com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.HolisticIT" time="4.596"/>
+  <system-out><![CDATA[Initializing DynamoDB Local with the following configuration:
+Port:	50155
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50163
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50166
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50168
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50171
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50173
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50179
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50186
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50196
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50200
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50203
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50206
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50208
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50210
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50214
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50216
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50220
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50228
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50294
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50414
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50443
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50476
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50489
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50510
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50553
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50589
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50613
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50624
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50632
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50634
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50648
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50650
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50653
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50657
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50665
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50684
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50708
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50720
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50722
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50727
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50733
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50734
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50738
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50739
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50742
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50743
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50747
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50749
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50754
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50757
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50763
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50767
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50771
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50772
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50774
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50775
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50778
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50782
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50786
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50787
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50794
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50795
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50797
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50798
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50800
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50802
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50808
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50809
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50815
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50819
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50822
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50828
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50830
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50831
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50833
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50835
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50839
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50843
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50845
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50846
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50849
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50851
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50857
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50860
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50862
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50863
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50866
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50869
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50871
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50873
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50876
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50877
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50880
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+Initializing DynamoDB Local with the following configuration:
+Port:	50883
+InMemory:	true
+Version:	1.25.1
+DbPath:	null
+SharedDb:	false
+shouldDelayTransientStatuses:	false
+CorsParams:	null
+
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
