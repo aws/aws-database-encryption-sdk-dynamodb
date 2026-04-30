@@ -25,6 +25,13 @@ module DynamoDbMiddlewareSupport {
   import SI = SearchableEncryptionInfo
 
 
+  method GetNumberOfQueries(config : ValidTableConfig, query : DDB.QueryInput) returns (output : Result<ET.PartitionCount, Error>)
+    requires config.search.Some?
+  {
+    var numQueries := BS.GetNumberOfQueries(config.search.value.versions[0], query);
+    return numQueries.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
+  }
+
   predicate method NoMap<X,Y>(m : Option<map<X,Y>>)
   {
     OptionalMapIsSafeBecauseItIsInMemory(m);
@@ -87,27 +94,27 @@ module DynamoDbMiddlewareSupport {
 
   // AddSignedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning a replacement AttributeMap.
-  method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap)
+  method AddSignedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, partition : ET.PartitionNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.AddSignedBeacons(config.search, item);
+    var ret := BS.AddSignedBeacons(config.search, item, partition);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
   // GetEncryptedBeacons examines an AttributeMap and modifies it to be appropriate for Searchable Encryption,
   // returning just the new items.
-  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId)
+  method GetEncryptedBeacons(config : ValidTableConfig, item : DDB.AttributeMap, keyId : Util.MaybeKeyId, partition : ET.PartitionNumber)
     returns (output : Result<DDB.AttributeMap, Error>)
     requires AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorOperations.ValidInternalConfig?(config.itemEncryptor.config)
     requires OneSearchValidState(config)
     ensures OneSearchValidState(config)
     modifies OneSearchModifies(config)
   {
-    var ret := BS.GetEncryptedBeacons(config.search, item, keyId);
+    var ret := BS.GetEncryptedBeacons(config.search, item, keyId, partition);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
@@ -242,13 +249,13 @@ module DynamoDbMiddlewareSupport {
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
-  method GetCompoundBeacons(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>)
+  method GetCompoundBeacons(search : SearchableEncryptionInfo.ValidSearchInfo, item : DDB.AttributeMap, version : Option<ET.VersionNumber>, partition : ET.PartitionNumber)
     returns (output : Result<map<string, string>, Error>)
   {
     if version.Some? && version.value != 1 {
       return Failure(E("Beacon Version Number must be '1'"));
     }
-    var ret := BS.GetCompoundBeacons(search.curr(), item);
+    var ret := BS.GetCompoundBeacons(search.curr(), item, partition);
     return ret.MapFailure(e => AwsCryptographyDbEncryptionSdkDynamoDb(e));
   }
 
