@@ -640,8 +640,8 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
         TableName := TableName,
         IndexName := Some("ATTR_INDEX51"),
         FilterExpression := None,
-        KeyConditionExpression := Some("Attr1 = :attr1 and Attr5 = :attr5"),
-        ExpressionAttributeValues := Some(map[":attr1" := DDB.AttributeValue.S("AAAA"), ":attr5" := DDB.AttributeValue.S("EEEE")])
+        KeyConditionExpression := Some("Attr5 = :attr5 and Attr1 = :attr1"),
+        ExpressionAttributeValues := Some(map[":attr5" := DDB.AttributeValue.S("EEEE"), ":attr1" := DDB.AttributeValue.S("AAAA")])
       )
     }
     function GetPartitionQuery2() : DDB.QueryInput
@@ -692,6 +692,11 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       PartitionTest3();
       PartitionTest1();
       PartitionTest2();
+      PartitionTest5();
+      PartitionTest6();
+      PartitionTest7();
+      PartitionTest8();
+      PartitionTest9();
     }
 
     method TestScanTrans(trans : DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient, q : DDB.ScanInput, expected : string)
@@ -864,6 +869,155 @@ module {:options "-functionSyntax:4"} DdbEncryptionTestVectors {
       TestPartitionQueries(rClient, 4, GetPartitionQuery45F(), trans, "partition query 45Fa", true);
 
       // we don't test scan here, because scan doesn't use ":aws_dbe_partition"
+    }
+
+    // Mixed-table migration: write with max=1, then with max=5, query returns all
+    method PartitionTest5()
+    {
+      print "PartitionTest5\n";
+      expect "partition_no_partitions" in largeEncryptionConfigs;
+      expect "partition_encrypt" in largeEncryptionConfigs;
+      var noPartConfig := largeEncryptionConfigs["partition_no_partitions"];
+      var partConfig := largeEncryptionConfigs["partition_encrypt"];
+
+      // Set up table, write first 50 records with max=1 (no partitions)
+      var wClient1, _ := SetupTestTable(noPartConfig, noPartConfig);
+      for i : nat := 0 to 50 {
+        var putInput := DDB.PutItemInput(TableName := TableName, Item := MakePartitionRecord(i));
+        var _ :- expect wClient1.PutItem(putInput);
+      }
+
+      // Write next 50 records with max=5 (partitioned) into same table
+      var wClient2 :- expect newGazelle(partConfig);
+      for i : nat := 50 to 100 {
+        var putInput := DDB.PutItemInput(TableName := TableName, Item := MakePartitionRecord(i));
+        var _ :- expect wClient2.PutItem(putInput);
+      }
+
+      // Read with partitioned config — scan should return all 100
+      var rClient :- expect newGazelle(partConfig);
+      var counts: array<int> := new int[100](i => 0);
+      DoPartitionScan(rClient, GetPartitionScan1(0), counts, "migration scan Attr1");
+      var wasBad := false;
+      for i := 0 to 100 {
+        if counts[i] == 0 {
+          print "Migration scan did not find record ", i, "\n";
+          wasBad := true;
+        }
+      }
+      expect !wasBad;
+    }
+
+    // Mixed table with two different beacon partition counts — verify LCM
+    method PartitionTest6()
+    {
+      print "PartitionTest6\n";
+      expect "partition_encrypt" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["partition_encrypt"];
+      var trans := MakeTrans(config);
+
+      // Query on Attr2 (2 partitions) + Attr3 (3 partitions) => LCM = 6, capped at max=5
+      var q23 := GetPartitionQuery23();
+      var input := Trans.GetNumberOfQueriesInput(input := q23);
+      var res :- expect trans.GetNumberOfQueries(input);
+      if res.numberOfQueries != 5 {
+        print "PartitionTest6: LCM of 2,3 capped at max=5 should be 5 but was ", res.numberOfQueries, "\n";
+      }
+      expect res.numberOfQueries == 5;
+
+      // Query on Attr1 (1 partition) alone => 1
+      var q1 := GetPartitionQuery1();
+      var input1 := Trans.GetNumberOfQueriesInput(input := q1);
+      var res1 :- expect trans.GetNumberOfQueries(input1);
+      expect res1.numberOfQueries == 1;
+
+      // Query on Attr2 (2 partitions) alone => 2
+      var q2 := GetPartitionQuery2();
+      var input2 := Trans.GetNumberOfQueriesInput(input := q2);
+      var res2 :- expect trans.GetNumberOfQueries(input2);
+      expect res2.numberOfQueries == 2;
+    }
+
+    // Write+read round-trip with max=1, max=2, max=128
+    method PartitionTest7()
+    {
+      print "PartitionTest7\n";
+      var configNames := ["partition_no_partitions", "partition_round_trip_2", "partition_round_trip_128"];
+      for c := 0 to |configNames| {
+        expect configNames[c] in largeEncryptionConfigs;
+        var config := largeEncryptionConfigs[configNames[c]];
+        var wClient, rClient := SetupTestTable(config, config);
+        for i : nat := 0 to 10 {
+          var record := MakePartitionRecord(i);
+          var putInput := DDB.PutItemInput(TableName := TableName, Item := record);
+          var _ :- expect wClient.PutItem(putInput);
+          expect HashName in record;
+          var getInput := DDB.GetItemInput(
+            TableName := TableName,
+            Key := map[HashName := record[HashName]],
+            AttributesToGet := None, ConsistentRead := None,
+            ReturnConsumedCapacity := None, ProjectionExpression := None,
+            ExpressionAttributeNames := None
+          );
+          var out :- expect rClient.GetItem(getInput);
+          expect out.Item.Some?;
+          expect NormalizeItem(out.Item.value) == NormalizeItem(record);
+        }
+      }
+    }
+
+    // GetNumberOfQueries E2E: verify 1, 5, 25 partitions + mixed beacons LCM
+    method PartitionTest8()
+    {
+      print "PartitionTest8\n";
+      // Use partition_no_partitions (max=1) — all beacons inherit max=1
+      expect "partition_no_partitions" in largeEncryptionConfigs;
+      var trans1 := MakeTrans(largeEncryptionConfigs["partition_no_partitions"]);
+      var input1 := Trans.GetNumberOfQueriesInput(input := GetPartitionQuery5());
+      var res1 :- expect trans1.GetNumberOfQueries(input1);
+      expect res1.numberOfQueries == 1;
+
+      // Use partition_encrypt (max=5) — Attr5 inherits max=5
+      expect "partition_encrypt" in largeEncryptionConfigs;
+      var trans5 := MakeTrans(largeEncryptionConfigs["partition_encrypt"]);
+      var input5 := Trans.GetNumberOfQueriesInput(input := GetPartitionQuery5());
+      var res5 :- expect trans5.GetNumberOfQueries(input5);
+      expect res5.numberOfQueries == 5;
+
+      // Use partition_round_trip_128 (max=128) — all beacons inherit max=128
+      expect "partition_round_trip_128" in largeEncryptionConfigs;
+      var trans128 := MakeTrans(largeEncryptionConfigs["partition_round_trip_128"]);
+      var input128 := Trans.GetNumberOfQueriesInput(input := GetPartitionQuery5());
+      var res128 :- expect trans128.GetNumberOfQueries(input128);
+      expect res128.numberOfQueries == 128;
+
+      // Mixed beacons LCM: partition_encrypt has Attr2(2) + Attr3(3) => LCM=6, capped at max=5
+      var inputMixed := Trans.GetNumberOfQueriesInput(input := GetPartitionQuery23());
+      var resMixed :- expect trans5.GetNumberOfQueries(inputMixed);
+      expect resMixed.numberOfQueries == 5;
+    }
+
+    // Default partitions config: beacons without numberOfPartitions inherit defaultNumberOfPartitions
+    method PartitionTest9()
+    {
+      print "PartitionTest9\n";
+      expect "partition_migration" in largeEncryptionConfigs;
+      var config := largeEncryptionConfigs["partition_migration"];
+      var trans := MakeTrans(config);
+
+      // partition_migration has max=5, default=3
+      // All beacons have no explicit numberOfPartitions, so they inherit default=3
+      var input := Trans.GetNumberOfQueriesInput(input := GetPartitionQuery5());
+      var res :- expect trans.GetNumberOfQueries(input);
+      if res.numberOfQueries != 3 {
+        print "PartitionTest9: default=3 should give numberOfQueries=3 but got ", res.numberOfQueries, "\n";
+      }
+      expect res.numberOfQueries == 3;
+
+      // Query on two beacons both with default=3 => LCM(3,3) = 3
+      var input2 := Trans.GetNumberOfQueriesInput(input := GetPartitionQuery23());
+      var res2 :- expect trans.GetNumberOfQueries(input2);
+      expect res2.numberOfQueries == 3;
     }
 
     function NewOrderRecord(i : nat, str : string) : Record

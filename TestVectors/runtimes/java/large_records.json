@@ -193,6 +193,123 @@
         ]
       }
     },
+    "partition_no_partitions": {
+      "partitionKeyName": "RecNum",
+      "attributeActionsOnEncrypt": {
+        "RecNum": "SIGN_ONLY",
+        "Attr1": "ENCRYPT_AND_SIGN",
+        "Attr2": "ENCRYPT_AND_SIGN",
+        "Attr3": "ENCRYPT_AND_SIGN",
+        "Attr4": "ENCRYPT_AND_SIGN",
+        "Attr5": "ENCRYPT_AND_SIGN",
+        "Attr6": "SIGN_ONLY",
+        "Attr7": "SIGN_ONLY",
+        "Attr8": "SIGN_ONLY",
+        "PreferredPartition": "SIGN_ONLY"
+      },
+      "search": {
+        "versions": [
+          {
+            "maximumNumberOfPartitions": 1,
+            "standardBeacons": [
+              { "Name": "Attr1", "Length": 32 },
+              { "Name": "Attr2", "Length": 32 },
+              { "Name": "Attr3", "Length": 32 },
+              { "Name": "Attr4", "Length": 32 },
+              { "Name": "Attr5", "Length": 32 }
+            ]
+          }
+        ]
+      }
+    },
+    "partition_migration": {
+      "partitionKeyName": "RecNum",
+      "attributeActionsOnEncrypt": {
+        "RecNum": "SIGN_ONLY",
+        "Attr1": "ENCRYPT_AND_SIGN",
+        "Attr2": "ENCRYPT_AND_SIGN",
+        "Attr3": "ENCRYPT_AND_SIGN",
+        "Attr4": "ENCRYPT_AND_SIGN",
+        "Attr5": "ENCRYPT_AND_SIGN",
+        "Attr6": "SIGN_ONLY",
+        "Attr7": "SIGN_ONLY",
+        "Attr8": "SIGN_ONLY",
+        "PreferredPartition": "SIGN_ONLY"
+      },
+      "search": {
+        "versions": [
+          {
+            "maximumNumberOfPartitions": 5,
+            "defaultNumberOfPartitions": 3,
+            "standardBeacons": [
+              { "Name": "Attr1", "Length": 32 },
+              { "Name": "Attr2", "Length": 32 },
+              { "Name": "Attr3", "Length": 32 },
+              { "Name": "Attr4", "Length": 32 },
+              { "Name": "Attr5", "Length": 32 }
+            ]
+          }
+        ]
+      }
+    },
+    "partition_round_trip_2": {
+      "partitionKeyName": "RecNum",
+      "attributeActionsOnEncrypt": {
+        "RecNum": "SIGN_ONLY",
+        "Attr1": "ENCRYPT_AND_SIGN",
+        "Attr2": "ENCRYPT_AND_SIGN",
+        "Attr3": "ENCRYPT_AND_SIGN",
+        "Attr4": "ENCRYPT_AND_SIGN",
+        "Attr5": "ENCRYPT_AND_SIGN",
+        "Attr6": "SIGN_ONLY",
+        "Attr7": "SIGN_ONLY",
+        "Attr8": "SIGN_ONLY",
+        "PreferredPartition": "SIGN_ONLY"
+      },
+      "search": {
+        "versions": [
+          {
+            "maximumNumberOfPartitions": 2,
+            "standardBeacons": [
+              { "Name": "Attr1", "Length": 32 },
+              { "Name": "Attr2", "Length": 32 },
+              { "Name": "Attr3", "Length": 32 },
+              { "Name": "Attr4", "Length": 32 },
+              { "Name": "Attr5", "Length": 32 }
+            ]
+          }
+        ]
+      }
+    },
+    "partition_round_trip_128": {
+      "partitionKeyName": "RecNum",
+      "attributeActionsOnEncrypt": {
+        "RecNum": "SIGN_ONLY",
+        "Attr1": "ENCRYPT_AND_SIGN",
+        "Attr2": "ENCRYPT_AND_SIGN",
+        "Attr3": "ENCRYPT_AND_SIGN",
+        "Attr4": "ENCRYPT_AND_SIGN",
+        "Attr5": "ENCRYPT_AND_SIGN",
+        "Attr6": "SIGN_ONLY",
+        "Attr7": "SIGN_ONLY",
+        "Attr8": "SIGN_ONLY",
+        "PreferredPartition": "SIGN_ONLY"
+      },
+      "search": {
+        "versions": [
+          {
+            "maximumNumberOfPartitions": 128,
+            "standardBeacons": [
+              { "Name": "Attr1", "Length": 32 },
+              { "Name": "Attr2", "Length": 32 },
+              { "Name": "Attr3", "Length": 32 },
+              { "Name": "Attr4", "Length": 32 },
+              { "Name": "Attr5", "Length": 32 }
+            ]
+          }
+        ]
+      }
+    },
     "full_encrypt": {
       "partitionKeyName": "PK",
       "attributeActionsOnEncrypt": {

@@ -1673,11 +1673,10 @@ module DynamoDBFilterExpr {
       if expr[pos].Value? {
         :- Need(expr[pos].s in values, E(expr[pos].s + " not found in ExpressionAttributeValueMap"));
         var oldValue := values[expr[pos].s];
-        if oldValue.S? {
-          var attr := AttrForValue(expr, pos as nat);
-          if attr.Some? && attr.value.s in bv.beacons {
-            result := result + [(bv.beacons[attr.value.s], oldValue.S)];
-          }
+        var strValue := if oldValue.S? then oldValue.S else "";
+        var attr := AttrForValue(expr, pos as nat);
+        if attr.Some? && attr.value.s in bv.beacons {
+          result := result + [(bv.beacons[attr.value.s], strValue)];
         }
       }
     }
