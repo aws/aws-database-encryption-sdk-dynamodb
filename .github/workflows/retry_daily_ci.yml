@@ -37,12 +37,14 @@ jobs:
 
             // Known infrastructure error patterns that are safe to retry
             const infraPatterns = [
-              // Maven Central outages
+              // Maven Central / dependency download outages
               'could not get',
               'could not resolve',
               'status code 502',
               'status code 403',
+              'status code 500',
               'bad gateway',
+              'server returned http response code: 500',
               // Docker/Colima failures on macOS
               'docker: unexpected eof',
               'connection reset by peer',
