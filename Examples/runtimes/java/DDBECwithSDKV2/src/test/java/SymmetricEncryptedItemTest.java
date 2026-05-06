@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.junitpioneer.jupiter.RetryingTest;
 import org.testng.annotations.AfterMethod;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;

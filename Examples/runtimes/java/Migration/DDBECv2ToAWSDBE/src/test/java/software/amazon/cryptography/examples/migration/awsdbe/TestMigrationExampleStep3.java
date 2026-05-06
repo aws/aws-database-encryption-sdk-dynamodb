@@ -4,7 +4,6 @@ import static org.testng.Assert.assertThrows;
 
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-
 import org.junitpioneer.jupiter.RetryingTest;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.cryptography.examples.migration.ddbec.MigrationExampleStep0;

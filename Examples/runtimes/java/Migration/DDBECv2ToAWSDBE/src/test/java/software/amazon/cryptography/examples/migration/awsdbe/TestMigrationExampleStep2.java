@@ -2,7 +2,6 @@ package software.amazon.cryptography.examples.migration.awsdbe;
 
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-
 import org.junitpioneer.jupiter.RetryingTest;
 import software.amazon.cryptography.examples.migration.ddbec.MigrationExampleStep0;
 

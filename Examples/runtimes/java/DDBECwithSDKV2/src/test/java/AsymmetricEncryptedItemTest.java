@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import java.util.UUID;
-import org.testng.annotations.AfterMethod;
 import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.AfterMethod;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 public class AsymmetricEncryptedItemTest {

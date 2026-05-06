@@ -1,7 +1,6 @@
 package software.amazon.cryptography.examples;
 
 import java.util.UUID;
-
 import org.junitpioneer.jupiter.RetryingTest;
 
 public class TestGetEncryptedDataKeyDescriptionExample {
