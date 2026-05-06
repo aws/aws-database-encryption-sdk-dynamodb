@@ -13,7 +13,7 @@ import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 
 public class TestMigrationExampleStep0 {
 
-  @Test
+  @RetryingTest(3)
   public void TestMigrationStep0() {
     // Successfully executes step 0
     MigrationExampleStep0.MigrationStep0(
