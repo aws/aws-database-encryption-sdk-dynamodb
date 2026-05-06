@@ -2,7 +2,6 @@ package software.amazon.cryptography.examples.migration.awsdbe;
 
 import java.util.Arrays;
 import java.util.List;
-import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
