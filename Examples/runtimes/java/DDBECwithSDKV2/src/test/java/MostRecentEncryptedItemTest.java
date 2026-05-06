@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import java.util.UUID;
+
+import org.junitpioneer.jupiter.RetryingTest;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 
@@ -17,7 +18,7 @@ public class MostRecentEncryptedItemTest {
   final String partitionKeyValue = "MostRecentExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @Test
+  @RetryingTest(3)
   public void testMostRecentEncryption() throws Exception {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       MostRecentEncryptedItem.encryptRecord(

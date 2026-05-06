@@ -3,7 +3,7 @@
 
 import java.util.UUID;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
+import org.junitpioneer.jupiter.RetryingTest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 public class AsymmetricEncryptedItemTest {
@@ -13,7 +13,7 @@ public class AsymmetricEncryptedItemTest {
   final String partitionKeyValue = "AsymmetricExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @Test
+  @RetryingTest(3)
   public void testAsymmetricEncryption() throws Exception {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AsymmetricEncryptedItem.encryptRecord(

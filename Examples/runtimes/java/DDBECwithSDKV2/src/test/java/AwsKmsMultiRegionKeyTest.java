@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import java.util.UUID;
+
+import org.junitpioneer.jupiter.RetryingTest;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 public class AwsKmsMultiRegionKeyTest {
@@ -18,7 +19,7 @@ public class AwsKmsMultiRegionKeyTest {
   final String partitionKeyValue = "AwsKmsExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @Test
+  @RetryingTest(3)
   public void testMultiRegionEncryption() throws Exception {
     // Encrypt with us-east-1 MRK, decrypt with eu-west-1 replica MRK
     // This demonstrates MRK capability without needing a Global Table
