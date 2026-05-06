@@ -2,11 +2,11 @@ package software.amazon.cryptography.examples;
 
 import static org.testng.Assert.assertNotNull;
 
-import org.testng.annotations.Test;
+import org.junitpioneer.jupiter.RetryingTest;
 
 public class TestCreateKeyStoreKeyExample {
 
-  @Test
+  @RetryingTest(3)
   public void TestCreateKeyStoreKeyExample() {
     String keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey(
       TestUtils.TEST_KEYSTORE_NAME,

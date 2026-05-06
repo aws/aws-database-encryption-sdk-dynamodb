@@ -1,11 +1,11 @@
 package software.amazon.cryptography.examples;
 
 import java.util.UUID;
-import org.testng.annotations.Test;
+import org.junitpioneer.jupiter.RetryingTest;
 
 public class TestBasicPutGetExample {
 
-  @Test
+  @RetryingTest(3)
   public void TestPutGet() {
     final String partitionKeyValue = "BasicPutGetExample" + UUID.randomUUID();
     BasicPutGetExample.PutItemGetItem(

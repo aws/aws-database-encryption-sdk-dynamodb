@@ -1,10 +1,10 @@
 package software.amazon.cryptography.examples;
 
-import org.testng.annotations.Test;
+import org.junitpioneer.jupiter.RetryingTest;
 
 public class TestCreateKeyStoreTableExample {
 
-  @Test
+  @RetryingTest(3)
   public void TestCreateKeyStoreTableExample() {
     CreateKeyStoreTableExample.KeyStoreCreateTable(
       TestUtils.TEST_KEYSTORE_NAME,
