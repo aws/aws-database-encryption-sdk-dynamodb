@@ -3,7 +3,6 @@
 
 import java.util.UUID;
 import org.testng.annotations.Test;
-import org.testng.annotations.AfterMethod;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
 
