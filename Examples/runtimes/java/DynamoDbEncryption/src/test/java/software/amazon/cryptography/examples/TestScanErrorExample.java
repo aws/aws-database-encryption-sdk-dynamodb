@@ -1,10 +1,10 @@
 package software.amazon.cryptography.examples;
 
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 
 public class TestScanErrorExample {
 
-  @RetryingTest(3)
+  @Test
   public void ScanError() {
     ScanErrorExample.ScanError(
       TestUtils.TEST_KMS_KEY_ID,

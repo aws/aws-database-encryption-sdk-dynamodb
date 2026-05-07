@@ -5,14 +5,14 @@ import static org.testng.Assert.assertThrows;
 import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.exceptions.DynamoDbEncryptionException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep3;
 
 public class TestMigrationExampleStep0 {
 
-  @RetryingTest(3)
+  @Test
   public void TestMigrationStep0() throws GeneralSecurityException {
     final String partitionKeyValue =
       "TestMigrationStep0-DDBEC-with-sdk-v2" + UUID.randomUUID();

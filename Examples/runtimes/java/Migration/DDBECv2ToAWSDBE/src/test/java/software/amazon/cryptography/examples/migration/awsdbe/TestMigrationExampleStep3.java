@@ -4,13 +4,13 @@ import static org.testng.Assert.assertThrows;
 
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.cryptography.examples.migration.ddbec.MigrationExampleStep0;
 
 public class TestMigrationExampleStep3 {
 
-  @RetryingTest(3)
+  @Test
   public void TestMigrationStep3() throws GeneralSecurityException {
     final String partitionKeyValue =
       "TestMigrationStep3-DDBEC-with-sdk-v2" + UUID.randomUUID();

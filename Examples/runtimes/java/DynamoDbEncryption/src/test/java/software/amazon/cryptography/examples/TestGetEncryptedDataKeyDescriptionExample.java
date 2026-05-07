@@ -1,11 +1,11 @@
 package software.amazon.cryptography.examples;
 
 import java.util.UUID;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 
 public class TestGetEncryptedDataKeyDescriptionExample {
 
-  @RetryingTest(3)
+  @Test
   public void TestGetEncryptedDataKeyDescription() {
     final String partitionKeyValue =
       "GetEncryptedDataKeyDescriptionExample" + UUID.randomUUID();
