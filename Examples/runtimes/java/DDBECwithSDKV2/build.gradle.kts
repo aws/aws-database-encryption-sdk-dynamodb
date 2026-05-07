@@ -74,8 +74,6 @@ dependencies {
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
     
-    // v1 of junit-pioneer supports Java8 while v2 does not
-    testImplementation("org.junit-pioneer:junit-pioneer:1.9.1")
     testImplementation("org.testng:testng:7.5")
 }
 

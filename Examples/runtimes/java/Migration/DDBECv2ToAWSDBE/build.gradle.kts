@@ -76,8 +76,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.testng/testng
     testImplementation("org.testng:testng:7.5")
-    // v1 of junit-pioneer supports Java8 while v2 does not
-    testImplementation("org.junit-pioneer:junit-pioneer:1.9.1")
 }
 
 tasks.withType<JavaCompile>() {
