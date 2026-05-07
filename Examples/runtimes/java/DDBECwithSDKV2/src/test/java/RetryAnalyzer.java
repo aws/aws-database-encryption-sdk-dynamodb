@@ -7,7 +7,9 @@ import org.testng.ITestResult;
 
 public class RetryAnalyzer implements IRetryAnalyzer {
 
-  private static final Logger logger = Logger.getLogger(RetryAnalyzer.class.getName());
+  private static final Logger logger = Logger.getLogger(
+    RetryAnalyzer.class.getName()
+  );
   private int retryCount = 0;
   private static final int maxRetryCount = 3;
 
@@ -16,9 +18,13 @@ public class RetryAnalyzer implements IRetryAnalyzer {
     if (retryCount < maxRetryCount) {
       retryCount++;
       logger.info(
-          String.format(
-              "Retrying test '%s' - attempt %d/%d",
-              result.getName(), retryCount, maxRetryCount));
+        String.format(
+          "Retrying test '%s' - attempt %d/%d",
+          result.getName(),
+          retryCount,
+          maxRetryCount
+        )
+      );
       return true;
     }
     return false;
