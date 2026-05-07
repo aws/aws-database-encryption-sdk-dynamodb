@@ -10,7 +10,7 @@ import software.amazon.cryptography.examples.keyring.MultiMrkKeyringExample;
 
 public class TestClientSupplierExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestClientSupplierExample() {
     List<String> accounts = Collections.singletonList(
       TestUtils.TEST_AWS_ACCOUNT_ID

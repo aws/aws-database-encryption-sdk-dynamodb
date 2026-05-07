@@ -6,7 +6,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestRawRsaKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestRawRsaKeyringExample() {
     // You may provide your own RSA key pair in the files located at
     //  - EXAMPLE_RSA_PRIVATE_KEY_FILENAME

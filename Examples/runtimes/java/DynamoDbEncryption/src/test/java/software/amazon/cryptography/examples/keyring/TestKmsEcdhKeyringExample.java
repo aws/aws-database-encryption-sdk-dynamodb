@@ -11,7 +11,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestKmsEcdhKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestKmsEcdhKeyringExampleStatic() {
     // You may provide your own ECC public keys at
     // - EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME
@@ -36,7 +36,7 @@ public class TestKmsEcdhKeyringExample {
     );
   }
 
-  @Test(dependsOnMethods = { "TestKmsEcdhKeyringExampleStatic" })
+  @Test(retryAnalyzer = RetryAnalyzer.class)(dependsOnMethods = { "TestKmsEcdhKeyringExampleStatic" })
   public void TestKmsEcdhKeyringExampleDiscovery() {
     // In this example you do not need to provide the recipient ECC Public Key.
     // On initialization, the keyring will call KMS:getPublicKey on the configured

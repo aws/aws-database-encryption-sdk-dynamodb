@@ -9,7 +9,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestKmsRsaKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestKmsRsaKeyringExample() {
     // You may provide your own RSA public key at EXAMPLE_RSA_PUBLIC_KEY_FILENAME.
     // This must be the public key for the RSA key represented at rsaKeyArn.

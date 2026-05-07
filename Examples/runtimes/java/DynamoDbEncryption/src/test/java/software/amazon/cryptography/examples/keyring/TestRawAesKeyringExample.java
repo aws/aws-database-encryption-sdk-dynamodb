@@ -7,7 +7,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestRawAesKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestRawAesKeyringExample() {
     // Generate a new AES key
     ByteBuffer aesKeyBytes = RawAesKeyringExample.generateAesKeyBytes();

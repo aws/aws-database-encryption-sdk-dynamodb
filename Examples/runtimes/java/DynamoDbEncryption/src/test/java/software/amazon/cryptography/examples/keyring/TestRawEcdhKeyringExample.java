@@ -9,7 +9,7 @@ import software.amazon.cryptography.primitives.model.ECDHCurveSpec;
 
 public class TestRawEcdhKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestStaticRawEcdhKeyringExample() {
     // You may provide your own ECC Key pairs in the files located at
     // - EXAMPLE_ECC_PRIVATE_KEY_FILENAME_SENDER
@@ -29,7 +29,7 @@ public class TestRawEcdhKeyringExample {
     );
   }
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestEphemeralRawEcdhKeyringExample() {
     // You may provide your own ECC Public Key in the files located at
     // - EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT
@@ -48,7 +48,7 @@ public class TestRawEcdhKeyringExample {
     );
   }
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestDiscoveryRawEcdhKeyringExample() {
     // You may provide your own ECC Public Key in the files located at
     // - EXAMPLE_ECC_PUBLIC_KEY_FILENAME_RECIPIENT

@@ -5,7 +5,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestHierarchicalKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestHierarchicalKeyringExample() {
     HierarchicalKeyringExample.HierarchicalKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,

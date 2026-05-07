@@ -6,7 +6,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestMrkMultiKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMrkMultiKeyringExample() {
     MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,

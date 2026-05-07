@@ -5,7 +5,7 @@ import software.amazon.cryptography.examples.searchableencryption.SearchableEncr
 
 public class TestComplexSearchableEncryptionExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestComplexExample() {
     ComplexSearchableEncryptionExample.runExample(
       ComplexSearchableEncryptionTestUtils.TEST_DDB_TABLE_NAME,

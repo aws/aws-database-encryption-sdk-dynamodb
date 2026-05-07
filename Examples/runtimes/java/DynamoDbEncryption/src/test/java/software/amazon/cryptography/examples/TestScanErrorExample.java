@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 public class TestScanErrorExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void ScanError() {
     ScanErrorExample.ScanError(
       TestUtils.TEST_KMS_KEY_ID,

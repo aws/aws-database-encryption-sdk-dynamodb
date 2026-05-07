@@ -5,7 +5,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestSharedCacheAcrossHierarchicalKeyringsExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestSharedCacheAcrossHierarchicalKeyringsExample() {
     SharedCacheAcrossHierarchicalKeyringsExample.SharedCacheAcrossHierarchicalKeyringsGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,

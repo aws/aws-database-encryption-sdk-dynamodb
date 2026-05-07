@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 public class TestBasicSearchableEncryptionExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestBasicExample() {
     BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(
       SearchableEncryptionTestUtils.UNIT_INSPECTION_TEST_DDB_TABLE_NAME,

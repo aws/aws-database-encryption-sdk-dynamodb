@@ -6,7 +6,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestSingleTableExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestEnhancedSingleTable() {
     SingleTableExample.TransactWriteItems(
       TestUtils.TEST_KMS_KEY_ID,

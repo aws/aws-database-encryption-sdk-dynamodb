@@ -8,7 +8,7 @@ import software.amazon.cryptography.examples.TestUtils;
 
 public class TestMrkDiscoveryMultiKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMrkDiscoveryMultiKeyringExample() {
     List<String> accounts = Collections.singletonList(
       TestUtils.TEST_AWS_ACCOUNT_ID

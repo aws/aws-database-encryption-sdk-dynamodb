@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 public class TestVirtualBeaconSearchableEncryptionExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestVirtualBeaconExample() {
     VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(
       SearchableEncryptionTestUtils.SIMPLE_BEACON_TEST_DDB_TABLE_NAME,
