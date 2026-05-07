@@ -89,7 +89,7 @@ tasks.withType<JavaCompile>() {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useTestNG()
 
     // This will show System.out.println statements
     testLogging.showStandardStreams = true
