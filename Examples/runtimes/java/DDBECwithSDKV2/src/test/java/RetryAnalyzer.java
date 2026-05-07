@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
+// RetryAnalyzer is intentionally duplicated across all examples project as exampels are intentionally self-contained
+// so users of the library can copy a single project without pulling in shared infrastructure.
 public class RetryAnalyzer implements IRetryAnalyzer {
 
   private static final Logger logger = Logger.getLogger(
@@ -25,6 +27,11 @@ public class RetryAnalyzer implements IRetryAnalyzer {
           maxRetryCount
         )
       );
+      try {
+        Thread.sleep(5000L * (long) Math.pow(2, retryCount - 1)); // simple exponential backoff
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
       return true;
     }
     return false;
