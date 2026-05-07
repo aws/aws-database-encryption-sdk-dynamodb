@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.security.spec.ECGenParameterSpec;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 import software.amazon.cryptography.primitives.model.ECDHCurveSpec;
 

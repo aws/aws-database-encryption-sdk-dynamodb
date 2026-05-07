@@ -1,6 +1,7 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 
 public class TestBeaconStylesSearchableEncryptionExample {
 

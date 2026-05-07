@@ -5,6 +5,7 @@ import static software.amazon.cryptography.examples.keyring.KmsRsaKeyringExample
 
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestKmsRsaKeyringExample {

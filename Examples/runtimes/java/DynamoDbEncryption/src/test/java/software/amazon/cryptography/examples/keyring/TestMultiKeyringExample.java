@@ -3,6 +3,7 @@ package software.amazon.cryptography.examples.keyring;
 import java.nio.ByteBuffer;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestMultiKeyringExample {
