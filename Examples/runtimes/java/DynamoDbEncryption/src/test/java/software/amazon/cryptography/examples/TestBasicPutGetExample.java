@@ -7,7 +7,6 @@ public class TestBasicPutGetExample {
 
   @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestPutGet() {
-    assert true == false;
     final String partitionKeyValue = "BasicPutGetExample" + UUID.randomUUID();
     BasicPutGetExample.PutItemGetItem(
       TestUtils.TEST_KMS_KEY_ID,

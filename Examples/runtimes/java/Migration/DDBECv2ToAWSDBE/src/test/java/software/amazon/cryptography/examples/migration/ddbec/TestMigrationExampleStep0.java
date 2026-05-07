@@ -15,7 +15,6 @@ public class TestMigrationExampleStep0 {
 
   @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMigrationStep0() throws GeneralSecurityException {
-    assert true == false;
     final String partitionKeyValue =
       "TestMigrationStep0-DDBEC-with-sdk-v2" + UUID.randomUUID();
     // Successfully executes Step 0

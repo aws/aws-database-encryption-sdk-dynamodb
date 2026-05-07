@@ -15,7 +15,6 @@ public class AsymmetricEncryptedItemTest {
 
   @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testAsymmetricEncryption() throws Exception {
-    assert true == false;
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AsymmetricEncryptedItem.encryptRecord(
         ddbClient,
