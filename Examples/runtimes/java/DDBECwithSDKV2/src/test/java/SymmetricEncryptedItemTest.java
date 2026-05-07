@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 import org.testng.annotations.AfterMethod;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
@@ -16,7 +16,7 @@ public class SymmetricEncryptedItemTest {
   final String partitionKeyValue = "SymmetricExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @RetryingTest(3)
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testSymmetricEncryption() throws Exception {
     // Generate random keys
     final SecureRandom secureRandom = new SecureRandom();

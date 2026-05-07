@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import java.util.UUID;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 import org.testng.annotations.AfterMethod;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -14,7 +14,7 @@ public class AwsKmsEncryptedItemTest {
   final String partitionKeyName = "partition_key";
   final String sortKeyName = "sort_key";
 
-  @RetryingTest(3)
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testAwsKmsEncryption() throws Exception {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AwsKmsEncryptedItem.encryptRecord(

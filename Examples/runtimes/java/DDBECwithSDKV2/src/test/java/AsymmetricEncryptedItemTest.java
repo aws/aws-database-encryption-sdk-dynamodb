@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import java.util.UUID;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.testng.annotations.Test;
 import org.testng.annotations.AfterMethod;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
@@ -13,7 +13,7 @@ public class AsymmetricEncryptedItemTest {
   final String partitionKeyValue = "AsymmetricExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @RetryingTest(3)
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testAsymmetricEncryption() throws Exception {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AsymmetricEncryptedItem.encryptRecord(
