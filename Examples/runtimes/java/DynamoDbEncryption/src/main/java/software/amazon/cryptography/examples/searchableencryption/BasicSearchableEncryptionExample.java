@@ -245,12 +245,13 @@ public class BasicSearchableEncryptionExample {
       .builder()
       .MaterialProvidersConfig(MaterialProvidersConfig.builder().build())
       .build();
-    CreateAwsKmsHierarchicalKeyringInput keyringInput = CreateAwsKmsHierarchicalKeyringInput
-      .builder()
-      .branchKeyId(branchKeyId)
-      .keyStore(keyStore)
-      .ttlSeconds(6000l)
-      .build();
+    CreateAwsKmsHierarchicalKeyringInput keyringInput =
+      CreateAwsKmsHierarchicalKeyringInput
+        .builder()
+        .branchKeyId(branchKeyId)
+        .keyStore(keyStore)
+        .ttlSeconds(6000l)
+        .build();
     final IKeyring kmsKeyring = matProv.CreateAwsKmsHierarchicalKeyring(
       keyringInput
     );
@@ -264,22 +265,17 @@ public class BasicSearchableEncryptionExample {
     //    Any attributes that will be used in beacons must be configured as ENCRYPT_AND_SIGN.
     final Map<String, CryptoAction> attributeActionsOnEncrypt = new HashMap<>();
     attributeActionsOnEncrypt.put("work_id", CryptoAction.SIGN_ONLY); // Our partition attribute must be SIGN_ONLY
-    attributeActionsOnEncrypt.put(
-      "inspection_date",
-      CryptoAction.SIGN_ONLY
-    ); // Our sort attribute must be SIGN_ONLY
+    attributeActionsOnEncrypt.put("inspection_date", CryptoAction.SIGN_ONLY); // Our sort attribute must be SIGN_ONLY
     attributeActionsOnEncrypt.put(
       "inspector_id_last4",
       CryptoAction.ENCRYPT_AND_SIGN
     ); // Beaconized attributes must be encrypted
-    attributeActionsOnEncrypt.put(
-      "unit",
-      CryptoAction.ENCRYPT_AND_SIGN
-    ); // Beaconized attributes must be encrypted
+    attributeActionsOnEncrypt.put("unit", CryptoAction.ENCRYPT_AND_SIGN); // Beaconized attributes must be encrypted
 
     // 6. Create the DynamoDb Encryption configuration for the table we will be writing to.
     //    The beaconVersions are added to the search configuration.
-    final Map<String, DynamoDbTableEncryptionConfig> tableConfigs = new HashMap<>();
+    final Map<String, DynamoDbTableEncryptionConfig> tableConfigs =
+      new HashMap<>();
     final DynamoDbTableEncryptionConfig config = DynamoDbTableEncryptionConfig
       .builder()
       .logicalTableName(ddbTableName)
@@ -298,15 +294,16 @@ public class BasicSearchableEncryptionExample {
     tableConfigs.put(ddbTableName, config);
 
     // 7. Create the DynamoDb Encryption Interceptor
-    DynamoDbEncryptionInterceptor encryptionInterceptor = DynamoDbEncryptionInterceptor
-      .builder()
-      .config(
-        DynamoDbTablesEncryptionConfig
-          .builder()
-          .tableEncryptionConfigs(tableConfigs)
-          .build()
-      )
-      .build();
+    DynamoDbEncryptionInterceptor encryptionInterceptor =
+      DynamoDbEncryptionInterceptor
+        .builder()
+        .config(
+          DynamoDbTablesEncryptionConfig
+            .builder()
+            .tableEncryptionConfigs(tableConfigs)
+            .build()
+        )
+        .build();
 
     // 8. Create a new AWS SDK DynamoDb client using the DynamoDb Encryption Interceptor above
     final DynamoDbClient ddb = DynamoDbClient
@@ -407,9 +404,8 @@ public class BasicSearchableEncryptionExample {
       .input(queryRequest)
       .build();
 
-    GetNumberOfQueriesOutput numberOfQueriesOutput = transformClient.GetNumberOfQueries(
-      numberOfQueriesInput
-    );
+    GetNumberOfQueriesOutput numberOfQueriesOutput =
+      transformClient.GetNumberOfQueries(numberOfQueriesInput);
 
     int numQueries = numberOfQueriesOutput.numberOfQueries();
     if (numQueries != 1) {
@@ -440,7 +436,8 @@ public class BasicSearchableEncryptionExample {
       // we retry after a short sleep
       for (int i = 0; i < 10; ++i) {
         final QueryResponse queryResponse = ddb.query(updatedQueryRequest);
-        List<Map<String, AttributeValue>> attributeValues = queryResponse.items();
+        List<Map<String, AttributeValue>> attributeValues =
+          queryResponse.items();
         // Validate query was returned successfully
         assert 200 == queryResponse.sdkHttpResponse().statusCode();
 
@@ -460,7 +457,9 @@ public class BasicSearchableEncryptionExample {
 
     // Validate only 1 item was returned: the item we just put
     if (allResults.size() != 1) {
-      throw new RuntimeException("Expected exactly one result, got " + allResults.size());
+      throw new RuntimeException(
+        "Expected exactly one result, got " + allResults.size()
+      );
     }
     final Map<String, AttributeValue> returnedItem = allResults.get(0);
     // Validate the item has the expected attributes
