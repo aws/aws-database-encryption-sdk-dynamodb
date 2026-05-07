@@ -2,6 +2,7 @@ package software.amazon.cryptography.examples.migration.awsdbe;
 
 import java.util.Arrays;
 import java.util.List;
+import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
@@ -10,7 +11,7 @@ import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 
 public class TestMigrationExampleStep2 {
 
-  @RetryingTest(3)
+  @Test
   public void TestMigrationStep2() {
     // Successfully executes Step 2
     MigrationExampleStep2.MigrationStep2(

@@ -4,6 +4,7 @@ import static org.testng.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
+import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
@@ -12,7 +13,7 @@ import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 
 public class TestMigrationExampleStep0 {
 
-  @RetryingTest(3)
+  @Test
   public void TestMigrationStep0() {
     // Successfully executes step 0
     MigrationExampleStep0.MigrationStep0(
