@@ -57,7 +57,9 @@ jobs:
           dafny-version: ${{ needs.get-dafny-version.outputs.version }}
 
       - name: Install Smithy-Dafny codegen dependencies
-        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+        uses: ./submodules/MaterialProviders/.github/actions/install_smithy_dafny_codegen_dependencies/action.yml
+        with:
+          mpl-submodule-path: ./submodules/MaterialProviders/
 
       - name: Configure Git
         run: |
