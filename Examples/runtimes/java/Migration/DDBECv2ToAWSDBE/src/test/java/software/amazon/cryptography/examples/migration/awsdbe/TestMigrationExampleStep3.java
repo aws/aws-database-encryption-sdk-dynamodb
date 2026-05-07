@@ -5,8 +5,8 @@ import static org.testng.Assert.assertThrows;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import org.testng.annotations.Test;
-import software.amazon.cryptography.examples.migration.RetryAnalyzer;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.cryptography.examples.migration.RetryAnalyzer;
 import software.amazon.cryptography.examples.migration.ddbec.MigrationExampleStep0;
 
 public class TestMigrationExampleStep3 {
