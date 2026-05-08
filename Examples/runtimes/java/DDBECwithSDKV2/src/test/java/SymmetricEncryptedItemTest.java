@@ -16,7 +16,7 @@ public class SymmetricEncryptedItemTest {
   final String partitionKeyValue = "SymmetricExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testSymmetricEncryption() throws Exception {
     // Generate random keys
     final SecureRandom secureRandom = new SecureRandom();

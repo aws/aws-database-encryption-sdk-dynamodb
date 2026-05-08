@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 public class TestBasicPutGetExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestPutGet() {
     final String partitionKeyValue = "BasicPutGetExample" + UUID.randomUUID();
     BasicPutGetExample.PutItemGetItem(

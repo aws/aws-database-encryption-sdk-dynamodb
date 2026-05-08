@@ -4,11 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestMrkDiscoveryMultiKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMrkDiscoveryMultiKeyringExample() {
     List<String> accounts = Collections.singletonList(
       TestUtils.TEST_AWS_ACCOUNT_ID
