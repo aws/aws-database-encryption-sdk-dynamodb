@@ -98,6 +98,10 @@ jobs:
           diff-generated-code: false
           update-and-regenerate-mpl: true
 
+      - name: Check AWS Credentials before build
+        shell: bash
+        run: aws sts get-caller-identity
+
       - name: Build and locally deploy dependencies for examples
         shell: bash
         working-directory: ./DynamoDbEncryption
