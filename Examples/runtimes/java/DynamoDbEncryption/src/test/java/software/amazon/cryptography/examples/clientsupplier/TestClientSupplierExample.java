@@ -5,12 +5,13 @@ import java.util.List;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 import software.amazon.cryptography.examples.keyring.MultiMrkKeyringExample;
 
 public class TestClientSupplierExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestClientSupplierExample() {
     List<String> accounts = Collections.singletonList(
       TestUtils.TEST_AWS_ACCOUNT_ID

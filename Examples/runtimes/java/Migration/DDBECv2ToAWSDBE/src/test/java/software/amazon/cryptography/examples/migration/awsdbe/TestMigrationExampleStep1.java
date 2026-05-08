@@ -3,11 +3,12 @@ package software.amazon.cryptography.examples.migration.awsdbe;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.migration.RetryAnalyzer;
 import software.amazon.cryptography.examples.migration.ddbec.MigrationExampleStep0;
 
 public class TestMigrationExampleStep1 {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMigrationStep1() throws GeneralSecurityException {
     final String partitionKeyValue =
       "TestMigrationStep1-DDBEC-with-sdk-v2" + UUID.randomUUID();

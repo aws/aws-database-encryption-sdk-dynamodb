@@ -13,7 +13,7 @@ public class AsymmetricEncryptedItemTest {
   final String partitionKeyValue = "AsymmetricExample-" + UUID.randomUUID();
   final String sortKeyValue = "0";
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testAsymmetricEncryption() throws Exception {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AsymmetricEncryptedItem.encryptRecord(

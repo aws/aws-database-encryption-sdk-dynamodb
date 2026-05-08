@@ -1,10 +1,11 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 
 public class TestVirtualBeaconSearchableEncryptionExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestVirtualBeaconExample() {
     VirtualBeaconSearchableEncryptionExample.PutItemQueryItemWithVirtualBeacon(
       SearchableEncryptionTestUtils.SIMPLE_BEACON_TEST_DDB_TABLE_NAME,
