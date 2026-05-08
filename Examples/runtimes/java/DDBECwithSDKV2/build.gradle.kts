@@ -73,7 +73,7 @@ dependencies {
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
-
+    
     testImplementation("org.testng:testng:7.5")
 }
 

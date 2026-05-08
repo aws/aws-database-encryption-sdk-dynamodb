@@ -14,7 +14,7 @@ public class AwsKmsEncryptedItemTest {
   final String partitionKeyName = "partition_key";
   final String sortKeyName = "sort_key";
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void testAwsKmsEncryption() throws Exception {
     try (final DynamoDbClient ddbClient = DynamoDbClient.create()) {
       AwsKmsEncryptedItem.encryptRecord(

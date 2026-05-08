@@ -6,13 +6,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.sdkv2.encryption.exception
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.migration.RetryAnalyzer;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.migration.awsdbe.MigrationExampleStep3;
 
 public class TestMigrationExampleStep0 {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMigrationStep0() throws GeneralSecurityException {
     final String partitionKeyValue =
       "TestMigrationStep0-DDBEC-with-sdk-v2" + UUID.randomUUID();
