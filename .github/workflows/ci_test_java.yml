@@ -99,6 +99,10 @@ jobs:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
 
+      - name: Check AWS Credentials before build
+        shell: bash
+        run: aws sts get-caller-identity
+
       - name: Build ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
@@ -106,6 +110,10 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make build_java CORES=$CORES
+
+      - name: Check AWS Credentials before test
+        shell: bash
+        run: aws sts get-caller-identity
 
       - name: Test ${{ matrix.library }}
         working-directory: ./${{ matrix.library }}
