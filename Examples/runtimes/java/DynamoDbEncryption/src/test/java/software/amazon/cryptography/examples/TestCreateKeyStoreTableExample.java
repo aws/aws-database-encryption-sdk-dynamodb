@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 public class TestCreateKeyStoreTableExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestCreateKeyStoreTableExample() {
     CreateKeyStoreTableExample.KeyStoreCreateTable(
       TestUtils.TEST_KEYSTORE_NAME,
