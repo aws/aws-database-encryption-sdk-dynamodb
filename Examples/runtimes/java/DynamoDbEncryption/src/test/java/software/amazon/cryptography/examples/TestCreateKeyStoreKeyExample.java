@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 public class TestCreateKeyStoreKeyExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestCreateKeyStoreKeyExample() {
     String keyId = CreateKeyStoreKeyExample.KeyStoreCreateKey(
       TestUtils.TEST_KEYSTORE_NAME,
