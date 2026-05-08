@@ -69,7 +69,7 @@ public class BasicSearchableEncryptionExample
         //     to be closer to uniformly distributed, though not perfectly uniform.
         //     We will assume that the inspector ID field matches a similar use case.
         //     So for this example, we only store and use the last
-        //     4 digits of the inspector ID, and apply two partitions, 
+        //     4 digits of the inspector ID, and apply one partitions, 
         //     assuming the suffix has sufficient uniformity for this purpose.
         // Since the full ID's range is divisible by the range of the last 4 digits,
         //     then the last 4 digits of the inspector ID are uniformly distributed
@@ -106,7 +106,7 @@ public class BasicSearchableEncryptionExample
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10,000/1,024) ~= 9.8 4-digit inspector ID suffixes
         //    sharing that beacon value.
-        var last4Beacon = new StandardBeacon { Name = "inspector_id_last4", Length = 10, NumberOfPartitions = 2 };
+        var last4Beacon = new StandardBeacon { Name = "inspector_id_last4", Length = 10, NumberOfPartitions = 1 };
         standardBeaconList.Add(last4Beacon);
 
         // The configured DDB table has a GSI on the `aws_dbe_b_unit` AttributeName.
@@ -135,7 +135,7 @@ public class BasicSearchableEncryptionExample
         // With a sufficiently large number of well-distributed inspector IDs,
         //    for a particular beacon we expect (10^12/2^30) ~= 931.3 unit serial numbers
         //    sharing that beacon value.
-        var unitBeacon = new StandardBeacon { Name = "unit", Length = 30, NumberOfPartitions = 2 };
+        var unitBeacon = new StandardBeacon { Name = "unit", Length = 30, NumberOfPartitions = 1 };
         standardBeaconList.Add(unitBeacon);
 
         // 2. Configure Keystore.
@@ -311,33 +311,46 @@ public class BasicSearchableEncryptionExample
         // We must query all possible partitions, so numQueries defines how many queries to issue.
         // In this example, the value is hardcoded for simplicity.
         // In practice, it can be obtained via transformClient.GetNumberOfQueries(queryRequest).
-
+        var mergedResults = new List<Dictionary<String, AttributeValue>>();
         int numQueries = 1;
 
-        // GSIs do not update instantly
-        // so if the results come back empty
-        // we retry after a short sleep
-        for (int i = 0; i < 10; ++i)
-        {
-            var queryResponse = await ddb.QueryAsync(queryRequest);
-            var attributeValues = queryResponse.Items;
-            // Validate query was returned successfully
-            Debug.Assert(queryResponse.HttpStatusCode == HttpStatusCode.OK);
+        for (int partition = 0; partition < numQueries; ++partition)
+          {
+              // Set the partition value for this query iteration
+              expressionAttributeValues[":aws_dbe_partition"] = new AttributeValue { N = partition.ToString() };
+  
+              var updatedQueryRequest = new QueryRequest
+              {
+                  TableName = ddbTableName,
+                  IndexName = GSI_NAME,
+                  KeyConditionExpression = "#last4 = :last4 and #unit = :unit",
+                  ExpressionAttributeNames = expressionAttributesNames,
+                  ExpressionAttributeValues = expressionAttributeValues,
+              };
+              // GSIs do not update instantly
+              // so if the results come back empty
+              // we retry after a short sleep
+              for (int retry = 0; retry < 10; ++retry)
+              {
+                  var queryResponse = await ddb.QueryAsync(updatedQueryRequest);
+                  Debug.Assert(queryResponse.HttpStatusCode == HttpStatusCode.OK);
+  
+                  if (queryResponse.Items.Count > 0)
+                  {
+                      mergedResults.AddRange(queryResponse.Items);
+                      break;
+                  }
+  
+                  await Task.Delay(20);
+              }
+          }
 
-            // if no results, sleep and try again
-            if (attributeValues.Count == 0)
-            {
-                Thread.Sleep(20);
-                continue;
-            }
-
-            // Validate only 1 item was returned: the item we just put
-            Debug.Assert(attributeValues.Count == 1);
-            var returnedItem = attributeValues[0];
-            // Validate the item has the expected attributes
-            Debug.Assert(returnedItem["inspector_id_last4"].S.Equals("4321"));
-            Debug.Assert(returnedItem["unit"].S.Equals("123456789012"));
-            break;
-        }
+        // 10. Validate merged results.
+          // The item lands in exactly one partition, so we expect exactly 1 result across all partitions.
+          Debug.Assert(mergedResults.Count == 1);
+          var returnedItem = mergedResults[0];
+        // Validate the item has the expected attributes
+          Debug.Assert(returnedItem["inspector_id_last4"].S.Equals("4321"));
+          Debug.Assert(returnedItem["unit"].S.Equals("123456789012"));
     }
 }
