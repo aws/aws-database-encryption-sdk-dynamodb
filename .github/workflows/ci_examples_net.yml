@@ -101,11 +101,6 @@ jobs:
           # This works because `node` is installed by default on GHA runners
           CORES=$(node -e 'console.log(os.cpus().length)')
           make transpile_net CORES=$CORES
-      
-      - name: Check AWS Credentials before build
-        shell: bash
-        run: aws sts get-caller-identity
-        
       - name: Run Examples
         working-directory: ./Examples/runtimes/net
         shell: bash
