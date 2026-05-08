@@ -2,11 +2,12 @@ package software.amazon.cryptography.examples.enhanced;
 
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestSingleTableExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestEnhancedSingleTable() {
     SingleTableExample.TransactWriteItems(
       TestUtils.TEST_KMS_KEY_ID,

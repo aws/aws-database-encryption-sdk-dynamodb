@@ -23,6 +23,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.PlaintextOver
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.SimpleClass;
+import software.amazon.cryptography.examples.migration.RetryAnalyzer;
 import software.amazon.cryptography.examples.migration.TestUtils;
 import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 import software.amazon.cryptography.materialproviders.IKeyring;
@@ -180,7 +181,7 @@ public class TestEncryptExistingTable {
     assert scanIterable.items().stream().count() == 0;
   }
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestEncryptExistingTable() {
     // Given: All the previous migration steps have been run.
     MigrationExampleStep0.MigrationStep0(

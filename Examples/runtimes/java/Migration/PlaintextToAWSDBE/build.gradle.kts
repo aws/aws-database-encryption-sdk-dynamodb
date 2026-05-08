@@ -75,7 +75,7 @@ dependencies {
     implementation("software.amazon.awssdk:kms")
 
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation("org.testng:testng:7.5")
+    testImplementation("org.testng:testng:7.5")    
 }
 
 tasks.withType<JavaCompile>() {

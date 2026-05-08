@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 public class TestGetEncryptedDataKeyDescriptionExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestGetEncryptedDataKeyDescription() {
     final String partitionKeyValue =
       "GetEncryptedDataKeyDescriptionExample" + UUID.randomUUID();

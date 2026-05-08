@@ -1,10 +1,11 @@
 package software.amazon.cryptography.examples.searchableencryption;
 
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 
 public class TestBasicSearchableEncryptionExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestBasicExample() {
     BasicSearchableEncryptionExample.PutItemQueryItemWithBeacon(
       SearchableEncryptionTestUtils.UNIT_INSPECTION_TEST_DDB_TABLE_NAME,
