@@ -1,0 +1,36 @@
+{
+  "TableName": [
+    {
+      "rangeKey": {
+        "N": "7"
+      },
+      "hashKey": {
+        "N": "5"
+      },
+      "stringValue": {
+        "B": "leseMgRescbtfi/CZCmfW0Lk1jkv6Md5cqAtBTEP1AQyTB25+xVF7UjWR1DbeA8Y"
+      },
+      "*amzn-ddb-map-desc*": {
+        "B": "AAAAAAAAABVhbXpuLWRkYi1tYXAtc3ltLW1vZGUAAAARL0NCQy9QS0NTNVBhZGRpbmc="
+      },
+      "intSet": {
+        "B": "rf/00OwnLb/FlqMWDjvcdiX1AqzRQfLOuSSaTDZX7nSQrkDyqyxHxKYPWGnZOPOI3P2fOjVvYV0BSlmCIvP5kQ=="
+      },
+      "byteArrayValue": {
+        "B": "DwzxA9QJrucdFE8nPIEaiAdggInKUH4CvumuBNZxcQc="
+      },
+      "intValue": {
+        "B": "b6tg6Vm7pzdcmlT0pc/4q/cecHZaiENJG/Hv+IU+6Lg="
+      },
+      "stringSet": {
+        "B": "HHIUXDDb2gMeGMfUs9cW0CtvPohceTRyOQ1GI/voY6vImFe1AJKNCy5Shx/PmMYH+rEzjryVsd8EVmcCco0PGA=="
+      },
+      "version": {
+        "N": "0"
+      },
+      "*amzn-ddb-map-sig*": {
+        "B": "EQXY4c3O2NSyRpPPuR9RzZ+CnLxn7jgb12RRmivNYZA="
+      }
+    }
+  ]
+}
