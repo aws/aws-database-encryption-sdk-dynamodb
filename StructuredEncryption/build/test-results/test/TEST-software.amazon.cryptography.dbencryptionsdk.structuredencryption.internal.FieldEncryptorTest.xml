@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-05-11T07:00:25" hostname="bcd074aae394" time="0.171">
+  <properties/>
+  <testcase name="differentFieldsDifferentPaths()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.01"/>
+  <testcase name="differentOffsetsProduceDifferentKeys()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.145"/>
+  <testcase name="encryptDecryptRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.003"/>
+  <testcase name="canonicalPathDeterministic()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.001"/>
+  <testcase name="wrongAadFailsDecrypt()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.001"/>
+  <testcase name="deriveFieldKeyProduces44Bytes()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.001"/>
+  <testcase name="deriveFieldRootKeyProduces32Bytes()" classname="software.amazon.cryptography.dbencryptionsdk.structuredencryption.internal.FieldEncryptorTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

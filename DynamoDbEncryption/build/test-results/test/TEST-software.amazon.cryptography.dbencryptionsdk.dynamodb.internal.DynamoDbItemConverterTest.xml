@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-05-11T07:00:24" hostname="bcd074aae394" time="0.036">
+  <properties/>
+  <testcase name="stringSetRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.023"/>
+  <testcase name="binaryRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.002"/>
+  <testcase name="booleanRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.001"/>
+  <testcase name="stringRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.0"/>
+  <testcase name="listRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.004"/>
+  <testcase name="numberNormalized()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.0"/>
+  <testcase name="binarySetRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.0"/>
+  <testcase name="mapRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.001"/>
+  <testcase name="numberRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.001"/>
+  <testcase name="nullRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.0"/>
+  <testcase name="numberSetRoundTrip()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.DynamoDbItemConverterTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
