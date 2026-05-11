@@ -315,42 +315,42 @@ public class BasicSearchableEncryptionExample
         int numQueries = 1;
 
         for (int partition = 0; partition < numQueries; ++partition)
-          {
-              // Set the partition value for this query iteration
-              expressionAttributeValues[":aws_dbe_partition"] = new AttributeValue { N = partition.ToString() };
-  
-              var updatedQueryRequest = new QueryRequest
-              {
-                  TableName = ddbTableName,
-                  IndexName = GSI_NAME,
-                  KeyConditionExpression = "#last4 = :last4 and #unit = :unit",
-                  ExpressionAttributeNames = expressionAttributesNames,
-                  ExpressionAttributeValues = expressionAttributeValues,
-              };
-              // GSIs do not update instantly
-              // so if the results come back empty
-              // we retry after a short sleep
-              for (int retry = 0; retry < 10; ++retry)
-              {
-                  var queryResponse = await ddb.QueryAsync(updatedQueryRequest);
-                  Debug.Assert(queryResponse.HttpStatusCode == HttpStatusCode.OK);
-  
-                  if (queryResponse.Items.Count > 0)
-                  {
-                      mergedResults.AddRange(queryResponse.Items);
-                      break;
-                  }
-  
-                  await Task.Delay(20);
-              }
-          }
+        {
+            // Set the partition value for this query iteration
+            expressionAttributeValues[":aws_dbe_partition"] = new AttributeValue { N = partition.ToString() };
+
+            var updatedQueryRequest = new QueryRequest
+            {
+                TableName = ddbTableName,
+                IndexName = GSI_NAME,
+                KeyConditionExpression = "#last4 = :last4 and #unit = :unit",
+                ExpressionAttributeNames = expressionAttributesNames,
+                ExpressionAttributeValues = expressionAttributeValues,
+            };
+            // GSIs do not update instantly
+            // so if the results come back empty
+            // we retry after a short sleep
+            for (int retry = 0; retry < 10; ++retry)
+            {
+                var queryResponse = await ddb.QueryAsync(updatedQueryRequest);
+                Debug.Assert(queryResponse.HttpStatusCode == HttpStatusCode.OK);
+
+                if (queryResponse.Items.Count > 0)
+                {
+                    mergedResults.AddRange(queryResponse.Items);
+                    break;
+                }
+
+                await Task.Delay(20);
+            }
+        }
 
         // 10. Validate merged results.
-          // The item lands in exactly one partition, so we expect exactly 1 result across all partitions.
-          Debug.Assert(mergedResults.Count == 1);
-          var returnedItem = mergedResults[0];
+        // The item lands in exactly one partition, so we expect exactly 1 result across all partitions.
+        Debug.Assert(mergedResults.Count == 1);
+        var returnedItem = mergedResults[0];
         // Validate the item has the expected attributes
-          Debug.Assert(returnedItem["inspector_id_last4"].S.Equals("4321"));
-          Debug.Assert(returnedItem["unit"].S.Equals("123456789012"));
+        Debug.Assert(returnedItem["inspector_id_last4"].S.Equals("4321"));
+        Debug.Assert(returnedItem["unit"].S.Equals("123456789012"));
     }
 }
