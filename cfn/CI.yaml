@@ -60,6 +60,7 @@ Resources:
         - AttributeName: "sort_key"
           KeyType: "RANGE"
       TableName: !Ref TableName
+      BillingMode: PAY_PER_REQUEST
 
   # These tables were manually created but not used in CI
   # If we have to start using them in CI we just have to add
@@ -102,9 +103,6 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "state-zip-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_state"
@@ -113,36 +111,24 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "location-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_location"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "stateAndHasSensitiveData-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_stateAndHasSensitiveData"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "buildingAndFloor-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_buildingAndFloor"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "email-birthday-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_email"
@@ -151,9 +137,6 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "address-birthday-index"
           KeySchema:
             - AttributeName: "aws_dbe_b_address"
@@ -162,17 +145,12 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
       KeySchema:
         - AttributeName: "customer_id"
           KeyType: "HASH"
         - AttributeName: "create_time"
           KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
+      BillingMode: PAY_PER_REQUEST
       TableName: !Ref TableWithSimpleBeaconIndexName
 
   # This schema is modeled off of
@@ -207,9 +185,6 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "GSI-1"
           KeySchema:
             - AttributeName: "aws_dbe_b_PK1"
@@ -218,18 +193,12 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "GSI-2"
           KeySchema:
             - AttributeName: "aws_dbe_b_PK2"
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
         - IndexName: "GSI-3"
           KeySchema:
             - AttributeName: "aws_dbe_b_PK3"
@@ -238,15 +207,10 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
       KeySchema:
         - AttributeName: "partition_key"
           KeyType: "HASH"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
+      BillingMode: PAY_PER_REQUEST
       TableName: !Ref TableWithComplexBeaconIndexName
 
   TestKeystoreTable:
@@ -268,17 +232,12 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
       KeySchema:
         - AttributeName: "branch-key-id"
           KeyType: "HASH"
         - AttributeName: "type"
           KeyType: "RANGE"
-      ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
+      BillingMode: PAY_PER_REQUEST
       TableName: !Ref KeystoreTableName
 
   # This policy SHOULD be given to:

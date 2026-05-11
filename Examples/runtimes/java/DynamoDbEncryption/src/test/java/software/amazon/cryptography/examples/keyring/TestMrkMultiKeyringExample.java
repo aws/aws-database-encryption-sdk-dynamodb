@@ -1,11 +1,13 @@
 package software.amazon.cryptography.examples.keyring;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestMrkMultiKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMrkMultiKeyringExample() {
     MultiMrkKeyringExample.MultiMrkKeyringGetItemPutItem(
       TestUtils.TEST_DDB_TABLE_NAME,
@@ -13,5 +15,10 @@ public class TestMrkMultiKeyringExample {
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_MRK_REPLICA_KEY_ID_US_EAST_1
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("awsKmsMrkMultiKeyringItem");
   }
 }

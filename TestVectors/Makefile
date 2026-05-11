@@ -7,6 +7,8 @@ TRANSPILE_TESTS_IN_RUST=1
 
 include ../SharedMakefile.mk
 
+DIR_STRUCTURE_V2=V2
+
 PROJECT_SERVICES := \
 	DDBEncryption \
 	WrappedDynamoDbItemEncryptor

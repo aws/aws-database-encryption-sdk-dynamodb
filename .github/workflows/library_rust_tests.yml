@@ -8,6 +8,10 @@ on:
         description: "The Dafny version to run"
         required: true
         type: string
+      branch:
+        description: "Branch to checkout"
+        required: false
+        type: string
       regenerate-code:
         description: "Regenerate code using smithy-dafny"
         required: false
@@ -35,7 +39,7 @@ jobs:
       RUST_MIN_STACK: 838860800
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
@@ -56,6 +60,8 @@ jobs:
         run: |
           git config --global core.longpaths true
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.head_ref || github.ref }}
       - name: Init Submodules
         shell: bash
         run: |
@@ -65,7 +71,7 @@ jobs:
       - name: Setup Rust Toolchain for GitHub CI
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          components: rustfmt
+          components: rustfmt, clippy
 
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/
@@ -122,7 +128,7 @@ jobs:
           make test_rust
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
@@ -148,3 +154,11 @@ jobs:
         run: |
           cargo run --release --example main
           cargo test --release --example main
+
+      - name: Run clippy
+        if: ${{ matrix.library == 'DynamoDbEncryption' }}
+        working-directory: ${{ matrix.library }}/runtimes/rust
+        shell: bash
+        run: |
+          cargo clippy
+          cargo clippy --example main

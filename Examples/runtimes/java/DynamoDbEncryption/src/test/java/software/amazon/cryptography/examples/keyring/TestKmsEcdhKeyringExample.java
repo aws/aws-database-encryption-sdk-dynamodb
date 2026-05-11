@@ -5,12 +5,14 @@ import static software.amazon.cryptography.examples.keyring.KmsEcdhKeyringExampl
 import static software.amazon.cryptography.examples.keyring.KmsEcdhKeyringExample.shouldGetNewPublicKeys;
 import static software.amazon.cryptography.examples.keyring.KmsEcdhKeyringExample.writePublicKeyPemForEccKey;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestKmsEcdhKeyringExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestKmsEcdhKeyringExampleStatic() {
     // You may provide your own ECC public keys at
     // - EXAMPLE_ECC_PUBLIC_KEY_SENDER_FILENAME
@@ -35,7 +37,10 @@ public class TestKmsEcdhKeyringExample {
     );
   }
 
-  @Test
+  @Test(
+    retryAnalyzer = RetryAnalyzer.class,
+    dependsOnMethods = { "TestKmsEcdhKeyringExampleStatic" }
+  )
   public void TestKmsEcdhKeyringExampleDiscovery() {
     // In this example you do not need to provide the recipient ECC Public Key.
     // On initialization, the keyring will call KMS:getPublicKey on the configured
@@ -45,5 +50,10 @@ public class TestKmsEcdhKeyringExample {
       TestUtils.TEST_DDB_TABLE_NAME,
       TestUtils.TEST_KMS_ECDH_KEY_ID_P256_RECIPIENT
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("awsKmsEcdhKeyringItem");
   }
 }

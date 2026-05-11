@@ -35,7 +35,7 @@ jobs:
 
       # KMS and MPL tests need to use credentials which can call KMS
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
@@ -52,7 +52,7 @@ jobs:
           git submodule update --init --recursive
 
       - name: Setup Dafny
-        uses: dafny-lang/setup-dafny-action@v1.8.0
+        uses: dafny-lang/setup-dafny-action@v1.9.1
         with:
           dafny-version: ${{ needs.get-dafny-version.outputs.version }}
 

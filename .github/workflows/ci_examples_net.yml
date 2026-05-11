@@ -8,6 +8,10 @@ on:
         description: "The Dafny version to run"
         required: true
         type: string
+      branch:
+        description: "Branch to checkout"
+        required: false
+        type: string
       regenerate-code:
         description: "Regenerate code using smithy-dafny"
         required: false
@@ -38,6 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.branch  || github.head_ref || github.ref  }}
           submodules: recursive
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
@@ -83,7 +88,7 @@ jobs:
         run: make setup_net
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2

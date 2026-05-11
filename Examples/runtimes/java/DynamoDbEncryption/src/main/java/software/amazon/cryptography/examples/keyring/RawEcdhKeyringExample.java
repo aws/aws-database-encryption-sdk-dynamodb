@@ -44,6 +44,7 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.DynamoDbEncryptionI
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTableEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTablesEncryptionConfig;
 import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.CryptoAction;
+import software.amazon.cryptography.examples.ExampleUtils;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
 import software.amazon.cryptography.materialproviders.model.CreateRawEcdhKeyringInput;
@@ -438,7 +439,10 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("rawEcdhKeyringItem"))
+        .build()
     );
     item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
@@ -463,7 +467,10 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("rawEcdhKeyringItem"))
+        .build()
     );
     keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 
@@ -575,7 +582,10 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> item = new HashMap<>();
     item.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("rawEcdhKeyringItem"))
+        .build()
     );
     item.put("sort_key", AttributeValue.builder().n("0").build());
     item.put(
@@ -685,7 +695,10 @@ public class RawEcdhKeyringExample {
     final HashMap<String, AttributeValue> keyToGet = new HashMap<>();
     keyToGet.put(
       "partition_key",
-      AttributeValue.builder().s("rawEcdhKeyringItem").build()
+      AttributeValue
+        .builder()
+        .s(ExampleUtils.uniquePk("rawEcdhKeyringItem"))
+        .build()
     );
     keyToGet.put("sort_key", AttributeValue.builder().n("0").build());
 

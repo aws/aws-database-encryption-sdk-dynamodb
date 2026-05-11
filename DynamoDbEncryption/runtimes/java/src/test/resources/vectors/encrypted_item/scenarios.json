@@ -262,6 +262,20 @@
     },
     {
       "version": "v1",
+      "provider": "awskms",
+      "keys": {
+        "decrypt": "awsKmsUsWest2",
+        "verify": "awsKmsUsWest2"
+      },
+      "material_description": {
+        "amzn-ddb-env-alg": "AES/128"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/aws-kms-aes128-1.json",
+      "network": true
+    },
+    {
+      "version": "v1",
       "provider": "most_recent",
       "material_name": "java-rsa-material-name",
       "metastore": {
@@ -295,6 +309,86 @@
       "plaintext": "file://plaintext.json",
       "ciphertext": "file://ciphertext/java/metastore-data-tables-3.json",
       "network": true
+    },
+    {
+      "version": "v1",
+      "provider": "most_recent",
+      "material_name": "テスト\u03A8素材\uD83D\uDE00",
+      "metastore": {
+        "table_name": "nonascii-metatable",
+        "provider": "awskms",
+        "keys": {
+          "decrypt": "awsKmsUsWest2",
+          "verify": "awsKmsUsWest2"
+        },
+        "ciphertext": "file://ciphertext/java/metastore-nonascii-name-1.json"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/nonascii-material-name-1.json",
+      "network": true
+    },
+    {
+      "version": "v1",
+      "provider": "static",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "rsaSignPub",
+        "sign": "rsaSignPriv"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/static-aes-rsa-1.json",
+      "network": false
+    },
+    {
+      "version": "v1",
+      "provider": "static",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "hmacKey"
+      },
+      "material_description": {
+        "\uD834\uDD1Emusic": "\uD834\uDD22clef",
+        "emoji\uD83D\uDD11key": "value\uD83D\uDD12lock",
+        "\u03A8greek": "\u03A8value"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/static-aes-hmac-nonbmp-desc-1.json",
+      "network": false
+    },
+    {
+      "version": "v1",
+      "provider": "wrapped",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "rsaSignPub",
+        "sign": "rsaSignPriv"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/wrapped-aes-rsa-1.json",
+      "network": false
+    },
+    {
+      "version": "v1",
+      "provider": "wrapped",
+      "keys": {
+        "encrypt": "rsaEncPub",
+        "decrypt": "rsaEncPriv",
+        "verify": "hmacKey"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/wrapped-rsa-hmac-1.json",
+      "network": false
+    },
+    {
+      "version": "v1_complex",
+      "provider": "static",
+      "keys": {
+        "decrypt": "aesKey",
+        "verify": "hmacKey"
+      },
+      "plaintext": "file://plaintext.json",
+      "ciphertext": "file://ciphertext/java/static-aes-hmac-complex-1.json",
+      "network": false
     }
   ]
 }

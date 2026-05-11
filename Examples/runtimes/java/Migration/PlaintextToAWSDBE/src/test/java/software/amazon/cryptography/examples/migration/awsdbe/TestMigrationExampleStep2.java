@@ -6,12 +6,13 @@ import org.testng.annotations.Test;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep1;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep2;
 import software.amazon.cryptography.examples.awsdbe.MigrationExampleStep3;
+import software.amazon.cryptography.examples.migration.RetryAnalyzer;
 import software.amazon.cryptography.examples.migration.TestUtils;
 import software.amazon.cryptography.examples.plaintext.MigrationExampleStep0;
 
 public class TestMigrationExampleStep2 {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestMigrationStep2() {
     // Successfully executes Step 2
     MigrationExampleStep2.MigrationStep2(

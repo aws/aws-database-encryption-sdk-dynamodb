@@ -1,5 +1,11 @@
 # Changelog
 
+## Rust-1.2.4 (2026-04-02)
+
+### Maintenance
+
+- bump aws-lc-sys to 0.39
+
 ## Rust-1.2.3 (2026-03-10)
 
 ### Maintenance

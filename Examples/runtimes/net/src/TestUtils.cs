@@ -61,9 +61,9 @@ public class TestUtils
         if (value.S != null) return "S";
         if (value.N != null) return "N";
         if (value.B != null) return "B";
-        if (value.SS.Any()) return "SS";
-        if (value.NS.Any()) return "NS";
-        if (value.BS.Any()) return "BS";
+        if (value.SS != null && value.SS.Any()) return "SS";
+        if (value.NS != null && value.NS.Any()) return "NS";
+        if (value.BS != null && value.BS.Any()) return "BS";
         if (value.IsMSet) return "M";
         if (value.IsLSet) return "L";
         if (value.NULL == true) return "NULL";
@@ -76,9 +76,9 @@ public class TestUtils
         if (value.S != null) Console.Write($"S {value.S}\n");
         if (value.N != null) Console.Write($"N {value.N}\n");
         if (value.B != null) Console.Write($"B {value.B}\n");
-        if (value.SS.Any()) Console.Write($"SS {value.SS}\n");
-        if (value.NS.Any()) Console.Write($"NS {value.NS}\n");
-        if (value.BS.Any()) Console.Write($"BS {value.BS}\n");
+        if (value.SS != null && value.SS.Any()) Console.Write($"SS {value.SS}\n");
+        if (value.NS != null && value.NS.Any()) Console.Write($"NS {value.NS}\n");
+        if (value.BS != null && value.BS.Any()) Console.Write($"BS {value.BS}\n");
         if (value.IsMSet) Console.Write($"M {value.M}\n");
         if (value.IsLSet) Console.Write($"L {value.L}\n");
         if (value.NULL == true) Console.Write($"NULL {value.NULL}\n");

@@ -1,11 +1,13 @@
 package software.amazon.cryptography.examples.enhanced;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+import software.amazon.cryptography.examples.RetryAnalyzer;
 import software.amazon.cryptography.examples.TestUtils;
 
 public class TestEnhancedPutGetExample {
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestEnhancedPutGet() {
     EnhancedPutGetExample.PutItemGetItem(
       TestUtils.TEST_KMS_KEY_ID,
@@ -13,7 +15,7 @@ public class TestEnhancedPutGetExample {
     );
   }
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestLombokPutGet() {
     LombokPutGetExample.PutItemGetItem(
       TestUtils.TEST_KMS_KEY_ID,
@@ -21,11 +23,18 @@ public class TestEnhancedPutGetExample {
     );
   }
 
-  @Test
+  @Test(retryAnalyzer = RetryAnalyzer.class)
   public void TestTableSchemaBuilderPutGet() {
     TableSchemaBuilderPutGetExample.PutItemGetItem(
       TestUtils.TEST_KMS_KEY_ID,
       TestUtils.TEST_DDB_TABLE_NAME
     );
+  }
+
+  @AfterTest
+  public void cleanup() {
+    TestUtils.cleanUpExampleItem("EnhancedPutGetExample");
+    TestUtils.cleanUpExampleItem("LombokPutGetExample");
+    TestUtils.cleanUpExampleItem("TableSchemaBuilderPutGetExample");
   }
 }

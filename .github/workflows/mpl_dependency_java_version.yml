@@ -5,6 +5,12 @@ name: MPL Dependency Java Version
 
 on:
   workflow_call:
+    inputs:
+      strip_snapshot:
+        description: "Strip -SNAPSHOT suffix from version"
+        required: false
+        default: false
+        type: boolean
     outputs:
       version:
         description: "The MPL Dependency Java version from project.properties"
@@ -14,11 +20,10 @@ jobs:
   getMplDependencyJavaVersion:
     permissions:
       contents: read
-      pull-requests: write
       id-token: write
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.read_property.outputs.mplDependencyJavaVersion }}
+      version: ${{ steps.resolve_version.outputs.version }}
     steps:
       - uses: actions/checkout@v6
       - name: Read version from Properties-file
@@ -27,3 +32,14 @@ jobs:
         with:
           path: "./project.properties"
           properties: "mplDependencyJavaVersion"
+      - name: Resolve version
+        id: resolve_version
+        env:
+          RAW_VERSION: ${{ steps.read_property.outputs.mplDependencyJavaVersion }}
+          STRIP: ${{ inputs.strip_snapshot }}
+        run: |
+          VERSION="$RAW_VERSION"
+          if [ "$STRIP" == "true" ]; then                                                                                                                                                        
+            VERSION="${VERSION%-SNAPSHOT}"                                                                                                                                                       
+          fi                                                                                                                                                                                     
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
