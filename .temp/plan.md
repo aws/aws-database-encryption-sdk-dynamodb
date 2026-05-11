@@ -201,11 +201,40 @@ This is the foundation everything else depends on. Implement bottom-up:
 | Dependency | Purpose |
 |---|---|
 | AWS SDK for Java v2 (`dynamodb`, `core`) | DynamoDB client, interceptor API |
-| AWS Cryptographic Material Providers (MPL) for Java | CMM, Keyring, algorithm suites, key derivation |
+| AWS Cryptographic Material Providers (MPL) for Java (Dafny-based) | CMM, Keyring, algorithm suites, encryption materials |
 | BouncyCastle or JCA | AES-GCM, HKDF-SHA512, HMAC-SHA384, ECDSA-P384, SHA-384 |
 | AWS KMS SDK | KMS keyring support (via MPL) |
 
-**Note**: The MPL (Material Providers Library) is itself currently Dafny-based. If a native Java MPL exists or is planned, use that. Otherwise, the native DB-ESDK can still depend on the Dafny-compiled MPL as an external dependency — the goal is to remove Dafny from *this* library's core logic.
+### ⚠️ HARD CONSTRAINT: Zero Dafny Types in DB-ESDK Code
+
+**No Dafny types (`dafny.*`, `software.amazon.cryptography.*.internaldafny.*`, `Dafny.DafnySequence`, `Dafny.DafnyMap`, etc.) may appear anywhere in the native DB-ESDK Java source code — not in imports, fields, method signatures, or local variables.**
+
+The MPL's public API (`software.amazon.cryptography.materialproviders.model.*` and `software.amazon.cryptography.materialproviders.ICryptographicMaterialsManager`) uses only standard Java types (`Map<String, String>`, `List<String>`, `byte[]`, `Long`, etc.) and its own smithy-generated POJOs. No Dafny types leak through this boundary.
+
+**If at any point during implementation a Dafny type is required to call MPL, STOP and alert the user immediately.** This would indicate a gap in MPL's public Java API that needs to be resolved upstream before proceeding.
+
+### MPL Interaction
+
+The native DB-ESDK calls MPL through its smithy-generated public Java API:
+
+```java
+// Example — no Dafny types anywhere
+GetEncryptionMaterialsOutput output = cmm.GetEncryptionMaterials(
+    GetEncryptionMaterialsInput.builder()
+        .encryptionContext(Map.of("aws-crypto-table-name", "MyTable"))
+        .commitmentPolicy(commitmentPolicy)
+        .algorithmSuiteId(algorithmSuiteId)
+        .maxPlaintextLength(plaintextLength)
+        .requiredEncryptionContextKeys(requiredKeys)
+        .build()
+);
+EncryptionMaterials materials = output.encryptionMaterials();
+ByteBuffer plaintextDataKey = materials.plaintextDataKey();
+```
+
+- MPL handles Dafny conversion internally (inside its own `ToDafny`/`ToNative` shims)
+- DB-ESDK never sees or touches those internals
+- Crypto primitives (AES-GCM, HKDF, HMAC, ECDSA) are performed directly by DB-ESDK using JCA/BouncyCastle — MPL only provides key material
 
 ---
 
