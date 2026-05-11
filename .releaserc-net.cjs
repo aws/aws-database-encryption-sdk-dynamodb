@@ -1,0 +1,316 @@
+// Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+/*
+  First run `make setup_semantic_release` to install the required dependencies.
+
+  Using this config semantic-release will search for the latest tag
+  evaluate all commits after that tag
+  generate release notes and a version bump.
+  It will commit these changes, push these changes, and publish a new version tag.
+
+  This file requires a `--branches` option to function.
+  This is to facilitate point releases if needed.
+
+  `npx semantic-release --branches main`
+*/
+
+const fs = require("fs");
+
+/**
+ * Function to parse a simple properties file
+ * @param {string} filePath - Path to the properties file
+ * @returns {Object} Parsed properties as key-value pairs
+ */
+function parsePropertiesFile(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+  const properties = {};
+
+  content.split("\n").forEach((line) => {
+    if (line && !line.startsWith("#") && line.includes("=")) {
+      const [key, ...valueParts] = line.split("=");
+      properties[key.trim()] = valueParts.join("=").trim();
+    }
+  });
+
+  return properties;
+}
+
+// Read your project.properties file
+const props = parsePropertiesFile("./project.properties");
+
+// This project has several runtimes
+// each one has files that need to be updated.
+// We model all the files and the runtimes here in this structure
+const Runtimes = {
+  net: {
+    "DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj": {
+      dependencies: [],
+      assemblyInfo: "DynamoDbEncryption/runtimes/net/AssemblyInfo.cs",
+    },
+  },
+};
+
+/**
+ * @type {import('semantic-release').GlobalConfig}
+ */
+module.exports = {
+  branches: ["main"],
+  repositoryUrl: "git@github.com:aws/aws-database-encryption-sdk-dynamodb.git",
+  tagFormat: "v${version}-net",
+  plugins: [
+    // Check the commits since the last release
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        preset: "conventionalcommits",
+        parserOpts: {
+          noteKeywords: [
+            "DOTNET-BREAKING-CHANGE",
+            "DOTNET-BREAKING-CHANGES",
+            "DOTNET BREAKING CHANGE",
+            "DOTNET BREAKING CHANGES",
+            "NET-BREAKING-CHANGE",
+            "NET-BREAKING-CHANGES",
+            "NET BREAKING CHANGE",
+            "NET BREAKING CHANGES",
+          ],
+        },
+        presetConfig: {
+          types: [
+            { type: "feat", section: "Features" },
+            { type: "fix", section: "Fixes" },
+            { type: "chore", section: "Maintenance" },
+            { type: "docs", section: "Maintenance" },
+            { type: "revert", section: "Fixes" },
+            { type: "style", hidden: true },
+            { type: "refactor", hidden: true },
+            { type: "perf", hidden: true },
+            { type: "test", hidden: true },
+          ],
+        },
+        releaseRules: [
+          // go is in main but not in prod. Mentioning go as we do make PR scoping Go in this repo
+          // python is not in main and not in prod. Mentioning python for defensive coding.
+          { scope: "python", release: false },
+          { scope: "java", release: false },
+          { scope: "go", release: false },
+          { scope: "rust", release: false },
+        ],
+      },
+    ],
+    // Based on the commits generate release notes
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        preset: "conventionalcommits",
+        parserOpts: {
+          noteKeywords: [
+            "DOTNET-BREAKING-CHANGE",
+            "DOTNET-BREAKING-CHANGES",
+            "DOTNET BREAKING CHANGE",
+            "DOTNET BREAKING CHANGES",
+            "NET-BREAKING-CHANGE",
+            "NET-BREAKING-CHANGES",
+            "NET BREAKING CHANGE",
+            "NET BREAKING CHANGES",
+          ],
+        },
+        presetConfig: {
+          types: [
+            {
+              type: "feat",
+              scope: "dafny",
+              section: "Features -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "feat",
+              scope: "dotnet",
+              section: "Features -- DotNet",
+              hidden: false,
+            },
+            { type: "feat", scope: "java", hidden: true },
+            { type: "feat", scope: "python", hidden: true },
+            { type: "feat", scope: "go", hidden: true },
+            { type: "feat", scope: "rust", hidden: true },
+            {
+              type: "fix",
+              scope: "dafny",
+              section: "Fixes -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "fix",
+              scope: "dotnet",
+              section: "Fixes -- DotNet",
+              hidden: false,
+            },
+            { type: "fix", scope: "java", hidden: true },
+            { type: "fix", scope: "python", hidden: true },
+            { type: "fix", scope: "go", hidden: true },
+            { type: "fix", scope: "rust", hidden: true },
+            {
+              type: "chore",
+              scope: "dafny",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "chore",
+              scope: "dotnet",
+              section: "Maintenance -- DotNet",
+              hidden: false,
+            },
+            { type: "chore", scope: "java", hidden: true },
+            { type: "chore", scope: "python", hidden: true },
+            { type: "chore", scope: "go", hidden: true },
+            { type: "chore", scope: "rust", hidden: true },
+            {
+              type: "docs",
+              scope: "dafny",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "docs",
+              scope: "dotnet",
+              section: "Maintenance -- DotNet",
+              hidden: false,
+            },
+            { type: "docs", scope: "java", hidden: true },
+            { type: "docs", scope: "python", hidden: true },
+            { type: "docs", scope: "go", hidden: true },
+            { type: "docs", scope: "rust", hidden: true },
+            {
+              type: "revert",
+              scope: "dafny",
+              section: "Fixes -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "revert",
+              scope: "dotnet",
+              section: "Fixes -- DotNet",
+              hidden: false,
+            },
+            { type: "revert", scope: "java", hidden: true },
+            { type: "revert", scope: "python", hidden: true },
+            { type: "revert", scope: "go", hidden: true },
+            { type: "revert", scope: "rust", hidden: true },
+            {
+              type: "feat",
+              section: "Features -- All Languages",
+              hidden: false,
+            },
+            { type: "fix", section: "Fixes -- All Languages", hidden: false },
+            {
+              type: "chore",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "docs",
+              section: "Maintenance -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "revert",
+              section: "Fixes -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "style",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "refactor",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "perf",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            {
+              type: "test",
+              section: "Miscellaneous -- All Languages",
+              hidden: false,
+            },
+            { type: "style", section: "Miscellaneous", hidden: false },
+            { type: "refactor", section: "Miscellaneous", hidden: false },
+            { type: "perf", section: "Miscellaneous", hidden: false },
+            { type: "test", section: "Miscellaneous", hidden: false },
+          ],
+        },
+      },
+    ],
+    // Update the change log with the generated release notes
+    [
+      "@semantic-release/changelog",
+      {
+        changelogFile: "CHANGELOG-net.md",
+        changelogTitle: "# Changelog",
+      },
+    ],
+
+    // Bump the various versions
+    [
+      "semantic-release-replace-plugin",
+      {
+        replacements: [
+          // Update the version for all DotNet projects
+          // Does not update the dependencies
+          {
+            files: Object.keys(Runtimes.net),
+            from: "<Version>.*</Version>",
+            to: "<Version>${nextRelease.version}</Version>",
+            results: Object.keys(Runtimes.net).map(CheckResults),
+            countMatches: true,
+          },
+          {
+            files: Object.keys(Runtimes.net),
+            from: '<ProjectReference Include="../../../submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"/>',
+            to: `<PackageReference Include="AWS.Cryptography.MaterialProviders" Version="[${props.mplDependencyNetVersion}]" />`,
+            results: Object.keys(Runtimes.net).map(CheckResults),
+            countMatches: true,
+          },
+          // Update the AssmeblyInfo.cs file of the DotNet projects
+          ...Object.entries(Runtimes.net).flatMap(
+            ([file, { assemblyInfo }]) => ({
+              files: assemblyInfo,
+              from: "assembly: AssemblyVersion(.*)",
+              to: 'assembly: AssemblyVersion("${nextRelease.version}")]',
+              results: [CheckResults(assemblyInfo)],
+              countMatches: true,
+            }),
+          ),
+        ],
+      },
+    ],
+    // Commit and push changes the changelog and versions bumps
+    [
+      "@semantic-release/git",
+      {
+        assets: [
+          "CHANGELOG-net.md",
+          ...Object.values(Runtimes).flatMap((r) => Object.keys(r)),
+          ...Object.values(Runtimes.net).flatMap((r) => r.assemblyInfo),
+        ],
+        message:
+          "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}",
+      },
+    ],
+  ],
+};
+
+function CheckResults(file) {
+  return {
+    file,
+    hasChanged: true,
+    numMatches: 1,
+    numReplacements: 1,
+  };
+}
