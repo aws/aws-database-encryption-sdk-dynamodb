@@ -121,7 +121,9 @@ jobs:
           git submodule update --init --recursive submodules/MaterialProviders
 
       - name: Install Smithy-Dafny codegen dependencies
-        uses: ./.github/actions/install_smithy_dafny_codegen_dependencies
+        uses: ./submodules/MaterialProviders/.github/actions/install_smithy_dafny_codegen_dependencies
+        with:
+          mpl-submodule-path: ./submodules/MaterialProviders/
 
       - name: Build ${{ matrix.library }} implementation
         shell: bash
