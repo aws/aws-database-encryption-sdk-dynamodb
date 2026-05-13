@@ -1,0 +1,99 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "software.amazon.cryptography",
+    "module": "aws-database-encryption-sdk-dynamodb",
+    "version": "4.0.0-native-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "aws-database-encryption-sdk-dynamodb-4.0.0-native-SNAPSHOT.jar",
+          "url": "aws-database-encryption-sdk-dynamodb-4.0.0-native-SNAPSHOT.jar",
+          "size": 508336,
+          "sha512": "562994964660d551e19a8917f7f1b51d37782c87dfa779ea4709877e2a2d8ebbd32064dc80eccf05142d0290a5cf4e343057f6e3105902e7543e79bd59583a10",
+          "sha256": "323c9e38118890e63bb7ac1249ce425d8ccde2e615203acd29bacf89b697e4fb",
+          "sha1": "51d2549595efb33007968714f0fc78e8f409118b",
+          "md5": "840b84d33bf3b64acc745b0206ed0d37"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "software.amazon.awssdk",
+          "module": "bom",
+          "version": {
+            "requires": "2.31.48"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          },
+          "endorseStrictVersions": true
+        },
+        {
+          "group": "software.amazon.cryptography",
+          "module": "aws-cryptographic-material-providers",
+          "version": {
+            "requires": "1.11.1-SNAPSHOT"
+          }
+        },
+        {
+          "group": "software.amazon.awssdk",
+          "module": "dynamodb"
+        },
+        {
+          "group": "software.amazon.awssdk",
+          "module": "dynamodb-enhanced"
+        },
+        {
+          "group": "software.amazon.awssdk",
+          "module": "kms"
+        },
+        {
+          "group": "org.bouncycastle",
+          "module": "bcprov-jdk18on",
+          "version": {
+            "requires": "1.78.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "aws-database-encryption-sdk-dynamodb-4.0.0-native-SNAPSHOT.jar",
+          "url": "aws-database-encryption-sdk-dynamodb-4.0.0-native-SNAPSHOT.jar",
+          "size": 508336,
+          "sha512": "562994964660d551e19a8917f7f1b51d37782c87dfa779ea4709877e2a2d8ebbd32064dc80eccf05142d0290a5cf4e343057f6e3105902e7543e79bd59583a10",
+          "sha256": "323c9e38118890e63bb7ac1249ce425d8ccde2e615203acd29bacf89b697e4fb",
+          "sha1": "51d2549595efb33007968714f0fc78e8f409118b",
+          "md5": "840b84d33bf3b64acc745b0206ed0d37"
+        }
+      ]
+    }
+  ]
+}

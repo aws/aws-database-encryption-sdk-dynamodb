@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-05-13T00:07:53" hostname="bcd074aae394" time="0.008">
+  <properties/>
+  <testcase name="validateAttributeActionsFailsOnMissing()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.005"/>
+  <testcase name="baseContextV1WithPartitionKeyOnly()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.001"/>
+  <testcase name="configVersionDetection()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.0"/>
+  <testcase name="baseContextV1WithSortKey()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.001"/>
+  <testcase name="baseContextV2DoesNotIncludeKeyValues()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.0"/>
+  <testcase name="validateAttributeActionsPassesWithPrefix()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.001"/>
+  <testcase name="missingPartitionKeyThrows()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.itemencryptor.internal.ItemEncryptorUtilTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

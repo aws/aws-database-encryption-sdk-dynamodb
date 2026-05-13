@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-05-13T00:07:53" hostname="bcd074aae394" time="0.009">
+  <properties/>
+  <testcase name="leadingZeros()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.0"/>
+  <testcase name="plusSign()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.001"/>
+  <testcase name="scientificWithDecimal()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.0"/>
+  <testcase name="invalidInputs()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.001"/>
+  <testcase name="trailingZeros()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.0"/>
+  <testcase name="basicIntegers()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.001"/>
+  <testcase name="scientificNotation()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.0"/>
+  <testcase name="magnitudeLowerBound()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.001"/>
+  <testcase name="precisionLimit38Digits()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.002"/>
+  <testcase name="negativeZeroBecomesZero()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.0"/>
+  <testcase name="magnitudeUpperBound()" classname="software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.NumberNormalizerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

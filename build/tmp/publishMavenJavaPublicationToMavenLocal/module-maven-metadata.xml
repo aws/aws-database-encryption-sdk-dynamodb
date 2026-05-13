@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>software.amazon.cryptography</groupId>
+  <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
+  <versioning>
+    <latest>4.0.0-native-SNAPSHOT</latest>
+    <versions>
+      <version>4.0.0-SNAPSHOT</version>
+      <version>4.0.0-native-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20260513000758</lastUpdated>
+  </versioning>
+</metadata>

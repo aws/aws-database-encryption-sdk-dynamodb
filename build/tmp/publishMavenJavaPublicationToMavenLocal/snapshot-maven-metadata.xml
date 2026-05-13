@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>software.amazon.cryptography</groupId>
+  <artifactId>aws-database-encryption-sdk-dynamodb</artifactId>
+  <versioning>
+    <lastUpdated>20260513000758</lastUpdated>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>module</extension>
+        <value>4.0.0-native-SNAPSHOT</value>
+        <updated>20260513000758</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>4.0.0-native-SNAPSHOT</value>
+        <updated>20260513000758</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>4.0.0-native-SNAPSHOT</value>
+        <updated>20260513000758</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+  <version>4.0.0-native-SNAPSHOT</version>
+</metadata>
