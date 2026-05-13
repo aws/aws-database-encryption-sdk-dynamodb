@@ -14,7 +14,7 @@ jobs:
     env:
       # unfortunately we can't check if the approver is part of the CODEOWNERS. This is a subset of aws/aws-crypto-tools-team
       # to add more allowlisted approvers just modify this env variable
-      maintainers: seebees, texastony, ShubhamChaturvedi7, lucasmcdonald3, josecorella, rishav-karanjit, antonf-amzn, kessplas
+      maintainers: ShubhamChaturvedi7, lucasmcdonald3, josecorella, rishav-karanjit, antonf-amzn, kessplas, sharmabikram
     steps:
       - uses: actions/checkout@v6
         with:
@@ -28,7 +28,7 @@ jobs:
           # we require multiple approvers if any of those files change
           # when adding any release file, it must be appended with *release
           # we also want to check if there are changes to this file
-          echo "FILES=$(git diff --name-only origin/main origin/${GITHUB_HEAD_REF} .github/workflows/*release.yml .github/workflows/check-files.yml | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          echo "FILES=$(git diff --name-only origin/v3.x-Java origin/${GITHUB_HEAD_REF} .github/workflows/*release.yml .github/workflows/check-files.yml | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
       - name: Check if FILES is not empty
         id: comment
