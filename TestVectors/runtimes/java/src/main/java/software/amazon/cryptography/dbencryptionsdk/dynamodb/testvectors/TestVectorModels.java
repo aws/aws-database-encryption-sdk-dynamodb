@@ -23,7 +23,6 @@ public final class TestVectorModels {
   private TestVectorModels() {}
 
   public static final class Record {
-
     public final int number;
     public final Map<String, AttributeValue> item;
 
@@ -47,7 +46,6 @@ public final class TestVectorModels {
   }
 
   public static final class LargeRecord {
-
     public final String name;
     public final Map<String, AttributeValue> item;
 
@@ -110,13 +108,20 @@ public final class TestVectorModels {
       this.index = index;
       this.keyExpr = keyExpr;
       this.filterExpr = filterExpr;
+<<<<<<< HEAD
       this.failConfigs =
         unmodifiableList(Objects.requireNonNull(failConfigs, "failConfigs"));
+=======
+      this.failConfigs = failConfigs;
+>>>>>>> 0f315b8b47f667960aaf7fe67b3f11d6b29a5ce6
     }
   }
 
   public static final class ComplexQuery {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0f315b8b47f667960aaf7fe67b3f11d6b29a5ce6
     public final SimpleQuery query;
     public final List<String> pass;
     public final List<String> fail;
@@ -133,7 +138,6 @@ public final class TestVectorModels {
   }
 
   public static final class ComplexTest {
-
     public final String config;
     public final List<ComplexQuery> queries;
     public final List<SimpleQuery> failures;
@@ -152,7 +156,6 @@ public final class TestVectorModels {
   }
 
   public static final class RoundTripTest {
-
     public final Map<String, TableConfig> configs;
     public final List<Record> records;
 
@@ -168,7 +171,6 @@ public final class TestVectorModels {
   }
 
   public static final class WriteTest {
-
     public final TableConfig config;
     public final List<Record> records;
     public final String fileName;
@@ -186,7 +188,10 @@ public final class TestVectorModels {
   }
 
   public static final class DecryptTest {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0f315b8b47f667960aaf7fe67b3f11d6b29a5ce6
     public final TableConfig config;
     public final List<Record> encryptedRecords;
     public final List<Record> plaintextRecords;
@@ -209,7 +214,6 @@ public final class TestVectorModels {
   }
 
   public static final class IoTest {
-
     public final String name;
     public final TableConfig writeConfig;
     public final TableConfig readConfig;
@@ -240,7 +244,6 @@ public final class TestVectorModels {
   }
 
   public static final class ConfigPair {
-
     public final String first;
     public final String second;
 
