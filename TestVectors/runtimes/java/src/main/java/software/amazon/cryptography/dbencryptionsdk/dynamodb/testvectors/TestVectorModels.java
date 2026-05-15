@@ -23,6 +23,7 @@ public final class TestVectorModels {
   private TestVectorModels() {}
 
   public static final class Record {
+
     public final int number;
     public final Map<String, AttributeValue> item;
 
@@ -46,6 +47,7 @@ public final class TestVectorModels {
   }
 
   public static final class LargeRecord {
+
     public final String name;
     public final Map<String, AttributeValue> item;
 
@@ -56,6 +58,7 @@ public final class TestVectorModels {
   }
 
   public static final class TableConfig {
+
     public final String name;
     public final DynamoDbTableEncryptionConfig config; // null when vanilla == true
     public final boolean vanilla;
@@ -75,9 +78,11 @@ public final class TestVectorModels {
       if (this == o) return true;
       if (!(o instanceof TableConfig)) return false;
       TableConfig t = (TableConfig) o;
-      return vanilla == t.vanilla
-        && name.equals(t.name)
-        && Objects.equals(config, t.config);
+      return (
+        vanilla == t.vanilla &&
+        name.equals(t.name) &&
+        Objects.equals(config, t.config)
+      );
     }
 
     @Override
@@ -90,9 +95,10 @@ public final class TestVectorModels {
   }
 
   public static final class SimpleQuery {
-    public final String index;       // nullable
-    public final String keyExpr;     // nullable
-    public final String filterExpr;  // nullable
+
+    public final String index; // nullable
+    public final String keyExpr; // nullable
+    public final String filterExpr; // nullable
     public final List<String> failConfigs;
 
     public SimpleQuery(
@@ -104,12 +110,13 @@ public final class TestVectorModels {
       this.index = index;
       this.keyExpr = keyExpr;
       this.filterExpr = filterExpr;
-      this.failConfigs = unmodifiableList(
-        Objects.requireNonNull(failConfigs, "failConfigs"));
+      this.failConfigs =
+        unmodifiableList(Objects.requireNonNull(failConfigs, "failConfigs"));
     }
   }
 
   public static final class ComplexQuery {
+
     public final SimpleQuery query;
     public final List<String> pass;
     public final List<String> fail;
@@ -126,6 +133,7 @@ public final class TestVectorModels {
   }
 
   public static final class ComplexTest {
+
     public final String config;
     public final List<ComplexQuery> queries;
     public final List<SimpleQuery> failures;
@@ -136,12 +144,15 @@ public final class TestVectorModels {
       List<SimpleQuery> failures
     ) {
       this.config = Objects.requireNonNull(config, "config");
-      this.queries = unmodifiableList(Objects.requireNonNull(queries, "queries"));
-      this.failures = unmodifiableList(Objects.requireNonNull(failures, "failures"));
+      this.queries =
+        unmodifiableList(Objects.requireNonNull(queries, "queries"));
+      this.failures =
+        unmodifiableList(Objects.requireNonNull(failures, "failures"));
     }
   }
 
   public static final class RoundTripTest {
+
     public final Map<String, TableConfig> configs;
     public final List<Record> records;
 
@@ -149,12 +160,15 @@ public final class TestVectorModels {
       Map<String, TableConfig> configs,
       List<Record> records
     ) {
-      this.configs = unmodifiableMap(Objects.requireNonNull(configs, "configs"));
-      this.records = unmodifiableList(Objects.requireNonNull(records, "records"));
+      this.configs =
+        unmodifiableMap(Objects.requireNonNull(configs, "configs"));
+      this.records =
+        unmodifiableList(Objects.requireNonNull(records, "records"));
     }
   }
 
   public static final class WriteTest {
+
     public final TableConfig config;
     public final List<Record> records;
     public final String fileName;
@@ -165,12 +179,14 @@ public final class TestVectorModels {
       String fileName
     ) {
       this.config = Objects.requireNonNull(config, "config");
-      this.records = unmodifiableList(Objects.requireNonNull(records, "records"));
+      this.records =
+        unmodifiableList(Objects.requireNonNull(records, "records"));
       this.fileName = Objects.requireNonNull(fileName, "fileName");
     }
   }
 
   public static final class DecryptTest {
+
     public final TableConfig config;
     public final List<Record> encryptedRecords;
     public final List<Record> plaintextRecords;
@@ -181,14 +197,19 @@ public final class TestVectorModels {
       List<Record> plaintextRecords
     ) {
       this.config = Objects.requireNonNull(config, "config");
-      this.encryptedRecords = unmodifiableList(
-        Objects.requireNonNull(encryptedRecords, "encryptedRecords"));
-      this.plaintextRecords = unmodifiableList(
-        Objects.requireNonNull(plaintextRecords, "plaintextRecords"));
+      this.encryptedRecords =
+        unmodifiableList(
+          Objects.requireNonNull(encryptedRecords, "encryptedRecords")
+        );
+      this.plaintextRecords =
+        unmodifiableList(
+          Objects.requireNonNull(plaintextRecords, "plaintextRecords")
+        );
     }
   }
 
   public static final class IoTest {
+
     public final String name;
     public final TableConfig writeConfig;
     public final TableConfig readConfig;
@@ -209,14 +230,17 @@ public final class TestVectorModels {
       this.name = Objects.requireNonNull(name, "name");
       this.writeConfig = Objects.requireNonNull(writeConfig, "writeConfig");
       this.readConfig = Objects.requireNonNull(readConfig, "readConfig");
-      this.records = unmodifiableList(Objects.requireNonNull(records, "records"));
+      this.records =
+        unmodifiableList(Objects.requireNonNull(records, "records"));
       this.names = unmodifiableMap(Objects.requireNonNull(names, "names"));
       this.values = unmodifiableMap(Objects.requireNonNull(values, "values"));
-      this.queries = unmodifiableList(Objects.requireNonNull(queries, "queries"));
+      this.queries =
+        unmodifiableList(Objects.requireNonNull(queries, "queries"));
     }
   }
 
   public static final class ConfigPair {
+
     public final String first;
     public final String second;
 
