@@ -108,20 +108,12 @@ public final class TestVectorModels {
       this.index = index;
       this.keyExpr = keyExpr;
       this.filterExpr = filterExpr;
-<<<<<<< HEAD
       this.failConfigs =
         unmodifiableList(Objects.requireNonNull(failConfigs, "failConfigs"));
-=======
-      this.failConfigs = failConfigs;
->>>>>>> 0f315b8b47f667960aaf7fe67b3f11d6b29a5ce6
     }
   }
 
   public static final class ComplexQuery {
-<<<<<<< HEAD
-
-=======
->>>>>>> 0f315b8b47f667960aaf7fe67b3f11d6b29a5ce6
     public final SimpleQuery query;
     public final List<String> pass;
     public final List<String> fail;
@@ -188,10 +180,6 @@ public final class TestVectorModels {
   }
 
   public static final class DecryptTest {
-<<<<<<< HEAD
-
-=======
->>>>>>> 0f315b8b47f667960aaf7fe67b3f11d6b29a5ce6
     public final TableConfig config;
     public final List<Record> encryptedRecords;
     public final List<Record> plaintextRecords;
