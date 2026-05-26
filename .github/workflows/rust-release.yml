@@ -7,7 +7,7 @@
 # and MUST be run before this workflow. Dispatching this workflow without
 # first running `Rust Start Release` (and reviewing/approving the
 # resulting release PR) will publish whatever happens to be committed at
-# `releases/rust/db_esdk/` and is unsupported.
+# `releases/rust/db_esdk/`.
 #
 # This workflow MUST be dispatched on the release PR's branch (head ref)
 # BEFORE the PR is merged, so a failed publish or failed smoke test
