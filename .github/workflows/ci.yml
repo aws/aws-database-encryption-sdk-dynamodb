@@ -1,0 +1,35 @@
+name: CI
+
+on: push
+
+jobs:
+  build-and-test-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 8
+
+      - name: Build and publish to mavenLocal
+        run: ./gradlew publishToMavenLocal
+
+      - name: Build Examples/DynamoDbEncryption
+        working-directory: Examples/DynamoDbEncryption
+        run: ./gradlew build
+
+      - name: Build Examples/DDBECwithSDKV2
+        working-directory: Examples/DDBECwithSDKV2
+        run: ./gradlew build
+
+      - name: Build Examples/Migration/PlaintextToAWSDBE
+        working-directory: Examples/Migration/PlaintextToAWSDBE
+        run: ./gradlew build
+
+      - name: Build Examples/Migration/DDBECv2ToAWSDBE
+        working-directory: Examples/Migration/DDBECv2ToAWSDBE
+        run: ./gradlew build
