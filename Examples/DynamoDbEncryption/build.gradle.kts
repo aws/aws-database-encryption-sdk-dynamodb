@@ -67,7 +67,8 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb:4.0.0-native-SNAPSHOT")
+    // TODO: change this
+    implementation("software.amazon.cryptography:aws-database-encryption-sdk-dynamodb-native:4.0.0-native-SNAPSHOT")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
     implementation(platform("software.amazon.awssdk:bom:2.19.1"))

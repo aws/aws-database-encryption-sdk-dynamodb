@@ -46,7 +46,8 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            artifactId = "aws-database-encryption-sdk-dynamodb"
+            // TODO: change this
+            artifactId = "aws-database-encryption-sdk-dynamodb-native"
         }
     }
 }
