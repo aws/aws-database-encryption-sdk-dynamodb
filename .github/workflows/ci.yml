@@ -3,7 +3,7 @@ name: CI
 permissions:
   contents: read
   id-token: write
-  
+
 on: push
 
 jobs:
@@ -30,10 +30,6 @@ jobs:
       - name: Build and publish to mavenLocal
         run: ./gradlew publishToMavenLocal
 
-      - name: Build Examples/DynamoDbEncryption
-        working-directory: Examples/DynamoDbEncryption
-        run: ./gradlew build
-
       - name: Build Examples/DDBECwithSDKV2
         working-directory: Examples/DDBECwithSDKV2
         run: ./gradlew build
@@ -44,4 +40,8 @@ jobs:
 
       - name: Build Examples/Migration/DDBECv2ToAWSDBE
         working-directory: Examples/Migration/DDBECv2ToAWSDBE
+        run: ./gradlew build
+
+      - name: Build Examples/DynamoDbEncryption
+        working-directory: Examples/DynamoDbEncryption
         run: ./gradlew build
