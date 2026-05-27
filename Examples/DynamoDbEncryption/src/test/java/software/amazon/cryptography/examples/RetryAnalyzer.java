@@ -19,23 +19,23 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 
   @Override
   public boolean retry(ITestResult result) {
-    if (retryCount < maxRetryCount) {
-      retryCount++;
-      logger.info(
-        String.format(
-          "Retrying test '%s' - attempt %d/%d",
-          result.getName(),
-          retryCount,
-          maxRetryCount
-        )
-      );
-      try {
-        Thread.sleep(5000L * (long) Math.pow(2, retryCount - 1)); // simple exponential backoff
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-      return true;
-    }
+    // if (retryCount < maxRetryCount) {
+    //   retryCount++;
+    //   logger.info(
+    //     String.format(
+    //       "Retrying test '%s' - attempt %d/%d",
+    //       result.getName(),
+    //       retryCount,
+    //       maxRetryCount
+    //     )
+    //   );
+    //   try {
+    //     Thread.sleep(5000L * (long) Math.pow(2, retryCount - 1)); // simple exponential backoff
+    //   } catch (InterruptedException e) {
+    //     Thread.currentThread().interrupt();
+    //   }
+    //   return true;
+    // }
     return false;
   }
 }

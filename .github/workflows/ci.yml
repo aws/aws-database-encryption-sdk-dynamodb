@@ -30,18 +30,6 @@ jobs:
       - name: Build and publish to mavenLocal
         run: ./gradlew publishToMavenLocal
 
-      - name: Build Examples/DDBECwithSDKV2
-        working-directory: Examples/DDBECwithSDKV2
-        run: ./gradlew build
-
-      - name: Build Examples/Migration/PlaintextToAWSDBE
-        working-directory: Examples/Migration/PlaintextToAWSDBE
-        run: ./gradlew build
-
-      - name: Build Examples/Migration/DDBECv2ToAWSDBE
-        working-directory: Examples/Migration/DDBECv2ToAWSDBE
-        run: ./gradlew build
-
       - name: Build Examples/DynamoDbEncryption
         working-directory: Examples/DynamoDbEncryption
         run: ./gradlew build
