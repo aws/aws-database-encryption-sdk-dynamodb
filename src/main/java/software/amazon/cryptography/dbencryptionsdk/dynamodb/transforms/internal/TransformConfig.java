@@ -28,18 +28,22 @@ public final class TransformConfig {
         String tableName = entry.getKey();
         DynamoDbTableEncryptionConfig tableConfig = entry.getValue();
         tableConfigs.put(tableName, tableConfig);
-        DynamoDbItemEncryptor encryptor = DynamoDbItemEncryptor.builder()
-          .DynamoDbItemEncryptorConfig(DynamoDbItemEncryptorConfig.builder()
+        DynamoDbItemEncryptorConfig.Builder configBuilder = DynamoDbItemEncryptorConfig.builder()
             .logicalTableName(tableConfig.logicalTableName() != null ? tableConfig.logicalTableName() : tableName)
             .partitionKeyName(tableConfig.partitionKeyName())
             .sortKeyName(tableConfig.sortKeyName())
             .attributeActionsOnEncrypt(tableConfig.attributeActionsOnEncrypt())
             .allowedUnsignedAttributes(tableConfig.allowedUnsignedAttributes())
             .allowedUnsignedAttributePrefix(tableConfig.allowedUnsignedAttributePrefix())
-            .algorithmSuiteId(tableConfig.algorithmSuiteId())
-            .keyring(tableConfig.keyring())
-            .cmm(tableConfig.cmm())
-            .build())
+            .algorithmSuiteId(tableConfig.algorithmSuiteId());
+        if (tableConfig.cmm() != null) {
+          configBuilder.cmm(tableConfig.cmm());
+        }
+        if (tableConfig.keyring() != null) {
+          configBuilder.keyring(tableConfig.keyring());
+        }
+        DynamoDbItemEncryptor encryptor = DynamoDbItemEncryptor.builder()
+          .DynamoDbItemEncryptorConfig(configBuilder.build())
           .build();
         tableEncryptors.put(tableName, encryptor);
 

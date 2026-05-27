@@ -124,15 +124,81 @@ public class DynamoDbEncryptionTransforms {
   }
 
   public ResolveAttributesOutput ResolveAttributes(ResolveAttributesInput input) {
-    // Returns empty maps — virtual fields and compound beacons are only populated
-    // when searchable encryption (beacon) config is active for the table.
-    // Without beacon config, there's nothing to resolve.
     java.util.Map<String, String> virtualFields = new java.util.HashMap<>();
     java.util.Map<String, String> compoundBeacons = new java.util.HashMap<>();
+
+    String tableName = input.TableName();
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.BeaconConfigResolver.SearchInfo searchInfo =
+      config.getSearchInfo(tableName);
+    if (searchInfo != null && input.Item() != null) {
+      // Resolve virtual fields
+      if (searchInfo.beaconVersion.virtualFields() != null) {
+        for (software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField vf : searchInfo.beaconVersion.virtualFields()) {
+          String value = resolveVirtualField(vf, input.Item());
+          if (value != null) {
+            virtualFields.put(vf.name(), value);
+          }
+        }
+      }
+      // Resolve compound beacons
+      for (software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.CompoundBeaconImpl cb : searchInfo.compoundBeacons) {
+        String value = cb.constructPlaintext(input.Item());
+        if (value != null) {
+          compoundBeacons.put(cb.getName(), value);
+        }
+      }
+    }
+
     return ResolveAttributesOutput.builder()
       .VirtualFields(virtualFields)
       .CompoundBeacons(compoundBeacons)
       .build();
+  }
+
+  private static String resolveVirtualField(
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualField vf,
+    java.util.Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> item
+  ) {
+    if (vf.parts() == null) return null;
+    StringBuilder sb = new StringBuilder();
+    for (software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualPart part : vf.parts()) {
+      software.amazon.awssdk.services.dynamodb.model.AttributeValue av = item.get(part.loc());
+      if (av == null) return null;
+      String value;
+      if (av.s() != null) value = av.s();
+      else if (av.n() != null) value = av.n();
+      else if (av.bool() != null) value = av.bool().toString();
+      else return null;
+      // Apply transforms
+      if (part.trans() != null) {
+        for (software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualTransform t : part.trans()) {
+          value = applyTransform(value, t);
+        }
+      }
+      sb.append(value);
+    }
+    return sb.toString();
+  }
+
+  private static String applyTransform(String value, software.amazon.cryptography.dbencryptionsdk.dynamodb.model.VirtualTransform t) {
+    if (t.upper() != null) return value.toUpperCase();
+    if (t.lower() != null) return value.toLowerCase();
+    if (t.prefix() != null) {
+      int len = t.prefix().length();
+      if (len >= 0) return value.substring(0, Math.min(len, value.length()));
+      else return value.substring(0, Math.max(0, value.length() + len));
+    }
+    if (t.suffix() != null) {
+      int len = t.suffix().length();
+      if (len >= 0) return value.substring(Math.max(0, value.length() - len));
+      else return value.substring(Math.min(-len, value.length()));
+    }
+    if (t.substring() != null) {
+      int low = t.substring().low();
+      int high = t.substring().high();
+      return value.substring(Math.min(low, value.length()), Math.min(high, value.length()));
+    }
+    return value;
   }
 
   public interface Builder {

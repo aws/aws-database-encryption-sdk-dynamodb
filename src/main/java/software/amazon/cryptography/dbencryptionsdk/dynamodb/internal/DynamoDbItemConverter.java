@@ -58,7 +58,11 @@ public final class DynamoDbItemConverter {
     List<CryptoItem> result = new ArrayList<>();
     for (Map.Entry<String, AttributeValue> entry : item.entrySet()) {
       String name = entry.getKey();
-      CryptoAction action = actions.getOrDefault(name, CryptoAction.DO_NOTHING);
+      CryptoAction action = actions.get(name);
+      if (action == null) {
+        // Beacon attributes added by the SDK should be SIGN_ONLY
+        action = name.startsWith("aws_dbe_b_") ? CryptoAction.SIGN_ONLY : CryptoAction.DO_NOTHING;
+      }
       StructuredDataTerminal terminal = serializeAttr(entry.getValue());
       List<PathSegment> path = makePath(name);
       result.add(CryptoItem.builder().key(path).data(terminal).action(action).build());

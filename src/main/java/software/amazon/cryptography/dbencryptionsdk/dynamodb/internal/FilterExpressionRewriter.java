@@ -47,6 +47,20 @@ public final class FilterExpressionRewriter {
     Map<String, StandardBeaconImpl> beacons,
     byte[] hmacKey
   ) {
+    return rewrite(expression, expressionAttributeNames, expressionAttributeValues, beacons, null, hmacKey);
+  }
+
+  /**
+   * Rewrite a filter/condition expression to use beacon attributes (with compound beacon support).
+   */
+  public static RewriteResult rewrite(
+    String expression,
+    Map<String, String> expressionAttributeNames,
+    Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> expressionAttributeValues,
+    Map<String, StandardBeaconImpl> beacons,
+    Map<String, CompoundBeaconImpl> compoundBeacons,
+    byte[] hmacKey
+  ) {
     if (expression == null || expression.isEmpty()) {
       return new RewriteResult(expression, expressionAttributeNames, expressionAttributeValues);
     }
@@ -79,11 +93,36 @@ public final class FilterExpressionRewriter {
         newNames.put(placeholder, beaconAttrName);
         // Rewrite associated values
         rewriteValuesForField(rewritten.toString(), placeholder, beacon, hmacKey, newValues);
+      } else {
+        // Case 2: field referenced directly in expression (bare attribute name) — only if not via names
+        if (expression.contains(fieldName)) {
+          rewriteDirectReference(rewritten, fieldName, beaconAttrName, beacon, hmacKey, newValues);
+        }
       }
+    }
 
-      // Case 2: field referenced directly in expression (bare attribute name)
-      if (expression.contains(fieldName)) {
-        rewriteDirectReference(rewritten, fieldName, beaconAttrName, beacon, hmacKey, newValues);
+    // Handle compound beacons
+    if (compoundBeacons != null && !compoundBeacons.isEmpty()) {
+      for (Map.Entry<String, CompoundBeaconImpl> entry : compoundBeacons.entrySet()) {
+        String fieldName = entry.getKey();
+        CompoundBeaconImpl cb = entry.getValue();
+        String beaconAttrName = cb.getBeaconAttributeName();
+
+        // Check both original name and beacon attribute name (in case already renamed by prior rewrite)
+        String placeholder = attrToPlaceholder.get(fieldName);
+        if (placeholder == null) {
+          placeholder = attrToPlaceholder.get(beaconAttrName);
+        }
+        if (placeholder != null && rewritten.toString().contains(placeholder)) {
+          newNames.put(placeholder, beaconAttrName);
+          // Hash compound beacon values
+          rewriteCompoundValues(rewritten.toString(), placeholder, cb, hmacKey, newValues);
+        } else if (rewritten.toString().contains(fieldName)) {
+          String expr = rewritten.toString();
+          String replaced = replaceWholeWord(expr, fieldName, beaconAttrName);
+          rewritten.replace(0, rewritten.length(), replaced);
+          rewriteCompoundValues(replaced, beaconAttrName, cb, hmacKey, newValues);
+        }
       }
     }
 
@@ -109,10 +148,9 @@ public final class FilterExpressionRewriter {
       String valPlaceholder = entry.getKey();
       if (isValueAssociatedWithField(expression, fieldPlaceholder, valPlaceholder)) {
         software.amazon.awssdk.services.dynamodb.model.AttributeValue av = entry.getValue();
-        String beaconValue = computeBeaconValue(av, beacon, hmacKey);
-        if (beaconValue != null) {
-          values.put(valPlaceholder,
-            software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromS(beaconValue));
+        software.amazon.awssdk.services.dynamodb.model.AttributeValue beaconAv = computeBeaconAttributeValue(av, beacon, hmacKey);
+        if (beaconAv != null) {
+          values.put(valPlaceholder, beaconAv);
         }
       }
     }
@@ -141,10 +179,9 @@ public final class FilterExpressionRewriter {
       String valPlaceholder = entry.getKey();
       if (isValueAssociatedWithField(replaced, beaconAttrName, valPlaceholder)) {
         software.amazon.awssdk.services.dynamodb.model.AttributeValue av = entry.getValue();
-        String beaconValue = computeBeaconValue(av, beacon, hmacKey);
-        if (beaconValue != null) {
-          values.put(valPlaceholder,
-            software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromS(beaconValue));
+        software.amazon.awssdk.services.dynamodb.model.AttributeValue beaconAv = computeBeaconAttributeValue(av, beacon, hmacKey);
+        if (beaconAv != null) {
+          values.put(valPlaceholder, beaconAv);
         }
       }
     }
@@ -167,8 +204,13 @@ public final class FilterExpressionRewriter {
     if (expression.matches("(?s).*(?:begins_with|contains)\\s*\\(\\s*" + escapeRegex(field) + "\\s*,\\s*" + escapeRegex(valPlaceholder) + "\\s*\\).*")) {
       return true;
     }
+    // Check: contains(:val, field) — reversed contains for set membership
+    if (expression.matches("(?s).*contains\\s*\\(\\s*" + escapeRegex(valPlaceholder) + "\\s*,\\s*" + escapeRegex(field) + "\\s*\\).*")) {
+      return true;
+    }
     // Check: field BETWEEN :val1 AND :val2
-    if (expression.matches("(?s).*" + escapeRegex(field) + "\\s+(?i)BETWEEN\\s+.*" + escapeRegex(valPlaceholder) + ".*")) {
+    String betweenPattern = "(?s).*" + escapeRegex(field) + "\\s+(?i)BETWEEN\\s+.*" + escapeRegex(valPlaceholder) + ".*";
+    if (expression.matches(betweenPattern)) {
       return true;
     }
     // Check: field IN (:val1, :val2, ...)
@@ -178,7 +220,7 @@ public final class FilterExpressionRewriter {
     return false;
   }
 
-  /** Compute beacon value from an AttributeValue. */
+  /** Compute beacon value from an AttributeValue. For sets, hash each element. */
   private static String computeBeaconValue(
     software.amazon.awssdk.services.dynamodb.model.AttributeValue av,
     StandardBeaconImpl beacon,
@@ -192,6 +234,68 @@ public final class FilterExpressionRewriter {
       return beacon.hash(av.b().asByteArray(), hmacKey);
     }
     return null;
+  }
+
+  /** Compute beacon value, returning a set if input is a set. */
+  private static software.amazon.awssdk.services.dynamodb.model.AttributeValue computeBeaconAttributeValue(
+    software.amazon.awssdk.services.dynamodb.model.AttributeValue av,
+    StandardBeaconImpl beacon,
+    byte[] hmacKey
+  ) {
+    if (av.hasSs()) {
+      java.util.List<String> hashed = new java.util.ArrayList<>();
+      for (String s : av.ss()) {
+        hashed.add(beacon.hashStr(s, hmacKey));
+      }
+      return software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromSs(hashed);
+    }
+    String scalar = computeBeaconValue(av, beacon, hmacKey);
+    if (scalar != null) {
+      return software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromS(scalar);
+    }
+    return null;
+  }
+
+  /**
+   * Rewrite compound beacon values: hash each encrypted part while keeping prefixes and split chars.
+   */
+  private static void rewriteCompoundValues(
+    String expression,
+    String fieldRef,
+    CompoundBeaconImpl cb,
+    byte[] hmacKey,
+    Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> values
+  ) {
+    for (Map.Entry<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> entry :
+         new java.util.HashMap<>(values).entrySet()) {
+      String valPlaceholder = entry.getKey();
+      software.amazon.awssdk.services.dynamodb.model.AttributeValue av = entry.getValue();
+      if (av.s() == null) continue;
+      // Only hash values that look like compound beacon values (have a matching part prefix)
+      // AND are referenced in the expression near this field
+      if (!expression.contains(valPlaceholder)) continue;
+      String val = av.s();
+      boolean hasMatchingPrefix = false;
+      for (CompoundBeaconImpl.EncryptedPart ep : cb.getEncryptedParts()) {
+        if (val.startsWith(ep.prefix) || val.contains(cb.getSplitChar() + ep.prefix)) {
+          hasMatchingPrefix = true;
+          break;
+        }
+      }
+      for (CompoundBeaconImpl.SignedPart sp : cb.getSignedParts()) {
+        if (val.startsWith(sp.prefix) || val.contains(cb.getSplitChar() + sp.prefix)) {
+          hasMatchingPrefix = true;
+          break;
+        }
+      }
+      if (hasMatchingPrefix) {
+        String hashed = cb.hashCompoundValue(val, hmacKey);
+        if (hashed != null) {
+          values.put(valPlaceholder,
+            software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromS(hashed));
+        }
+      }
+    }
   }
 
   /** Replace whole-word occurrences of a token in an expression. */

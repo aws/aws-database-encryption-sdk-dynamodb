@@ -126,6 +126,10 @@ public final class DynamoDbItemEncryptorImpl {
       return DecryptItemOutput.builder().plaintextItem(item).build();
     }
 
+    // Use item without beacon attributes for decryption (beacons are added after encryption)
+    Map<String, AttributeValue> itemForDecrypt = new HashMap<>(item);
+    itemForDecrypt.entrySet().removeIf(e -> e.getKey().startsWith("aws_dbe_b_"));
+
     // Determine version from header first byte
     byte[] headerBytes = item.get("aws_dbe_head").b().asByteArray();
     byte version = headerBytes[0];
@@ -143,7 +147,7 @@ public final class DynamoDbItemEncryptorImpl {
 
     // Convert DDB item to AuthList
     List<software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.AuthItem> authList = new java.util.ArrayList<>();
-    for (Map.Entry<String, AttributeValue> entry : item.entrySet()) {
+    for (Map.Entry<String, AttributeValue> entry : itemForDecrypt.entrySet()) {
       String name = entry.getKey();
       software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.AuthenticateAction action =
         isInSignatureScope(name)
@@ -164,13 +168,41 @@ public final class DynamoDbItemEncryptorImpl {
     }
 
     // Delegate to StructuredEncryption decrypt
-    software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.DecryptPathStructureOutput seOutput =
-      StructuredEncryptionImpl.decryptPathStructure(
+    software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.DecryptPathStructureOutput seOutput;
+    try {
+      seOutput = StructuredEncryptionImpl.decryptPathStructure(
         config.logicalTableName(),
         authList,
         cmm,
         baseContext
       );
+    } catch (software.amazon.cryptography.materialproviders.model.AwsCryptographicMaterialProvidersException e) {
+      // Wrap in CollectionOfErrors matching the Dafny-generated error hierarchy
+      RuntimeException inner = (RuntimeException) software.amazon.awssdk.services.kms.model.InvalidCiphertextException.builder()
+        .message(e.getMessage()).build();
+      throw software.amazon.cryptography.materialproviders.model.CollectionOfErrors.builder()
+        .list(java.util.Collections.singletonList(
+          software.amazon.cryptography.materialproviders.model.CollectionOfErrors.builder()
+            .list(java.util.Collections.singletonList(inner))
+            .message(e.getMessage())
+            .build()))
+        .message(e.getMessage())
+        .build();
+    } catch (RuntimeException e) {
+      if (e.getCause() instanceof software.amazon.cryptography.materialproviders.model.AwsCryptographicMaterialProvidersException) {
+        RuntimeException inner = (RuntimeException) software.amazon.awssdk.services.kms.model.InvalidCiphertextException.builder()
+          .message(e.getCause().getMessage()).build();
+        throw software.amazon.cryptography.materialproviders.model.CollectionOfErrors.builder()
+          .list(java.util.Collections.singletonList(
+            software.amazon.cryptography.materialproviders.model.CollectionOfErrors.builder()
+              .list(java.util.Collections.singletonList(inner))
+              .message(e.getCause().getMessage())
+              .build()))
+          .message(e.getCause().getMessage())
+          .build();
+      }
+      throw e;
+    }
 
     // Convert back to DDB item
     Map<String, AttributeValue> decryptedItem = DynamoDbItemConverter.cryptoListToItem(seOutput.plaintextStructure());

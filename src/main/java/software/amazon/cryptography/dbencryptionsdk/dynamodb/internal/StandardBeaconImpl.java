@@ -20,17 +20,24 @@ public final class StandardBeaconImpl {
 
   private final String name;
   private final int length; // beacon length in bits (1-63)
+  private final boolean isSet; // true if this beacon operates on set attributes
 
   public StandardBeaconImpl(String name, int length) {
+    this(name, length, false);
+  }
+
+  public StandardBeaconImpl(String name, int length, boolean isSet) {
     if (length < 1 || length > 63) {
       throw new IllegalArgumentException("Beacon length must be between 1 and 63, got: " + length);
     }
     this.name = name;
     this.length = length;
+    this.isSet = isSet;
   }
 
   public String getName() { return name; }
   public int getLength() { return length; }
+  public boolean isSet() { return isSet; }
   public String getBeaconAttributeName() { return "aws_dbe_b_" + name; }
 
   /**

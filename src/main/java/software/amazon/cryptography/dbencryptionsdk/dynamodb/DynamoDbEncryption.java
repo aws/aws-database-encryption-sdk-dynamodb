@@ -123,12 +123,23 @@ public class DynamoDbEncryption {
 
     @Override
     public GetBranchKeyIdOutput GetBranchKeyId(GetBranchKeyIdInput input) {
-      // The encryption context contains the DDB key attributes
       Map<String, String> ec = input.encryptionContext();
-      // Convert EC string values to DDB AttributeValues for the DDB supplier
+      // Extract DDB key attributes from the encryption context
       Map<String, AttributeValue> ddbKey = new java.util.HashMap<>();
-      for (Map.Entry<String, String> entry : ec.entrySet()) {
-        ddbKey.put(entry.getKey(), AttributeValue.fromS(entry.getValue()));
+      String partitionKeyName = ec.get("aws-crypto-partition-name");
+      String sortKeyName = ec.get("aws-crypto-sort-name");
+      String attrPrefix = "aws-crypto-attr.";
+      if (partitionKeyName != null) {
+        String encoded = ec.get(attrPrefix + partitionKeyName);
+        if (encoded != null) {
+          ddbKey.put(partitionKeyName, decodeAttrFromContext(encoded));
+        }
+      }
+      if (sortKeyName != null) {
+        String encoded = ec.get(attrPrefix + sortKeyName);
+        if (encoded != null) {
+          ddbKey.put(sortKeyName, decodeAttrFromContext(encoded));
+        }
       }
       software.amazon.cryptography.dbencryptionsdk.dynamodb.model.GetBranchKeyIdFromDdbKeyOutput result =
         ddbSupplier.GetBranchKeyIdFromDdbKey(
@@ -138,6 +149,22 @@ public class DynamoDbEncryption {
       return GetBranchKeyIdOutput.builder()
         .branchKeyId(result.branchKeyId())
         .build();
+    }
+
+    private static AttributeValue decodeAttrFromContext(String encoded) {
+      byte[] decoded = java.util.Base64.getDecoder().decode(encoded);
+      // First 2 bytes are typeId, rest is value
+      byte[] typeId = new byte[] { decoded[0], decoded[1] };
+      byte[] value = new byte[decoded.length - 2];
+      System.arraycopy(decoded, 2, value, 0, value.length);
+      // 0x0001 = String, 0x0002 = Number, 0x00FF = Binary
+      if (typeId[0] == 0x00 && typeId[1] == 0x01) {
+        return AttributeValue.fromS(new String(value, StandardCharsets.UTF_8));
+      } else if (typeId[0] == 0x00 && typeId[1] == 0x02) {
+        return AttributeValue.fromN(new String(value, StandardCharsets.UTF_8));
+      } else {
+        return AttributeValue.fromB(software.amazon.awssdk.core.SdkBytes.fromByteArray(value));
+      }
     }
   }
 

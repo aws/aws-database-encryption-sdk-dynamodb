@@ -72,6 +72,8 @@ public final class ItemEncryptorUtil {
    * //# The DynamoDB Item Base Context MUST contain:
    * //# - the key "aws-crypto-table-name" with a value equal to the DynamoDB Table Name.
    * //# - the key "aws-crypto-partition-name" with a value equal to the name of the Partition Key.
+   * //# - For every Crypto Action that is SIGN_AND_INCLUDE_IN_ENCRYPTION_CONTEXT,
+   * //#   the key "aws-crypto-attr.<attr_name>" with a value equal to the base context value.
    */
   public static Map<String, String> buildBaseContextV2(
     String logicalTableName,
@@ -85,6 +87,18 @@ public final class ItemEncryptorUtil {
 
     if (sortKeyName != null && !sortKeyName.isEmpty()) {
       context.put(EC_SORT_NAME, sortKeyName);
+    }
+
+    // V2: include key attribute values in encryption context
+    AttributeValue pkValue = item.get(partitionKeyName);
+    if (pkValue != null) {
+      context.put(EC_ATTR_PREFIX + partitionKeyName, encodeTerminalV1(pkValue));
+    }
+    if (sortKeyName != null && !sortKeyName.isEmpty()) {
+      AttributeValue skValue = item.get(sortKeyName);
+      if (skValue != null) {
+        context.put(EC_ATTR_PREFIX + sortKeyName, encodeTerminalV1(skValue));
+      }
     }
 
     return context;
@@ -106,6 +120,8 @@ public final class ItemEncryptorUtil {
       if (actions.containsKey(attrName)) continue;
       // Check if it's covered by the unsigned prefix
       if (allowedUnsignedPrefix != null && attrName.startsWith(allowedUnsignedPrefix)) continue;
+      // Beacon attributes added by the SDK are implicitly SIGN_ONLY
+      if (attrName.startsWith("aws_dbe_b_")) continue;
       throw new IllegalArgumentException(
         "No Crypto Action configured for attribute: " + attrName);
     }

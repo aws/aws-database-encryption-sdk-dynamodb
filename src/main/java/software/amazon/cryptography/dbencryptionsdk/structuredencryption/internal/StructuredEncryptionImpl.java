@@ -96,38 +96,58 @@ public final class StructuredEncryptionImpl {
     // 4. Derive keys
     byte[] fieldRootKey = FieldEncryptor.deriveFieldRootKey(plaintextDataKey, messageId);
 
-    // 5. Encrypt fields
+    // 5. Encrypt fields in canonical order (must match decrypt order for key derivation)
+    // First, build sorted list of encrypted fields by canonical path
+    List<CryptoItem> encryptedFieldsInCanonOrder = new ArrayList<>();
+    for (CanonicalCryptoItem ci : canonItems) {
+      if (CryptoAction.ENCRYPT_AND_SIGN.equals(ci.action)) {
+        // Find the original CryptoItem
+        for (CryptoItem item : plaintextStructure) {
+          if (item.key().equals(ci.originalPath) && CryptoAction.ENCRYPT_AND_SIGN.equals(item.action())) {
+            encryptedFieldsInCanonOrder.add(item);
+            break;
+          }
+        }
+      }
+    }
+
     List<CryptoItem> encryptedItems = new ArrayList<>();
+    // Map from path to encrypted CryptoItem for lookup
+    Map<List<software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.PathSegment>, CryptoItem> encryptedMap = new HashMap<>();
     int encryptOffset = 0;
+    for (CryptoItem item : encryptedFieldsInCanonOrder) {
+      byte[] fieldKey = FieldEncryptor.deriveFieldKey(fieldRootKey, encryptOffset);
+      byte[] cipherKey = FieldEncryptor.getCipherKey(fieldKey);
+      byte[] nonce = FieldEncryptor.getNonce(fieldKey);
+      byte[] aad = CanonicalPath.canonPath(tableName, item.key());
+      byte[] plaintext = toByteArray(item.data().value());
+      byte[] typeId = toByteArray(item.data().typeId());
+      byte[] ciphertext = FieldEncryptor.encrypt(cipherKey, nonce, plaintext, aad);
+
+      byte[] encValue = new byte[2 + ciphertext.length];
+      System.arraycopy(typeId, 0, encValue, 0, 2);
+      System.arraycopy(ciphertext, 0, encValue, 2, ciphertext.length);
+
+      CryptoItem encItem = CryptoItem.builder()
+        .key(item.key())
+        .data(StructuredDataTerminal.builder()
+          .typeId(ByteBuffer.wrap(BYTES_TYPE_ID))
+          .value(ByteBuffer.wrap(encValue))
+          .build())
+        .action(item.action())
+        .build();
+      encryptedMap.put(item.key(), encItem);
+      encryptOffset++;
+    }
+
+    // Build output list preserving original order
     for (CryptoItem item : plaintextStructure) {
       if (CryptoAction.ENCRYPT_AND_SIGN.equals(item.action())) {
-        byte[] fieldKey = FieldEncryptor.deriveFieldKey(fieldRootKey, encryptOffset);
-        byte[] cipherKey = FieldEncryptor.getCipherKey(fieldKey);
-        byte[] nonce = FieldEncryptor.getNonce(fieldKey);
-        byte[] aad = CanonicalPath.canonPath(tableName, item.key());
-        byte[] plaintext = toByteArray(item.data().value());
-        byte[] typeId = toByteArray(item.data().typeId());
-        byte[] ciphertext = FieldEncryptor.encrypt(cipherKey, nonce, plaintext, aad);
-
-        // Output: typeId=0xFFFF, value = originalTypeId + ciphertext
-        byte[] encValue = new byte[2 + ciphertext.length];
-        System.arraycopy(typeId, 0, encValue, 0, 2);
-        System.arraycopy(ciphertext, 0, encValue, 2, ciphertext.length);
-
-        encryptedItems.add(CryptoItem.builder()
-          .key(item.key())
-          .data(StructuredDataTerminal.builder()
-            .typeId(ByteBuffer.wrap(BYTES_TYPE_ID))
-            .value(ByteBuffer.wrap(encValue))
-            .build())
-          .action(item.action())
-          .build());
-        encryptOffset++;
+        encryptedItems.add(encryptedMap.get(item.key()));
       } else {
         encryptedItems.add(item);
       }
     }
-
     // 6. Build header
     Map<String, String> storedEC = materials.encryptionContext();
     byte[] partialHeader = HeaderSerializer.serializePartialHeader(
@@ -262,7 +282,8 @@ public final class StructuredEncryptionImpl {
     // 5. Verify header commitment
     byte[] commitKey = HeaderCommitment.deriveCommitKey(plaintextDataKey, parsedHeader.messageId);
     if (!HeaderCommitment.verifyCommitment(commitKey, parsedHeader.partialHeaderBytes, parsedHeader.commitment)) {
-      throw new RuntimeException("Header commitment verification failed");
+      throw software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionException.builder()
+        .message("Header commitment verification failed").build();
     }
 
     // 6. Verify footer (recipient tag)
@@ -303,7 +324,8 @@ public final class StructuredEncryptionImpl {
     // Verify at least one recipient tag
     byte[] symmetricSigningKey = toByteArray(materials.symmetricSigningKey());
     if (!FooterVerifier.verifyRecipientTag(canonicalHash, symmetricSigningKey, footerBytes, parsedHeader.encryptedDataKeys.size())) {
-      throw new RuntimeException("Footer recipient tag verification failed");
+      throw software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionException.builder()
+        .message("Footer recipient tag verification failed").build();
     }
 
     // Verify ECDSA signature if present (flavor 0x01)
@@ -311,7 +333,8 @@ public final class StructuredEncryptionImpl {
       if (materials.verificationKey() != null) {
         ECPublicKey ecPubKey = extractEcPublicKey(toByteArray(materials.verificationKey()));
         if (!FooterVerifier.verifySignature(canonicalHash, ecPubKey, footerBytes, parsedHeader.encryptedDataKeys.size())) {
-          throw new RuntimeException("ECDSA signature verification failed");
+          throw software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.StructuredEncryptionException.builder()
+            .message("ECDSA signature verification failed").build();
         }
       }
     }

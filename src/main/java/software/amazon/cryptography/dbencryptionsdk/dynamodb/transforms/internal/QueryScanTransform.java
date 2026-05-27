@@ -38,12 +38,13 @@ public final class QueryScanTransform {
     // Rewrite filter and key condition expressions for beacons
     QueryRequest.Builder builder = request.toBuilder();
     Map<String, StandardBeaconImpl> beaconMap = buildBeaconMap(searchInfo);
+    Map<String, software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.CompoundBeaconImpl> compoundBeaconMap = buildCompoundBeaconMap(searchInfo);
     byte[] hmacKey = getHmacKey(searchInfo);
 
     if (request.filterExpression() != null) {
       FilterExpressionRewriter.RewriteResult result = FilterExpressionRewriter.rewrite(
         request.filterExpression(), request.expressionAttributeNames(),
-        request.expressionAttributeValues(), beaconMap, hmacKey);
+        request.expressionAttributeValues(), beaconMap, compoundBeaconMap, hmacKey);
       builder.filterExpression(result.expression);
       builder.expressionAttributeNames(result.expressionAttributeNames);
       builder.expressionAttributeValues(result.expressionAttributeValues);
@@ -53,7 +54,7 @@ public final class QueryScanTransform {
       FilterExpressionRewriter.RewriteResult result = FilterExpressionRewriter.rewrite(
         request.keyConditionExpression(),
         builder.build().expressionAttributeNames(),
-        builder.build().expressionAttributeValues(), beaconMap, hmacKey);
+        builder.build().expressionAttributeValues(), beaconMap, compoundBeaconMap, hmacKey);
       builder.keyConditionExpression(result.expression);
       builder.expressionAttributeNames(result.expressionAttributeNames);
       builder.expressionAttributeValues(result.expressionAttributeValues);
@@ -91,15 +92,20 @@ public final class QueryScanTransform {
 
     ScanRequest.Builder builder = request.toBuilder();
     Map<String, StandardBeaconImpl> beaconMap = buildBeaconMap(searchInfo);
+    Map<String, software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.CompoundBeaconImpl> compoundBeaconMap = buildCompoundBeaconMap(searchInfo);
     byte[] hmacKey = getHmacKey(searchInfo);
 
     if (request.filterExpression() != null) {
       FilterExpressionRewriter.RewriteResult result = FilterExpressionRewriter.rewrite(
         request.filterExpression(), request.expressionAttributeNames(),
-        request.expressionAttributeValues(), beaconMap, hmacKey);
+        request.expressionAttributeValues(), beaconMap, compoundBeaconMap, hmacKey);
       builder.filterExpression(result.expression);
-      builder.expressionAttributeNames(result.expressionAttributeNames);
-      builder.expressionAttributeValues(result.expressionAttributeValues);
+      if (result.expressionAttributeNames != null && !result.expressionAttributeNames.isEmpty()) {
+        builder.expressionAttributeNames(result.expressionAttributeNames);
+      }
+      if (result.expressionAttributeValues != null && !result.expressionAttributeValues.isEmpty()) {
+        builder.expressionAttributeValues(result.expressionAttributeValues);
+      }
     }
 
     return ScanInputTransformOutput.builder().transformedInput(builder.build()).build();
@@ -145,9 +151,20 @@ public final class QueryScanTransform {
     return map;
   }
 
-  /** Get HMAC key from search info. For now returns null (key management deferred to SearchInfo). */
+  static Map<String, software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.CompoundBeaconImpl> buildCompoundBeaconMap(
+    BeaconConfigResolver.SearchInfo searchInfo
+  ) {
+    Map<String, software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.CompoundBeaconImpl> map = new HashMap<>();
+    if (searchInfo.compoundBeacons != null) {
+      for (software.amazon.cryptography.dbencryptionsdk.dynamodb.internal.CompoundBeaconImpl cb : searchInfo.compoundBeacons) {
+        map.put(cb.getName(), cb);
+      }
+    }
+    return map;
+  }
+
+  /** Get HMAC key from search info. */
   private static byte[] getHmacKey(BeaconConfigResolver.SearchInfo searchInfo) {
-    // TODO: retrieve from beacon key store when SearchInfo is fully wired
-    return null;
+    return searchInfo.getHmacKey();
   }
 }
