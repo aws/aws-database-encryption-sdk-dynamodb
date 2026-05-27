@@ -25,8 +25,8 @@ public class TestVectorConfig {
   private List<SimpleQuery> failingQueries;
   private List<ComplexTest> complexTests;
   private List<IoTest> ioTests;
-  private List<String[]> configsForIoTest;
-  private List<String[]> configsForModTest;
+  private List<ConfigPair> configsForIoTest;
+  private List<ConfigPair> configsForModTest;
   private List<WriteTest> writeTests;
   private List<RoundTripTest> roundTripTests;
   private List<DecryptTest> decryptTests;
@@ -44,8 +44,8 @@ public class TestVectorConfig {
     this.failingQueries = new ArrayList<SimpleQuery>();
     this.complexTests = new ArrayList<ComplexTest>();
     this.ioTests = new ArrayList<IoTest>();
-    this.configsForIoTest = new ArrayList<String[]>();
-    this.configsForModTest = new ArrayList<String[]>();
+    this.configsForIoTest = new ArrayList<ConfigPair>();
+    this.configsForModTest = new ArrayList<ConfigPair>();
     this.writeTests = new ArrayList<WriteTest>();
     this.roundTripTests = new ArrayList<RoundTripTest>();
     this.decryptTests = new ArrayList<DecryptTest>();
@@ -129,19 +129,19 @@ public class TestVectorConfig {
     this.ioTests = ioTests;
   }
 
-  public List<String[]> getConfigsForIoTest() {
+  public List<ConfigPair> getConfigsForIoTest() {
     return configsForIoTest;
   }
 
-  public void setConfigsForIoTest(List<String[]> configsForIoTest) {
+  public void setConfigsForIoTest(List<ConfigPair> configsForIoTest) {
     this.configsForIoTest = configsForIoTest;
   }
 
-  public List<String[]> getConfigsForModTest() {
+  public List<ConfigPair> getConfigsForModTest() {
     return configsForModTest;
   }
 
-  public void setConfigsForModTest(List<String[]> configsForModTest) {
+  public void setConfigsForModTest(List<ConfigPair> configsForModTest) {
     this.configsForModTest = configsForModTest;
   }
 
