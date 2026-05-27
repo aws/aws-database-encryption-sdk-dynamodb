@@ -1,0 +1,49 @@
+name: Test Vectors
+
+on:
+  push:
+    branches: [main, dbesdk-java]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-vectors:
+    strategy:
+      matrix:
+        java-version: [8, 11, 17]
+        os: [ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v4.0.0
+        with:
+          port: 8000
+          cors: "*"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::370957321024:role/GitHub-CI-DDBEC-Dafny-Role-us-west-2
+          role-session-name: DBESDK-Native-Java-TestVectors
+          special-characters-workaround: "true"
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: "corretto"
+          java-version: ${{ matrix.java-version }}
+
+      - name: Build and publish native SDK locally
+        run: ./gradlew publishToMavenLocal
+
+      - name: Run Test Vectors
+        working-directory: TestVectors
+        run: ../gradlew runTests
