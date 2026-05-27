@@ -35,22 +35,22 @@ public class TestVectorConfig {
   private CreateTableRequest schemaOnEncrypt;
 
   public TestVectorConfig() {
-    this.globalRecords = new ArrayList<Record>();
-    this.tableEncryptionConfigs = new HashMap<String, TableConfig>();
-    this.largeEncryptionConfigs = new HashMap<String, TableConfig>();
-    this.queries = new ArrayList<SimpleQuery>();
-    this.names = new HashMap<String, String>();
-    this.values = new HashMap<String, AttributeValue>();
-    this.failingQueries = new ArrayList<SimpleQuery>();
-    this.complexTests = new ArrayList<ComplexTest>();
-    this.ioTests = new ArrayList<IoTest>();
-    this.configsForIoTest = new ArrayList<ConfigPair>();
-    this.configsForModTest = new ArrayList<ConfigPair>();
-    this.writeTests = new ArrayList<WriteTest>();
-    this.roundTripTests = new ArrayList<RoundTripTest>();
-    this.decryptTests = new ArrayList<DecryptTest>();
-    this.strings = new ArrayList<String>();
-    this.large = new ArrayList<LargeRecord>();
+    this.globalRecords = new ArrayList<>();
+    this.tableEncryptionConfigs = new HashMap<>();
+    this.largeEncryptionConfigs = new HashMap<>();
+    this.queries = new ArrayList<>();
+    this.names = new HashMap<>();
+    this.values = new HashMap<>();
+    this.failingQueries = new ArrayList<>();
+    this.complexTests = new ArrayList<>();
+    this.ioTests = new ArrayList<>();
+    this.configsForIoTest = new ArrayList<>();
+    this.configsForModTest = new ArrayList<>();
+    this.writeTests = new ArrayList<>();
+    this.roundTripTests = new ArrayList<>();
+    this.decryptTests = new ArrayList<>();
+    this.strings = new ArrayList<>();
+    this.large = new ArrayList<>();
   }
 
   public List<Record> getGlobalRecords() {
