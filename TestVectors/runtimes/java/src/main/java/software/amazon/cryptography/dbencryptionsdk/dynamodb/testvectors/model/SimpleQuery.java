@@ -12,37 +12,54 @@ import java.util.List;
  */
 public class SimpleQuery {
 
-    private final String index;       // nullable
-    private final String keyExpr;     // nullable
-    private final String filterExpr;  // nullable
-    private final List<String> failConfigs;
+  private final String index; // nullable
+  private final String keyExpr; // nullable
+  private final String filterExpr; // nullable
+  private final List<String> failConfigs;
 
-    public SimpleQuery(String index, String keyExpr, String filterExpr, List<String> failConfigs) {
-        this.index = index;
-        this.keyExpr = keyExpr;
-        this.filterExpr = filterExpr;
-        this.failConfigs = failConfigs != null ? Collections.unmodifiableList(failConfigs) : Collections.<String>emptyList();
-    }
+  public SimpleQuery(
+    String index,
+    String keyExpr,
+    String filterExpr,
+    List<String> failConfigs
+  ) {
+    this.index = index;
+    this.keyExpr = keyExpr;
+    this.filterExpr = filterExpr;
+    this.failConfigs =
+      failConfigs != null
+        ? Collections.unmodifiableList(failConfigs)
+        : Collections.<String>emptyList();
+  }
 
-    public String getIndex() {
-        return index;
-    }
+  public String getIndex() {
+    return index;
+  }
 
-    public String getKeyExpr() {
-        return keyExpr;
-    }
+  public String getKeyExpr() {
+    return keyExpr;
+  }
 
-    public String getFilterExpr() {
-        return filterExpr;
-    }
+  public String getFilterExpr() {
+    return filterExpr;
+  }
 
-    public List<String> getFailConfigs() {
-        return failConfigs;
-    }
+  public List<String> getFailConfigs() {
+    return failConfigs;
+  }
 
-    @Override
-    public String toString() {
-        return "SimpleQuery{index='" + index + "', keyExpr='" + keyExpr
-                + "', filterExpr='" + filterExpr + "', failConfigs=" + failConfigs + "}";
-    }
+  @Override
+  public String toString() {
+    return (
+      "SimpleQuery{index='" +
+      index +
+      "', keyExpr='" +
+      keyExpr +
+      "', filterExpr='" +
+      filterExpr +
+      "', failConfigs=" +
+      failConfigs +
+      "}"
+    );
+  }
 }

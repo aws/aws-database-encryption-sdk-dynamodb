@@ -12,30 +12,38 @@ import java.util.List;
  */
 public class ComplexQuery {
 
-    private final SimpleQuery query;
-    private final List<String> pass;
-    private final List<String> fail;
+  private final SimpleQuery query;
+  private final List<String> pass;
+  private final List<String> fail;
 
-    public ComplexQuery(SimpleQuery query, List<String> pass, List<String> fail) {
-        this.query = query;
-        this.pass = pass != null ? Collections.unmodifiableList(pass) : Collections.<String>emptyList();
-        this.fail = fail != null ? Collections.unmodifiableList(fail) : Collections.<String>emptyList();
-    }
+  public ComplexQuery(SimpleQuery query, List<String> pass, List<String> fail) {
+    this.query = query;
+    this.pass =
+      pass != null
+        ? Collections.unmodifiableList(pass)
+        : Collections.<String>emptyList();
+    this.fail =
+      fail != null
+        ? Collections.unmodifiableList(fail)
+        : Collections.<String>emptyList();
+  }
 
-    public SimpleQuery getQuery() {
-        return query;
-    }
+  public SimpleQuery getQuery() {
+    return query;
+  }
 
-    public List<String> getPass() {
-        return pass;
-    }
+  public List<String> getPass() {
+    return pass;
+  }
 
-    public List<String> getFail() {
-        return fail;
-    }
+  public List<String> getFail() {
+    return fail;
+  }
 
-    @Override
-    public String toString() {
-        return "ComplexQuery{query=" + query + ", pass=" + pass + ", fail=" + fail + "}";
-    }
+  @Override
+  public String toString() {
+    return (
+      "ComplexQuery{query=" + query + ", pass=" + pass + ", fail=" + fail + "}"
+    );
+  }
 }

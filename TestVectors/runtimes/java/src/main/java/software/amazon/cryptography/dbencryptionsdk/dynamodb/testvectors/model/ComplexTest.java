@@ -12,30 +12,48 @@ import java.util.List;
  */
 public class ComplexTest {
 
-    private final String config;
-    private final List<ComplexQuery> queries;
-    private final List<SimpleQuery> failures;
+  private final String config;
+  private final List<ComplexQuery> queries;
+  private final List<SimpleQuery> failures;
 
-    public ComplexTest(String config, List<ComplexQuery> queries, List<SimpleQuery> failures) {
-        this.config = config;
-        this.queries = queries != null ? Collections.unmodifiableList(queries) : Collections.<ComplexQuery>emptyList();
-        this.failures = failures != null ? Collections.unmodifiableList(failures) : Collections.<SimpleQuery>emptyList();
-    }
+  public ComplexTest(
+    String config,
+    List<ComplexQuery> queries,
+    List<SimpleQuery> failures
+  ) {
+    this.config = config;
+    this.queries =
+      queries != null
+        ? Collections.unmodifiableList(queries)
+        : Collections.<ComplexQuery>emptyList();
+    this.failures =
+      failures != null
+        ? Collections.unmodifiableList(failures)
+        : Collections.<SimpleQuery>emptyList();
+  }
 
-    public String getConfig() {
-        return config;
-    }
+  public String getConfig() {
+    return config;
+  }
 
-    public List<ComplexQuery> getQueries() {
-        return queries;
-    }
+  public List<ComplexQuery> getQueries() {
+    return queries;
+  }
 
-    public List<SimpleQuery> getFailures() {
-        return failures;
-    }
+  public List<SimpleQuery> getFailures() {
+    return failures;
+  }
 
-    @Override
-    public String toString() {
-        return "ComplexTest{config='" + config + "', queries=" + queries + ", failures=" + failures + "}";
-    }
+  @Override
+  public String toString() {
+    return (
+      "ComplexTest{config='" +
+      config +
+      "', queries=" +
+      queries +
+      ", failures=" +
+      failures +
+      "}"
+    );
+  }
 }

@@ -11,24 +11,24 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  */
 public class LargeRecord {
 
-    private final String name;
-    private final Map<String, AttributeValue> item;
+  private final String name;
+  private final Map<String, AttributeValue> item;
 
-    public LargeRecord(String name, Map<String, AttributeValue> item) {
-        this.name = name;
-        this.item = item;
-    }
+  public LargeRecord(String name, Map<String, AttributeValue> item) {
+    this.name = name;
+    this.item = item;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public Map<String, AttributeValue> getItem() {
-        return item;
-    }
+  public Map<String, AttributeValue> getItem() {
+    return item;
+  }
 
-    @Override
-    public String toString() {
-        return "LargeRecord{name='" + name + "', item=" + item + "}";
-    }
+  @Override
+  public String toString() {
+    return "LargeRecord{name='" + name + "', item=" + item + "}";
+  }
 }

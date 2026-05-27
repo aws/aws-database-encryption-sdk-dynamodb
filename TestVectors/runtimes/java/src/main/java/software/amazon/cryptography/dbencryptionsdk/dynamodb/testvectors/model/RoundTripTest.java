@@ -13,24 +13,36 @@ import java.util.Map;
  */
 public class RoundTripTest {
 
-    private final Map<String, TableConfig> configs;
-    private final List<Record> records;
+  private final Map<String, TableConfig> configs;
+  private final List<Record> records;
 
-    public RoundTripTest(Map<String, TableConfig> configs, List<Record> records) {
-        this.configs = configs != null ? Collections.unmodifiableMap(configs) : Collections.<String, TableConfig>emptyMap();
-        this.records = records != null ? Collections.unmodifiableList(records) : Collections.<Record>emptyList();
-    }
+  public RoundTripTest(Map<String, TableConfig> configs, List<Record> records) {
+    this.configs =
+      configs != null
+        ? Collections.unmodifiableMap(configs)
+        : Collections.<String, TableConfig>emptyMap();
+    this.records =
+      records != null
+        ? Collections.unmodifiableList(records)
+        : Collections.<Record>emptyList();
+  }
 
-    public Map<String, TableConfig> getConfigs() {
-        return configs;
-    }
+  public Map<String, TableConfig> getConfigs() {
+    return configs;
+  }
 
-    public List<Record> getRecords() {
-        return records;
-    }
+  public List<Record> getRecords() {
+    return records;
+  }
 
-    @Override
-    public String toString() {
-        return "RoundTripTest{configs=" + configs.keySet() + ", records=" + records.size() + " items}";
-    }
+  @Override
+  public String toString() {
+    return (
+      "RoundTripTest{configs=" +
+      configs.keySet() +
+      ", records=" +
+      records.size() +
+      " items}"
+    );
+  }
 }

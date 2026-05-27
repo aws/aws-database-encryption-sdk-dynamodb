@@ -11,30 +11,34 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.model.DynamoDbTable
  */
 public class TableConfig {
 
-    private final String name;
-    private final DynamoDbTableEncryptionConfig config;
-    private final boolean vanilla;
+  private final String name;
+  private final DynamoDbTableEncryptionConfig config;
+  private final boolean vanilla;
 
-    public TableConfig(String name, DynamoDbTableEncryptionConfig config, boolean vanilla) {
-        this.name = name;
-        this.config = config;
-        this.vanilla = vanilla;
-    }
+  public TableConfig(
+    String name,
+    DynamoDbTableEncryptionConfig config,
+    boolean vanilla
+  ) {
+    this.name = name;
+    this.config = config;
+    this.vanilla = vanilla;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public DynamoDbTableEncryptionConfig getConfig() {
-        return config;
-    }
+  public DynamoDbTableEncryptionConfig getConfig() {
+    return config;
+  }
 
-    public boolean isVanilla() {
-        return vanilla;
-    }
+  public boolean isVanilla() {
+    return vanilla;
+  }
 
-    @Override
-    public String toString() {
-        return "TableConfig{name='" + name + "', vanilla=" + vanilla + "}";
-    }
+  @Override
+  public String toString() {
+    return "TableConfig{name='" + name + "', vanilla=" + vanilla + "}";
+  }
 }

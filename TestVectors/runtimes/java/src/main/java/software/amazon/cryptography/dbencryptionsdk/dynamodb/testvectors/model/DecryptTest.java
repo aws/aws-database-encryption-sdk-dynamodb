@@ -11,35 +11,48 @@ import java.util.List;
  */
 public class DecryptTest {
 
-    private final TableConfig config;
-    private final List<Record> encryptedRecords;
-    private final List<Record> plaintextRecords;
+  private final TableConfig config;
+  private final List<Record> encryptedRecords;
+  private final List<Record> plaintextRecords;
 
-    public DecryptTest(TableConfig config, List<Record> encryptedRecords, List<Record> plaintextRecords) {
-        this.config = config;
-        this.encryptedRecords = encryptedRecords != null
-                ? Collections.unmodifiableList(encryptedRecords)
-                : Collections.<Record>emptyList();
-        this.plaintextRecords = plaintextRecords != null
-                ? Collections.unmodifiableList(plaintextRecords)
-                : Collections.<Record>emptyList();
-    }
+  public DecryptTest(
+    TableConfig config,
+    List<Record> encryptedRecords,
+    List<Record> plaintextRecords
+  ) {
+    this.config = config;
+    this.encryptedRecords =
+      encryptedRecords != null
+        ? Collections.unmodifiableList(encryptedRecords)
+        : Collections.<Record>emptyList();
+    this.plaintextRecords =
+      plaintextRecords != null
+        ? Collections.unmodifiableList(plaintextRecords)
+        : Collections.<Record>emptyList();
+  }
 
-    public TableConfig getConfig() {
-        return config;
-    }
+  public TableConfig getConfig() {
+    return config;
+  }
 
-    public List<Record> getEncryptedRecords() {
-        return encryptedRecords;
-    }
+  public List<Record> getEncryptedRecords() {
+    return encryptedRecords;
+  }
 
-    public List<Record> getPlaintextRecords() {
-        return plaintextRecords;
-    }
+  public List<Record> getPlaintextRecords() {
+    return plaintextRecords;
+  }
 
-    @Override
-    public String toString() {
-        return "DecryptTest{config=" + config + ", encryptedRecords=" + encryptedRecords.size()
-                + " items, plaintextRecords=" + plaintextRecords.size() + " items}";
-    }
+  @Override
+  public String toString() {
+    return (
+      "DecryptTest{config=" +
+      config +
+      ", encryptedRecords=" +
+      encryptedRecords.size() +
+      " items, plaintextRecords=" +
+      plaintextRecords.size() +
+      " items}"
+    );
+  }
 }

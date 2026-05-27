@@ -11,31 +11,41 @@ import java.util.List;
  */
 public class WriteTest {
 
-    private final TableConfig config;
-    private final List<Record> records;
-    private final String fileName;
+  private final TableConfig config;
+  private final List<Record> records;
+  private final String fileName;
 
-    public WriteTest(TableConfig config, List<Record> records, String fileName) {
-        this.config = config;
-        this.records = records != null ? Collections.unmodifiableList(records) : Collections.<Record>emptyList();
-        this.fileName = fileName;
-    }
+  public WriteTest(TableConfig config, List<Record> records, String fileName) {
+    this.config = config;
+    this.records =
+      records != null
+        ? Collections.unmodifiableList(records)
+        : Collections.<Record>emptyList();
+    this.fileName = fileName;
+  }
 
-    public TableConfig getConfig() {
-        return config;
-    }
+  public TableConfig getConfig() {
+    return config;
+  }
 
-    public List<Record> getRecords() {
-        return records;
-    }
+  public List<Record> getRecords() {
+    return records;
+  }
 
-    public String getFileName() {
-        return fileName;
-    }
+  public String getFileName() {
+    return fileName;
+  }
 
-    @Override
-    public String toString() {
-        return "WriteTest{config=" + config + ", records=" + records.size()
-                + " items, fileName='" + fileName + "'}";
-    }
+  @Override
+  public String toString() {
+    return (
+      "WriteTest{config=" +
+      config +
+      ", records=" +
+      records.size() +
+      " items, fileName='" +
+      fileName +
+      "'}"
+    );
+  }
 }

@@ -11,24 +11,24 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  */
 public class Record {
 
-    private final int number;
-    private final Map<String, AttributeValue> item;
+  private final int number;
+  private final Map<String, AttributeValue> item;
 
-    public Record(int number, Map<String, AttributeValue> item) {
-        this.number = number;
-        this.item = item;
-    }
+  public Record(int number, Map<String, AttributeValue> item) {
+    this.number = number;
+    this.item = item;
+  }
 
-    public int getNumber() {
-        return number;
-    }
+  public int getNumber() {
+    return number;
+  }
 
-    public Map<String, AttributeValue> getItem() {
-        return item;
-    }
+  public Map<String, AttributeValue> getItem() {
+    return item;
+  }
 
-    @Override
-    public String toString() {
-        return "Record{number=" + number + ", item=" + item + "}";
-    }
+  @Override
+  public String toString() {
+    return "Record{number=" + number + ", item=" + item + "}";
+  }
 }
