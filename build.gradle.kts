@@ -11,7 +11,7 @@ val props = Properties().apply {
 }
 
 group = "software.amazon.cryptography"
-version = props.getProperty("projectVersion")
+version = props.getProperty("projectJavaVersion")
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     implementation(platform("software.amazon.awssdk:bom:${props.getProperty("awsSdkVersion")}"))
-    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${props.getProperty("mplVersion")}")
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${props.getProperty("mplDependencyJavaVersion")}")
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
