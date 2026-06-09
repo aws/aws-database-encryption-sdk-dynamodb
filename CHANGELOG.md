@@ -1,5 +1,14 @@
 # Changelog
 
+Note: Starting April 20, 2026, all runtime-specific changes are tracked in separate changelogs:
+
+- Java: [CHANGELOG-java.md](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/CHANGELOG-java.md)
+- .NET: [CHANGELOG-net.md](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/CHANGELOG-net.md)
+
+If a runtime-specific changelog is not present, there has been no new release for that runtime after April 20, 2026.
+
+Each changelog entry below applies to all runtimes unless specified by a language suffix.
+
 ## Rust-1.2.4 (2026-04-02)
 
 ### Maintenance
