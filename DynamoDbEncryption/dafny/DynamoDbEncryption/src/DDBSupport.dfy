@@ -298,7 +298,7 @@ module DynamoDBSupport {
     var filterHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(filterExpr), actions, names);
     var keyHasEncField := Filter.UsesEncryptedField(Filter.ParseExprOpt(keyExpr), actions, names);
     if keyHasEncField.Some? || filterHasEncField.Some? {
-      return Failure(E("When numberOfPartitions is greater than one, XXXValues must contain " + PartitionName));
+      return Failure(E("When numberOfPartitions is greater than one, Values must contain " + PartitionName));
     } else {
       return Success((values, 0));
     }
