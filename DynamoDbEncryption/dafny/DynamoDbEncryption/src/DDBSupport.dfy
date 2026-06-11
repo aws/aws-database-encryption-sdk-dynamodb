@@ -319,7 +319,7 @@ module DynamoDBSupport {
       return Success(req);
     } else {
       var keyId :- Filter.GetBeaconKeyId(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
-      var foo :- ExtractPartition(search.value.curr(), req.FilterExpression, req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
+      var foo :- ExtractPartition(search.value.curr(), req.KeyConditionExpression, req.FilterExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, actions);
       var (newValues, partition) := foo;
       var numQueries :- Filter.GetNumQueries(search.value.curr(), req.KeyConditionExpression, req.ExpressionAttributeValues, req.ExpressionAttributeNames);
       if numQueries <= partition {
