@@ -1720,7 +1720,7 @@ module DynamoDBFilterExpr {
     for i : uint64 := 0 to |values| as uint64
       invariant result <= bv.numPartitions
     {
-      var partitions := values[i].0.getNumQueries(bv.numPartitions, values[0].1);
+      var partitions := values[i].0.getNumQueries(bv.numPartitions, values[i].1);
       if partitions == 1 || partitions == result {
         continue;
       }
