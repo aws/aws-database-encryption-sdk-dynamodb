@@ -231,7 +231,7 @@ module TestBeaconPartition {
     // --- Missing partition when partitions configured and encrypted fields used (should fail) ---
     var res3 := DDBS.ExtractPartition(bv, None, Some("Name = :val"), None, None, FullTableConfig.attributeActionsOnEncrypt);
     expect res3.Failure?;
-    expect_equal(res3.error, E("When numberOfPartitions is greater than one, XXXValues must contain :aws_dbe_partition"));
+    expect_equal(res3.error, E("When numberOfPartitions is greater than one, Values must contain :aws_dbe_partition"));
   }
 
   method {:test} TestLongAttributeNameForPartitionBeacon() {
