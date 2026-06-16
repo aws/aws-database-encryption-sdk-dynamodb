@@ -568,4 +568,17 @@ module DynamoToStructTest {
     expect struct.Failure?;
     expect struct.error == E("Depth of attribute structure to serialize exceeds limit of 32");
   }
+
+  method {:test} TestAttributeNameTooLongBytes() {
+    // U+00E9 encodes to 2 UTF-8 bytes.
+    var twoByteChar := 0xE9 as char;
+    var longKey : string := seq(40000, i => twoByteChar);
+    var mapValue := AttributeValue.M(map[longKey := AttributeValue.BOOL(true)]);
+    var result := AttrToStructured(mapValue);
+    if !result.Failure? {
+      print "\nAttrToStructured should have failed for an over-long attribute name\n";
+    }
+    expect result.Failure?;
+    expect result.error == "Attribute name must be between 1 and 65535 UTF-8 bytes";
+  }
 }

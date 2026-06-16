@@ -30,6 +30,28 @@ module PutItemTransformTest {
 
   const BasicItem : DDB.AttributeMap := map["bar" := DDB.AttributeValue.S("baz")]
 
+  method {:test} TestPutItemAttributeNameTooLongBytes() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("foo");
+    // U+00E9 encodes to 2 UTF-8 bytes; 40000 chars => 80000 bytes (> 65535),
+    // a valid AttributeName by character count but too long in bytes.
+    var twoByteChar := 0xE9 as char;
+    var longKey : DDB.AttributeName := seq(40000, i => twoByteChar);
+    var input := DDB.PutItemInput(
+      TableName := tableName,
+      Item := map[
+        "bar" := DDB.AttributeValue.S("key"),
+        "encrypt" := DDB.AttributeValue.M(map[longKey := DDB.AttributeValue.S("x")])
+      ]
+    );
+    var transformed := middlewareUnderTest.PutItemInputTransform(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+    expect transformed.Failure?;
+  }
+
   method TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
     assume {:axiom} false;
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMulti(plaintextOverride);
