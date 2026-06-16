@@ -15,6 +15,9 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.VirtualField> _virtualFields;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.EncryptedPart> _encryptedParts;
     private System.Collections.Generic.List<AWS.Cryptography.DbEncryptionSDK.DynamoDb.SignedPart> _signedParts;
+    private int? _maximumNumberOfPartitions;
+    private int? _defaultNumberOfPartitions;
+    private AWS.Cryptography.DbEncryptionSDK.DynamoDb.IPartitionSelector _partitionSelector;
     public int Version
     {
       get { return this._version.GetValueOrDefault(); }
@@ -87,6 +90,33 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
     {
       return this._signedParts != null;
     }
+    public int MaximumNumberOfPartitions
+    {
+      get { return this._maximumNumberOfPartitions.GetValueOrDefault(); }
+      set { this._maximumNumberOfPartitions = value; }
+    }
+    public bool IsSetMaximumNumberOfPartitions()
+    {
+      return this._maximumNumberOfPartitions.HasValue;
+    }
+    public int DefaultNumberOfPartitions
+    {
+      get { return this._defaultNumberOfPartitions.GetValueOrDefault(); }
+      set { this._defaultNumberOfPartitions = value; }
+    }
+    public bool IsSetDefaultNumberOfPartitions()
+    {
+      return this._defaultNumberOfPartitions.HasValue;
+    }
+    public AWS.Cryptography.DbEncryptionSDK.DynamoDb.IPartitionSelector PartitionSelector
+    {
+      get { return this._partitionSelector; }
+      set { this._partitionSelector = value; }
+    }
+    public bool IsSetPartitionSelector()
+    {
+      return this._partitionSelector != null;
+    }
     public void Validate()
     {
       if (!IsSetVersion()) throw new System.ArgumentException("Missing value for required property 'Version'");
@@ -123,6 +153,32 @@ namespace AWS.Cryptography.DbEncryptionSDK.DynamoDb
         {
           throw new System.ArgumentException(
               String.Format("Member SignedParts of structure BeaconVersion has List type SignedPartsList which has a minimum length of 1 but was given a value with length {0}.", SignedParts.Count));
+        }
+      }
+      if (IsSetMaximumNumberOfPartitions())
+      {
+        if (MaximumNumberOfPartitions < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member MaximumNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a minimum of 1 but was given the value {0}.", MaximumNumberOfPartitions));
+        }
+        if (MaximumNumberOfPartitions > 255)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member MaximumNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a maximum of 255 but was given the value {0}.", MaximumNumberOfPartitions));
+        }
+      }
+      if (IsSetDefaultNumberOfPartitions())
+      {
+        if (DefaultNumberOfPartitions < 1)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member DefaultNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a minimum of 1 but was given the value {0}.", DefaultNumberOfPartitions));
+        }
+        if (DefaultNumberOfPartitions > 255)
+        {
+          throw new System.ArgumentException(
+              String.Format("Member DefaultNumberOfPartitions of structure BeaconVersion has type PartitionCount which has a maximum of 255 but was given the value {0}.", DefaultNumberOfPartitions));
         }
       }
     }

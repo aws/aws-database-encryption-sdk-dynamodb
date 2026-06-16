@@ -15,7 +15,7 @@ import software.amazon.cryptography.dbencryptionsdk.structuredencryption.model.C
 public class LegacyOverride {
 
   /**
-   * A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+   * A policy which configures whether legacy behavior overrides encryption and/or decryption.
    */
   private final LegacyPolicy policy;
 
@@ -42,7 +42,7 @@ public class LegacyOverride {
   }
 
   /**
-   * @return A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+   * @return A policy which configures whether legacy behavior overrides encryption and/or decryption.
    */
   public LegacyPolicy policy() {
     return this.policy;
@@ -79,12 +79,12 @@ public class LegacyOverride {
 
   public interface Builder {
     /**
-     * @param policy A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+     * @param policy A policy which configures whether legacy behavior overrides encryption and/or decryption.
      */
     Builder policy(LegacyPolicy policy);
 
     /**
-     * @return A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+     * @return A policy which configures whether legacy behavior overrides encryption and/or decryption.
      */
     LegacyPolicy policy();
 
