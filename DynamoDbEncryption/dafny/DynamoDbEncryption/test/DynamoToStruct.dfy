@@ -570,7 +570,7 @@ module DynamoToStructTest {
   }
 
   method {:test} TestAttributeNameTooLongBytes() {
-    // U+00E9 encodes to 2 UTF-8 bytes.
+    // 0xE9 is a 2-byte UTF-8 char, so 40000 chars => 80000 bytes, exceeding the 65535-byte limit.
     var twoByteChar := 0xE9 as char;
     var longKey : string := seq(40000, i => twoByteChar);
     var mapValue := AttributeValue.M(map[longKey := AttributeValue.BOOL(true)]);
