@@ -54,6 +54,10 @@ aws-sdk-kms = "1.98.0"
 aws-sdk-sso = "1.92.0"
 aws-sdk-ssooidc = "1.94.0"
 aws-sdk-sts = "1.96.0"
+# aws-smithy-types has a coherence conflict (E0119) with time >= 0.3.37 on rustc >= 1.80.
+# time 0.3.37+ introduces ModifierValue associated type impls that conflict with
+# CanDisable<T>'s blanket `impl<T> From<T>`. Pin time until upstream fixes it.
+time = ">=0.3.0, <0.3.37"
 aws-smithy-types = "1.3"
 cpu-time = "1.0.0"
 

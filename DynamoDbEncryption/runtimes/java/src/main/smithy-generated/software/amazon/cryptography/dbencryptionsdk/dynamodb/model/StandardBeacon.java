@@ -30,11 +30,17 @@ public class StandardBeacon {
    */
   private final BeaconStyle style;
 
+  /**
+   * The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+   */
+  private final int numberOfPartitions;
+
   protected StandardBeacon(BuilderImpl builder) {
     this.name = builder.name();
     this.length = builder.length();
     this.loc = builder.loc();
     this.style = builder.style();
+    this.numberOfPartitions = builder.numberOfPartitions();
   }
 
   /**
@@ -63,6 +69,13 @@ public class StandardBeacon {
    */
   public BeaconStyle style() {
     return this.style;
+  }
+
+  /**
+   * @return The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+   */
+  public int numberOfPartitions() {
+    return this.numberOfPartitions;
   }
 
   public Builder toBuilder() {
@@ -114,6 +127,16 @@ public class StandardBeacon {
      */
     BeaconStyle style();
 
+    /**
+     * @param numberOfPartitions The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+     */
+    Builder numberOfPartitions(int numberOfPartitions);
+
+    /**
+     * @return The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+     */
+    int numberOfPartitions();
+
     StandardBeacon build();
   }
 
@@ -129,6 +152,10 @@ public class StandardBeacon {
 
     protected BeaconStyle style;
 
+    protected int numberOfPartitions;
+
+    private boolean _numberOfPartitionsSet = false;
+
     protected BuilderImpl() {}
 
     protected BuilderImpl(StandardBeacon model) {
@@ -137,6 +164,8 @@ public class StandardBeacon {
       this._lengthSet = true;
       this.loc = model.loc();
       this.style = model.style();
+      this.numberOfPartitions = model.numberOfPartitions();
+      this._numberOfPartitionsSet = true;
     }
 
     public Builder name(String name) {
@@ -176,6 +205,16 @@ public class StandardBeacon {
       return this.style;
     }
 
+    public Builder numberOfPartitions(int numberOfPartitions) {
+      this.numberOfPartitions = numberOfPartitions;
+      this._numberOfPartitionsSet = true;
+      return this;
+    }
+
+    public int numberOfPartitions() {
+      return this.numberOfPartitions;
+    }
+
     public StandardBeacon build() {
       if (Objects.isNull(this.name())) {
         throw new IllegalArgumentException(
@@ -200,6 +239,16 @@ public class StandardBeacon {
       if (Objects.nonNull(this.loc()) && this.loc().length() < 1) {
         throw new IllegalArgumentException(
           "The size of `loc` must be greater than or equal to 1"
+        );
+      }
+      if (this._numberOfPartitionsSet && this.numberOfPartitions() < 1) {
+        throw new IllegalArgumentException(
+          "`numberOfPartitions` must be greater than or equal to 1"
+        );
+      }
+      if (this._numberOfPartitionsSet && this.numberOfPartitions() > 255) {
+        throw new IllegalArgumentException(
+          "`numberOfPartitions` must be less than or equal to 255."
         );
       }
       return new StandardBeacon(this);

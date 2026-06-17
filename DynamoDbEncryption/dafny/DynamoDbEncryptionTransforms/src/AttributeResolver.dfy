@@ -7,6 +7,7 @@ module AttributeResolver {
   import opened DdbMiddlewareConfig
   import opened DynamoDbMiddlewareSupport
   import opened Wrappers
+  import opened StandardLibrary.UInt
   import DDB = ComAmazonawsDynamodbTypes
   import opened AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes
   import EncTypes = AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptorTypes
@@ -31,8 +32,10 @@ module AttributeResolver {
         );
     } else {
       var tableConfig := config.tableEncryptionConfigs[input.TableName];
+      assume {:axiom} fresh(if tableConfig.search.Some? then tableConfig.search.value.curr().partitionSelector.Modifies else {});
+      var partition :- GetRandomPartition(tableConfig, input.Item);
       var vf :- GetVirtualFields(tableConfig.search.value, input.Item, input.Version);
-      var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version);
+      var cb :- GetCompoundBeacons(tableConfig.search.value, input.Item, input.Version, partition);
       return Success(
           ResolveAttributesOutput(
             VirtualFields := vf,

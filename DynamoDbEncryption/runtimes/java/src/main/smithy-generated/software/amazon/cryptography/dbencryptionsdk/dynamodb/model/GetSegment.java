@@ -16,7 +16,7 @@ public class GetSegment {
   private final String split;
 
   /**
-   * The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+   * The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
    */
   private final Integer index;
 
@@ -33,7 +33,7 @@ public class GetSegment {
   }
 
   /**
-   * @return The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+   * @return The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
    */
   public Integer index() {
     return this.index;
@@ -59,12 +59,12 @@ public class GetSegment {
     String split();
 
     /**
-     * @param index The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+     * @param index The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
      */
     Builder index(Integer index);
 
     /**
-     * @return The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+     * @return The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
      */
     Integer index();
 
