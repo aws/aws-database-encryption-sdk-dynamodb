@@ -75,6 +75,26 @@ func LegacyDynamoDbEncryptor_FromDafny(dafnyResource AwsCryptographyDbEncryption
 	return &LegacyDynamoDbEncryptor{dafnyResource}
 }
 
+func GetPartitionNumberInput_FromDafny(dafnyInput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetPartitionNumberInput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPartitionNumberInput {
+
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPartitionNumberInput{Item: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_FromDafny(dafnyInput.Dtor_item()),
+		NumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_numberOfPartitions_FromDafny(dafnyInput.Dtor_numberOfPartitions()),
+		LogicalTableName:   Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_logicalTableName_FromDafny(dafnyInput.Dtor_logicalTableName()),
+	}
+
+}
+
+func GetPartitionNumberOutput_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.GetPartitionNumberOutput) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPartitionNumberOutput {
+
+	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.GetPartitionNumberOutput{PartitionNumber: Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberOutput_partitionNumber_FromDafny(dafnyOutput.Dtor_partitionNumber())}
+
+}
+
+func PartitionSelector_FromDafny(dafnyResource AwsCryptographyDbEncryptionSdkDynamoDbTypes.IPartitionSelector) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.IPartitionSelector {
+
+	return &PartitionSelector{dafnyResource}
+}
+
 func DynamoDbEncryptionException_FromDafny(dafnyOutput AwsCryptographyDbEncryptionSdkDynamoDbTypes.Error) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbEncryptionException {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.DynamoDbEncryptionException{Message: Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_message_FromDafny(dafnyOutput.Dtor_message())}
 
@@ -275,9 +295,10 @@ func CompoundBeacon_FromDafny(input interface{}) awscryptographydbencryptionsdkd
 
 func StandardBeacon_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
-		Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
-		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
-		Style:  Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		Length:             Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
+		Loc:                Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
+		Style:              Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		NumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_numberOfPartitions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_numberOfPartitions().UnwrapOr(nil)),
 	}
 
 }
@@ -401,13 +422,21 @@ func VirtualField_FromDafny(input interface{}) awscryptographydbencryptionsdkdyn
 
 func BeaconVersion_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion{Version: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_version()),
-		KeyStore:        Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
-		KeySource:       Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
-		StandardBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
-		CompoundBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
-		VirtualFields:   Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
-		EncryptedParts:  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
-		SignedParts:     Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+		KeyStore:                  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
+		KeySource:                 Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
+		StandardBeacons:           Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
+		CompoundBeacons:           Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
+		VirtualFields:             Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
+		EncryptedParts:            Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
+		SignedParts:               Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+		MaximumNumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_maximumNumberOfPartitions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_maximumNumberOfPartitions().UnwrapOr(nil)),
+		DefaultNumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_defaultNumberOfPartitions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_defaultNumberOfPartitions().UnwrapOr(nil)),
+		PartitionSelector: func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.IPartitionSelector {
+			if input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_partitionSelector().UnwrapOr(nil) == nil {
+				return nil
+			}
+			return PartitionSelector_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_partitionSelector().UnwrapOr(nil).(AwsCryptographyDbEncryptionSdkDynamoDbTypes.IPartitionSelector))
+		}(),
 	}
 
 }
@@ -627,6 +656,42 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetBranchKeyIdFromDdbKeyOutput_br
 		s := string(dafny.ToByteArray(a.(dafny.Sequence)))
 
 		return s
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_item_FromDafny(input interface{}) map[string]dynamodbtypes.AttributeValue {
+	var m map[string]dynamodbtypes.AttributeValue = make(map[string]dynamodbtypes.AttributeValue)
+	if input == nil {
+		return nil
+	}
+	for i := dafny.Iterate(input.(dafny.Map).Items()); ; {
+		val, ok := i()
+		if !ok {
+			break
+		}
+		m[comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeMap_key_FromDafny((*val.(dafny.Tuple).IndexInt(0)))] = comamazonawsdynamodbsmithygenerated.Com_amazonaws_dynamodb_AttributeMap_value_FromDafny((*val.(dafny.Tuple).IndexInt(1)))
+	}
+	return m
+
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_numberOfPartitions_FromDafny(input interface{}) int32 {
+	return func() int32 {
+		var b = input.(int32)
+		return b
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberInput_logicalTableName_FromDafny(input interface{}) string {
+	return func() string {
+
+		a := UTF8.Encode(input.(dafny.Sequence)).Dtor_value()
+		s := string(dafny.ToByteArray(a.(dafny.Sequence)))
+
+		return s
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_GetPartitionNumberOutput_partitionNumber_FromDafny(input interface{}) int32 {
+	return func() int32 {
+		var b = input.(int32)
+		return b
 	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_DynamoDbEncryptionException_message_FromDafny(input interface{}) string {
@@ -1039,6 +1104,16 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(in
 	return union
 
 }
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_numberOfPartitions_FromDafny(input interface{}) *int32 {
+	return func() *int32 {
+		var b int32
+		if input == nil {
+			return nil
+		}
+		b = input.(int32)
+		return &b
+	}()
+}
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_Insert_literal_FromDafny(input interface{}) string {
 	return func() string {
 
@@ -1288,9 +1363,10 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_Fro
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeaconList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.StandardBeacon{Name: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_name_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_name()),
-		Length: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
-		Loc:    Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
-		Style:  Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		Length:             Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_length_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_length()),
+		Loc:                Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_loc_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_loc().UnwrapOr(nil)),
+		Style:              Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_style_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_style().UnwrapOr(nil)),
+		NumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_StandardBeacon_numberOfPartitions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.StandardBeacon).Dtor_numberOfPartitions().UnwrapOr(nil)),
 	}
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input interface{}) []awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.CompoundBeacon {
@@ -1361,6 +1437,26 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDaf
 		fieldValue = append(fieldValue, Aws_cryptography_dbEncryptionSdk_dynamoDb_SignedPartsList_member_FromDafny(val))
 	}
 	return fieldValue
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_maximumNumberOfPartitions_FromDafny(input interface{}) *int32 {
+	return func() *int32 {
+		var b int32
+		if input == nil {
+			return nil
+		}
+		b = input.(int32)
+		return &b
+	}()
+}
+func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_defaultNumberOfPartitions_FromDafny(input interface{}) *int32 {
+	return func() *int32 {
+		var b int32
+		if input == nil {
+			return nil
+		}
+		b = input.(int32)
+		return &b
+	}()
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_LegacyOverride_policy_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
 	return func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.LegacyPolicy {
@@ -1456,13 +1552,21 @@ func Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_versions_FromDafny(i
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersionList_member_FromDafny(input interface{}) awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion {
 	return awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.BeaconVersion{Version: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_version_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_version()),
-		KeyStore:        Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
-		KeySource:       Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
-		StandardBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
-		CompoundBeacons: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
-		VirtualFields:   Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
-		EncryptedParts:  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
-		SignedParts:     Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+		KeyStore:                  Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keyStore_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keyStore()),
+		KeySource:                 Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_keySource_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_keySource()),
+		StandardBeacons:           Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_standardBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_standardBeacons()),
+		CompoundBeacons:           Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_compoundBeacons_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_compoundBeacons().UnwrapOr(nil)),
+		VirtualFields:             Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_virtualFields_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_virtualFields().UnwrapOr(nil)),
+		EncryptedParts:            Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_encryptedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_encryptedParts().UnwrapOr(nil)),
+		SignedParts:               Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_signedParts_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_signedParts().UnwrapOr(nil)),
+		MaximumNumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_maximumNumberOfPartitions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_maximumNumberOfPartitions().UnwrapOr(nil)),
+		DefaultNumberOfPartitions: Aws_cryptography_dbEncryptionSdk_dynamoDb_BeaconVersion_defaultNumberOfPartitions_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_defaultNumberOfPartitions().UnwrapOr(nil)),
+		PartitionSelector: func() awscryptographydbencryptionsdkdynamodbsmithygeneratedtypes.IPartitionSelector {
+			if input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_partitionSelector().UnwrapOr(nil) == nil {
+				return nil
+			}
+			return PartitionSelector_FromDafny(input.(AwsCryptographyDbEncryptionSdkDynamoDbTypes.BeaconVersion).Dtor_partitionSelector().UnwrapOr(nil).(AwsCryptographyDbEncryptionSdkDynamoDbTypes.IPartitionSelector))
+		}(),
 	}
 }
 func Aws_cryptography_dbEncryptionSdk_dynamoDb_SearchConfig_writeVersion_FromDafny(input interface{}) int32 {

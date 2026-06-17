@@ -39,6 +39,8 @@ import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.Ge
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemOutputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetItemOutputTransformOutput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesInput;
+import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.GetNumberOfQueriesOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemInputTransformInput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemInputTransformOutput;
 import software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.model.PutItemOutputTransformInput;
@@ -307,6 +309,25 @@ public class DynamoDbEncryptionTransforms {
       throw ToNative.Error(result.dtor_error());
     }
     return ToNative.GetItemOutputTransformOutput(result.dtor_value());
+  }
+
+  /**
+   * Return the necessary number of query operations for this query, based on partition usage.
+   *
+   */
+  public GetNumberOfQueriesOutput GetNumberOfQueries(
+    GetNumberOfQueriesInput input
+  ) {
+    software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesInput dafnyValue =
+      ToDafny.GetNumberOfQueriesInput(input);
+    Result<
+      software.amazon.cryptography.dbencryptionsdk.dynamodb.transforms.internaldafny.types.GetNumberOfQueriesOutput,
+      Error
+    > result = this._impl.GetNumberOfQueries(dafnyValue);
+    if (result.is_Failure()) {
+      throw ToNative.Error(result.dtor_error());
+    }
+    return ToNative.GetNumberOfQueriesOutput(result.dtor_value());
   }
 
   public PutItemInputTransformOutput PutItemInputTransform(

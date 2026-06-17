@@ -7,12 +7,14 @@ use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbTablesEncryptionConfig
 use com.amazonaws.dynamodb#DynamoDB_20120810
 use com.amazonaws.dynamodb#TableName
 use com.amazonaws.dynamodb#AttributeMap
+use com.amazonaws.dynamodb#QueryInput
 
 use aws.cryptography.dbEncryptionSdk.dynamoDb#DynamoDbEncryption
 use aws.cryptography.dbEncryptionSdk.dynamoDb.itemEncryptor#DynamoDbItemEncryptor
 use aws.cryptography.dbEncryptionSdk.dynamoDb#VersionNumber
 use aws.cryptography.dbEncryptionSdk.structuredEncryption#StructuredEncryption
 use aws.cryptography.materialProviders#AwsCryptographicMaterialProviders
+use aws.cryptography.dbEncryptionSdk.dynamoDb#PartitionCount
 
 use aws.polymorph#localService
 use aws.polymorph#javadoc
@@ -58,6 +60,7 @@ service DynamoDbEncryptionTransforms {
       ExecuteTransactionInputTransform,
       ExecuteTransactionOutputTransform,
       ResolveAttributes,
+      GetNumberOfQueries,
     ],
     errors: [ DynamoDbEncryptionTransformsException ]
 }
@@ -72,6 +75,29 @@ map StringMap {
   key : String,
   value : String
 }
+
+@javadoc("Return the necessary number of query operations for this query, based on partition usage.")
+operation GetNumberOfQueries {
+    input: GetNumberOfQueriesInput,
+    output: GetNumberOfQueriesOutput,
+}
+
+//= specification/dynamodb-encryption-client/ddb-get-number-of-queries.md#input
+//= type=implication
+//# This operation MUST take as input the QueryInput structure under consideration.
+structure GetNumberOfQueriesInput {
+    @required
+    input: QueryInput
+}
+
+//= specification/dynamodb-encryption-client/ddb-get-number-of-queries.md#input
+//= type=implication
+//# This operation MUST return the number of queries necessary.
+structure GetNumberOfQueriesOutput {
+    @required
+    numberOfQueries: PartitionCount
+}
+
 
 structure ResolveAttributesInput {
     @required

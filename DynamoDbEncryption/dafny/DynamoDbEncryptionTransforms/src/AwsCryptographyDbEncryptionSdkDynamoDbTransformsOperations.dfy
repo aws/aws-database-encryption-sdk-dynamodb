@@ -17,6 +17,7 @@ include "ExecuteStatementTransform.dfy"
 include "BatchExecuteStatementTransform.dfy"
 include "ExecuteTransactionTransform.dfy"
 include "AttributeResolver.dfy"
+include "GetNumberOfQueries.dfy"
 
 module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines AbstractAwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations {
   import opened DdbMiddlewareConfig
@@ -43,6 +44,7 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
   import BatchExecuteStatementTransform
   import ExecuteTransactionTransform
   import AttributeResolver
+  import NumberOfQueries
 
   predicate ValidInternalConfig?(config: InternalConfig)
   {
@@ -298,5 +300,14 @@ module AwsCryptographyDbEncryptionSdkDynamoDbTransformsOperations refines Abstra
     returns (output: Result<ResolveAttributesOutput, Error>)
   {
     output := AttributeResolver.Resolve(config, input);
+  }
+
+  predicate GetNumberOfQueriesEnsuresPublicly(input: GetNumberOfQueriesInput , output: Result<GetNumberOfQueriesOutput, Error>)
+  {true}
+
+  method GetNumberOfQueries(config: InternalConfig, input: GetNumberOfQueriesInput)
+    returns (output: Result<GetNumberOfQueriesOutput, Error>)
+  {
+    output := NumberOfQueries.Get(config, input);
   }
 }
