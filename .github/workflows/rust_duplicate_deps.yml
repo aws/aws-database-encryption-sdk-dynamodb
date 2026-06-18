@@ -10,6 +10,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   duplicate-aws-lc:
     runs-on: ubuntu-22.04
