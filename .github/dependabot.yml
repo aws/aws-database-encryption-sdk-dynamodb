@@ -1,26 +1,36 @@
 version: 2
 updates:
-  - package-ecosystem: "gradle"
-    directory: "DynamoDbEncryption/runtimes/java"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "gradle"
-    directory: "Example/runtimes/java/DynamoDbEncryption"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "gradle"
-    directory: "Example/runtimes/java/Migration"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "gradle"
-    directory: "TestVectors/runtimes/java"
-    schedule:
-      interval: "daily"
   - package-ecosystem: "github-actions"
-    directory: ".github/workflows"
+    directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    groups:
+      all:
+        patterns: ["*"]
+
+  - package-ecosystem: "gradle"
+    directories:
+      - "*/runtimes/java"
+    schedule:
+      interval: "weekly"
+    groups:
+      all:
+        patterns: ["*"]
+
+  - package-ecosystem: "nuget"
+    directories:
+      - "*/runtimes/net"
+    schedule:
+      interval: "weekly"
+    groups:
+      all:
+        patterns: ["*"]
+
   - package-ecosystem: "cargo"
-    directory: "DynamoDbEncryption/runtimes/rust"
+    directories:
+      - "*/runtimes/rust"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    groups:
+      all:
+        patterns: ["*"]
