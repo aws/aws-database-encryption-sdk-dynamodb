@@ -109,6 +109,10 @@ jobs:
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+  pr-ci-rust-duplicate-deps:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/rust_duplicate_deps.yml
   pr-ci-net-test-vectors:
     permissions:
       contents: read
@@ -145,6 +149,7 @@ jobs:
       - pr-ci-java-examples
       - pr-ci-net
       - pr-ci-rust
+      - pr-ci-rust-duplicate-deps
       - pr-ci-net-test-vectors
       - pr-ci-net-examples
     runs-on: ubuntu-22.04
