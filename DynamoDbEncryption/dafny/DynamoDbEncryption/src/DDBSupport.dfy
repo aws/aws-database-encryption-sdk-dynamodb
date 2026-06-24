@@ -32,9 +32,34 @@ module DynamoDBSupport {
   import SET = AwsCryptographyDbEncryptionSdkStructuredEncryptionTypes
   import NN = DynamoDbNormalizeNumber
 
+  // Maximum length, in characters, of any single DynamoDB expression string
+  // (KeyConditionExpression, FilterExpression, ConditionExpression, etc.) that
+  // this library will parse. Matches DynamoDB's documented 4 KB server-side
+  // expression-string limit and bounds the work done by the client-side
+  // expression parser, preventing unbounded resource consumption from
+  // pathologically long inputs.
+  const MAX_EXPRESSION_LENGTH : nat := 4096
+
+  // Reject expression strings longer than MAX_EXPRESSION_LENGTH before they
+  // reach the parser. `name` is the human-readable field name used in the
+  // error message (e.g. "KeyConditionExpression").
+  function method ValidateExpressionLength(expr : Option<string>, name : string)
+    : Result<bool, Error>
+  {
+    if expr.None? then
+      Success(true)
+    else if |expr.value| <= MAX_EXPRESSION_LENGTH then
+      Success(true)
+    else
+      Failure(E(name + " exceeds maximum length of "
+                + String.Base10Int2String(MAX_EXPRESSION_LENGTH as int)
+                + " characters."))
+  }
+
   method GetNumberOfQueries(search : SearchableEncryptionInfo.BeaconVersion, query : DDB.QueryInput)
     returns (output : Result<PartitionCount, Error>)
   {
+    var _ :- ValidateExpressionLength(query.KeyConditionExpression, "KeyConditionExpression");
     var numberOfQueries :- Filter.GetNumQueries(
       search,
       query.KeyConditionExpression,
@@ -281,6 +306,8 @@ module DynamoDBSupport {
     returns (output : Result<(Option<DDB.ExpressionAttributeValueMap>, PartitionNumber), Error>)
     ensures output.Success? ==> output.value.1 < search.numPartitions
   {
+    var _ :- ValidateExpressionLength(keyExpr, "KeyConditionExpression");
+    var _ :- ValidateExpressionLength(filterExpr, "FilterExpression");
     if search.numPartitions <= 1 {
       :- Need(values.None? || PartitionName !in values.value, E("If no partitions are configured, do not specify " + PartitionName));
       return Success((values, 0));
@@ -309,6 +336,8 @@ module DynamoDBSupport {
     returns (output : Result<DDB.QueryInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
+    var _ :- ValidateExpressionLength(req.KeyConditionExpression, "KeyConditionExpression");
+    var _ :- ValidateExpressionLength(req.FilterExpression, "FilterExpression");
     if search.None? {
       var _ :- Filter.TestBeaconize(
         actions,
@@ -343,6 +372,8 @@ module DynamoDBSupport {
     ensures output.Success? ==> output.value.Items.Some?
     modifies if search.Some? then search.value.Modifies() else {}
   {
+    var _ :- ValidateExpressionLength(req.KeyConditionExpression, "KeyConditionExpression");
+    var _ :- ValidateExpressionLength(req.FilterExpression, "FilterExpression");
     if search.None? {
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
       return Success(resp.(Items := Some(trimmedItems)));
@@ -386,6 +417,7 @@ module DynamoDBSupport {
     returns (output : Result<DDB.ScanInput, Error>)
     modifies if search.Some? then search.value.Modifies() else {}
   {
+    var _ :- ValidateExpressionLength(req.FilterExpression, "FilterExpression");
     if search.None? {
       var _ :- Filter.TestBeaconize(
         actions,
@@ -414,6 +446,7 @@ module DynamoDBSupport {
     ensures ret.Success? ==> ret.value.Items.Some?
     modifies if search.Some? then search.value.Modifies() else {}
   {
+    var _ :- ValidateExpressionLength(req.FilterExpression, "FilterExpression");
     if search.None? {
       var trimmedItems := Seq.Map(i => DoRemoveBeacons(i), resp.Items.value);
       return Success(resp.(Items := Some(trimmedItems)));
