@@ -282,6 +282,10 @@ module DynamoToStruct {
   const LENGTH_LEN64 : uint64 := 4 // number of bytes in an encoded count or length
   const PREFIX_LEN64 : uint64 := 6 // number of bytes in a prefix, i.e. 2-byte type and 4-byte length
 
+  // Max bytes in a DynamoDB attribute name (UTF-8). Validated byte-based, not via the
+  // character-based IsValid_AttributeName, to match the real DynamoDB rule.
+  const MAX_ATTR_NAME_LEN64 : uint64 := 65535
+
   function method AttrToTypeId(a : AttributeValue) : TerminalTypeId
   {
     match a {
@@ -946,6 +950,8 @@ module DynamoToStruct {
     var name :- UTF8.Encode(key);
     assert UTF8.Decode(name).Success?;
     SequenceIsSafeBecauseItIsInMemory(name);
+    // Attribute name length is validated on the UTF-8 byte length, not the character count.
+    :- Need(1 <= |name| as uint64 <= MAX_ATTR_NAME_LEN64, "Attribute name must be between 1 and 65535 UTF-8 bytes");
     var len :- U32ToBigEndian64(|name| as uint64);
 
     //= specification/dynamodb-encryption-client/ddb-attribute-serialization.md#key-value-pair-entries
@@ -1263,6 +1269,8 @@ module DynamoToStruct {
     var len : uint64 :- BigEndianPosToU32As64(serialized, pos);
     var pos := pos + LENGTH_LEN64;
     :- Need(len <= serialized_size-pos, "Key of Map of Structured Data has too few bytes");
+    // Attribute name length is validated on the UTF-8 byte length, not the character count.
+    :- Need(1 <= len <= MAX_ATTR_NAME_LEN64, "Attribute name must be between 1 and 65535 UTF-8 bytes");
     var key :- UTF8.Decode(serialized[pos..pos+len]);
     var pos := pos + len;
 
