@@ -88,4 +88,58 @@ module TestDDBSupport {
     );
     result :- expect QueryInputForBeacons(Some(search), FullTableConfig.attributeActionsOnEncrypt, queryInput);
   }
+
+  // ValidateExpressionLength is the chokepoint that prevents
+  // pathologically long DynamoDB expression strings from reaching the
+  // recursive expression parser. Verify each branch of the helper.
+  method {:test} TestValidateExpressionLength() {
+    // None: nothing to validate.
+    expect ValidateExpressionLength(None, "FilterExpression") == Success(true);
+
+    // Empty string: trivially within the limit.
+    expect ValidateExpressionLength(Some(""), "FilterExpression") == Success(true);
+
+    // Short string: ordinary case.
+    expect ValidateExpressionLength(Some("a < :b"), "FilterExpression") == Success(true);
+
+    // Exactly at the limit (4096 characters): accepted.
+    var atLimit : string := seq(MAX_EXPRESSION_LENGTH, _ => ' ');
+    expect |atLimit| == MAX_EXPRESSION_LENGTH;
+    expect ValidateExpressionLength(Some(atLimit), "KeyConditionExpression") == Success(true);
+
+    // One over the limit (4097 characters): rejected with the expected
+    // error, which names the field that violated the constraint.
+    var overLimit : string := seq(MAX_EXPRESSION_LENGTH + 1, _ => ' ');
+    expect |overLimit| == MAX_EXPRESSION_LENGTH + 1;
+    expect ValidateExpressionLength(Some(overLimit), "KeyConditionExpression")
+        == Failure(E("KeyConditionExpression exceeds maximum length of 4096 characters."));
+    expect ValidateExpressionLength(Some(overLimit), "FilterExpression")
+        == Failure(E("FilterExpression exceeds maximum length of 4096 characters."));
+  }
+
+  // Confirm that the length check is wired into the public API surface:
+  // an over-long KeyConditionExpression must be rejected by
+  // QueryInputForBeacons before any expression parsing takes place.
+  // search := None is sufficient — the length check runs first,
+  // independent of whether searchable encryption is configured.
+  method {:test} TestQueryInputForBeaconsRejectsLongKeyExpression() {
+    var overLimit : string := seq(MAX_EXPRESSION_LENGTH + 1, _ => ' ');
+    var queryInput := DDB.QueryInput(
+      TableName := "SomeTable",
+      KeyConditionExpression := Some(overLimit)
+    );
+    var result := QueryInputForBeacons(None, map[], queryInput);
+    expect result == Failure(E("KeyConditionExpression exceeds maximum length of 4096 characters."));
+  }
+
+  // Same as above for FilterExpression on the scan path.
+  method {:test} TestScanInputForBeaconsRejectsLongFilterExpression() {
+    var overLimit : string := seq(MAX_EXPRESSION_LENGTH + 1, _ => ' ');
+    var scanInput := DDB.ScanInput(
+      TableName := "SomeTable",
+      FilterExpression := Some(overLimit)
+    );
+    var result := ScanInputForBeacons(None, map[], scanInput);
+    expect result == Failure(E("FilterExpression exceeds maximum length of 4096 characters."));
+  }
 }

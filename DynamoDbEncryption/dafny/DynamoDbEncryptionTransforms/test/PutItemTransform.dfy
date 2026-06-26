@@ -30,6 +30,33 @@ module PutItemTransformTest {
 
   const BasicItem : DDB.AttributeMap := map["bar" := DDB.AttributeValue.S("baz")]
 
+  method {:test} TestPutItemAttributeNameTooLongBytes() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
+    var tableName := GetTableName("foo");
+    // 0xE9 is a 2-byte UTF-8 char, so 40000 chars => 80000 bytes, exceeding the 65535-byte limit.
+    var twoByteChar := 0xE9 as char;
+    var longKey : DDB.AttributeName := seq(40000, i => twoByteChar);
+    var input := DDB.PutItemInput(
+      TableName := tableName,
+      Item := map[
+        "bar" := DDB.AttributeValue.S("key"),
+        "encrypt" := DDB.AttributeValue.M(map[longKey := DDB.AttributeValue.S("x")])
+      ]
+    );
+    var transformed := middlewareUnderTest.PutItemInputTransform(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+    expect transformed.Failure?;
+    expect transformed.error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor?;
+    var encErr := transformed.error.AwsCryptographyDbEncryptionSdkDynamoDbItemEncryptor;
+    expect encErr.AwsCryptographyDbEncryptionSdkDynamoDb?;
+    var ddbErr := encErr.AwsCryptographyDbEncryptionSdkDynamoDb;
+    expect ddbErr.DynamoDbEncryptionException?;
+    expect ddbErr.message == "Attribute name must be between 1 and 65535 UTF-8 bytes";
+  }
+
   method TestPutItemInputMultiFail(plaintextOverride : Option<AwsCryptographyDbEncryptionSdkDynamoDbTypes.PlaintextOverride>) {
     assume {:axiom} false;
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsMulti(plaintextOverride);

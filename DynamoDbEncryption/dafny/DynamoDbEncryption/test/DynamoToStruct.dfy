@@ -568,4 +568,32 @@ module DynamoToStructTest {
     expect struct.Failure?;
     expect struct.error == E("Depth of attribute structure to serialize exceeds limit of 32");
   }
+
+  method {:test} TestAttributeNameTooLongBytes() {
+    // 0xE9 is a 2-byte UTF-8 char, so 40000 chars => 80000 bytes, exceeding the 65535-byte limit.
+    var twoByteChar := 0xE9 as char;
+    var longKey : string := seq(40000, i => twoByteChar);
+    var mapValue := AttributeValue.M(map[longKey := AttributeValue.BOOL(true)]);
+    var result := AttrToStructured(mapValue);
+    if !result.Failure? {
+      print "\nAttrToStructured should have failed for an over-long attribute name\n";
+    }
+    expect result.Failure?;
+    expect result.error == "Attribute name must be between 1 and 65535 UTF-8 bytes";
+  }
+
+  method {:test} TestDecodeAttributeNameTooLongBytes() {
+    // Decode side: a serialized map whose key length field is 65536 bytes (one over the
+    // limit), with that many key bytes actually present so the length check is what fails.
+    var bigKey : seq<uint8> := seq(65536, i => 0x41 as uint8);
+    // count=1 | key type id STRING (0,1) | key length 65536 (0x00010000) | key bytes | value type STRING (0,1) | value length 0
+    var mapBytes : seq<uint8> := [0, 0, 0, 1] + [0, 1] + [0, 1, 0, 0] + bigKey + [0, 1] + [0, 0, 0, 0];
+    var data := StructuredDataTerminal(value := mapBytes, typeId := SE.MAP);
+    var result := StructuredToAttr(data);
+    if !result.Failure? {
+      print "\nStructuredToAttr should have failed for an over-long attribute name\n";
+    }
+    expect result.Failure?;
+    expect result.error == "Attribute name must be between 1 and 65535 UTF-8 bytes";
+  }
 }
