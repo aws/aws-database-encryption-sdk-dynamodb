@@ -1,5 +1,24 @@
 # Changelog
 
+## [4.1.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v4.0.0-net...v4.1.0-net) (2026-06-26)
+
+### Features -- All Languages
+
+* **dafny:** Add bucket beacon support ([#1943](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1943)) ([5c53d59](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/5c53d5983a90f93cf5d85d1399704eda0d16d63a))
+
+### Fixes -- All Languages
+
+* validate attribute name length by UTF-8 byte count ([#2329](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2329)) ([1520838](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/1520838e319868cdce363f30beca8a221cddc128))
+
+### Maintenance -- All Languages
+
+* **ci:** add separate changelog links ([#2306](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2306)) ([be7843b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/be7843b437c9ac1a90af1605d2857af40a6f6267))
+* **dafny:** add length check validation for beacon key condition expressions ([#2348](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2348)) ([0b21d4b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/0b21d4b0115a09ce5159129b4f0b84faa1354764))
+* group dependabot updates for each runtimes ([#2337](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2337)) ([6683d0a](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/6683d0a71d3e1e8b980bf573b13bcca529331911))
+* pin time crate to fix CI  ([#2324](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2324)) ([105e862](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/105e8621d92e117a4d11fa35ee3d1ca66bf2179e))
+* Update README to mention DDBECwithSDKV2 examples ([#2276](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2276)) ([bdcf6d0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/bdcf6d0a218e1adc7a5a37e4952c11af12257b38))
+* update README to reflect new changes DBESDK 4.x ([#2333](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2333)) ([cc6c4b9](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/cc6c4b9902f5b3d459ca494f476fd76dbbc2d7b0))
+
 ## [4.0.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.1-net...v4.0.0-net) (2026-05-27)
 
 ### ⚠ BREAKING CHANGES
