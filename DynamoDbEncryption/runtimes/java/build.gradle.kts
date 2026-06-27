@@ -84,20 +84,20 @@ dependencies {
     implementation("software.amazon.smithy.dafny:conversion:${smithyDafnyJavaConversionVersion}")
     implementation("software.amazon.cryptography:aws-cryptographic-material-providers:${mplVersion}")
 
-    implementation(platform("software.amazon.awssdk:bom:2.30.18"))
+    implementation(platform("software.amazon.awssdk:bom:2.46.17"))
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
     implementation("software.amazon.awssdk:kms")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.1.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.1.0")
 
     // For the DDB-EC with SDK V2
-    implementation("io.netty:netty-common:4.2.9.Final")
+    implementation("io.netty:netty-common:4.2.15.Final")
 
-    testImplementation("software.amazon.awssdk:url-connection-client:2.41.17")
+    testImplementation("software.amazon.awssdk:url-connection-client:2.46.17")
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation("org.testng:testng:7.5")
+    testImplementation("org.testng:testng:7.12.0")
     // https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal
     testImplementation("com.amazonaws:DynamoDBLocal:1.+")
     // As of 1.21.0 DynamoDBLocal does not support Apple Silicon
@@ -118,8 +118,8 @@ dependencies {
     // https://mvnrepository.com/artifact/edu.umd.cs.mtc/multithreadedtc
     testImplementation("edu.umd.cs.mtc:multithreadedtc:1.01")
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    testImplementation("org.projectlombok:lombok:1.18.36")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
+    testImplementation("org.projectlombok:lombok:1.18.46")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
 }
 
 publishing {
