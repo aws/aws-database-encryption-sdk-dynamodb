@@ -1,0 +1,832 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/Examples/runtimes/net/Examples.csproj": {}
+  },
+  "projects": {
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj": {
+      "version": "3.9.1",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj",
+        "projectName": "AWS.Cryptography.DbEncryptionSDK.DynamoDb",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/DynamoDbEncryption/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net48", "net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"
+              }
+            }
+          },
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/Examples/runtimes/net/Examples.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/Examples/runtimes/net/Examples.csproj",
+        "projectName": "Examples",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/Examples/runtimes/net/Examples.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/Examples/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/DynamoDbEncryption/runtimes/net/DynamoDbEncryption.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AWSSDK.SecurityToken": {
+              "target": "Package",
+              "version": "[4.*, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[16.11.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj": {
+      "version": "2.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj",
+        "projectName": "AWS.Cryptography.MaterialProviders",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/MPL.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographicMaterialProviders/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net48", "net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj"
+              },
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj"
+              },
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj"
+              },
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          },
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj"
+              },
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj"
+              },
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj"
+              },
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj": {
+      "version": "2.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj",
+        "projectName": "AWS.Cryptography.Internal.AwsCryptographyPrimitives",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/Crypto.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/AwsCryptographyPrimitives/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net48", "net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          },
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AWSSDK.Core": {
+              "target": "Package",
+              "version": "[3.7.304.2, )"
+            },
+            "BouncyCastle.Cryptography": {
+              "target": "Package",
+              "version": "[2.6.2, )"
+            },
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "AWSSDK.Core": {
+              "target": "Package",
+              "version": "[3.7.304.2, )"
+            },
+            "BouncyCastle.Cryptography": {
+              "target": "Package",
+              "version": "[2.6.2, )"
+            },
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj": {
+      "version": "2.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj",
+        "projectName": "AWS.Cryptography.Internal.ComAmazonawsDynamodb",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/ComAmazonawsDynamodb.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsDynamodb/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net48", "net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          },
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AWSSDK.Core": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "AWSSDK.DynamoDBv2": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "AWSSDK.Core": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "AWSSDK.DynamoDBv2": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj": {
+      "version": "2.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj",
+        "projectName": "AWS.Cryptography.Internal.ComAmazonawsKms",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/AWS-KMS.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/ComAmazonawsKms/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net48", "net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          },
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {
+              "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+                "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AWSSDK.Core": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "AWSSDK.KeyManagementService": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "AWSSDK.Core": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "AWSSDK.KeyManagementService": {
+              "target": "Package",
+              "version": "[4.0.*, )"
+            },
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj": {
+      "version": "2.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj",
+        "projectName": "AWS.Cryptography.Internal.StandardLibrary",
+        "projectPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/STD.csproj",
+        "packagesPath": "/Users/jocorell/.nuget/packages/",
+        "outputPath": "/Users/jocorell/crypto-tools/dbesdk/aws-database-encryption-sdk-dynamodb/submodules/MaterialProviders/StandardLibrary/runtimes/net/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": ["/Users/jocorell/.nuget/NuGet/NuGet.Config"],
+        "originalTargetFrameworks": ["net48", "net6.0"],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          },
+          "net48": {
+            "targetAlias": "net48",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": ["NU1605"]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "DafnyRuntime": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Collections.Immutable": {
+              "target": "Package",
+              "version": "[1.7.0, )"
+            },
+            "System.ValueTuple": {
+              "target": "Package",
+              "version": "[4.6.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.417/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
