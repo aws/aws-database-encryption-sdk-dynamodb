@@ -11,6 +11,8 @@ pub struct StandardBeacon {
     pub loc: ::std::option::Option<::std::string::String>,
     /// The name for this Standard Beacon.
     pub name: ::std::option::Option<::std::string::String>,
+    /// The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+    pub number_of_partitions: ::std::option::Option<::std::primitive::i32>,
     /// Optional augmented behavior.
     pub style: ::std::option::Option<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle,
@@ -28,6 +30,10 @@ impl StandardBeacon {
     /// The name for this Standard Beacon.
     pub fn name(&self) -> &::std::option::Option<::std::string::String> {
         &self.name
+    }
+    /// The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+    pub fn number_of_partitions(&self) -> &::std::option::Option<::std::primitive::i32> {
+        &self.number_of_partitions
     }
     /// Optional augmented behavior.
     pub fn style(
@@ -54,6 +60,7 @@ pub struct StandardBeaconBuilder {
     pub(crate) length: ::std::option::Option<::std::primitive::i32>,
     pub(crate) loc: ::std::option::Option<::std::string::String>,
     pub(crate) name: ::std::option::Option<::std::string::String>,
+    pub(crate) number_of_partitions: ::std::option::Option<::std::primitive::i32>,
     pub(crate) style: ::std::option::Option<
         crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconStyle,
     >,
@@ -101,6 +108,26 @@ impl StandardBeaconBuilder {
     pub fn get_name(&self) -> &::std::option::Option<::std::string::String> {
         &self.name
     }
+    /// The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+    pub fn number_of_partitions(
+        mut self,
+        input: impl ::std::convert::Into<::std::primitive::i32>,
+    ) -> Self {
+        self.number_of_partitions = ::std::option::Option::Some(input.into());
+        self
+    }
+    /// The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+    pub fn set_number_of_partitions(
+        mut self,
+        input: ::std::option::Option<::std::primitive::i32>,
+    ) -> Self {
+        self.number_of_partitions = input;
+        self
+    }
+    /// The number of separate partitions across which this particular beacon should be divided. Ths must be no greater than the global numberOfPartitions, and can never be changed once an item containing this beacon has been written.
+    pub fn get_number_of_partitions(&self) -> &::std::option::Option<::std::primitive::i32> {
+        &self.number_of_partitions
+    }
     /// Optional augmented behavior.
     pub fn style(
         mut self,
@@ -141,6 +168,7 @@ impl StandardBeaconBuilder {
                 length: self.length,
                 loc: self.loc,
                 name: self.name,
+                number_of_partitions: self.number_of_partitions,
                 style: self.style,
             },
         )

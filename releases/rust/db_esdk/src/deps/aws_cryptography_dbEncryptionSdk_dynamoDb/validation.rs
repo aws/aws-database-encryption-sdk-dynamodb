@@ -304,6 +304,125 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetEncrypte
     validate_com_Pamazonaws_Pdynamodb_HAttributeMap(input)?;
     Ok(())
 }
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput(
+    input: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetPartitionNumberInput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_Ditem(
+        &input.r#item,
+    )?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_DnumberOfPartitions(&input.r#number_of_partitions)?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_DlogicalTableName(&input.r#logical_table_name)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_for_PartitionSelector_GetPartitionNumber(
+    input: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_partition_number::GetPartitionNumberInput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_Ditem(
+        &input.r#item,
+    )?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_DnumberOfPartitions(&input.r#number_of_partitions)?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_DlogicalTableName(&input.r#logical_table_name)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_Ditem(
+    input: &::std::option::Option<
+        ::std::collections::HashMap<::std::string::String, aws_sdk_dynamodb::types::AttributeValue>,
+    >,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Err(
+            ::aws_smithy_types::error::operation::BuildError::missing_field(
+                "item",
+                "item is required but was not specified",
+            ),
+        );
+    }
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    validate_com_Pamazonaws_Pdynamodb_HAttributeMap(input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_DlogicalTableName(
+    input: &::std::option::Option<::std::string::String>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Err(
+            ::aws_smithy_types::error::operation::BuildError::missing_field(
+                "logical_table_name",
+                "logical_table_name is required but was not specified",
+            ),
+        );
+    }
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberInput_DnumberOfPartitions(
+    input: &::std::option::Option<::std::primitive::i32>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Err(
+            ::aws_smithy_types::error::operation::BuildError::missing_field(
+                "number_of_partitions",
+                "number_of_partitions is required but was not specified",
+            ),
+        );
+    }
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    if !(1..=255).contains(input) {
+        return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::invalid_field(
+        "number_of_partitions",
+        "number_of_partitions failed to satisfy constraint: Member must be between 1 and 255, inclusive",
+    ));
+    }
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberOutput(
+    input: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::GetPartitionNumberOutput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberOutput_DpartitionNumber(&input.r#partition_number)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberOutput_for_PartitionSelector_GetPartitionNumber(
+    input: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::operation::get_partition_number::GetPartitionNumberOutput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberOutput_DpartitionNumber(&input.r#partition_number)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HGetPartitionNumberOutput_DpartitionNumber(
+    input: &::std::option::Option<::std::primitive::i32>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Err(
+            ::aws_smithy_types::error::operation::BuildError::missing_field(
+                "partition_number",
+                "partition_number is required but was not specified",
+            ),
+        );
+    }
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    if !(0..=254).contains(input) {
+        return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::invalid_field(
+        "partition_number",
+        "partition_number failed to satisfy constraint: Member must be between 0 and 254, inclusive",
+    ));
+    }
+    Ok(())
+}
 pub(crate) fn validate_aws_Pcryptography_PmaterialProviders_HBranchKeyIdSupplierReference(
     input: &crate::deps::aws_cryptography_materialProviders::types::branch_key_id_supplier::BranchKeyIdSupplierRef,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {

@@ -6,41 +6,27 @@
 /// The configuration for a particular version of searchable encryption. Currently the only supported version is '1'.
 pub struct BeaconVersion {
     /// The Compound Beacons to be written with items.
-    pub compound_beacons: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::CompoundBeacon,
-        >,
-    >,
-    /// The list of Encrypted Parts that may be included in any compound beacon.
-    pub encrypted_parts: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::EncryptedPart,
-        >,
-    >,
-    /// The configuration for what beacon key(s) to use.
-    pub key_source: ::std::option::Option<
-        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource,
-    >,
-    /// The Key Store that contains the Beacon Keys to use with searchable encryption.
-    pub key_store: ::std::option::Option<crate::deps::aws_cryptography_keyStore::client::Client>,
-    /// The list of Signed Parts that may be included in any compound beacon.
-    pub signed_parts: ::std::option::Option<
-        ::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SignedPart>,
-    >,
-    /// The Standard Beacons to be written with items.
-    pub standard_beacons: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon,
-        >,
-    >,
-    /// The version of searchable encryption configured. This must be '1'.
-    pub version: ::std::option::Option<::std::primitive::i32>,
-    /// The Virtual Fields to be calculated, supporting other searchable enryption configurations.
-    pub virtual_fields: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualField,
-        >,
-    >,
+pub compound_beacons: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::CompoundBeacon>>,
+/// The number of partitions for any beacon that doesn't specify a numberOfPartitions
+pub default_number_of_partitions: ::std::option::Option<::std::primitive::i32>,
+/// The list of Encrypted Parts that may be included in any compound beacon.
+pub encrypted_parts: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::EncryptedPart>>,
+/// The configuration for what beacon key(s) to use.
+pub key_source: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource>,
+/// The Key Store that contains the Beacon Keys to use with searchable encryption.
+pub key_store: ::std::option::Option<crate::deps::aws_cryptography_keyStore::client::Client>,
+/// The number of separate partitions across which beacons should be divided.
+pub maximum_number_of_partitions: ::std::option::Option<::std::primitive::i32>,
+/// How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+pub partition_selector: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>,
+/// The list of Signed Parts that may be included in any compound beacon.
+pub signed_parts: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SignedPart>>,
+/// The Standard Beacons to be written with items.
+pub standard_beacons: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon>>,
+/// The version of searchable encryption configured. This must be '1'.
+pub version: ::std::option::Option<::std::primitive::i32>,
+/// The Virtual Fields to be calculated, supporting other searchable encryption configurations.
+pub virtual_fields: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualField>>,
 }
 impl BeaconVersion {
     /// The Compound Beacons to be written with items.
@@ -52,6 +38,10 @@ impl BeaconVersion {
         >,
     > {
         &self.compound_beacons
+    }
+    /// The number of partitions for any beacon that doesn't specify a numberOfPartitions
+    pub fn default_number_of_partitions(&self) -> &::std::option::Option<::std::primitive::i32> {
+        &self.default_number_of_partitions
     }
     /// The list of Encrypted Parts that may be included in any compound beacon.
     pub fn encrypted_parts(
@@ -77,6 +67,14 @@ impl BeaconVersion {
     ) -> &::std::option::Option<crate::deps::aws_cryptography_keyStore::client::Client> {
         &self.key_store
     }
+    /// The number of separate partitions across which beacons should be divided.
+    pub fn maximum_number_of_partitions(&self) -> &::std::option::Option<::std::primitive::i32> {
+        &self.maximum_number_of_partitions
+    }
+    /// How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+    pub fn partition_selector(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>{
+        &self.partition_selector
+    }
     /// The list of Signed Parts that may be included in any compound beacon.
     pub fn signed_parts(
         &self,
@@ -99,7 +97,7 @@ impl BeaconVersion {
     pub fn version(&self) -> &::std::option::Option<::std::primitive::i32> {
         &self.version
     }
-    /// The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+    /// The Virtual Fields to be calculated, supporting other searchable encryption configurations.
     pub fn virtual_fields(
         &self,
     ) -> &::std::option::Option<
@@ -125,35 +123,17 @@ impl BeaconVersion {
     ::std::clone::Clone, ::std::cmp::PartialEq, ::std::default::Default, ::std::fmt::Debug,
 )]
 pub struct BeaconVersionBuilder {
-    pub(crate) compound_beacons: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::CompoundBeacon,
-        >,
-    >,
-    pub(crate) encrypted_parts: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::EncryptedPart,
-        >,
-    >,
-    pub(crate) key_source: ::std::option::Option<
-        crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource,
-    >,
-    pub(crate) key_store:
-        ::std::option::Option<crate::deps::aws_cryptography_keyStore::client::Client>,
-    pub(crate) signed_parts: ::std::option::Option<
-        ::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SignedPart>,
-    >,
-    pub(crate) standard_beacons: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon,
-        >,
-    >,
-    pub(crate) version: ::std::option::Option<::std::primitive::i32>,
-    pub(crate) virtual_fields: ::std::option::Option<
-        ::std::vec::Vec<
-            crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualField,
-        >,
-    >,
+    pub(crate) compound_beacons: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::CompoundBeacon>>,
+pub(crate) default_number_of_partitions: ::std::option::Option<::std::primitive::i32>,
+pub(crate) encrypted_parts: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::EncryptedPart>>,
+pub(crate) key_source: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconKeySource>,
+pub(crate) key_store: ::std::option::Option<crate::deps::aws_cryptography_keyStore::client::Client>,
+pub(crate) maximum_number_of_partitions: ::std::option::Option<::std::primitive::i32>,
+pub(crate) partition_selector: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>,
+pub(crate) signed_parts: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::SignedPart>>,
+pub(crate) standard_beacons: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::StandardBeacon>>,
+pub(crate) version: ::std::option::Option<::std::primitive::i32>,
+pub(crate) virtual_fields: ::std::option::Option<::std::vec::Vec<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::VirtualField>>,
 }
 impl BeaconVersionBuilder {
     /// The Compound Beacons to be written with items.
@@ -189,6 +169,28 @@ impl BeaconVersionBuilder {
         >,
     > {
         &self.compound_beacons
+    }
+    /// The number of partitions for any beacon that doesn't specify a numberOfPartitions
+    pub fn default_number_of_partitions(
+        mut self,
+        input: impl ::std::convert::Into<::std::primitive::i32>,
+    ) -> Self {
+        self.default_number_of_partitions = ::std::option::Option::Some(input.into());
+        self
+    }
+    /// The number of partitions for any beacon that doesn't specify a numberOfPartitions
+    pub fn set_default_number_of_partitions(
+        mut self,
+        input: ::std::option::Option<::std::primitive::i32>,
+    ) -> Self {
+        self.default_number_of_partitions = input;
+        self
+    }
+    /// The number of partitions for any beacon that doesn't specify a numberOfPartitions
+    pub fn get_default_number_of_partitions(
+        &self,
+    ) -> &::std::option::Option<::std::primitive::i32> {
+        &self.default_number_of_partitions
     }
     /// The list of Encrypted Parts that may be included in any compound beacon.
     pub fn encrypted_parts(
@@ -274,6 +276,48 @@ impl BeaconVersionBuilder {
     ) -> &::std::option::Option<crate::deps::aws_cryptography_keyStore::client::Client> {
         &self.key_store
     }
+    /// The number of separate partitions across which beacons should be divided.
+    pub fn maximum_number_of_partitions(
+        mut self,
+        input: impl ::std::convert::Into<::std::primitive::i32>,
+    ) -> Self {
+        self.maximum_number_of_partitions = ::std::option::Option::Some(input.into());
+        self
+    }
+    /// The number of separate partitions across which beacons should be divided.
+    pub fn set_maximum_number_of_partitions(
+        mut self,
+        input: ::std::option::Option<::std::primitive::i32>,
+    ) -> Self {
+        self.maximum_number_of_partitions = input;
+        self
+    }
+    /// The number of separate partitions across which beacons should be divided.
+    pub fn get_maximum_number_of_partitions(
+        &self,
+    ) -> &::std::option::Option<::std::primitive::i32> {
+        &self.maximum_number_of_partitions
+    }
+    /// How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+    pub fn partition_selector(
+        mut self,
+        input: impl ::std::convert::Into<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>,
+    ) -> Self {
+        self.partition_selector = ::std::option::Option::Some(input.into());
+        self
+    }
+    /// How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+    pub fn set_partition_selector(
+        mut self,
+        input: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>,
+    ) -> Self {
+        self.partition_selector = input;
+        self
+    }
+    /// How to choose the partition for an item. Default behavior is a random between 0 and maximumNumberOfPartitions.
+    pub fn get_partition_selector(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>{
+        &self.partition_selector
+    }
     /// The list of Signed Parts that may be included in any compound beacon.
     pub fn signed_parts(
         mut self,
@@ -354,7 +398,7 @@ impl BeaconVersionBuilder {
     pub fn get_version(&self) -> &::std::option::Option<::std::primitive::i32> {
         &self.version
     }
-    /// The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+    /// The Virtual Fields to be calculated, supporting other searchable encryption configurations.
     pub fn virtual_fields(
         mut self,
         input: impl ::std::convert::Into<
@@ -366,7 +410,7 @@ impl BeaconVersionBuilder {
         self.virtual_fields = ::std::option::Option::Some(input.into());
         self
     }
-    /// The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+    /// The Virtual Fields to be calculated, supporting other searchable encryption configurations.
     pub fn set_virtual_fields(
         mut self,
         input: ::std::option::Option<
@@ -378,7 +422,7 @@ impl BeaconVersionBuilder {
         self.virtual_fields = input;
         self
     }
-    /// The Virtual Fields to be calculated, supporting other searchable enryption configurations.
+    /// The Virtual Fields to be calculated, supporting other searchable encryption configurations.
     pub fn get_virtual_fields(
         &self,
     ) -> &::std::option::Option<
@@ -398,9 +442,12 @@ impl BeaconVersionBuilder {
         ::std::result::Result::Ok(
             crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::BeaconVersion {
                 compound_beacons: self.compound_beacons,
+                default_number_of_partitions: self.default_number_of_partitions,
                 encrypted_parts: self.encrypted_parts,
                 key_source: self.key_source,
                 key_store: self.key_store,
+                maximum_number_of_partitions: self.maximum_number_of_partitions,
+                partition_selector: self.partition_selector,
                 signed_parts: self.signed_parts,
                 standard_beacons: self.standard_beacons,
                 version: self.version,

@@ -43,6 +43,9 @@ pub mod get_item_input_transform;
 /// Types for the `GetItemOutputTransform` operation.
 pub mod get_item_output_transform;
 
+/// Types for the `GetNumberOfQueries` operation.
+pub mod get_number_of_queries;
+
 /// Types for the `PutItemInputTransform` operation.
 pub mod put_item_input_transform;
 

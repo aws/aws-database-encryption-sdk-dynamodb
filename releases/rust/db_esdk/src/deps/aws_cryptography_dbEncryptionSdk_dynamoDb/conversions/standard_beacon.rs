@@ -23,6 +23,7 @@ pub fn to_dafny_plain(
     None => crate::_Wrappers_Compile::Option::None { }
 })
 ,
+ numberOfPartitions: crate::standard_library_conversions::oint_to_dafny(value.number_of_partitions),
     }
 }
 
@@ -65,6 +66,7 @@ pub fn plain_from_dafny(
     _ => None,
 }
 )
+ .set_number_of_partitions(crate::standard_library_conversions::oint_from_dafny(dafny_value.numberOfPartitions().clone()))
                 .build()
                 .unwrap()
     }
