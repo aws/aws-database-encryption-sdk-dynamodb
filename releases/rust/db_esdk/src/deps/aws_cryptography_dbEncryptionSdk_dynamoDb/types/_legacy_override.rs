@@ -11,7 +11,7 @@ pub attribute_actions_on_encrypt: ::std::option::Option<::std::collections::Hash
 pub default_attribute_flag: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_structuredEncryption::types::CryptoAction>,
 /// A configuration for the legacy DynamoDB Encryption Client's Encryptor.
 pub encryptor: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::legacy_dynamo_db_encryptor::LegacyDynamoDbEncryptorRef>,
-/// A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+/// A policy which configures whether legacy behavior overrides encryption and/or decryption.
 pub policy: ::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::LegacyPolicy>,
 }
 impl LegacyOverride {
@@ -38,7 +38,7 @@ impl LegacyOverride {
     pub fn encryptor(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::legacy_dynamo_db_encryptor::LegacyDynamoDbEncryptorRef>{
         &self.encryptor
     }
-    /// A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+    /// A policy which configures whether legacy behavior overrides encryption and/or decryption.
     pub fn policy(
         &self,
     ) -> &::std::option::Option<
@@ -141,7 +141,7 @@ impl LegacyOverrideBuilder {
     pub fn get_encryptor(&self) -> &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::legacy_dynamo_db_encryptor::LegacyDynamoDbEncryptorRef>{
         &self.encryptor
     }
-    /// A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+    /// A policy which configures whether legacy behavior overrides encryption and/or decryption.
     pub fn policy(
         mut self,
         input: impl ::std::convert::Into<
@@ -151,7 +151,7 @@ impl LegacyOverrideBuilder {
         self.policy = ::std::option::Option::Some(input.into());
         self
     }
-    /// A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+    /// A policy which configures whether legacy behavior overrides encryption and/or decryption.
     pub fn set_policy(
         mut self,
         input: ::std::option::Option<
@@ -161,7 +161,7 @@ impl LegacyOverrideBuilder {
         self.policy = input;
         self
     }
-    /// A policy which configurates whether legacy behavior overrides encryption and/or decryption.
+    /// A policy which configures whether legacy behavior overrides encryption and/or decryption.
     pub fn get_policy(
         &self,
     ) -> &::std::option::Option<

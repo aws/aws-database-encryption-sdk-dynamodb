@@ -49,6 +49,12 @@ pub mod get_encrypted_data_key_description_output;
 
 pub mod get_encrypted_data_key_description_union;
 
+pub mod get_partition_number;
+
+pub mod get_partition_number_input;
+
+pub mod get_partition_number_output;
+
 pub mod get_prefix;
 
 pub mod get_segment;
@@ -72,6 +78,8 @@ pub mod lower;
 pub mod multi_key_store;
 
 pub mod part_only;
+
+pub mod partition_selector;
 
 pub mod plaintext_override;
 

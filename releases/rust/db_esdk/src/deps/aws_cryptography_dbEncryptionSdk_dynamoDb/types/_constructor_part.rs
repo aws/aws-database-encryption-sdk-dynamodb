@@ -3,7 +3,7 @@
 // Do not modify this file. This file is machine generated, and any changes to it will be overwritten.
 #[non_exhaustive]
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
-/// A part of a Compound Becaon Construction.
+/// A part of a Compound Beacon Construction.
 pub struct ConstructorPart {
     /// The name of the Encrypted Part or Signed Part for which this constructor part gets a value.
     pub name: ::std::option::Option<::std::string::String>,
