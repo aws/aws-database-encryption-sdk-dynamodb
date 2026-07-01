@@ -9,9 +9,11 @@ fi
 # Go to the directory of this script
 cd $( dirname ${BASH_SOURCE[0]} )
 
-# Check if the provided argument matches the version pattern
-REGEX_VERSION='^\d+\.\d+\.\d+$'
-MATCHES=$(echo "$1" | egrep $REGEX_VERSION | wc -l)
+# Check if the provided argument matches the version pattern.
+# Note: egrep uses POSIX ERE, which does not support PCRE escapes like \d.
+# Use [0-9] instead so the regex actually matches N.N.N versions.
+REGEX_VERSION='^[0-9]+\.[0-9]+\.[0-9]+$'
+MATCHES=$(echo "$1" | egrep "$REGEX_VERSION" | wc -l)
 if [ $MATCHES -eq 0 ]; then
    echo 1>&2 "Version \"$1\" must be N.N.N"
    exit 1

@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.1.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v4.0.0-java...v4.1.0-java) (2026-06-26)
+
+### Features -- All Languages
+
+- **dafny:** Add bucket beacon support ([#1943](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/1943)) ([5c53d59](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/5c53d5983a90f93cf5d85d1399704eda0d16d63a))
+
+### Fixes -- All Languages
+
+- validate attribute name length by UTF-8 byte count ([#2329](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2329)) ([1520838](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/1520838e319868cdce363f30beca8a221cddc128))
+
+### Maintenance -- All Languages
+
+- **dafny:** add length check validation for beacon key condition expressions ([#2348](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2348)) ([0b21d4b](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/0b21d4b0115a09ce5159129b4f0b84faa1354764))
+
+### Miscellaneous
+
+- add retries to examples ([#2262](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2262)) ([ab622af](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/ab622afed8425c8c54544d09031a2dd2f8411653))
+- add special-characters-workaround to avoid sigv4 failure ([#2270](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2270)) ([7223d98](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/7223d98795755337fb31c5d0592b15f006358bf4))
+- Update README to mention DDBECwithSDKV2 examples ([#2276](https://github.com/aws/aws-database-encryption-sdk-dynamodb/issues/2276)) ([bdcf6d0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/commit/bdcf6d0a218e1adc7a5a37e4952c11af12257b38))
+
 ## [4.0.0](https://github.com/aws/aws-database-encryption-sdk-dynamodb/compare/v3.9.0-java...v4.0.0-java) (2026-04-29)
 
 ### ⚠ BREAKING CHANGES
