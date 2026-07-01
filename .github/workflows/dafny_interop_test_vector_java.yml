@@ -51,7 +51,7 @@ jobs:
           role-session-name: DDBEC-Dafny-Java-Tests
           special-characters-workaround: "true" # Some environments (example: windowsOS) cannot tolerate special characters in a secret key.
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
