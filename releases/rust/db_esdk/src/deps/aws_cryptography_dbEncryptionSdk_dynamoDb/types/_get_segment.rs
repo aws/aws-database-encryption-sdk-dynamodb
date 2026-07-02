@@ -5,13 +5,13 @@
 #[derive(::std::clone::Clone, ::std::cmp::PartialEq, ::std::fmt::Debug)]
 /// The Virtual Part Transformation that splits a string and gets a particular segment of that split.
 pub struct GetSegment {
-    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
     pub index: ::std::option::Option<::std::primitive::i32>,
     /// The characters to split on.
     pub split: ::std::option::Option<::std::string::String>,
 }
 impl GetSegment {
-    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
     pub fn index(&self) -> &::std::option::Option<::std::primitive::i32> {
         &self.index
     }
@@ -39,17 +39,17 @@ pub struct GetSegmentBuilder {
     pub(crate) split: ::std::option::Option<::std::string::String>,
 }
 impl GetSegmentBuilder {
-    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
     pub fn index(mut self, input: impl ::std::convert::Into<::std::primitive::i32>) -> Self {
         self.index = ::std::option::Option::Some(input.into());
         self
     }
-    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
     pub fn set_index(mut self, input: ::std::option::Option<::std::primitive::i32>) -> Self {
         self.index = input;
         self
     }
-    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 respresents the segment after the last split character.
+    /// The index of the split string result to return. 0 represents the segment before the first split character. -1 represents the segment after the last split character.
     pub fn get_index(&self) -> &::std::option::Option<::std::primitive::i32> {
         &self.index
     }

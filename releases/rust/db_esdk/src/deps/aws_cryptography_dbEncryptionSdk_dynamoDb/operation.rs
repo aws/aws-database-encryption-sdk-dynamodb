@@ -9,3 +9,6 @@ pub mod get_branch_key_id_from_ddb_key;
 
 /// Types for the `GetEncryptedDataKeyDescription` operation.
 pub mod get_encrypted_data_key_description;
+
+/// Types for the `GetPartitionNumber` operation.
+pub mod get_partition_number;

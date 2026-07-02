@@ -57,6 +57,10 @@ pub use crate::types::_get_item_output_transform_input::GetItemOutputTransformIn
 
 pub use crate::types::_get_item_output_transform_output::GetItemOutputTransformOutputBuilder;
 
+pub use crate::types::_get_number_of_queries_input::GetNumberOfQueriesInputBuilder;
+
+pub use crate::types::_get_number_of_queries_output::GetNumberOfQueriesOutputBuilder;
+
 pub use crate::types::_put_item_input_transform_input::PutItemInputTransformInputBuilder;
 
 pub use crate::types::_put_item_input_transform_output::PutItemInputTransformOutputBuilder;

@@ -65,6 +65,13 @@ pub fn to_dafny_plain(
     None => crate::r#_Wrappers_Compile::Option::None {}
 })
 ,
+ maximumNumberOfPartitions: crate::standard_library_conversions::oint_to_dafny(value.maximum_number_of_partitions),
+ defaultNumberOfPartitions: crate::standard_library_conversions::oint_to_dafny(value.default_number_of_partitions),
+ partitionSelector: ::dafny_runtime::Rc::new(match &value.partition_selector {
+    Some(x) => crate::_Wrappers_Compile::Option::Some { value: crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::partition_selector::to_dafny(&x.clone()) },
+    None => crate::_Wrappers_Compile::Option::None { }
+})
+,
     }
 }
 
@@ -150,6 +157,14 @@ pub fn plain_from_dafny(
             )
         ),
     _ => None
+}
+)
+ .set_maximum_number_of_partitions(crate::standard_library_conversions::oint_from_dafny(dafny_value.maximumNumberOfPartitions().clone()))
+ .set_default_number_of_partitions(crate::standard_library_conversions::oint_from_dafny(dafny_value.defaultNumberOfPartitions().clone()))
+ .set_partition_selector(match (*dafny_value.partitionSelector()).as_ref() {
+    crate::r#_Wrappers_Compile::Option::Some { value } =>
+        Some(crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::conversions::partition_selector::from_dafny(value.clone())),
+    _ => None,
 }
 )
                 .build()

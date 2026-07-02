@@ -148,6 +148,11 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersi
     validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DsignedParts(
         &input.r#signed_parts,
     )?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DmaximumNumberOfPartitions(&input.r#maximum_number_of_partitions)?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DdefaultNumberOfPartitions(&input.r#default_number_of_partitions)?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DpartitionSelector(
+        &input.r#partition_selector,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DcompoundBeacons(
@@ -169,6 +174,22 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersi
     ));
     }
     validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HCompoundBeaconList(input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DdefaultNumberOfPartitions(
+    input: &::std::option::Option<::std::primitive::i32>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    if !(1..=255).contains(input) {
+        return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::invalid_field(
+        "default_number_of_partitions",
+        "default_number_of_partitions failed to satisfy constraint: Member must be between 1 and 255, inclusive",
+    ));
+    }
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DencryptedParts(
@@ -230,6 +251,33 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersi
     let input = input.as_ref().unwrap();
 
     validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HKeyStoreReference(input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DmaximumNumberOfPartitions(
+    input: &::std::option::Option<::std::primitive::i32>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    if !(1..=255).contains(input) {
+        return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::invalid_field(
+        "maximum_number_of_partitions",
+        "maximum_number_of_partitions failed to satisfy constraint: Member must be between 1 and 255, inclusive",
+    ));
+    }
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DpartitionSelector(
+    input: &::std::option::Option<crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HPartitionSelectorReference(input)?;
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HBeaconVersion_DsignedParts(
@@ -1354,6 +1402,11 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HMultiKeySto
 
     Ok(())
 }
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HPartitionSelectorReference(
+    input: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::partition_selector::PartitionSelectorRef,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    Ok(())
+}
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HPartOnly(
     input: &crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::PartOnly,
 ) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
@@ -1642,6 +1695,9 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBea
     validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_Dlength(&input.r#length)?;
     validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_Dloc(&input.r#loc)?;
     validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_Dstyle(&input.r#style)?;
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_DnumberOfPartitions(
+        &input.r#number_of_partitions,
+    )?;
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_Dlength(
@@ -1707,6 +1763,22 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBea
     }
     let input = input.as_ref().unwrap();
 
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_DnumberOfPartitions(
+    input: &::std::option::Option<::std::primitive::i32>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    if !(1..=255).contains(input) {
+        return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::invalid_field(
+        "number_of_partitions",
+        "number_of_partitions failed to satisfy constraint: Member must be between 1 and 255, inclusive",
+    ));
+    }
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_HStandardBeacon_Dstyle(
@@ -3045,6 +3117,73 @@ pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_
     let input = input.as_ref().unwrap();
 
     validate_com_Pamazonaws_Pdynamodb_HGetItemOutput(input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesInput(
+    input: &crate::types::GetNumberOfQueriesInput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesInput_Dinput(&input.r#input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesInput_for_DynamoDbEncryptionTransforms_GetNumberOfQueries(
+    input: &crate::operation::get_number_of_queries::GetNumberOfQueriesInput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesInput_Dinput(&input.r#input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesInput_Dinput(
+    input: &::std::option::Option<aws_sdk_dynamodb::operation::query::QueryInput>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Err(
+            ::aws_smithy_types::error::operation::BuildError::missing_field(
+                "input",
+                "input is required but was not specified",
+            ),
+        );
+    }
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    validate_com_Pamazonaws_Pdynamodb_HQueryInput(input)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesOutput(
+    input: &crate::types::GetNumberOfQueriesOutput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesOutput_DnumberOfQueries(&input.r#number_of_queries)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesOutput_for_DynamoDbEncryptionTransforms_GetNumberOfQueries(
+    input: &crate::operation::get_number_of_queries::GetNumberOfQueriesOutput,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesOutput_DnumberOfQueries(&input.r#number_of_queries)?;
+    Ok(())
+}
+pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HGetNumberOfQueriesOutput_DnumberOfQueries(
+    input: &::std::option::Option<::std::primitive::i32>,
+) -> ::std::result::Result<(), ::aws_smithy_types::error::operation::BuildError> {
+    if input.is_none() {
+        return ::std::result::Result::Err(
+            ::aws_smithy_types::error::operation::BuildError::missing_field(
+                "number_of_queries",
+                "number_of_queries is required but was not specified",
+            ),
+        );
+    }
+    if input.is_none() {
+        return ::std::result::Result::Ok(());
+    }
+    let input = input.as_ref().unwrap();
+
+    if !(1..=255).contains(input) {
+        return ::std::result::Result::Err(::aws_smithy_types::error::operation::BuildError::invalid_field(
+        "number_of_queries",
+        "number_of_queries failed to satisfy constraint: Member must be between 1 and 255, inclusive",
+    ));
+    }
     Ok(())
 }
 pub(crate) fn validate_aws_Pcryptography_PdbEncryptionSdk_PdynamoDb_Ptransforms_HPutItemInputTransformInput(

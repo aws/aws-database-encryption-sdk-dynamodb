@@ -31,6 +31,10 @@ pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_encr
 
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_encrypted_data_key_description_output::GetEncryptedDataKeyDescriptionOutputBuilder;
 
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_partition_number_input::GetPartitionNumberInputBuilder;
+
+pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_partition_number_output::GetPartitionNumberOutputBuilder;
+
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_prefix::GetPrefixBuilder;
 
 pub use crate::deps::aws_cryptography_dbEncryptionSdk_dynamoDb::types::_get_segment::GetSegmentBuilder;

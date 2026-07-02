@@ -89,6 +89,12 @@ pub mod get_item_output_transform_input;
 
 pub mod get_item_output_transform_output;
 
+pub mod get_number_of_queries;
+
+pub mod get_number_of_queries_input;
+
+pub mod get_number_of_queries_output;
+
 pub mod put_item_input_transform;
 
 pub mod put_item_input_transform_input;

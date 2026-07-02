@@ -4,6 +4,7 @@ Note: Starting April 20, 2026, all runtime-specific changes are tracked in separ
 
 - Java: [CHANGELOG-java.md](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/CHANGELOG-java.md)
 - .NET: [CHANGELOG-net.md](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/CHANGELOG-net.md)
+- Rust: [CHANGELOG-rust.md](https://github.com/aws/aws-database-encryption-sdk-dynamodb/blob/main/CHANGELOG-rust.md)
 
 If a runtime-specific changelog is not present, there has been no new release for that runtime after April 20, 2026.
 

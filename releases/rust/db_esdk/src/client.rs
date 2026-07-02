@@ -88,3 +88,5 @@ mod execute_transaction_input_transform;
 mod execute_transaction_output_transform;
 
 mod resolve_attributes;
+
+mod get_number_of_queries;
