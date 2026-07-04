@@ -64,9 +64,9 @@
       System.Collections.Immutable can be removed once dafny.msbuild is updated with
       https://github.com/dafny-lang/dafny.msbuild/pull/10 and versioned
     -->
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="10.0.9" />
     <!-- Work around for dafny-lang/dafny/issues/1951; remove once resolved -->
-    <PackageReference Include="System.ValueTuple" Version="4.6.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.6.2" />
 
     <Compile Include="Extern/**/*.cs"/>
     <Compile Include="Generated/**/*.cs"/>
