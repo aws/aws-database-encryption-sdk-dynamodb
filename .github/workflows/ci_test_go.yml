@@ -54,7 +54,7 @@ jobs:
 
       - name: Pre-pull DynamoDB Local image with retry
         if: matrix.library == 'TestVectors'
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 5
           max_attempts: 3
@@ -76,7 +76,7 @@ jobs:
         run: |
           git config --global core.longpaths true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -113,7 +113,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Init Submodules
         shell: bash
         run: |

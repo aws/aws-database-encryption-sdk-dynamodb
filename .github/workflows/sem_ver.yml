@@ -14,7 +14,7 @@ jobs:
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -34,7 +34,7 @@ jobs:
 
       # Use AWS Secrets Manger GHA to retrieve CI Bot Creds
       - name: Get CI Bot Creds Secret
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        uses: aws-actions/aws-secretsmanager-get-secrets@v3
         with:
           secret-ids: Github/aws-crypto-tools-ci-bot
           parse-json-secrets: true
@@ -49,6 +49,6 @@ jobs:
 
       # Test to see if we can setup semantic release
       - name: Test Semantic Release Installation
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - run: |
           make setup_semantic_release
