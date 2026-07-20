@@ -74,7 +74,11 @@ jobs:
         run: |
           chmod +x ./submodules/MaterialProviders/scripts/go-release-automation.sh
           RELEASE_DIR_NAME=$(./submodules/MaterialProviders/scripts/go-release-automation.sh get_release_dir_name "$PROJECT_NAME" "$VERSION")
-          echo "releaseDirName=$RELEASE_DIR_NAME" >> $GITHUB_OUTPUT
+          {
+            echo "releaseDirName<<__GH_OUTPUT_EOF__"
+            echo "$RELEASE_DIR_NAME"
+            echo "__GH_OUTPUT_EOF__"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
