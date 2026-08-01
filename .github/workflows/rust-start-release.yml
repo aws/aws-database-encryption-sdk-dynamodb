@@ -59,7 +59,7 @@ jobs:
         run: |
           git config --global core.longpaths true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
@@ -81,7 +81,7 @@ jobs:
           dafny-version: 4.10.0
 
       - name: Setup Java 17 for codegen
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.6.0
         with:
           distribution: "corretto"
           java-version: "17"
@@ -140,7 +140,7 @@ jobs:
           special-characters-workaround: "true"
 
       - name: Get CI Bot Creds Secret
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        uses: aws-actions/aws-secretsmanager-get-secrets@v3
         with:
           secret-ids: Github/aws-crypto-tools-ci-bot
           parse-json-secrets: true
