@@ -51,7 +51,7 @@ jobs:
       - name: Enable long paths
         run: git config --global core.longpaths true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch  || github.head_ref || github.ref  }}
           submodules: recursive
