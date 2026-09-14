@@ -1,0 +1,24 @@
+{
+  "_comment": [
+    "DB-ESDK Language_Repository feature-config.json (design trio): this",
+    "server's Feature_Declaration. The union of supported+unsupported must",
+    "equal the commons Feature_Catalog (feature-config.json in commons).",
+    "beacon-partitions is unsupported because the pinned Java DBE 3.8.1 jar",
+    "lacks the StandardBeacon/BeaconVersion partition builder methods."
+  ],
+  "supportedFeatures": [
+    "raw-aes",
+    "raw-rsa",
+    "aws-kms",
+    "aws-kms-mrk",
+    "aws-kms-rsa",
+    "aws-kms-hierarchical",
+    "required-encryption-context-cmm",
+    "ddb-transforms",
+    "searchable-encryption",
+    "structured-encryption",
+    "plaintext-override",
+    "legacy-ddbec"
+  ],
+  "unsupportedFeatures": ["beacon-partitions"]
+}
