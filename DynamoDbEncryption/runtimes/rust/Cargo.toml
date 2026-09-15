@@ -27,7 +27,12 @@ aws-smithy-runtime-api = {version = "1.10.0", features = ["client"] }
 # CanDisable<T>'s blanket `impl<T> From<T>`. Pin time until upstream fixes it.
 # See: https://github.com/time-rs/time/issues/720
 time = ">=0.3.0, <0.3.56"
-aws-smithy-types = "1.3.6"
+# Cap below 1.7: aws-smithy-types 1.7.0 changed Document::Object to carry a new
+# DocumentObject struct instead of HashMap<String, Document>, which the
+# aws-smithy-json 0.63.0 pulled in by the pinned aws-sdk-* / aws-config versions
+# does not compile against (E0308/E0004). Stay on the 1.6.x line until those SDK
+# deps advance to an aws-smithy-json that supports 1.7.
+aws-smithy-types = ">=1.3.6, <1.7"
 chrono = "0.4.43"
 cpu-time = "1.0.0"
 dafny_runtime = { path = "../../../submodules/smithy-dafny/TestModels/dafny-dependencies/dafny_runtime_rust", features = ["sync","small-int"] }
