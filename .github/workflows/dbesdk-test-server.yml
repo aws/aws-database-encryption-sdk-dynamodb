@@ -1,0 +1,49 @@
+# ============================================================================
+# DB-ESDK TestServer CI (product repo) — thin caller of the reusable workflow.
+# ----------------------------------------------------------------------------
+# The full definition (resolve/build/launch every language server, run the
+# cross-language Tests, publish results) lives ONCE in aws-crypto-tools-commons
+# (.github/workflows/dbesdk-test-server.yml, a `workflow_call` reusable workflow)
+# and is NOT re-declared here. This caller only wires the trigger and passes this
+# repo's commit as `dbe_ref`, so the run resolves and tests THIS PR's servers
+# (via the orchestrator's working-tree overlay) against the commons harness.
+#
+# Prerequisites:
+#   * The commons reusable workflow must exist on the referenced ref (`@main`
+#     once aws-crypto-tools-commons#16 has merged).
+#   * The KMS OIDC role's trust policy must trust this repo
+#     (aws-database-encryption-sdk-dynamodb), not only aws-crypto-tools-commons —
+#     otherwise the required KMS scenarios cannot get credentials from a
+#     product-repo-triggered run.
+# ============================================================================
+
+name: DB-ESDK TestServer
+
+on:
+  pull_request:
+    paths:
+      - "test-server/**"
+      - ".github/workflows/dbesdk-test-server.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "test-server/**"
+      - ".github/workflows/dbesdk-test-server.yml"
+  workflow_dispatch:
+
+# Granted to the reusable workflow: contents:read to check out, id-token:write
+# for the OIDC token exchange the KMS scenarios need.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-server:
+    uses: aws/aws-crypto-tools-commons/.github/workflows/dbesdk-test-server.yml@main
+    with:
+      # The commons ref carrying the harness + test cases.
+      commons_ref: main
+      # Resolve the SERVERS from this PR's commit so the run tests these adapters.
+      dbe_ref: ${{ github.sha }}
+    secrets: inherit
