@@ -43,7 +43,7 @@ jobs:
     # TEMPORARY: aws-crypto-tools-commons#16 has not merged yet, so the reusable
     # workflow does not exist on commons `main`. Point at the #16 branch so this
     # CI runs now; revert BOTH refs below to `main` before merging this PR.
-    uses: aws/aws-crypto-tools-commons/.github/workflows/dbesdk-test-server.yml@huaye/dbesdk-test-server-main
+    uses: aws/aws-crypto-tools-commons/.github/workflows/dbesdk-test-server.yml@3000f4f3c48784bcb366921886b889b0d751a903
     with:
       # The commons ref carrying the harness + test cases (TEMPORARY: #16 branch
       # until it merges to main; revert to `main` before merging this PR).
