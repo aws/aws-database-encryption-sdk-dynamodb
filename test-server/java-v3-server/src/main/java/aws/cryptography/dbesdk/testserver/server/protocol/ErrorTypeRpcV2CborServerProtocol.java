@@ -11,7 +11,7 @@ import software.amazon.smithy.model.shapes.ShapeId;
  * codec emits the {@code __type} discriminator on modeled errors
  * ({@link DiscriminatingCborCodec}), so {@code GenericServerError} and
  * {@code DBESDKClientError} transmit and stay distinguishable through the stock
- * generated Java {@code Test_Client} (Requirements 3.9, 4.11, 5.5, 5.6, 6.1–6.4).
+ * generated Java {@code Test_Client}.
  *
  * <p>It parses and dispatches the same {@code /service/{Service}/operation/{Op}}
  * rpcv2 requests as the stock protocol (path-based resolution, inherited from

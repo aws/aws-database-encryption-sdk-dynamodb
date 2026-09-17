@@ -353,7 +353,7 @@ public final class ItemEncryptorFactory {
     if (awsKms != null) {
       // Single symmetric KMS key -> the single-key KMS keyring (the faithful
       // mapping for one symmetric key). The KMS client is built eagerly; no
-      // network call happens until Encrypt/Decrypt (Requirement 14.1, 14.14).
+      // network call happens until Encrypt/Decrypt.
       CreateAwsKmsKeyringInput.Builder builder = CreateAwsKmsKeyringInput
         .builder()
         .kmsKeyId(awsKms.getKmsKeyId())
@@ -426,14 +426,14 @@ public final class ItemEncryptorFactory {
   }
 
   /**
-   * Build the AWS KMS RSA keyring (Requirement 14.3, 14.4). The keyring needs
+   * Build the AWS KMS RSA keyring. The keyring needs
    * the RSA <em>public key</em> bytes (for encrypt), the KMS key id/ARN and a KMS
    * client (for decrypt, which calls {@code kms:Decrypt}), and an RSAES-OAEP
    * encryption algorithm mapped from the modeled {@link KmsRsaEncryptionAlgorithm}.
    *
    * <p>Public-key sourcing: if the modeled config carries {@code publicKey}, it
    * is used and construction stays fully offline. Otherwise the factory fetches
-   * it once via {@code kms:GetPublicKey} — a network call the design permits at
+   * it once via {@code kms:GetPublicKey} — a network call permitted at
    * {@code CreateClient} time (KMS scenarios only run when credentials are
    * present). Either way, no encrypt/decrypt happens at construction.
    */
@@ -496,7 +496,7 @@ public final class ItemEncryptorFactory {
   }
 
   /**
-   * Build the AWS KMS discovery keyring (Requirement 14.3, 14.4). A discovery
+   * Build the AWS KMS discovery keyring. A discovery
    * keyring is decrypt-only: it needs a KMS client (its region comes from the
    * ambient AWS region / credentials the online Tests supply) and, optionally, a
    * discovery filter scoping decrypt to a partition + account ids. On the

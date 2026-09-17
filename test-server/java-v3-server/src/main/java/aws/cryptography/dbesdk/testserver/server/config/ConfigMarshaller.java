@@ -11,11 +11,10 @@ import software.amazon.smithy.java.core.serde.Codec;
 
 /**
  * Marshals and unmarshals the tagged-union config shapes through the exact wire
- * form used by the service protocol, rpcv2Cbor (Requirement 2.2). Because the
+ * form used by the service protocol, rpcv2Cbor. Because the
  * config shapes reference themselves recursively — a Caching or
  * RequiredEncryptionContext CMM wraps another CMM, and a Multi keyring contains
- * child keyrings — marshalling round-trips at any nesting depth
- * (Requirement 2.5).
+ * child keyrings — marshalling round-trips at any nesting depth.
  *
  * <p>The generated shapes already know how to (de)serialize themselves via
  * smithy-java's serde; this class pins that to the rpcv2Cbor codec so what is

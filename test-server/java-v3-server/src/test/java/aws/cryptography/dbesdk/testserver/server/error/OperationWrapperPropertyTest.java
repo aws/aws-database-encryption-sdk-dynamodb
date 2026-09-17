@@ -31,7 +31,6 @@ class OperationWrapperPropertyTest {
     THROW_NON_MODELED,
   }
 
-  // Feature: dbesdk-test-server, Property 9: Every operation returns a modeled outcome with a non-empty message
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void everyOperationYieldsAModeledOutcome(
     @ForAll("outcomes") Outcome outcome,

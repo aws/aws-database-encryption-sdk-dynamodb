@@ -6,10 +6,9 @@ import aws.cryptography.dbesdk.testserver.server.registry.DbesdkClient;
 
 /**
  * Resolves the {@code ClientId} required by every non-{@code CreateClient}
- * operation (Requirement 3.8). An absent, empty, or unknown id yields a
+ * operation. An absent, empty, or unknown id yields a
  * {@link GenericServerError}; because the guard throws before any ESDK call is
- * made, no ESDK operation runs and the {@link ClientRegistry} is left unchanged
- * (Requirement 3.9, Property 5).
+ * made, no ESDK operation runs and the {@link ClientRegistry} is left unchanged.
  */
 public final class ClientIdGuard {
 

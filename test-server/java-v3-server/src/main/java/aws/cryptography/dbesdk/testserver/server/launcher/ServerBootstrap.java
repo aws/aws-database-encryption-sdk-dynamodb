@@ -10,8 +10,7 @@ import software.amazon.smithy.java.server.Server;
  * hand-written handlers (via {@link DbesdkTestServerHandlers}) and starts the
  * smithy-java rpcv2Cbor HTTP server (Netty) bound to a configurable port, so a
  * user (or a manual two-step run) can start a real over-HTTP server and point
- * the single {@code Tests} suite at it purely through runtime configuration
- * (Requirement 7.3).
+ * the single {@code Tests} suite at it purely through runtime configuration.
  *
  * <p>This is intentionally minimal: it does NOT build the full
  * Configuration_Set / source-resolution orchestrator (that is task 7). It is the

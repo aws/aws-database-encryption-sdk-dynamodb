@@ -11,20 +11,20 @@ import aws.cryptography.dbesdk.testserver.server.model.RequiredEncryptionContext
 
 /**
  * Enforces the "exactly one variant member set" invariant on the polymorphic
- * config shapes, which are modeled as a tagged union via optional members
- * (Requirement 2.2). Smithy structures permit any subset of optional members,
+ * config shapes, which are modeled as a tagged union via optional members.
+ * Smithy structures permit any subset of optional members,
  * so this invariant is a runtime check, not a type-system guarantee.
  *
  * <p>Every polymorphic shape reachable from an {@link DBEClientConfig} is
- * validated, recursing through the recursive variants to any nesting depth
- * (Requirement 2.5): {@link CryptographicMaterialsManager} (Default /
+ * validated, recursing through the recursive variants to any nesting depth:
+ * {@link CryptographicMaterialsManager} (Default /
  * RequiredEncryptionContext / Caching, where Caching and
  * RequiredEncryptionContext wrap another CMM) and {@link Keyring} (whose Multi
  * variant contains child keyrings and an optional generator keyring).
  *
  * <p>When a polymorphic shape has zero, or two or more, variant members set, the
  * request is rejected with an {@link DBESDKClientError} <em>before</em> the
- * operation runs (Requirements 2.3, 2.4). Validation is read-only: it performs
+ * operation runs. Validation is read-only: it performs
  * no operation and mutates no state.
  */
 public final class ConfigValidator {
@@ -35,7 +35,7 @@ public final class ConfigValidator {
    * nested beneath it) must itself satisfy the exactly-one-variant invariant.
    *
    * @throws DBESDKClientError if any polymorphic shape does not have exactly one
-   *     variant member set (Requirements 2.3, 2.4).
+   *     variant member set.
    */
   public void validate(DBEClientConfig config) {
     if (config == null) {

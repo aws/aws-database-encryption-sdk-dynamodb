@@ -25,8 +25,7 @@ import software.amazon.smithy.java.io.datastream.DataStream;
  * off {@code __type} to reconstruct the specific modeled error shape; without it
  * both {@code GenericServerError} and {@code DBESDKClientError} come back as a
  * generic {@code CallException} and are indistinguishable end-to-end (the
- * smithy-java rpcv2-CBOR modeled-error transmission caveat called out in the
- * design's Error Handling section).
+ * smithy-java rpcv2-CBOR modeled-error transmission caveat).
  *
  * <p>Serializing the error as {@code Document.of(struct)} makes the CBOR document
  * path emit the {@code __type} discriminator (the error's shape id) alongside the

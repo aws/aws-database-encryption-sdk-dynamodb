@@ -21,12 +21,11 @@ import net.jqwik.api.constraints.IntRange;
  */
 class ClientRegistryPropertyTest {
 
-  /** Canonical 8-4-4-4-12 hex UUID form (Requirement 3.2). */
+  /** Canonical 8-4-4-4-12 hex UUID form. */
   private static final Pattern UUID_FORMAT = Pattern.compile(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
   );
 
-  // Feature: dbesdk-test-server, Property 2: ClientId values are unique and well-formed
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void clientIdsAreUniqueAndWellFormed(
     @ForAll @IntRange(min = 1, max = 50) int count
@@ -62,7 +61,6 @@ class ClientRegistryPropertyTest {
     );
   }
 
-  // Feature: dbesdk-test-server, Property 3: CreateClient registers exactly one resolvable client
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void registerAddsExactlyOneResolvableClient(
     @ForAll @IntRange(min = 0, max = 20) int preexisting,

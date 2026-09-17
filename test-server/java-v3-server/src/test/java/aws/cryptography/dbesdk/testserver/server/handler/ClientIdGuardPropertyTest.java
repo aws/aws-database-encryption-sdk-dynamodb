@@ -32,7 +32,6 @@ class ClientIdGuardPropertyTest {
     DECRYPT_ITEM,
   }
 
-  // Feature: dbesdk-test-server, Property 5: Missing or unknown ClientId is rejected without side effects
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void missingOrUnknownClientIdIsRejectedWithoutSideEffects(
     @ForAll("ops") Op op,

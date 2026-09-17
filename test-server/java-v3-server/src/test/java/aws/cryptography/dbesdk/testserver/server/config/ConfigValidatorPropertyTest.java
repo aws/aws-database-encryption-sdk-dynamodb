@@ -24,7 +24,6 @@ class ConfigValidatorPropertyTest {
 
   private final ConfigValidator validator = new ConfigValidator();
 
-  // Feature: dbesdk-test-server, Property 6: Polymorphic config requires exactly one variant member
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void keyringWithoutExactlyOneVariantIsRejected(
     @ForAll("nonSingletonKeyringVariants") Set<String> variants
@@ -48,7 +47,6 @@ class ConfigValidatorPropertyTest {
     );
   }
 
-  // Feature: dbesdk-test-server, Property 6: Polymorphic config requires exactly one variant member
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void cmmWithoutExactlyOneVariantIsRejected(
     @ForAll("nonSingletonCmmVariants") Set<String> variants
@@ -72,7 +70,6 @@ class ConfigValidatorPropertyTest {
     );
   }
 
-  // Feature: dbesdk-test-server, Property 6: Polymorphic config requires exactly one variant member
   // Positive control: the boundary case of exactly one variant is accepted, confirming the
   // validator rejects only when the count is not one.
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)

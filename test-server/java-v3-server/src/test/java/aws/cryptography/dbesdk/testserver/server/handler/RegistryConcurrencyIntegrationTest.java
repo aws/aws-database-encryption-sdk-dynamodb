@@ -31,8 +31,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 /**
- * Integration test for the thread-safe {@link ClientRegistry} under concurrency
- * (Requirement 3.3). It drives the fully-wired Java server handlers over one
+ * Integration test for the thread-safe {@link ClientRegistry} under concurrency.
+ * It drives the fully-wired Java server handlers over one
  * shared registry from many threads in parallel — each thread repeatedly calls
  * {@code CreateClient} (constructing a real offline Raw-AES DBE item encryptor),
  * round-trips an item through {@code EncryptItem}/{@code DecryptItem} against the

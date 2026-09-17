@@ -38,7 +38,6 @@ import net.jqwik.api.constraints.IntRange;
  */
 class CreateClientFailurePropertyTest {
 
-  // Feature: dbesdk-test-server, Property 4: Failed CreateClient leaves the registry unchanged
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void failedCreateClientLeavesRegistryUnchanged(
     @ForAll boolean badRsaLeaf,

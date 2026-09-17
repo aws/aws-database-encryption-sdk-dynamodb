@@ -14,13 +14,13 @@ import software.amazon.smithy.java.server.RequestContext;
 
 /**
  * Constructs a real ESDK Java client from the modeled config and registers it,
- * returning its {@code ClientId} (Requirements 3.1, 3.5).
+ * returning its {@code ClientId}.
  *
  * <p>The config is first validated for the exactly-one-variant invariant, which
- * fails with a modeled {@link DBESDKClientError} (Requirements 2.3, 2.4). Then the
+ * fails with a modeled {@link DBESDKClientError}. Then the
  * client is constructed; if construction fails the registry is left unchanged, no
- * {@code ClientId} is returned, and a {@link GenericServerError} is raised
- * (Requirement 3.6, Property 4). Registration happens only after a successful
+ * {@code ClientId} is returned, and a {@link GenericServerError} is raised.
+ * Registration happens only after a successful
  * construction, so a failed {@code CreateClient} never adds an entry.
  */
 public final class CreateClientHandler implements CreateClientOperation {
@@ -59,7 +59,7 @@ public final class CreateClientHandler implements CreateClientOperation {
           client = factory.create(input.getConfig());
         } catch (DBESDKClientError modeled) {
           // A config the ESDK itself rejects at construction is still a
-          // client-construction failure per Requirement 3.6.
+          // client-construction failure.
           throw constructionFailure(modeled);
         } catch (RuntimeException constructionFailure) {
           // (3.6) Construction failed: leave the registry unchanged and

@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  * demand, either as a DBE-origin failure (a wrapped {@link DbesdkClientException})
  * or a framework-origin failure (a raw unchecked exception). It counts item-crypto
  * invocations so tests can assert that a rejected request performed no DBE
- * operation (Property 5).
+ * operation.
  */
 final class ControllableDbesdkClient implements DbesdkClient {
 

@@ -7,21 +7,18 @@ import software.amazon.cryptography.materialproviders.model.CollectionOfErrors;
 
 /**
  * Maps any {@link Throwable} raised while handling an operation onto exactly one
- * of the two modeled error shapes, by the origin of the failure (Property 8,
- * Requirements 5.5, 5.6, 6.1, 6.2).
+ * of the two modeled error shapes, by the origin of the failure.
  *
  * <p>The mapping is:
  * <ul>
  *   <li>An already-modeled {@link GenericServerError} or {@link DBESDKClientError}
- *       is returned unchanged, preserving its type and message (Requirement 6.1).</li>
+ *       is returned unchanged, preserving its type and message.</li>
  *   <li>An {@link DbesdkClientException} — a failure that originated inside the real
  *       ESDK client — becomes an {@link DBESDKClientError} whose message is the ESDK
- *       exception's message, unmodified, and never a {@link GenericServerError}
- *       (Requirements 5.6, Property 8).</li>
+ *       exception's message, unmodified, and never a {@link GenericServerError}.</li>
  *   <li>Any other (non-modeled) exception — a TestServer-framework failure —
  *       becomes a {@link GenericServerError} with a non-empty message that includes
- *       the originating exception's description, and never an {@link DBESDKClientError}
- *       (Requirements 5.5, 6.2, Property 8).</li>
+ *       the originating exception's description, and never an {@link DBESDKClientError}.</li>
  * </ul>
  *
  * <p>This is a pure function of the throwable and the operation name; it performs
@@ -69,7 +66,7 @@ public final class ErrorClassifier {
       .build();
   }
 
-  /** Build a non-empty description of a non-modeled exception (Requirement 6.2). */
+  /** Build a non-empty description of a non-modeled exception. */
   private static String describe(Throwable failure) {
     if (failure == null) {
       return "unknown error";

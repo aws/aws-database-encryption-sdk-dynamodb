@@ -30,7 +30,6 @@ class ErrorMappingPropertyTest {
     DECRYPT_ITEM,
   }
 
-  // Feature: dbesdk-test-server, Property 8: Errors are mapped by origin
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void errorsAreMappedByOrigin(
     @ForAll("ops") Op op,

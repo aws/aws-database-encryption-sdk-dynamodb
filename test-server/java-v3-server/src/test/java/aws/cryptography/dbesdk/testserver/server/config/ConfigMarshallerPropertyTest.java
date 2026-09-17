@@ -25,8 +25,8 @@ import net.jqwik.api.Provide;
  * Property-based test for {@link ConfigMarshaller}'s recursive round-trip through
  * the rpcv2Cbor wire form, using jqwik. Generates arbitrarily nested configs —
  * Multi keyrings containing child keyrings, and Caching / RequiredEncryptionContext
- * CMMs wrapping other CMMs — exercising both recursion points of the model
- * (Requirement 2.5). Runs a minimum of 100 generated iterations.
+ * CMMs wrapping other CMMs — exercising both recursion points of the model.
+ * Runs a minimum of 100 generated iterations.
  */
 class ConfigMarshallerPropertyTest {
 
@@ -34,7 +34,6 @@ class ConfigMarshallerPropertyTest {
 
   private final ConfigMarshaller marshaller = new ConfigMarshaller();
 
-  // Feature: dbesdk-test-server, Property 7: Recursive config marshalling round-trips at any depth
   @Property(tries = 200, generation = GenerationMode.RANDOMIZED)
   void recursiveConfigRoundTripsAtAnyDepth(
     @ForAll("nestedConfigs") DBEClientConfig config

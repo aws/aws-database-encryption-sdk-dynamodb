@@ -5,7 +5,7 @@ package aws.cryptography.dbesdk.testserver.server.error;
  * outcome is exactly one of: a successful modeled response, a
  * {@link aws.cryptography.dbesdk.testserver.server.model.GenericServerError}, or an
  * {@link aws.cryptography.dbesdk.testserver.server.model.DBESDKClientError} — never a
- * bare HTTP error (Requirements 6.1, 6.2, 6.3, 6.4, Property 9).
+ * bare HTTP error.
  *
  * <p>The wrapper runs the handler body; if it returns normally that value is the
  * successful modeled response. If the body throws, the throwable is routed
@@ -45,7 +45,7 @@ public final class OperationWrapper {
    * @return the successful modeled response produced by {@code body}.
    * @throws aws.cryptography.dbesdk.testserver.server.model.GenericServerError or
    *     {@link aws.cryptography.dbesdk.testserver.server.model.DBESDKClientError} if
-   *     the body throws; the origin determines which (Property 8, 9).
+   *     the body throws; the origin determines which.
    */
   public <T> T invoke(String operationName, HandlerBody<T> body) {
     try {
