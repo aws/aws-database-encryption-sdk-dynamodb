@@ -122,7 +122,7 @@ app.MapPost("/service/DBESDKTestServer/operation/{operation}",
             // a GenericServerError, per the operation wrapper.
             status = StatusCodes.Status400BadRequest;
             payload = EncodeError(ServerException.Generic(
-                $"malformed rpcv2Cbor request: {unexpected.Message}"));
+                $"unexpected server error: {unexpected.Message}"));
         }
 
         context.Response.StatusCode = status;

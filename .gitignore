@@ -19,3 +19,5 @@ specification_compliance_report.html
 
 # logs 
 *.log
+# Test-server build markers (per-server, written by make orchestrate)
+.dbesdk-build-stamp
