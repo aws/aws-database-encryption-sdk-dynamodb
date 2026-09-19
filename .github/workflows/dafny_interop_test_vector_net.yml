@@ -34,20 +34,20 @@ jobs:
       DOTNET_NOLOGO: 1
     steps:
       - name: Setup DynamoDB Local
-        uses: rrainn/dynamodb-action@v4.0.0
+        uses: rrainn/dynamodb-action@v5.0.0
         with:
           port: 8000
           cors: "*"
       - name: Support longpaths on Git checkout
         run: |
           git config --global core.longpaths true
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
