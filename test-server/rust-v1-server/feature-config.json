@@ -1,0 +1,23 @@
+{
+  "_comment": [
+    "DB-ESDK Language_Repository feature-config.json (design trio): this",
+    "server's Feature_Declaration. The union of supported+unsupported must",
+    "equal the commons Feature_Catalog (feature-config.json in commons).",
+    "structured-encryption is unsupported because the StructuredEncryption",
+    "client is pub(crate) in aws-db-esdk 1.3.0; legacy-ddbec has no Rust adapter."
+  ],
+  "supportedFeatures": [
+    "raw-aes",
+    "raw-rsa",
+    "aws-kms",
+    "aws-kms-mrk",
+    "aws-kms-rsa",
+    "aws-kms-hierarchical",
+    "required-encryption-context-cmm",
+    "ddb-transforms",
+    "searchable-encryption",
+    "beacon-partitions",
+    "plaintext-override"
+  ],
+  "unsupportedFeatures": ["structured-encryption", "legacy-ddbec"]
+}

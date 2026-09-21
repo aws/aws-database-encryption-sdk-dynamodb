@@ -1,0 +1,14 @@
+{
+  "_comment": [
+    "DB-ESDK Language_Repository server-config.json (design trio): the",
+    "Commons_Repository this server pairs with, plus product. The",
+    "supported/unsupported Feature_Declaration lives in the sibling",
+    "feature-config.json and this server's exhibited bugs in bug-config.json."
+  ],
+  "commonsRepository": {
+    "name": "aws-crypto-tools-commons",
+    "url": "git@github.com:aws/aws-crypto-tools-commons.git",
+    "branch": "huaye/dbesdk-test-server-main"
+  },
+  "product": "dbesdk"
+}
