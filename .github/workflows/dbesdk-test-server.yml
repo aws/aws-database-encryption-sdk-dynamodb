@@ -9,10 +9,6 @@
 # orchestrator's working-tree overlay at THIS PR's checkout so the run tests
 # these servers.
 #
-# TEMPORARY: COMMONS_REF points at the aws-crypto-tools-commons#16 branch, which
-# carries the harness until #16 merges. Switch COMMONS_REF to `main` once #16 is
-# merged.
-#
 # Prerequisites:
 #   * Repo secret COMMONS_REPO_PAT: a token with Contents:Read on
 #     aws-crypto-tools-commons (fine-grained) or `repo` scope (classic).
@@ -56,9 +52,8 @@ jobs:
       # must trust this repo. Override via the repo variable to target a
       # different account/role.
       KMS_CI_ROLE_ARN: ${{ vars.DBESDK_TEST_SERVER_KMS_ROLE_ARN || 'arn:aws:iam::370957321024:role/dbesdk-test-server-ci-kms-role' }}
-      # TEMPORARY: the harness lives on the #16 branch until it merges to commons
-      # main. Change to `main` once aws-crypto-tools-commons#16 is merged.
-      COMMONS_REF: huaye/dbesdk-test-server-main
+      # aws-crypto-tools-commons ref carrying the harness + test cases.
+      COMMONS_REF: main
 
     steps:
       - name: Checkout the DB-ESDK servers (this PR's commit)
