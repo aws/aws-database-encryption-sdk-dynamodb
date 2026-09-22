@@ -1,21 +1,11 @@
-# ============================================================================
-# DB-ESDK TestServer CI (product repo) — inline run against the commons harness.
-# ----------------------------------------------------------------------------
-# The harness + test cases + orchestrator live in the PRIVATE repo
-# aws-crypto-tools-commons. A cross-repo `uses:` of its reusable workflow is
-# blocked (a private repo's Actions access is not shared), so this workflow does
-# NOT call it. Instead it checks the commons harness out with a read-only PAT
-# (secret COMMONS_REPO_PAT) and runs `make orchestrate` here, pointing the
-# orchestrator's working-tree overlay at THIS PR's checkout so the run tests
-# these servers.
+# DB-ESDK TestServer CI: runs the test-server suite for this repo. The tests and
+# orchestrator live in the private aws-crypto-tools-commons repo. A cross-repo
+# reusable-workflow call can't reach a private repo, so this checks it out with a
+# read-only PAT (COMMONS_REPO_PAT) and runs `make orchestrate` against this PR's
+# servers, so they are the ones tested.
 #
-# Prerequisites:
-#   * Repo secret COMMONS_REPO_PAT: a token with Contents:Read on
-#     aws-crypto-tools-commons (fine-grained) or `repo` scope (classic).
-#   * The KMS OIDC role's trust policy must trust this repo
-#     (aws-database-encryption-sdk-dynamodb) so the required KMS scenarios can
-#     get credentials from a product-repo-triggered run.
-# ============================================================================
+# Needs a repo secret COMMONS_REPO_PAT with Contents:Read on aws-crypto-tools-commons,
+# and a KMS OIDC role whose trust policy trusts this repo.
 
 name: DB-ESDK TestServer
 
@@ -32,10 +22,9 @@ on:
       - ".github/workflows/dbesdk-test-server.yml"
   workflow_dispatch:
 
-# contents:read to check out; id-token:write for the OIDC token exchange the
-# required KMS scenarios need.
 permissions:
   contents: read
+  # For the KMS OIDC token exchange.
   id-token: write
 
 jobs:
@@ -45,28 +34,23 @@ jobs:
     env:
       AWS_REGION: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
       AWS_DEFAULT_REGION: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
-      # Daemon-less so every server/Tests JVM the orchestrator forks inherits
-      # the live step environment (the short-lived OIDC AWS_* credentials).
+      # No daemon, so each server/Tests JVM the orchestrator forks inherits the
+      # short-lived OIDC credentials from this step's environment.
       GRADLE_OPTS: -Dorg.gradle.daemon=false
-      # OIDC role for the required KMS + keystore scenarios; its trust policy
-      # must trust this repo. Override via the repo variable to target a
-      # different account/role.
+      # IAM role the tests assume for their AWS calls; override with the repo
+      # variable to target a different account/role.
       KMS_CI_ROLE_ARN: ${{ vars.DBESDK_TEST_SERVER_KMS_ROLE_ARN || 'arn:aws:iam::370957321024:role/dbesdk-test-server-ci-kms-role' }}
-      # aws-crypto-tools-commons ref carrying the harness + test cases.
       COMMONS_REF: main
 
     steps:
       - name: Checkout the DB-ESDK servers (this PR's commit)
-        # This repo, at the PR commit — fed to `make orchestrate` as the
-        # working-tree overlay so the run tests THESE servers.
+        # make orchestrate below tests these servers directly (no clone).
         uses: actions/checkout@v4
         with:
           path: dbe
 
-      - name: Checkout aws-crypto-tools-commons harness (private, via PAT)
-        # The harness + Configuration_Set (tests, model, orchestrator,
-        # server-config) live in the PRIVATE commons repo, so the checkout needs
-        # a read-only token; the default GITHUB_TOKEN cannot read another repo.
+      - name: Checkout aws-crypto-tools-commons (private, via PAT)
+        # Private repo — the default GITHUB_TOKEN can't read it.
         uses: actions/checkout@v4
         with:
           repository: aws/aws-crypto-tools-commons
@@ -74,26 +58,29 @@ jobs:
           token: ${{ secrets.COMMONS_REPO_PAT }}
           path: commons
 
-      - name: Set up JDK 21 (Temurin) for the commons harness + Java server
+      - name: Set up JDK 21 (Temurin)
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up the Rust toolchain (for the rust-v1 Language_Server)
+      - name: Set up the Rust toolchain
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
           rustup default stable
           cargo --version
 
-      - name: Set up Go (for the Rust server's aws-lc-sys native build)
+      - name: Set up Go
+        # Only used to build the rust server's aws-lc-sys native code.
         uses: actions/setup-go@v5
         with:
           go-version: "stable"
+          # This isn't a Go project (Go only builds aws-lc-sys above), so there's no
+          # go.sum; skip setup-go's cache to avoid its "file not found" warning.
           cache: false
 
-      - name: Set up .NET 8 (for the net-v4 Language_Server)
+      - name: Set up .NET 8
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
@@ -110,6 +97,8 @@ jobs:
             ~/.nuget/packages
           key: >-
             ${{ runner.os }}-dbesdk-test-server-${{ hashFiles(
+              'commons/test-server-common/*/build.gradle.kts',
+              'commons/test-server-common/*/gradle/wrapper/gradle-wrapper.properties',
               'commons/dbesdk/test-server/*/build.gradle.kts',
               'commons/dbesdk/test-server/*/gradle/wrapper/gradle-wrapper.properties'
             ) }}
@@ -117,8 +106,7 @@ jobs:
             ${{ runner.os }}-dbesdk-test-server-
 
       - name: Install Smithy CLI
-        # `make validate` runs `smithy validate` on the model. Deterministic
-        # download of the official release, version-pinned; no third-party action.
+        # Needed by `make validate`; pinned official release.
         run: |
           set -euo pipefail
           SMITHY_VERSION="1.58.0"
@@ -130,19 +118,18 @@ jobs:
           smithy --version
 
       - name: Rewrite the DBE repo SSH URL to public HTTPS
-        # Defensive: the run uses the DBE working-tree overlay below (no server
-        # clone), but if any component resolves via git, the Server_Locations
-        # use an SSH URL. That repo is PUBLIC, so rewrite SSH to plain HTTPS so a
-        # clone works without SSH keys on the runner.
+        # This run tests the checked-out servers directly, so it normally clones
+        # nothing; but if anything did resolve via git, its SSH URL needs rewriting
+        # to work on a runner that has no SSH keys.
         run: |
           set -euo pipefail
           git config --global \
             url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Configure AWS credentials via OIDC
-        # continue-on-error so the next step fails with an actionable message
-        # (rather than a generic action error) when no role is configured / a
-        # fork PR has no id-token.
+        # Don't fail here; the next step reports a clear reason. The common case is a
+        # pull request from a fork, which GitHub denies an OIDC token, so no
+        # credentials can be obtained.
         id: aws-credentials
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v4
@@ -151,16 +138,15 @@ jobs:
           aws-region: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
 
       - name: Verify AWS credentials are active (gates the orchestrated run)
-        # DB-ESDK scenarios call real KMS + a branch-key DDB keystore, so the
-        # run cannot pass without usable credentials. Fail HERE, before
-        # orchestrate, with an actionable message.
+        # The tests make real AWS calls, so stop here with a clear message if the
+        # credentials didn't resolve, rather than failing deep inside orchestrate.
         run: |
           if ! aws sts get-caller-identity; then
-            echo "::error::No usable AWS credentials for the required DB-ESDK KMS scenarios." >&2
+            echo "::error::No usable AWS credentials ; the DB-ESDK tests make real AWS calls." >&2
             echo "This run needs GitHub OIDC access to the role ${KMS_CI_ROLE_ARN}, whose trust" >&2
             echo "policy must trust aws-database-encryption-sdk-dynamodb and whose permissions must" >&2
             echo "reach the DB-ESDK KMS keys + branch-key DynamoDB keystore. A fork PR with no" >&2
-            echo "id-token cannot exercise the required KMS scenarios and therefore cannot pass." >&2
+            echo "id-token cannot obtain credentials, and so cannot pass." >&2
             exit 1
           fi
 
@@ -168,25 +154,17 @@ jobs:
         working-directory: commons/dbesdk/test-server
         run: make validate
 
-      - name: Orchestrated Commons_Run (make orchestrate)
-        # One invocation resolves every target from the commons working tree's
-        # Configuration_Set, builds each Language_Server from THIS PR's checkout
-        # (the working-tree overlay), launches them, runs the Tests over the
-        # cross-language matrix, and exits non-zero on any failed result.
+      - name: Run the test suite (make orchestrate)
         working-directory: commons/dbesdk/test-server
         env:
-          # Concurrent server builds on a 2-core runner need a wide readiness
-          # window (mirrors the ESDK workflow's 900s).
+          # Wide readiness window for the concurrent server builds on a 2-core runner.
           DBESDK_TESTSERVER_READY_TIMEOUT_SECONDS: "900"
         run: make orchestrate DBESDK_DBE_REPO="${{ github.workspace }}/dbe"
 
       - name: Publish test results to the run summary
-        # Renders the cross-language coverage matrix, failed-tests table,
-        # skipped-by-reason table (with languages), and known-bugs table on the
-        # Actions run's Summary page directly from the JUnit XML.
         if: always()
         run: |
-          python3 commons/dbesdk/test-server/tools/ci_summary.py \
+          python3 commons/test-server-common/tools/ci_summary.py \
             commons/dbesdk/test-server/tests/build/test-results >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload test reports + Resolution_Record
@@ -195,8 +173,8 @@ jobs:
         with:
           name: dbesdk-test-server-reports
           path: |
-            commons/dbesdk/test-server/orchestrator/build/resolution-record.json
-            commons/dbesdk/test-server/orchestrator/build/launch/*/*.log
+            commons/test-server-common/orchestrator/build/resolution-record.json
+            commons/test-server-common/orchestrator/build/launch/*/*.log
             commons/dbesdk/test-server/tests/build/reports/tests
             commons/dbesdk/test-server/tests/build/test-results
           if-no-files-found: ignore
@@ -213,6 +191,8 @@ jobs:
             ~/.nuget/packages
           key: >-
             ${{ runner.os }}-dbesdk-test-server-${{ hashFiles(
+              'commons/test-server-common/*/build.gradle.kts',
+              'commons/test-server-common/*/gradle/wrapper/gradle-wrapper.properties',
               'commons/dbesdk/test-server/*/build.gradle.kts',
               'commons/dbesdk/test-server/*/gradle/wrapper/gradle-wrapper.properties'
             ) }}
