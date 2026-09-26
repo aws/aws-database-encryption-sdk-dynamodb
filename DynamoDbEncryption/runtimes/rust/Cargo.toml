@@ -43,6 +43,6 @@ name = "main"
 fips = ["aws-lc-rs/fips", "dep:aws-lc-fips-sys"]
 non-fips = ["aws-lc-rs/aws-lc-sys", "dep:aws-lc-sys"]
 default = ["non-fips"]
-# Opt back in to the deprecated hyper-0.14 + rustls 0.21 stack, e.g. when pinning
-# to a BehaviorVersion older than v2025_01_17.
+# Opts back in to that legacy `rustls` feature for clients pinned to a BehaviorVersion before v2025_01_17.
+# Removing this is breaking. We can drop it in the next major version.
 legacy-https-client = ["aws-sdk-dynamodb/rustls", "aws-sdk-kms/rustls"]
