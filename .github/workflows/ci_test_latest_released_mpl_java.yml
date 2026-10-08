@@ -69,6 +69,7 @@ jobs:
     strategy:
       matrix:
         java-version: [17]
+        # Test vectors run DynamoDB Local in Docker.
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     permissions:

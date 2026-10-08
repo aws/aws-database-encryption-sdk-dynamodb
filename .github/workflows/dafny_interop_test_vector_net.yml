@@ -24,6 +24,7 @@ jobs:
       matrix:
         library: [TestVectors]
         dotnet-version: ["6.0.x"]
+        # DynamoDB Local runs in Docker.
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     permissions:

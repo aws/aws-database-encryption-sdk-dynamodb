@@ -22,6 +22,7 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
+    # read-properties is a Docker container action.
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.read_property.outputs.mplVersion }}

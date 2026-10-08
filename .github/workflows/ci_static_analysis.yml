@@ -13,6 +13,7 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
+    # not-grep is a Docker container action.
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6

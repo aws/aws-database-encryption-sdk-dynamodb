@@ -21,6 +21,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    # read-properties is a Docker container action.
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.resolve_version.outputs.version }}
