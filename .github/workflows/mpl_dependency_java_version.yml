@@ -21,8 +21,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    # read-properties is a Docker container action.
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     outputs:
       version: ${{ steps.resolve_version.outputs.version }}
     steps:

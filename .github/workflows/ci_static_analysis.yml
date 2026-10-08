@@ -13,8 +13,7 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
-    # not-grep is a Docker container action.
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v6
       - name: Install setuptools dependency

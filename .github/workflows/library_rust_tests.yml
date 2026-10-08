@@ -31,14 +31,9 @@ jobs:
         library: [DynamoDbEncryption, TestVectors]
         # removed windows-latest because somehow it can't build aws-lc in CI
         os: [ubuntu-22.04, macos-15-intel]
-        # TestVectors runs DynamoDB Local in Docker.
         include:
           - os: ubuntu-22.04
-            library: DynamoDbEncryption
             runner: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
-          - os: ubuntu-22.04
-            library: TestVectors
-            runner: ubuntu-22.04
           - os: macos-15-intel
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
