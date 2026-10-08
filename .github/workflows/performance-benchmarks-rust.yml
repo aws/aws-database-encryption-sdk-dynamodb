@@ -33,12 +33,7 @@ jobs:
         benchmark-dir: [db-esdk-performance-testing]
         # removed windows-latest because somehow it can't build aws-lc in CI
         os: [ubuntu-22.04, macos-15-intel]
-        include:
-          - os: ubuntu-22.04
-            runner: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
-          - os: macos-15-intel
-            runner: macos-15-intel
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
       contents: read
@@ -67,15 +62,6 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: rustfmt
-
-      - name: Install CMake
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y cmake
-
-      - name: Use the latest installed .NET SDK
-        if: runner.os == 'Linux'
-        shell: bash
-        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
 
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/

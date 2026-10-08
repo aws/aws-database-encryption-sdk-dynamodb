@@ -14,7 +14,7 @@ on:
 jobs:
   retry:
     if: github.event.workflow_run.conclusion == 'failure'
-    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: ubuntu-latest
     permissions:
       actions: write
     steps:
