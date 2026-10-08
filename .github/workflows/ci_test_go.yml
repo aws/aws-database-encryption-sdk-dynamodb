@@ -30,8 +30,13 @@ jobs:
       matrix:
         library: [DynamoDbEncryption, TestVectors]
         os: [ubuntu-22.04, macos-15-intel]
+        include:
+          - os: ubuntu-22.04
+            runner: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
+          - os: macos-15-intel
+            runner: macos-15-intel
         go-version: ["1.23", "1.24", "1.25"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     permissions:
       id-token: write
       contents: read
@@ -48,7 +53,8 @@ jobs:
         if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
         uses: Wandalen/wretry.action@v3
         with:
-          action: docker/setup-docker-action@v5
+          # wretry pre/post run regardless of `if:` and no-op on an empty action.
+          action: ${{ (matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors') && 'docker/setup-docker-action@v5' || '' }}
           attempt_limit: 3
           attempt_delay: 30000
 
@@ -119,6 +125,11 @@ jobs:
         run: |
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
 
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./submodules/MaterialProviders/.github/actions/install_smithy_dafny_codegen_dependencies
