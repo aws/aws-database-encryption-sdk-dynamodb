@@ -206,7 +206,10 @@ jobs:
     needs:
       - getVersion
       - getVerifyVersion
+      - pr-ci-format
       - pr-ci-codegen
+      - pr-ci-verification
+      - pr-ci-test-vector-verification
       - pr-ci-java
       - pr-ci-java-test-vectors
       - pr-ci-java-examples
@@ -214,6 +217,7 @@ jobs:
       - pr-ci-rust
       - pr-ci-rust-duplicate-deps
       - pr-ci-net-test-vectors
+      - pr-ci-net-examples
     runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/setup-python@v6
