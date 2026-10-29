@@ -36,7 +36,7 @@ mv new_Cargo.toml Cargo.toml
 set -v
 
 # Remove all files and directories in src except for specified files
-find src -depth 1 | egrep -v '(intercept.rs|lib.rs|software_externs.rs|README)' | xargs rm -rf
+find src -mindepth 1 -maxdepth 1 | grep -Ev '(intercept.rs|lib.rs|software_externs.rs|README)' | xargs rm -rf
 
 # Change to the parent directory and run make polymorph and transpile commands
 cd ../..
