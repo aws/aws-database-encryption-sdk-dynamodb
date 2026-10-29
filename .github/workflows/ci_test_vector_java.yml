@@ -26,6 +26,11 @@ on:
         required: false
         default: false
         type: boolean
+      os:
+        description: "OS images to run on, as a JSON array"
+        required: false
+        default: '["ubuntu-22.04", "macos-15-intel"]'
+        type: string
 
 jobs:
   testJava:
@@ -34,17 +39,9 @@ jobs:
       matrix:
         library: [TestVectors]
         java-version: [8, 11, 17, 19]
-        os: [
-            # Run on ubuntu image that comes pre-configured with docker
-            ubuntu-22.04,
-            macos-15-intel,
-          ]
-        include:
-          - os: ubuntu-22.04
-            runner: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
-          - os: macos-15-intel
-            runner: macos-15-intel
-    runs-on: ${{ matrix.runner }}
+        # Run on ubuntu image that comes pre-configured with docker
+        os: ${{ fromJSON(inputs.os) }}
+    runs-on: ${{ matrix.os == 'ubuntu-22.04' && format('codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-{0}-{1}', github.run_id, github.run_attempt) || matrix.os }}
     permissions:
       id-token: write
       contents: read

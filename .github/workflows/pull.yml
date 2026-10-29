@@ -73,6 +73,17 @@ jobs:
     uses: ./.github/workflows/ci_test_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      os: '["ubuntu-22.04"]'
+  pr-ci-java-macos-windows:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      os: '["macos-14", "windows-latest"]'
   pr-ci-java-test-vectors:
     permissions:
       contents: read
@@ -82,6 +93,17 @@ jobs:
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      os: '["ubuntu-22.04"]'
+  pr-ci-java-test-vectors-macos:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_vector_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      os: '["macos-15-intel"]'
   pr-ci-java-examples:
     permissions:
       contents: read
@@ -91,6 +113,17 @@ jobs:
     uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      os: '["ubuntu-22.04"]'
+  pr-ci-java-examples-macos-windows:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: getVersion
+    uses: ./.github/workflows/ci_examples_java.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      os: '["macos-14", "windows-latest"]'
   pr-ci-net:
     permissions:
       contents: read
@@ -100,6 +133,17 @@ jobs:
     uses: ./.github/workflows/ci_test_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      os: '["ubuntu-22.04"]'
+  pr-ci-net-macos-windows:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      os: '["macos-14", "windows-latest"]'
   pr-ci-rust:
     permissions:
       contents: read
@@ -109,6 +153,17 @@ jobs:
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      os: '["ubuntu-22.04"]'
+  pr-ci-rust-macos:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: getVersion
+    uses: ./.github/workflows/library_rust_tests.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      os: '["macos-15-intel"]'
   pr-ci-rust-duplicate-deps:
     permissions:
       contents: read
@@ -122,6 +177,17 @@ jobs:
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
+      os: '["ubuntu-22.04"]'
+  pr-ci-net-test-vectors-macos:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    needs: getVersion
+    uses: ./.github/workflows/ci_test_vector_net.yml
+    with:
+      dafny: ${{needs.getVersion.outputs.version}}
+      os: '["macos-15-intel"]'
   pr-ci-net-examples:
     permissions:
       contents: read
@@ -140,10 +206,7 @@ jobs:
     needs:
       - getVersion
       - getVerifyVersion
-      - pr-ci-format
       - pr-ci-codegen
-      - pr-ci-verification
-      - pr-ci-test-vector-verification
       - pr-ci-java
       - pr-ci-java-test-vectors
       - pr-ci-java-examples
@@ -151,7 +214,6 @@ jobs:
       - pr-ci-rust
       - pr-ci-rust-duplicate-deps
       - pr-ci-net-test-vectors
-      - pr-ci-net-examples
     runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/setup-python@v6

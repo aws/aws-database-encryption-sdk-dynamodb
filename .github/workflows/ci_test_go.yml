@@ -22,6 +22,11 @@ on:
         required: false
         default: false
         type: boolean
+      os:
+        description: "OS images to run on, as a JSON array"
+        required: false
+        default: '["ubuntu-22.04", "macos-15-intel"]'
+        type: string
 
 jobs:
   testGo:
@@ -29,14 +34,9 @@ jobs:
       fail-fast: false
       matrix:
         library: [DynamoDbEncryption, TestVectors]
-        os: [ubuntu-22.04, macos-15-intel]
-        include:
-          - os: ubuntu-22.04
-            runner: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
-          - os: macos-15-intel
-            runner: macos-15-intel
+        os: ${{ fromJSON(inputs.os) }}
         go-version: ["1.23", "1.24", "1.25"]
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.os == 'ubuntu-22.04' && format('codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-{0}-{1}', github.run_id, github.run_attempt) || matrix.os }}
     permissions:
       id-token: write
       contents: read
