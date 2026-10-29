@@ -22,6 +22,14 @@ on:
         required: false
         default: false
         type: boolean
+      platforms:
+        description: "Platforms to run on, as a JSON array of {os, runner} objects"
+        required: false
+        default: >-
+          [{"os": "macos-14", "runner": "macos-14"},
+           {"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"},
+           {"os": "windows-latest", "runner": "windows-latest"}]
+        type: string
 
 jobs:
   testDotNet:
@@ -29,8 +37,8 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         dotnet-version: ["6.0.x"]
-        os: [macos-14, ubuntu-22.04, windows-latest]
-    runs-on: ${{ matrix.os }}
+        platform: ${{ fromJSON(inputs.platforms) }}
+    runs-on: ${{ matrix.platform.runner }}
     permissions:
       id-token: write
       contents: read
@@ -46,13 +54,18 @@ jobs:
           ref: ${{ inputs.branch || github.head_ref || github.ref }}
           submodules: recursive
 
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
+
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup .NET OpenSSL on Mac
-        if: matrix.os == 'macos-14'
+        if: matrix.platform.os == 'macos-14'
         run: |
           brew install openssl@3
           echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
@@ -107,7 +120,7 @@ jobs:
           make transpile_net CORES=$CORES
 
       - name: Test ${{ matrix.library }} net48
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform.os == 'windows-latest'
         working-directory: ./${{ matrix.library }}
         shell: bash
         run: |
@@ -125,7 +138,7 @@ jobs:
 
       - name: Test Build and Pack ${{ matrix.library}}
         shell: bash
-        if: matrix.os != 'windows-latest'
+        if: matrix.platform.os != 'windows-latest'
         working-directory: ./${{ matrix.library }}
         run: |
           dotnet build runtimes/net /p:Configuration=Release -nowarn:CS0162,CS0168

@@ -26,6 +26,13 @@ on:
         required: false
         default: false
         type: boolean
+      platforms:
+        description: "Platforms to run on, as a JSON array of {os, runner} objects"
+        required: false
+        default: >-
+          [{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"},
+           {"os": "macos-15-intel", "runner": "macos-15-intel"}]
+        type: string
 
 jobs:
   testJava:
@@ -34,16 +41,18 @@ jobs:
       matrix:
         library: [TestVectors]
         java-version: [8, 11, 17, 19]
-        os: [
-            # Run on ubuntu image that comes pre-configured with docker
-            ubuntu-22.04,
-            macos-15-intel,
-          ]
-    runs-on: ${{ matrix.os }}
+        # Run on ubuntu image that comes pre-configured with docker
+        platform: ${{ fromJSON(inputs.platforms) }}
+    runs-on: ${{ matrix.platform.runner }}
     permissions:
       id-token: write
       contents: read
     steps:
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -53,7 +62,7 @@ jobs:
           special-characters-workaround: "true" # Some environments (example: windowsOS) cannot tolerate special characters in a secret key.
 
       - name: Setup Docker
-        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        if: matrix.platform.os == 'macos-15-intel' && matrix.library == 'TestVectors'
         uses: Wandalen/wretry.action@v3
         with:
           action: docker/setup-docker-action@v5

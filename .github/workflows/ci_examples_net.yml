@@ -31,8 +31,8 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         dotnet-version: ["6.0.x"]
-        os: [macos-14]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-22.04]
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       id-token: write
       contents: read
@@ -45,17 +45,20 @@ jobs:
           ref: ${{ inputs.branch  || github.head_ref || github.ref  }}
           submodules: recursive
 
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
+
+      - name: Upgrade Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 21
+
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-
-      - name: Setup .NET OpenSSL on Mac
-        if: matrix.os == 'macos-14'
-        run: |
-          brew install openssl@3
-          echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
-          echo "DOTNET_CRYPTO_ENGINE_ADAPTER=System.Security.Cryptography.Algorithms.Managed" >> $GITHUB_ENV
 
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/

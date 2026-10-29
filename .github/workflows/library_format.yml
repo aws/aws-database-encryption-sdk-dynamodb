@@ -27,8 +27,8 @@ jobs:
     if: github.event_name != 'schedule' || github.repository_owner == 'aws'
     strategy:
       matrix:
-        os: [macos-14]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-22.04]
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     defaults:
       run:
         shell: bash
@@ -44,6 +44,16 @@ jobs:
         with:
           ref: ${{ inputs.branch || github.head_ref || github.ref }}
           submodules: recursive
+
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
+
+      - name: Upgrade Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 21
 
       - name: Setup Dafny
         uses: ./submodules/MaterialProviders/.github/actions/setup_dafny/

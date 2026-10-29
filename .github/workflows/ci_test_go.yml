@@ -22,6 +22,13 @@ on:
         required: false
         default: false
         type: boolean
+      platforms:
+        description: "Platforms to run on, as a JSON array of {os, runner} objects"
+        required: false
+        default: >-
+          [{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"},
+           {"os": "macos-15-intel", "runner": "macos-15-intel", "docker-action": "docker/setup-docker-action@v5"}]
+        type: string
 
 jobs:
   testGo:
@@ -29,9 +36,9 @@ jobs:
       fail-fast: false
       matrix:
         library: [DynamoDbEncryption, TestVectors]
-        os: [ubuntu-22.04, macos-15-intel]
+        platform: ${{ fromJSON(inputs.platforms) }}
         go-version: ["1.23", "1.24", "1.25"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform.runner }}
     permissions:
       id-token: write
       contents: read
@@ -45,10 +52,11 @@ jobs:
           special-characters-workaround: "true" # Some environments (example: windowsOS) cannot tolerate special characters in a secret key.
 
       - name: Setup Docker
-        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        if: matrix.platform.os == 'macos-15-intel' && matrix.library == 'TestVectors'
         uses: Wandalen/wretry.action@v3
         with:
-          action: docker/setup-docker-action@v5
+          # wretry pre/post run regardless of `if:` and no-op on an empty action.
+          action: ${{ matrix.platform.docker-action }}
           attempt_limit: 3
           attempt_delay: 30000
 
@@ -119,6 +127,11 @@ jobs:
         run: |
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
 
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./submodules/MaterialProviders/.github/actions/install_smithy_dafny_codegen_dependencies

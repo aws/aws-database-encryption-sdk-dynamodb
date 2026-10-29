@@ -102,7 +102,7 @@ jobs:
       regenerate-code: true
 
   cut-issue-on-failure:
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       id-token: write
       contents: read
