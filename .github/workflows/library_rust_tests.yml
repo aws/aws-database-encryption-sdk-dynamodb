@@ -22,10 +22,12 @@ on:
         required: false
         default: false
         type: boolean
-      os:
-        description: "OS images to run on, as a JSON array"
+      platforms:
+        description: "Platforms to run on, as a JSON array of {os, runner} objects"
         required: false
-        default: '["ubuntu-22.04", "macos-15-intel"]'
+        default: >-
+          [{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"},
+           {"os": "macos-15-intel", "runner": "macos-15-intel", "docker-action": "docker/setup-docker-action@v5"}]
         type: string
 
 jobs:
@@ -35,8 +37,8 @@ jobs:
       matrix:
         library: [DynamoDbEncryption, TestVectors]
         # removed windows-latest because somehow it can't build aws-lc in CI
-        os: ${{ fromJSON(inputs.os) }}
-    runs-on: ${{ matrix.os == 'ubuntu-22.04' && format('codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-{0}-{1}', github.run_id, github.run_attempt) || matrix.os }}
+        platform: ${{ fromJSON(inputs.platforms) }}
+    runs-on: ${{ matrix.platform.runner }}
     permissions:
       id-token: write
       contents: read
@@ -52,11 +54,11 @@ jobs:
           special-characters-workaround: "true" # Some environments (example: windowsOS) cannot tolerate special characters in a secret key.
 
       - name: Setup Docker
-        if: matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors'
+        if: matrix.platform.os == 'macos-15-intel' && matrix.library == 'TestVectors'
         uses: Wandalen/wretry.action@v3
         with:
           # wretry pre/post run regardless of `if:` and no-op on an empty action.
-          action: ${{ (matrix.os == 'macos-15-intel' && matrix.library == 'TestVectors') && 'docker/setup-docker-action@v5' || '' }}
+          action: ${{ matrix.platform.docker-action }}
           attempt_limit: 3
           attempt_delay: 30000
 
@@ -127,7 +129,7 @@ jobs:
           java-version: "17"
 
       - name: Setup NASM for Windows (aws-lc-sys)
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform.os == 'windows-latest'
         uses: ilammy/setup-nasm@v1
 
       - name: Install Smithy-Dafny codegen dependencies

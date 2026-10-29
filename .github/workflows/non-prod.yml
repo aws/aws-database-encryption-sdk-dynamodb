@@ -29,7 +29,7 @@ jobs:
     uses: ./.github/workflows/ci_test_go.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-go-macos:
     permissions:
       contents: read
@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/ci_test_go.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-15-intel"]'
+      platforms: '[{"os": "macos-15-intel", "runner": "macos-15-intel", "docker-action": "docker/setup-docker-action@v5"}]'
   pr-ci-all-required:
     permissions:
       contents: read

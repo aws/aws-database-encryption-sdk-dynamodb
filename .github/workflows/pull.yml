@@ -73,7 +73,7 @@ jobs:
     uses: ./.github/workflows/ci_test_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-java-macos-windows:
     permissions:
       contents: read
@@ -83,7 +83,7 @@ jobs:
     uses: ./.github/workflows/ci_test_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-14", "windows-latest"]'
+      platforms: '[{"os": "macos-14", "runner": "macos-14"}, {"os": "windows-latest", "runner": "windows-latest"}]'
   pr-ci-java-test-vectors:
     permissions:
       contents: read
@@ -93,7 +93,7 @@ jobs:
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-java-test-vectors-macos:
     permissions:
       contents: read
@@ -103,7 +103,7 @@ jobs:
     uses: ./.github/workflows/ci_test_vector_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-15-intel"]'
+      platforms: '[{"os": "macos-15-intel", "runner": "macos-15-intel"}]'
   pr-ci-java-examples:
     permissions:
       contents: read
@@ -113,7 +113,7 @@ jobs:
     uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-java-examples-macos-windows:
     permissions:
       contents: read
@@ -123,7 +123,7 @@ jobs:
     uses: ./.github/workflows/ci_examples_java.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-14", "windows-latest"]'
+      platforms: '[{"os": "macos-14", "runner": "macos-14"}, {"os": "windows-latest", "runner": "windows-latest"}]'
   pr-ci-net:
     permissions:
       contents: read
@@ -133,7 +133,7 @@ jobs:
     uses: ./.github/workflows/ci_test_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-net-macos-windows:
     permissions:
       contents: read
@@ -143,7 +143,7 @@ jobs:
     uses: ./.github/workflows/ci_test_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-14", "windows-latest"]'
+      platforms: '[{"os": "macos-14", "runner": "macos-14"}, {"os": "windows-latest", "runner": "windows-latest"}]'
   pr-ci-rust:
     permissions:
       contents: read
@@ -153,7 +153,7 @@ jobs:
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-rust-macos:
     permissions:
       contents: read
@@ -163,7 +163,7 @@ jobs:
     uses: ./.github/workflows/library_rust_tests.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-15-intel"]'
+      platforms: '[{"os": "macos-15-intel", "runner": "macos-15-intel", "docker-action": "docker/setup-docker-action@v5"}]'
   pr-ci-rust-duplicate-deps:
     permissions:
       contents: read
@@ -177,7 +177,7 @@ jobs:
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["ubuntu-22.04"]'
+      platforms: '[{"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]'
   pr-ci-net-test-vectors-macos:
     permissions:
       contents: read
@@ -187,7 +187,7 @@ jobs:
     uses: ./.github/workflows/ci_test_vector_net.yml
     with:
       dafny: ${{needs.getVersion.outputs.version}}
-      os: '["macos-15-intel"]'
+      platforms: '[{"os": "macos-15-intel", "runner": "macos-15-intel"}]'
   pr-ci-net-examples:
     permissions:
       contents: read
