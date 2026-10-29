@@ -19,8 +19,11 @@ aws-config = "1.8.12"
 aws-lc-rs = {version = "1.17.0"}
 aws-lc-sys = { version = "0.42", optional = true }
 aws-lc-fips-sys = { version = "0.13.1", optional = true }
-aws-sdk-dynamodb = "1.103.0"
-aws-sdk-kms = "1.98.0"
+# Disable default features which sets the `rustls` feature that enables the legacy HTTPS stack.
+# Default features can be turned back on once the SDK drops the `rustls` feature from its default features:
+# https://github.com/awslabs/aws-sdk-rust/discussions/1257
+aws-sdk-dynamodb = { version = "1.103.0", default-features = false, features = ["default-https-client", "rt-tokio"] }
+aws-sdk-kms = { version = "1.98.0", default-features = false, features = ["default-https-client", "rt-tokio"] }
 aws-smithy-runtime-api = {version = "1.10.0", features = ["client"] }
 # aws-smithy-types has a coherence conflict (E0119) with time >= 0.3.37 on rustc >= 1.80.
 # time 0.3.37+ introduces ModifierValue associated type impls that conflict with
@@ -43,3 +46,6 @@ name = "main"
 fips = ["aws-lc-rs/fips", "dep:aws-lc-fips-sys"]
 non-fips = ["aws-lc-rs/aws-lc-sys", "dep:aws-lc-sys"]
 default = ["non-fips"]
+# Opts back in to that legacy `rustls` feature for clients pinned to a BehaviorVersion before v2025_01_17.
+# Removing this is breaking. We can drop it in the next major version.
+legacy-https-client = ["aws-sdk-dynamodb/rustls", "aws-sdk-kms/rustls"]
