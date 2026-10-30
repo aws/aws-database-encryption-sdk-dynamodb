@@ -29,7 +29,7 @@ jobs:
       matrix:
         library: [DynamoDbEncryption]
         dotnet-version: ["6.0.x"]
-        os: [macos-14, ubuntu-22.04, windows-latest]
+        os: [macos-15, ubuntu-22.04, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       id-token: write
@@ -52,7 +52,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup .NET OpenSSL on Mac
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-15'
         run: |
           brew install openssl@3
           echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
