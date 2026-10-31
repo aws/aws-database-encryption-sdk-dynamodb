@@ -45,13 +45,13 @@ jobs:
     steps:
       - name: Checkout the DB-ESDK servers (this PR's commit)
         # make orchestrate below tests these servers directly (no clone).
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: dbe
 
       - name: Checkout aws-crypto-tools-commons (private, via PAT)
         # Private repo — the default GITHUB_TOKEN can't read it.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: aws/aws-crypto-tools-commons
           ref: ${{ env.COMMONS_REF }}
@@ -59,7 +59,7 @@ jobs:
           path: commons
 
       - name: Set up JDK 21 (Temurin)
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
@@ -73,7 +73,7 @@ jobs:
 
       - name: Set up Go
         # Only used to build the rust server's aws-lc-sys native code.
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: "stable"
           # This isn't a Go project (Go only builds aws-lc-sys above), so there's no
@@ -81,12 +81,12 @@ jobs:
           cache: false
 
       - name: Set up .NET 8
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "8.0.x"
 
       - name: Restore Gradle + cargo + NuGet caches
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         id: caches
         with:
           path: |
@@ -132,7 +132,7 @@ jobs:
         # credentials can be obtained.
         id: aws-credentials
         continue-on-error: true
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ env.KMS_CI_ROLE_ARN }}
           aws-region: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
@@ -169,7 +169,7 @@ jobs:
 
       - name: Upload test reports + Resolution_Record
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dbesdk-test-server-reports
           path: |
@@ -181,7 +181,7 @@ jobs:
 
       - name: Save Gradle + cargo + NuGet caches
         if: always() && steps.caches.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             ~/.gradle/caches
