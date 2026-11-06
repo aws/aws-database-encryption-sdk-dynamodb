@@ -102,6 +102,34 @@ jobs:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}
 
+      # The test server dashboard merges the tests' line coverage, line by
+      # line, with the coverage the Java test server gives the same commit.
+      # The init script runs every test JVM with the JaCoCo agent; it is in
+      # place before the build because `make build_java` runs the tests too.
+      - name: Turn on line coverage
+        if: runner.os == 'Linux' && matrix.java-version == 17 && (github.event_name == 'pull_request' || github.event_name == 'push')
+        shell: bash
+        env:
+          JACOCO_VERSION: 0.8.13
+        run: |
+          dir="$RUNNER_TEMP/jacoco"
+          mkdir -p "$dir" "$RUNNER_TEMP/local-coverage" ~/.gradle/init.d
+          base=https://repo1.maven.org/maven2/org/jacoco
+          curl -sSfL -o "$dir/jacocoagent.jar" "$base/org.jacoco.agent/$JACOCO_VERSION/org.jacoco.agent-$JACOCO_VERSION-runtime.jar"
+          curl -sSfL -o "$dir/jacococli.jar" "$base/org.jacoco.cli/$JACOCO_VERSION/org.jacoco.cli-$JACOCO_VERSION-nodeps.jar"
+          printf '%s  %s\n' \
+            47e700ccb0fdb9e27c5241353f8161938f4e53c3561dd35e063c5fe88dc3349b jacocoagent.jar \
+            8f748683833d4dc4d72cea5d6b43f49344687b831e0582c97bcb9b984e3de0a3 jacococli.jar \
+            | (cd "$dir" && sha256sum -c -)
+          agent="-javaagent:$dir/jacocoagent.jar=destfile=$dir/jacoco.exec,append=true"
+          cat > ~/.gradle/init.d/local-coverage.gradle <<EOF
+          allprojects {
+              tasks.withType(JavaExec).configureEach { jvmArgs '$agent' }
+              tasks.withType(Test).configureEach { jvmArgs '$agent' }
+          }
+          EOF
+          echo "LOCAL_COVERAGE=dbesdk" >> "$GITHUB_ENV"
+
       - name: Build ${{ matrix.library }} implementation
         shell: bash
         working-directory: ./${{ matrix.library }}
@@ -114,3 +142,26 @@ jobs:
         working-directory: ./${{ matrix.library }}
         run: |
           make test_java
+
+      # Paths are made relative to the repository so the two reports line up.
+      - name: Write the line coverage report
+        if: env.LOCAL_COVERAGE != ''
+        shell: bash
+        run: |
+          java -jar "$RUNNER_TEMP/jacoco/jacococli.jar" report "$RUNNER_TEMP/jacoco/jacoco.exec" \
+            --classfiles ${{ matrix.library }}/runtimes/java/build/classes/java/main \
+            --xml "$RUNNER_TEMP/local-coverage/jacoco.xml"
+          args=()
+          for root in ${{ matrix.library }}/runtimes/java/src/main/*/; do
+            args+=(--source-root "$root")
+          done
+          python3 .github/scripts/coverage_lcov.py jacoco \
+            "$RUNNER_TEMP/local-coverage/jacoco.xml" "$RUNNER_TEMP/local-coverage/dbesdk-java.lcov" "${args[@]}"
+
+      - name: Upload the line coverage report
+        if: env.LOCAL_COVERAGE != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: local-coverage-dbesdk-java
+          path: ${{ runner.temp }}/local-coverage/dbesdk-java.lcov
+          if-no-files-found: warn
