@@ -161,12 +161,51 @@ jobs:
         run: |
           cargo test --release --features fips -- --nocapture
 
+      # The test server dashboard merges the debug test run's line coverage,
+      # line by line, with the coverage the Rust test server gives the same
+      # commit.
+      - name: Install cargo-llvm-cov
+        if: runner.os == 'Linux' && matrix.library == 'DynamoDbEncryption' && (github.event_name == 'pull_request' || github.event_name == 'push')
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Turn on line coverage
+        if: runner.os == 'Linux' && matrix.library == 'DynamoDbEncryption' && (github.event_name == 'pull_request' || github.event_name == 'push')
+        shell: bash
+        run: |
+          rustup component add llvm-tools-preview
+          mkdir -p "$RUNNER_TEMP/local-coverage"
+          echo "LOCAL_COVERAGE=dbesdk" >> "$GITHUB_ENV"
+
       - name: Test ${{ matrix.library }} Rust Debug
         if: ${{ matrix.library != 'TestVectors' }}
         shell: bash
         working-directory: ./${{ matrix.library }}
         run: |
-          make test_rust test_rust_debug
+          make test_rust
+          if [ -n "${LOCAL_COVERAGE:-}" ]; then
+            source <(cd runtimes/rust && cargo llvm-cov show-env --sh)
+          fi
+          make test_rust_debug
+
+      # Paths are made relative to the repository so the two reports line up.
+      - name: Write the line coverage report
+        if: env.LOCAL_COVERAGE != ''
+        shell: bash
+        working-directory: ./${{ matrix.library }}/runtimes/rust
+        run: |
+          source <(cargo llvm-cov show-env --sh)
+          cargo llvm-cov report --lcov --output-path "$RUNNER_TEMP/local-coverage/rust.lcov"
+          python3 "$GITHUB_WORKSPACE/.github/scripts/coverage_lcov.py" lcov \
+            "$RUNNER_TEMP/local-coverage/rust.lcov" "$RUNNER_TEMP/local-coverage/dbesdk-rust.lcov" \
+            --keep ${{ matrix.library }}/runtimes/rust/
+
+      - name: Upload the line coverage report
+        if: env.LOCAL_COVERAGE != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: local-coverage-dbesdk-rust
+          path: ${{ runner.temp }}/local-coverage/dbesdk-rust.lcov
+          if-no-files-found: warn
 
       - name: Test Examples for Rust in ${{ matrix.library }}
         if: ${{ matrix.library == 'DynamoDbEncryption' }}
