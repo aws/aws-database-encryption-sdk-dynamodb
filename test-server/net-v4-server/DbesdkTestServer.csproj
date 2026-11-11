@@ -33,7 +33,7 @@
     <PackageReference Include="AWS.Cryptography.DbEncryptionSDK.DynamoDb" Version="4.1.0" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.15.3" />
     <PackageReference Include="AWSSDK.KeyManagementService" Version="4.0.9.4" />
-    <PackageReference Include="System.Formats.Cbor" Version="8.0.0" />
+    <PackageReference Include="System.Formats.Cbor" Version="8.0.2" />
   </ItemGroup>
 
 </Project>
