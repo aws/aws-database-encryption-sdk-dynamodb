@@ -30,7 +30,5 @@ jobs:
           ref: ${{ inputs.branch || github.head_ref || github.ref }}
       - name: Read version from Properties-file
         id: read_property
-        uses: christian-draeger/read-properties@1.1.1
-        with:
-          path: "./project.properties"
-          properties: "dafnyVerifyVersion"
+        shell: bash
+        run: echo "dafnyVerifyVersion=$(grep '^dafnyVerifyVersion=' ./project.properties | cut -d= -f2-)" >> "$GITHUB_OUTPUT"
