@@ -88,6 +88,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
+
       - name: Setup Dafny
         uses: dafny-lang/setup-dafny-action@v1.9.1
         with:
@@ -127,11 +132,6 @@ jobs:
         run: |
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
-
-      - name: Use the latest installed .NET SDK
-        if: runner.os == 'Linux'
-        shell: bash
-        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
 
       - name: Install Smithy-Dafny codegen dependencies
         uses: ./submodules/MaterialProviders/.github/actions/install_smithy_dafny_codegen_dependencies
