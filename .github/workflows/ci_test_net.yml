@@ -26,7 +26,7 @@ on:
         description: "Platforms to run on, as a JSON array of {os, runner} objects"
         required: false
         default: >-
-          [{"os": "macos-14", "runner": "macos-14"},
+          [{"os": "macos-15", "runner": "macos-15"},
            {"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"},
            {"os": "windows-latest", "runner": "windows-latest"}]
         type: string
@@ -65,7 +65,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Setup .NET OpenSSL on Mac
-        if: matrix.platform.os == 'macos-14'
+        if: matrix.platform.os == 'macos-15'
         run: |
           brew install openssl@3
           echo "DYLD_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV

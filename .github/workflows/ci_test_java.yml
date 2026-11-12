@@ -30,7 +30,7 @@ on:
         description: "Platforms to run on, as a JSON array of {os, runner} objects"
         required: false
         default: >-
-          [{"os": "macos-14", "runner": "macos-14"},
+          [{"os": "macos-15", "runner": "macos-15"},
            {"os": "windows-latest", "runner": "windows-latest"},
            {"os": "ubuntu-22.04", "runner": "codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}"}]
         type: string
