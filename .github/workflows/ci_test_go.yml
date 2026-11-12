@@ -55,7 +55,8 @@ jobs:
         if: matrix.platform.os == 'macos-15-intel' && matrix.library == 'TestVectors'
         uses: Wandalen/wretry.action@v3
         with:
-          # wretry pre/post run regardless of `if:` and no-op on an empty action.
+          # wretry's pre and post steps run even when this step's `if:` is false.
+          # Only the macOS platform sets docker-action; elsewhere it is empty, and wretry does nothing.
           action: ${{ matrix.platform.docker-action }}
           attempt_limit: 3
           attempt_delay: 30000
