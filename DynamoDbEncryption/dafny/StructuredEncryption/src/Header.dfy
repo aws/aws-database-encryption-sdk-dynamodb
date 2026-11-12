@@ -943,6 +943,8 @@ module StructuredEncryptionHeader {
     assert 2 <= |y|;
     var keyLen := SeqToUInt16(y[0..2]) as nat;
     assert(keyLen + 4 <= |y|);
+    assert SeqPosToUInt16(x, 0) as nat == keyLen;
+    assert keyLen + 2 <= |x|;
     var key := y[2..keyLen+2];
     assert x[2..keyLen+2] == y[2..keyLen+2];
     assert(UTF8.ValidUTF8Seq(key));

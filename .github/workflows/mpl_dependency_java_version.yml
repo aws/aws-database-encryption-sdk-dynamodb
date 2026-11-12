@@ -21,17 +21,15 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-22.04
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     outputs:
       version: ${{ steps.resolve_version.outputs.version }}
     steps:
       - uses: actions/checkout@v6
       - name: Read version from Properties-file
         id: read_property
-        uses: christian-draeger/read-properties@1.1.1
-        with:
-          path: "./project.properties"
-          properties: "mplDependencyJavaVersion"
+        shell: bash
+        run: echo "mplDependencyJavaVersion=$(grep '^mplDependencyJavaVersion=' ./project.properties | cut -d= -f2-)" >> "$GITHUB_OUTPUT"
       - name: Resolve version
         id: resolve_version
         env:
