@@ -222,9 +222,11 @@ public class BeaconStylesSearchableEncryptionExample
         var encryptionConfig = new DynamoDbTablesEncryptionConfig { TableEncryptionConfigs = tableConfigs };
 
         // 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
+        var workId1 = Guid.NewGuid().ToString();
+        var workId2 = Guid.NewGuid().ToString();
         var item1 = new Dictionary<String, AttributeValue>
         {
-            ["work_id"] = new AttributeValue("1"),
+            ["work_id"] = new AttributeValue(workId1),
             ["inspection_date"] = new AttributeValue("2023-06-13"),
             ["dessert"] = new AttributeValue("cake"),
             ["fruit"] = new AttributeValue("banana"),
@@ -236,7 +238,7 @@ public class BeaconStylesSearchableEncryptionExample
         // 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
         var item2 = new Dictionary<String, AttributeValue>
         {
-            ["work_id"] = new AttributeValue("2"),
+            ["work_id"] = new AttributeValue(workId2),
             ["inspection_date"] = new AttributeValue("2023-06-13"),
             ["dessert"] = new AttributeValue("orange"),
             ["fruit"] = new AttributeValue("orange"),
@@ -269,119 +271,158 @@ public class BeaconStylesSearchableEncryptionExample
         // Validate object put successfully
         Debug.Assert(putResponse.HttpStatusCode == HttpStatusCode.OK);
 
-        // 12. Test the first type of Set operation :
-        // Select records where the basket attribute holds a particular value
-        var expressionAttributeValues = new Dictionary<String, AttributeValue>
+        // Other runs, in .NET and in other languages, write to this table too.
+        // Each scan below also filters on this run's two work IDs, so it only matches the items put above.
+        var workIdFilter = "work_id IN (:wid1, :wid2) AND ";
+        var workIdValues = new Dictionary<String, AttributeValue>
         {
-            [":value"] = new AttributeValue("banana")
+            [":wid1"] = new AttributeValue(workId1),
+            [":wid2"] = new AttributeValue(workId2)
         };
 
-        var scanRequest = new ScanRequest
+        try
         {
-            TableName = ddbTableName,
-            FilterExpression = "contains(basket, :value)",
-            ExpressionAttributeValues = expressionAttributeValues
-        };
+            // 12. Test the first type of Set operation :
+            // Select records where the basket attribute holds a particular value
+            var expressionAttributeValues = new Dictionary<String, AttributeValue>(workIdValues)
+            {
+                [":value"] = new AttributeValue("banana")
+            };
 
-        var scanResponse = await ddb.ScanAsync(scanRequest);
-        // Validate query was returned successfully
-        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+            var scanRequest = new ScanRequest
+            {
+                TableName = ddbTableName,
+                FilterExpression = workIdFilter + "contains(basket, :value)",
+                ExpressionAttributeValues = expressionAttributeValues
+            };
 
-        // Validate only 1 item was returned: item1
-        Debug.Assert(scanResponse.Items.Count == 1);
-        Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
+            var scanResponse = await ddb.ScanAsync(scanRequest);
+            // Validate query was returned successfully
+            Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
 
-        // 14. Test the second type of Set operation :
-        // Select records where the basket attribute holds the fruit attribute
-        scanRequest = new ScanRequest
+            // Validate only 1 item was returned: item1
+            Debug.Assert(scanResponse.Items.Count == 1);
+            Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
+
+            // 14. Test the second type of Set operation :
+            // Select records where the basket attribute holds the fruit attribute
+            scanRequest = new ScanRequest
+            {
+                TableName = ddbTableName,
+                FilterExpression = workIdFilter + "contains(basket, fruit)",
+                ExpressionAttributeValues = new Dictionary<String, AttributeValue>(workIdValues)
+            };
+
+            scanResponse = await ddb.ScanAsync(scanRequest);
+            // Validate query was returned successfully
+            Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // Validate only 1 item was returned: item1
+            Debug.Assert(scanResponse.Items.Count == 1);
+            Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
+
+            // 15. Test the third type of Set operation :
+            // Select records where the fruit attribute exists in a particular set
+            var basket3 = new List<String> { "boysenberry", "orange", "grape" };
+            expressionAttributeValues = new Dictionary<String, AttributeValue>(workIdValues)
+            {
+                [":value"] = new AttributeValue { SS = basket3 }
+            };
+
+            scanRequest = new ScanRequest
+            {
+                TableName = ddbTableName,
+                FilterExpression = workIdFilter + "contains(:value, fruit)",
+                ExpressionAttributeValues = expressionAttributeValues
+            };
+
+
+            scanResponse = await ddb.ScanAsync(scanRequest);
+
+            // Validate query was returned successfully
+            Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // Validate only 1 item was returned: item2
+            Debug.Assert(scanResponse.Items.Count == 1);
+            Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
+
+            // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
+            scanRequest = new ScanRequest
+            {
+                TableName = ddbTableName,
+                FilterExpression = workIdFilter + "dessert = fruit",
+                ExpressionAttributeValues = new Dictionary<String, AttributeValue>(workIdValues)
+            };
+
+            scanResponse = await ddb.ScanAsync(scanRequest);
+
+            // Validate query was returned successfully
+            Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // Validate only 1 item was returned: item2
+            Debug.Assert(scanResponse.Items.Count == 1);
+            Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
+
+
+            // 16. Test the AsSet attribute 'veggies' :
+            // Select records where the veggies attribute holds a particular value
+            expressionAttributeValues = new Dictionary<String, AttributeValue>(workIdValues)
+            {
+                [":value"] = new AttributeValue { S = "peas" }
+            };
+
+            scanRequest = new ScanRequest
+            {
+                TableName = ddbTableName,
+                FilterExpression = workIdFilter + "contains(veggies, :value)",
+                ExpressionAttributeValues = expressionAttributeValues
+            };
+
+            scanResponse = await ddb.ScanAsync(scanRequest);
+            // Validate query was returned successfully
+            Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // Validate only 1 item was returned: item1
+            Debug.Assert(scanResponse.Items.Count == 1);
+            Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
+
+            // 17. Test the compound beacon 'work_unit' :
+            expressionAttributeValues = new Dictionary<String, AttributeValue>(workIdValues)
+            {
+                [":value"] = new AttributeValue { S = "I-" + workId1 + ".T-small" }
+            };
+
+            scanRequest = new ScanRequest
+            {
+                TableName = ddbTableName,
+                FilterExpression = workIdFilter + "work_unit = :value",
+                ExpressionAttributeValues = expressionAttributeValues
+            };
+
+            scanResponse = await ddb.ScanAsync(scanRequest);
+            // Validate query was returned successfully
+            Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
+
+            // Validate only 1 item was returned: item1
+            Debug.Assert(scanResponse.Items.Count == 1);
+            Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
+        }
+        finally
         {
-            TableName = ddbTableName,
-            FilterExpression = "contains(basket, fruit)"
-        };
-
-        scanResponse = await ddb.ScanAsync(scanRequest);
-        // Validate query was returned successfully
-        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
-
-        // Validate only 1 item was returned: item1
-        Debug.Assert(scanResponse.Items.Count == 1);
-        Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
-
-        // 15. Test the third type of Set operation :
-        // Select records where the fruit attribute exists in a particular set
-        var basket3 = new List<String> { "boysenberry", "orange", "grape" };
-        expressionAttributeValues[":value"] = new AttributeValue { SS = basket3 };
-
-        scanRequest = new ScanRequest
-        {
-            TableName = ddbTableName,
-            FilterExpression = "contains(:value, fruit)",
-            ExpressionAttributeValues = expressionAttributeValues
-        };
-
-
-        scanResponse = await ddb.ScanAsync(scanRequest);
-
-        // Validate query was returned successfully
-        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
-
-        // Validate only 1 item was returned: item2
-        Debug.Assert(scanResponse.Items.Count == 1);
-        Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
-
-        // Test a Shared search. Select records where the dessert attribute matches the fruit attribute
-        scanRequest = new ScanRequest
-        {
-            TableName = ddbTableName,
-            FilterExpression = "dessert = fruit"
-        };
-
-        scanResponse = await ddb.ScanAsync(scanRequest);
-
-        // Validate query was returned successfully
-        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
-
-        // Validate only 1 item was returned: item2
-        Debug.Assert(scanResponse.Items.Count == 1);
-        Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
-
-
-        // 16. Test the AsSet attribute 'veggies' :
-        // Select records where the veggies attribute holds a particular value
-        expressionAttributeValues[":value"] = new AttributeValue { S = "peas" };
-
-        scanRequest = new ScanRequest
-        {
-            TableName = ddbTableName,
-            FilterExpression = "contains(veggies, :value)",
-            ExpressionAttributeValues = expressionAttributeValues
-        };
-
-        scanResponse = await ddb.ScanAsync(scanRequest);
-        // Validate query was returned successfully
-        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
-
-        // Validate only 1 item was returned: item1
-        Debug.Assert(scanResponse.Items.Count == 1);
-        Debug.Assert(scanResponse.Items[0]["work_id"].S == item2["work_id"].S);
-
-        // 17. Test the compound beacon 'work_unit' :
-        expressionAttributeValues[":value"] = new AttributeValue { S = "I-1.T-small" };
-
-        scanRequest = new ScanRequest
-        {
-            TableName = ddbTableName,
-            FilterExpression = "work_unit = :value",
-            ExpressionAttributeValues = expressionAttributeValues
-        };
-
-        scanResponse = await ddb.ScanAsync(scanRequest);
-        // Validate query was returned successfully
-        Debug.Assert(scanResponse.HttpStatusCode == HttpStatusCode.OK);
-
-        // Validate only 1 item was returned: item1
-        Debug.Assert(scanResponse.Items.Count == 1);
-        Debug.Assert(scanResponse.Items[0]["work_id"].S == item1["work_id"].S);
-
+            // Delete the two items, even if a check above fails.
+            var plainDdb = new AmazonDynamoDBClient();
+            foreach (var workId in new[] { workId1, workId2 })
+            {
+                await plainDdb.DeleteItemAsync(new DeleteItemRequest
+                {
+                    TableName = ddbTableName,
+                    Key = new Dictionary<String, AttributeValue>
+                    {
+                        ["work_id"] = new AttributeValue(workId),
+                        ["inspection_date"] = new AttributeValue("2023-06-13")
+                    }
+                });
+            }
+        }
     }
 }

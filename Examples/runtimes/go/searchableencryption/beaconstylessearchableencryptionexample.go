@@ -21,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/google/uuid"
 )
 
 /*
@@ -245,8 +246,10 @@ func BeaconStylesSearchableEncryptionExample(
 	}
 
 	// 8. Create item one, specifically with "dessert != fruit", and "fruit in basket".
+	workId1 := uuid.New().String()
+	workId2 := uuid.New().String()
 	item1 := map[string]types.AttributeValue{
-		partitionKeyName: &types.AttributeValueMemberS{Value: "1"},
+		partitionKeyName: &types.AttributeValueMemberS{Value: workId1},
 		sortKeyName:      &types.AttributeValueMemberS{Value: "2023-06-13"},
 		"dessert":        &types.AttributeValueMemberS{Value: "cake"},
 		"fruit":          &types.AttributeValueMemberS{Value: "banana"},
@@ -257,7 +260,7 @@ func BeaconStylesSearchableEncryptionExample(
 
 	// 9. Create item two, specifically with "dessert == fruit", and "fruit not in basket".
 	item2 := map[string]types.AttributeValue{
-		partitionKeyName: &types.AttributeValueMemberS{Value: "2"},
+		partitionKeyName: &types.AttributeValueMemberS{Value: workId2},
 		sortKeyName:      &types.AttributeValueMemberS{Value: "2023-06-13"},
 		"dessert":        &types.AttributeValueMemberS{Value: "orange"},
 		"fruit":          &types.AttributeValueMemberS{Value: "orange"},
@@ -270,6 +273,20 @@ func BeaconStylesSearchableEncryptionExample(
 	dbEsdkMiddleware, err := dbesdkmiddleware.NewDBEsdkMiddleware(encryptionConfig)
 	utils.HandleError(err)
 	ddb := dynamodb.NewFromConfig(cfg, dbEsdkMiddleware.CreateMiddleware())
+
+	// Delete the two items when the example returns, even if a check below panics.
+	defer func() {
+		for _, workId := range []string{workId1, workId2} {
+			_, err := ddbClient.DeleteItem(context.Background(), &dynamodb.DeleteItemInput{
+				TableName: aws.String(ddbTableName),
+				Key: map[string]types.AttributeValue{
+					partitionKeyName: &types.AttributeValueMemberS{Value: workId},
+					sortKeyName:      &types.AttributeValueMemberS{Value: "2023-06-13"},
+				},
+			})
+			utils.HandleError(err)
+		}
+	}()
 
 	// 11. Put the two items
 	putRequest1 := &dynamodb.PutItemInput{
@@ -288,15 +305,24 @@ func BeaconStylesSearchableEncryptionExample(
 	_, err = ddb.PutItem(context.Background(), putRequest2)
 	utils.HandleError(err)
 
+	// Other runs, in Go and in other languages, write to this table too.
+	// Each scan below also filters on this run's two work IDs, so it only matches the items put above.
+	workIdFilter := "work_id IN (:wid1, :wid2) AND "
+	workIdValues := func() map[string]types.AttributeValue {
+		return map[string]types.AttributeValue{
+			":wid1": &types.AttributeValueMemberS{Value: workId1},
+			":wid2": &types.AttributeValueMemberS{Value: workId2},
+		}
+	}
+
 	// 12. Test the first type of Set operation :
 	// Select records where the basket attribute holds a particular value
-	expressionAttributeValues := map[string]types.AttributeValue{
-		":value": &types.AttributeValueMemberS{Value: "banana"},
-	}
+	expressionAttributeValues := workIdValues()
+	expressionAttributeValues[":value"] = &types.AttributeValueMemberS{Value: "banana"}
 
 	scanRequest := &dynamodb.ScanInput{
 		TableName:                 aws.String(ddbTableName),
-		FilterExpression:          aws.String("contains(basket, :value)"),
+		FilterExpression:          aws.String(workIdFilter + "contains(basket, :value)"),
 		ExpressionAttributeValues: expressionAttributeValues,
 	}
 
@@ -315,8 +341,9 @@ func BeaconStylesSearchableEncryptionExample(
 	// 13. Test the second type of Set operation :
 	// Select records where the basket attribute holds the fruit attribute
 	scanRequest = &dynamodb.ScanInput{
-		TableName:        aws.String(ddbTableName),
-		FilterExpression: aws.String("contains(basket, fruit)"),
+		TableName:                 aws.String(ddbTableName),
+		FilterExpression:          aws.String(workIdFilter + "contains(basket, fruit)"),
+		ExpressionAttributeValues: workIdValues(),
 	}
 
 	scanResponse, err = ddb.Scan(context.Background(), scanRequest)
@@ -334,13 +361,12 @@ func BeaconStylesSearchableEncryptionExample(
 	// 14. Test the third type of Set operation :
 	// Select records where the fruit attribute exists in a particular set
 	basket3 := []string{"boysenberry", "orange", "grape"}
-	expressionAttributeValues = map[string]types.AttributeValue{
-		":value": &types.AttributeValueMemberSS{Value: basket3},
-	}
+	expressionAttributeValues = workIdValues()
+	expressionAttributeValues[":value"] = &types.AttributeValueMemberSS{Value: basket3}
 
 	scanRequest = &dynamodb.ScanInput{
 		TableName:                 aws.String(ddbTableName),
-		FilterExpression:          aws.String("contains(:value, fruit)"),
+		FilterExpression:          aws.String(workIdFilter + "contains(:value, fruit)"),
 		ExpressionAttributeValues: expressionAttributeValues,
 	}
 
@@ -358,8 +384,9 @@ func BeaconStylesSearchableEncryptionExample(
 
 	// 15. Test a Shared search. Select records where the dessert attribute matches the fruit attribute
 	scanRequest = &dynamodb.ScanInput{
-		TableName:        aws.String(ddbTableName),
-		FilterExpression: aws.String("dessert = fruit"),
+		TableName:                 aws.String(ddbTableName),
+		FilterExpression:          aws.String(workIdFilter + "dessert = fruit"),
+		ExpressionAttributeValues: workIdValues(),
 	}
 
 	scanResponse, err = ddb.Scan(context.Background(), scanRequest)
@@ -376,13 +403,12 @@ func BeaconStylesSearchableEncryptionExample(
 
 	// 16. Test the AsSet attribute 'veggies' :
 	// Select records where the veggies attribute holds a particular value
-	expressionAttributeValues = map[string]types.AttributeValue{
-		":value": &types.AttributeValueMemberS{Value: "peas"},
-	}
+	expressionAttributeValues = workIdValues()
+	expressionAttributeValues[":value"] = &types.AttributeValueMemberS{Value: "peas"}
 
 	scanRequest = &dynamodb.ScanInput{
 		TableName:                 aws.String(ddbTableName),
-		FilterExpression:          aws.String("contains(veggies, :value)"),
+		FilterExpression:          aws.String(workIdFilter + "contains(veggies, :value)"),
 		ExpressionAttributeValues: expressionAttributeValues,
 	}
 
@@ -399,13 +425,12 @@ func BeaconStylesSearchableEncryptionExample(
 	}
 
 	// 17. Test the compound beacon 'work_unit' :
-	expressionAttributeValues = map[string]types.AttributeValue{
-		":value": &types.AttributeValueMemberS{Value: "I-1.T-small"},
-	}
+	expressionAttributeValues = workIdValues()
+	expressionAttributeValues[":value"] = &types.AttributeValueMemberS{Value: "I-" + workId1 + ".T-small"}
 
 	scanRequest = &dynamodb.ScanInput{
 		TableName:                 aws.String(ddbTableName),
-		FilterExpression:          aws.String("work_unit = :value"),
+		FilterExpression:          aws.String(workIdFilter + "work_unit = :value"),
 		ExpressionAttributeValues: expressionAttributeValues,
 	}
 
