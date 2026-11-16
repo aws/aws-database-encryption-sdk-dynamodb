@@ -317,4 +317,43 @@ module TestFixtures {
     assume {:axiom} fresh(encryption.Modifies);
   }
 
+  method GetDynamoDbEncryptionTransformsWithSearch()
+    returns (encryption: DynamoDbEncryptionTransforms.DynamoDbEncryptionTransformsClient)
+    ensures encryption.ValidState()
+    ensures fresh(encryption)
+    ensures fresh(encryption.Modifies)
+  {
+    var keyring := GetStaticKeyring();
+    var store := GetKeyStore();
+    var beacons := BeaconVersion (
+      version := 1,
+      keyStore := store,
+      // This KeyId is a valid branch_key_id present in the KeyStoreDdbTable.
+      keySource := single(SingleKeyStore(keyId := "040a32a8-3737-4f16-a3ba-bd4449556d73", cacheTTL := 42)),
+      standardBeacons := [std2]
+    );
+    var search := SearchConfig (
+      versions := [beacons],
+      writeVersion := 1
+    );
+    encryption :- expect DynamoDbEncryptionTransforms.DynamoDbEncryptionTransforms(
+      DynamoDbTablesEncryptionConfig(
+        tableEncryptionConfigs := map[
+          "foo" := DynamoDbTableEncryptionConfig(
+            logicalTableName := "foo",
+            partitionKeyName := "bar",
+            sortKeyName := None(),
+            attributeActionsOnEncrypt := map[
+              "bar" := CSE.SIGN_ONLY,
+              "std2" := CSE.ENCRYPT_AND_SIGN
+            ],
+            keyring := Some(keyring),
+            search := Some(search)
+          )
+        ]
+      )
+    );
+    assume {:axiom} fresh(encryption.Modifies);
+  }
+
 }

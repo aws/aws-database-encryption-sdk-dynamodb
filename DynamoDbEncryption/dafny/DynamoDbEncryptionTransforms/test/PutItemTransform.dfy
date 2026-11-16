@@ -100,6 +100,25 @@ module PutItemTransformTest {
     expect transformed.Success?;
   }
 
+  method {:test} TestPutItemInputWritesVersionTag() {
+    var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransformsWithSearch();
+    var tableName := GetTableName("foo");
+    var input := DDB.PutItemInput(
+      TableName := tableName,
+      Item := BasicItem
+    );
+    var transformed := middlewareUnderTest.PutItemInputTransform(
+      AwsCryptographyDbEncryptionSdkDynamoDbTransformsTypes.PutItemInputTransformInput(
+        sdkInput := input
+      )
+    );
+    expect_ok("PutItemInput", transformed);
+    var item := transformed.value.transformedInput.Item;
+    var versionTag := GetAttrName("aws_dbe_v_1");
+    expect versionTag in item;
+    expect item[versionTag] == DDB.AttributeValue.S(" ");
+  }
+
   method {:test} TestPutItemOutputPassthrough() {
     var middlewareUnderTest := TestFixtures.GetDynamoDbEncryptionTransforms();
     var output := DDB.PutItemOutput(
