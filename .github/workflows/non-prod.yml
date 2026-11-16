@@ -51,9 +51,6 @@ jobs:
       - pr-ci-go
     runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
       - name: Verify all required jobs passed
         uses: re-actors/alls-green@release/v1
         with:
