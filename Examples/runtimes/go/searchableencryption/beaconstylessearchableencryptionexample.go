@@ -284,7 +284,9 @@ func BeaconStylesSearchableEncryptionExample(
 					sortKeyName:      &types.AttributeValueMemberS{Value: "2023-06-13"},
 				},
 			})
-			utils.HandleError(err)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}()
 
