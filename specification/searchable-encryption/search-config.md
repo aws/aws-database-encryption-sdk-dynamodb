@@ -168,7 +168,7 @@ when no records exists with the associate [version tag](#version-tag).
 
 ### Version Tag
 
-For version `N`, the name of the version tag is `aws_dbe_vN` and the value of the tag is a single space.
+For version `N`, the name of the version tag is `aws_dbe_v_N` and the value of the tag is a single space.
 
 ## Beacon Key Source
 
