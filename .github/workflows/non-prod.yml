@@ -40,18 +40,3 @@ jobs:
     with:
       dafny: ${{needs.getVersion.outputs.version}}
       platforms: '[{"os": "macos-15-intel", "runner": "macos-15-intel", "docker-action": "docker/setup-docker-action@v5"}]'
-  pr-ci-all-required:
-    permissions:
-      contents: read
-      pull-requests: write
-      id-token: write
-    if: always()
-    needs:
-      - getVersion
-      - pr-ci-go
-    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
-    steps:
-      - name: Verify all required jobs passed
-        uses: re-actors/alls-green@release/v1
-        with:
-          jobs: ${{ toJSON(needs) }}
