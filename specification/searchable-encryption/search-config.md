@@ -163,12 +163,14 @@ When a querying a database, it might be necessary to make multiple queries, one 
 to successfully find all the records.
 For this reason, it is recommended that one rewrite all of the records from an old version with the new version.
 
-A version can safely be removed from the [search config](#initialization)
-when no records exists with the associate [version tag](#version-tag).
+An older version can safely be removed from the [search config](#initialization)
+when every record has the version tag of a newer version.
 
 ### Version Tag
 
 For version `N`, the name of the version tag is `aws_dbe_v_N` and the value of the tag is a single space.
+
+An item might not have a version tag even if it was written with a search config.
 
 ## Beacon Key Source
 
