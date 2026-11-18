@@ -596,4 +596,11 @@ module DynamoToStructTest {
     expect result.Failure?;
     expect result.error == "Attribute name must be between 1 and 65535 UTF-8 bytes";
   }
+
+  method {:test} TestStructuredToItemEncryptKeepsReservedAttributes() {
+    var attrMap : AttributeMap := map["key1" := AttributeValue.S("hello"), "aws_dbe_v_1" := AttributeValue.S(" ")];
+    var struct :- expect ItemToStructured(attrMap);
+    var encrypted :- expect StructuredToItemEncrypt(struct, attrMap, map["key1" := SIGN_ONLY]);
+    expect attrMap == encrypted;
+  }
 }
