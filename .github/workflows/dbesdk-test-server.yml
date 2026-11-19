@@ -1,11 +1,8 @@
 # DB-ESDK TestServer CI: runs the test-server suite for this repo. The tests and
-# orchestrator live in the private aws-crypto-tools-commons repo. A cross-repo
-# reusable-workflow call can't reach a private repo, so this checks it out with a
-# read-only PAT (COMMONS_REPO_PAT) and runs `make orchestrate` against this PR's
-# servers, so they are the ones tested.
+# orchestrator live in aws-crypto-tools-commons. This checks it out and runs
+# `make orchestrate` against this PR's servers, so they are the ones tested.
 #
-# Needs a repo secret COMMONS_REPO_PAT with Contents:Read on aws-crypto-tools-commons,
-# and a KMS OIDC role whose trust policy trusts this repo.
+# Needs a KMS OIDC role whose trust policy trusts this repo.
 
 name: DB-ESDK TestServer
 
@@ -49,13 +46,11 @@ jobs:
         with:
           path: dbe
 
-      - name: Checkout aws-crypto-tools-commons (private, via PAT)
-        # Private repo — the default GITHUB_TOKEN can't read it.
+      - name: Checkout aws-crypto-tools-commons
         uses: actions/checkout@v4
         with:
           repository: aws/aws-crypto-tools-commons
           ref: ${{ env.COMMONS_REF }}
-          token: ${{ secrets.COMMONS_REPO_PAT }}
           path: commons
 
       - name: Set up JDK 21 (Temurin)
