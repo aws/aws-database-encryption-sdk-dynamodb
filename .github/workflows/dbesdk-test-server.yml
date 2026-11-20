@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   test-server:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
 
     env:
       AWS_REGION: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
@@ -65,11 +65,7 @@ jobs:
           java-version: "21"
 
       - name: Set up the Rust toolchain
-        run: |
-          set -euo pipefail
-          rustup toolchain install stable --profile minimal
-          rustup default stable
-          cargo --version
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Set up Go
         # Only used to build the rust server's aws-lc-sys native code.
@@ -84,6 +80,9 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
+
+      - name: Use the .NET 8 SDK
+        run: echo '{"sdk":{"version":"8.0.100","rollForward":"latestFeature"}}' > "$RUNNER_WORKSPACE/global.json"
 
       - name: Restore Gradle + cargo + NuGet caches
         uses: actions/cache/restore@v4
