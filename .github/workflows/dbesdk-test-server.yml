@@ -1,0 +1,197 @@
+# DB-ESDK TestServer CI: runs the test-server suite for this repo. The tests and
+# orchestrator live in the private aws-crypto-tools-commons repo. A cross-repo
+# reusable-workflow call can't reach a private repo, so this checks it out with a
+# read-only PAT (COMMONS_REPO_PAT) and runs `make orchestrate` against this PR's
+# servers, so they are the ones tested.
+#
+# Needs a repo secret COMMONS_REPO_PAT with Contents:Read on aws-crypto-tools-commons,
+# and a KMS OIDC role whose trust policy trusts this repo.
+
+name: DB-ESDK TestServer
+
+on:
+  pull_request:
+    paths:
+      - "test-server/**"
+      - ".github/workflows/dbesdk-test-server.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "test-server/**"
+      - ".github/workflows/dbesdk-test-server.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # For the KMS OIDC token exchange.
+  id-token: write
+
+jobs:
+  test-server:
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
+
+    env:
+      AWS_REGION: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
+      AWS_DEFAULT_REGION: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
+      # No daemon, so each server/Tests JVM the orchestrator forks inherits the
+      # short-lived OIDC credentials from this step's environment.
+      GRADLE_OPTS: -Dorg.gradle.daemon=false
+      # IAM role the tests assume for their AWS calls; override with the repo
+      # variable to target a different account/role.
+      KMS_CI_ROLE_ARN: ${{ vars.DBESDK_TEST_SERVER_KMS_ROLE_ARN || 'arn:aws:iam::370957321024:role/dbesdk-test-server-ci-kms-role' }}
+      COMMONS_REF: main
+
+    steps:
+      - name: Checkout the DB-ESDK servers (this PR's commit)
+        # make orchestrate below tests these servers directly (no clone).
+        uses: actions/checkout@v4
+        with:
+          path: dbe
+
+      - name: Checkout aws-crypto-tools-commons (private, via PAT)
+        # Private repo — the default GITHUB_TOKEN can't read it.
+        uses: actions/checkout@v4
+        with:
+          repository: aws/aws-crypto-tools-commons
+          ref: ${{ env.COMMONS_REF }}
+          token: ${{ secrets.COMMONS_REPO_PAT }}
+          path: commons
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up the Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Go
+        # Only used to build the rust server's aws-lc-sys native code.
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          # This isn't a Go project (Go only builds aws-lc-sys above), so there's no
+          # go.sum; skip setup-go's cache to avoid its "file not found" warning.
+          cache: false
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Use the .NET 8 SDK
+        run: echo '{"sdk":{"version":"8.0.100","rollForward":"latestFeature"}}' > "$RUNNER_WORKSPACE/global.json"
+
+      - name: Restore Gradle + cargo + NuGet caches
+        uses: actions/cache/restore@v4
+        id: caches
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.nuget/packages
+          key: >-
+            ${{ runner.os }}-dbesdk-test-server-${{ hashFiles(
+              'commons/test-server-common/*/build.gradle.kts',
+              'commons/test-server-common/*/gradle/wrapper/gradle-wrapper.properties',
+              'commons/dbesdk/test-server/*/build.gradle.kts',
+              'commons/dbesdk/test-server/*/gradle/wrapper/gradle-wrapper.properties'
+            ) }}
+          restore-keys: |
+            ${{ runner.os }}-dbesdk-test-server-
+
+      - name: Install Smithy CLI
+        # Needed by `make validate`; pinned official release.
+        run: |
+          set -euo pipefail
+          SMITHY_VERSION="1.58.0"
+          url="https://github.com/smithy-lang/smithy/releases/download/${SMITHY_VERSION}/smithy-cli-linux-x86_64.zip"
+          tmp="$(mktemp -d)"
+          curl -sSL "$url" -o "$tmp/smithy-cli.zip"
+          unzip -q "$tmp/smithy-cli.zip" -d "$tmp"
+          sudo "$tmp/smithy-cli-linux-x86_64/install"
+          smithy --version
+
+      - name: Rewrite the DBE repo SSH URL to public HTTPS
+        # This run tests the checked-out servers directly, so it normally clones
+        # nothing; but if anything did resolve via git, its SSH URL needs rewriting
+        # to work on a runner that has no SSH keys.
+        run: |
+          set -euo pipefail
+          git config --global \
+            url."https://github.com/".insteadOf "git@github.com:"
+
+      - name: Configure AWS credentials via OIDC
+        # Don't fail here; the next step reports a clear reason. The common case is a
+        # pull request from a fork, which GitHub denies an OIDC token, so no
+        # credentials can be obtained.
+        id: aws-credentials
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.KMS_CI_ROLE_ARN }}
+          aws-region: ${{ vars.DBESDK_TEST_SERVER_KMS_REGION || 'us-west-2' }}
+
+      - name: Verify AWS credentials are active (gates the orchestrated run)
+        # The tests make real AWS calls, so stop here with a clear message if the
+        # credentials didn't resolve, rather than failing deep inside orchestrate.
+        run: |
+          if ! aws sts get-caller-identity; then
+            echo "::error::No usable AWS credentials ; the DB-ESDK tests make real AWS calls." >&2
+            echo "This run needs GitHub OIDC access to the role ${KMS_CI_ROLE_ARN}, whose trust" >&2
+            echo "policy must trust aws-database-encryption-sdk-dynamodb and whose permissions must" >&2
+            echo "reach the DB-ESDK KMS keys + branch-key DynamoDB keystore. A fork PR with no" >&2
+            echo "id-token cannot obtain credentials, and so cannot pass." >&2
+            exit 1
+          fi
+
+      - name: Validate model (smithy validate + model smoke checks)
+        working-directory: commons/dbesdk/test-server
+        run: make validate
+
+      - name: Run the test suite (make orchestrate)
+        working-directory: commons/dbesdk/test-server
+        env:
+          # Wide readiness window for the concurrent server builds on a 2-core runner.
+          DBESDK_TESTSERVER_READY_TIMEOUT_SECONDS: "900"
+        run: make orchestrate DBESDK_DBE_REPO="${{ github.workspace }}/dbe"
+
+      - name: Publish test results to the run summary
+        if: always()
+        run: |
+          python3 commons/test-server-common/tools/ci_summary.py \
+            commons/dbesdk/test-server/tests/build/test-results >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test reports + Resolution_Record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbesdk-test-server-reports
+          path: |
+            commons/test-server-common/orchestrator/build/resolution-record.json
+            commons/test-server-common/orchestrator/build/launch/*/*.log
+            commons/dbesdk/test-server/tests/build/reports/tests
+            commons/dbesdk/test-server/tests/build/test-results
+          if-no-files-found: ignore
+
+      - name: Save Gradle + cargo + NuGet caches
+        if: always() && steps.caches.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.nuget/packages
+          key: >-
+            ${{ runner.os }}-dbesdk-test-server-${{ hashFiles(
+              'commons/test-server-common/*/build.gradle.kts',
+              'commons/test-server-common/*/gradle/wrapper/gradle-wrapper.properties',
+              'commons/dbesdk/test-server/*/build.gradle.kts',
+              'commons/dbesdk/test-server/*/gradle/wrapper/gradle-wrapper.properties'
+            ) }}

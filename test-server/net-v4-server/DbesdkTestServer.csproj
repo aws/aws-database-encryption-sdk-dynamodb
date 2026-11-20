@@ -1,0 +1,39 @@
+<!--
+  DB-ESDK TestServer — .NET Language_Server.
+
+  Wraps the published AWS.Cryptography.DbEncryptionSDK.DynamoDb package (the real
+  AWS Database Encryption SDK for DynamoDB, .NET) behind the same rpcv2Cbor wire
+  contract the Java and Rust servers speak (the aws-crypto-tools-commons
+  dbesdk/test-server/model). There is no smithy-dotnet rpcv2Cbor server codegen
+  available, so the transport is hand-written with System.Formats.Cbor +
+  ASP.NET Core (Kestrel), exactly as the Java and Rust servers hand-wrote theirs.
+
+  The DBE package is consumed from NuGet (not a ProjectReference to the local
+  runtimes/net tree, whose MaterialProviders submodule is not checked out). The
+  AWSSDK.DynamoDBv2 / AWSSDK.KeyManagementService versions are pinned to the
+  exact versions the DBE 4.1.0 -> MPL 2.0.0 dependency chain resolves, so our
+  Amazon.DynamoDBv2.Model.AttributeValue and KMS client types are identical to
+  the ones the item encryptor consumes.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>DbesdkTestServer</AssemblyName>
+    <RootNamespace>Aws.Cryptography.Dbesdk.TestServer</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IsPackable>false</IsPackable>
+    <!-- The server prints its own readiness line; keep the framework banner off stdout. -->
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWS.Cryptography.DbEncryptionSDK.DynamoDb" Version="4.1.0" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.15.3" />
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="4.0.9.4" />
+    <PackageReference Include="System.Formats.Cbor" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,32 @@
+# DB-ESDK TestServer — Rust Language_Server.
+#
+# Wraps the published `aws-db-esdk` crate (the real AWS Database Encryption SDK
+# for DynamoDB, Rust) behind the same rpcv2Cbor wire contract the Java server
+# speaks (aws-crypto-tools-commons/dbesdk/test-server/model). There is no
+# smithy-rs rpcv2Cbor server codegen available, so the transport is hand-written
+# (axum + ciborium) exactly as the Java server hand-wrote its rpcv2Cbor codec.
+#
+# aws-sdk-dynamodb / aws-sdk-kms versions are left as "1" so Cargo unifies them
+# with the exact versions aws-db-esdk resolves; using a divergent version would
+# make our AttributeValue a different type than the one the item encryptor takes.
+[package]
+name = "dbesdk-test-server"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "dbesdk-test-server"
+path = "src/main.rs"
+
+[dependencies]
+aws-db-esdk = "1.3.0"
+aws-sdk-dynamodb = "1"
+aws-sdk-kms = "1"
+aws-config = "1"
+tokio = { version = "1", features = ["full"] }
+axum = "0.7"
+ciborium = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+uuid = { version = "1", features = ["v4"] }
