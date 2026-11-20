@@ -27,7 +27,7 @@ jobs:
         dotnet-version: ["6.0.x"]
         os: [ubuntu-22.04]
         go-version: [1.23]
-    runs-on: ${{ matrix.os }}
+    runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     defaults:
       run:
         shell: bash
@@ -46,6 +46,11 @@ jobs:
       - run: |
           git submodule update --init --recursive submodules/smithy-dafny
           git submodule update --init --recursive submodules/MaterialProviders
+
+      - name: Use the latest installed .NET SDK
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
 
       # Only used to format generated code
       # and to translate version strings such as "nightly-latest"
