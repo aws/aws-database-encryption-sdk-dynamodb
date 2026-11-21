@@ -46,7 +46,7 @@ jobs:
         run: echo '{"sdk":{"version":"6.0.100","rollForward":"latestMajor"}}' > "$RUNNER_WORKSPACE/global.json"
 
       - name: Setup DynamoDB Local
-        uses: rrainn/dynamodb-action@v4.0.0
+        uses: rrainn/dynamodb-action@v5.0.0
         with:
           port: 8000
           cors: "*"
@@ -59,7 +59,7 @@ jobs:
           role-session-name: DDBEC-Dafny-Java-Tests
           special-characters-workaround: "true" # Some environments (example: windowsOS) cannot tolerate special characters in a secret key.
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -83,7 +83,7 @@ jobs:
           mpl-submodule-path: ./submodules/MaterialProviders/
 
       - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: "corretto"
           java-version: ${{ matrix.java-version }}

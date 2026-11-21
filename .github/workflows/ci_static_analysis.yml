@@ -15,7 +15,7 @@ jobs:
       id-token: write
     runs-on: codebuild-CryptoToolsCI-linux-aws-database-encryption-sdk-dynamodb-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install setuptools dependency
         run: |
           python -m pip install --upgrade pip
