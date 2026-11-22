@@ -80,18 +80,16 @@ module DynamoToStruct {
     SequenceIsSafeBecauseItIsInMemory(attrNames);
     for i : uint64 := 0 to |attrNames| as uint64 {
       var k := attrNames[i];
-      if !(ReservedPrefix <= k) {
-        if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) {
-          var val := StructuredToAttr(s[k]);
-          if val.Failure? {
-            var result := Failure(E(val.error));
-            assume {:axiom} StructuredToItemEncrypt(s, orig, actions) == result;
-            return result;
-          }
-          m.Put(k, val.value);
-        } else {
-          m.Put(k, orig[k]);
+      if (k in s && k in actions && actions[k] == ENCRYPT_AND_SIGN) {
+        var val := StructuredToAttr(s[k]);
+        if val.Failure? {
+          var result := Failure(E(val.error));
+          assume {:axiom} StructuredToItemEncrypt(s, orig, actions) == result;
+          return result;
         }
+        m.Put(k, val.value);
+      } else {
+        m.Put(k, orig[k]);
       }
     }
     attrNames := SortedSets.ComputeSetToSequence(s.Keys);
