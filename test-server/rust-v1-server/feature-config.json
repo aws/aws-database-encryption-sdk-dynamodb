@@ -17,7 +17,8 @@
     "ddb-transforms",
     "searchable-encryption",
     "beacon-partitions",
-    "plaintext-override"
+    "plaintext-override",
+    "edk-description"
   ],
   "unsupportedFeatures": ["structured-encryption", "legacy-ddbec"]
 }
